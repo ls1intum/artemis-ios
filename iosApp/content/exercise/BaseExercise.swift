@@ -46,7 +46,7 @@ enum Exercise: Decodable {
     case Text(exercise: TextExercise)
     case Unknown(exercise: UnknownExercise)
 
-    var exercise: BaseExercise {
+    var baseExercise: BaseExercise {
         switch self {
         case .FileUpload(exercise: let exercise): return exercise
         case .Modeling(exercise: let exercise): return exercise

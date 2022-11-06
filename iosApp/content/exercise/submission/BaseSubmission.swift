@@ -19,6 +19,12 @@ enum Submission: Decodable {
 
     case Unknown(submission: UnknownSubmission)
 
+    var baseSubmission: BaseSubmission {
+        switch self {
+        case .Unknown(let submission): return submission
+        }
+    }
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: Keys.self)
         let type = try container.decode(String.self, forKey: Keys.type)

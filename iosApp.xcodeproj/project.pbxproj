@@ -33,10 +33,12 @@
 		1C09857C424EF06EB07AAA65 /* ProfileInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C09873399CAC9793A6DC8EE /* ProfileInfo.swift */; };
 		1C0985B3CE7A5E66E0798691 /* NetworkStatusProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C098B3EC06CCDD7482E6214 /* NetworkStatusProvider.swift */; };
 		1C09862283C83AAF29E1CAC2 /* QuizExercise.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C098B64ACC8B8976FA0CC71 /* QuizExercise.swift */; };
+		1C09866AAA2CF0F67DE3A93F /* WebsocketProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C098BA777717DF1739D5BDC /* WebsocketProvider.swift */; };
 		1C0986D542BBDED04A22C64E /* AccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0983700CAF9E8371CBF572 /* AccountViewController.swift */; };
 		1C098774925E90DBEE267581 /* ProgrammingExercise.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0986FF1265F1C9520AF2E7 /* ProgrammingExercise.swift */; };
 		1C0987C868DF1D1E9C6D0CAC /* CourseRegistrationUi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C098A0E14DFDA97AE02334E /* CourseRegistrationUi.swift */; };
 		1C0987DEE262D2932163EE09 /* ObservedValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C098420AF2C5E3E3715BC06 /* ObservedValue.swift */; };
+		1C0987EB3BA3868ADA675C1A /* ReactiveSwiftStomp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C098D2FF5634CFEBA6A29E6 /* ReactiveSwiftStomp.swift */; };
 		1C0988187041042BBA80FC32 /* Saml2Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C09877094E9C0A4803D691D /* Saml2Config.swift */; };
 		1C098828DDCBBCECF757872D /* fab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0980813BE156858016F214 /* fab.swift */; };
 		1C09885405FFF4301292F5A4 /* StudentParticipation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0987CD0531520E6793C0B4 /* StudentParticipation.swift */; };
@@ -70,6 +72,8 @@
 		225EDFFE2905AC2800C7FCA8 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 225EDFFD2905AC2800C7FCA8 /* MarkdownUI */; };
 		226B088C28E30FBC00382C92 /* Factory in Frameworks */ = {isa = PBXBuildFile; productRef = 226B088B28E30FBC00382C92 /* Factory */; };
 		227BD53E28E2570B00D11F92 /* AsyncHTTPClient in Frameworks */ = {isa = PBXBuildFile; productRef = 227BD53D28E2570B00D11F92 /* AsyncHTTPClient */; };
+		22AD700E291857290046BB84 /* SwiftStomp in Frameworks */ = {isa = PBXBuildFile; productRef = 22AD700D291857290046BB84 /* SwiftStomp */; };
+		22AD7011291876C70046BB84 /* Semaphore in Frameworks */ = {isa = PBXBuildFile; productRef = 22AD7010291876C70046BB84 /* Semaphore */; };
 		22B12970290038D600C4910E /* Reachability in Frameworks */ = {isa = PBXBuildFile; productRef = 22B1296F290038D600C4910E /* Reachability */; };
 		22B12972290048A800C4910E /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 22B12971290048A800C4910E /* Localizable.strings */; };
 		22ECB44E28E79354000F5342 /* CombineExt in Frameworks */ = {isa = PBXBuildFile; productRef = 22ECB44D28E79354000F5342 /* CombineExt */; };
@@ -126,9 +130,11 @@
 		1C098B23E64E464D96DA1483 /* UnknownSubmission.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UnknownSubmission.swift; sourceTree = "<group>"; };
 		1C098B3EC06CCDD7482E6214 /* NetworkStatusProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkStatusProvider.swift; sourceTree = "<group>"; };
 		1C098B64ACC8B8976FA0CC71 /* QuizExercise.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QuizExercise.swift; sourceTree = "<group>"; };
+		1C098BA777717DF1739D5BDC /* WebsocketProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = WebsocketProvider.swift; path = websocket/WebsocketProvider.swift; sourceTree = "<group>"; };
 		1C098BE36C1A5738E35FD12A /* DashboardServiceImpl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DashboardServiceImpl.swift; sourceTree = "<group>"; };
 		1C098BE94B1D25D8F4F19DAD /* readme.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = readme.md; sourceTree = "<group>"; };
 		1C098C077ADB678F568185B9 /* LoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
+		1C098D2FF5634CFEBA6A29E6 /* ReactiveSwiftStomp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ReactiveSwiftStomp.swift; path = websocket/ReactiveSwiftStomp.swift; sourceTree = "<group>"; };
 		1C098D73F090099DF8682660 /* BaseParticipation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseParticipation.swift; sourceTree = "<group>"; };
 		1C098DC2127E649084ED7A33 /* datastateui.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = datastateui.swift; sourceTree = "<group>"; };
 		1C098EEF775E01F3EE1F4CEF /* BaseAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseAttachment.swift; sourceTree = "<group>"; };
@@ -150,7 +156,9 @@
 				22ECB44E28E79354000F5342 /* CombineExt in Frameworks */,
 				226B088C28E30FBC00382C92 /* Factory in Frameworks */,
 				22B12970290038D600C4910E /* Reachability in Frameworks */,
+				22AD700E291857290046BB84 /* SwiftStomp in Frameworks */,
 				225EDFFE2905AC2800C7FCA8 /* MarkdownUI in Frameworks */,
+				22AD7011291876C70046BB84 /* Semaphore in Frameworks */,
 				22F8034E28D8EE7F00B55A09 /* SDWebImageSwiftUI in Frameworks */,
 				227BD53E28E2570B00D11F92 /* AsyncHTTPClient in Frameworks */,
 			);
@@ -389,6 +397,8 @@
 				1C098BE36C1A5738E35FD12A /* DashboardServiceImpl.swift */,
 				1C0987164AF272D3D5618C26 /* NetworkStatusProviderImpl.swift */,
 				1C0985F681D1B8D8ADB5CB62 /* CourseRegistrationServiceImpl.swift */,
+				1C098BA777717DF1739D5BDC /* WebsocketProvider.swift */,
+				1C098D2FF5634CFEBA6A29E6 /* ReactiveSwiftStomp.swift */,
 			);
 			path = impl;
 			sourceTree = "<group>";
@@ -451,6 +461,8 @@
 				22ECB44D28E79354000F5342 /* CombineExt */,
 				22B1296F290038D600C4910E /* Reachability */,
 				225EDFFD2905AC2800C7FCA8 /* MarkdownUI */,
+				22AD700D291857290046BB84 /* SwiftStomp */,
+				22AD7010291876C70046BB84 /* Semaphore */,
 			);
 			productName = iosApp;
 			productReference = 7555FF7B242A565900829871 /* iosApp.app */;
@@ -485,8 +497,10 @@
 				227BD53C28E2570B00D11F92 /* XCRemoteSwiftPackageReference "async-http-client" */,
 				226B088A28E30FBC00382C92 /* XCRemoteSwiftPackageReference "Factory" */,
 				22ECB44C28E79354000F5342 /* XCRemoteSwiftPackageReference "CombineExt" */,
-				22B1296E290038D600C4910E /* XCRemoteSwiftPackageReference "Reachability.swift" */,
+				22B1296E290038D600C4910E /* XCRemoteSwiftPackageReference "Reachability" */,
 				225EDFFC2905AC2700C7FCA8 /* XCRemoteSwiftPackageReference "MarkdownUI" */,
+				22AD700C291857280046BB84 /* XCRemoteSwiftPackageReference "SwiftStomp" */,
+				22AD700F291876C70046BB84 /* XCRemoteSwiftPackageReference "Semaphore" */,
 			);
 			productRefGroup = 7555FF7C242A565900829871 /* Products */;
 			projectDirPath = "";
@@ -573,6 +587,8 @@
 				1C098BBA6F7864D9F6A677FD /* BaseAttachment.swift in Sources */,
 				1C098421D0B96D695409D0CB /* UnknownAttachment.swift in Sources */,
 				1C0989224A56E69497F748F0 /* FileAttachment.swift in Sources */,
+				1C09866AAA2CF0F67DE3A93F /* WebsocketProvider.swift in Sources */,
+				1C0987EB3BA3868ADA675C1A /* ReactiveSwiftStomp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -789,12 +805,29 @@
 				version = 1.11.5;
 			};
 		};
-		22B1296E290038D600C4910E /* XCRemoteSwiftPackageReference "Reachability.swift" */ = {
+		22AD700C291857280046BB84 /* XCRemoteSwiftPackageReference "SwiftStomp" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Romixery/SwiftStomp";
+			requirement = {
+				kind = exactVersion;
+				version = 1.1.1;
+			};
+		};
+		22AD700F291876C70046BB84 /* XCRemoteSwiftPackageReference "Semaphore" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/groue/Semaphore";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.0.6;
+			};
+		};
+		22B1296E290038D600C4910E /* XCRemoteSwiftPackageReference "Reachability" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/ashleymills/Reachability.swift";
 			requirement = {
-				kind = exactVersion;
-				version = 5.1.0;
+				kind = versionRange;
+				maximumVersion = 6.0.0;
+				minimumVersion = 5.0.0;
 			};
 		};
 		22ECB44C28E79354000F5342 /* XCRemoteSwiftPackageReference "CombineExt" */ = {
@@ -831,9 +864,19 @@
 			package = 227BD53C28E2570B00D11F92 /* XCRemoteSwiftPackageReference "async-http-client" */;
 			productName = AsyncHTTPClient;
 		};
+		22AD700D291857290046BB84 /* SwiftStomp */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 22AD700C291857280046BB84 /* XCRemoteSwiftPackageReference "SwiftStomp" */;
+			productName = SwiftStomp;
+		};
+		22AD7010291876C70046BB84 /* Semaphore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 22AD700F291876C70046BB84 /* XCRemoteSwiftPackageReference "Semaphore" */;
+			productName = Semaphore;
+		};
 		22B1296F290038D600C4910E /* Reachability */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 22B1296E290038D600C4910E /* XCRemoteSwiftPackageReference "Reachability.swift" */;
+			package = 22B1296E290038D600C4910E /* XCRemoteSwiftPackageReference "Reachability" */;
 			productName = Reachability;
 		};
 		22ECB44D28E79354000F5342 /* CombineExt */ = {
