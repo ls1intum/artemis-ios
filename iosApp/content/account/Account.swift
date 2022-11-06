@@ -27,3 +27,5 @@ struct Account: Decodable {
         case id
     }
 }
+
+typealias User = Account
