@@ -1,6 +1,8 @@
 import Foundation
 
-protocol Exercise {
+protocol BaseExercise: Decodable {
+    static var type: String { get }
+
     var id: Int? { get }
     var title: String? { get }
     var shortName: String? { get }
@@ -28,7 +30,45 @@ protocol Exercise {
     /**
      * Create a copy of this exercise with the participations field replaced.
      */
-    func copyWithUpdatedParticipations(newParticipations: [Participation]) -> Exercise
+    func copyWithUpdatedParticipations(newParticipations: [Participation]) -> BaseExercise
+}
+
+enum Exercise: Decodable {
+
+    fileprivate enum Keys: String, CodingKey {
+        case type
+    }
+
+    case FileUpload(exercise: FileUploadExercise)
+    case Modeling(exercise: ModelingExercise)
+    case Programming(exercise: ProgrammingExercise)
+    case Quiz(exercise: QuizExercise)
+    case Text(exercise: TextExercise)
+    case Unknown(exercise: UnknownExercise)
+
+    var exercise: BaseExercise {
+        switch self {
+        case .FileUpload(exercise: let exercise): return exercise
+        case .Modeling(exercise: let exercise): return exercise
+        case .Programming(exercise: let exercise): return exercise
+        case .Quiz(exercise: let exercise): return exercise
+        case .Text(exercise: let exercise): return exercise
+        case .Unknown(exercise: let exercise): return exercise
+        }
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: Keys.self)
+        let type = try container.decode(String.self, forKey: Keys.type)
+        switch type {
+        case FileUploadExercise.type: self = .FileUpload(exercise: try FileUploadExercise(from: decoder))
+        case ModelingExercise.type: self = .Modeling(exercise: try ModelingExercise(from: decoder))
+        case ProgrammingExercise.type: self = .Programming(exercise: try ProgrammingExercise(from: decoder))
+        case QuizExercise.type: self = .Quiz(exercise: try QuizExercise(from: decoder))
+        case TextExercise.type: self = .Text(exercise: try TextExercise(from: decoder))
+        default: self = .Unknown(exercise: try UnknownExercise(from: decoder))
+        }
+    }
 }
 
 enum Difficulty: String, Decodable {
@@ -105,7 +145,7 @@ fileprivate struct CategoryImpl: Decodable {
     let color: String
 }
 
-extension Exercise {
+extension BaseExercise {
     //-------------------------------------------------------------
     // Copy of https://github.com/ls1intum/Artemis/blob/5c13e2e1b5b6d81594b9123946f040cbf6f0cfc6/src/main/webapp/app/exercises/shared/exercise/exercise.utils.ts
     // TODO: Remove me once this is calculated on the server.
@@ -142,7 +182,7 @@ extension Exercise {
             return participationStatusForModelingTextFileUploadExercise(participation: studentParticipation!)
         }
 
-        let initState = studentParticipation?.initializationState
+        let initState = studentParticipation?.baseParticipation.initializationState
 
         // The following evaluations are relevant for programming exercises in general and for modeling, text and file upload exercises that don't have participations.
         if (studentParticipation == nil ||
@@ -157,7 +197,7 @@ extension Exercise {
             } else {
                 return ParticipationStatus.Uninitialized
             }
-        } else if (studentParticipation!.initializationState == InitializationState.INITIALIZED) {
+        } else if (studentParticipation!.baseParticipation.initializationState == InitializationState.INITIALIZED) {
             return ParticipationStatus.Initialized(participation: studentParticipation!)
         }
         return ParticipationStatus.Inactive(participation: studentParticipation!)
@@ -170,13 +210,13 @@ extension Exercise {
 
     private func participationStatusForQuizExercise(exercise: QuizExercise) -> ParticipationStatus {
         if (exercise.status == QuizStatus.CLOSED) {
-            if (!(exercise.studentParticipations ?? []).isEmpty && !(exercise.studentParticipations!.first!.results ?? []).isEmpty) {
+            if (!(exercise.studentParticipations ?? []).isEmpty && !(exercise.studentParticipations!.first!.baseParticipation.results ?? []).isEmpty) {
                 return ParticipationStatus.QuizFinished(participation: exercise.studentParticipations!.first!)
             }
 
             return ParticipationStatus.QuizNotParticipated
         } else if (!(exercise.studentParticipations ?? []).isEmpty) {
-            let initState = exercise.studentParticipations!.first!.initializationState
+            let initState = exercise.studentParticipations!.first!.baseParticipation.initializationState
             if (initState == InitializationState.INITIALIZED) {
                 return ParticipationStatus.QuizActive
             } else if (initState == InitializationState.FINISHED) {
@@ -191,13 +231,13 @@ extension Exercise {
     }
 
     private func participationStatusForModelingTextFileUploadExercise(participation: Participation) -> ParticipationStatus {
-        if (participation.initializationState == InitializationState.INITIALIZED) {
+        if (participation.baseParticipation.initializationState == InitializationState.INITIALIZED) {
             if (hasDueDataPassed(participation: participation)) {
                 return ParticipationStatus.ExerciseMissed
             } else {
                 return ParticipationStatus.ExerciseActive
             }
-        } else if (participation.initializationState == InitializationState.FINISHED) {
+        } else if (participation.baseParticipation.initializationState == InitializationState.FINISHED) {
             return ParticipationStatus.ExerciseSubmitted(participation: participation)
         } else {
             return ParticipationStatus.Uninitialized
@@ -220,7 +260,7 @@ extension Exercise {
         if (dueDate == nil) {
             return nil
         } else {
-            return participation.initializationDate ?? dueDate
+            return participation.baseParticipation.initializationDate ?? dueDate
         }
     }
 }

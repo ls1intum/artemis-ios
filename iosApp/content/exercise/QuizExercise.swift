@@ -1,6 +1,11 @@
 import Foundation
 
-struct QuizExercise: Exercise, Decodable {
+struct QuizExercise: BaseExercise, Decodable {
+
+    public static var type: String {
+        "quiz"
+    }
+
     var id: Int? = nil
     var title: String? = nil
     var shortName: String? = nil
@@ -33,7 +38,7 @@ struct QuizExercise: Exercise, Decodable {
     var quizMode: QuizMode = QuizMode.INDIVIDUAL
     var quizBatches: [QuizBatch] = []
 
-    func copyWithUpdatedParticipations(newParticipations: [Participation]) -> Exercise {
+    func copyWithUpdatedParticipations(newParticipations: [Participation]) -> BaseExercise {
         var clone = self
         clone[keyPath: \.studentParticipations] = newParticipations
         return clone

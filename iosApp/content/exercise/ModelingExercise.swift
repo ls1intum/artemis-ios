@@ -1,6 +1,10 @@
 import Foundation
 
-struct ModelingExercise: Exercise, Decodable {
+struct ModelingExercise: BaseExercise {
+    public static var type: String {
+        "modeling"
+    }
+
     var id: Int? = nil
     var title: String? = nil
     var shortName: String? = nil
@@ -27,7 +31,7 @@ struct ModelingExercise: Exercise, Decodable {
     var exampleSolutionModel: String? = nil
     var exampleSolutionExplanation: String? = nil
 
-    func copyWithUpdatedParticipations(newParticipations: [Participation]) -> Exercise {
+    func copyWithUpdatedParticipations(newParticipations: [Participation]) -> BaseExercise {
         var clone = self
         clone[keyPath: \.studentParticipations] = newParticipations
         return clone
