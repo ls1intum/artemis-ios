@@ -1,15 +1,16 @@
 import Foundation
 import Combine
+import RxSwift
 
 protocol ServerCommunicationProvider {
 
     /**
      * Emits the currently selected server. Emits again, when the user changes their artemis instance in the settings.
      */
-    var serverUrl: AnyPublisher<String, Never> { get }
+    var serverUrl: Observable<String> { get }
 
     /**
      * Just returns the domain of the serverUrl.
      */
-    var host: AnyPublisher<String, Never> { get }
+    var host: Observable<String> { get }
 }

@@ -1,6 +1,5 @@
 import Foundation
-import Combine
-import CombineExt
+import RxSwift
 
 /**
  * Provides data about which instance of artemis is communicated with.
@@ -10,5 +9,6 @@ class ServerCommunicationProviderImpl: ServerCommunicationProvider {
     /**
      * The currently selected server.
      */
-    var serverUrl: AnyPublisher<String, Never> = Just("https://artemis.ase.in.tum.de/").eraseToAnyPublisher()
+    var serverUrl: Observable<String> = Observable.of("https://artemis.ase.in.tum.de/")
+    var host: Observable<String> = Observable.of("artemis.ase.in.tum.de")
 }

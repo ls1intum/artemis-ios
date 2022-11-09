@@ -42,9 +42,15 @@ class WebsocketProvider {
                     }
                     )
                 }
-                .share(replay: 1)
+                .multicast()
+                .connect()
                 .eraseToAnyPublisher()
     }
 
+    func subscribe<T>(channel: String, type: T.Type) -> AnyPublisher<T, Never> where T: Decodable {
+        session.transformLatest { subscriber, currentSession in
+            try! await subscriber.sendAll(publisher: currentSession.subscribe(destination: channel, type: type))
+        }
+    }
 
 }

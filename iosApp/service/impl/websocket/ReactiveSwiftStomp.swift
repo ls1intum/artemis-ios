@@ -10,6 +10,7 @@ class ReactiveSwiftStomp: SwiftStompDelegate {
 
     private let subscriptionMutex = AsyncSemaphore(value: 1)
 
+    //Accesses must be guarded by the mutex to guarantee thread safety
     private var subscriptionCounter: [String: Int] = [:]
 
     init(swiftStomp: SwiftStomp, jsonProvider: JsonProvider) {
@@ -50,6 +51,7 @@ class ReactiveSwiftStomp: SwiftStompDelegate {
                 try await subscriptionMutex.waitUnlessCancelled()
                 let currentCounter = subscriptionCounter[destination] ?? 0
 
+                //Only subscribe if the destination does not have a subscriber yet.
                 if currentCounter == 0 {
                     swiftStomp.subscribe(to: destination)
                 }
