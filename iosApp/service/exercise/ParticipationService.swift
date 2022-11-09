@@ -1,11 +1,11 @@
 import Foundation
-import Combine
+import RxSwift
 
 protocol ParticipationService {
     /**
      * Subscribed to the users personal participations
      */
-    var personalSubmissionUpdater: AnyPublisher<BaseSubmission, Never> { get }
+    var personalSubmissionUpdater: Observable<BaseSubmission> { get }
 
     /**
      * @param isPersonalParticipation whether the participation belongs to the user (by being a student) or not (by being an instructor)
@@ -16,7 +16,7 @@ protocol ParticipationService {
             isPersonalParticipation: Bool,
             personal: Bool,
             fetchPending: Bool
-    ) -> AnyPublisher<ProgrammingSubmissionStateData?, Never>
+    ) -> Observable<ProgrammingSubmissionStateData?>
 
     /**
      * Subscribing for general changes in a participation object. This will triggered if a new result is received by the service.
@@ -24,7 +24,7 @@ protocol ParticipationService {
      *
      * **See also:** [js source](https://github.com/ls1intum/Artemis/blob/5c13e2e1b5b6d81594b9123946f040cbf6f0cfc6/src/main/webapp/app/overview/participation-websocket.service.ts#L228)
      */
-    func subscribeForParticipationChanges() -> AnyPublisher<StudentParticipation, Never>
+    func subscribeForParticipationChanges() -> Observable<StudentParticipation>
 }
 
 enum ProgrammingSubmissionStateData {

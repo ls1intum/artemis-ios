@@ -1,7 +1,7 @@
 import Foundation
 import SwiftUI
 import Factory
-import Combine
+import RxSwift
 
 @MainActor class CourseRegistrationViewController: ObservableObject {
 
@@ -12,12 +12,11 @@ import Combine
 
     @Published var registrableCourses: DataState<[SemesterCourses]> = .loading
 
-    private let reloadRegistrableCoursesSubject = PassthroughSubject<Void, Never>()
+    private let reloadRegistrableCoursesSubject = PublishSubject<Void>()
 
     init() {
-        let registrableCoursesPublisher: AnyPublisher<DataState<[SemesterCourses]>, Never> =
-                accountService.authenticationData
-                        .combineLatest(serverCommunicationProvider.serverUrl, reloadRegistrableCoursesSubject.prepend(()))
+        let registrableCoursesPublisher: Observable<DataState<[SemesterCourses]>> =
+                Observable.combineLatest(accountService.authenticationData, serverCommunicationProvider.serverUrl, reloadRegistrableCoursesSubject.startWith(()))
                         .transformLatest { [self] sub, data in
                             let (authData, serverUrl, _) = data
 
@@ -32,7 +31,7 @@ import Combine
                                 } catch {
 
                                 }
-                            case .NotLoggedIn: sub.send(DataState.suspended(error: nil))
+                            case .NotLoggedIn: sub.onNext(DataState.suspended(error: nil))
                             }
                         }
                         .map { (dataState: DataState<[Course]>) in
@@ -43,15 +42,16 @@ import Combine
                                         }
                             })
                         }
-                        .eraseToAnyPublisher()
 
         registrableCoursesPublisher
+                .publisher
+                .replaceWithDataStateError()
                 .receive(on: DispatchQueue.main)
                 .assign(to: &$registrableCourses)
     }
 
     func reloadRegistrableCourses() {
-        reloadRegistrableCoursesSubject.send(())
+        reloadRegistrableCoursesSubject.onNext(())
     }
 }
 

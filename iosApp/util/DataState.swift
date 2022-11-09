@@ -1,8 +1,5 @@
-//
-// Created by Tim Ortel on 27.09.22.
-//
-
 import Foundation
+import RxSwift
 import Combine
 
 /**
@@ -37,10 +34,10 @@ enum DataState<T> {
 }
 
 func retryOnInternet<T>(
-        connectivity: AnyPublisher<NetworkStatus, Never>,
+        connectivity: Observable<NetworkStatus>,
         baseBackoffMillis: UInt64 = 2000,
         perform: @escaping () async -> NetworkResponse<T>
-) -> AnyPublisher<DataState<T>, Never> {
+) -> Observable<DataState<T>> {
     connectivity
             .transformLatest { subscription, networkStatus in
                 switch networkStatus {
@@ -49,15 +46,15 @@ func retryOnInternet<T>(
                     var currentBackoff = baseBackoffMillis
 
                     while true {
-                        subscription.send(DataState<T>.loading)
+                        subscription.onNext(DataState<T>.loading)
 
                         let response: NetworkResponse<T> = await perform()
                         switch response {
                         case .response(let data):
-                            subscription.send(DataState<T>.done(response: data))
+                            subscription.onNext(DataState<T>.done(response: data))
                             return
                         case .failure(let error):
-                            subscription.send(DataState<T>.failure(error: error))
+                            subscription.onNext(DataState<T>.failure(error: error))
                         }
 
                         //Perform exponential backoff
@@ -69,7 +66,14 @@ func retryOnInternet<T>(
                         currentBackoff *= 2
                     }
                 case .unavailable:
-                    subscription.send(DataState<T>.suspended(error: nil))
+                    subscription.onNext(DataState<T>.suspended(error: nil))
                 }
             }
+}
+
+extension Publisher {
+    func replaceWithDataStateError<T>() -> AnyPublisher<Output, Never> where Output == DataState<T> {
+        `catch` { failure in Just(.failure(error: failure)) }
+                .eraseToAnyPublisher()
+    }
 }

@@ -1,11 +1,9 @@
-//
-// Created by Tim Ortel on 26.09.22.
-//
-
 import Foundation
 import Combine
 import AsyncHTTPClient
 import NIO
+import RxCombine
+import RxSwift
 
 class AccountServiceImpl: AccountService {
 
@@ -16,23 +14,25 @@ class AccountServiceImpl: AccountService {
     /**
      * Only set if the user logged in without remember me.
      */
-    private let inMemoryJWT: CurrentValueSubject<String?, Never>
+    private let inMemoryJWT: BehaviorSubject<String?>
 
-    let authenticationData: AnyPublisher<AuthenticationData, Never>
+    let authenticationData: Observable<AuthenticationData>
 
     init(serverCommunicationProvider: ServerCommunicationProvider, jsonProvider: JsonProvider, networkStatusProvider: NetworkStatusProvider) {
         self.serverCommunicationProvider = serverCommunicationProvider
         self.jsonProvider = jsonProvider
         self.networkStatusProvider = networkStatusProvider
 
-        inMemoryJWT = CurrentValueSubject(nil)
+        inMemoryJWT = BehaviorSubject(value: nil)
+
+        let loginJwtPublisher: Observable<String?> = UserDefaults
+                .standard
+                .publisher(for: \.loginJwt)
+                .asObservable()
 
         authenticationData =
-                UserDefaults
-                        .standard
-                        .publisher(for: \.loginJwt)
-                        .combineLatest(inMemoryJWT)
-                        .map { storedJWT, inMemoryJWT in
+                Observable
+                        .combineLatest(loginJwtPublisher, inMemoryJWT) { storedJWT, inMemoryJWT in
                             inMemoryJWT ?? storedJWT
                         }
                         .transformLatest { sub, key in
@@ -51,19 +51,17 @@ class AccountServiceImpl: AccountService {
                                                 .map { account in
                                                     AuthenticationData.LoggedIn(authToken: setKey, account: account)
                                                 }
-                                                .eraseToAnyPublisher()
                                 )
                             } else {
-                                sub.send(AuthenticationData.NotLoggedIn)
+                                sub.onNext(AuthenticationData.NotLoggedIn)
                             }
                         }
                         .share(replay: 1)
-                        .eraseToAnyPublisher()
     }
 
     func login(username: String, password: String, rememberMe: Bool) async -> LoginResponse {
         let client = HTTPClient(eventLoopGroupProvider: .createNew)
-        let serverUrl = await serverCommunicationProvider.serverUrl.first().values.first(where: { _ in true })!
+        let serverUrl = (try? await serverCommunicationProvider.serverUrl.first().value) ?? ""
 
         do {
             let requestBodyData = try jsonProvider.encoder.encode(LoginBody(username: username, password: password, rememberMe: rememberMe))
@@ -85,7 +83,7 @@ class AccountServiceImpl: AccountService {
                 if (rememberMe) {
                     UserDefaults.standard.loginJwt = loginResponse.id_token
                 } else {
-                    inMemoryJWT.send(loginResponse.id_token)
+                    inMemoryJWT.onNext(loginResponse.id_token)
                 }
 
                 try client.syncShutdown()
@@ -106,11 +104,11 @@ class AccountServiceImpl: AccountService {
     }
 
     func isLoggedIn() -> Bool {
-        inMemoryJWT.value != nil || UserDefaults.standard.loginJwt != nil
+        (try? inMemoryJWT.value() ?? nil) != nil || UserDefaults.standard.loginJwt != nil
     }
 
     func logout() {
-        inMemoryJWT.value = nil
+        inMemoryJWT.onNext(nil)
         UserDefaults.standard.loginJwt = nil
     }
 

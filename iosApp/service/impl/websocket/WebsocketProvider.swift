@@ -1,5 +1,5 @@
 import Foundation
-import Combine
+import RxSwift
 import SwiftStomp
 
 class WebsocketProvider {
@@ -8,20 +8,20 @@ class WebsocketProvider {
     private let serverCommunicationProvider: ServerCommunicationProvider
     private let accountService: AccountService
 
-    private let session: AnyPublisher<ReactiveSwiftStomp, Never>
+    private let session: Observable<ReactiveSwiftStomp>
 
     init(jsonProvider: JsonProvider, serverCommunicationProvider: ServerCommunicationProvider, accountService: AccountService) {
         self.jsonProvider = jsonProvider
         self.serverCommunicationProvider = serverCommunicationProvider
         self.accountService = accountService
 
-        session = serverCommunicationProvider.host
-                .combineLatest(accountService.authenticationData)
+        session =
+                Observable.combineLatest(serverCommunicationProvider.host, accountService.authenticationData)
                 .transformLatest { subscriber, data in
                     let (host, authData) = data
 
                     try! await subscriber.sendAll(publisher:
-                    AnyPublisher.create { innerSub in
+                    Observable.create { innerSub in
                         var url = "wss://" + host + "/websocket/tracker/websocket"
                         switch authData {
                         case .NotLoggedIn:
@@ -34,23 +34,20 @@ class WebsocketProvider {
                         let session = ReactiveSwiftStomp(swiftStomp: swiftStomp, jsonProvider: jsonProvider)
                         session.connect()
 
-                        innerSub.send(session)
+                        innerSub.onNext(session)
 
-                        return AnyCancellable {
+                        return Disposables.create {
                             session.disconnect()
                         }
                     }
                     )
                 }
-                .multicast()
-                .connect()
-                .eraseToAnyPublisher()
+                .share(replay: 1, scope: .whileConnected)
     }
 
-    func subscribe<T>(channel: String, type: T.Type) -> AnyPublisher<T, Never> where T: Decodable {
+    func subscribe<T>(channel: String, type: T.Type) -> Observable<T> where T: Decodable {
         session.transformLatest { subscriber, currentSession in
             try! await subscriber.sendAll(publisher: currentSession.subscribe(destination: channel, type: type))
         }
     }
-
 }

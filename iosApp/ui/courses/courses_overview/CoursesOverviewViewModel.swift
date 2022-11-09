@@ -1,12 +1,9 @@
-//
-// Created by Tim Ortel on 27.09.22.
-//
-
 import Foundation
 import SwiftUI
 import Factory
 import Combine
 import CombineExt
+import RxSwift
 
 extension CoursesOverviewView {
     @MainActor class CoursesOverviewViewModel: ObservableObject {
@@ -21,12 +18,12 @@ extension CoursesOverviewView {
 
         @Published var serverUrl: String = ""
 
-        private let requestReloadDashboard = ReplaySubject<Void, Never>(bufferSize: 1)
+        private let requestReloadDashboard = PublishSubject<Void>()
 
         init() {
             accountService
                     .authenticationData
-                    .eraseToAnyPublisher()
+                    .publisher
                     .replaceError(with: AuthenticationData.NotLoggedIn)
                     .receive(on: DispatchQueue.main)
                     .map { authData in
@@ -41,34 +38,41 @@ extension CoursesOverviewView {
 
             serverCommunicationProvider
                     .serverUrl
+                    .publisher
+                    .replaceError(with: "")
                     .receive(on: DispatchQueue.main)
                     .assign(to: &$serverUrl)
 
-            let dashboardPublisher: AnyPublisher<DataState<Dashboard>, Never> =
-                    accountService
-                            .authenticationData
-                            .combineLatest(serverCommunicationProvider.serverUrl, requestReloadDashboard.prepend(()))
+            let dashboardPublisher: Observable<DataState<Dashboard>> =
+                    Observable
+                            .combineLatest(
+                                    accountService.authenticationData,
+                                    serverCommunicationProvider.serverUrl,
+                                    requestReloadDashboard.startWith(())
+                            )
                             .transformLatest { [self] (continuation, data) in
                                 let (authData, serverUrl, _) = data
                                 switch authData {
                                 case .LoggedIn(authToken: let authToken, _):
                                     try? await continuation.sendAll(publisher:
-                                        retryOnInternet(connectivity: networkStatusProvider.currentNetworkStatus) { [self] in
-                                            await dashboardService.loadDashboard(authorizationToken: authToken, serverUrl: serverUrl)
-                                        }
+                                    retryOnInternet(connectivity: networkStatusProvider.currentNetworkStatus) { [self] in
+                                        await dashboardService.loadDashboard(authorizationToken: authToken, serverUrl: serverUrl)
+                                    }
                                     )
-                                case .NotLoggedIn: continuation.send(DataState<Dashboard>.suspended(error: nil))
+                                case .NotLoggedIn: continuation.onNext(DataState<Dashboard>.suspended(error: nil))
                                 }
                             }
 
 
             dashboardPublisher
+                    .publisher
+                    .replaceWithDataStateError()
                     .receive(on: DispatchQueue.main)
                     .assign(to: &$dashboard)
         }
 
         func reloadDashboard() async {
-            requestReloadDashboard.send(())
+            requestReloadDashboard.onNext(())
         }
 
         func logout() {

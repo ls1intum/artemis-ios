@@ -1,7 +1,3 @@
-//
-// Created by Tim Ortel on 24.09.22.
-//
-
 import Foundation
 import SwiftUI
 

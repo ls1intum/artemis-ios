@@ -20,18 +20,32 @@ struct CourseRegistrationView: View {
 
     init() {
         bearer = ObservedValue(
-                publisher: accountService.authenticationData.map { authData in
+                publisher:
+                accountService
+                        .authenticationData
+                        .map { authData in
                             switch authData {
                             case .NotLoggedIn: return ""
                             case .LoggedIn(authToken: let authToken, _): return "Bearer " + authToken
                             }
                         }
+                        .publisher
+                        .replaceError(with: "")
                         .eraseToAnyPublisher(),
-                initialValue: "")
-        serverUrl = ObservedValue<String?>(publisher: serverCommunicationProvider.serverUrl.map {
-                    $0
-                }
-                .eraseToAnyPublisher(), initialValue: nil)
+                initialValue: ""
+        )
+        serverUrl = ObservedValue<String?>(
+                publisher:
+                serverCommunicationProvider
+                        .serverUrl
+                        .map {
+                            $0
+                        }
+                        .publisher
+                        .replaceError(with: nil)
+                        .eraseToAnyPublisher(),
+                initialValue: nil
+        )
     }
 
     var body: some View {

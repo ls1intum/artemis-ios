@@ -46,7 +46,7 @@
 		1C0989224A56E69497F748F0 /* FileAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C098623B94782D9C4A11BDF /* FileAttachment.swift */; };
 		1C0989531F87BBEBC27C669C /* CoursesOverviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C098ADF152F67124A5F190C /* CoursesOverviewView.swift */; };
 		1C098983990545800E8F932E /* readme.md in Sources */ = {isa = PBXBuildFile; fileRef = 1C098BE94B1D25D8F4F19DAD /* readme.md */; };
-		1C0989A1EFB6D3CE33CECD27 /* AsyncSequenceToCombine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C098A9DA1D0970B84C2BECD /* AsyncSequenceToCombine.swift */; };
+		1C0989A1EFB6D3CE33CECD27 /* ObservableUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C098A9DA1D0970B84C2BECD /* ObservableUtil.swift */; };
 		1C0989F5F99E3E5D8E09A81B /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 1C098681E5B54683749B1859 /* .gitignore */; };
 		1C098A4CB53F1A557E21C9AD /* CourseRegistrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C09841E56980818F78990CA /* CourseRegistrationViewController.swift */; };
 		1C098A905080872B673330FC /* theming.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0986D9D9E11B706FF4C7F8 /* theming.swift */; };
@@ -76,6 +76,7 @@
 		228D3AB7291C234300BF6239 /* RxBlocking in Frameworks */ = {isa = PBXBuildFile; productRef = 228D3AB6291C234300BF6239 /* RxBlocking */; };
 		228D3AB9291C234300BF6239 /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = 228D3AB8291C234300BF6239 /* RxCocoa */; };
 		228D3ABB291C234300BF6239 /* RxRelay in Frameworks */ = {isa = PBXBuildFile; productRef = 228D3ABA291C234300BF6239 /* RxRelay */; };
+		228D3ABE291C517400BF6239 /* RxCombine in Frameworks */ = {isa = PBXBuildFile; productRef = 228D3ABD291C517400BF6239 /* RxCombine */; };
 		22AD700E291857290046BB84 /* SwiftStomp in Frameworks */ = {isa = PBXBuildFile; productRef = 22AD700D291857290046BB84 /* SwiftStomp */; };
 		22AD7011291876C70046BB84 /* Semaphore in Frameworks */ = {isa = PBXBuildFile; productRef = 22AD7010291876C70046BB84 /* Semaphore */; };
 		22B12970290038D600C4910E /* Reachability in Frameworks */ = {isa = PBXBuildFile; productRef = 22B1296F290038D600C4910E /* Reachability */; };
@@ -127,7 +128,7 @@
 		1C098A0E14DFDA97AE02334E /* CourseRegistrationUi.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CourseRegistrationUi.swift; sourceTree = "<group>"; };
 		1C098A1D279F2DE664C4C4FB /* CoursesOverviewViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoursesOverviewViewModel.swift; sourceTree = "<group>"; };
 		1C098A490B00EB0A8E14EB25 /* AccountView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccountView.swift; sourceTree = "<group>"; };
-		1C098A9DA1D0970B84C2BECD /* AsyncSequenceToCombine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AsyncSequenceToCombine.swift; sourceTree = "<group>"; };
+		1C098A9DA1D0970B84C2BECD /* ObservableUtil.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObservableUtil.swift; sourceTree = "<group>"; };
 		1C098ADF152F67124A5F190C /* CoursesOverviewView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoursesOverviewView.swift; sourceTree = "<group>"; };
 		1C098ADFDCCE7E60744694F8 /* Dashboard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Dashboard.swift; sourceTree = "<group>"; };
 		1C098AFF95AB352EF5A47A4C /* AccountService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccountService.swift; sourceTree = "<group>"; };
@@ -162,6 +163,7 @@
 				228D3AB7291C234300BF6239 /* RxBlocking in Frameworks */,
 				228D3AB9291C234300BF6239 /* RxCocoa in Frameworks */,
 				226B088C28E30FBC00382C92 /* Factory in Frameworks */,
+				228D3ABE291C517400BF6239 /* RxCombine in Frameworks */,
 				22B12970290038D600C4910E /* Reachability in Frameworks */,
 				22AD700E291857290046BB84 /* SwiftStomp in Frameworks */,
 				225EDFFE2905AC2800C7FCA8 /* MarkdownUI in Frameworks */,
@@ -263,7 +265,7 @@
 			children = (
 				1C0989F63763E9A7692C4DBE /* NetworkResponse.swift */,
 				1C0986A12977F0E8A60950B5 /* DataState.swift */,
-				1C098A9DA1D0970B84C2BECD /* AsyncSequenceToCombine.swift */,
+				1C098A9DA1D0970B84C2BECD /* ObservableUtil.swift */,
 				1C098B01894061710A23FB0F /* datasizeutil.swift */,
 				1C098280852E9E63A2B85CC6 /* http */,
 			);
@@ -475,6 +477,7 @@
 				228D3AB6291C234300BF6239 /* RxBlocking */,
 				228D3AB8291C234300BF6239 /* RxCocoa */,
 				228D3ABA291C234300BF6239 /* RxRelay */,
+				228D3ABD291C517400BF6239 /* RxCombine */,
 			);
 			productName = iosApp;
 			productReference = 7555FF7B242A565900829871 /* iosApp.app */;
@@ -509,11 +512,12 @@
 				227BD53C28E2570B00D11F92 /* XCRemoteSwiftPackageReference "async-http-client" */,
 				226B088A28E30FBC00382C92 /* XCRemoteSwiftPackageReference "Factory" */,
 				22ECB44C28E79354000F5342 /* XCRemoteSwiftPackageReference "CombineExt" */,
-				22B1296E290038D600C4910E /* XCRemoteSwiftPackageReference "Reachability.swift" */,
+				22B1296E290038D600C4910E /* XCRemoteSwiftPackageReference "Reachability" */,
 				225EDFFC2905AC2700C7FCA8 /* XCRemoteSwiftPackageReference "MarkdownUI" */,
 				22AD700C291857280046BB84 /* XCRemoteSwiftPackageReference "SwiftStomp" */,
 				22AD700F291876C70046BB84 /* XCRemoteSwiftPackageReference "Semaphore" */,
 				228D3AB5291C234300BF6239 /* XCRemoteSwiftPackageReference "RxSwift" */,
+				228D3ABC291C517400BF6239 /* XCRemoteSwiftPackageReference "RxCombine" */,
 			);
 			productRefGroup = 7555FF7C242A565900829871 /* Products */;
 			projectDirPath = "";
@@ -559,7 +563,7 @@
 				1C098C823B0ED6C8DDA449C2 /* Dashboard.swift in Sources */,
 				1C09848B8BCF245F9A76F4EA /* DashboardServiceImpl.swift in Sources */,
 				1C098D65337401C654D0F56D /* DataState.swift in Sources */,
-				1C0989A1EFB6D3CE33CECD27 /* AsyncSequenceToCombine.swift in Sources */,
+				1C0989A1EFB6D3CE33CECD27 /* ObservableUtil.swift in Sources */,
 				1C0986D542BBDED04A22C64E /* AccountViewController.swift in Sources */,
 				1C09842337C756759BA07179 /* AccountView.swift in Sources */,
 				1C0985B3CE7A5E66E0798691 /* NetworkStatusProvider.swift in Sources */,
@@ -827,6 +831,14 @@
 				minimumVersion = 6.0.0;
 			};
 		};
+		228D3ABC291C517400BF6239 /* XCRemoteSwiftPackageReference "RxCombine" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/CombineCommunity/RxCombine.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
 		22AD700C291857280046BB84 /* XCRemoteSwiftPackageReference "SwiftStomp" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Romixery/SwiftStomp";
@@ -843,7 +855,7 @@
 				minimumVersion = 0.0.6;
 			};
 		};
-		22B1296E290038D600C4910E /* XCRemoteSwiftPackageReference "Reachability.swift" */ = {
+		22B1296E290038D600C4910E /* XCRemoteSwiftPackageReference "Reachability" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/ashleymills/Reachability.swift";
 			requirement = {
@@ -901,6 +913,11 @@
 			package = 228D3AB5291C234300BF6239 /* XCRemoteSwiftPackageReference "RxSwift" */;
 			productName = RxRelay;
 		};
+		228D3ABD291C517400BF6239 /* RxCombine */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 228D3ABC291C517400BF6239 /* XCRemoteSwiftPackageReference "RxCombine" */;
+			productName = RxCombine;
+		};
 		22AD700D291857290046BB84 /* SwiftStomp */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 22AD700C291857280046BB84 /* XCRemoteSwiftPackageReference "SwiftStomp" */;
@@ -913,7 +930,7 @@
 		};
 		22B1296F290038D600C4910E /* Reachability */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 22B1296E290038D600C4910E /* XCRemoteSwiftPackageReference "Reachability.swift" */;
+			package = 22B1296E290038D600C4910E /* XCRemoteSwiftPackageReference "Reachability" */;
 			productName = Reachability;
 		};
 		22ECB44D28E79354000F5342 /* CombineExt */ = {

@@ -1,7 +1,6 @@
 import Foundation
 import SwiftStomp
-import Combine
-import CombineExt
+import RxSwift
 import Semaphore
 
 class ReactiveSwiftStomp: SwiftStompDelegate {
@@ -23,7 +22,7 @@ class ReactiveSwiftStomp: SwiftStompDelegate {
 
     private let jsonProvider: JsonProvider
 
-    private var messagePublisher = PassthroughSubject<StompMessage, Never>()
+    private var messagePublisher = PublishSubject<StompMessage>()
 
     func connect() {
         swiftStomp.connect()
@@ -38,14 +37,14 @@ class ReactiveSwiftStomp: SwiftStompDelegate {
         if let message = message as? String {
             let stompMessage = StompMessage(destination: destination, data: Data(message.utf8))
 
-            messagePublisher.send(stompMessage)
+            messagePublisher.onNext(stompMessage)
         } else if let message = message as? Data {
-            messagePublisher.send(StompMessage(destination: destination, data: message))
+            messagePublisher.onNext(StompMessage(destination: destination, data: message))
         }
     }
 
-    func subscribe<T>(destination: String, type: T.Type) -> AnyPublisher<T, Never> where T: Decodable {
-        AnyPublisher.create { [self] subscriber in
+    func subscribe<T>(destination: String, type: T.Type) -> Observable<T> where T: Decodable {
+        Observable.create { [self] subscriber in
             let task = Task {
                 //Guard the access using a mutex.
                 try await subscriptionMutex.waitUnlessCancelled()
@@ -60,20 +59,19 @@ class ReactiveSwiftStomp: SwiftStompDelegate {
 
                 subscriptionMutex.signal()
 
-                let topicPublisher: AnyPublisher<T, Never> = messagePublisher
+                let topicPublisher: Observable<T> = messagePublisher
                         .filter { message in
                             message.destination == destination
                         }
                         .map { [self] message in
                             try! jsonProvider.decoder.decode(type, from: message.data)
                         }
-                        .eraseToAnyPublisher()
 
                 try await subscriber.sendAll(publisher: topicPublisher)
             }
 
 
-            return AnyCancellable { [self] in
+            return Disposables.create { [self] in
                 task.cancel()
 
                 Task {
@@ -102,15 +100,15 @@ class ReactiveSwiftStomp: SwiftStompDelegate {
     }
 
     func onReceipt(swiftStomp: SwiftStomp, receiptId: String) {
-        <#code#>
+
     }
 
     func onError(swiftStomp: SwiftStomp, briefDescription: String, fullDescription: String?, receiptId: String?, type: StompErrorType) {
-        <#code#>
+
     }
 
     func onSocketEvent(eventName: String, description: String) {
-        <#code#>
+
     }
 }
 

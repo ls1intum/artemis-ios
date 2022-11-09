@@ -1,10 +1,6 @@
-//
-// Created by Tim Ortel on 01.10.22.
-// Copyright (c) 2022 orgName. All rights reserved.
-//
-
 import Foundation
 import Combine
+import RxSwift
 
 /**
  * Adapted from: https://www.swiftbysundell.com/articles/creating-combine-compatible-versions-of-async-await-apis/
@@ -31,33 +27,32 @@ extension AsyncSequence {
     }
 }
 
-extension Publisher {
-    func transformLatest<T>(_ transform: @escaping (Publishers.Create<T, Failure>.Subscriber, Output) async -> ()) -> AnyPublisher<T, Failure> {
+extension Observable {
+    func transformLatest<T>(_ transform: @escaping (AnyObserver<T>, Element) async -> ()) -> Observable<T> {
         self
                 .map { output in
-                    AnyPublisher<T, Failure>.create { subscription in
+                    Observable<T>.create { subscription in
                         let task = Task {
                             await transform(subscription, output)
                         }
 
-                        return AnyCancellable {
+                        return Disposables.create {
                             task.cancel()
                         }
                     }
                 }
-                .switchToLatest()
-                .eraseToAnyPublisher()
+                .switchLatest()
     }
 }
 
-extension Publishers.Create.Subscriber {
+extension AnyObserver {
 
     /**
      * Sends all elements received by the publisher to the original caller.
      */
-    func sendAll(publisher: AnyPublisher<Output, Failure>) async throws {
+    func sendAll(publisher: Observable<Element>) async throws {
         for try await v in publisher.values {
-            send(v)
+            onNext(v)
         }
     }
 }

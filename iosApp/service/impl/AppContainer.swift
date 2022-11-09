@@ -1,8 +1,3 @@
-//
-// Created by Tim Ortel on 27.09.22.
-//
-//
-
 import Factory
 
 /**
