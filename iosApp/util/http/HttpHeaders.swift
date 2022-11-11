@@ -4,6 +4,7 @@ struct HttpHeaders {
     static let Authorization = "Authorization"
     static let UserAgent = "User-Agent"
     static let Accept = "accept"
+    static let ContentType = "Content-Type"
 }
 
 struct DefaultHttpHeaderValues {

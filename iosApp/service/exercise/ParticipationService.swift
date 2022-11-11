@@ -5,7 +5,7 @@ protocol ParticipationService {
     /**
      * Subscribed to the users personal participations
      */
-    var personalSubmissionUpdater: Observable<BaseSubmission> { get }
+    var personalSubmissionUpdater: Observable<Submission> { get }
 
     /**
      * @param isPersonalParticipation whether the participation belongs to the user (by being a student) or not (by being an instructor)
@@ -32,7 +32,7 @@ enum ProgrammingSubmissionStateData {
     case NoPendingSubmission(participationId: Int)
 
     // The submission was createvd on the server, we assume that the build is running within an expected time frame.
-    case IsBuildingPendingSubmission(participationId: Int, submission: BaseSubmission)
+    case IsBuildingPendingSubmission(participationId: Int, submission: Submission)
 
     // A failed submission is a pending submission that has not received a result within an expected time frame.
     case FailedSubmission(participationId: Int)

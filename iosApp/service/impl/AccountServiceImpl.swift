@@ -1,7 +1,6 @@
 import Foundation
 import Combine
-import AsyncHTTPClient
-import NIO
+import Alamofire
 import RxCombine
 import RxSwift
 
@@ -44,7 +43,7 @@ class AccountServiceImpl: AccountService {
                                                 .transformLatest { sub2, serverUrl in
                                                     try! await sub2.sendAll(
                                                             publisher: retryOnInternet(connectivity: networkStatusProvider.currentNetworkStatus) {
-                                                                await AccountServiceImpl.getAccountData(bearer: "Bearer " + setKey, serverUrl: serverUrl, jsonProvider: jsonProvider)
+                                                                await AccountServiceImpl.getAccountData(bearer: setKey, serverUrl: serverUrl, jsonProvider: jsonProvider)
                                                             }
                                                     )
                                                 }
@@ -60,45 +59,39 @@ class AccountServiceImpl: AccountService {
     }
 
     func login(username: String, password: String, rememberMe: Bool) async -> LoginResponse {
-        let client = HTTPClient(eventLoopGroupProvider: .createNew)
         let serverUrl = (try? await serverCommunicationProvider.serverUrl.first().value) ?? ""
 
-        do {
-            let requestBodyData = try jsonProvider.encoder.encode(LoginBody(username: username, password: password, rememberMe: rememberMe))
+        let body = LoginBody(username: username, password: password, rememberMe: rememberMe)
 
-            var request = HTTPClientRequest(url: serverUrl + "api/authenticate")
-            request.method = .POST
-            request.headers.add(name: "content-type", value: "application/json")
-            request.headers.add(name: "accept", value: "application/json")
-            request.headers.add(name: "User-Agent", value: "artemis-native-client")
-            request.body = .bytes(ByteBuffer(data: requestBodyData))
+        let headers: Alamofire.HTTPHeaders = [
+            .accept(ContentTypes.Application.Json),
+            .contentType(ContentTypes.Application.Json),
+            .defaultUserAgent
+        ]
 
-            let response = try await client.execute(request, timeout: .seconds(30))
+        let loginResponse = await performNetworkCall {
+            try await AF.request(
+                            serverUrl + "api/authenticate",
+                            method: .post,
+                            parameters: body,
+                            encoder: JSONParameterEncoder.json(encoder: jsonProvider.encoder),
+                            headers: headers
+                    )
+                    .serializingDecodable(LoginResponseBody.self, decoder: jsonProvider.decoder)
+                    .value
+        }
 
-            if (response.status == .ok) {
-                let body = try await response.body.collect(upTo: 5 * 1024) // 5KB
-                let loginResponse = try jsonProvider.decoder.decode(LoginResponseBody.self, from: body)
-
-                //either store the token permanently, or just cache it in memory.
-                if (rememberMe) {
-                    UserDefaults.standard.loginJwt = loginResponse.id_token
-                } else {
-                    inMemoryJWT.onNext(loginResponse.id_token)
-                }
-
-                try client.syncShutdown()
-                return LoginResponse(isSuccessful: true)
+        switch loginResponse {
+        case .response(data: let data):
+            //either store the token permanently, or just cache it in memory.
+            if (rememberMe) {
+                UserDefaults.standard.loginJwt = data.id_token
             } else {
-                let body = try await response.body.collect(upTo: 5 * 1024)
-
-                let problem = String(buffer: body)
-                print(problem)
-
-                try client.syncShutdown()
-                return LoginResponse(isSuccessful: false)
+                inMemoryJWT.onNext(data.id_token)
             }
-        } catch {
-            try? client.syncShutdown()
+
+            return LoginResponse(isSuccessful: true)
+        case .failure(error: _):
             return LoginResponse(isSuccessful: false)
         }
     }
@@ -113,15 +106,16 @@ class AccountServiceImpl: AccountService {
     }
 
     private static func getAccountData(bearer: String, serverUrl: String, jsonProvider: JsonProvider) async -> NetworkResponse<Account> {
-        await HTTPClient(eventLoopGroupProvider: .createNew).use { httpClient in
-            await performNetworkCall(httpClient: httpClient, createRequest: {
-                var request = HTTPClientRequest(url: serverUrl + "api/account")
-                request.headers.add(name: HttpHeaders.Accept, value: ContentTypes.Application.Json)
-                request.headers.add(name: HttpHeaders.UserAgent, value: DefaultHttpHeaderValues.ArtemisUserAgent)
-                request.headers.add(name: HttpHeaders.Authorization, value: bearer)
+        let headers: HTTPHeaders = [
+            .accept(ContentTypes.Application.Json),
+            .defaultUserAgent,
+            .authorization(bearerToken: bearer)
+        ]
 
-                return request
-            }, decode: { body in try jsonProvider.decoder.decode(Account.self, from: body) })
+        return await performNetworkCall {
+            try await AF.request(serverUrl + "api/account", headers: headers)
+                    .serializingDecodable(Account.self)
+                    .value
         }
     }
 }

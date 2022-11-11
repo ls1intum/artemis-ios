@@ -30,7 +30,26 @@ enum DataState<T> {
         }
     }
 
+    func orElse(other: T) -> T {
+        switch self {
+        case .done(response: let response): return response
+        default: return other
+        }
+    }
 
+    func orThrow() throws -> T {
+        switch self {
+        case .done(response: let response): return response
+        default: throw NSError()
+        }
+    }
+
+    func isSuccess() -> Bool {
+        switch self {
+        case .done(response: _): return true
+        default: return false
+        }
+    }
 }
 
 func retryOnInternet<T>(
