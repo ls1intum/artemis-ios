@@ -2,6 +2,8 @@ import Foundation
 
 struct TextExercise: BaseExercise, Decodable {
 
+    typealias SelfType = TextExercise
+
     public static var type: String {
         "text"
     }
@@ -30,7 +32,7 @@ struct TextExercise: BaseExercise, Decodable {
 
     var exampleSolution: String? = nil
 
-    func copyWithUpdatedParticipations(newParticipations: [Participation]) -> BaseExercise {
+    func copyWithUpdatedParticipations(newParticipations: [Participation]) -> TextExercise {
         var clone = self
         clone[keyPath: \.studentParticipations] = newParticipations
         return clone

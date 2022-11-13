@@ -27,4 +27,22 @@ extension Container {
     static let courseRegistrationService = Factory<CourseRegistrationService>(scope: .singleton) {
         CourseRegistrationServiceImpl(jsonProvider: jsonProvider())
     }
+
+    static let courseService = Factory<CourseService>(scope: .singleton) {
+        CourseServiceImpl(jsonProvider: jsonProvider())
+    }
+
+    static let websocketProvider = Factory<WebsocketProvider>(scope: .singleton) {
+        WebsocketProvider(jsonProvider: jsonProvider(), serverCommunicationProvider: serverCommunicationProvider(), accountService: accountService())
+    }
+
+    static let participationService = Factory<ParticipationService>(scope: .singleton) {
+        ParticipationServiceImpl(
+                websocketProvider: websocketProvider(),
+                serverCommunicationProvider: serverCommunicationProvider(),
+                networkStatusProvider: networkStatusProvider(),
+                accountService: accountService(),
+                jsonProvider: jsonProvider()
+        )
+    }
 }

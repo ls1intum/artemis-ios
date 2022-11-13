@@ -1,6 +1,7 @@
 import Foundation
 
 struct ModelingExercise: BaseExercise {
+    typealias SelfType = ModelingExercise
     public static var type: String {
         "modeling"
     }
@@ -31,7 +32,7 @@ struct ModelingExercise: BaseExercise {
     var exampleSolutionModel: String? = nil
     var exampleSolutionExplanation: String? = nil
 
-    func copyWithUpdatedParticipations(newParticipations: [Participation]) -> BaseExercise {
+    func copyWithUpdatedParticipations(newParticipations: [Participation]) -> ModelingExercise {
         var clone = self
         clone[keyPath: \.studentParticipations] = newParticipations
         return clone

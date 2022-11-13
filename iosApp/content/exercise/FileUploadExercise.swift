@@ -1,6 +1,8 @@
 import Foundation
 
 struct FileUploadExercise: BaseExercise, Decodable {
+    typealias SelfType = FileUploadExercise
+
     public static var type: String {
         "file-upload"
     }
@@ -30,7 +32,7 @@ struct FileUploadExercise: BaseExercise, Decodable {
     var filePattern: String? = nil
     var exampleSolution: String? = nil
 
-    func copyWithUpdatedParticipations(newParticipations: [Participation]) -> BaseExercise {
+    func copyWithUpdatedParticipations(newParticipations: [Participation]) -> FileUploadExercise {
         var clone = self
         clone[keyPath: \.studentParticipations] = newParticipations
         return clone

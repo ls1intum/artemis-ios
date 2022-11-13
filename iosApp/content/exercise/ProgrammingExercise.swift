@@ -1,6 +1,7 @@
 import Foundation
 
 struct ProgrammingExercise: BaseExercise, Decodable {
+    typealias SelfType = ProgrammingExercise
 
     public static var type: String {
         "programming"
@@ -29,7 +30,7 @@ struct ProgrammingExercise: BaseExercise, Decodable {
     var attachments: [Attachment] = []
     var programmingLanguage: ProgrammingLanguage? = nil
 
-    func copyWithUpdatedParticipations(newParticipations: [Participation]) -> BaseExercise {
+    func copyWithUpdatedParticipations(newParticipations: [Participation]) -> ProgrammingExercise {
         var clone = self
         clone[keyPath: \.studentParticipations] = newParticipations
         return clone

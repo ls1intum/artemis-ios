@@ -1,6 +1,9 @@
 import Foundation
+import SwiftDate
 
 protocol BaseExercise: Decodable {
+    associatedtype SelfType : BaseExercise
+
     static var type: String { get }
 
     var id: Int? { get }
@@ -30,7 +33,7 @@ protocol BaseExercise: Decodable {
     /**
      * Create a copy of this exercise with the participations field replaced.
      */
-    func copyWithUpdatedParticipations(newParticipations: [Participation]) -> BaseExercise
+    func copyWithUpdatedParticipations(newParticipations: [Participation]) -> SelfType
 }
 
 enum Exercise: Decodable {
@@ -46,7 +49,7 @@ enum Exercise: Decodable {
     case Text(exercise: TextExercise)
     case Unknown(exercise: UnknownExercise)
 
-    var baseExercise: BaseExercise {
+    var baseExercise: any BaseExercise {
         switch self {
         case .FileUpload(exercise: let exercise): return exercise
         case .Modeling(exercise: let exercise): return exercise
@@ -67,6 +70,23 @@ enum Exercise: Decodable {
         case QuizExercise.type: self = .Quiz(exercise: try QuizExercise(from: decoder))
         case TextExercise.type: self = .Text(exercise: try TextExercise(from: decoder))
         default: self = .Unknown(exercise: try UnknownExercise(from: decoder))
+        }
+    }
+
+    func copyWithUpdatedParticipations(newParticipations: [Participation]) -> Exercise {
+        switch self {
+        case .FileUpload(exercise: let exercise):
+            return .FileUpload(exercise: exercise.copyWithUpdatedParticipations(newParticipations: newParticipations))
+        case .Modeling(exercise: let exercise):
+            return .Modeling(exercise: exercise.copyWithUpdatedParticipations(newParticipations: newParticipations))
+        case .Programming(exercise: let exercise):
+            return .Programming(exercise: exercise.copyWithUpdatedParticipations(newParticipations: newParticipations))
+        case .Quiz(exercise: let exercise):
+            return .Quiz(exercise: exercise.copyWithUpdatedParticipations(newParticipations: newParticipations))
+        case .Text(exercise: let exercise):
+            return .Text(exercise: exercise.copyWithUpdatedParticipations(newParticipations: newParticipations))
+        case .Unknown(exercise: let exercise):
+            return .Unknown(exercise: exercise.copyWithUpdatedParticipations(newParticipations: newParticipations))
         }
     }
 }

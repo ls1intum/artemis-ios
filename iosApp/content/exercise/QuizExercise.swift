@@ -2,6 +2,8 @@ import Foundation
 
 struct QuizExercise: BaseExercise, Decodable {
 
+    typealias SelfType = QuizExercise
+
     public static var type: String {
         "quiz"
     }
@@ -38,7 +40,7 @@ struct QuizExercise: BaseExercise, Decodable {
     var quizMode: QuizMode = QuizMode.INDIVIDUAL
     var quizBatches: [QuizBatch] = []
 
-    func copyWithUpdatedParticipations(newParticipations: [Participation]) -> BaseExercise {
+    func copyWithUpdatedParticipations(newParticipations: [Participation]) -> QuizExercise {
         var clone = self
         clone[keyPath: \.studentParticipations] = newParticipations
         return clone
