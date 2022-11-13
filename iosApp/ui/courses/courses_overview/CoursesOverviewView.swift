@@ -10,6 +10,7 @@ struct CoursesOverviewView: View {
 
     @StateObject var viewModel: CoursesOverviewViewModel = CoursesOverviewViewModel()
     let onClickRegisterForCourse: () -> Void
+    let onNavigateToCourse: (_ courseId: Int) -> Void
 
     var body: some View {
         VStack(alignment: .center) {
@@ -29,7 +30,8 @@ struct CoursesOverviewView: View {
                     CourseListView(
                             courses: data.courses,
                             serverUrl: viewModel.serverUrl,
-                            bearer: viewModel.bearer
+                            bearer: viewModel.bearer,
+                            onClickCourse: { course in onNavigateToCourse(course.id ?? 0) }
                     )
                             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 }
@@ -63,12 +65,13 @@ private struct CourseListView: View {
     let courses: [Course]
     let serverUrl: String
     let bearer: String
+    let onClickCourse: (Course) -> Void
 
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 8) {
                 ForEach(courses, id: \.self.id) { course in
-                    CourseView(course: course, serverUrl: serverUrl, bearer: bearer)
+                    CourseItemView(course: course, serverUrl: serverUrl, bearer: bearer, onClick: { onClickCourse(course) })
                             .padding(.horizontal, 8)
                 }
             }
@@ -76,10 +79,11 @@ private struct CourseListView: View {
     }
 }
 
-private struct CourseView: View {
+private struct CourseItemView: View {
     let course: Course
     let serverUrl: String
     let bearer: String
+    let onClick: () -> Void
 
     var body: some View {
         CoursesHeaderView(
@@ -100,6 +104,9 @@ private struct CourseView: View {
                         .padding(.horizontal, 16)
             }
         }
+                .onTapGesture {
+                    onClick()
+                }
     }
 }
 
@@ -120,7 +127,7 @@ class CoursesOverviewView_Previews: PreviewProvider {
 //
 //            CoursesList(courses: courses, serverUrl: "", bearer: "")
 //
-            CourseView(course: sampleCourse, serverUrl: serverUrl, bearer: "")
+            CourseItemView(course: sampleCourse, serverUrl: serverUrl, bearer: "", onClick: {})
         }
     }
 }

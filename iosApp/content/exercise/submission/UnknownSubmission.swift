@@ -6,7 +6,7 @@ struct UnknownSubmission: BaseSubmission {
     var submissionDate: Date? = nil
     var exampleSubmission: Bool? = nil
     var durationInMinutes: Float? = nil
-    var results: [Result] = []
+    var results: [Result]? = []
     var participation: Participation? = nil
 
     static var type: String {

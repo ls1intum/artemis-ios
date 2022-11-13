@@ -8,13 +8,13 @@ protocol BaseSubmission: Decodable {
     var submissionDate: Date? { get }
     var exampleSubmission: Bool? { get }
     var durationInMinutes: Float? { get }
-    var results: [Result] { get }
+    var results: [Result]? { get }
     var participation: Participation? { get }
 }
 
 enum Submission: Decodable {
     fileprivate enum Keys: String, CodingKey {
-        case type
+        case type = "submissionExerciseType"
     }
 
     case Unknown(submission: UnknownSubmission)

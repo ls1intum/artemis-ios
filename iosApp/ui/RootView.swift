@@ -1,11 +1,3 @@
-//
-//  RootView.swift
-//  iosApp
-//
-//  Created by Tim Ortel on 16.09.22.
-//
-//
-
 import SwiftUI
 import Factory
 import Combine
@@ -21,13 +13,19 @@ struct RootView: View {
                         AccountView()
                     }
                     .navigationDestination(for: CourseOverviewDest.self) { _ in
-                        CoursesOverviewView(onClickRegisterForCourse: {
-                            viewController.path.append(CourseRegistration())
-                        })
+                        CoursesOverviewView(
+                                onClickRegisterForCourse: {
+                                    viewController.path.append(CourseRegistration())
+                                },
+                                onNavigateToCourse: { courseId in
+                                    navigateToCourseView(navigationPath: &viewController.path, courseId: courseId)
+                                }
+                        )
                     }
                     .navigationDestination(for: CourseRegistration.self) { _ in
                         CourseRegistrationView()
                     }
+                    .courseViewDestination()
         }
                 .onChange(of: scenePhase) { phase in
                     if phase == .background {
@@ -51,8 +49,11 @@ class RootViewViewController: ObservableObject {
     }
 }
 
-struct AccountDest: Hashable {}
+struct AccountDest: Hashable {
+}
 
-struct CourseOverviewDest: Hashable {}
+struct CourseOverviewDest: Hashable {
+}
 
-struct CourseRegistration: Hashable {}
+struct CourseRegistration: Hashable {
+}

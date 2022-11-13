@@ -17,7 +17,7 @@ struct FileUploadExercise: BaseExercise, Decodable {
     var assessmentDueDate: Date? = nil
     var difficulty: Difficulty? = nil
     var mode: Mode = .INDIVIDUAL
-    var categories: [Category] = []
+    var categories: [Category]? = []
     var visibleToStudents: Bool? = nil
     var teamMode: Bool? = nil
     var problemStatement: String? = nil
@@ -27,7 +27,7 @@ struct FileUploadExercise: BaseExercise, Decodable {
     var includedInOverallScore: IncludedInOverallScore = .INCLUDED_COMPLETELY
     var exampleSolutionPublicationDate: Date? = nil
     var studentParticipations: [Participation]? = nil
-    var attachments: [Attachment] = []
+    var attachments: [Attachment]? = []
 
     var filePattern: String? = nil
     var exampleSolution: String? = nil

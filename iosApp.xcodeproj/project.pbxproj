@@ -45,6 +45,7 @@
 		1C0987DEE262D2932163EE09 /* ObservedValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C098420AF2C5E3E3715BC06 /* ObservedValue.swift */; };
 		1C0987EB3BA3868ADA675C1A /* ReactiveSwiftStomp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C098D2FF5634CFEBA6A29E6 /* ReactiveSwiftStomp.swift */; };
 		1C0988187041042BBA80FC32 /* Saml2Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C09877094E9C0A4803D691D /* Saml2Config.swift */; };
+		1C0988289D328CF8BAD74F37 /* CourseUi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C098CBA6ACC1FC29E92ADCB /* CourseUi.swift */; };
 		1C098828DDCBBCECF757872D /* fab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0980813BE156858016F214 /* fab.swift */; };
 		1C09885405FFF4301292F5A4 /* StudentParticipation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0987CD0531520E6793C0B4 /* StudentParticipation.swift */; };
 		1C0988DC87E6E3EB11F7DDE1 /* BaseSubmission.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C09846EB6530A9A29125820 /* BaseSubmission.swift */; };
@@ -53,6 +54,7 @@
 		1C098983990545800E8F932E /* readme.md in Sources */ = {isa = PBXBuildFile; fileRef = 1C098BE94B1D25D8F4F19DAD /* readme.md */; };
 		1C0989A1EFB6D3CE33CECD27 /* ObservableUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C098A9DA1D0970B84C2BECD /* ObservableUtil.swift */; };
 		1C0989F5F99E3E5D8E09A81B /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 1C098681E5B54683749B1859 /* .gitignore */; };
+		1C098A1B10082F815848662C /* ExerciseListUi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C098E70C019A5DA726E4F1F /* ExerciseListUi.swift */; };
 		1C098A4CB53F1A557E21C9AD /* CourseRegistrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C09841E56980818F78990CA /* CourseRegistrationViewController.swift */; };
 		1C098A905080872B673330FC /* theming.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0986D9D9E11B706FF4C7F8 /* theming.swift */; };
 		1C098B34535E89BDFB105645 /* UnknownParticipation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C098725A9370D9DE6D6D6CE /* UnknownParticipation.swift */; };
@@ -146,12 +148,14 @@
 		1C098BE94B1D25D8F4F19DAD /* readme.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = readme.md; sourceTree = "<group>"; };
 		1C098C077ADB678F568185B9 /* LoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		1C098C961DD79541741BF451 /* CourseViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CourseViewController.swift; sourceTree = "<group>"; };
+		1C098CBA6ACC1FC29E92ADCB /* CourseUi.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CourseUi.swift; sourceTree = "<group>"; };
 		1C098D2FF5634CFEBA6A29E6 /* ReactiveSwiftStomp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ReactiveSwiftStomp.swift; path = websocket/ReactiveSwiftStomp.swift; sourceTree = "<group>"; };
 		1C098D66EAF17DF3C67C973E /* CourseServiceImpl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CourseServiceImpl.swift; sourceTree = "<group>"; };
 		1C098D73F090099DF8682660 /* BaseParticipation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseParticipation.swift; sourceTree = "<group>"; };
 		1C098D974EA7CC87B1181AF2 /* timeout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = timeout.swift; sourceTree = "<group>"; };
 		1C098D9CF40678FAA9D0165E /* CourseService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CourseService.swift; sourceTree = "<group>"; };
 		1C098DC2127E649084ED7A33 /* datastateui.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = datastateui.swift; sourceTree = "<group>"; };
+		1C098E70C019A5DA726E4F1F /* ExerciseListUi.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExerciseListUi.swift; sourceTree = "<group>"; };
 		1C098EEF775E01F3EE1F4CEF /* BaseAttachment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseAttachment.swift; sourceTree = "<group>"; };
 		1C098F0AF7B4FC758A19DDF0 /* TextExercise.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextExercise.swift; sourceTree = "<group>"; };
 		1C098F1706F0DCA286CF5754 /* ServerCommunicationProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServerCommunicationProvider.swift; sourceTree = "<group>"; };
@@ -325,6 +329,8 @@
 			isa = PBXGroup;
 			children = (
 				1C098C961DD79541741BF451 /* CourseViewController.swift */,
+				1C098CBA6ACC1FC29E92ADCB /* CourseUi.swift */,
+				1C098E70C019A5DA726E4F1F /* ExerciseListUi.swift */,
 			);
 			path = course;
 			sourceTree = "<group>";
@@ -550,7 +556,7 @@
 				22F8034C28D8EE7F00B55A09 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
 				226B088A28E30FBC00382C92 /* XCRemoteSwiftPackageReference "Factory" */,
 				22ECB44C28E79354000F5342 /* XCRemoteSwiftPackageReference "CombineExt" */,
-				22B1296E290038D600C4910E /* XCRemoteSwiftPackageReference "Reachability" */,
+				22B1296E290038D600C4910E /* XCRemoteSwiftPackageReference "Reachability.swift" */,
 				225EDFFC2905AC2700C7FCA8 /* XCRemoteSwiftPackageReference "MarkdownUI" */,
 				22AD700C291857280046BB84 /* XCRemoteSwiftPackageReference "SwiftStomp" */,
 				22AD700F291876C70046BB84 /* XCRemoteSwiftPackageReference "Semaphore" */,
@@ -651,6 +657,8 @@
 				1C0982FDCE33E4EA2656C935 /* CourseViewController.swift in Sources */,
 				1C09872E3F87B0BCA0DDB866 /* CourseService.swift in Sources */,
 				1C0980DF671665D1D2D6E6FC /* CourseServiceImpl.swift in Sources */,
+				1C0988289D328CF8BAD74F37 /* CourseUi.swift in Sources */,
+				1C098A1B10082F815848662C /* ExerciseListUi.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -899,7 +907,7 @@
 				minimumVersion = 0.0.6;
 			};
 		};
-		22B1296E290038D600C4910E /* XCRemoteSwiftPackageReference "Reachability" */ = {
+		22B1296E290038D600C4910E /* XCRemoteSwiftPackageReference "Reachability.swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/ashleymills/Reachability.swift";
 			requirement = {
@@ -982,7 +990,7 @@
 		};
 		22B1296F290038D600C4910E /* Reachability */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 22B1296E290038D600C4910E /* XCRemoteSwiftPackageReference "Reachability" */;
+			package = 22B1296E290038D600C4910E /* XCRemoteSwiftPackageReference "Reachability.swift" */;
 			productName = Reachability;
 		};
 		22E9E43F291EB3A40072EE41 /* Alamofire */ = {

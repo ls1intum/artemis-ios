@@ -75,6 +75,27 @@ struct BasicDataStateView<T, ChildContent: View>: View {
     }
 }
 
+struct EmptyDataStateView<T, ChildContent: View>: View {
+    let dataState: DataState<T>
+    let content: ChildContent?
+
+    init(dataState: DataState<T>, @ViewBuilder builder: (T) -> ChildContent) {
+        self.dataState = dataState
+        switch dataState {
+        case .done(let data): content = builder(data)
+        default: content = nil
+        }
+    }
+
+    var body: some View {
+        if let c = content {
+            c
+        } else {
+            EmptyView()
+        }
+    }
+}
+
 class DataStateViewPreviews: PreviewProvider {
     static var previews: some View {
         Group {

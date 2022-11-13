@@ -13,12 +13,13 @@ class CourseServiceImpl: CourseService {
         await performNetworkCall {
             let headers: HTTPHeaders = [
                 .contentType(ContentTypes.Application.Json),
-                .authorization(bearerToken: authToken)
+                .authorization(bearerToken: authToken),
+                .defaultUserAgent
             ]
 
             return try await AF
                     .request(
-                            serverUrl + "api/courses/" + String(courseId) + "for-dashboard",
+                            serverUrl + "api/courses/" + String(courseId) + "/for-dashboard",
                             headers: headers
                     )
                     .serializingDecodable(Course.self, decoder: jsonProvider.decoder)

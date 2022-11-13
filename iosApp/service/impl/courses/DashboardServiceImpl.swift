@@ -20,8 +20,8 @@ class DashboardServiceImpl: DashboardService {
         ]
 
         return await performNetworkCall {
-            try await AF.request(serverUrl + "api/courses/for-dashboard")
-                    .serializingDecodable([Course].self)
+            try await AF.request(serverUrl + "api/courses/for-dashboard", headers: headers)
+                    .serializingDecodable([Course].self, decoder: jsonProvider.decoder)
                     .value
         }
                 .bind { courses in

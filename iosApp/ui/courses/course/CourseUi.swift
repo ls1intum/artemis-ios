@@ -1,0 +1,53 @@
+import Foundation
+import SwiftUI
+
+private struct CourseDest: Hashable {
+    let courseId: Int
+}
+
+extension View {
+    func courseViewDestination() -> some View {
+        navigationDestination(for: CourseDest.self) { dest in
+            CourseView(courseId: dest.courseId)
+        }
+    }
+}
+
+func navigateToCourseView(navigationPath: inout NavigationPath, courseId: Int) {
+    navigationPath.append(CourseDest(courseId: courseId))
+}
+
+struct CourseView: View {
+
+    let courseId: Int
+    @StateObject var viewController: CourseViewController
+
+    init(courseId: Int) {
+        self.courseId = courseId
+        self._viewController = StateObject(wrappedValue: CourseViewController(courseId: courseId))
+    }
+
+    var body: some View {
+
+        BasicDataStateView(
+                data: viewController.course,
+                loadingText: "course_ui_loading_course_loading",
+                failureText: "course_ui_loading_course_failed",
+                suspendedText: "course_ui_loading_course_suspended",
+                retryButtonText: "course_ui_loading_course_try_again",
+                clickRetryButtonAction: { viewController.reloadCourse() }
+        ) { _ in
+            ExerciseListView(
+                    exerciseDataState: viewController.exercisesGroupedByWeek,
+                    onClickExercise: { exerciseId in }
+            )
+        }
+                .navigationTitle(
+                        viewController.course.bind { it in
+                                    it.title ?? ""
+                                }
+                                .orElse(other: "")
+                )
+
+    }
+}

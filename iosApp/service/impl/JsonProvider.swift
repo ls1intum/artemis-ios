@@ -12,6 +12,6 @@ class JsonProvider {
     let decoder = JSONDecoder()
 
     init() {
-
+        decoder.dateDecodingStrategy = .iso8601
     }
 }

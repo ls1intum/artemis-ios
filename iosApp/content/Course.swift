@@ -4,7 +4,7 @@ import Foundation
  * Representation of a single course.
  */
 struct Course: Decodable, Identifiable {
-    let id: Int
+    var id: Int? = nil
     var title: String? = ""
     var description: String? = ""
     var courseIcon: String? = nil

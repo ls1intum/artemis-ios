@@ -16,7 +16,7 @@ protocol BaseExercise: Decodable {
     var assessmentDueDate: Date? { get }
     var difficulty: Difficulty? { get }
     var mode: Mode { get }
-    var categories: [Category] { get }
+    var categories: [Category]? { get }
     var visibleToStudents: Bool? { get }
     var teamMode: Bool? { get }
     var problemStatement: String? { get }
@@ -28,7 +28,7 @@ protocol BaseExercise: Decodable {
     var studentParticipations: [Participation]? { get }
 
     // -------
-    var attachments: [Attachment] { get }
+    var attachments: [Attachment]? { get }
 
     /**
      * Create a copy of this exercise with the participations field replaced.
@@ -242,7 +242,7 @@ extension BaseExercise {
             } else if (initState == InitializationState.FINISHED) {
                 return ParticipationStatus.QuizSubmitted
             }
-        } else if (exercise.quizBatches.contains { it in
+        } else if ((exercise.quizBatches ?? []).contains { it in
             it.started == true
         }) {
             return ParticipationStatus.QuizNotInitialized

@@ -15,7 +15,7 @@ class CourseViewController: ObservableObject {
     private let requestReloadCourse = PublishSubject<Void>()
 
     @Published var course: DataState<Course> = DataState.loading
-    @Published var exercisesGroupedByWeek: DataState<[WeeklyExercise]> = DataState.loading
+    @Published var exercisesGroupedByWeek: DataState<[WeeklyExercises]> = DataState.loading
 
     init(courseId: Int) {
         self.courseId = courseId
@@ -29,7 +29,16 @@ class CourseViewController: ObservableObject {
                     case .LoggedIn(authToken: let authToken, _):
                         try? await sub.sendAll(
                                 publisher: retryOnInternet(connectivity: networkStatusProvider.currentNetworkStatus) { [self] in
-                                    await courseService.getCourse(courseId: courseId, serverUrl: serverUrl, authToken: authToken)
+                                    let x = await courseService.getCourse(courseId: courseId, serverUrl: serverUrl, authToken: authToken)
+                                    switch x {
+
+                                    case .response(data: let data):
+                                        ()
+                                    case .failure(error: let error):
+                                        print(error)
+                                        print(error.localizedDescription)
+                                    }
+                                    return x
                                 }
                         )
                     case .NotLoggedIn:
@@ -139,9 +148,9 @@ class CourseViewController: ObservableObject {
 
                                     if let f = firstDayOfWeek {
                                         let lastDayOfWeek = f + 6.days
-                                        return WeeklyExercise.BoundToWeek(firstDayOfWeek: f, lastDayOfWeek: lastDayOfWeek, exercises: exercises)
+                                        return WeeklyExercises.BoundToWeek(firstDayOfWeek: f, lastDayOfWeek: lastDayOfWeek, exercises: exercises)
                                     } else {
-                                        return WeeklyExercise.Unbound(exercises: exercises)
+                                        return WeeklyExercises.Unbound(exercises: exercises)
                                     }
                                 }
                                 .sorted()
@@ -158,12 +167,19 @@ class CourseViewController: ObservableObject {
     }
 }
 
-struct ExerciseWithParticipationStatus {
+struct ExerciseWithParticipationStatus: Identifiable {
+    typealias ID = Int
+
     let exercise: Exercise
     let participationStatus: ParticipationStatus
+    var id: ID {
+        exercise.baseExercise.id ?? 0
+    }
 }
 
-enum WeeklyExercise : Comparable{
+enum WeeklyExercises: Comparable, Identifiable {
+    typealias ID = Int
+
     case BoundToWeek(firstDayOfWeek: Date, lastDayOfWeek: Date, exercises: [ExerciseWithParticipationStatus])
     case Unbound(exercises: [ExerciseWithParticipationStatus])
 
@@ -176,12 +192,30 @@ enum WeeklyExercise : Comparable{
         }
     }
 
-    static func <(lhs: WeeklyExercise, rhs: WeeklyExercise) -> Bool {
+    var exercises: [ExerciseWithParticipationStatus] {
+        switch self {
+        case .BoundToWeek(_, _, exercises: let exercises):
+            return exercises
+        case .Unbound(exercises: let exercises):
+            return exercises
+        }
+    }
+
+    static func <(lhs: WeeklyExercises, rhs: WeeklyExercises) -> Bool {
         lhs.dateToCompare < rhs.dateToCompare
     }
 
-    static func ==(lhs: WeeklyExercise, rhs: WeeklyExercise) -> Bool {
+    static func ==(lhs: WeeklyExercises, rhs: WeeklyExercises) -> Bool {
         lhs.dateToCompare == rhs.dateToCompare
+    }
+
+    var id: ID {
+        switch self {
+        case .BoundToWeek(firstDayOfWeek: let firstDayOfWeek, _, _):
+            return Int(firstDayOfWeek.timeIntervalSince1970.rounded())
+        case .Unbound(_):
+            return 0
+        }
     }
 }
 

@@ -18,7 +18,7 @@ struct QuizExercise: BaseExercise, Decodable {
     var assessmentDueDate: Date? = nil
     var difficulty: Difficulty? = nil
     var mode: Mode = .INDIVIDUAL
-    var categories: [Category] = []
+    var categories: [Category]? = []
     var visibleToStudents: Bool? = nil
     var teamMode: Bool? = nil
     var problemStatement: String? = nil
@@ -28,17 +28,17 @@ struct QuizExercise: BaseExercise, Decodable {
     var includedInOverallScore: IncludedInOverallScore = .INCLUDED_COMPLETELY
     var exampleSolutionPublicationDate: Date? = nil
     var studentParticipations: [Participation]? = nil
-    var attachments: [Attachment] = []
+    var attachments: [Attachment]? = []
 
     var allowedNumberOfAttempts: Int? = nil
     var remainingNumberOfAttempts: Int? = nil
     var randomizeQuestionOrder: Bool? = nil
     var isOpenForPractice: Bool? = nil
     var duration: Int? = nil
-    var quizQuestions: [QuizQuestion] = []
+    var quizQuestions: [QuizQuestion]? = []
     var status: QuizStatus? = nil
-    var quizMode: QuizMode = QuizMode.INDIVIDUAL
-    var quizBatches: [QuizBatch] = []
+    var quizMode: QuizMode? = QuizMode.INDIVIDUAL
+    var quizBatches: [QuizBatch]? = []
 
     func copyWithUpdatedParticipations(newParticipations: [Participation]) -> QuizExercise {
         var clone = self
@@ -47,7 +47,7 @@ struct QuizExercise: BaseExercise, Decodable {
     }
 }
 
-enum QuizStatus: Decodable {
+enum QuizStatus: String, Decodable {
     case CLOSED
     case OPEN_FOR_PRACTICE
     case ACTIVE
@@ -55,7 +55,7 @@ enum QuizStatus: Decodable {
     case INVISIBLE
 }
 
-enum QuizMode: Decodable {
+enum QuizMode: String, Decodable {
     case SYNCHRONIZED
     case BATCHED
     case INDIVIDUAL
