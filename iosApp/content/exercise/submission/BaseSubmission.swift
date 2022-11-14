@@ -18,10 +18,14 @@ enum Submission: Decodable {
     }
 
     case Unknown(submission: UnknownSubmission)
+    case Instructor(submission: InstructorSubmission)
+    case Test(submission: TestSubmission)
 
     var baseSubmission: BaseSubmission {
         switch self {
         case .Unknown(let submission): return submission
+        case .Instructor(let submission): return submission
+        case .Test(let submission): return submission
         }
     }
 
@@ -29,6 +33,8 @@ enum Submission: Decodable {
         let container = try decoder.container(keyedBy: Keys.self)
         let type = try container.decode(String.self, forKey: Keys.type)
         switch type {
+        case InstructorSubmission.type: self = .Instructor(submission: try InstructorSubmission(from: decoder))
+        case TestSubmission.type: self = .Test(submission: try TestSubmission(from: decoder))
         default: self = .Unknown(submission: try UnknownSubmission(from: decoder))
         }
     }

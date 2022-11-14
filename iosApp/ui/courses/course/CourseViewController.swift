@@ -2,6 +2,7 @@ import Foundation
 import Factory
 import RxSwift
 import SwiftDate
+import SwiftUI
 
 class CourseViewController: ObservableObject {
 
@@ -174,6 +175,75 @@ struct ExerciseWithParticipationStatus: Identifiable {
     let participationStatus: ParticipationStatus
     var id: ID {
         exercise.baseExercise.id ?? 0
+    }
+
+    let categoryChips: [ExerciseCategoryChipData]
+
+    init(exercise: Exercise, participationStatus: ParticipationStatus) {
+        self.exercise = exercise
+        self.participationStatus = participationStatus
+
+        categoryChips = ExerciseWithParticipationStatus.collectExerciseCategoryChips(exercise: exercise)
+    }
+
+    /**
+    * A list of the chips that are displayed in the ui from the data available in the exercise.
+    */
+    private static func collectExerciseCategoryChips(exercise: Exercise) -> [ExerciseCategoryChipData] {
+        let liveQuizChips: [ExerciseCategoryChipData]
+        if exercise.baseExercise is QuizExercise && (exercise.baseExercise as! QuizExercise).status == .ACTIVE {
+            liveQuizChips = [ExerciseCategoryChipData(text: .Localized(text: "exercise_live_quiz"), color: Color(hexValue: 0xff28a745))]
+        } else {
+            liveQuizChips = []
+        }
+
+        let difficultyChips: [ExerciseCategoryChipData]
+        if let difficulty = exercise.baseExercise.difficulty {
+            switch difficulty {
+            case .EASY: difficultyChips = [ExerciseCategoryChipData(text: .Localized(text: "exercise_difficulty_easy"), color: Color(hexValue: 0xff28a745))]
+            case .MEDIUM: difficultyChips = [ExerciseCategoryChipData(text: .Localized(text: "exercise_difficulty_medium"), color: Color(hexValue: 0xffffc107))]
+            case .HARD: difficultyChips = [ExerciseCategoryChipData(text: .Localized(text: "exercise_difficulty_hard"), color: Color(hexValue: 0xffdc3545))]
+            }
+        } else {
+            difficultyChips = []
+        }
+
+        let bonusChips: [ExerciseCategoryChipData]
+        if exercise.baseExercise.includedInOverallScore == .INCLUDED_AS_BONUS {
+            bonusChips = [ExerciseCategoryChipData(text: .Localized(text: "exercise_is_bonus"), color: Color(hexValue: 0xFF00FFFF))]
+        } else {
+            bonusChips = []
+        }
+
+        let categoryChips = (exercise.baseExercise.categories ?? []).map { category in
+            ExerciseCategoryChipData(text: .Verbatim(text: category.category), color: Color(hexValue: category.colorCode ?? 0xFFFFFFFF))
+        }
+
+        return liveQuizChips + categoryChips + difficultyChips + bonusChips
+    }
+}
+
+/**
+ * Struct that holds information about a chip displayed for an exercise.
+ * For example the exercise difficulty (easy, hard, ...) or if it as an easy exercise
+ */
+struct ExerciseCategoryChipData: Identifiable {
+    typealias ID = String
+    let text: TextType
+    let color: Color
+    var id: ID {
+        switch text {
+        case .Verbatim(text: let text): return text
+        case .Localized(text: let text): return text.key
+        }
+    }
+
+    /**
+     * There is probably an easier way to do this.
+     */
+    enum TextType {
+        case Verbatim(text: String)
+        case Localized(text: LocalizedStringResource)
     }
 }
 

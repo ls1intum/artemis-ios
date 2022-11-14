@@ -44,13 +44,7 @@ class ParticipationServiceImpl: ParticipationService {
                 .share(replay: 1, scope: .whileConnected)
     }
 
-    func getLatestPendingSubmissionByParticipationIdFlow(
-            participationId: Int,
-            exerciseId: Int,
-            isPersonalParticipation: Bool,
-            personal: Bool,
-            fetchPending: Bool
-    ) -> Observable<ProgrammingSubmissionStateData?> {
+    func getLatestPendingSubmissionByParticipationIdObservable(participationId: Int, exerciseId: Int, personal: Bool, fetchPending: Bool) -> Observable<ProgrammingSubmissionStateData?> {
         let newSubmissionsUpdater: Observable<WebsocketProgrammingSubmissionMessage>
         if personal {
             newSubmissionsUpdater = personalNewSubmissionsUpdater

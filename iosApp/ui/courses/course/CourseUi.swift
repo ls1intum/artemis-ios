@@ -37,10 +37,14 @@ struct CourseView: View {
                 retryButtonText: "course_ui_loading_course_try_again",
                 clickRetryButtonAction: { viewController.reloadCourse() }
         ) { _ in
-            ExerciseListView(
-                    exerciseDataState: viewController.exercisesGroupedByWeek,
-                    onClickExercise: { exerciseId in }
-            )
+            ZStack {
+                ExerciseListView(
+                        exerciseDataState: viewController.exercisesGroupedByWeek,
+                        onClickExercise: { exerciseId in }
+                )
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
                 .navigationTitle(
                         viewController.course.bind { it in

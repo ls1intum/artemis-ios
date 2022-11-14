@@ -25,3 +25,33 @@
 "course_ui_loading_course_suspended" = "Your Internet connection may be unstable.";
 "course_ui_loading_course_loading" = "Fetching your course from server…";
 "course_ui_loading_course_try_again" = "Try again";
+"course_ui_exercise_list_week_header"="%1$@ - %2$@";
+"course_ui_exercise_list_unbound_week_header"="No time specified";
+
+"course_ui_exercise_item_due_date_set"="Due date: %1$@";
+"course_ui_exercise_item_due_date_not_set"="No due date";
+
+//General exercise strings
+"exercise_difficulty_easy"="Easy";
+"exercise_difficulty_medium"="Medium";
+"exercise_difficulty_hard"="Hard";
+
+"exercise_is_bonus"="Bonus";
+"exercise_live_quiz"="Live";
+
+"exercise_user_not_started_exercise"="Not yet started.";
+"exercise_user_not_assigned_to_team"="No team yet.";
+"exercise_exercise_not_submitted"="No Submission";
+"exercise_exercise_missed_deadline"="Deadline missed.";
+"exercise_quiz_not_started"="Not yet started.";
+"exercise_user_not_started_quiz"="Not yet started.";
+"exercise_user_not_participated"="Not participated.";
+"exercise_user_participating"="Currently participating.";
+"exercise_user_submitted"="Already submitted.";
+
+"exercise_result_is_building"="Building…";
+"exercise_result_no_result"="You have no results yet.";
+"exercise_result_no_graded_result"="You have no graded result.";
+"exercise_result_submitted"="Submitted, you can still submit updates.";
+"exercise_result_submitted_waiting_for_grading"="Submitted, waiting for grading.";
+"exercise_result_late_submission"="Late submission, waiting for feedback.";

@@ -9,8 +9,11 @@
 /* Begin PBXBuildFile section */
 		058557BB273AAA24004C7B11 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 058557BA273AAA24004C7B11 /* Assets.xcassets */; };
 		058557D9273AAEEB004C7B11 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 058557D8273AAEEB004C7B11 /* Preview Assets.xcassets */; };
+		1C098066557E1FBCB8087671 /* result.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C098D3C07E05312C19AAAAC /* result.swift */; };
 		1C0980DF671665D1D2D6E6FC /* CourseServiceImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C098D66EAF17DF3C67C973E /* CourseServiceImpl.swift */; };
+		1C0981104ADAC939504A9594 /* InstructorSubmission.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0988595259186CF1EDE26B /* InstructorSubmission.swift */; };
 		1C098119447030E4E21B9D1F /* BaseParticipation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C098D73F090099DF8682660 /* BaseParticipation.swift */; };
+		1C09811A68F190E01CA773EF /* colorutil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C098A74BC616370BF9D76D1 /* colorutil.swift */; };
 		1C0981563649BF55451961D8 /* QuizQuestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0989B2ACD0D52AD7B59450 /* QuizQuestion.swift */; };
 		1C0981821623621F5399DA93 /* ServerCommunicationProviderImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0985C543D77816ADA5933C /* ServerCommunicationProviderImpl.swift */; };
 		1C0981A7951A15E0A8766386 /* FileUploadExercise.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C098281FB6EEDE70FE4575C /* FileUploadExercise.swift */; };
@@ -57,6 +60,7 @@
 		1C098A1B10082F815848662C /* ExerciseListUi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C098E70C019A5DA726E4F1F /* ExerciseListUi.swift */; };
 		1C098A4CB53F1A557E21C9AD /* CourseRegistrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C09841E56980818F78990CA /* CourseRegistrationViewController.swift */; };
 		1C098A905080872B673330FC /* theming.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0986D9D9E11B706FF4C7F8 /* theming.swift */; };
+		1C098ADF5837BBC4EE943A99 /* TestSubmission.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C098D591C6BCBD92B293F50 /* TestSubmission.swift */; };
 		1C098B34535E89BDFB105645 /* UnknownParticipation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C098725A9370D9DE6D6D6CE /* UnknownParticipation.swift */; };
 		1C098BBA6F7864D9F6A677FD /* BaseAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C098EEF775E01F3EE1F4CEF /* BaseAttachment.swift */; };
 		1C098C823B0ED6C8DDA449C2 /* Dashboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C098ADFDCCE7E60744694F8 /* Dashboard.swift */; };
@@ -128,6 +132,7 @@
 		1C0987A6BF56EBC1CB95B74E /* ParticipationServiceImpl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParticipationServiceImpl.swift; sourceTree = "<group>"; };
 		1C0987B7B724003FC08E6665 /* HttpHeaders.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HttpHeaders.swift; sourceTree = "<group>"; };
 		1C0987CD0531520E6793C0B4 /* StudentParticipation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StudentParticipation.swift; sourceTree = "<group>"; };
+		1C0988595259186CF1EDE26B /* InstructorSubmission.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InstructorSubmission.swift; sourceTree = "<group>"; };
 		1C0988D01EAA04C4775B8923 /* AccountServiceImpl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccountServiceImpl.swift; sourceTree = "<group>"; };
 		1C0989B2ACD0D52AD7B59450 /* QuizQuestion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QuizQuestion.swift; sourceTree = "<group>"; };
 		1C0989DDFF1DA9772A3862E4 /* DashboardService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DashboardService.swift; sourceTree = "<group>"; };
@@ -135,6 +140,7 @@
 		1C098A0E14DFDA97AE02334E /* CourseRegistrationUi.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CourseRegistrationUi.swift; sourceTree = "<group>"; };
 		1C098A1D279F2DE664C4C4FB /* CoursesOverviewViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoursesOverviewViewModel.swift; sourceTree = "<group>"; };
 		1C098A490B00EB0A8E14EB25 /* AccountView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccountView.swift; sourceTree = "<group>"; };
+		1C098A74BC616370BF9D76D1 /* colorutil.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = colorutil.swift; sourceTree = "<group>"; };
 		1C098A79B57472456F5753FC /* CourseRegistrationServiceImpl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CourseRegistrationServiceImpl.swift; sourceTree = "<group>"; };
 		1C098A9DA1D0970B84C2BECD /* ObservableUtil.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObservableUtil.swift; sourceTree = "<group>"; };
 		1C098ADF152F67124A5F190C /* CoursesOverviewView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoursesOverviewView.swift; sourceTree = "<group>"; };
@@ -150,6 +156,8 @@
 		1C098C961DD79541741BF451 /* CourseViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CourseViewController.swift; sourceTree = "<group>"; };
 		1C098CBA6ACC1FC29E92ADCB /* CourseUi.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CourseUi.swift; sourceTree = "<group>"; };
 		1C098D2FF5634CFEBA6A29E6 /* ReactiveSwiftStomp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ReactiveSwiftStomp.swift; path = websocket/ReactiveSwiftStomp.swift; sourceTree = "<group>"; };
+		1C098D3C07E05312C19AAAAC /* result.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = result.swift; sourceTree = "<group>"; };
+		1C098D591C6BCBD92B293F50 /* TestSubmission.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestSubmission.swift; sourceTree = "<group>"; };
 		1C098D66EAF17DF3C67C973E /* CourseServiceImpl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CourseServiceImpl.swift; sourceTree = "<group>"; };
 		1C098D73F090099DF8682660 /* BaseParticipation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseParticipation.swift; sourceTree = "<group>"; };
 		1C098D974EA7CC87B1181AF2 /* timeout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = timeout.swift; sourceTree = "<group>"; };
@@ -275,6 +283,14 @@
 			path = courses;
 			sourceTree = "<group>";
 		};
+		1C09864339685DA31FB56522 /* exercise */ = {
+			isa = PBXGroup;
+			children = (
+				1C098D3C07E05312C19AAAAC /* result.swift */,
+			);
+			path = exercise;
+			sourceTree = "<group>";
+		};
 		1C0986ABC1FA42F3860D07F3 /* quiz */ = {
 			isa = PBXGroup;
 			children = (
@@ -292,6 +308,7 @@
 				1C098B01894061710A23FB0F /* datasizeutil.swift */,
 				1C098280852E9E63A2B85CC6 /* http */,
 				1C098D974EA7CC87B1181AF2 /* timeout.swift */,
+				1C098A74BC616370BF9D76D1 /* colorutil.swift */,
 			);
 			path = util;
 			sourceTree = "<group>";
@@ -302,6 +319,8 @@
 				1C09846EB6530A9A29125820 /* BaseSubmission.swift */,
 				1C0981455702369E75426811 /* Result.swift */,
 				1C098B23E64E464D96DA1483 /* UnknownSubmission.swift */,
+				1C0988595259186CF1EDE26B /* InstructorSubmission.swift */,
+				1C098D591C6BCBD92B293F50 /* TestSubmission.swift */,
 			);
 			path = submission;
 			sourceTree = "<group>";
@@ -413,6 +432,7 @@
 				1C098DE88B81C4F7AC515609 /* course_registration */,
 				1C0986ED830477ABEFB2C73F /* courses_overview */,
 				1C0989E4A2C87A948A6B5B3A /* course */,
+				1C09864339685DA31FB56522 /* exercise */,
 			);
 			path = courses;
 			sourceTree = "<group>";
@@ -659,6 +679,10 @@
 				1C0980DF671665D1D2D6E6FC /* CourseServiceImpl.swift in Sources */,
 				1C0988289D328CF8BAD74F37 /* CourseUi.swift in Sources */,
 				1C098A1B10082F815848662C /* ExerciseListUi.swift in Sources */,
+				1C09811A68F190E01CA773EF /* colorutil.swift in Sources */,
+				1C098066557E1FBCB8087671 /* result.swift in Sources */,
+				1C0981104ADAC939504A9594 /* InstructorSubmission.swift in Sources */,
+				1C098ADF5837BBC4EE943A99 /* TestSubmission.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -10,13 +10,7 @@ protocol ParticipationService {
     /**
      * @param isPersonalParticipation whether the participation belongs to the user (by being a student) or not (by being an instructor)
      */
-    func getLatestPendingSubmissionByParticipationIdFlow(
-            participationId: Int,
-            exerciseId: Int,
-            isPersonalParticipation: Bool,
-            personal: Bool,
-            fetchPending: Bool
-    ) -> Observable<ProgrammingSubmissionStateData?>
+    func getLatestPendingSubmissionByParticipationIdObservable(participationId: Int, exerciseId: Int, personal: Bool, fetchPending: Bool) -> Observable<ProgrammingSubmissionStateData?>
 
     /**
      * Subscribing for general changes in a participation object. This will triggered if a new result is received by the service.
