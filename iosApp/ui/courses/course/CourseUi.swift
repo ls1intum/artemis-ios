@@ -28,7 +28,6 @@ struct CourseView: View {
     }
 
     var body: some View {
-
         BasicDataStateView(
                 data: viewController.course,
                 loadingText: "course_ui_loading_course_loading",

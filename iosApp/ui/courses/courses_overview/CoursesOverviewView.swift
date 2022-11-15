@@ -11,6 +11,7 @@ struct CoursesOverviewView: View {
     @StateObject var viewModel: CoursesOverviewViewModel = CoursesOverviewViewModel()
     let onClickRegisterForCourse: () -> Void
     let onNavigateToCourse: (_ courseId: Int) -> Void
+    let onLogout: () -> Void
 
     var body: some View {
         VStack(alignment: .center) {
@@ -47,6 +48,7 @@ struct CoursesOverviewView: View {
 
                         Button("Logout") {
                             viewModel.logout()
+                            onLogout()
                         }
                     }
                 }

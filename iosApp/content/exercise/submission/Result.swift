@@ -1,24 +1,24 @@
 import Foundation
 
 struct Result: Decodable {
-    let id: Int? = nil
-    let completionDate: Date? = nil
-    let successful: Bool? = nil
-    let hasFeedback: Bool? = nil
+    var id: Int? = nil
+    var completionDate: Date? = nil
+    var successful: Bool? = nil
+    var hasFeedback: Bool? = nil
         /**
      * Current score in percent i.e. between 1 - 100
      * - Can be larger than 100 if bonus points are available
      */
-    let score: Float? = nil
-    let assessmentType: AssessmentType? = nil
-    let rated: Bool? = nil
-    let hasComplaint: Bool? = nil
-    let exampleResult: Bool? = nil
-    let testCaseCount: Int? = nil
-    let passedTestCaseCount: Int? = nil
-    let codeIssueCount: Int? = nil
-    let submission: Submission? = nil
-    let assessor: User? = nil
+    var score: Float? = nil
+    var assessmentType: AssessmentType? = nil
+    var rated: Bool? = nil
+    var hasComplaint: Bool? = nil
+    var exampleResult: Bool? = nil
+    var testCaseCount: Int? = nil
+    var passedTestCaseCount: Int? = nil
+    var codeIssueCount: Int? = nil
+    var submission: Submission? = nil
+    var assessor: User? = nil
     //val feedbacks: List<Feedback>? = nil,
-    let participation: Participation? = nil
+    var participation: Participation? = nil
 }

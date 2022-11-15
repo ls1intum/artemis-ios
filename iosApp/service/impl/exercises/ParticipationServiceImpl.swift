@@ -72,7 +72,7 @@ class ParticipationServiceImpl: ParticipationService {
 
                                 do {
                                     //If a result is not available within the remaining time, null is returned.
-                                    let result: Void? = try await withTimeoutOrNull(timeout: remainingTime) {
+                                    let result: Void? = try await withTimeoutOrNull(timeout: remainingTime) { [self] in
                                         //Wait for the submission updater to emit a result for the participation we are interested in
                                         let submissionUpdater: Observable<Submission>
                                         if personal {
@@ -142,10 +142,10 @@ class ParticipationServiceImpl: ParticipationService {
 
                     switch authData {
                     case .NotLoggedIn: ()
-                    case .LoggedIn(authToken: let authToken, account: let account):
+                    case .LoggedIn(authToken: let authToken, account: _):
                         try? await sub.sendAll(
                                 publisher:
-                                retryOnInternet(connectivity: networkStatusProvider.currentNetworkStatus, perform: {
+                                retryOnInternet(connectivity: networkStatusProvider.currentNetworkStatus, perform: { [self] in
                                     let headers: HTTPHeaders = [
                                         .contentType(ContentTypes.Application.Json),
                                         .authorization(bearerToken: authToken)
@@ -166,7 +166,7 @@ class ParticipationServiceImpl: ParticipationService {
     }
 
     func subscribeForParticipationChanges() -> RxSwift.Observable<StudentParticipation> {
-        return Observable.create { sub in
+        Observable.create { sub in
             Disposables.create()
         }
     }

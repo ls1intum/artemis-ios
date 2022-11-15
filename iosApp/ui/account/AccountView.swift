@@ -3,8 +3,10 @@ import SwiftUI
 
 struct AccountView: View {
 
+    let onLoggedIn: () -> Void
+
     var body: some View {
-        LoginView()
+        LoginView(onLoggedIn: onLoggedIn)
                 .navigationBarBackButtonHidden()
     }
 }

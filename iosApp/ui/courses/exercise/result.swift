@@ -122,6 +122,8 @@ private class ExerciseResultViewController: ObservableObject {
                 .replaceError(with: .NoResult)
                 .receive(on: DispatchQueue.main)
                 .assign(to: &$templateStatus)
+
+        templateStatus = ExerciseResultViewController.evaluateTemplateStatus(participation: participation, exercise: exercise, result: result, isBuilding: isBuilding)
     }
 
     private static func evaluateTemplateStatus(

@@ -3,6 +3,8 @@ import SwiftUI
 
 struct LoginView: View {
 
+    let onLoggedIn: () -> Void
+
     @StateObject private var viewModel = LoginViewModel()
 
     @State private var username: String = ""
@@ -45,6 +47,8 @@ struct LoginView: View {
 
                     if (!response.isSuccessful) {
                         displayLoginFailureDialog = true
+                    } else {
+                        onLoggedIn()
                     }
                 }
             })

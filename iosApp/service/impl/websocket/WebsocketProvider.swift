@@ -30,7 +30,7 @@ class WebsocketProvider {
                             url += "?access_token=" + authToken
                         }
 
-                        let swiftStomp = SwiftStomp(host: URL(string: url)!)
+                        let swiftStomp = SwiftStomp(host: URL(string: url)!, headers: ["heart-beat": "10000,10000"])
                         let session = ReactiveSwiftStomp(swiftStomp: swiftStomp, jsonProvider: jsonProvider)
                         session.connect()
 
@@ -42,6 +42,9 @@ class WebsocketProvider {
                     }
                     )
                 }
+                        .do(onCompleted: {
+
+                        })
                 .share(replay: 1, scope: .whileConnected)
     }
 

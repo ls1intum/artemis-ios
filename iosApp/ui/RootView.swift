@@ -10,7 +10,10 @@ struct RootView: View {
         NavigationStack(path: $viewController.path) {
             EmptyView()
                     .navigationDestination(for: AccountDest.self) { _ in
-                        AccountView()
+                        AccountView {
+                            viewController.path.removeLast()
+                            viewController.path.append(CourseOverviewDest())
+                        }
                     }
                     .navigationDestination(for: CourseOverviewDest.self) { _ in
                         CoursesOverviewView(
@@ -19,6 +22,10 @@ struct RootView: View {
                                 },
                                 onNavigateToCourse: { courseId in
                                     navigateToCourseView(navigationPath: &viewController.path, courseId: courseId)
+                                },
+                                onLogout: {
+                                    viewController.path.removeLast(viewController.path.count)
+                                    viewController.path.append(AccountDest())
                                 }
                         )
                     }

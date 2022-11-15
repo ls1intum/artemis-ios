@@ -71,6 +71,7 @@
 		1C098D5257BF3F8084C1D6AB /* ParticipationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0983906B447444B34C11A5 /* ParticipationService.swift */; };
 		1C098D65337401C654D0F56D /* DataState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0986A12977F0E8A60950B5 /* DataState.swift */; };
 		1C098E05516193D855C4FA51 /* AccountService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C098AFF95AB352EF5A47A4C /* AccountService.swift */; };
+		1C098E54C5D37A6088B6695B /* ProgrammingExerciseStudentParticipation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C09848F3E76DA1B315D22E0 /* ProgrammingExerciseStudentParticipation.swift */; };
 		1C098E60A655B920CF119886 /* DashboardServiceImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C098113062E77ECAB9EDCCF /* DashboardServiceImpl.swift */; };
 		1C098E7E07E84FE6DD38AA3A /* courses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C098319B96A24B40D10CC21 /* courses.swift */; };
 		1C098EE43E47521038529A07 /* UnknownSubmission.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C098B23E64E464D96DA1483 /* UnknownSubmission.swift */; };
@@ -82,6 +83,7 @@
 		220409A728D4EF1A00204B1C /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220409A628D4EF1A00204B1C /* RootView.swift */; };
 		2257E4CA292126F900179516 /* SwiftDate in Frameworks */ = {isa = PBXBuildFile; productRef = 2257E4C9292126F900179516 /* SwiftDate */; };
 		225EDFFE2905AC2800C7FCA8 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 225EDFFD2905AC2800C7FCA8 /* MarkdownUI */; };
+		2266DD5629240A02005A383E /* SwiftStompClient in Frameworks */ = {isa = PBXBuildFile; productRef = 2266DD5529240A02005A383E /* SwiftStompClient */; };
 		226B088C28E30FBC00382C92 /* Factory in Frameworks */ = {isa = PBXBuildFile; productRef = 226B088B28E30FBC00382C92 /* Factory */; };
 		228D3AB7291C234300BF6239 /* RxBlocking in Frameworks */ = {isa = PBXBuildFile; productRef = 228D3AB6291C234300BF6239 /* RxBlocking */; };
 		228D3AB9291C234300BF6239 /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = 228D3AB8291C234300BF6239 /* RxCocoa */; };
@@ -116,6 +118,7 @@
 		1C09841E56980818F78990CA /* CourseRegistrationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CourseRegistrationViewController.swift; sourceTree = "<group>"; };
 		1C098420AF2C5E3E3715BC06 /* ObservedValue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObservedValue.swift; sourceTree = "<group>"; };
 		1C09846EB6530A9A29125820 /* BaseSubmission.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseSubmission.swift; sourceTree = "<group>"; };
+		1C09848F3E76DA1B315D22E0 /* ProgrammingExerciseStudentParticipation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProgrammingExerciseStudentParticipation.swift; sourceTree = "<group>"; };
 		1C098542CFAA494BB3EF413A /* Course.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Course.swift; sourceTree = "<group>"; };
 		1C098586B51822E675303B0E /* CourseRegistrationService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CourseRegistrationService.swift; sourceTree = "<group>"; };
 		1C0985C543D77816ADA5933C /* ServerCommunicationProviderImpl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServerCommunicationProviderImpl.swift; sourceTree = "<group>"; };
@@ -181,6 +184,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				22ECB44E28E79354000F5342 /* CombineExt in Frameworks */,
+				2266DD5629240A02005A383E /* SwiftStompClient in Frameworks */,
 				228D3AB7291C234300BF6239 /* RxBlocking in Frameworks */,
 				228D3AB9291C234300BF6239 /* RxCocoa in Frameworks */,
 				226B088C28E30FBC00382C92 /* Factory in Frameworks */,
@@ -213,6 +217,7 @@
 				1C098D73F090099DF8682660 /* BaseParticipation.swift */,
 				1C0987CD0531520E6793C0B4 /* StudentParticipation.swift */,
 				1C098725A9370D9DE6D6D6CE /* UnknownParticipation.swift */,
+				1C09848F3E76DA1B315D22E0 /* ProgrammingExerciseStudentParticipation.swift */,
 			);
 			path = participation;
 			sourceTree = "<group>";
@@ -543,6 +548,7 @@
 				228D3ABD291C517400BF6239 /* RxCombine */,
 				22E9E43F291EB3A40072EE41 /* Alamofire */,
 				2257E4C9292126F900179516 /* SwiftDate */,
+				2266DD5529240A02005A383E /* SwiftStompClient */,
 			);
 			productName = iosApp;
 			productReference = 7555FF7B242A565900829871 /* iosApp.app */;
@@ -576,7 +582,7 @@
 				22F8034C28D8EE7F00B55A09 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
 				226B088A28E30FBC00382C92 /* XCRemoteSwiftPackageReference "Factory" */,
 				22ECB44C28E79354000F5342 /* XCRemoteSwiftPackageReference "CombineExt" */,
-				22B1296E290038D600C4910E /* XCRemoteSwiftPackageReference "Reachability.swift" */,
+				22B1296E290038D600C4910E /* XCRemoteSwiftPackageReference "Reachability" */,
 				225EDFFC2905AC2700C7FCA8 /* XCRemoteSwiftPackageReference "MarkdownUI" */,
 				22AD700C291857280046BB84 /* XCRemoteSwiftPackageReference "SwiftStomp" */,
 				22AD700F291876C70046BB84 /* XCRemoteSwiftPackageReference "Semaphore" */,
@@ -584,6 +590,7 @@
 				228D3ABC291C517400BF6239 /* XCRemoteSwiftPackageReference "RxCombine" */,
 				22E9E43E291EB3A40072EE41 /* XCRemoteSwiftPackageReference "Alamofire" */,
 				2257E4C8292126F900179516 /* XCRemoteSwiftPackageReference "SwiftDate" */,
+				2266DD5429240A02005A383E /* XCRemoteSwiftPackageReference "SwiftStompClient" */,
 			);
 			productRefGroup = 7555FF7C242A565900829871 /* Products */;
 			projectDirPath = "";
@@ -683,6 +690,7 @@
 				1C098066557E1FBCB8087671 /* result.swift in Sources */,
 				1C0981104ADAC939504A9594 /* InstructorSubmission.swift in Sources */,
 				1C098ADF5837BBC4EE943A99 /* TestSubmission.swift in Sources */,
+				1C098E54C5D37A6088B6695B /* ProgrammingExerciseStudentParticipation.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -891,6 +899,14 @@
 				version = 1.1.1;
 			};
 		};
+		2266DD5429240A02005A383E /* XCRemoteSwiftPackageReference "SwiftStompClient" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/TimOrtel/SwiftStompClient";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 		226B088A28E30FBC00382C92 /* XCRemoteSwiftPackageReference "Factory" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/hmlongco/Factory";
@@ -931,7 +947,7 @@
 				minimumVersion = 0.0.6;
 			};
 		};
-		22B1296E290038D600C4910E /* XCRemoteSwiftPackageReference "Reachability.swift" */ = {
+		22B1296E290038D600C4910E /* XCRemoteSwiftPackageReference "Reachability" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/ashleymills/Reachability.swift";
 			requirement = {
@@ -977,6 +993,11 @@
 			package = 225EDFFC2905AC2700C7FCA8 /* XCRemoteSwiftPackageReference "MarkdownUI" */;
 			productName = MarkdownUI;
 		};
+		2266DD5529240A02005A383E /* SwiftStompClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2266DD5429240A02005A383E /* XCRemoteSwiftPackageReference "SwiftStompClient" */;
+			productName = SwiftStompClient;
+		};
 		226B088B28E30FBC00382C92 /* Factory */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 226B088A28E30FBC00382C92 /* XCRemoteSwiftPackageReference "Factory" */;
@@ -1014,7 +1035,7 @@
 		};
 		22B1296F290038D600C4910E /* Reachability */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 22B1296E290038D600C4910E /* XCRemoteSwiftPackageReference "Reachability.swift" */;
+			package = 22B1296E290038D600C4910E /* XCRemoteSwiftPackageReference "Reachability" */;
 			productName = Reachability;
 		};
 		22E9E43F291EB3A40072EE41 /* Alamofire */ = {

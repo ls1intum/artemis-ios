@@ -12,6 +12,8 @@ class ReactiveSwiftStomp: SwiftStompDelegate {
     //Accesses must be guarded by the mutex to guarantee thread safety
     private var subscriptionCounter: [String: Int] = [:]
 
+    private var pingTask: Task<Void, Never>? = nil
+
     init(swiftStomp: SwiftStomp, jsonProvider: JsonProvider) {
         self.swiftStomp = swiftStomp
         self.jsonProvider = jsonProvider
@@ -25,7 +27,8 @@ class ReactiveSwiftStomp: SwiftStompDelegate {
     private var messagePublisher = PublishSubject<StompMessage>()
 
     func connect() {
-        swiftStomp.connect()
+        swiftStomp.enableLogging = true
+        swiftStomp.connect(acceptVersion: "1.2", autoReconnect: true)
     }
 
     func disconnect() {
@@ -34,6 +37,7 @@ class ReactiveSwiftStomp: SwiftStompDelegate {
     }
 
     func onMessageReceived(swiftStomp: SwiftStomp, message: Any?, messageId: String, destination: String, headers: [String: String]) {
+        swiftStomp.ping(data: Data("\n".utf8))
         if let message = message as? String {
             let stompMessage = StompMessage(destination: destination, data: Data(message.utf8))
 
@@ -44,71 +48,86 @@ class ReactiveSwiftStomp: SwiftStompDelegate {
     }
 
     func subscribe<T>(destination: String, type: T.Type) -> Observable<T> where T: Decodable {
-        Observable.create { [self] subscriber in
-            let task = Task {
-                //Guard the access using a mutex.
-                try await subscriptionMutex.waitUnlessCancelled()
-                let currentCounter = subscriptionCounter[destination] ?? 0
+        messagePublisher
+                .do(
+                        onSubscribe: { [self] in
+                            Task {
+                                //Guard the access using a mutex.
+                                try await subscriptionMutex.waitUnlessCancelled()
+                                let currentCounter = subscriptionCounter[destination] ?? 0
 
-                //Only subscribe if the destination does not have a subscriber yet.
-                if currentCounter == 0 {
-                    swiftStomp.subscribe(to: destination)
-                }
+                                //Only subscribe if the destination does not have a subscriber yet.
+                                if currentCounter == 0 {
+                                    swiftStomp.subscribe(to: destination, mode: .client)
+                                }
 
-                subscriptionCounter[destination] = currentCounter + 1
+                                subscriptionCounter[destination] = currentCounter + 1
 
-                subscriptionMutex.signal()
-
-                let topicPublisher: Observable<T> = messagePublisher
-                        .filter { message in
-                            message.destination == destination
+                                subscriptionMutex.signal()
+                            }
                         }
-                        .map { [self] message in
-                            try! jsonProvider.decoder.decode(type, from: message.data)
-                        }
-
-                try await subscriber.sendAll(publisher: topicPublisher)
-            }
-
-
-            return Disposables.create { [self] in
-                task.cancel()
-
-                Task {
-                    await subscriptionMutex.wait() //Will not get cancelled anyway
-
-                    let currentCounter = subscriptionCounter[destination] ?? 0
-                    if currentCounter <= 1 { //Actually, only >1 should be possible
-                        //This is the last subscriber
-                        swiftStomp.unsubscribe(from: destination)
-                    }
-                    subscriptionCounter[destination] = currentCounter - 1
-
-                    subscriptionMutex.signal()
+                )
+                .filter { message in
+                    message.destination == destination
                 }
-            }
-        }
+                .map { [self] message in
+                    try! jsonProvider.decoder.decode(type, from: message.data)
+                }
+                .do(
+                        onCompleted: { [self] in
+                            Task {
+                                await subscriptionMutex.wait() //Will not get cancelled anyway
 
+                                let currentCounter = subscriptionCounter[destination] ?? 0
+                                if currentCounter <= 1 { //Actually, only >1 should be possible
+                                    //This is the last subscriber
+                                    swiftStomp.unsubscribe(from: destination)
+                                }
+                                subscriptionCounter[destination] = currentCounter - 1
+
+                                subscriptionMutex.signal()
+                            }
+                        }
+                )
     }
 
     func onConnect(swiftStomp: SwiftStomp, connectType: StompConnectType) {
-
+        switch connectType {
+        case .toSocketEndpoint:
+            ()
+        case .toStomp:
+            //Start heartbeat
+            pingTask = Task {
+                while true {
+                    do {
+                        try await Task.sleep(nanoseconds: UInt64(1e+10))
+                        swiftStomp.ping(data: Data("\n".utf8))
+                    } catch {
+                        break
+                    }
+                }
+            }
+        }
     }
 
     func onDisconnect(swiftStomp: SwiftStomp, disconnectType: StompDisconnectType) {
-
+        print("Disconnect")
+        pingTask?.cancel()
     }
 
     func onReceipt(swiftStomp: SwiftStomp, receiptId: String) {
+        swiftStomp.ping(data: Data("\n".utf8))
 
+        print("receipt")
     }
 
     func onError(swiftStomp: SwiftStomp, briefDescription: String, fullDescription: String?, receiptId: String?, type: StompErrorType) {
-
+        print("Error: " + briefDescription)
+        print("Full " + (fullDescription ?? ""))
     }
 
     func onSocketEvent(eventName: String, description: String) {
-
+        print("Socket event: " + eventName + "; " + description)
     }
 }
 

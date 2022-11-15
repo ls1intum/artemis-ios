@@ -18,11 +18,13 @@ enum Participation: Decodable {
     }
 
     case Student(participation: StudentParticipationImpl)
+    case ProgrammingExerciseStudent(participation: ProgrammingExerciseStudentParticipation)
     case Unknown(participation: UnknownParticipation)
 
     var baseParticipation: BaseParticipation {
         switch self {
         case .Student(participation: let participation): return participation
+        case .ProgrammingExerciseStudent(participation: let participation): return participation
         case .Unknown(participation: let participation): return participation
         }
     }
@@ -32,6 +34,7 @@ enum Participation: Decodable {
         let type = try container.decode(String.self, forKey: CodingKeys.type)
         switch type {
         case StudentParticipationImpl.type: self = .Student(participation: try StudentParticipationImpl(from: decoder))
+        case ProgrammingExerciseStudentParticipation.type: self = .ProgrammingExerciseStudent(participation: try ProgrammingExerciseStudentParticipation(from: decoder))
         default: self = .Unknown(participation: try UnknownParticipation(from: decoder))
         }
     }
