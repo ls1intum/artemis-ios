@@ -2,7 +2,6 @@ import Foundation
 import SwiftUI
 import Factory
 import Combine
-import CombineExt
 import RxSwift
 
 extension CoursesOverviewView {

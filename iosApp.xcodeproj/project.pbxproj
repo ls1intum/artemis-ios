@@ -91,12 +91,10 @@
 		228D3AB9291C234300BF6239 /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = 228D3AB8291C234300BF6239 /* RxCocoa */; };
 		228D3ABB291C234300BF6239 /* RxRelay in Frameworks */ = {isa = PBXBuildFile; productRef = 228D3ABA291C234300BF6239 /* RxRelay */; };
 		228D3ABE291C517400BF6239 /* RxCombine in Frameworks */ = {isa = PBXBuildFile; productRef = 228D3ABD291C517400BF6239 /* RxCombine */; };
-		22AD700E291857290046BB84 /* SwiftStomp in Frameworks */ = {isa = PBXBuildFile; productRef = 22AD700D291857290046BB84 /* SwiftStomp */; };
 		22AD7011291876C70046BB84 /* Semaphore in Frameworks */ = {isa = PBXBuildFile; productRef = 22AD7010291876C70046BB84 /* Semaphore */; };
 		22B12970290038D600C4910E /* Reachability in Frameworks */ = {isa = PBXBuildFile; productRef = 22B1296F290038D600C4910E /* Reachability */; };
 		22B12972290048A800C4910E /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 22B12971290048A800C4910E /* Localizable.strings */; };
 		22E9E440291EB3A40072EE41 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 22E9E43F291EB3A40072EE41 /* Alamofire */; };
-		22ECB44E28E79354000F5342 /* CombineExt in Frameworks */ = {isa = PBXBuildFile; productRef = 22ECB44D28E79354000F5342 /* CombineExt */; };
 		22F8034E28D8EE7F00B55A09 /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 22F8034D28D8EE7F00B55A09 /* SDWebImageSwiftUI */; };
 /* End PBXBuildFile section */
 
@@ -186,7 +184,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				22ECB44E28E79354000F5342 /* CombineExt in Frameworks */,
 				2266DD5929243DAF005A383E /* SwiftStompClient in Frameworks */,
 				228D3AB7291C234300BF6239 /* RxBlocking in Frameworks */,
 				22205D3B2925395200326A66 /* RxSwiftExt in Frameworks */,
@@ -194,7 +191,6 @@
 				226B088C28E30FBC00382C92 /* Factory in Frameworks */,
 				228D3ABE291C517400BF6239 /* RxCombine in Frameworks */,
 				22B12970290038D600C4910E /* Reachability in Frameworks */,
-				22AD700E291857290046BB84 /* SwiftStomp in Frameworks */,
 				225EDFFE2905AC2800C7FCA8 /* MarkdownUI in Frameworks */,
 				22AD7011291876C70046BB84 /* Semaphore in Frameworks */,
 				22E9E440291EB3A40072EE41 /* Alamofire in Frameworks */,
@@ -542,10 +538,8 @@
 			packageProductDependencies = (
 				22F8034D28D8EE7F00B55A09 /* SDWebImageSwiftUI */,
 				226B088B28E30FBC00382C92 /* Factory */,
-				22ECB44D28E79354000F5342 /* CombineExt */,
 				22B1296F290038D600C4910E /* Reachability */,
 				225EDFFD2905AC2800C7FCA8 /* MarkdownUI */,
-				22AD700D291857290046BB84 /* SwiftStomp */,
 				22AD7010291876C70046BB84 /* Semaphore */,
 				228D3AB6291C234300BF6239 /* RxBlocking */,
 				228D3AB8291C234300BF6239 /* RxCocoa */,
@@ -587,10 +581,8 @@
 			packageReferences = (
 				22F8034C28D8EE7F00B55A09 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
 				226B088A28E30FBC00382C92 /* XCRemoteSwiftPackageReference "Factory" */,
-				22ECB44C28E79354000F5342 /* XCRemoteSwiftPackageReference "CombineExt" */,
 				22B1296E290038D600C4910E /* XCRemoteSwiftPackageReference "Reachability" */,
 				225EDFFC2905AC2700C7FCA8 /* XCRemoteSwiftPackageReference "MarkdownUI" */,
-				22AD700C291857280046BB84 /* XCRemoteSwiftPackageReference "SwiftStomp" */,
 				22AD700F291876C70046BB84 /* XCRemoteSwiftPackageReference "Semaphore" */,
 				228D3AB5291C234300BF6239 /* XCRemoteSwiftPackageReference "RxSwift" */,
 				228D3ABC291C517400BF6239 /* XCRemoteSwiftPackageReference "RxCombine" */,
@@ -947,14 +939,6 @@
 				minimumVersion = 2.0.0;
 			};
 		};
-		22AD700C291857280046BB84 /* XCRemoteSwiftPackageReference "SwiftStomp" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Romixery/SwiftStomp";
-			requirement = {
-				kind = exactVersion;
-				version = 1.1.1;
-			};
-		};
 		22AD700F291876C70046BB84 /* XCRemoteSwiftPackageReference "Semaphore" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/groue/Semaphore";
@@ -978,14 +962,6 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 5.0.0;
-			};
-		};
-		22ECB44C28E79354000F5342 /* XCRemoteSwiftPackageReference "CombineExt" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/CombineCommunity/CombineExt.git";
-			requirement = {
-				kind = exactVersion;
-				version = 1.8.0;
 			};
 		};
 		22F8034C28D8EE7F00B55A09 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */ = {
@@ -1044,11 +1020,6 @@
 			package = 228D3ABC291C517400BF6239 /* XCRemoteSwiftPackageReference "RxCombine" */;
 			productName = RxCombine;
 		};
-		22AD700D291857290046BB84 /* SwiftStomp */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 22AD700C291857280046BB84 /* XCRemoteSwiftPackageReference "SwiftStomp" */;
-			productName = SwiftStomp;
-		};
 		22AD7010291876C70046BB84 /* Semaphore */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 22AD700F291876C70046BB84 /* XCRemoteSwiftPackageReference "Semaphore" */;
@@ -1063,11 +1034,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 22E9E43E291EB3A40072EE41 /* XCRemoteSwiftPackageReference "Alamofire" */;
 			productName = Alamofire;
-		};
-		22ECB44D28E79354000F5342 /* CombineExt */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 22ECB44C28E79354000F5342 /* XCRemoteSwiftPackageReference "CombineExt" */;
-			productName = CombineExt;
 		};
 		22F8034D28D8EE7F00B55A09 /* SDWebImageSwiftUI */ = {
 			isa = XCSwiftPackageProductDependency;

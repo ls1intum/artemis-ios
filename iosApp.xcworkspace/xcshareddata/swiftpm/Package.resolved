@@ -28,15 +28,6 @@
       }
     },
     {
-      "identity" : "combineext",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/CombineCommunity/CombineExt.git",
-      "state" : {
-        "revision" : "aaf1a0981c05360000af972473034cb952be4ca0",
-        "version" : "1.8.0"
-      }
-    },
-    {
       "identity" : "factory",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/hmlongco/Factory",
@@ -127,15 +118,6 @@
       }
     },
     {
-      "identity" : "starscream",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/daltoniam/Starscream.git",
-      "state" : {
-        "revision" : "df8d82047f6654d8e4b655d1b1525c64e1059d21",
-        "version" : "4.0.4"
-      }
-    },
-    {
       "identity" : "swiftcommonmark",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/gonzalezreal/SwiftCommonMark",
@@ -151,15 +133,6 @@
       "state" : {
         "revision" : "5d943224c3bb173e6ecf27295611615eba90c80e",
         "version" : "7.0.0"
-      }
-    },
-    {
-      "identity" : "swiftstomp",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/Romixery/SwiftStomp",
-      "state" : {
-        "revision" : "99dcfa7f428485b92de2359c9df9c778fd2d5599",
-        "version" : "1.1.1"
       }
     },
     {
