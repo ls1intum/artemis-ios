@@ -24,7 +24,7 @@ class ParticipationServiceImpl: ParticipationService {
     private let accountService: AccountService
     private let jsonProvider: JsonProvider
 
-    var personalSubmissionUpdater: Observable<Submission>
+    var personalSubmissionUpdater: Observable<Result>
 
     private var personalNewSubmissionsUpdater: Observable<WebsocketProgrammingSubmissionMessage>
 
@@ -36,12 +36,15 @@ class ParticipationServiceImpl: ParticipationService {
         self.jsonProvider = jsonProvider
 
         personalSubmissionUpdater = websocketProvider
-                .subscribe(channel: ParticipationServiceImpl.PERSONAL_PARTICIPATION_TOPIC, type: Submission.self)
-                .share(replay: 1, scope: .whileConnected)
+                .subscribe(channel: ParticipationServiceImpl.PERSONAL_PARTICIPATION_TOPIC, type: Result.self)
+                .replay(0)
+                .refCount()
+
 
         personalNewSubmissionsUpdater = websocketProvider
                 .subscribe(channel: ParticipationServiceImpl.PERSONAL_NEW_SUBMISSIONS_TOPIC, type: WebsocketProgrammingSubmissionMessage.self)
-                .share(replay: 1, scope: .whileConnected)
+                .replay(1)
+                .refCount()
     }
 
     func getLatestPendingSubmissionByParticipationIdObservable(participationId: Int, exerciseId: Int, personal: Bool, fetchPending: Bool) -> Observable<ProgrammingSubmissionStateData?> {
@@ -59,55 +62,52 @@ class ParticipationServiceImpl: ParticipationService {
         //Flow that emits when the websocket sends new data
         let updatingObservable: Observable<ProgrammingSubmissionStateData?> =
                 newSubmissionsUpdater
-                        .transformLatest { [self] sub, message in
+                        .map { [self] message in
                             switch message {
                             case .error(error: let error):
-                                sub.onNext(
-                                        .FailedSubmission(participationId: error.participationId ?? 0)
-                                )
+                                return Observable<ProgrammingSubmissionStateData?>.of(ProgrammingSubmissionStateData.FailedSubmission(participationId: error.participationId ?? 0))
                             case .submission(submission: let submission):
-                                sub.onNext(.IsBuildingPendingSubmission(participationId: participationId, submission: submission))
+                                //Round to seconds, it does not really matter
+                                let remainingTime = Int(
+                                        getExpectedRemainingTimeForBuild(submission: submission)
+                                )
 
-                                let remainingTime = getExpectedRemainingTimeForBuild(submission: submission)
-
-                                do {
-                                    //If a result is not available within the remaining time, null is returned.
-                                    let result: Void? = try await withTimeoutOrNull(timeout: remainingTime) { [self] in
-                                        //Wait for the submission updater to emit a result for the participation we are interested in
-                                        let submissionUpdater: Observable<Submission>
-                                        if personal {
-                                            submissionUpdater = personalSubmissionUpdater
-                                        } else {
-                                            submissionUpdater = websocketProvider.subscribe(
-                                                    channel: ParticipationServiceImpl.exerciseParticipationTopic(exerciseId: exerciseId),
-                                                    type: Submission.self
-                                            )
-                                        }
-
-                                        return try await submissionUpdater
-                                                .filter { it in
-                                                    it.baseSubmission.participation?.baseParticipation.id == participationId
-                                                }
-                                                .map { _ in
-                                                    ()
-                                                } // Map to Void, we are not interested in the value
-                                                .first()
-                                                .value
-                                    }
-
-                                    if result == nil {
-                                        // The server sends the latest submission without a result - so it could be that the result is too old. In this case the error is shown directly.
-                                        sub.onNext(.FailedSubmission(participationId: participationId))
-                                    } else {
-                                        //The server has sent the result.
-                                        sub.onNext(.NoPendingSubmission(participationId: participationId))
-                                    }
-                                } catch {
-                                    //Some kind of error, we assume failure
-                                    sub.onNext(.FailedSubmission(participationId: participationId))
+                                //Wait for the submission updater to emit a result for the participation we are interested in
+                                let submissionUpdater: Observable<Result>
+                                if personal {
+                                    submissionUpdater = personalSubmissionUpdater
+                                } else {
+                                    submissionUpdater = websocketProvider.subscribe(
+                                            channel: ParticipationServiceImpl.exerciseParticipationTopic(exerciseId: exerciseId),
+                                            type: Result.self
+                                    )
                                 }
+
+                                return Observable<ProgrammingSubmissionStateData?>
+                                        .of(ProgrammingSubmissionStateData.IsBuildingPendingSubmission(participationId: participationId, submission: submission))
+                                        .concat(
+                                                submissionUpdater
+                                                        .filter { it in
+                                                            it.participation?.baseParticipation.id == participationId
+                                                        }
+                                                        .map { _ in
+                                                            ()
+                                                        } // Map to Void, we are not interested in the value
+                                                        .timeout(RxTimeInterval.seconds(remainingTime), other: Observable.of(nil), scheduler: MainScheduler())
+                                                        .map { result in
+                                                            if result == nil {
+                                                                // The server sends the latest submission without a result - so it could be that the result is too old. In this case the error is shown directly.
+                                                                return .FailedSubmission(participationId: participationId)
+                                                            } else {
+                                                                //The server has sent the result.
+                                                                return .NoPendingSubmission(participationId: participationId)
+                                                            }
+                                                        }
+                                        )
+
                             }
                         }
+                        .switchLatest()
 
         if (fetchPending) {
             let initialObservable: Observable<ProgrammingSubmissionStateData?> = fetchLatestPendingSubmissionByParticipationId(participationId: participationId)
@@ -147,22 +147,32 @@ class ParticipationServiceImpl: ParticipationService {
                                 publisher:
                                 retryOnInternet(connectivity: networkStatusProvider.currentNetworkStatus, perform: { [self] in
                                     let headers: HTTPHeaders = [
-                                        .contentType(ContentTypes.Application.Json),
+                                        .contentType("*/*"),
                                         .authorization(bearerToken: authToken)
                                     ]
 
                                     return await performNetworkCall {
-                                        try await AF.request(serverUrl + "api" + "programming-exercise-participations" + String(participationId) + "latest-pending-submission", headers: headers)
-                                                .serializingDecodable(Submission?.self, decoder: jsonProvider.decoder)
+                                        let bodyString = try await AF.request(serverUrl + "api" + "programming-exercise-participations" + String(participationId) + "latest-pending-submission", headers: headers)
+                                                .serializingString()
+                                                //                                                .serializingDecodable(Submission?.self, decoder: jsonProvider.decoder)
                                                 .value
+
+                                        //TODO: This returns a html doc
+                                        return try jsonProvider.decoder.decode(Submission?.self, from: Data(bodyString.utf8))
                                     }
                                 })
                         )
                     }
                 }
-                .filter { it in it.isSuccess() }
-                .map { (it: DataState<Submission?>) in try! it.orThrow() }
-                .compactMap { $0 }
+                .filter { it in
+                    it.isSuccess()
+                }
+                .map { (it: DataState<Submission?>) in
+                    try! it.orThrow()
+                }
+                .compactMap {
+                    $0
+                }
     }
 
     func subscribeForParticipationChanges() -> RxSwift.Observable<StudentParticipation> {
@@ -172,7 +182,7 @@ class ParticipationServiceImpl: ParticipationService {
     }
 
     private func getExpectedRemainingTimeForBuild(submission: Submission) -> TimeInterval {
-        TimeInterval(120) - TimeInterval(Date().timeIntervalSince(submission.baseSubmission.submissionDate ?? Date()))
+        TimeInterval(120) - TimeInterval(Date().timeIntervalSince(submission.baseSubmission.submissionDate?.date ?? Date()))
     }
 }
 

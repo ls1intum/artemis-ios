@@ -1,4 +1,5 @@
 import Foundation
+import SwiftDate
 
 struct InstructorSubmission: BaseSubmission {
     var id: Int? = nil

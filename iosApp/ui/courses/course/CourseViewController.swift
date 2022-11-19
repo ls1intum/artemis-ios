@@ -1,6 +1,7 @@
 import Foundation
 import Factory
 import RxSwift
+import RxSwiftExt
 import SwiftDate
 import SwiftUI
 
@@ -9,9 +10,6 @@ class CourseViewController: ObservableObject {
     private let courseId: Int
     private let serverCommunicationProvider: ServerCommunicationProvider = Container.serverCommunicationProvider()
     private let accountService: AccountService = Container.accountService()
-    private let networkStatusProvider: NetworkStatusProvider = Container.networkStatusProvider()
-    private let courseService: CourseService = Container.courseService()
-    private let participationService: ParticipationService = Container.participationService()
 
     private let requestReloadCourse = PublishSubject<Void>()
 
@@ -20,20 +18,22 @@ class CourseViewController: ObservableObject {
 
     init(courseId: Int) {
         self.courseId = courseId
+        let courseService = Container.courseService()
+        let networkStatusProvider = Container.networkStatusProvider()
+        let participationService: ParticipationService = Container.participationService()
 
         let coursePublisher: Observable<DataState<Course>> = Observable
                 .combineLatest(serverCommunicationProvider.serverUrl, accountService.authenticationData, requestReloadCourse.startWith(()))
-                .transformLatest { [self] sub, data in
+                .transformLatest { sub, data in
                     let (serverUrl, authData, _) = data
 
                     switch authData {
                     case .LoggedIn(authToken: let authToken, _):
                         try? await sub.sendAll(
-                                publisher: retryOnInternet(connectivity: networkStatusProvider.currentNetworkStatus) { [self] in
+                                publisher: retryOnInternet(connectivity: networkStatusProvider.currentNetworkStatus) {
                                     let x = await courseService.getCourse(courseId: courseId, serverUrl: serverUrl, authToken: authToken)
                                     switch x {
-
-                                    case .response(data: let data):
+                                    case .response(data: _):
                                         ()
                                     case .failure(error: let error):
                                         print(error)
@@ -62,7 +62,7 @@ class CourseViewController: ObservableObject {
                                 it.exercises ?? []
                             }
                         }
-                        .transformLatest { [self] (sub, exercisesDataState: DataState<[Exercise]>) in
+                        .map { (exercisesDataState: DataState<[Exercise]>) in
                             switch exercisesDataState {
                             case .done(response: let exercises):
                                 var exercisesById = exercises.reduce(into: [Int: Exercise]()) {
@@ -74,62 +74,66 @@ class CourseViewController: ObservableObject {
                                             map[it.baseExercise.id ?? 0] = ExerciseWithParticipationStatus(exercise: it, participationStatus: it.baseExercise.computeParticipationStatus(testRun: nil))
                                         }
 
-                                sub.onNext(DataState.done(response: Array(participationStatusMap.values)))
+                                return Observable.of(DataState.done(response: Array(participationStatusMap.values)))
+                                        .concat(
+                                                participationService
+                                                        .personalSubmissionUpdater
+                                                        .filterMap { latestResult in
+                                                            guard let participation: Participation = latestResult.participation else {
+                                                                return .ignore
+                                                            }
 
-                                do {
-                                    for try await latestSubmission in participationService
-                                            .personalSubmissionUpdater
-                                            .values {
-                                        //Find the associated exercise, so that the submissions can be updated.
-                                        guard let participation: Participation = latestSubmission.baseSubmission.participation else {
-                                            continue
-                                        }
+                                                            guard let associatedExerciseId = participation.baseParticipation.exercise?.baseExercise.id else {
+                                                                return .ignore
+                                                            }
 
-                                        guard let associatedExerciseId = participation.baseParticipation.exercise?.baseExercise.id else {
-                                            continue
-                                        }
+                                                            guard let associatedExercise = exercisesById[associatedExerciseId] else {
+                                                                return .ignore
+                                                            }
 
-                                        guard let associatedExercise = exercisesById[associatedExerciseId] else {
-                                            continue
-                                        }
+                                                            return .map((participation, associatedExerciseId, associatedExercise))
+                                                        }
+                                                        .map { (data: (Participation, Int, Exercise)) in
+                                                            let (participation, associatedExerciseId, associatedExercise) = data
 
-                                        let currentAssociatedExerciseParticipations = associatedExercise.baseExercise.studentParticipations
+                                                            let currentAssociatedExerciseParticipations = associatedExercise.baseExercise.studentParticipations
 
-                                        let updatedParticipations =
-                                                //Replace the updated participation
-                                                currentAssociatedExerciseParticipations?.map { oldParticipation in
-                                                    if oldParticipation.baseParticipation.id == participation.baseParticipation.id {
-                                                        return participation
-                                                    } else {
-                                                        return oldParticipation
-                                                    }
-                                                } ?? //The new participations are just the one we just received
-                                                        [participation]
+                                                            let updatedParticipations =
+                                                                    //Replace the updated participation
+                                                                    currentAssociatedExerciseParticipations?.map { oldParticipation in
+                                                                        if oldParticipation.baseParticipation.id == participation.baseParticipation.id {
+                                                                            return participation
+                                                                        } else {
+                                                                            return oldParticipation
+                                                                        }
+                                                                    } ?? //The new participations are just the one we just received
+                                                                            [participation]
 
-                                        //Replace the exercise
-                                        let newExercise = associatedExercise.copyWithUpdatedParticipations(
-                                                newParticipations: updatedParticipations
+                                                            //Replace the exercise
+                                                            let newExercise = associatedExercise.copyWithUpdatedParticipations(
+                                                                    newParticipations: updatedParticipations
+                                                            )
+
+                                                            exercisesById[associatedExerciseId] = newExercise
+
+                                                            participationStatusMap[associatedExerciseId] =
+                                                                    ExerciseWithParticipationStatus(
+                                                                            exercise: newExercise,
+                                                                            participationStatus: newExercise.baseExercise.computeParticipationStatus(testRun: nil)
+                                                                    )
+
+                                                            return DataState.done(response: Array(participationStatusMap.values))
+                                                        }
                                         )
-
-                                        exercisesById[associatedExerciseId] = newExercise
-
-                                        participationStatusMap[associatedExerciseId] =
-                                                ExerciseWithParticipationStatus(
-                                                        exercise: newExercise,
-                                                        participationStatus: newExercise.baseExercise.computeParticipationStatus(testRun: nil)
-                                                )
-
-                                        sub.onNext(DataState.done(response: Array(participationStatusMap.values)))
-                                    }
-                                } catch {
-                                    //Should not happen
-                                }
                             default:
-                                sub.onNext(exercisesDataState.bind { _ in
-                                    []
-                                })
+                                return Observable.of(
+                                        exercisesDataState.bind { _ in
+                                            []
+                                        }
+                                )
                             }
                         }
+                        .switchLatest()
 
         exerciseWithParticipationStatusObservable
                 .map { exercisesDataState in

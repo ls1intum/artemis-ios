@@ -91,12 +91,21 @@
       }
     },
     {
+      "identity" : "rxswiftext",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/RxSwiftCommunity/RxSwiftExt",
+      "state" : {
+        "revision" : "a42af9caeab63f2dbde318f1f3dc424f05871a37",
+        "version" : "6.1.0"
+      }
+    },
+    {
       "identity" : "sdwebimage",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SDWebImage/SDWebImage.git",
       "state" : {
-        "revision" : "318cca556b0489aede0cd98d8d0c7f1408ab7bd6",
-        "version" : "5.13.5"
+        "revision" : "3312bf5e67b52fbce7c3caf431b0cda721a9f7bb",
+        "version" : "5.14.2"
       }
     },
     {
@@ -154,12 +163,20 @@
       }
     },
     {
+      "identity" : "swiftstompclient",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/TimOrtel/SwiftStompClient",
+      "state" : {
+        "revision" : "dc4fb4f1859cb13d8dddea3a870469e009601f11"
+      }
+    },
+    {
       "identity" : "xctest-dynamic-overlay",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/xctest-dynamic-overlay",
       "state" : {
-        "revision" : "16e6409ee82e1b81390bdffbf217b9c08ab32784",
-        "version" : "0.5.0"
+        "revision" : "5a5457a744239896e9b0b03a8e1a5069c3e7b91f",
+        "version" : "0.6.0"
       }
     }
   ],

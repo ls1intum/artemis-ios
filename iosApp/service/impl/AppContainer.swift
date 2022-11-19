@@ -33,7 +33,7 @@ extension Container {
     }
 
     static let websocketProvider = Factory<WebsocketProvider>(scope: .singleton) {
-        WebsocketProvider(jsonProvider: jsonProvider(), serverCommunicationProvider: serverCommunicationProvider(), accountService: accountService())
+        WebsocketProvider(jsonProvider: jsonProvider(), serverCommunicationProvider: serverCommunicationProvider(), accountService: accountService(), networkStatusProvider: networkStatusProvider())
     }
 
     static let participationService = Factory<ParticipationService>(scope: .singleton) {

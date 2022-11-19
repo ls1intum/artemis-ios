@@ -85,8 +85,8 @@ private class ExerciseResultViewController: ObservableObject {
                             switch submission {
                             case .Instructor(_), .Test(_): shouldUpdateBasedOnData = true
                             default:
-                                let submissionDate = submission.baseSubmission.submissionDate ?? Date(timeIntervalSince1970: 0)
-                                let dueDate = exercise.baseExercise.getDueDate(participation: participation) ?? Date(timeIntervalSince1970: 0)
+                                let submissionDate = submission.baseSubmission.submissionDate?.date ?? Date(timeIntervalSince1970: 0)
+                                let dueDate: Date = exercise.baseExercise.getDueDate(participation: participation) ?? Date(timeIntervalSince1970: 0)
 
                                 shouldUpdateBasedOnData = submissionDate < dueDate
                             }

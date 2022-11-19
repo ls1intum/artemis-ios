@@ -87,7 +87,7 @@ extension Participation {
                 return true
             }
 
-            return submissionDate! < dueDate!
+            return submissionDate!.date < dueDate!
         }
 
         // If the submission has no submissionDate set, the submission cannot be in time.

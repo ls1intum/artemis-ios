@@ -5,7 +5,7 @@ protocol ParticipationService {
     /**
      * Subscribed to the users personal participations
      */
-    var personalSubmissionUpdater: Observable<Submission> { get }
+    var personalSubmissionUpdater: Observable<Result> { get }
 
     /**
      * @param isPersonalParticipation whether the participation belongs to the user (by being a student) or not (by being an instructor)

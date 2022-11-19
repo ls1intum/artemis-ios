@@ -63,6 +63,7 @@
 		1C098ADF5837BBC4EE943A99 /* TestSubmission.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C098D591C6BCBD92B293F50 /* TestSubmission.swift */; };
 		1C098B34535E89BDFB105645 /* UnknownParticipation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C098725A9370D9DE6D6D6CE /* UnknownParticipation.swift */; };
 		1C098BBA6F7864D9F6A677FD /* BaseAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C098EEF775E01F3EE1F4CEF /* BaseAttachment.swift */; };
+		1C098BFD5791D60216C1C33B /* ReconnectingSwiftStomp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C09803E4F9E0C840F51EE0D /* ReconnectingSwiftStomp.swift */; };
 		1C098C823B0ED6C8DDA449C2 /* Dashboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C098ADFDCCE7E60744694F8 /* Dashboard.swift */; };
 		1C098CBE594190EBE4B7338B /* TextExercise.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C098F0AF7B4FC758A19DDF0 /* TextExercise.swift */; };
 		1C098CE8AC7498F53679EB5E /* Team.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0981C4029DD604EF213FC3 /* Team.swift */; };
@@ -81,9 +82,10 @@
 		1C098FF7C17896FCEA2FC228 /* datastateui.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C098DC2127E649084ED7A33 /* datastateui.swift */; };
 		2152FB042600AC8F00CF470E /* iOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2152FB032600AC8F00CF470E /* iOSApp.swift */; };
 		220409A728D4EF1A00204B1C /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220409A628D4EF1A00204B1C /* RootView.swift */; };
+		22205D3B2925395200326A66 /* RxSwiftExt in Frameworks */ = {isa = PBXBuildFile; productRef = 22205D3A2925395200326A66 /* RxSwiftExt */; };
 		2257E4CA292126F900179516 /* SwiftDate in Frameworks */ = {isa = PBXBuildFile; productRef = 2257E4C9292126F900179516 /* SwiftDate */; };
 		225EDFFE2905AC2800C7FCA8 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 225EDFFD2905AC2800C7FCA8 /* MarkdownUI */; };
-		2266DD5629240A02005A383E /* SwiftStompClient in Frameworks */ = {isa = PBXBuildFile; productRef = 2266DD5529240A02005A383E /* SwiftStompClient */; };
+		2266DD5929243DAF005A383E /* SwiftStompClient in Frameworks */ = {isa = PBXBuildFile; productRef = 2266DD5829243DAF005A383E /* SwiftStompClient */; };
 		226B088C28E30FBC00382C92 /* Factory in Frameworks */ = {isa = PBXBuildFile; productRef = 226B088B28E30FBC00382C92 /* Factory */; };
 		228D3AB7291C234300BF6239 /* RxBlocking in Frameworks */ = {isa = PBXBuildFile; productRef = 228D3AB6291C234300BF6239 /* RxBlocking */; };
 		228D3AB9291C234300BF6239 /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = 228D3AB8291C234300BF6239 /* RxCocoa */; };
@@ -102,6 +104,7 @@
 		058557BA273AAA24004C7B11 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		058557D8273AAEEB004C7B11 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		1C098021BC0C6C924082ACD4 /* BaseExercise.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseExercise.swift; sourceTree = "<group>"; };
+		1C09803E4F9E0C840F51EE0D /* ReconnectingSwiftStomp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ReconnectingSwiftStomp.swift; path = websocket/ReconnectingSwiftStomp.swift; sourceTree = "<group>"; };
 		1C0980813BE156858016F214 /* fab.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = fab.swift; sourceTree = "<group>"; };
 		1C0980ADC3CC715AB2ABE659 /* ModelingExercise.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ModelingExercise.swift; sourceTree = "<group>"; };
 		1C098113062E77ECAB9EDCCF /* DashboardServiceImpl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DashboardServiceImpl.swift; sourceTree = "<group>"; };
@@ -184,8 +187,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				22ECB44E28E79354000F5342 /* CombineExt in Frameworks */,
-				2266DD5629240A02005A383E /* SwiftStompClient in Frameworks */,
+				2266DD5929243DAF005A383E /* SwiftStompClient in Frameworks */,
 				228D3AB7291C234300BF6239 /* RxBlocking in Frameworks */,
+				22205D3B2925395200326A66 /* RxSwiftExt in Frameworks */,
 				228D3AB9291C234300BF6239 /* RxCocoa in Frameworks */,
 				226B088C28E30FBC00382C92 /* Factory in Frameworks */,
 				228D3ABE291C517400BF6239 /* RxCombine in Frameworks */,
@@ -478,6 +482,7 @@
 				1C098D2FF5634CFEBA6A29E6 /* ReactiveSwiftStomp.swift */,
 				1C098F16B16757222578B0D5 /* exercises */,
 				1C0985686E62BE878A93524E /* courses */,
+				1C09803E4F9E0C840F51EE0D /* ReconnectingSwiftStomp.swift */,
 			);
 			path = impl;
 			sourceTree = "<group>";
@@ -548,7 +553,8 @@
 				228D3ABD291C517400BF6239 /* RxCombine */,
 				22E9E43F291EB3A40072EE41 /* Alamofire */,
 				2257E4C9292126F900179516 /* SwiftDate */,
-				2266DD5529240A02005A383E /* SwiftStompClient */,
+				2266DD5829243DAF005A383E /* SwiftStompClient */,
+				22205D3A2925395200326A66 /* RxSwiftExt */,
 			);
 			productName = iosApp;
 			productReference = 7555FF7B242A565900829871 /* iosApp.app */;
@@ -590,7 +596,8 @@
 				228D3ABC291C517400BF6239 /* XCRemoteSwiftPackageReference "RxCombine" */,
 				22E9E43E291EB3A40072EE41 /* XCRemoteSwiftPackageReference "Alamofire" */,
 				2257E4C8292126F900179516 /* XCRemoteSwiftPackageReference "SwiftDate" */,
-				2266DD5429240A02005A383E /* XCRemoteSwiftPackageReference "SwiftStompClient" */,
+				2266DD5729243DAF005A383E /* XCRemoteSwiftPackageReference "SwiftStompClient" */,
+				22205D392925395200326A66 /* XCRemoteSwiftPackageReference "RxSwiftExt" */,
 			);
 			productRefGroup = 7555FF7C242A565900829871 /* Products */;
 			projectDirPath = "";
@@ -691,6 +698,7 @@
 				1C0981104ADAC939504A9594 /* InstructorSubmission.swift in Sources */,
 				1C098ADF5837BBC4EE943A99 /* TestSubmission.swift in Sources */,
 				1C098E54C5D37A6088B6695B /* ProgrammingExerciseStudentParticipation.swift in Sources */,
+				1C098BFD5791D60216C1C33B /* ReconnectingSwiftStomp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -883,6 +891,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		22205D392925395200326A66 /* XCRemoteSwiftPackageReference "RxSwiftExt" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/RxSwiftCommunity/RxSwiftExt";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.0.0;
+			};
+		};
 		2257E4C8292126F900179516 /* XCRemoteSwiftPackageReference "SwiftDate" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/malcommac/SwiftDate";
@@ -899,12 +915,12 @@
 				version = 1.1.1;
 			};
 		};
-		2266DD5429240A02005A383E /* XCRemoteSwiftPackageReference "SwiftStompClient" */ = {
+		2266DD5729243DAF005A383E /* XCRemoteSwiftPackageReference "SwiftStompClient" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/TimOrtel/SwiftStompClient";
 			requirement = {
-				branch = master;
-				kind = branch;
+				kind = revision;
+				revision = dc4fb4f1859cb13d8dddea3a870469e009601f11;
 			};
 		};
 		226B088A28E30FBC00382C92 /* XCRemoteSwiftPackageReference "Factory" */ = {
@@ -983,6 +999,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		22205D3A2925395200326A66 /* RxSwiftExt */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 22205D392925395200326A66 /* XCRemoteSwiftPackageReference "RxSwiftExt" */;
+			productName = RxSwiftExt;
+		};
 		2257E4C9292126F900179516 /* SwiftDate */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 2257E4C8292126F900179516 /* XCRemoteSwiftPackageReference "SwiftDate" */;
@@ -993,9 +1014,9 @@
 			package = 225EDFFC2905AC2700C7FCA8 /* XCRemoteSwiftPackageReference "MarkdownUI" */;
 			productName = MarkdownUI;
 		};
-		2266DD5529240A02005A383E /* SwiftStompClient */ = {
+		2266DD5829243DAF005A383E /* SwiftStompClient */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 2266DD5429240A02005A383E /* XCRemoteSwiftPackageReference "SwiftStompClient" */;
+			package = 2266DD5729243DAF005A383E /* XCRemoteSwiftPackageReference "SwiftStompClient" */;
 			productName = SwiftStompClient;
 		};
 		226B088B28E30FBC00382C92 /* Factory */ = {
