@@ -2,9 +2,39 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:iosApp.xcodeproj">
+      location = "group:feature/ExerciseView">
    </FileRef>
    <FileRef
-      location = "group:Pods/Pods.xcodeproj">
+      location = "group:feature/CourseView">
+   </FileRef>
+   <FileRef
+      location = "group:feature/CourseRegistration">
+   </FileRef>
+   <FileRef
+      location = "group:feature/Dashboard">
+   </FileRef>
+   <FileRef
+      location = "group:feature/Login">
+   </FileRef>
+   <FileRef
+      location = "group:core/Websocket">
+   </FileRef>
+   <FileRef
+      location = "group:core/UI">
+   </FileRef>
+   <FileRef
+      location = "group:core/Model">
+   </FileRef>
+   <FileRef
+      location = "group:core/Device">
+   </FileRef>
+   <FileRef
+      location = "group:core/Datastore">
+   </FileRef>
+   <FileRef
+      location = "group:core/Data">
+   </FileRef>
+   <FileRef
+      location = "group:iosApp.xcodeproj">
    </FileRef>
 </Workspace>

@@ -175,6 +175,17 @@
 		2152FB032600AC8F00CF470E /* iOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp.swift; sourceTree = "<group>"; };
 		220409A628D4EF1A00204B1C /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		22B12971290048A800C4910E /* Localizable.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
+		22B6A90F292D3DB100F08C7E /* Data */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Data; path = core/Data; sourceTree = "<group>"; };
+		22B6A910292D3E8100F08C7E /* Datastore */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Datastore; path = core/Datastore; sourceTree = "<group>"; };
+		22B6A911292D3F7100F08C7E /* Device */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Device; path = core/Device; sourceTree = "<group>"; };
+		22B6A912292D3F7B00F08C7E /* Model */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Model; path = core/Model; sourceTree = "<group>"; };
+		22B6A913292D3F9000F08C7E /* UI */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = UI; path = core/UI; sourceTree = "<group>"; };
+		22B6A914292D3F9900F08C7E /* Websocket */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Websocket; path = core/Websocket; sourceTree = "<group>"; };
+		22B6A915292D417100F08C7E /* CourseRegistration */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = CourseRegistration; path = feature/CourseRegistration; sourceTree = "<group>"; };
+		22B6A916292D417900F08C7E /* CourseView */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = CourseView; path = feature/CourseView; sourceTree = "<group>"; };
+		22B6A917292D418300F08C7E /* Dashboard */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Dashboard; path = feature/Dashboard; sourceTree = "<group>"; };
+		22B6A918292D418F00F08C7E /* ExerciseView */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = ExerciseView; path = feature/ExerciseView; sourceTree = "<group>"; };
+		22B6A919292D419800F08C7E /* Login */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Login; path = feature/Login; sourceTree = "<group>"; };
 		7555FF7B242A565900829871 /* iosApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iosApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7555FF8C242A565B00829871 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -423,13 +434,6 @@
 			path = exercises;
 			sourceTree = "<group>";
 		};
-		21622B9BF08CD3C1E1587F2B /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Pods;
-			sourceTree = "<group>";
-		};
 		227BD53528E24A4C00D11F92 /* courses */ = {
 			isa = PBXGroup;
 			children = (
@@ -483,12 +487,30 @@
 			path = impl;
 			sourceTree = "<group>";
 		};
+		22B6A90D292D3CAB00F08C7E /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				22B6A90F292D3DB100F08C7E /* Data */,
+				22B6A910292D3E8100F08C7E /* Datastore */,
+				22B6A911292D3F7100F08C7E /* Device */,
+				22B6A912292D3F7B00F08C7E /* Model */,
+				22B6A913292D3F9000F08C7E /* UI */,
+				22B6A914292D3F9900F08C7E /* Websocket */,
+				22B6A915292D417100F08C7E /* CourseRegistration */,
+				22B6A916292D417900F08C7E /* CourseView */,
+				22B6A917292D418300F08C7E /* Dashboard */,
+				22B6A918292D418F00F08C7E /* ExerciseView */,
+				22B6A919292D419800F08C7E /* Login */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
 		7555FF72242A565900829871 = {
 			isa = PBXGroup;
 			children = (
+				22B6A90D292D3CAB00F08C7E /* Packages */,
 				7555FF7D242A565900829871 /* iosApp */,
 				7555FF7C242A565900829871 /* Products */,
-				21622B9BF08CD3C1E1587F2B /* Pods */,
 				1C098BE94B1D25D8F4F19DAD /* readme.md */,
 				1C098681E5B54683749B1859 /* .gitignore */,
 			);
