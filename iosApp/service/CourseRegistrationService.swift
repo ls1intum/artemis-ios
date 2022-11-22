@@ -1,4 +1,5 @@
 import Foundation
+import Model
 
 /**
  * Service that handles all server communication for registering to a course.

@@ -3,6 +3,7 @@ import Combine
 import Alamofire
 import RxCombine
 import RxSwift
+import Model
 
 class AccountServiceImpl: AccountService {
 

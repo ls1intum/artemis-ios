@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import Model
 
 /**
  * Service where you can make requests about the Artemis dashboard.

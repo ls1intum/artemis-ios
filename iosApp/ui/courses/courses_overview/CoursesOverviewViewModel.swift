@@ -3,6 +3,7 @@ import SwiftUI
 import Factory
 import Combine
 import RxSwift
+import Model
 
 extension CoursesOverviewView {
     @MainActor class CoursesOverviewViewModel: ObservableObject {

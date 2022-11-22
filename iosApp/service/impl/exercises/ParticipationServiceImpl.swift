@@ -1,6 +1,7 @@
 import Foundation
 import RxSwift
 import Alamofire
+import Model
 
 /**
  * From: https://github.com/ls1intum/Artemis/blob/5c13e2e1b5b6d81594b9123946f040cbf6f0cfc6/src/main/webapp/app/overview/participation-websocket.service.ts

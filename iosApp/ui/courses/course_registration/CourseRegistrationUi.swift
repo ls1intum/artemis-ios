@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 import Factory
 import MarkdownUI
+import Model
 
 struct CourseRegistrationView: View {
 

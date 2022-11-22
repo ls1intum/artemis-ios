@@ -1,6 +1,7 @@
 import Foundation
 import SwiftUI
 import Factory
+import Model
 
 private let MIN_SCORE_GREEN: Float = 80.0
 private let MIN_SCORE_ORANGE: Float = 40.0

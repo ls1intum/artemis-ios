@@ -1,5 +1,6 @@
 import Foundation
 import RxSwift
+import Model
 
 protocol ParticipationService {
     /**

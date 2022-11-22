@@ -2,13 +2,13 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:feature/CourseRegistration">
+   </FileRef>
+   <FileRef
       location = "group:feature/ExerciseView">
    </FileRef>
    <FileRef
       location = "group:feature/CourseView">
-   </FileRef>
-   <FileRef
-      location = "group:feature/CourseRegistration">
    </FileRef>
    <FileRef
       location = "group:feature/Dashboard">

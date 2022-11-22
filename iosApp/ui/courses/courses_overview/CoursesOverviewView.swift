@@ -2,6 +2,7 @@ import SwiftUI
 import Combine
 import SDWebImageSwiftUI
 import SDWebImage
+import Model
 
 /**
  * Display the course overview with the course list.

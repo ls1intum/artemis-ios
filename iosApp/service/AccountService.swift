@@ -1,9 +1,6 @@
-//
-// Created by Tim Ortel on 26.09.22.
-//
-
 import Foundation
 import RxSwift
+import Model
 
 /**
  * Service that provides data about the users login status.
