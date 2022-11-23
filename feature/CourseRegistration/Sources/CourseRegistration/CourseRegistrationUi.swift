@@ -4,6 +4,27 @@ import Factory
 import MarkdownUI
 import Model
 import Data
+import Datastore
+import RxSwift
+import UI
+
+public extension View {
+    func courseRegistrationDestination(onNavigateUp: () -> Void, onRegisteredInCourse: (_ courseId: Int) -> Void) -> some View {
+        navigationDestination(for: CourseRegistration.self) { _ in
+            CourseRegistrationView()
+        }
+    }
+}
+
+public extension NavigationPath {
+    mutating func appendCourseRegistration() {
+        append(CourseRegistration())
+    }
+}
+
+
+struct CourseRegistration: Hashable {
+}
 
 struct CourseRegistrationView: View {
 

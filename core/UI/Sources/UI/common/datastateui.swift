@@ -7,7 +7,7 @@ import Data
  * For loading, a progress bar with text on top of it
  * For suspended and failure, text with a try again button.
  */
-struct BasicDataStateView<T, ChildContent: View>: View {
+public struct BasicDataStateView<T, ChildContent: View>: View {
 
     let data: DataState<T>
     let successUi: ChildContent?
@@ -17,7 +17,7 @@ struct BasicDataStateView<T, ChildContent: View>: View {
     let retryButtonText: LocalizedStringKey
     let clickRetryButtonAction: () -> Void
 
-    init(
+    public init(
             data: DataState<T>,
             loadingText: LocalizedStringKey,
             failureText: LocalizedStringKey,
@@ -42,7 +42,7 @@ struct BasicDataStateView<T, ChildContent: View>: View {
 
     }
 
-    var body: some View {
+    public var body: some View {
         ZStack {
             switch data {
             case .failure, .suspended:
@@ -76,11 +76,11 @@ struct BasicDataStateView<T, ChildContent: View>: View {
     }
 }
 
-struct EmptyDataStateView<T, ChildContent: View>: View {
+public struct EmptyDataStateView<T, ChildContent: View>: View {
     let dataState: DataState<T>
     let content: ChildContent?
 
-    init(dataState: DataState<T>, @ViewBuilder builder: (T) -> ChildContent) {
+    public init(dataState: DataState<T>, @ViewBuilder builder: (T) -> ChildContent) {
         self.dataState = dataState
         switch dataState {
         case .done(let data): content = builder(data)
@@ -88,7 +88,7 @@ struct EmptyDataStateView<T, ChildContent: View>: View {
         }
     }
 
-    var body: some View {
+    public var body: some View {
         if let c = content {
             c
         } else {

@@ -1,7 +1,7 @@
 import Foundation
 import SwiftUI
 
-extension Color {
+public extension Color {
     static var outline: Color = Color("outline")
 
     static var primaryContainer = PrimaryContainer(
@@ -12,9 +12,9 @@ extension Color {
     )
 }
 
-struct PrimaryContainer {
-    let primaryContainer: Color
-    let surface: Color
-    let onSurface: Color
-    let onPrimaryContainer: Color
+public struct PrimaryContainer {
+    public let primaryContainer: Color
+    public let surface: Color
+    public let onSurface: Color
+    public let onPrimaryContainer: Color
 }

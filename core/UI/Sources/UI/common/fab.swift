@@ -4,13 +4,13 @@ import SwiftUI
 /**
  * Adapted from: https://programmingwithswift.com/swiftui-floating-action-button/
  */
-struct FloatingActionButton: View {
+public struct FloatingActionButton: View {
 
-    let backgroundColor: Color
-    let content: FabContent
-    let action: () -> Void
+    public let backgroundColor: Color
+    public let content: FabContent
+    public let action: () -> Void
 
-    var body: some View {
+    public var body: some View {
             Button(action: action, label: {
                 switch content {
                 case .Text(let text):
@@ -35,7 +35,7 @@ struct FloatingActionButton: View {
     }
 }
 
-enum FabContent {
+public enum FabContent {
     case Text(text: LocalizedStringKey)
     case Icon(systemName: String)
 }

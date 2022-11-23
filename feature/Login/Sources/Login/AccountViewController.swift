@@ -2,6 +2,7 @@ import Foundation
 import Factory
 import Data
 import Datastore
+import Model
 
 @MainActor class AccountViewController: ObservableObject {
 

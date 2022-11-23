@@ -3,7 +3,7 @@ import SwiftUI
 import SDWebImageSwiftUI
 import Model
 
-struct CoursesHeaderView<Content: View>: View {
+public struct CoursesHeaderView<Content: View>: View {
 
     let course: Course
     let bearer: String
@@ -11,7 +11,7 @@ struct CoursesHeaderView<Content: View>: View {
 
     let courseIconUrl: String?
 
-    init(course: Course, serverUrl: String, bearer: String, @ViewBuilder content: () -> Content) {
+    public init(course: Course, serverUrl: String, bearer: String, @ViewBuilder content: () -> Content) {
         self.course = course
         self.bearer = bearer
 
@@ -24,7 +24,7 @@ struct CoursesHeaderView<Content: View>: View {
         contentView = content()
     }
 
-    var body: some View {
+    public var body: some View {
         let cardShape = RoundedRectangle(cornerRadius: 10, style: .continuous)
         return ZStack {
             VStack {

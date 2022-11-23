@@ -1,7 +1,6 @@
 import Foundation
 import Alamofire
 import Model
-import Data
 
 class CourseServiceImpl: CourseService {
 

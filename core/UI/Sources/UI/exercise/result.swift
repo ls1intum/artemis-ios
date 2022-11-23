@@ -3,6 +3,7 @@ import SwiftUI
 import Factory
 import Model
 import Websocket
+import Data
 
 private let MIN_SCORE_GREEN: Float = 80.0
 private let MIN_SCORE_ORANGE: Float = 40.0
@@ -178,7 +179,7 @@ private class ExerciseResultViewController: ObservableObject {
     }
 }
 
-struct ExerciseResultView: View {
+public struct ExerciseResultView: View {
 
     private let exercise: Exercise
     private let participation: Participation
@@ -188,7 +189,7 @@ struct ExerciseResultView: View {
 
     @StateObject private var viewController: ExerciseResultViewController
 
-    init(exercise: Exercise, participation: Participation, result: Result?, showUngradedResults: Bool, personal: Bool) {
+    public init(exercise: Exercise, participation: Participation, result: Result?, showUngradedResults: Bool, personal: Bool) {
         self.exercise = exercise
         self.participation = participation
         self.result = result
@@ -211,7 +212,7 @@ struct ExerciseResultView: View {
 
     }
 
-    var body: some View {
+    public var body: some View {
         switch viewController.templateStatus {
         case .IsBuilding: StatusIsBuildingView()
         case .NoResult:

@@ -3,6 +3,24 @@ import Combine
 import SDWebImageSwiftUI
 import SDWebImage
 import Model
+import UI
+
+public extension View {
+    func dashboardDestination(onLogout: @escaping () -> Void, onClickRegisterForCourse: @escaping () -> Void, onViewCourse: @escaping (_ courseId: Int) -> Void) -> some View {
+        navigationDestination(for: CourseOverviewDest.self) { _ in
+            CoursesOverviewView(onClickRegisterForCourse: onClickRegisterForCourse, onNavigateToCourse: onViewCourse, onLogout: onLogout)
+        }
+    }
+}
+
+public extension NavigationPath {
+    mutating func appendDashboard() {
+        append(CourseOverviewDest())
+    }
+}
+
+struct CourseOverviewDest: Hashable {
+}
 
 /**
  * Display the course overview with the course list.

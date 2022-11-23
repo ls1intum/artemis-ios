@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "Data",
-    platforms: [.iOS(.v15)],
+    platforms: [.iOS(.v16)],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
@@ -18,14 +18,15 @@ let package = Package(
         .package(path: "../Model"),
         .package(path: "../Common"),
         .package(path: "../Device"),
-        .package(url: "https://github.com/ReactiveX/RxSwift.git", exact: "6.5.0")
+        .package(url: "https://github.com/ReactiveX/RxSwift.git", exact: "6.5.0"),
+        .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.6.1"))
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "Data",
-            dependencies: ["RxSwift", "Model", "Common", "Device"]),
+            dependencies: ["RxSwift", "Model", "Common", "Device", "Alamofire"]),
         .testTarget(
             name: "DataTests",
             dependencies: ["Data"]),

@@ -1,11 +1,12 @@
 import Foundation
 import SwiftUI
+import UI
 
 private struct CourseDest: Hashable {
     let courseId: Int
 }
 
-extension View {
+public extension View {
     func courseViewDestination() -> some View {
         navigationDestination(for: CourseDest.self) { dest in
             CourseView(courseId: dest.courseId)
@@ -13,8 +14,10 @@ extension View {
     }
 }
 
-func navigateToCourseView(navigationPath: inout NavigationPath, courseId: Int) {
-    navigationPath.append(CourseDest(courseId: courseId))
+public extension NavigationPath {
+    mutating func appendCourseView(courseId: Int) {
+        append(CourseDest(courseId: courseId))
+    }
 }
 
 struct CourseView: View {

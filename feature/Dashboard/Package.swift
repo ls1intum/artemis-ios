@@ -5,6 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "Dashboard",
+    platforms: [.iOS(.v16)],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
@@ -23,7 +24,7 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "Dashboard",
-            dependencies: []),
+            dependencies: ["UI", "Data", "Device"]),
         .testTarget(
             name: "DashboardTests",
             dependencies: ["Dashboard"]),

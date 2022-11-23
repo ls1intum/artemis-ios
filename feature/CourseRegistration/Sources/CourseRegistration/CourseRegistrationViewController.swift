@@ -4,6 +4,10 @@ import Factory
 import RxSwift
 import Model
 import Data
+import Device
+import Datastore
+import UI
+import Common
 
 @MainActor class CourseRegistrationViewController: ObservableObject {
 
