@@ -1,6 +1,7 @@
 import Foundation
 import RxSwift
 import Model
+import Data
 
 /**
  * Service that provides data about the users login status.

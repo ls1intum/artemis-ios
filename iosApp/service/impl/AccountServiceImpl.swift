@@ -4,6 +4,8 @@ import Alamofire
 import RxCombine
 import RxSwift
 import Model
+import Data
+import Device
 
 class AccountServiceImpl: AccountService {
 

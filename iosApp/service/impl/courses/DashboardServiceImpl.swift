@@ -1,6 +1,7 @@
 import Foundation
 import Alamofire
 import Model
+import Data
 
 /**
  * DashboardService implementation that requests the dashboard from the Artemis server.

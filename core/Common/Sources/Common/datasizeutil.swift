@@ -1,6 +1,6 @@
 import Foundation
 
-extension Int {
+public extension Int {
     func KB() -> Int {
         self * 1024
     }

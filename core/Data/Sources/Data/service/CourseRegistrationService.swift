@@ -4,7 +4,7 @@ import Model
 /**
  * Service that handles all server communication for registering to a course.
  */
-protocol CourseRegistrationService {
+public protocol CourseRegistrationService {
     /**
      * Fetch the courses the user can register to from the server.
      */

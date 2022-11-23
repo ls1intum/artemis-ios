@@ -4,6 +4,8 @@ import Factory
 import Combine
 import RxSwift
 import Model
+import Data
+import Device
 
 extension CoursesOverviewView {
     @MainActor class CoursesOverviewViewModel: ObservableObject {

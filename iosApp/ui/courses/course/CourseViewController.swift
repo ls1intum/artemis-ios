@@ -5,6 +5,7 @@ import RxSwiftExt
 import SwiftDate
 import SwiftUI
 import Model
+import Data
 
 class CourseViewController: ObservableObject {
 

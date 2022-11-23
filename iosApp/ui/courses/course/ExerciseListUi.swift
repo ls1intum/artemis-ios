@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 import SwiftDate
 import Model
+import Data
 
 private class WeeklyExercisesExpandedModel: ObservableObject {
 

@@ -1,4 +1,6 @@
 import Factory
+import Data
+import Device
 
 /**
  * Dependency injection container for this app.
@@ -18,10 +20,6 @@ extension Container {
 
     static let dashboardService = Factory<DashboardService> {
         DashboardServiceImpl(jsonProvider: jsonProvider())
-    }
-
-    static let networkStatusProvider = Factory<NetworkStatusProvider>(scope: .singleton) {
-        NetworkStatusProviderImpl()
     }
 
     static let courseRegistrationService = Factory<CourseRegistrationService>(scope: .singleton) {

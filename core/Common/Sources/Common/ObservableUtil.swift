@@ -2,7 +2,7 @@ import Foundation
 import Combine
 import RxSwift
 
-extension Observable {
+public extension Observable {
     func transformLatest<T>(_ transform: @escaping (AnyObserver<T>, Element) async -> ()) -> Observable<T> {
         self
                 .map { output in
@@ -20,7 +20,7 @@ extension Observable {
     }
 }
 
-extension AnyObserver {
+public extension AnyObserver {
 
     /**
      * Sends all elements received by the publisher to the original caller.

@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import Data
 
 /**
  * Displays ui for each data state.

@@ -4,14 +4,14 @@ import Foundation
  Waits at most the in timeout specified time interval for the perform action to complete. Else, a cancellation error is thrown.
  */
 //Adapted from: https://gist.github.com/swhitty/9be89dfe97dbb55c6ef0f916273bbb97
-func withTimeout<T>(timeout: TimeInterval, perform: @Sendable @escaping () async throws -> T) async throws -> T {
+public func withTimeout<T>(timeout: TimeInterval, perform: @Sendable @escaping () async throws -> T) async throws -> T {
     try await withTimeoutImpl(timeout: timeout, perform: perform, onTimeout: { throw CancellationError() })
 }
 
 /**
  * Wait at most the specified time interval for perform to complete. If perform does not return in time, null is returned instead.
  */
-func withTimeoutOrNull<T>(timeout: TimeInterval, perform: @Sendable @escaping () async throws -> T?) async throws -> T? {
+public func withTimeoutOrNull<T>(timeout: TimeInterval, perform: @Sendable @escaping () async throws -> T?) async throws -> T? {
     try await withTimeoutImpl(timeout: timeout, perform: perform, onTimeout: { nil })
 }
 
@@ -33,6 +33,6 @@ private func withTimeoutImpl<T>(timeout: TimeInterval, perform: @Sendable @escap
     }
 }
 
-private struct TimeoutError: Error {
+public struct TimeoutError: Error {
 
 }

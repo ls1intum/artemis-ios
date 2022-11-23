@@ -3,6 +3,7 @@ import SwiftUI
 import Factory
 import MarkdownUI
 import Model
+import Data
 
 struct CourseRegistrationView: View {
 

@@ -1,11 +1,13 @@
 import Foundation
 import RxSwift
 import Combine
+import Device
+import Common
 
 /**
  * The data state of the request.
  */
-enum DataState<T> {
+public enum DataState<T> {
 
     /**
      * Waiting until a valid internet connection is available again.
@@ -21,7 +23,7 @@ enum DataState<T> {
 
     case done(response: T)
 
-    func bind<K>(op: (T) -> K) -> DataState<K> {
+    public func bind<K>(op: (T) -> K) -> DataState<K> {
         switch self {
         case .suspended(error: let exception): return DataState<K>.suspended(error: exception)
         case .loading: return DataState<K>.loading
@@ -30,21 +32,21 @@ enum DataState<T> {
         }
     }
 
-    func orElse(other: T) -> T {
+    public func orElse(other: T) -> T {
         switch self {
         case .done(response: let response): return response
         default: return other
         }
     }
 
-    func orThrow() throws -> T {
+    public func orThrow() throws -> T {
         switch self {
         case .done(response: let response): return response
         default: throw NSError()
         }
     }
 
-    func isSuccess() -> Bool {
+    public func isSuccess() -> Bool {
         switch self {
         case .done(response: _): return true
         default: return false
@@ -52,7 +54,7 @@ enum DataState<T> {
     }
 }
 
-func retryOnInternet<T>(
+public func retryOnInternet<T>(
         connectivity: Observable<NetworkStatus>,
         baseBackoffMillis: UInt64 = 2000,
         perform: @escaping () async -> NetworkResponse<T>
@@ -90,7 +92,7 @@ func retryOnInternet<T>(
             }
 }
 
-extension Publisher {
+public extension Publisher {
     func replaceWithDataStateError<T>() -> AnyPublisher<Output, Never> where Output == DataState<T> {
         `catch` { failure in Just(.failure(error: failure)) }
                 .eraseToAnyPublisher()

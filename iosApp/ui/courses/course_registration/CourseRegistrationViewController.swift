@@ -3,6 +3,7 @@ import SwiftUI
 import Factory
 import RxSwift
 import Model
+import Data
 
 @MainActor class CourseRegistrationViewController: ObservableObject {
 

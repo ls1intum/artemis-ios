@@ -4,7 +4,7 @@ import RxSwift
 /**
  * Service that provides the current connectivity status of this device.
  */
-protocol NetworkStatusProvider {
+public protocol NetworkStatusProvider {
 
     /**
      * Emits every time when the connectivity of this device to the internet changes.
@@ -12,7 +12,7 @@ protocol NetworkStatusProvider {
     var currentNetworkStatus: Observable<NetworkStatus> { get }
 }
 
-enum NetworkStatus {
+public enum NetworkStatus {
     case internet
     case unavailable
 }
