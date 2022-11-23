@@ -9,7 +9,7 @@ import Device
 
 class AccountServiceImpl: AccountService {
 
-    let serverCommunicationProvider: ServerCommunicationProvider
+    let serverConfigurationService: ServerConfigurationService
     let networkStatusProvider: NetworkStatusProvider
     let jsonProvider: JsonProvider
     let loginService: LoginService
@@ -23,13 +23,13 @@ class AccountServiceImpl: AccountService {
     let authenticationData: Observable<AuthenticationData>
 
     init(
-            serverCommunicationProvider: ServerCommunicationProvider,
+            serverConfigurationService: ServerConfigurationService,
             jsonProvider: JsonProvider,
             networkStatusProvider: NetworkStatusProvider,
             loginService: LoginService,
             serverDataService: ServerDataService
     ) {
-        self.serverCommunicationProvider = serverCommunicationProvider
+        self.serverConfigurationService = serverConfigurationService
         self.jsonProvider = jsonProvider
         self.networkStatusProvider = networkStatusProvider
         self.loginService = loginService
@@ -51,7 +51,7 @@ class AccountServiceImpl: AccountService {
                             //TODO: Verify if the key has expired, etc
                             if let setKey = key {
                                 try! await sub.sendAll(
-                                        publisher: serverCommunicationProvider
+                                        publisher: serverConfigurationService
                                                 .serverUrl
                                                 .transformLatest { sub2, serverUrl in
                                                     try! await sub2.sendAll(
@@ -70,7 +70,7 @@ class AccountServiceImpl: AccountService {
     }
 
     func login(username: String, password: String, rememberMe: Bool) async -> LoginResponse {
-        let serverUrl = (try? await serverCommunicationProvider.serverUrl.first().value) ?? ""
+        let serverUrl = (try? await serverConfigurationService.serverUrl.first().value) ?? ""
         let loginResponse = await loginService.login(username: username, password: password, rememberMe: rememberMe, serverUrl: serverUrl)
         switch loginResponse {
         case .response(data: let data):

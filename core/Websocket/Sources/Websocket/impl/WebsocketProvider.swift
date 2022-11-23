@@ -6,22 +6,22 @@ import Data
 import Device
 import Datastore
 
-class WebsocketProvider {
+public class WebsocketProvider {
 
     private let jsonProvider: JsonProvider
-    private let serverCommunicationProvider: ServerCommunicationProvider
+    private let serverConfigurationService: ServerConfigurationService
     private let accountService: AccountService
 
     private let session: Observable<ReactiveSwiftStomp?>
 
-    init(jsonProvider: JsonProvider, serverCommunicationProvider: ServerCommunicationProvider, accountService: AccountService, networkStatusProvider: NetworkStatusProvider) {
+    init(jsonProvider: JsonProvider, serverConfigurationService: ServerConfigurationService, accountService: AccountService, networkStatusProvider: NetworkStatusProvider) {
         self.jsonProvider = jsonProvider
-        self.serverCommunicationProvider = serverCommunicationProvider
+        self.serverConfigurationService = serverConfigurationService
         self.accountService = accountService
 
         session =
                 Observable
-                        .combineLatest(serverCommunicationProvider.host, accountService.authenticationData)
+                        .combineLatest(serverConfigurationService.host, accountService.authenticationData)
                         .transformLatest { subscriber, data in
                             let (host, authData) = data
 
@@ -59,7 +59,7 @@ class WebsocketProvider {
                         .share(replay: 1, scope: .whileConnected)
     }
 
-    func subscribe<T>(channel: String, type: T.Type) -> Observable<T> where T: Decodable {
+    public func subscribe<T>(channel: String, type: T.Type) -> Observable<T> where T: Decodable {
         session.map { (currentSession: ReactiveSwiftStomp?) in
                     guard let connectedSession = currentSession else {
                         return Observable<T>.empty()

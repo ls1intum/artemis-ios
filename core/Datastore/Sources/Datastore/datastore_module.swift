@@ -4,13 +4,13 @@ import Model
 import Data
 
 public extension Container {
-    static let serverCommunicationProvider = Factory<ServerCommunicationProvider> {
-        ServerCommunicationProviderImpl()
+    static let serverConfigurationService = Factory<ServerConfigurationService> {
+        ServerConfigurationServiceImpl()
     }
 
     static let accountService = Factory<AccountService>(scope: .singleton) {
         AccountServiceImpl(
-                serverCommunicationProvider: serverCommunicationProvider(),
+                serverConfigurationService: serverConfigurationService(),
                 jsonProvider: jsonProvider(),
                 networkStatusProvider: networkStatusProvider(),
                 loginService: loginService(),

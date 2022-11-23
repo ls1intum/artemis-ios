@@ -13,7 +13,7 @@ extension CoursesOverviewView {
 
         var dashboardService: DashboardService = Container.dashboardService()
         var accountService: AccountService = Container.accountService()
-        var serverCommunicationProvider: ServerCommunicationProvider = Container.serverCommunicationProvider()
+        var serverConfigurationService: ServerConfigurationService = Container.serverConfigurationService()
         let networkStatusProvider: NetworkStatusProvider = Container.networkStatusProvider()
 
         @Published var dashboard: DataState<Dashboard> = DataState.loading
@@ -39,7 +39,7 @@ extension CoursesOverviewView {
                     }
                     .assign(to: &$bearer)
 
-            serverCommunicationProvider
+            serverConfigurationService
                     .serverUrl
                     .publisher
                     .replaceError(with: "")
@@ -50,7 +50,7 @@ extension CoursesOverviewView {
                     Observable
                             .combineLatest(
                                     accountService.authenticationData,
-                                    serverCommunicationProvider.serverUrl,
+                                    serverConfigurationService.serverUrl,
                                     requestReloadDashboard.startWith(())
                             )
                             .transformLatest { [self] (continuation, data) in

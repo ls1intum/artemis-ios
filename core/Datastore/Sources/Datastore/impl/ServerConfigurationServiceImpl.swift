@@ -4,7 +4,7 @@ import RxSwift
 /**
  * Provides data about which instance of artemis is communicated with.
  */
-class ServerCommunicationProviderImpl: ServerCommunicationProvider {
+class ServerConfigurationServiceImpl: ServerConfigurationService {
 
     /**
      * The currently selected server.

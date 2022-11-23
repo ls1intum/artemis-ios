@@ -9,7 +9,7 @@ import Data
 
     private let accountService = Container.accountService()
     private let networkStatusProvider = Container.networkStatusProvider()
-    private let serverCommunicationProvider = Container.serverCommunicationProvider()
+    private let serverConfigurationService = Container.serverConfigurationService()
     private let courseRegistrationService = Container.courseRegistrationService()
 
     @Published var registrableCourses: DataState<[SemesterCourses]> = .loading
@@ -18,7 +18,7 @@ import Data
 
     init() {
         let registrableCoursesPublisher: Observable<DataState<[SemesterCourses]>> =
-                Observable.combineLatest(accountService.authenticationData, serverCommunicationProvider.serverUrl, reloadRegistrableCoursesSubject.startWith(()))
+                Observable.combineLatest(accountService.authenticationData, serverConfigurationService.serverUrl, reloadRegistrableCoursesSubject.startWith(()))
                         .transformLatest { [self] sub, data in
                             let (authData, serverUrl, _) = data
 
@@ -26,9 +26,7 @@ import Data
                             case .LoggedIn(let authToken, _):
                                 do {
                                     try await sub.sendAll(
-                                            publisher: retryOnInternet(connectivity: networkStatusProvider.currentNetworkStatus) { [self] in
-                                                await courseRegistrationService.fetchRegistrableCourses(serverUrl: serverUrl, authToken: authToken)
-                                            }
+                                            publisher: courseRegistrationService.fetchRegistrableCourses(serverUrl: serverUrl, authToken: authToken)
                                     )
                                 } catch {
 

@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 import Factory
 import Model
+import Websocket
 
 private let MIN_SCORE_GREEN: Float = 80.0
 private let MIN_SCORE_ORANGE: Float = 40.0

@@ -2,7 +2,7 @@ import Foundation
 import RxSwift
 import Model
 
-protocol ParticipationService {
+public protocol ParticipationService {
     /**
      * Subscribed to the users personal participations
      */
@@ -22,7 +22,7 @@ protocol ParticipationService {
     func subscribeForParticipationChanges() -> Observable<StudentParticipation>
 }
 
-enum ProgrammingSubmissionStateData {
+public enum ProgrammingSubmissionStateData {
     // The last submission of participation has a result.
     case NoPendingSubmission(participationId: Int)
 

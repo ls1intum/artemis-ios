@@ -8,7 +8,7 @@ import Data
 struct CourseRegistrationView: View {
 
     private let accountService = Container.accountService()
-    private let serverCommunicationProvider = Container.serverCommunicationProvider()
+    private let serverConfigurationService = Container.serverConfigurationService()
 
     @StateObject var viewModel = CourseRegistrationViewController()
 
@@ -38,7 +38,7 @@ struct CourseRegistrationView: View {
         )
         serverUrl = ObservedValue<String?>(
                 publisher:
-                serverCommunicationProvider
+                serverConfigurationService
                         .serverUrl
                         .map {
                             $0

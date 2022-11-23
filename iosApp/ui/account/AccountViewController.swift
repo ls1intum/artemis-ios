@@ -5,7 +5,7 @@ import Datastore
 
 @MainActor class AccountViewController: ObservableObject {
 
-    private let serverCommunicationProvider: ServerCommunicationProvider = Container.serverCommunicationProvider()
+    private let serverConfigurationService: ServerConfigurationService = Container.serverConfigurationService()
 
     @Published var serverProfileInfo: DataState<ProfileInfo> = DataState.loading
 }

@@ -7,11 +7,12 @@ import SwiftUI
 import Model
 import Datastore
 import Data
+import Websocket
 
 class CourseViewController: ObservableObject {
 
     private let courseId: Int
-    private let serverCommunicationProvider: ServerCommunicationProvider = Container.serverCommunicationProvider()
+    private let serverConfigurationService: ServerConfigurationService = Container.serverConfigurationService()
     private let accountService: AccountService = Container.accountService()
 
     private let requestReloadCourse = PublishSubject<Void>()
@@ -26,7 +27,7 @@ class CourseViewController: ObservableObject {
         let participationService: ParticipationService = Container.participationService()
 
         let coursePublisher: Observable<DataState<Course>> = Observable
-                .combineLatest(serverCommunicationProvider.serverUrl, accountService.authenticationData, requestReloadCourse.startWith(()))
+                .combineLatest(serverConfigurationService.serverUrl, accountService.authenticationData, requestReloadCourse.startWith(()))
                 .transformLatest { sub, data in
                     let (serverUrl, authData, _) = data
 

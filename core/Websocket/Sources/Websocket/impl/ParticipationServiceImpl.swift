@@ -23,7 +23,7 @@ class ParticipationServiceImpl: ParticipationService {
     }
 
     private let websocketProvider: WebsocketProvider
-    private let serverCommunicationProvider: ServerCommunicationProvider
+    private let serverConfigurationService: ServerConfigurationService
     private let networkStatusProvider: NetworkStatusProvider
     private let accountService: AccountService
     private let jsonProvider: JsonProvider
@@ -32,9 +32,9 @@ class ParticipationServiceImpl: ParticipationService {
 
     private var personalNewSubmissionsUpdater: Observable<WebsocketProgrammingSubmissionMessage>
 
-    init(websocketProvider: WebsocketProvider, serverCommunicationProvider: ServerCommunicationProvider, networkStatusProvider: NetworkStatusProvider, accountService: AccountService, jsonProvider: JsonProvider) {
+    init(websocketProvider: WebsocketProvider, serverConfigurationService: ServerConfigurationService, networkStatusProvider: NetworkStatusProvider, accountService: AccountService, jsonProvider: JsonProvider) {
         self.websocketProvider = websocketProvider
-        self.serverCommunicationProvider = serverCommunicationProvider
+        self.serverConfigurationService = serverConfigurationService
         self.networkStatusProvider = networkStatusProvider
         self.accountService = accountService
         self.jsonProvider = jsonProvider
@@ -138,7 +138,7 @@ class ParticipationServiceImpl: ParticipationService {
     private func fetchLatestPendingSubmissionByParticipationId(participationId: Int) -> Observable<Submission> {
         Observable
                 .combineLatest(
-                        serverCommunicationProvider.serverUrl,
+                        serverConfigurationService.serverUrl,
                         accountService.authenticationData
                 )
                 .transformLatest { [self] sub, data in
