@@ -4,6 +4,7 @@ import SwiftStompClient
 import Model
 import Data
 import Device
+import Datastore
 
 class WebsocketProvider {
 

@@ -2,6 +2,7 @@ import Foundation
 import SwiftStompClient
 import RxSwift
 import Semaphore
+import Data
 
 class ReactiveSwiftStomp: StompProtocol {
 

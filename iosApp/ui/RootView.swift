@@ -1,6 +1,7 @@
 import SwiftUI
 import Factory
 import Combine
+import Datastore
 
 struct RootView: View {
     @StateObject private var viewController: RootViewViewController = RootViewViewController()

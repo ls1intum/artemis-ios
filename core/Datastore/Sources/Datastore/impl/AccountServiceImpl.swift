@@ -12,6 +12,8 @@ class AccountServiceImpl: AccountService {
     let serverCommunicationProvider: ServerCommunicationProvider
     let networkStatusProvider: NetworkStatusProvider
     let jsonProvider: JsonProvider
+    let loginService: LoginService
+    let serverDataService: ServerDataService
 
     /**
      * Only set if the user logged in without remember me.
@@ -20,10 +22,18 @@ class AccountServiceImpl: AccountService {
 
     let authenticationData: Observable<AuthenticationData>
 
-    init(serverCommunicationProvider: ServerCommunicationProvider, jsonProvider: JsonProvider, networkStatusProvider: NetworkStatusProvider) {
+    init(
+            serverCommunicationProvider: ServerCommunicationProvider,
+            jsonProvider: JsonProvider,
+            networkStatusProvider: NetworkStatusProvider,
+            loginService: LoginService,
+            serverDataService: ServerDataService
+    ) {
         self.serverCommunicationProvider = serverCommunicationProvider
         self.jsonProvider = jsonProvider
         self.networkStatusProvider = networkStatusProvider
+        self.loginService = loginService
+        self.serverDataService = serverDataService
 
         inMemoryJWT = BehaviorSubject(value: nil)
 
@@ -45,9 +55,7 @@ class AccountServiceImpl: AccountService {
                                                 .serverUrl
                                                 .transformLatest { sub2, serverUrl in
                                                     try! await sub2.sendAll(
-                                                            publisher: retryOnInternet(connectivity: networkStatusProvider.currentNetworkStatus) {
-                                                                await AccountServiceImpl.getAccountData(bearer: setKey, serverUrl: serverUrl, jsonProvider: jsonProvider)
-                                                            }
+                                                            publisher: serverDataService.getAccountData(serverUrl: serverUrl, authToken: setKey)
                                                     )
                                                 }
                                                 .map { account in
@@ -63,39 +71,18 @@ class AccountServiceImpl: AccountService {
 
     func login(username: String, password: String, rememberMe: Bool) async -> LoginResponse {
         let serverUrl = (try? await serverCommunicationProvider.serverUrl.first().value) ?? ""
-
-        let body = LoginBody(username: username, password: password, rememberMe: rememberMe)
-
-        let headers: Alamofire.HTTPHeaders = [
-            .accept(ContentTypes.Application.Json),
-            .contentType(ContentTypes.Application.Json),
-            .defaultUserAgent
-        ]
-
-        let loginResponse = await performNetworkCall {
-            try await AF.request(
-                            serverUrl + "api/authenticate",
-                            method: .post,
-                            parameters: body,
-                            encoder: JSONParameterEncoder.json(encoder: jsonProvider.encoder),
-                            headers: headers
-                    )
-                    .serializingDecodable(LoginResponseBody.self, decoder: jsonProvider.decoder)
-                    .value
-        }
-
+        let loginResponse = await loginService.login(username: username, password: password, rememberMe: rememberMe, serverUrl: serverUrl)
         switch loginResponse {
         case .response(data: let data):
             //either store the token permanently, or just cache it in memory.
             if (rememberMe) {
-                UserDefaults.standard.loginJwt = data.id_token
+                UserDefaults.standard.loginJwt = data.idToken
             } else {
-                inMemoryJWT.onNext(data.id_token)
+                inMemoryJWT.onNext(data.idToken)
             }
 
             return LoginResponse(isSuccessful: true)
-        case .failure(error: _):
-            return LoginResponse(isSuccessful: false)
+        case .failure: return LoginResponse(isSuccessful: false)
         }
     }
 
@@ -106,20 +93,6 @@ class AccountServiceImpl: AccountService {
     func logout() {
         inMemoryJWT.onNext(nil)
         UserDefaults.standard.loginJwt = nil
-    }
-
-    private static func getAccountData(bearer: String, serverUrl: String, jsonProvider: JsonProvider) async -> NetworkResponse<Account> {
-        let headers: HTTPHeaders = [
-            .accept(ContentTypes.Application.Json),
-            .defaultUserAgent,
-            .authorization(bearerToken: bearer)
-        ]
-
-        return await performNetworkCall {
-            try await AF.request(serverUrl + "api/account", headers: headers)
-                    .serializingDecodable(Account.self)
-                    .value
-        }
     }
 }
 

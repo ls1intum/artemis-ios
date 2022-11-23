@@ -6,7 +6,7 @@ import Data
 /**
  * Service that provides data about the users login status.
  */
-protocol AccountService {
+public protocol AccountService {
 
     /**
      * The latest authentication data. Publisher emits a new element whenever the login status of the user changes.
@@ -29,11 +29,11 @@ protocol AccountService {
 /**
  * Can either be [LoggedIn] or [NotLoggedIn].
  */
-enum AuthenticationData {
+public enum AuthenticationData {
     case NotLoggedIn
     case LoggedIn(authToken: String, account: DataState<Account>)
 }
 
-struct LoginResponse {
-    let isSuccessful: Bool
+public struct LoginResponse {
+    public let isSuccessful: Bool
 }

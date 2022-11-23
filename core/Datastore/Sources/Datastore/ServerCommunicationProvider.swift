@@ -1,7 +1,7 @@
 import Foundation
 import RxSwift
 
-protocol ServerCommunicationProvider {
+public protocol ServerCommunicationProvider {
 
     /**
      * Emits the currently selected server. Emits again, when the user changes their artemis instance in the settings.

@@ -4,9 +4,9 @@ import SwiftDate
 /**
  * Provides the implementations of the json encoder and decoder.
  */
-class JsonProvider {
-    let encoder = JSONEncoder()
-    let decoder = JSONDecoder()
+public class JsonProvider {
+    public let encoder = JSONEncoder()
+    public let decoder = JSONDecoder()
 
     init() {
         decoder.dateDecodingStrategy = .custom { decoder in

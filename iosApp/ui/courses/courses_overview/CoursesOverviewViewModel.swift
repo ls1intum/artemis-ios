@@ -6,13 +6,14 @@ import RxSwift
 import Model
 import Data
 import Device
+import Datastore
 
 extension CoursesOverviewView {
     @MainActor class CoursesOverviewViewModel: ObservableObject {
 
-        @Injected(Container.dashboardService) var dashboardService: DashboardService
-        @Injected(Container.accountService) var accountService: AccountService
-        @Injected(Container.serverCommunicationProvider) var serverCommunicationProvider: ServerCommunicationProvider
+        var dashboardService: DashboardService = Container.dashboardService()
+        var accountService: AccountService = Container.accountService()
+        var serverCommunicationProvider: ServerCommunicationProvider = Container.serverCommunicationProvider()
         let networkStatusProvider: NetworkStatusProvider = Container.networkStatusProvider()
 
         @Published var dashboard: DataState<Dashboard> = DataState.loading
