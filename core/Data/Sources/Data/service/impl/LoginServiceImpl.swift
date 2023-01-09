@@ -16,6 +16,7 @@ class LoginServiceImpl: LoginService {
 
             var request = URLRequest(url: components.url!)
             request.httpMethod = "POST"
+            request.contentTypeJson()
             request.httpBody = try LoginBody(username: username, password: password, rememberMe: rememberMe).asData(encoder: jsonProvider.encoder)
 
             let (data, _) = try await URLSession.shared.data(for: request)
