@@ -15,7 +15,7 @@ public struct BasicDataStateView<T, ChildContent: View>: View {
     let failureText: LocalizedStringKey
     let suspendedText: LocalizedStringKey
     let retryButtonText: LocalizedStringKey
-    let clickRetryButtonAction: () -> Void
+    let clickRetryButtonAction: () async -> Void
 
     public init(
             data: DataState<T>,
@@ -23,7 +23,7 @@ public struct BasicDataStateView<T, ChildContent: View>: View {
             failureText: LocalizedStringKey,
             suspendedText: LocalizedStringKey,
             retryButtonText: LocalizedStringKey,
-            clickRetryButtonAction: @escaping () -> Void,
+            clickRetryButtonAction: @escaping () async -> Void,
             @ViewBuilder successUi: (T) -> ChildContent
     ) {
         self.data = data
@@ -57,7 +57,7 @@ public struct BasicDataStateView<T, ChildContent: View>: View {
 
                     Text(text)
 
-                    Button(action: clickRetryButtonAction) {
+                    Button(action: { Task { await clickRetryButtonAction() } }) {
                         Text(retryButtonText)
                     }
                 }

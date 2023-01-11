@@ -6,20 +6,14 @@ import Model
 public struct CoursesHeaderView<Content: View>: View {
 
     let course: Course
-    let bearer: String
     let contentView: Content
 
     let courseIconUrl: String?
 
-    public init(course: Course, serverUrl: String, bearer: String, @ViewBuilder content: () -> Content) {
+    public init(course: Course, @ViewBuilder content: () -> Content) {
         self.course = course
-        self.bearer = bearer
 
-        if (course.courseIcon != nil) {
-            courseIconUrl = serverUrl.dropLast() + (course.courseIcon ?? "")
-        } else {
-            courseIconUrl = nil
-        }
+        courseIconUrl = nil // TODO: correct url
 
         contentView = content()
     }
@@ -30,20 +24,21 @@ public struct CoursesHeaderView<Content: View>: View {
             VStack {
                 HStack(alignment: .top) {
                     if courseIconUrl != nil {
-                        WebImage(
-                                url: URL(string: courseIconUrl!),
-                                context: [.downloadRequestModifier: SDWebImageDownloaderRequestModifier(headers: ["Authorization": bearer])]
-                        )
-                                .placeholder {
-                                    Image(systemName: "questionmark")
-                                            .resizable()
-                                            .scaledToFit()
-                                            .padding(.all, 8)
-                                }
-                                .resizable()
-                                .aspectRatio(1, contentMode: .fill)
-                                .frame(width: 80, height: 80, alignment: .center)
-                                .scaledToFit()
+                        Text("TODO")
+//                        WebImage(
+//                                url: URL(string: courseIconUrl!),
+//                                context: [.downloadRequestModifier: SDWebImageDownloaderRequestModifier(headers: ["Authorization": bearer])]
+//                        )
+//                                .placeholder {
+//                                    Image(systemName: "questionmark")
+//                                            .resizable()
+//                                            .scaledToFit()
+//                                            .padding(.all, 8)
+//                                }
+//                                .resizable()
+//                                .aspectRatio(1, contentMode: .fill)
+//                                .frame(width: 80, height: 80, alignment: .center)
+//                                .scaledToFit()
                     } else {
                         ZStack {
                             Image(systemName: "questionmark")
@@ -93,18 +88,14 @@ struct CoursesHeaderViewPreviews: PreviewProvider {
     static var previews: some View {
         Group {
             CoursesHeaderView(
-                    course: Course(id: 12, title: "Introduction to CS. Introduction to CS. Introduction to CS. Introduction to CS.", description: "Learn how to apply software engineering skills. Learn how to apply software engineering skills.", courseIcon: "150"),
-                    serverUrl: "https://placeholder.com/",
-                    bearer: ""
+                    course: Course(id: 12, title: "Introduction to CS. Introduction to CS. Introduction to CS. Introduction to CS.", description: "Learn how to apply software engineering skills. Learn how to apply software engineering skills.", courseIcon: "150")
             ) {
 
             }
                     .padding(.horizontal, 8)
 
             CoursesHeaderView(
-                    course: Course(id: 12, title: "Introduction to CS. Introduction to CS. Introduction to CS. Introduction to CS.", description: "Learn how to apply software engineering skills. Learn how to apply software engineering skills.", courseIcon: nil),
-                    serverUrl: "https://placeholder.com/",
-                    bearer: ""
+                    course: Course(id: 12, title: "Introduction to CS. Introduction to CS. Introduction to CS. Introduction to CS.", description: "Learn how to apply software engineering skills. Learn how to apply software engineering skills.", courseIcon: nil)
             ) {
 
             }
