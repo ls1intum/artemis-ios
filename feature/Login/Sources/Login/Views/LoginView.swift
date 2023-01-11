@@ -45,10 +45,8 @@ struct LoginView: View {
                 Task {
                     let response = await viewModel.login(username: username, password: password, rememberMe: rememberMe)
 
-                    if (!response.isSuccessful) {
+                    if !response {
                         displayLoginFailureDialog = true
-                    } else {
-                        onLoggedIn()
                     }
                 }
             })
