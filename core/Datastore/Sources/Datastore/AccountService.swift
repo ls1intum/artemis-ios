@@ -13,7 +13,7 @@ public protocol AccountService {
      */
     var authenticationData: Observable<AuthenticationData> { get }
 
-    func login(username: String, password: String, rememberMe: Bool) async -> LoginResponse
+//    func login(username: String, password: String, rememberMe: Bool) async -> LoginResponse
 
     /**
      - Returns: If the user is currently logged in.

@@ -12,7 +12,6 @@ class AccountServiceImpl: AccountService {
     let serverConfigurationService: ServerConfigurationService
     let networkStatusProvider: NetworkStatusProvider
     let jsonProvider: JsonProvider
-    let loginService: LoginService
     let serverDataService: ServerDataService
 
     /**
@@ -26,13 +25,11 @@ class AccountServiceImpl: AccountService {
             serverConfigurationService: ServerConfigurationService,
             jsonProvider: JsonProvider,
             networkStatusProvider: NetworkStatusProvider,
-            loginService: LoginService,
             serverDataService: ServerDataService
     ) {
         self.serverConfigurationService = serverConfigurationService
         self.jsonProvider = jsonProvider
         self.networkStatusProvider = networkStatusProvider
-        self.loginService = loginService
         self.serverDataService = serverDataService
 
         inMemoryJWT = BehaviorSubject(value: nil)
@@ -69,22 +66,22 @@ class AccountServiceImpl: AccountService {
                         .share(replay: 1)
     }
 
-    func login(username: String, password: String, rememberMe: Bool) async -> LoginResponse {
-        let serverUrl = (try? await serverConfigurationService.serverUrl.first().value) ?? ""
-        let loginResponse = await loginService.login(username: username, password: password, rememberMe: rememberMe, serverUrl: serverUrl)
-        switch loginResponse {
-        case .response(data: let data):
-            //either store the token permanently, or just cache it in memory.
-            if (rememberMe) {
-                UserDefaults.standard.loginJwt = data.idToken
-            } else {
-                inMemoryJWT.onNext(data.idToken)
-            }
-
-            return LoginResponse(isSuccessful: true)
-        case .failure: return LoginResponse(isSuccessful: false)
-        }
-    }
+//    func login(username: String, password: String, rememberMe: Bool) async -> LoginResponse {
+//        let serverUrl = (try? await serverConfigurationService.serverUrl.first().value) ?? ""
+//        let loginResponse = await LoginService().login(username: username, password: password, rememberMe: rememberMe, serverUrl: serverUrl)
+//        switch loginResponse {
+//        case .response(data: let data):
+//            //either store the token permanently, or just cache it in memory.
+//            if (rememberMe) {
+//                UserDefaults.standard.loginJwt = data.idToken
+//            } else {
+//                inMemoryJWT.onNext(data.idToken)
+//            }
+//
+//            return LoginResponse(isSuccessful: true)
+//        case .failure: return LoginResponse(isSuccessful: false)
+//        }
+//    }
 
     func isLoggedIn() -> Bool {
         (try? inMemoryJWT.value() ?? nil) != nil || UserDefaults.standard.loginJwt != nil

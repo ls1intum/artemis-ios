@@ -13,7 +13,6 @@ public extension Container {
                 serverConfigurationService: serverConfigurationService(),
                 jsonProvider: jsonProvider(),
                 networkStatusProvider: networkStatusProvider(),
-                loginService: loginService(),
                 serverDataService: serverDataService()
         )
     }
