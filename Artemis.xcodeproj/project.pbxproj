@@ -24,6 +24,7 @@
 		22B6A92E292D815A00F08C7E /* ExerciseView in Frameworks */ = {isa = PBXBuildFile; productRef = 22B6A92D292D815A00F08C7E /* ExerciseView */; };
 		22B6A930292D815A00F08C7E /* Login in Frameworks */ = {isa = PBXBuildFile; productRef = 22B6A92F292D815A00F08C7E /* Login */; };
 		22B6A936292D8F3400F08C7E /* Common in Frameworks */ = {isa = PBXBuildFile; productRef = 22B6A935292D8F3400F08C7E /* Common */; };
+		D54B8BEF296F745B00BB1AA3 /* APIClient in Frameworks */ = {isa = PBXBuildFile; productRef = D54B8BEE296F745B00BB1AA3 /* APIClient */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -49,6 +50,7 @@
 		22B6A91B292D783200F08C7E /* CourseRegistration */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = CourseRegistration; path = feature/CourseRegistration; sourceTree = "<group>"; };
 		7555FF7B242A565900829871 /* Artemis.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Artemis.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7555FF8C242A565B00829871 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D54B8BED296F741D00BB1AA3 /* APIClient */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = APIClient; path = core/APIClient; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,6 +65,7 @@
 				22B6A928292D815A00F08C7E /* Data in Frameworks */,
 				22B6A92C292D815A00F08C7E /* Device in Frameworks */,
 				22B6A922292D815A00F08C7E /* CourseRegistration in Frameworks */,
+				D54B8BEF296F745B00BB1AA3 /* APIClient in Frameworks */,
 				22B6A92E292D815A00F08C7E /* ExerciseView in Frameworks */,
 				22B6A926292D815A00F08C7E /* Dashboard in Frameworks */,
 				22B6A92A292D815A00F08C7E /* Datastore in Frameworks */,
@@ -83,6 +86,7 @@
 		22B6A90D292D3CAB00F08C7E /* Packages */ = {
 			isa = PBXGroup;
 			children = (
+				D54B8BED296F741D00BB1AA3 /* APIClient */,
 				22B6A90F292D3DB100F08C7E /* Data */,
 				22B6A910292D3E8100F08C7E /* Datastore */,
 				22B6A911292D3F7100F08C7E /* Device */,
@@ -167,6 +171,7 @@
 				22B6A92D292D815A00F08C7E /* ExerciseView */,
 				22B6A92F292D815A00F08C7E /* Login */,
 				22B6A935292D8F3400F08C7E /* Common */,
+				D54B8BEE296F745B00BB1AA3 /* APIClient */,
 			);
 			productName = iosApp;
 			productReference = 7555FF7B242A565900829871 /* Artemis.app */;
@@ -464,6 +469,10 @@
 		22B6A935292D8F3400F08C7E /* Common */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Common;
+		};
+		D54B8BEE296F745B00BB1AA3 /* APIClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = APIClient;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
