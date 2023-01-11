@@ -33,82 +33,31 @@ struct CourseRegistrationView: View {
 
     @StateObject var viewModel = CourseRegistrationViewController()
 
-    @ObservedObject var bearer: ObservedValue<String>
-    @ObservedObject var serverUrl: ObservedValue<String?>
-
     /**
      * If the user clicks on signup, this variable holds the course the user wants to sign up to. While set, a dialog with the registration information is displayed.
      */
     @State var courseCandidate: Course? = nil
 
-    init() {
-        bearer = ObservedValue(
-                publisher:
-                accountService
-                        .authenticationData
-                        .map { authData in
-                            switch authData {
-                            case .NotLoggedIn: return ""
-                            case .LoggedIn(authToken: let authToken, _): return "Bearer " + authToken
-                            }
-                        }
-                        .publisher
-                        .replaceError(with: "")
-                        .eraseToAnyPublisher(),
-                initialValue: ""
-        )
-        serverUrl = ObservedValue<String?>(
-                publisher:
-                serverConfigurationService
-                        .serverUrl
-                        .map {
-                            $0
-                        }
-                        .publisher
-                        .replaceError(with: nil)
-                        .eraseToAnyPublisher(),
-                initialValue: nil
-        )
-    }
-
     var body: some View {
-        let properServerUrl = serverUrl.latestValue
-        if properServerUrl == nil {
-            EmptyView()
-        } else {
-            RegisterForCourseContentView(
-                    courses: viewModel.registrableCourses,
-                    reloadCourses: {
-                        viewModel.reloadRegistrableCourses()
-                    },
-                    serverUrl: properServerUrl!,
-                    bearerToken: bearer.latestValue,
-                    onClickSignUp: { course in courseCandidate = course }
-            )
-                    .navigationTitle("course_registration_title")
-                    .sheet(item: $courseCandidate, content: { selectedCourse in
-                        CourseRegistrationSheetView(course: selectedCourse)
-                    }
-                    )
-        }
+        RegisterForCourseContentView(
+                courses: viewModel.registrableCourses,
+                reloadCourses: {
+                    await viewModel.reloadRegistrableCourses()
+                },
+                onClickSignUp: { course in courseCandidate = course }
+        )
+            .navigationTitle("course_registration_title")
+            .sheet(item: $courseCandidate) { selectedCourse in
+                CourseRegistrationSheetView(course: selectedCourse)
+            }
     }
 }
 
 struct RegisterForCourseContentView: View {
 
-    private let courses: DataState<[SemesterCourses]>
-    private let reloadCourses: () -> Void
-    private let serverUrl: String
-    private let bearerToken: String
-    private let onClickSignUp: (Course) -> Void
-
-    init(courses: DataState<[SemesterCourses]>, reloadCourses: @escaping () -> (), serverUrl: String, bearerToken: String, onClickSignUp: @escaping (Course) -> Void) {
-        self.courses = courses
-        self.reloadCourses = reloadCourses
-        self.serverUrl = serverUrl
-        self.bearerToken = bearerToken
-        self.onClickSignUp = onClickSignUp
-    }
+    let courses: DataState<[SemesterCourses]>
+    let reloadCourses: () async -> Void
+    let onClickSignUp: (Course) -> Void
 
     var body: some View {
         BasicDataStateView(
@@ -126,8 +75,6 @@ struct RegisterForCourseContentView: View {
                             ForEach(semesterCourse.courses, id: \.self.id) { course in
                                 RegistrableCourseView(
                                         course: course,
-                                        serverUrl: serverUrl,
-                                        bearerToken: bearerToken,
                                         onClickSignup: { onClickSignUp(course) }
                                 )
                                         .padding(.horizontal, 16)
@@ -142,20 +89,11 @@ struct RegisterForCourseContentView: View {
 
 private struct RegistrableCourseView: View {
 
-    private let course: Course
-    private let serverUrl: String
-    private let bearerToken: String
-    private let onClickSignup: () -> Void
-
-    init(course: Course, serverUrl: String, bearerToken: String, onClickSignup: @escaping () -> Void) {
-        self.course = course
-        self.serverUrl = serverUrl
-        self.bearerToken = bearerToken
-        self.onClickSignup = onClickSignup
-    }
+    let course: Course
+    let onClickSignup: () -> Void
 
     var body: some View {
-        CoursesHeaderView(course: course, serverUrl: serverUrl, bearer: bearerToken) {
+        CoursesHeaderView(course: course) {
             VStack(spacing: 0) {
                 Divider()
 
