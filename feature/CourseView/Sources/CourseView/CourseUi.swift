@@ -37,7 +37,7 @@ struct CourseView: View {
                 failureText: "course_ui_loading_course_failed",
                 suspendedText: "course_ui_loading_course_suspended",
                 retryButtonText: "course_ui_loading_course_try_again",
-                clickRetryButtonAction: { viewController.reloadCourse() }
+                clickRetryButtonAction: { await viewController.loadCourse(courseId: courseId) }
         ) { _ in
             ZStack {
                 ExerciseListView(

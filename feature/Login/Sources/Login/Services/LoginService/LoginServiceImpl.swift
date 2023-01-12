@@ -7,7 +7,7 @@
 
 import Foundation
 import APIClient
-import Store
+import UserStore
 
 class LoginServiceImpl: LoginService {
     

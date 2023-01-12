@@ -1,6 +1,6 @@
 import Foundation
 import Common
-import Store
+import UserStore
 
 final public class APIClient {
     private var baseUrl: URL?

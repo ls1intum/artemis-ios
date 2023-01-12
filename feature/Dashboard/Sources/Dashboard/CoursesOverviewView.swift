@@ -108,9 +108,7 @@ private struct CourseItemView: View {
 
     var body: some View {
         CoursesHeaderView(
-                course: course,
-                serverUrl: serverUrl,
-                bearer: bearer
+                course: course
         ) {
             VStack(spacing: 0) {
                 Divider()

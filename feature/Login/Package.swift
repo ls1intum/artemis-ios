@@ -16,7 +16,7 @@ let package = Package(
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
         .package(path: "../../core/APIClient"),
-        .package(path: "../../core/Store"),
+        .package(path: "../../core/UserStore"),
         .package(path: "../../core/UI"),
         .package(path: "../../core/Data"),
         .package(path: "../../core/Device"),
@@ -27,7 +27,7 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "Login",
-            dependencies: ["UI", "Data", "Device", "Datastore", "APIClient", "Store"]),
+            dependencies: ["UI", "Data", "Device", "Datastore", "APIClient", "UserStore"]),
         .testTarget(
             name: "LoginTests",
             dependencies: ["Login"]),
