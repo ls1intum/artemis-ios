@@ -34,7 +34,7 @@ class LoginServiceImpl: LoginService {
         
         switch result {
         case .success((let response, _)):
-            UserSession.shared.saveBearerToken(token: response.idToken)
+            UserSession.shared.saveBearerToken(token: response.idToken, shouldRemember: rememberMe)
             return .success
         case .failure(let error):
             return .failure(error: error)

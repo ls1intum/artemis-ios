@@ -89,7 +89,7 @@ class AccountServiceImpl: AccountService {
     }
 
     func logout() {
-        UserSession.shared.saveBearerToken(token: nil)
+        UserSession.shared.saveBearerToken(token: nil, shouldRemember: false)
     }
 }
 

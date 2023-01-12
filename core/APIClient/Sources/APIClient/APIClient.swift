@@ -151,7 +151,7 @@ final public class APIClient {
     private func perfomLogout() {
         log.debug("Logging user out because token could not be refreshed")
         DispatchQueue.main.async {
-            UserSession.shared.saveBearerToken(token: nil)
+            UserSession.shared.saveBearerToken(token: nil, shouldRemember: false)
         }
     }
 }

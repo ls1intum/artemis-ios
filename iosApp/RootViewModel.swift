@@ -25,6 +25,7 @@ class RootViewModel: ObservableObject {
             }
         }.store(in: &cancellables)
         
+        isLoggedIn = UserSession.shared.bearerToken != nil
         path.appendDashboard()
     }
 }
