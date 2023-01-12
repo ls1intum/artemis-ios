@@ -35,7 +35,7 @@ struct CoursesOverviewView: View {
     var body: some View {
         VStack(alignment: .center) {
             BasicDataStateView(
-                    data: viewModel.dashboard,
+                    data: viewModel.courses,
                     loadingText: "course_overview_loading_courses_loading",
                     failureText: "course_overview_loading_courses_failed",
                     suspendedText: "course_overview_loading_courses_suspended",
@@ -48,7 +48,7 @@ struct CoursesOverviewView: View {
             ) { data in
                 ZStack {
                     CourseListView(
-                            courses: data.courses,
+                            courses: data,
                             onClickCourse: { course in onNavigateToCourse(course.id ?? 0) }
                     )
                             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)

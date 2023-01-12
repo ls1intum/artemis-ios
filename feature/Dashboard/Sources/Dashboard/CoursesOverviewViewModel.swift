@@ -4,7 +4,7 @@ import Model
 
 @MainActor class CoursesOverviewViewModel: ObservableObject {
 
-    @Published var dashboard: DataState<Dashboard> = DataState.loading
+    @Published var courses: DataState<[Course]> = DataState.loading
 
     init() {
         
@@ -14,7 +14,7 @@ import Model
     }
 
     func loadCourses() async {
-        await DashboardServiceFactory.shared.loadCourses()
+        courses = await DashboardServiceFactory.shared.loadCourses()
     }
 
     func logout() {

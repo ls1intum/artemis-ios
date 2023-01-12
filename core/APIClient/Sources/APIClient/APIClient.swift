@@ -69,6 +69,7 @@ final public class APIClient {
             }
             do {
                 let decoder = JSONDecoder()
+                decoder.dateDecodingStrategy = .iso8601
                 let body = try decoder.decode(T.Response.self, from: data)
                 return .success((body, response.statusCode))
             } catch {
