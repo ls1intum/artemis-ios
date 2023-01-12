@@ -47,6 +47,7 @@ public struct LoginView: View {
                     .padding(.horizontal, 40)
 
             Button("Login", action: {
+                // TODO: add loading bar or something
                 Task {
                     let response = await viewModel.login(username: username, password: password, rememberMe: rememberMe)
 
