@@ -25,6 +25,7 @@
 		22B6A930292D815A00F08C7E /* Login in Frameworks */ = {isa = PBXBuildFile; productRef = 22B6A92F292D815A00F08C7E /* Login */; };
 		22B6A936292D8F3400F08C7E /* Common in Frameworks */ = {isa = PBXBuildFile; productRef = 22B6A935292D8F3400F08C7E /* Common */; };
 		D54B8BEF296F745B00BB1AA3 /* APIClient in Frameworks */ = {isa = PBXBuildFile; productRef = D54B8BEE296F745B00BB1AA3 /* APIClient */; };
+		D54B8BF52970760900BB1AA3 /* UserStore in Frameworks */ = {isa = PBXBuildFile; productRef = D54B8BF42970760900BB1AA3 /* UserStore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -51,6 +52,7 @@
 		7555FF7B242A565900829871 /* Artemis.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Artemis.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7555FF8C242A565B00829871 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D54B8BED296F741D00BB1AA3 /* APIClient */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = APIClient; path = core/APIClient; sourceTree = "<group>"; };
+		D54B8BF3297075C100BB1AA3 /* UserStore */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = UserStore; path = core/UserStore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -59,6 +61,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				22B6A936292D8F3400F08C7E /* Common in Frameworks */,
+				D54B8BF52970760900BB1AA3 /* UserStore in Frameworks */,
 				22B6A930292D815A00F08C7E /* Login in Frameworks */,
 				22B6A920292D787300F08C7E /* Model in Frameworks */,
 				22B6A924292D815A00F08C7E /* CourseView in Frameworks */,
@@ -86,6 +89,7 @@
 		22B6A90D292D3CAB00F08C7E /* Packages */ = {
 			isa = PBXGroup;
 			children = (
+				D54B8BF3297075C100BB1AA3 /* UserStore */,
 				D54B8BED296F741D00BB1AA3 /* APIClient */,
 				22B6A90F292D3DB100F08C7E /* Data */,
 				22B6A910292D3E8100F08C7E /* Datastore */,
@@ -172,6 +176,7 @@
 				22B6A92F292D815A00F08C7E /* Login */,
 				22B6A935292D8F3400F08C7E /* Common */,
 				D54B8BEE296F745B00BB1AA3 /* APIClient */,
+				D54B8BF42970760900BB1AA3 /* UserStore */,
 			);
 			productName = iosApp;
 			productReference = 7555FF7B242A565900829871 /* Artemis.app */;
@@ -473,6 +478,10 @@
 		D54B8BEE296F745B00BB1AA3 /* APIClient */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = APIClient;
+		};
+		D54B8BF42970760900BB1AA3 /* UserStore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = UserStore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
