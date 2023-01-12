@@ -1,9 +1,7 @@
 import Foundation
 import SwiftUI
 
-struct LoginView: View {
-
-    let onLoggedIn: () -> Void
+public struct LoginView: View {
 
     @StateObject private var viewModel = LoginViewModel()
 
@@ -12,8 +10,15 @@ struct LoginView: View {
     @State private var rememberMe: Bool = false
 
     @State private var displayLoginFailureDialog = false
+    @State private var loginError: Error? {
+        didSet {
+            displayLoginFailureDialog = loginError != nil
+        }
+    }
+    
+    public init() { }
 
-    var body: some View {
+    public var body: some View {
         VStack {
             Spacer()
 
@@ -45,8 +50,11 @@ struct LoginView: View {
                 Task {
                     let response = await viewModel.login(username: username, password: password, rememberMe: rememberMe)
 
-                    if !response {
-                        displayLoginFailureDialog = true
+                    switch response {
+                    case .failure(let error):
+                        loginError = error
+                    default:
+                        return
                     }
                 }
             })
@@ -57,8 +65,10 @@ struct LoginView: View {
             Spacer()
         }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .alert("Login failed", isPresented: $displayLoginFailureDialog) {
-                    Button("OK", role: .cancel) {}
+                .alert(loginError?.localizedDescription ?? "Login failed", isPresented: $displayLoginFailureDialog) {
+                    Button("OK", role: .cancel) {
+                        loginError = nil
+                    }
                 }
     }
 }

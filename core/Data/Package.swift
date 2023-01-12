@@ -18,6 +18,7 @@ let package = Package(
         .package(path: "../Model"),
         .package(path: "../Common"),
         .package(path: "../Device"),
+        .package(path: "../UserStore"),
         .package(url: "https://github.com/ReactiveX/RxSwift.git", exact: "6.5.0"),
         .package(url: "https://github.com/Alamofire/Alamofire.git", .upToNextMajor(from: "5.6.1"))
     ],
@@ -26,7 +27,7 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "Data",
-            dependencies: ["RxSwift", "Model", "Common", "Device", "Alamofire"]),
+            dependencies: ["RxSwift", "Model", "Common", "Device", "Alamofire", "UserStore"]),
         .testTarget(
             name: "DataTests",
             dependencies: ["Data"]),

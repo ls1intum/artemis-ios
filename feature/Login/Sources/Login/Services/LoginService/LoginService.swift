@@ -6,13 +6,14 @@
 //
 
 import Foundation
+import APIClient
 
 public protocol LoginService {
 
     /**
      * Perform a login request to the server.
      */
-    func login(username: String, password: String, rememberMe: Bool) async -> Bool
+    func login(username: String, password: String, rememberMe: Bool) async -> NetworkResponse
 }
 
 public struct LoginResponse: Decodable {

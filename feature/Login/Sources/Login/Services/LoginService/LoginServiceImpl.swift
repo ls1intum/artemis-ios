@@ -29,15 +29,15 @@ class LoginServiceImpl: LoginService {
         }
     }
     
-    func login(username: String, password: String, rememberMe: Bool) async -> Bool {
+    func login(username: String, password: String, rememberMe: Bool) async -> NetworkResponse {
         let result = await client.send(LoginUser(username: username, password: password, rememberMe: rememberMe))
         
         switch result {
         case .success((let response, _)):
             UserSession.shared.saveBearerToken(token: response.idToken)
-            return true
-        case .failure:
-            return false
+            return .success
+        case .failure(let error):
+            return .failure(error: error)
         }
     }
 }

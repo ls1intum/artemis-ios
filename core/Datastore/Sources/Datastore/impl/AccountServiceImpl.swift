@@ -6,6 +6,7 @@ import RxSwift
 import Model
 import Data
 import Device
+import UserStore
 
 class AccountServiceImpl: AccountService {
 
@@ -88,8 +89,7 @@ class AccountServiceImpl: AccountService {
     }
 
     func logout() {
-        inMemoryJWT.onNext(nil)
-        UserDefaults.standard.loginJwt = nil
+        UserSession.shared.saveBearerToken(token: nil)
     }
 }
 

@@ -2,9 +2,9 @@ import Foundation
 import SwiftUI
 
 public extension View {
-    func accountDestination(onLoggedIn: @escaping () -> Void) -> some View {
+    func accountDestination() -> some View {
         navigationDestination(for: AccountDest.self) { _ in
-            AccountView(onLoggedIn: onLoggedIn)
+            AccountView()
         }
     }
 }
@@ -17,10 +17,8 @@ public extension NavigationPath {
 
 struct AccountView: View {
 
-    let onLoggedIn: () -> Void
-
     var body: some View {
-        LoginView(onLoggedIn: onLoggedIn)
+        LoginView()
                 .navigationBarBackButtonHidden()
     }
 }

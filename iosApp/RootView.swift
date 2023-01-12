@@ -8,60 +8,47 @@ import CourseRegistration
 import CourseView
 
 struct RootView: View {
-    @StateObject private var viewController: RootViewViewController = RootViewViewController()
+    
+    @StateObject private var viewModel = RootViewModel()
+    
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
-        NavigationStack(path: $viewController.path) {
-            EmptyView()
-                    .accountDestination(
-                            onLoggedIn: {
-                                viewController.path.removeLast()
-                                viewController.path.appendDashboard()
-                            }
-                    )
-                    .dashboardDestination(
+        Group {
+            if viewModel.isLoggedIn {
+                NavigationStack(path: $viewModel.path) {
+                    EmptyView()
+                        .dashboardDestination(
                             onLogout: {
-                                viewController.path.removeLast(viewController.path.count)
-                                viewController.path.appendAccountView()
+                                viewModel.path.removeLast(viewModel.path.count)
+                                viewModel.path.appendAccountView()
                             },
                             onClickRegisterForCourse: {
-                                viewController.path.appendCourseRegistration()
+                                viewModel.path.appendCourseRegistration()
                             },
                             onViewCourse: { courseId in
-                                viewController.path.appendCourseView(courseId: courseId)
+                                viewModel.path.appendCourseView(courseId: courseId)
                             }
-                    )
-                    .courseRegistrationDestination(
+                        )
+                        .courseRegistrationDestination(
                             onNavigateUp: {
-                                viewController.path.removeLast()
+                                viewModel.path.removeLast()
                             },
                             onRegisteredInCourse: { courseId in
-                                viewController.path.removeLast()
-                                viewController.path.appendCourseView(courseId: courseId)
+                                viewModel.path.removeLast()
+                                viewModel.path.appendCourseView(courseId: courseId)
                             }
-                    )
-                    .courseViewDestination()
-        }
-                .onChange(of: scenePhase) { phase in
-                    if phase == .background {
-                        //viewController.save()
-                    }
+                        )
+                        .courseViewDestination()
                 }
-    }
-}
-
-class RootViewViewController: ObservableObject {
-    private let accountService: AccountService = Container.accountService()
-
-    @Published var path: NavigationPath
-
-    init() {
-        path = NavigationPath()
-        if accountService.isLoggedIn() {
-            path.appendDashboard()
-        } else {
-            path.appendAccountView()
+            } else {
+                LoginView()
+            }
         }
+            .onChange(of: scenePhase) { phase in
+                if phase == .background {
+                    //viewModel.save()
+                }
+            }
     }
 }

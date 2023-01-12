@@ -7,9 +7,9 @@
 
 import Foundation
 
-public class UserSession {
+public class UserSession: ObservableObject {
     
-    public private(set) var bearerToken: String? = nil
+    @Published public private(set) var bearerToken: String? = nil
     
     public static let shared = UserSession()
     
