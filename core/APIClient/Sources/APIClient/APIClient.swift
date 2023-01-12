@@ -90,7 +90,7 @@ final public class APIClient {
     ///   - completion: Completion handler to call when request is completed.
     public func send<T: APIRequest>(_ request: T) async -> Result<(T.Response, Int), APIClientError> {
         
-        return await self.sendRequest(request)
+        return await self.sendRequest(request, bearer: UserSession.shared.bearerToken)
         
         // TODO: implement retry mechanics
 //        guard let token = UserSession.shared.bearerToken else {

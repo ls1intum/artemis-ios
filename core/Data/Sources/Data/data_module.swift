@@ -6,14 +6,6 @@ public extension Container {
         JsonProvider()
     }
     
-    static let courseService = Factory<CourseService>(scope: .singleton) {
-        CourseServiceImpl(jsonProvider: jsonProvider())
-    }
-    
-    static let dashboardService = Factory<DashboardService> {
-        DashboardServiceImpl(jsonProvider: jsonProvider())
-    }
-
     static let serverDataService = Factory<ServerDataService> {
         ServerDataServiceImpl(jsonProvider: jsonProvider(), networkStatusProvider: networkStatusProvider())
     }

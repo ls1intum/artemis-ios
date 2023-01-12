@@ -42,15 +42,13 @@ struct CoursesOverviewView: View {
                     retryButtonText: "course_overview_loading_courses_button_try_again",
                     clickRetryButtonAction: {
                         Task {
-                            await viewModel.reloadDashboard()
+                            await viewModel.loadCourses()
                         }
                     }
             ) { data in
                 ZStack {
                     CourseListView(
                             courses: data.courses,
-                            serverUrl: viewModel.serverUrl,
-                            bearer: viewModel.bearer,
                             onClickCourse: { course in onNavigateToCourse(course.id ?? 0) }
                     )
                             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -73,7 +71,7 @@ struct CoursesOverviewView: View {
                 }
                 .navigationBarBackButtonHidden()
                 .task {
-                    await viewModel.reloadDashboard()
+                    await viewModel.loadCourses()
                 }
     }
 }
@@ -84,15 +82,13 @@ struct CoursesOverviewView: View {
 private struct CourseListView: View {
 
     let courses: [Course]
-    let serverUrl: String
-    let bearer: String
     let onClickCourse: (Course) -> Void
 
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 8) {
                 ForEach(courses, id: \.self.id) { course in
-                    CourseItemView(course: course, serverUrl: serverUrl, bearer: bearer, onClick: { onClickCourse(course) })
+                    CourseItemView(course: course, onClick: { onClickCourse(course) })
                             .padding(.horizontal, 8)
                 }
             }
@@ -102,8 +98,6 @@ private struct CourseListView: View {
 
 private struct CourseItemView: View {
     let course: Course
-    let serverUrl: String
-    let bearer: String
     let onClick: () -> Void
 
     var body: some View {
@@ -146,7 +140,7 @@ class CoursesOverviewView_Previews: PreviewProvider {
 //
 //            CoursesList(courses: courses, serverUrl: "", bearer: "")
 //
-            CourseItemView(course: sampleCourse, serverUrl: serverUrl, bearer: "", onClick: {})
+            CourseItemView(course: sampleCourse, onClick: {})
         }
     }
 }
