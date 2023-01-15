@@ -10,6 +10,7 @@ import Common
 import RxSwiftExt
 import APIClient
 
+@MainActor
 class CourseViewController: ObservableObject {
 
     @Published var course: DataState<Course> = DataState.loading
