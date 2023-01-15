@@ -1,6 +1,7 @@
 import Foundation
 import Model
 import Data
+import Common
 
 /**
  * Service that handles all server communication for registering to a course.

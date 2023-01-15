@@ -19,15 +19,14 @@ let package = Package(
         .package(path: "../../core/UserStore"),
         .package(path: "../../core/UI"),
         .package(path: "../../core/Data"),
-        .package(path: "../../core/Device"),
-        .package(path: "../../core/Datastore")
+        .package(path: "../../core/Device")
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "Login",
-            dependencies: ["UI", "Data", "Device", "Datastore", "APIClient", "UserStore"]),
+            dependencies: ["UI", "Data", "Device", "APIClient", "UserStore"]),
         .testTarget(
             name: "LoginTests",
             dependencies: ["Login"]),

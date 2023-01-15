@@ -71,7 +71,7 @@ private class ExerciseResultViewController: ObservableObject {
     @Published var templateStatus: ResultTemplateStatus = .NoResult
 
     init(participation: Participation, exercise: Exercise, personal: Bool, showUngradedResults: Bool, result: Result?) {
-        let participationService = Container.participationService()
+        let participationService = ParticipationServiceFactory.shared
         let isBuildingObservable = participationService
                 .getLatestPendingSubmissionByParticipationIdObservable(
                         participationId: participation.baseParticipation.id ?? 0,
@@ -79,52 +79,47 @@ private class ExerciseResultViewController: ObservableObject {
                         personal: personal,
                         fetchPending: true
                 )
-                .filter { submissionData in
-                    let shouldUpdateBasedOnData: Bool
+        
+//                .filter { submissionData in
+//                    let shouldUpdateBasedOnData: Bool
+//
+//                    if let subData = submissionData {
+//                        switch subData {
+//                        case .IsBuildingPendingSubmission(participationId: _, submission: let submission):
+//                            switch submission {
+//                            case .Instructor(_), .Test(_): shouldUpdateBasedOnData = true
+//                            default:
+//                                let submissionDate = submission.baseSubmission.submissionDate?.date ?? Date(timeIntervalSince1970: 0)
+//                                let dueDate: Date = exercise.baseExercise.getDueDate(participation: participation) ?? Date(timeIntervalSince1970: 0)
+//
+//                                shouldUpdateBasedOnData = submissionDate < dueDate
+//                            }
+//                        case .NoPendingSubmission(participationId: _):
+//                            shouldUpdateBasedOnData = true
+//                        case .FailedSubmission(participationId: _):
+//                            shouldUpdateBasedOnData = true
+//                        }
+//                    } else {
+//                        shouldUpdateBasedOnData = true
+//                    }
+//
+//                    return showUngradedResults || exercise.baseExercise.dueDate == nil || shouldUpdateBasedOnData
+//                }
+//                .map { submissionData in
+//                    switch submissionData {
+//                    case .IsBuildingPendingSubmission(_, _): return true
+//                    default: return false
+//                    }
+//                }
 
-                    if let subData = submissionData {
-                        switch subData {
-                        case .IsBuildingPendingSubmission(participationId: _, submission: let submission):
-                            switch submission {
-                            case .Instructor(_), .Test(_): shouldUpdateBasedOnData = true
-                            default:
-                                let submissionDate = submission.baseSubmission.submissionDate?.date ?? Date(timeIntervalSince1970: 0)
-                                let dueDate: Date = exercise.baseExercise.getDueDate(participation: participation) ?? Date(timeIntervalSince1970: 0)
-
-                                shouldUpdateBasedOnData = submissionDate < dueDate
-                            }
-                        case .NoPendingSubmission(participationId: _):
-                            shouldUpdateBasedOnData = true
-                        case .FailedSubmission(participationId: _):
-                            shouldUpdateBasedOnData = true
-                        }
-                    } else {
-                        shouldUpdateBasedOnData = true
-                    }
-
-                    return showUngradedResults || exercise.baseExercise.dueDate == nil || shouldUpdateBasedOnData
-                }
-                .map { submissionData in
-                    switch submissionData {
-                    case .IsBuildingPendingSubmission(_, _): return true
-                    default: return false
-                    }
-                }
-
-        isBuildingObservable
-                .publisher
-                .replaceError(with: true)
-                .receive(on: DispatchQueue.main)
-                .assign(to: &$isBuilding)
-
-        isBuildingObservable
-                .map { isBuilding in
-                    ExerciseResultViewController.evaluateTemplateStatus(participation: participation, exercise: exercise, result: result, isBuilding: isBuilding)
-                }
-                .publisher
-                .replaceError(with: .NoResult)
-                .receive(on: DispatchQueue.main)
-                .assign(to: &$templateStatus)
+//        isBuildingObservable
+//                .map { isBuilding in
+//                    ExerciseResultViewController.evaluateTemplateStatus(participation: participation, exercise: exercise, result: result, isBuilding: isBuilding)
+//                }
+//                .publisher
+//                .replaceError(with: .NoResult)
+//                .receive(on: DispatchQueue.main)
+//                .assign(to: &$templateStatus)
 
         templateStatus = ExerciseResultViewController.evaluateTemplateStatus(participation: participation, exercise: exercise, result: result, isBuilding: isBuilding)
     }

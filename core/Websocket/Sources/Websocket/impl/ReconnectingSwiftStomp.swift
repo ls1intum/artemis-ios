@@ -17,16 +17,14 @@ class ReconnectingSwiftStomp {
     }
 
     private let url: String
-    private let jsonProvider: JsonProvider
 
     private var currentSession: ReactiveSwiftStomp? = nil
 
     private var waitForNetworkStatusTask: Task<Void, Never>? = nil
     private var scheduleNewSessionTask: Task<Void, Never>? = nil
 
-    init(url: String, networkStatusProvider: Observable<NetworkStatus>, jsonProvider: JsonProvider) {
+    init(url: String, networkStatusProvider: Observable<NetworkStatus>) {
         self.url = url
-        self.jsonProvider = jsonProvider
 
         let connectionAndNetworkStatus = Observable.combineLatest(
                 _connectedSession.map { session in
@@ -70,7 +68,7 @@ class ReconnectingSwiftStomp {
         let request = URLRequest(url: URL(string: url)!)
         let webSocket = WebSocket(request: request)
 
-        let session = ReactiveSwiftStomp(webSocket: webSocket, jsonProvider: jsonProvider)
+        let session = ReactiveSwiftStomp(webSocket: webSocket)
         currentSession = session
 
         waitForNetworkStatusTask = Task {
@@ -78,27 +76,27 @@ class ReconnectingSwiftStomp {
 
             var alreadyConnected = false
 
-            do {
-                for try await connectionStatus in session.connectionStatus.publisher.values {
-                    switch connectionStatus {
-                    case .connected:
-                        print("CONNECTED SESSION")
-                        alreadyConnected = true
-                        _connectedSession.onNext(session)
-                    case .disconnected:
-                        if alreadyConnected {
-                            print("DISCONNECTED SESSION")
-
-                            _connectedSession.onNext(nil)
-                            return
-                        }
-                    case .connecting: ()
-                    }
-                }
-            } catch {
-                _connectedSession.onNext(nil)
-                return
-            }
+//            do {
+//                for try await connectionStatus in session.connectionStatus.publisher.values {
+//                    switch connectionStatus {
+//                    case .connected:
+//                        print("CONNECTED SESSION")
+//                        alreadyConnected = true
+//                        _connectedSession.onNext(session)
+//                    case .disconnected:
+//                        if alreadyConnected {
+//                            print("DISCONNECTED SESSION")
+//
+//                            _connectedSession.onNext(nil)
+//                            return
+//                        }
+//                    case .connecting: ()
+//                    }
+//                }
+//            } catch {
+//                _connectedSession.onNext(nil)
+//                return
+//            }
         }
     }
 

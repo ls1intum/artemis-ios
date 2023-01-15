@@ -2,6 +2,7 @@ import Foundation
 import Model
 import Data
 import APIClient
+import Common
 
 class CourseRegistrationServiceImpl: CourseRegistrationService {
 

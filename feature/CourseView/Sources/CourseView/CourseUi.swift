@@ -1,6 +1,7 @@
 import Foundation
 import SwiftUI
 import UI
+import Common
 
 private struct CourseDest: Hashable {
     let courseId: Int
@@ -49,10 +50,7 @@ struct CourseView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
                 .navigationTitle(
-                        viewController.course.bind { it in
-                                    it.title ?? ""
-                                }
-                                .orElse(other: "")
+                    viewController.course.value?.title ?? ""
                 )
 
     }

@@ -1,6 +1,7 @@
 import Foundation
 import Model
 import Data
+import Common
 
 /**
  * Service where you can make requests about the Artemis dashboard.

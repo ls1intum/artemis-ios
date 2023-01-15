@@ -17,7 +17,6 @@ let package = Package(
         // .package(url: /* package url */, from: "1.0.0"),
         .package(path: "../Model"),
         .package(path: "../Data"),
-        .package(path: "../Datastore"),
         .package(path: "../Device"),
         .package(url: "https://github.com/groue/Semaphore", exact: "0.0.6"),
         .package(url: "https://github.com/TimOrtel/SwiftStompClient", branch: "dc4fb4f1859cb13d8dddea3a870469e009601f11")
@@ -27,7 +26,7 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "Websocket",
-            dependencies: ["Model", "Data", "Datastore", "Device", "Semaphore", "SwiftStompClient"]),
+            dependencies: ["Model", "Data", "Device", "Semaphore", "SwiftStompClient"]),
         .testTarget(
             name: "WebsocketTests",
             dependencies: ["Websocket"]),

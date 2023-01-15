@@ -1,29 +1,33 @@
+//
+//  File.swift
+//  
+//
+//  Created by Sven Andabaka on 12.01.23.
+//
+
 import Foundation
 import Model
 import APIClient
 import Data
-import Common
 
-class CourseServiceImpl: CourseService {
-
+class AccountServiceImpl: AccountService {
+    
     let client = APIClient()
     
-    struct GetCoursesRequest: APIRequest {
-        typealias Response = Course
-        
-        var courseId: Int
+    struct AccountRequest: APIRequest {
+        typealias Response = Account
         
         var method: HTTPMethod {
             return .get
         }
         
         var resourceName: String {
-            return "api/courses/\(courseId)/for-dashboard"
+            return "api/account"
         }
     }
     
-    func getCourse(courseId: Int) async -> DataState<Course> {
-        let result = await client.send(GetCoursesRequest(courseId: courseId))
+    func getAccountData() async -> DataState<Account> {
+        let result = await client.send(AccountRequest())
         
         switch result {
         case .success((let response, _)):
@@ -32,4 +36,5 @@ class CourseServiceImpl: CourseService {
             return .failure(error: error)
         }
     }
+    
 }

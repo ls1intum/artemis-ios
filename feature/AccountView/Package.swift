@@ -4,29 +4,28 @@
 import PackageDescription
 
 let package = Package(
-    name: "Datastore",
+    name: "AccountView",
     platforms: [.iOS(.v16)],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
-            name: "Datastore",
-            targets: ["Datastore"]),
+            name: "AccountView",
+            targets: ["AccountView"]),
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
-        // .package(url: /* package url */, from: "1.0.0"),
-        .package(path: "../Data"),
-        .package(path: "../Model"),
-        .package(path: "../Common")
+        .package(path: "../../core/APIClient"),
+        .package(path: "../../core/Data"),
+        .package(path: "../../core/Model"),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
-            name: "Datastore",
-            dependencies: ["Data", "Model", "Common"]),
+            name: "AccountView",
+            dependencies: ["APIClient", "Data", "Model"]),
         .testTarget(
-            name: "DatastoreTests",
-            dependencies: ["Datastore"]),
+            name: "AccountViewTests",
+            dependencies: ["AccountView"]),
     ]
 )

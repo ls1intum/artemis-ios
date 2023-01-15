@@ -1,17 +1,12 @@
 import Foundation
-import RxSwift
 import Model
 
 public protocol ParticipationService {
-    /**
-     * Subscribed to the users personal participations
-     */
-    var personalSubmissionUpdater: Observable<Result> { get }
-
+    
     /**
      * @param isPersonalParticipation whether the participation belongs to the user (by being a student) or not (by being an instructor)
      */
-    func getLatestPendingSubmissionByParticipationIdObservable(participationId: Int, exerciseId: Int, personal: Bool, fetchPending: Bool) -> Observable<ProgrammingSubmissionStateData?>
+    func getLatestPendingSubmissionByParticipationIdObservable(participationId: Int, exerciseId: Int, personal: Bool, fetchPending: Bool) -> ProgrammingSubmissionStateData?
 
     /**
      * Subscribing for general changes in a participation object. This will triggered if a new result is received by the service.
@@ -19,8 +14,15 @@ public protocol ParticipationService {
      *
      * **See also:** [js source](https://github.com/ls1intum/Artemis/blob/5c13e2e1b5b6d81594b9123946f040cbf6f0cfc6/src/main/webapp/app/overview/participation-websocket.service.ts#L228)
      */
-    func subscribeForParticipationChanges() -> Observable<StudentParticipation>
+    func subscribeForParticipationChanges() -> StudentParticipation?
 }
+
+public enum ParticipationServiceFactory {
+    
+    public static let shared: ParticipationService = ParticipationServiceImpl()
+    
+}
+
 
 public enum ProgrammingSubmissionStateData {
     // The last submission of participation has a result.

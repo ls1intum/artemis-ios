@@ -4,11 +4,11 @@ import RxSwift
 import SwiftDate
 import SwiftUI
 import Model
-import Datastore
 import Data
 import Websocket
 import Common
 import RxSwiftExt
+import APIClient
 
 class CourseViewController: ObservableObject {
 

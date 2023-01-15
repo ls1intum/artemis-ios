@@ -14,17 +14,20 @@ class ReactiveSwiftStomp: StompProtocol {
     private var subscriptionCounter: [String: Int] = [:]
 
     private var pingTask: Task<Void, Never>? = nil
+    
+    private var decoder: JSONDecoder = {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return decoder
+    }()
 
     let connectionStatus = BehaviorSubject<ConnectionStatus>(value: .connecting)
 
-    init(webSocket: WebSocket, jsonProvider: JsonProvider) {
+    init(webSocket: WebSocket) {
         self.swiftStomp = SwiftStompClient(webSocket: webSocket, heartBeat: HeartBeat(clientHeartBeating: "10000,10000"))
-        self.jsonProvider = jsonProvider
 
         swiftStomp.stompDelegate = self
     }
-
-    private let jsonProvider: JsonProvider
 
     private var messagePublisher = PublishSubject<StompMessage>()
 
@@ -118,13 +121,13 @@ class ReactiveSwiftStomp: StompProtocol {
                 }
                 .map { [self] message in
                     do {
-                        return try jsonProvider.decoder.decode(type, from: Data(message.text.utf8))
+                        return try decoder.decode(type, from: Data(message.text.utf8))
                     } catch {
                         print(message.destination)
                         print(message.text)
                         print(error)
                         print(error.localizedDescription)
-                        return try jsonProvider.decoder.decode(type, from: Data(message.text.utf8))
+                        return try decoder.decode(type, from: Data(message.text.utf8))
                     }
                 }
                 .catch { error in

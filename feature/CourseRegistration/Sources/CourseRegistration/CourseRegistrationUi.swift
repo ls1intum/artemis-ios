@@ -4,9 +4,9 @@ import Factory
 import MarkdownUI
 import Model
 import Data
-import Datastore
 import RxSwift
 import UI
+import Common
 
 public extension View {
     func courseRegistrationDestination(onNavigateUp: () -> Void, onRegisteredInCourse: (_ courseId: Int) -> Void) -> some View {
@@ -27,9 +27,6 @@ struct CourseRegistration: Hashable {
 }
 
 struct CourseRegistrationView: View {
-
-    private let accountService = Container.accountService()
-    private let serverConfigurationService = Container.serverConfigurationService()
 
     @StateObject var viewModel = CourseRegistrationViewController()
 

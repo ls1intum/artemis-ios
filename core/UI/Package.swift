@@ -18,6 +18,7 @@ let package = Package(
         .package(path: "../Model"),
         .package(path: "../Data"),
         .package(path: "../Websocket"),
+        .package(path: "../Common"),
         .package(url: "https://github.com/SDWebImage/SDWebImageSwiftUI.git", from: "2.0.0")
     ],
     targets: [
@@ -25,7 +26,7 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "UI",
-            dependencies: ["Model", "Data", "Websocket", "SDWebImageSwiftUI"]),
+            dependencies: ["Model", "Data", "Websocket", "SDWebImageSwiftUI", "Common"]),
         .testTarget(
             name: "UITests",
             dependencies: ["UI"]),
