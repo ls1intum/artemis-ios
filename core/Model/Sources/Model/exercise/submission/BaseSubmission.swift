@@ -1,5 +1,4 @@
 import Foundation
-import SwiftDate
 
 public protocol BaseSubmission: Decodable {
     static var type: String { get }

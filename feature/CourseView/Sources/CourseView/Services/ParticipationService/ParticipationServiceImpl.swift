@@ -10,7 +10,7 @@ import Model
 
 class ParticipationServiceImpl: ParticipationService {
     
-    func getPersonalSubmission(completion: (Model.Result) -> Void) {
+    func getPersonalSubmission(completion: (Result) -> Void) {
         print("TODO")
     }
     
@@ -18,7 +18,7 @@ class ParticipationServiceImpl: ParticipationService {
         print("TODO")
     }
     
-    func getStudentParticipation(completion: (Model.StudentParticipation) -> Void) {
+    func getStudentParticipation(completion: (StudentParticipation) -> Void) {
         print("TODO")
     }
 }

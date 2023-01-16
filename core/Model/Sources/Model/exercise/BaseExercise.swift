@@ -1,5 +1,4 @@
 import Foundation
-import SwiftDate
 
 public protocol BaseExercise: Decodable {
     associatedtype SelfType : BaseExercise

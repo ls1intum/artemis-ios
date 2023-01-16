@@ -1,7 +1,5 @@
-import Foundation
 import SwiftUI
 import UI
-import Common
 
 private struct CourseDest: Hashable {
     let courseId: Int

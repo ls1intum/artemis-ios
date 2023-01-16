@@ -1,14 +1,13 @@
 import Foundation
 import SwiftUI
-import Factory
-import RxSwift
 import Model
 import Device
 import APIClient
 import UI
 import Common
 
-@MainActor class CourseRegistrationViewController: ObservableObject {
+@MainActor
+class CourseRegistrationViewController: ObservableObject {
 
     @Published var registrableCourses: DataState<[SemesterCourses]> = .loading
 

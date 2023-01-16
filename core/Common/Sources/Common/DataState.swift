@@ -1,7 +1,4 @@
 import Foundation
-import RxSwift
-import Combine
-import Device
 
 /**
  * The data state of the request.

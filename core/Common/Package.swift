@@ -15,11 +15,6 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
-        .package(url: "https://github.com/ReactiveX/RxSwift.git", exact: "6.5.0"),
-        .package(url: "https://github.com/hmlongco/Factory", exact: "1.2.8"),
-        .package(url: "https://github.com/malcommac/SwiftDate", exact: "7.0.0"),
-        .package(url: "https://github.com/CombineCommunity/RxCombine.git", exact: "2.0.1"),
-        .package(url: "https://github.com/RxSwiftCommunity/RxSwiftExt", exact: "6.1.0"),
         .package(url: "https://github.com/SwiftyBeaver/SwiftyBeaver.git", .upToNextMajor(from: "1.9.0")),
     ],
     targets: [
@@ -27,7 +22,7 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "Common",
-            dependencies: ["RxSwift", "Factory", "SwiftDate", "RxCombine", "RxSwiftExt", "SwiftyBeaver"]),
+            dependencies: ["SwiftyBeaver"]),
         .testTarget(
             name: "CommonTests",
             dependencies: ["Common"]),

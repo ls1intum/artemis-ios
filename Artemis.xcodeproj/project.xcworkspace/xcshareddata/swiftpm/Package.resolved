@@ -19,15 +19,6 @@
       }
     },
     {
-      "identity" : "factory",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/hmlongco/Factory",
-      "state" : {
-        "revision" : "8557426f3286e20b631ecdac8115242f888656e0",
-        "version" : "1.2.8"
-      }
-    },
-    {
       "identity" : "markdownui",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/gonzalezreal/MarkdownUI",
@@ -55,30 +46,12 @@
       }
     },
     {
-      "identity" : "rxcombine",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/CombineCommunity/RxCombine.git",
-      "state" : {
-        "revision" : "19474c2ac9fde613bba8513bf98990e1aa9831cd",
-        "version" : "2.0.1"
-      }
-    },
-    {
       "identity" : "rxswift",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ReactiveX/RxSwift.git",
       "state" : {
         "revision" : "b4307ba0b6425c0ba4178e138799946c3da594f8",
         "version" : "6.5.0"
-      }
-    },
-    {
-      "identity" : "rxswiftext",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/RxSwiftCommunity/RxSwiftExt",
-      "state" : {
-        "revision" : "a42af9caeab63f2dbde318f1f3dc424f05871a37",
-        "version" : "6.1.0"
       }
     },
     {
@@ -115,15 +88,6 @@
       "state" : {
         "revision" : "ed252beaddecce28ea6363f800c773d6169011b8",
         "version" : "1.0.0"
-      }
-    },
-    {
-      "identity" : "swiftdate",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/malcommac/SwiftDate",
-      "state" : {
-        "revision" : "5d943224c3bb173e6ecf27295611615eba90c80e",
-        "version" : "7.0.0"
       }
     },
     {
