@@ -3,7 +3,6 @@ import SwiftUI
 import Factory
 import MarkdownUI
 import Model
-import Data
 import RxSwift
 import UI
 import Common

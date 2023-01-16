@@ -1,7 +1,6 @@
 import Foundation
 import RxSwift
 import SwiftStompClient
-import Data
 import Device
 
 class ReconnectingSwiftStomp {

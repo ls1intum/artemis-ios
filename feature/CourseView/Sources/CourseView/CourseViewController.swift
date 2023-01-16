@@ -4,7 +4,6 @@ import RxSwift
 import SwiftDate
 import SwiftUI
 import Model
-import Data
 import Websocket
 import Common
 import RxSwiftExt

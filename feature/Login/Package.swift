@@ -18,7 +18,6 @@ let package = Package(
         .package(path: "../../core/APIClient"),
         .package(path: "../../core/UserStore"),
         .package(path: "../../core/UI"),
-        .package(path: "../../core/Data"),
         .package(path: "../../core/Device")
     ],
     targets: [
@@ -26,7 +25,7 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "Login",
-            dependencies: ["UI", "Data", "Device", "APIClient", "UserStore"]),
+            dependencies: ["UI", "Device", "APIClient", "UserStore"]),
         .testTarget(
             name: "LoginTests",
             dependencies: ["Login"]),

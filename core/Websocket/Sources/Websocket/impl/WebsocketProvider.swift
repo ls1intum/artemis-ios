@@ -2,7 +2,6 @@ import Foundation
 import RxSwift
 import SwiftStompClient
 import Model
-import Data
 import Device
 
 public class WebsocketProvider {

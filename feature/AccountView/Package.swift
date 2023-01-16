@@ -15,7 +15,6 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         .package(path: "../../core/APIClient"),
-        .package(path: "../../core/Data"),
         .package(path: "../../core/Model"),
     ],
     targets: [
@@ -23,7 +22,7 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "AccountView",
-            dependencies: ["APIClient", "Data", "Model"]),
+            dependencies: ["APIClient", "Model"]),
         .testTarget(
             name: "AccountViewTests",
             dependencies: ["AccountView"]),

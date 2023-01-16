@@ -2,7 +2,6 @@ import Foundation
 import SwiftUI
 import SwiftDate
 import Model
-import Data
 import UI
 import Common
 

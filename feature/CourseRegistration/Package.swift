@@ -17,7 +17,6 @@ let package = Package(
         // .package(url: /* package url */, from: "1.0.0"),
         .package(path: "../../core/APIClient"),
         .package(path: "../../core/UI"),
-        .package(path: "../../core/Data"),
         .package(path: "../../core/Device"),
         .package(path: "../../core/Common"),
         .package(url: "https://github.com/gonzalezreal/MarkdownUI", exact: "1.1.1")
@@ -27,7 +26,7 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "CourseRegistration",
-            dependencies: ["UI", "Data", "Device", "Common", "MarkdownUI", "APIClient"]),
+            dependencies: ["UI", "Device", "Common", "MarkdownUI", "APIClient"]),
         .testTarget(
             name: "CourseRegistrationTests",
             dependencies: ["CourseRegistration"]),
