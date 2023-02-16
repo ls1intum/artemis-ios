@@ -11,11 +11,11 @@ class NetworkStatusProviderImpl: NetworkStatusProvider {
         do {
             let reachability: Reachability = try Reachability()
 
-            reachability.whenReachable = { r in
+            reachability.whenReachable = { _ in
                 subscriber.onNext(NetworkStatus.internet)
             }
 
-            reachability.whenUnreachable = { r in
+            reachability.whenUnreachable = { _ in
                 subscriber.onNext(NetworkStatus.unavailable)
             }
 
@@ -25,7 +25,7 @@ class NetworkStatusProviderImpl: NetworkStatusProvider {
                 reachability.stopNotifier()
             }
         } catch {
-            //Apparently we cannot gather information using reachability. Therefore, we just say the device always has internet.
+            // Apparently we cannot gather information using reachability. Therefore, we just say the device always has internet.
             subscriber.onNext(NetworkStatus.internet)
 
             return Disposables.create()

@@ -6,17 +6,17 @@ public class ProgrammingExerciseStudentParticipation: StudentParticipation {
         "programming"
     }
 
-    public var student: User? = nil
-    public var team: Team? = nil
-    public var participantIdentifier: String? = nil
-    public var testRun: Bool? = nil
-    public var id: Int? = nil
-    public var initializationState: InitializationState? = nil
-    public var initializationDate: Date? = nil
-    public var individualDueDate: Date? = nil
-    public var results: [Result]? = nil
-    public var exercise: Exercise? = nil
-    public var submissions: [Submission]? = nil
-    public var repositoryUrl: String? = nil
-    public var buildPlanId: String? = nil
+    public var student: User?
+    public var team: Team?
+    public var participantIdentifier: String?
+    public var testRun: Bool?
+    public var id: Int?
+    public var initializationState: InitializationState?
+    public var initializationDate: Date?
+    public var individualDueDate: Date?
+    public var results: [Result]?
+    public var exercise: Exercise?
+    public var submissions: [Submission]?
+    public var repositoryUrl: String?
+    public var buildPlanId: String?
 }

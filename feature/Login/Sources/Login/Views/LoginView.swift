@@ -1,21 +1,10 @@
 import Foundation
 import SwiftUI
+import Common
 
 public struct LoginView: View {
-
     @StateObject private var viewModel = LoginViewModel()
 
-    @State private var username: String = ""
-    @State private var password: String = ""
-    @State private var rememberMe: Bool = false
-
-    @State private var displayLoginFailureDialog = false
-    @State private var loginError: Error? {
-        didSet {
-            displayLoginFailureDialog = loginError != nil
-        }
-    }
-    
     public init() { }
 
     public var body: some View {
@@ -23,53 +12,59 @@ public struct LoginView: View {
             Spacer()
 
             Text("Welcome to Artemis!")
-                    .font(.system(size: 35, weight: .bold))
-                    .padding(.horizontal, 10)
-                    .frame(maxWidth: .infinity)
-                    .multilineTextAlignment(.center)
+                .font(.system(size: 35, weight: .bold))
+                .padding(.horizontal, 10)
+                .frame(maxWidth: .infinity)
+                .multilineTextAlignment(.center)
 
             Text("Please login with your TUM login credentials.")
-                    .font(.system(size: 25))
-                    .padding(.horizontal, 10)
-                    .frame(maxWidth: .infinity)
-                    .multilineTextAlignment(.center)
+                .font(.system(size: 25))
+                .padding(.horizontal, 10)
+                .frame(maxWidth: .infinity)
+                .multilineTextAlignment(.center)
 
-            VStack(spacing: 10) {
-                TextField("Username", text: $username)
-                        .textFieldStyle(.roundedBorder)
-                SecureField("Password", text: $password)
-                        .textFieldStyle(.roundedBorder)
-
-                Toggle("Automatic login", isOn: $rememberMe)
-                        .toggleStyle(.switch)
-            }
-                    .frame(maxWidth: .infinity)
-                    .padding(.horizontal, 40)
-
-            Button("Login", action: {
-                // TODO: add loading bar or something
-                Task {
-                    let response = await viewModel.login(username: username, password: password, rememberMe: rememberMe)
-
-                    switch response {
-                    case .failure(let error):
-                        loginError = error
-                    default:
-                        return
+            if viewModel.captchaRequired {
+                DataStateView(data: $viewModel.externalUserManagementUrl, retryHandler: viewModel.getProfileInfo) { externalUserManagementURL in
+                    DataStateView(data: $viewModel.externalUserManagementName, retryHandler: viewModel.getProfileInfo) { externalUserManagementName in
+                        VStack {
+                            Text("You have entered your password incorrectly too many times :-(")
+                            Text(.init("Please go to [\(externalUserManagementName)](\(externalUserManagementURL.absoluteString)), sign in with your account and solve the [CAPTCHA](\(externalUserManagementURL.absoluteString)). After you have solved it, try to log in again here."))
+                        }
+                            .padding()
+                            .border(.red)
                     }
                 }
+            }
+
+            VStack(spacing: 10) {
+                TextField("Username", text: $viewModel.username)
+                    .textFieldStyle(.roundedBorder)
+                SecureField("Password", text: $viewModel.password)
+                    .textFieldStyle(.roundedBorder)
+                Toggle("Automatic login", isOn: $viewModel.rememberMe)
+                    .toggleStyle(.switch)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, 40)
+
+            Button("Login", action: {
+                Task {
+                    await viewModel.login()
+                }
             })
-                    .frame(maxWidth: .infinity)
-                    .disabled(username.isEmpty || password.isEmpty)
-                    .buttonStyle(.borderedProminent)
+            .frame(maxWidth: .infinity)
+            .disabled(viewModel.username.isEmpty || viewModel.password.count < 8)
+            .buttonStyle(.borderedProminent)
 
             Spacer()
         }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .alert(loginError?.localizedDescription ?? "Login failed", isPresented: $displayLoginFailureDialog) {
-                    Button("OK", role: .cancel) {
-                        loginError = nil
-                    }
-                }
+        .loadingIndicator(isLoading: $viewModel.isLoading)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
+        .alert(isPresented: $viewModel.loginExpired) {
+            Alert(title: Text("Your session expired. Please login again!"),
+                  dismissButton: .default(Text("OK"),
+                                          action: { viewModel.resetLoginExpired() }))
+        }
     }
 }

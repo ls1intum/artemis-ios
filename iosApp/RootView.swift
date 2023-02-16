@@ -5,9 +5,9 @@ import CourseRegistration
 import CourseView
 
 struct RootView: View {
-    
+
     @StateObject private var viewModel = RootViewModel()
-    
+
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
@@ -18,7 +18,6 @@ struct RootView: View {
                         .dashboardDestination(
                             onLogout: {
                                 viewModel.path.removeLast(viewModel.path.count)
-                                viewModel.path.appendAccountView()
                             },
                             onClickRegisterForCourse: {
                                 viewModel.path.appendCourseRegistration()
@@ -42,10 +41,10 @@ struct RootView: View {
                 LoginView()
             }
         }
-            .onChange(of: scenePhase) { phase in
-                if phase == .background {
-                    //viewModel.save()
-                }
+        .onChange(of: scenePhase) { phase in
+            if phase == .background {
+                // viewModel.save()
             }
+        }
     }
 }

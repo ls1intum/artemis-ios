@@ -15,120 +15,120 @@ class CourseViewController: ObservableObject {
         Task {
             await loadCourse(courseId: courseId)
         }
-        
-//        /*
-//        * Holds a flow of the latest participation status for each exercise (associated by the exercise id)
-//        */
-//        let exerciseWithParticipationStatusObservable: Observable<DataState<[ExerciseWithParticipationStatus]>> =
-//                coursePublisher
-//                        .map { courseDataState in
-//                            courseDataState.bind { it in
-//                                it.exercises ?? []
-//                            }
-//                        }
-//                        .map { (exercisesDataState: DataState<[Exercise]>) in
-//                            switch exercisesDataState {
-//                            case .done(response: let exercises):
-//                                var exercisesById = exercises.reduce(into: [Int: Exercise]()) {
-//                                    $0[$1.baseExercise.id ?? 0] = $1
-//                                }
-//
-//                                var participationStatusMap: [Int: ExerciseWithParticipationStatus] =
-//                                        exercises.reduce(into: [Int: ExerciseWithParticipationStatus]()) { map, it in
-//                                            map[it.baseExercise.id ?? 0] = ExerciseWithParticipationStatus(exercise: it, participationStatus: it.baseExercise.computeParticipationStatus(testRun: nil))
-//                                        }
-//
-//                                return Observable.of(DataState.done(response: Array(participationStatusMap.values)))
-//                                        .concat(
-//                                                participationService
-//                                                        .personalSubmissionUpdater
-//                                                        .filterMap { latestResult in
-//                                                            guard let participation: Participation = latestResult.participation else {
-//                                                                return .ignore
-//                                                            }
-//
-//                                                            guard let associatedExerciseId = participation.baseParticipation.exercise?.baseExercise.id else {
-//                                                                return .ignore
-//                                                            }
-//
-//                                                            guard let associatedExercise = exercisesById[associatedExerciseId] else {
-//                                                                return .ignore
-//                                                            }
-//
-//                                                            return .map((participation, associatedExerciseId, associatedExercise))
-//                                                        }
-//                                                        .map { (data: (Participation, Int, Exercise)) in
-//                                                            let (participation, associatedExerciseId, associatedExercise) = data
-//
-//                                                            let currentAssociatedExerciseParticipations = associatedExercise.baseExercise.studentParticipations
-//
-//                                                            let updatedParticipations =
-//                                                                    //Replace the updated participation
-//                                                                    currentAssociatedExerciseParticipations?.map { oldParticipation in
-//                                                                        if oldParticipation.baseParticipation.id == participation.baseParticipation.id {
-//                                                                            return participation
-//                                                                        } else {
-//                                                                            return oldParticipation
-//                                                                        }
-//                                                                    } ?? //The new participations are just the one we just received
-//                                                                            [participation]
-//
-//                                                            //Replace the exercise
-//                                                            let newExercise = associatedExercise.copyWithUpdatedParticipations(
-//                                                                    newParticipations: updatedParticipations
-//                                                            )
-//
-//                                                            exercisesById[associatedExerciseId] = newExercise
-//
-//                                                            participationStatusMap[associatedExerciseId] =
-//                                                                    ExerciseWithParticipationStatus(
-//                                                                            exercise: newExercise,
-//                                                                            participationStatus: newExercise.baseExercise.computeParticipationStatus(testRun: nil)
-//                                                                    )
-//
-//                                                            return DataState.done(response: Array(participationStatusMap.values))
-//                                                        }
-//                                        )
-//                            default:
-//                                return Observable.of(
-//                                        exercisesDataState.bind { _ in
-//                                            []
-//                                        }
-//                                )
-//                            }
-//                        }
-//                        .switchLatest()
-//
-//        exerciseWithParticipationStatusObservable
-//                .map { exercisesDataState in
-//                    exercisesDataState.bind { exercisesWithParticipationState in
-//                        // Group the exercise based on their start of the week day (most likely monday)
-//                        Dictionary<Date?, [ExerciseWithParticipationStatus]>(grouping: exercisesWithParticipationState, by: { (exerciseWithParticipationState: ExerciseWithParticipationStatus) in
-//                            let exercise = exerciseWithParticipationState.exercise
-//                            guard let releaseDate = exercise.baseExercise.dueDate else {
-//                                return nil
-//                            }
-//
-//                            return releaseDate.dateAt(.startOfWeek)
-//                        })
-//                                .map { entry in
-//                                    let firstDayOfWeek: Date? = entry.key
-//                                    let exercises: [ExerciseWithParticipationStatus] = entry.value
-//
-//                                    if let f = firstDayOfWeek {
-//                                        let lastDayOfWeek = f + 6.days
-//                                        return WeeklyExercises.BoundToWeek(firstDayOfWeek: f, lastDayOfWeek: lastDayOfWeek, exercises: exercises)
-//                                    } else {
-//                                        return WeeklyExercises.Unbound(exercises: exercises)
-//                                    }
-//                                }
-//                                .sorted()
-//                    }
-//                }
-//                .publisher
-//                .replaceWithDataStateError()
-//                .receive(on: DispatchQueue.main)
-//                .assign(to: &$exercisesGroupedByWeek)
+
+        //        /*
+        //        * Holds a flow of the latest participation status for each exercise (associated by the exercise id)
+        //        */
+        //        let exerciseWithParticipationStatusObservable: Observable<DataState<[ExerciseWithParticipationStatus]>> =
+        //                coursePublisher
+        //                        .map { courseDataState in
+        //                            courseDataState.bind { it in
+        //                                it.exercises ?? []
+        //                            }
+        //                        }
+        //                        .map { (exercisesDataState: DataState<[Exercise]>) in
+        //                            switch exercisesDataState {
+        //                            case .done(response: let exercises):
+        //                                var exercisesById = exercises.reduce(into: [Int: Exercise]()) {
+        //                                    $0[$1.baseExercise.id ?? 0] = $1
+        //                                }
+        //
+        //                                var participationStatusMap: [Int: ExerciseWithParticipationStatus] =
+        //                                        exercises.reduce(into: [Int: ExerciseWithParticipationStatus]()) { map, it in
+        //                                            map[it.baseExercise.id ?? 0] = ExerciseWithParticipationStatus(exercise: it, participationStatus: it.baseExercise.computeParticipationStatus(testRun: nil))
+        //                                        }
+        //
+        //                                return Observable.of(DataState.done(response: Array(participationStatusMap.values)))
+        //                                        .concat(
+        //                                                participationService
+        //                                                        .personalSubmissionUpdater
+        //                                                        .filterMap { latestResult in
+        //                                                            guard let participation: Participation = latestResult.participation else {
+        //                                                                return .ignore
+        //                                                            }
+        //
+        //                                                            guard let associatedExerciseId = participation.baseParticipation.exercise?.baseExercise.id else {
+        //                                                                return .ignore
+        //                                                            }
+        //
+        //                                                            guard let associatedExercise = exercisesById[associatedExerciseId] else {
+        //                                                                return .ignore
+        //                                                            }
+        //
+        //                                                            return .map((participation, associatedExerciseId, associatedExercise))
+        //                                                        }
+        //                                                        .map { (data: (Participation, Int, Exercise)) in
+        //                                                            let (participation, associatedExerciseId, associatedExercise) = data
+        //
+        //                                                            let currentAssociatedExerciseParticipations = associatedExercise.baseExercise.studentParticipations
+        //
+        //                                                            let updatedParticipations =
+        //                                                                    //Replace the updated participation
+        //                                                                    currentAssociatedExerciseParticipations?.map { oldParticipation in
+        //                                                                        if oldParticipation.baseParticipation.id == participation.baseParticipation.id {
+        //                                                                            return participation
+        //                                                                        } else {
+        //                                                                            return oldParticipation
+        //                                                                        }
+        //                                                                    } ?? //The new participations are just the one we just received
+        //                                                                            [participation]
+        //
+        //                                                            //Replace the exercise
+        //                                                            let newExercise = associatedExercise.copyWithUpdatedParticipations(
+        //                                                                    newParticipations: updatedParticipations
+        //                                                            )
+        //
+        //                                                            exercisesById[associatedExerciseId] = newExercise
+        //
+        //                                                            participationStatusMap[associatedExerciseId] =
+        //                                                                    ExerciseWithParticipationStatus(
+        //                                                                            exercise: newExercise,
+        //                                                                            participationStatus: newExercise.baseExercise.computeParticipationStatus(testRun: nil)
+        //                                                                    )
+        //
+        //                                                            return DataState.done(response: Array(participationStatusMap.values))
+        //                                                        }
+        //                                        )
+        //                            default:
+        //                                return Observable.of(
+        //                                        exercisesDataState.bind { _ in
+        //                                            []
+        //                                        }
+        //                                )
+        //                            }
+        //                        }
+        //                        .switchLatest()
+        //
+        //        exerciseWithParticipationStatusObservable
+        //                .map { exercisesDataState in
+        //                    exercisesDataState.bind { exercisesWithParticipationState in
+        //                        // Group the exercise based on their start of the week day (most likely monday)
+        //                        Dictionary<Date?, [ExerciseWithParticipationStatus]>(grouping: exercisesWithParticipationState, by: { (exerciseWithParticipationState: ExerciseWithParticipationStatus) in
+        //                            let exercise = exerciseWithParticipationState.exercise
+        //                            guard let releaseDate = exercise.baseExercise.dueDate else {
+        //                                return nil
+        //                            }
+        //
+        //                            return releaseDate.dateAt(.startOfWeek)
+        //                        })
+        //                                .map { entry in
+        //                                    let firstDayOfWeek: Date? = entry.key
+        //                                    let exercises: [ExerciseWithParticipationStatus] = entry.value
+        //
+        //                                    if let f = firstDayOfWeek {
+        //                                        let lastDayOfWeek = f + 6.days
+        //                                        return WeeklyExercises.BoundToWeek(firstDayOfWeek: f, lastDayOfWeek: lastDayOfWeek, exercises: exercises)
+        //                                    } else {
+        //                                        return WeeklyExercises.Unbound(exercises: exercises)
+        //                                    }
+        //                                }
+        //                                .sorted()
+        //                    }
+        //                }
+        //                .publisher
+        //                .replaceWithDataStateError()
+        //                .receive(on: DispatchQueue.main)
+        //                .assign(to: &$exercisesGroupedByWeek)
     }
 
     func loadCourse(courseId: Int) async {
@@ -155,8 +155,8 @@ struct ExerciseWithParticipationStatus: Identifiable {
     }
 
     /**
-    * A list of the chips that are displayed in the ui from the data available in the exercise.
-    */
+     * A list of the chips that are displayed in the ui from the data available in the exercise.
+     */
     private static func collectExerciseCategoryChips(exercise: Exercise) -> [ExerciseCategoryChipData] {
         let liveQuizChips: [ExerciseCategoryChipData]
         if exercise.baseExercise is QuizExercise && (exercise.baseExercise as! QuizExercise).status == .ACTIVE {
@@ -225,7 +225,7 @@ enum WeeklyExercises: Comparable, Identifiable {
         switch self {
         case .BoundToWeek(firstDayOfWeek: let firstDayOfWeek, _, _):
             return firstDayOfWeek
-        case .Unbound(_):
+        case .Unbound:
             return Date.distantFuture
         }
     }
@@ -251,9 +251,8 @@ enum WeeklyExercises: Comparable, Identifiable {
         switch self {
         case .BoundToWeek(firstDayOfWeek: let firstDayOfWeek, _, _):
             return Int(firstDayOfWeek.timeIntervalSince1970.rounded())
-        case .Unbound(_):
+        case .Unbound:
             return 0
         }
     }
 }
-

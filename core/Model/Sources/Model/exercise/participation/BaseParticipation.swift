@@ -48,13 +48,13 @@ public enum InitializationState: String, Decodable {
     case BUILD_PLAN_CONFIGURED
 
     /**
-    * The participation is set up for submissions from the student
-    */
+     * The participation is set up for submissions from the student
+     */
     case INITIALIZED
 
     /**
-    * Text- / Modelling: At least one submission is done. Quiz: No further submissions should be possible
-    */
+     * Text- / Modelling: At least one submission is done. Quiz: No further submissions should be possible
+     */
     case FINISHED
     case INACTIVE
 }
@@ -69,19 +69,19 @@ public extension Participation {
      */
     func isInDueTime(associatedExercise: Exercise?) -> Bool {
         // If the exercise has no dueDate set, every submission is in time.
-        if (associatedExercise?.baseExercise.dueDate == nil) {
+        if associatedExercise?.baseExercise.dueDate == nil {
             return true
         }
 
         // If the participation has no submission, it cannot be in due time.
-        if ((baseParticipation.submissions ?? []).isEmpty) {
+        if (baseParticipation.submissions ?? []).isEmpty {
             return false
         }
 
         // If the submissionDate is before the dueDate of the exercise, the submission is in time.
         let submission = baseParticipation.submissions!.first!
         let submissionDate = submission.baseSubmission.submissionDate
-        if (submissionDate != nil) {
+        if submissionDate != nil {
             let dueDate = associatedExercise?.baseExercise.getDueDate(participation: self)
             if dueDate == nil {
                 return true

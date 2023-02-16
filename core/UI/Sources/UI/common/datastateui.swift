@@ -18,13 +18,13 @@ public struct BasicDataStateView<T, ChildContent: View>: View {
     let clickRetryButtonAction: () async -> Void
 
     public init(
-            data: DataState<T>,
-            loadingText: LocalizedStringKey,
-            failureText: LocalizedStringKey,
-            suspendedText: LocalizedStringKey,
-            retryButtonText: LocalizedStringKey,
-            clickRetryButtonAction: @escaping () async -> Void,
-            @ViewBuilder successUi: (T) -> ChildContent
+        data: DataState<T>,
+        loadingText: LocalizedStringKey,
+        failureText: LocalizedStringKey,
+        suspendedText: LocalizedStringKey,
+        retryButtonText: LocalizedStringKey,
+        clickRetryButtonAction: @escaping () async -> Void,
+        @ViewBuilder successUi: (T) -> ChildContent
     ) {
         self.data = data
         self.loadingText = loadingText
@@ -35,7 +35,7 @@ public struct BasicDataStateView<T, ChildContent: View>: View {
 
         switch data {
         case .done(
-                let data
+            let data
         ): self.successUi = successUi(data)
         default: self.successUi = nil
         }
@@ -45,12 +45,11 @@ public struct BasicDataStateView<T, ChildContent: View>: View {
     public var body: some View {
         ZStack {
             switch data {
-            case .failure, .suspended:
+            case .failure:
                 VStack {
                     let text: LocalizedStringKey = {
                         switch data {
-                        case .suspended(error: _): return suspendedText
-                        case .failure(error: _): return failureText
+                        case .failure: return failureText
                         default: return ""
                         }
                     }()
@@ -61,15 +60,15 @@ public struct BasicDataStateView<T, ChildContent: View>: View {
                         Text(retryButtonText)
                     }
                 }
-                        .frame(alignment: Alignment.center)
+                .frame(alignment: Alignment.center)
             case .loading:
                 VStack {
                     Text(loadingText)
 
                     ProgressView()
                 }
-                        .frame(alignment: Alignment.center)
-            case .done(_):
+                .frame(alignment: Alignment.center)
+            case .done:
                 successUi!
             }
         }
@@ -93,32 +92,6 @@ public struct EmptyDataStateView<T, ChildContent: View>: View {
             c
         } else {
             EmptyView()
-        }
-    }
-}
-
-class DataStateViewPreviews: PreviewProvider {
-    static var previews: some View {
-        Group {
-            BasicDataStateView(
-                    data: DataState.suspended(error: nil),
-                    loadingText: "Loading data",
-                    failureText: "Failed loading data",
-                    suspendedText: "Unstable internet connection",
-                    retryButtonText: "Try again",
-                    clickRetryButtonAction: {}
-            ) {
-            }
-
-            BasicDataStateView(
-                    data: DataState.loading,
-                    loadingText: "Loading data",
-                    failureText: "Failed loading data",
-                    suspendedText: "Unstable internet connection",
-                    retryButtonText: "Try again",
-                    clickRetryButtonAction: {}
-            ) {
-            }
         }
     }
 }

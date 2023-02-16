@@ -8,35 +8,35 @@ public struct QuizExercise: BaseExercise, Decodable {
         "quiz"
     }
 
-    public var id: Int? = nil
-    public var title: String? = nil
-    public var shortName: String? = nil
-    public var maxPoints: Float? = nil
-    public var bonusPoints: Float? = nil
-    public var releaseDate: Date? = nil
-    public var dueDate: Date? = nil
-    public var assessmentDueDate: Date? = nil
-    public var difficulty: Difficulty? = nil
+    public var id: Int?
+    public var title: String?
+    public var shortName: String?
+    public var maxPoints: Float?
+    public var bonusPoints: Float?
+//    public var releaseDate: Date?
+    public var dueDate: Date?
+    public var assessmentDueDate: Date?
+    public var difficulty: Difficulty?
     public var mode: Mode = .INDIVIDUAL
     public var categories: [Category]? = []
-    public var visibleToStudents: Bool? = nil
-    public var teamMode: Bool? = nil
-    public var problemStatement: String? = nil
-    public var assessmentType: AssessmentType? = nil
-    public var allowComplaintsForAutomaticAssessments: Bool? = nil
-    public var allowManualFeedbackRequests: Bool? = nil
+    public var visibleToStudents: Bool?
+    public var teamMode: Bool?
+    public var problemStatement: String?
+    public var assessmentType: AssessmentType?
+    public var allowComplaintsForAutomaticAssessments: Bool?
+    public var allowManualFeedbackRequests: Bool?
     public var includedInOverallScore: IncludedInOverallScore = .INCLUDED_COMPLETELY
-    public var exampleSolutionPublicationDate: Date? = nil
-    public var studentParticipations: [Participation]? = nil
+    public var exampleSolutionPublicationDate: Date?
+    public var studentParticipations: [Participation]?
     public var attachments: [Attachment]? = []
 
-    public var allowedNumberOfAttempts: Int? = nil
-    public var remainingNumberOfAttempts: Int? = nil
-    public var randomizeQuestionOrder: Bool? = nil
-    public var isOpenForPractice: Bool? = nil
-    public var duration: Int? = nil
+    public var allowedNumberOfAttempts: Int?
+    public var remainingNumberOfAttempts: Int?
+    public var randomizeQuestionOrder: Bool?
+    public var isOpenForPractice: Bool?
+    public var duration: Int?
     public var quizQuestions: [QuizQuestion]? = []
-    public var status: QuizStatus? = nil
+    public var status: QuizStatus?
     public var quizMode: QuizMode? = QuizMode.INDIVIDUAL
     public var quizBatches: [QuizBatch]? = []
 
@@ -62,10 +62,10 @@ public enum QuizMode: String, Decodable {
 }
 
 public struct QuizBatch: Decodable {
-    var id: Int? = nil
-    var startTime: Date? = nil
-    var started: Bool? = nil
-    var ended: Bool? = nil
-    var submissionAllowed: Bool? = nil
-    var password: String? = nil
+    var id: Int?
+    var startTime: Date?
+    var started: Bool?
+    var ended: Bool?
+    var submissionAllowed: Bool?
+    var password: String?
 }

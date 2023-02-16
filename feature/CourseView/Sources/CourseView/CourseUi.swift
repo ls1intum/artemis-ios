@@ -31,25 +31,25 @@ struct CourseView: View {
 
     var body: some View {
         BasicDataStateView(
-                data: viewController.course,
-                loadingText: "course_ui_loading_course_loading",
-                failureText: "course_ui_loading_course_failed",
-                suspendedText: "course_ui_loading_course_suspended",
-                retryButtonText: "course_ui_loading_course_try_again",
-                clickRetryButtonAction: { await viewController.loadCourse(courseId: courseId) }
+            data: viewController.course,
+            loadingText: "course_ui_loading_course_loading",
+            failureText: "course_ui_loading_course_failed",
+            suspendedText: "course_ui_loading_course_suspended",
+            retryButtonText: "course_ui_loading_course_try_again",
+            clickRetryButtonAction: { await viewController.loadCourse(courseId: courseId) }
         ) { _ in
             ZStack {
                 ExerciseListView(
-                        exerciseDataState: viewController.exercisesGroupedByWeek,
-                        onClickExercise: { exerciseId in }
+                    exerciseDataState: viewController.exercisesGroupedByWeek,
+                    onClickExercise: { _ in }
                 )
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-                .navigationTitle(
-                    viewController.course.value?.title ?? ""
-                )
+        .navigationTitle(
+            viewController.course.value?.title ?? ""
+        )
 
     }
 }

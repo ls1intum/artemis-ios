@@ -10,7 +10,7 @@ let package = Package(
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
             name: "Websocket",
-            targets: ["Websocket"]),
+            targets: ["Websocket"])
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -28,6 +28,6 @@ let package = Package(
             dependencies: ["Model", "Device", "Semaphore", "SwiftStompClient"]),
         .testTarget(
             name: "WebsocketTests",
-            dependencies: ["Websocket"]),
+            dependencies: ["Websocket"])
     ]
 )

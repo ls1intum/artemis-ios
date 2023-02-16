@@ -9,7 +9,7 @@ public class ObservedValue<T>: ObservableObject {
         latestValue = initialValue
 
         publisher
-                .receive(on: DispatchQueue.main)
-                .assign(to: &$latestValue)
+            .receive(on: DispatchQueue.main)
+            .assign(to: &$latestValue)
     }
 }

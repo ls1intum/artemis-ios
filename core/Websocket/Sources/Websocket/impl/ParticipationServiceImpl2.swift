@@ -1,13 +1,13 @@
-//import Foundation
-//import RxSwift
-//import Alamofire
-//import Model
-//import Device
+// import Foundation
+// import RxSwift
+// import Alamofire
+// import Model
+// import Device
 //
-///**
+/// **
 // * From: https://github.com/ls1intum/Artemis/blob/5c13e2e1b5b6d81594b9123946f040cbf6f0cfc6/src/main/webapp/app/overview/participation-websocket.service.ts
 // */
-//class ParticipationServiceImpl2: ParticipationService {
+// class ParticipationServiceImpl2: ParticipationService {
 //
 //    private static let PERSONAL_PARTICIPATION_TOPIC = "/user/topic/newResults"
 //    private static let PERSONAL_NEW_SUBMISSIONS_TOPIC = "/user/topic/newSubmissions"
@@ -186,14 +186,14 @@
 //    private func getExpectedRemainingTimeForBuild(submission: Submission) -> TimeInterval {
 //        TimeInterval(120) - TimeInterval(Date().timeIntervalSince(submission.baseSubmission.submissionDate?.date ?? Date()))
 //    }
-//}
+// }
 //
-//fileprivate struct ProgrammingSubmissionError: Decodable {
+// fileprivate struct ProgrammingSubmissionError: Decodable {
 //    let error: String
 //    var participationId: Int? = 0
-//}
+// }
 //
-//fileprivate enum WebsocketProgrammingSubmissionMessage: Decodable {
+// fileprivate enum WebsocketProgrammingSubmissionMessage: Decodable {
 //
 //    private enum Keys: String, CodingKey {
 //        case error
@@ -210,4 +210,4 @@
 //            self = .submission(submission: try Submission(from: decoder))
 //        }
 //    }
-//}
+// }

@@ -9,11 +9,11 @@ class ReactiveSwiftStomp: StompProtocol {
 
     private let subscriptionMutex = AsyncSemaphore(value: 1)
 
-    //Accesses must be guarded by the mutex to guarantee thread safety
+    // Accesses must be guarded by the mutex to guarantee thread safety
     private var subscriptionCounter: [String: Int] = [:]
 
-    private var pingTask: Task<Void, Never>? = nil
-    
+    private var pingTask: Task<Void, Never>?
+
     private var decoder: JSONDecoder = {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
@@ -62,11 +62,11 @@ class ReactiveSwiftStomp: StompProtocol {
 
             messagePublisher.onNext(StompMessage(destination: destination, text: String(message.dropLast())))
         case .receipt: ()
-//            print("receipt")
+        //            print("receipt")
         case .error:
             print("error: " + (body ?? "no body"))
         case .ping: ()
-//            print("ping")
+        //            print("ping")
         }
     }
 
@@ -74,111 +74,111 @@ class ReactiveSwiftStomp: StompProtocol {
         let id = UUID().uuidString
 
         return Observable.create { [self] sub in
-                    let t = Task {
-                        do {
-                            //Guard the access using a mutex.
-                            try await subscriptionMutex.waitUnlessCancelled()
-                            let currentCounter = subscriptionCounter[destination] ?? 0
+            let t = Task {
+                do {
+                    // Guard the access using a mutex.
+                    try await subscriptionMutex.waitUnlessCancelled()
+                    let currentCounter = subscriptionCounter[destination] ?? 0
 
-                            //Only subscribe if the destination does not have a subscriber yet.
-                            if currentCounter == 0 {
-                                print("Sub to " + destination)
-                                swiftStomp.sendFrame(frame: SubscribeStompFrame(destination: destination, destinationId: id))
-                            }
-
-                            subscriptionCounter[destination] = currentCounter + 1
-
-                            subscriptionMutex.signal()
-
-                            sub.onNext(messagePublisher)
-                        } catch is CancellationError {
-
-                        }
+                    // Only subscribe if the destination does not have a subscriber yet.
+                    if currentCounter == 0 {
+                        print("Sub to " + destination)
+                        swiftStomp.sendFrame(frame: SubscribeStompFrame(destination: destination, destinationId: id))
                     }
 
-                    return Disposables.create { [self] in
-                        t.cancel()
+                    subscriptionCounter[destination] = currentCounter + 1
 
-                        Task {
-                            await subscriptionMutex.wait() //Will not get cancelled anyway
+                    subscriptionMutex.signal()
 
-                            let currentCounter = subscriptionCounter[destination] ?? 0
-                            if currentCounter <= 1 { //Actually, only >1 should be possible
-                                //This is the last subscriber
-                                print("Unsub from " + destination)
-                                swiftStomp.sendFrame(frame: UnsubscribeStompFrame(destination: destination))
-                            }
-                            subscriptionCounter[destination] = currentCounter - 1
+                    sub.onNext(messagePublisher)
+                } catch is CancellationError {
 
-                            subscriptionMutex.signal()
-                        }
+                }
+            }
+
+            return Disposables.create { [self] in
+                t.cancel()
+
+                Task {
+                    await subscriptionMutex.wait() // Will not get cancelled anyway
+
+                    let currentCounter = subscriptionCounter[destination] ?? 0
+                    if currentCounter <= 1 { // Actually, only >1 should be possible
+                        // This is the last subscriber
+                        print("Unsub from " + destination)
+                        swiftStomp.sendFrame(frame: UnsubscribeStompFrame(destination: destination))
                     }
+                    subscriptionCounter[destination] = currentCounter - 1
+
+                    subscriptionMutex.signal()
                 }
-                .switchLatest()
-                .filter { (message: StompMessage) in
-                    message.destination == destination
-                }
-                .map { [self] message in
-                    do {
-                        return try decoder.decode(type, from: Data(message.text.utf8))
-                    } catch {
-                        print(message.destination)
-                        print(message.text)
-                        print(error)
-                        print(error.localizedDescription)
-                        return try decoder.decode(type, from: Data(message.text.utf8))
-                    }
-                }
-                .catch { error in
-                    Observable.empty()
-                }
+            }
+        }
+        .switchLatest()
+        .filter { (message: StompMessage) in
+            message.destination == destination
+        }
+        .map { [self] message in
+            do {
+                return try decoder.decode(type, from: Data(message.text.utf8))
+            } catch {
+                print(message.destination)
+                print(message.text)
+                print(error)
+                print(error.localizedDescription)
+                return try decoder.decode(type, from: Data(message.text.utf8))
+            }
+        }
+        .catch { _ in
+            Observable.empty()
+        }
     }
 
-//    func onConnect(swiftStomp: SwiftStomp, connectType: StompConnectType) {
+    //    func onConnect(swiftStomp: SwiftStomp, connectType: StompConnectType) {
 
-//        switch connectType {
-//        case .toSocketEndpoint:
-//            ()
-//        case .toStomp:
-//            //Start heartbeat
-//            pingTask = Task {
-//                while true {
-//                    do {
-//                        try await Task.sleep(nanoseconds: UInt64(1e+10))
-//                        swiftStomp.ping(data: Data("\n".utf8))
-//                    } catch {
-//                        break
-//                    }
-//                }
-//            }
-//        }
-//    }
+    //        switch connectType {
+    //        case .toSocketEndpoint:
+    //            ()
+    //        case .toStomp:
+    //            //Start heartbeat
+    //            pingTask = Task {
+    //                while true {
+    //                    do {
+    //                        try await Task.sleep(nanoseconds: UInt64(1e+10))
+    //                        swiftStomp.ping(data: Data("\n".utf8))
+    //                    } catch {
+    //                        break
+    //                    }
+    //                }
+    //            }
+    //        }
+    //    }
 
-//    func onDisconnect(swiftStomp: SwiftStomp, disconnectType: StompDisconnectType) {
-//        print("Disconnect")
-//        pingTask?.cancel()
-//    }
-//
-//    func onReceipt(swiftStomp: SwiftStomp, receiptId: String) {
-//        swiftStomp.ping(data: Data("\n".utf8))
-//
-//        print("receipt")
-//    }
-//
-//    func onError(swiftStomp: SwiftStomp, briefDescription: String, fullDescription: String?, receiptId: String?, type: StompErrorType) {
-//        print("Error: " + briefDescription)
-//        print("Full " + (fullDescription ?? ""))
-//    }
-//
-//    func onSocketEvent(eventName: String, description: String) {
-//        print("Socket event: " + eventName + "; " + description)
-//    }
+    //    func onDisconnect(swiftStomp: SwiftStomp, disconnectType: StompDisconnectType) {
+    //        print("Disconnect")
+    //        pingTask?.cancel()
+    //    }
+    //
+    //    func onReceipt(swiftStomp: SwiftStomp, receiptId: String) {
+    //        swiftStomp.ping(data: Data("\n".utf8))
+    //
+    //        print("receipt")
+    //    }
+    //
+    //    func onError(swiftStomp: SwiftStomp, briefDescription: String, fullDescription: String?, receiptId: String?, type: StompErrorType) {
+    //        print("Error: " + briefDescription)
+    //        print("Full " + (fullDescription ?? ""))
+    //    }
+    //
+    //    func onSocketEvent(eventName: String, description: String) {
+    //        print("Socket event: " + eventName + "; " + description)
+    //    }
     func clientSendFrame(result: Swift.Result<(), Error>) {
-//        print("send frame")
+        //        print("send frame")
     }
 
     func handleWebSocketResponse(result: Swift.Result<URLSessionWebSocketTask.Message, Error>) {
-//        print("response: ")
+        //        print("response: ")
     }
 
     func handleWebSocketDisconnect(session: URLSession, webSocketTask: URLSessionWebSocketTask, closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) {
@@ -190,7 +190,7 @@ class ReactiveSwiftStomp: StompProtocol {
     }
 }
 
-fileprivate struct StompMessage {
+private struct StompMessage {
     let destination: String
     let text: String
 }

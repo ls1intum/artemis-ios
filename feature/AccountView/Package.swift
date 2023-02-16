@@ -10,12 +10,12 @@ let package = Package(
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
             name: "AccountView",
-            targets: ["AccountView"]),
+            targets: ["AccountView"])
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         .package(path: "../../core/APIClient"),
-        .package(path: "../../core/Model"),
+        .package(path: "../../core/Model")
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -25,6 +25,6 @@ let package = Package(
             dependencies: ["APIClient", "Model"]),
         .testTarget(
             name: "AccountViewTests",
-            dependencies: ["AccountView"]),
+            dependencies: ["AccountView"])
     ]
 )

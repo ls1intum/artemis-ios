@@ -17,27 +17,27 @@ class ReconnectingSwiftStomp {
 
     private let url: String
 
-    private var currentSession: ReactiveSwiftStomp? = nil
+    private var currentSession: ReactiveSwiftStomp?
 
-    private var waitForNetworkStatusTask: Task<Void, Never>? = nil
-    private var scheduleNewSessionTask: Task<Void, Never>? = nil
+    private var waitForNetworkStatusTask: Task<Void, Never>?
+    private var scheduleNewSessionTask: Task<Void, Never>?
 
     init(url: String, networkStatusProvider: Observable<NetworkStatus>) {
         self.url = url
 
         let connectionAndNetworkStatus = Observable.combineLatest(
-                _connectedSession.map { session in
-                            if let s = session {
-                                return s.connectionStatus as Observable<ConnectionStatus>
-                            } else {
-                                return Observable.of(ConnectionStatus.disconnected)
-                            }
-                        }
-                        .switchLatest(),
-                networkStatusProvider
+            _connectedSession.map { session in
+                if let s = session {
+                    return s.connectionStatus as Observable<ConnectionStatus>
+                } else {
+                    return Observable.of(ConnectionStatus.disconnected)
+                }
+            }
+            .switchLatest(),
+            networkStatusProvider
         )
 
-        //Schedule a task that calls startSession when internet is available and the current session is either unset or disconnected.
+        // Schedule a task that calls startSession when internet is available and the current session is either unset or disconnected.
         scheduleNewSessionTask = Task {
             do {
                 for try await data in connectionAndNetworkStatus.values {
@@ -75,27 +75,27 @@ class ReconnectingSwiftStomp {
 
             var alreadyConnected = false
 
-//            do {
-//                for try await connectionStatus in session.connectionStatus.publisher.values {
-//                    switch connectionStatus {
-//                    case .connected:
-//                        print("CONNECTED SESSION")
-//                        alreadyConnected = true
-//                        _connectedSession.onNext(session)
-//                    case .disconnected:
-//                        if alreadyConnected {
-//                            print("DISCONNECTED SESSION")
-//
-//                            _connectedSession.onNext(nil)
-//                            return
-//                        }
-//                    case .connecting: ()
-//                    }
-//                }
-//            } catch {
-//                _connectedSession.onNext(nil)
-//                return
-//            }
+            //            do {
+            //                for try await connectionStatus in session.connectionStatus.publisher.values {
+            //                    switch connectionStatus {
+            //                    case .connected:
+            //                        print("CONNECTED SESSION")
+            //                        alreadyConnected = true
+            //                        _connectedSession.onNext(session)
+            //                    case .disconnected:
+            //                        if alreadyConnected {
+            //                            print("DISCONNECTED SESSION")
+            //
+            //                            _connectedSession.onNext(nil)
+            //                            return
+            //                        }
+            //                    case .connecting: ()
+            //                    }
+            //                }
+            //            } catch {
+            //                _connectedSession.onNext(nil)
+            //                return
+            //            }
         }
     }
 
@@ -105,7 +105,7 @@ class ReconnectingSwiftStomp {
     }
 }
 
-fileprivate struct Session {
+private struct Session {
     let connectionStatus: ConnectionStatus
     let swiftStomp: ReactiveSwiftStomp?
 }

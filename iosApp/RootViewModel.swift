@@ -12,20 +12,20 @@ import UserStore
 import SwiftUI
 
 class RootViewModel: ObservableObject {
-    
+
     @Published var isLoggedIn = false
     @Published var path = NavigationPath()
 
     private var cancellables: Set<AnyCancellable> = Set()
-    
+
     init() {
         UserSession.shared.objectWillChange.sink {
             DispatchQueue.main.async { [unowned self] in
-                self.isLoggedIn = UserSession.shared.bearerToken != nil
+                self.isLoggedIn = UserSession.shared.isLoggedIn
             }
         }.store(in: &cancellables)
-        
-        isLoggedIn = UserSession.shared.bearerToken != nil
+
+        isLoggedIn = UserSession.shared.isLoggedIn
         path.appendDashboard()
     }
 }

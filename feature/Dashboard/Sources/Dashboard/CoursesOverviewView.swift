@@ -35,44 +35,44 @@ struct CoursesOverviewView: View {
     var body: some View {
         VStack(alignment: .center) {
             BasicDataStateView(
-                    data: viewModel.courses,
-                    loadingText: "course_overview_loading_courses_loading",
-                    failureText: "course_overview_loading_courses_failed",
-                    suspendedText: "course_overview_loading_courses_suspended",
-                    retryButtonText: "course_overview_loading_courses_button_try_again",
-                    clickRetryButtonAction: {
-                        Task {
-                            await viewModel.loadCourses()
-                        }
+                data: viewModel.courses,
+                loadingText: "course_overview_loading_courses_loading",
+                failureText: "course_overview_loading_courses_failed",
+                suspendedText: "course_overview_loading_courses_suspended",
+                retryButtonText: "course_overview_loading_courses_button_try_again",
+                clickRetryButtonAction: {
+                    Task {
+                        await viewModel.loadCourses()
                     }
+                }
             ) { data in
                 ZStack {
                     CourseListView(
-                            courses: data,
-                            onClickCourse: { course in onNavigateToCourse(course.id ?? 0) }
+                        courses: data,
+                        onClickCourse: { course in onNavigateToCourse(course.id ?? 0) }
                     )
-                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
-                .navigationTitle(Text("course_overview_title"))
-                .toolbar {
-                    ToolbarItemGroup(placement: .navigationBarTrailing) {
-                        Button(action: onClickRegisterForCourse, label: {
-                            Label("course_overview_register_button_text", systemImage: "pencil")
-                        })
+        .navigationTitle(Text("course_overview_title"))
+        .toolbar {
+            ToolbarItemGroup(placement: .navigationBarTrailing) {
+                Button(action: onClickRegisterForCourse, label: {
+                    Label("course_overview_register_button_text", systemImage: "pencil")
+                })
 
-                        Button("Logout") {
-                            viewModel.logout()
-                            onLogout()
-                        }
-                    }
+                Button("Logout") {
+                    viewModel.logout()
+                    onLogout()
                 }
-                .navigationBarBackButtonHidden()
-                .task {
-                    await viewModel.loadCourses()
-                }
+            }
+        }
+        .navigationBarBackButtonHidden()
+        .task {
+            await viewModel.loadCourses()
+        }
     }
 }
 
@@ -89,7 +89,7 @@ private struct CourseListView: View {
             LazyVStack(spacing: 8) {
                 ForEach(courses, id: \.self.id) { course in
                     CourseItemView(course: course, onClick: { onClickCourse(course) })
-                            .padding(.horizontal, 8)
+                        .padding(.horizontal, 8)
                 }
             }
         }
@@ -102,27 +102,26 @@ private struct CourseItemView: View {
 
     var body: some View {
         CoursesHeaderView(
-                course: course
+            course: course
         ) {
             VStack(spacing: 0) {
                 Divider()
 
                 HStack(spacing: 8) {
                     ProgressView(value: 0.4)
-                            .frame(maxWidth: .infinity)
+                        .frame(maxWidth: .infinity)
 
                     Text("30P/40P (12%)")
                 }
-                        .padding(.vertical, 8)
-                        .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .padding(.horizontal, 16)
             }
         }
-                .onTapGesture {
-                    onClick()
-                }
+        .onTapGesture {
+            onClick()
+        }
     }
 }
-
 
 class CoursesOverviewView_Previews: PreviewProvider {
     static var previews: some View {
@@ -130,16 +129,16 @@ class CoursesOverviewView_Previews: PreviewProvider {
             let serverUrl = "https://via.placeholder.com"
 
             let sampleCourse = Course(id: 12, title: "Sample Course", description: "Sample Course Description", courseIcon: "/150/0000FF")
-//
-//            let courses = [sampleCourse,
-//                           Course(id: 13,
-//                                   title: "Other Course", description: "Playing with penguins", courseIconPath: "/150/0000FF"),
-//                           Course(id: 14,
-//                                   title: "Another Course", description: "Description 123", courseIconPath: "/150/0000FF"),
-//            ]
-//
-//            CoursesList(courses: courses, serverUrl: "", bearer: "")
-//
+            //
+            //            let courses = [sampleCourse,
+            //                           Course(id: 13,
+            //                                   title: "Other Course", description: "Playing with penguins", courseIconPath: "/150/0000FF"),
+            //                           Course(id: 14,
+            //                                   title: "Another Course", description: "Description 123", courseIconPath: "/150/0000FF"),
+            //            ]
+            //
+            //            CoursesList(courses: courses, serverUrl: "", bearer: "")
+            //
             CourseItemView(course: sampleCourse, onClick: {})
         }
     }

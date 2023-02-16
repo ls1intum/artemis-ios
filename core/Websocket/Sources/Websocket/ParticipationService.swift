@@ -2,7 +2,7 @@ import Foundation
 import Model
 
 public protocol ParticipationService {
-    
+
     /**
      * @param isPersonalParticipation whether the participation belongs to the user (by being a student) or not (by being an instructor)
      */
@@ -18,11 +18,10 @@ public protocol ParticipationService {
 }
 
 public enum ParticipationServiceFactory {
-    
-    public static let shared: ParticipationService = ParticipationServiceImpl()
-    
-}
 
+    public static let shared: ParticipationService = ParticipationServiceImpl()
+
+}
 
 public enum ProgrammingSubmissionStateData {
     // The last submission of participation has a result.

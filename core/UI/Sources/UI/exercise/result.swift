@@ -71,62 +71,62 @@ private class ExerciseResultViewController: ObservableObject {
     init(participation: Participation, exercise: Exercise, personal: Bool, showUngradedResults: Bool, result: Result?) {
         let participationService = ParticipationServiceFactory.shared
         let isBuildingObservable = participationService
-                .getLatestPendingSubmissionByParticipationIdObservable(
-                        participationId: participation.baseParticipation.id ?? 0,
-                        exerciseId: exercise.baseExercise.id ?? 0,
-                        personal: personal,
-                        fetchPending: true
-                )
-        
-//                .filter { submissionData in
-//                    let shouldUpdateBasedOnData: Bool
-//
-//                    if let subData = submissionData {
-//                        switch subData {
-//                        case .IsBuildingPendingSubmission(participationId: _, submission: let submission):
-//                            switch submission {
-//                            case .Instructor(_), .Test(_): shouldUpdateBasedOnData = true
-//                            default:
-//                                let submissionDate = submission.baseSubmission.submissionDate?.date ?? Date(timeIntervalSince1970: 0)
-//                                let dueDate: Date = exercise.baseExercise.getDueDate(participation: participation) ?? Date(timeIntervalSince1970: 0)
-//
-//                                shouldUpdateBasedOnData = submissionDate < dueDate
-//                            }
-//                        case .NoPendingSubmission(participationId: _):
-//                            shouldUpdateBasedOnData = true
-//                        case .FailedSubmission(participationId: _):
-//                            shouldUpdateBasedOnData = true
-//                        }
-//                    } else {
-//                        shouldUpdateBasedOnData = true
-//                    }
-//
-//                    return showUngradedResults || exercise.baseExercise.dueDate == nil || shouldUpdateBasedOnData
-//                }
-//                .map { submissionData in
-//                    switch submissionData {
-//                    case .IsBuildingPendingSubmission(_, _): return true
-//                    default: return false
-//                    }
-//                }
+            .getLatestPendingSubmissionByParticipationIdObservable(
+                participationId: participation.baseParticipation.id ?? 0,
+                exerciseId: exercise.baseExercise.id ?? 0,
+                personal: personal,
+                fetchPending: true
+            )
 
-//        isBuildingObservable
-//                .map { isBuilding in
-//                    ExerciseResultViewController.evaluateTemplateStatus(participation: participation, exercise: exercise, result: result, isBuilding: isBuilding)
-//                }
-//                .publisher
-//                .replaceError(with: .NoResult)
-//                .receive(on: DispatchQueue.main)
-//                .assign(to: &$templateStatus)
+        //                .filter { submissionData in
+        //                    let shouldUpdateBasedOnData: Bool
+        //
+        //                    if let subData = submissionData {
+        //                        switch subData {
+        //                        case .IsBuildingPendingSubmission(participationId: _, submission: let submission):
+        //                            switch submission {
+        //                            case .Instructor(_), .Test(_): shouldUpdateBasedOnData = true
+        //                            default:
+        //                                let submissionDate = submission.baseSubmission.submissionDate?.date ?? Date(timeIntervalSince1970: 0)
+        //                                let dueDate: Date = exercise.baseExercise.getDueDate(participation: participation) ?? Date(timeIntervalSince1970: 0)
+        //
+        //                                shouldUpdateBasedOnData = submissionDate < dueDate
+        //                            }
+        //                        case .NoPendingSubmission(participationId: _):
+        //                            shouldUpdateBasedOnData = true
+        //                        case .FailedSubmission(participationId: _):
+        //                            shouldUpdateBasedOnData = true
+        //                        }
+        //                    } else {
+        //                        shouldUpdateBasedOnData = true
+        //                    }
+        //
+        //                    return showUngradedResults || exercise.baseExercise.dueDate == nil || shouldUpdateBasedOnData
+        //                }
+        //                .map { submissionData in
+        //                    switch submissionData {
+        //                    case .IsBuildingPendingSubmission(_, _): return true
+        //                    default: return false
+        //                    }
+        //                }
+
+        //        isBuildingObservable
+        //                .map { isBuilding in
+        //                    ExerciseResultViewController.evaluateTemplateStatus(participation: participation, exercise: exercise, result: result, isBuilding: isBuilding)
+        //                }
+        //                .publisher
+        //                .replaceError(with: .NoResult)
+        //                .receive(on: DispatchQueue.main)
+        //                .assign(to: &$templateStatus)
 
         templateStatus = ExerciseResultViewController.evaluateTemplateStatus(participation: participation, exercise: exercise, result: result, isBuilding: isBuilding)
     }
 
     private static func evaluateTemplateStatus(
-            participation: Participation,
-            exercise: Exercise,
-            result: Result?,
-            isBuilding: Bool
+        participation: Participation,
+        exercise: Exercise,
+        result: Result?,
+        isBuilding: Bool
     ) -> ResultTemplateStatus {
         let now = Date()
 
@@ -148,7 +148,7 @@ private class ExerciseResultViewController: ObservableObject {
                 // Submission is in due time of exercise and doesn't have a result with score.
                 if dueDate == nil || dueDate! >= now {
                     return ResultTemplateStatus.Submitted
-                } else if (assessmentDueDate == nil || assessmentDueDate! >= now) {
+                } else if assessmentDueDate == nil || assessmentDueDate! >= now {
                     // the due date is in the future (or there is none) => the exercise is still ongoing
                     return ResultTemplateStatus.SubmittedWaitingForGrading
                 } else {
@@ -194,13 +194,13 @@ public struct ExerciseResultView: View {
         })
 
         _viewController = StateObject(
-                wrappedValue: ExerciseResultViewController(
-                        participation: participation,
-                        exercise: exercise,
-                        personal: personal,
-                        showUngradedResults: showUngradedResults,
-                        result: chosenResult
-                )
+            wrappedValue: ExerciseResultViewController(
+                participation: participation,
+                exercise: exercise,
+                personal: personal,
+                showUngradedResults: showUngradedResults,
+                result: chosenResult
+            )
         )
 
     }
@@ -230,7 +230,7 @@ private struct StatusIsBuildingView: View {
             ProgressView()
 
             Text("exercise_result_is_building")
-                    .font(statusFont)
+                .font(statusFont)
         }
     }
 }
@@ -249,7 +249,6 @@ private struct StatusHasResultView: View {
         } else {
             icon = "checkmark.circle"
         }
-
 
         if resultScore >= MIN_SCORE_GREEN {
             textAndIconColor = colorResultSuccess
@@ -279,8 +278,8 @@ private struct TextStatusView: View {
 
     var body: some View {
         Text(text)
-                .font(font)
-                .foregroundColor(textColor)
+            .font(font)
+            .foregroundColor(textColor)
     }
 }
 
@@ -294,13 +293,13 @@ private struct IconTextStatus: View {
     var body: some View {
         HStack(spacing: 8) {
             Text(verbatim: text)
-                    .font(statusFont)
-                    .foregroundColor(textColor)
+                .font(statusFont)
+                .foregroundColor(textColor)
 
             Image(systemName: iconName)
-                    .frame(height: .infinity)
-                    .aspectRatio(1, contentMode: ContentMode.fit)
-                    .foregroundColor(iconColor)
+                .frame(height: .infinity)
+                .aspectRatio(1, contentMode: ContentMode.fit)
+                .foregroundColor(iconColor)
         }
     }
 }

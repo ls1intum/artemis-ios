@@ -3,15 +3,15 @@ import Foundation
 public struct Account: Decodable {
     var activated: Bool? = false
     var authorities: [String]? = []
-    var username: String? = nil
-    var email: String? = nil
+    var username: String?
+    var email: String?
     var name: String? = ""
     var isInternal: Bool? = true
     var firstName: String? = ""
     var lastName: String? = ""
     var langKey: String? = "en"
-    var imageUrl: String? = nil
-    var id: Int? = nil
+    var imageUrl: String?
+    var id: Int?
 
     enum CodingKeys: String, CodingKey {
         case activated

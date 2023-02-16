@@ -1,14 +1,14 @@
 import Foundation
 
-public struct FileAttachment : BaseAttachment {
+public struct FileAttachment: BaseAttachment {
 
-    public var id: Int? = nil
-    public var name: String? = nil
-    public var visibleToStudents: Bool? = nil
-    public var link: String? = nil
-    public var version: Int? = nil
-    public var uploadDate: Date? = nil
-    public var releaseDate: Date? = nil
+    public var id: Int?
+    public var name: String?
+    public var visibleToStudents: Bool?
+    public var link: String?
+    public var version: Int?
+    public var uploadDate: Date?
+//    public var releaseDate: Date?
 
     public static var type: String {
         "FILE"

@@ -25,6 +25,9 @@
 		D54B8BEF296F745B00BB1AA3 /* APIClient in Frameworks */ = {isa = PBXBuildFile; productRef = D54B8BEE296F745B00BB1AA3 /* APIClient */; };
 		D54B8BF52970760900BB1AA3 /* UserStore in Frameworks */ = {isa = PBXBuildFile; productRef = D54B8BF42970760900BB1AA3 /* UserStore */; };
 		D54B8BF7297082C400BB1AA3 /* RootViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54B8BF6297082C400BB1AA3 /* RootViewModel.swift */; };
+		D5B8C106299E73F100835976 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B8C105299E73F100835976 /* AppDelegate.swift */; };
+		D5BA7B2B299EE35A0085CC6E /* Account in Frameworks */ = {isa = PBXBuildFile; productRef = D5BA7B2A299EE35A0085CC6E /* Account */; };
+		D5BA7B2D299EE35A0085CC6E /* ProfileInfo in Frameworks */ = {isa = PBXBuildFile; productRef = D5BA7B2C299EE35A0085CC6E /* ProfileInfo */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,10 +51,14 @@
 		22B6A91B292D783200F08C7E /* CourseRegistration */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = CourseRegistration; path = feature/CourseRegistration; sourceTree = "<group>"; };
 		7555FF7B242A565900829871 /* Artemis.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Artemis.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7555FF8C242A565B00829871 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D51AD00C299E390700FA5B94 /* Artemis.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Artemis.entitlements; sourceTree = "<group>"; };
 		D54B8BED296F741D00BB1AA3 /* APIClient */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = APIClient; path = core/APIClient; sourceTree = "<group>"; };
 		D54B8BF3297075C100BB1AA3 /* UserStore */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = UserStore; path = core/UserStore; sourceTree = "<group>"; };
 		D54B8BF6297082C400BB1AA3 /* RootViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewModel.swift; sourceTree = "<group>"; };
 		D54B8BF82970BCBB00BB1AA3 /* AccountView */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = AccountView; path = feature/AccountView; sourceTree = "<group>"; };
+		D5B8C105299E73F100835976 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		D5B8C113299EE28000835976 /* Account */ = {isa = PBXFileReference; lastKnownFileType = text; name = Account; path = feature/Account; sourceTree = SOURCE_ROOT; };
+		D5B8C114299EE29600835976 /* ProfileInfo */ = {isa = PBXFileReference; lastKnownFileType = text; name = ProfileInfo; path = feature/ProfileInfo; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,9 +70,11 @@
 				D54B8BF52970760900BB1AA3 /* UserStore in Frameworks */,
 				22B6A930292D815A00F08C7E /* Login in Frameworks */,
 				22B6A920292D787300F08C7E /* Model in Frameworks */,
+				D5BA7B2D299EE35A0085CC6E /* ProfileInfo in Frameworks */,
 				22B6A924292D815A00F08C7E /* CourseView in Frameworks */,
 				22B6A92C292D815A00F08C7E /* Device in Frameworks */,
 				22B6A922292D815A00F08C7E /* CourseRegistration in Frameworks */,
+				D5BA7B2B299EE35A0085CC6E /* Account in Frameworks */,
 				D54B8BEF296F745B00BB1AA3 /* APIClient in Frameworks */,
 				22B6A92E292D815A00F08C7E /* ExerciseView in Frameworks */,
 				22B6A926292D815A00F08C7E /* Dashboard in Frameworks */,
@@ -86,6 +95,7 @@
 		22B6A90D292D3CAB00F08C7E /* Packages */ = {
 			isa = PBXGroup;
 			children = (
+				D5B8C110299EE22900835976 /* Features */,
 				D54B8BF82970BCBB00BB1AA3 /* AccountView */,
 				D54B8BF3297075C100BB1AA3 /* UserStore */,
 				D54B8BED296F741D00BB1AA3 /* APIClient */,
@@ -114,6 +124,7 @@
 		7555FF72242A565900829871 = {
 			isa = PBXGroup;
 			children = (
+				D51AD00C299E390700FA5B94 /* Artemis.entitlements */,
 				22B6A90D292D3CAB00F08C7E /* Packages */,
 				7555FF7D242A565900829871 /* iosApp */,
 				7555FF7C242A565900829871 /* Products */,
@@ -139,10 +150,20 @@
 				058557BA273AAA24004C7B11 /* Assets.xcassets */,
 				7555FF8C242A565B00829871 /* Info.plist */,
 				2152FB032600AC8F00CF470E /* iOSApp.swift */,
+				D5B8C105299E73F100835976 /* AppDelegate.swift */,
 				058557D7273AAEEB004C7B11 /* Preview Content */,
 				22B12971290048A800C4910E /* Localizable.strings */,
 			);
 			path = iosApp;
+			sourceTree = "<group>";
+		};
+		D5B8C110299EE22900835976 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				D5B8C114299EE29600835976 /* ProfileInfo */,
+				D5B8C113299EE28000835976 /* Account */,
+			);
+			path = Features;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -172,6 +193,8 @@
 				22B6A935292D8F3400F08C7E /* Common */,
 				D54B8BEE296F745B00BB1AA3 /* APIClient */,
 				D54B8BF42970760900BB1AA3 /* UserStore */,
+				D5BA7B2A299EE35A0085CC6E /* Account */,
+				D5BA7B2C299EE35A0085CC6E /* ProfileInfo */,
 			);
 			productName = iosApp;
 			productReference = 7555FF7B242A565900829871 /* Artemis.app */;
@@ -234,6 +257,7 @@
 				2152FB042600AC8F00CF470E /* iOSApp.swift in Sources */,
 				220409A728D4EF1A00204B1C /* RootView.swift in Sources */,
 				D54B8BF7297082C400BB1AA3 /* RootViewModel.swift in Sources */,
+				D5B8C106299E73F100835976 /* AppDelegate.swift in Sources */,
 				1C098983990545800E8F932E /* readme.md in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -365,8 +389,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Artemis.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"iosApp/Preview Content\"";
+				DEVELOPMENT_TEAM = 2J3C6P6X3N;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_TESTING_SEARCH_PATHS = YES;
 				FRAMEWORK_SEARCH_PATHS = "";
@@ -377,7 +403,7 @@
 					"@executable_path/Frameworks",
 				);
 				OTHER_LDFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = orgIdentifier.iosApp;
+				PRODUCT_BUNDLE_IDENTIFIER = de.tum.cit.artemis;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -388,8 +414,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Artemis.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"iosApp/Preview Content\"";
+				DEVELOPMENT_TEAM = 2J3C6P6X3N;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_TESTING_SEARCH_PATHS = YES;
 				FRAMEWORK_SEARCH_PATHS = "";
@@ -400,7 +428,7 @@
 					"@executable_path/Frameworks",
 				);
 				OTHER_LDFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = orgIdentifier.iosApp;
+				PRODUCT_BUNDLE_IDENTIFIER = de.tum.cit.artemis;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -470,6 +498,14 @@
 		D54B8BF42970760900BB1AA3 /* UserStore */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = UserStore;
+		};
+		D5BA7B2A299EE35A0085CC6E /* Account */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Account;
+		};
+		D5BA7B2C299EE35A0085CC6E /* ProfileInfo */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ProfileInfo;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Sven Andabaka on 09.01.23.
 //
@@ -16,7 +16,7 @@ public enum HTTPMethod: String, CustomStringConvertible {
     case put
     case options
     case update
-    
+
     public var description: String {
         return rawValue.uppercased()
     }

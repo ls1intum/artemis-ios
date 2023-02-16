@@ -7,18 +7,18 @@ public struct ProfileInfo: Decodable {
     var activeProfiles: [String] = []
     var inProduction: Bool = false
     var contact: String = ""
-    var testServer: Bool? = nil
-    var registrationEnabled: Bool? = nil
+    var testServer: Bool?
+    var registrationEnabled: Bool?
     var needsToAcceptTerms: Bool = false
-    var allowedEmailPattern: String? = nil
-    var allowedEmailPatternReadable: String? = nil
-    var allowedLdapUsernamePattern: String? = nil
-    var allowedCourseRegistrationUsernamePattern: String? = nil
-    var accountName: String? = nil
+    var allowedEmailPattern: String?
+    var allowedEmailPatternReadable: String?
+    var allowedLdapUsernamePattern: String?
+    var allowedCourseRegistrationUsernamePattern: String?
+    var accountName: String?
     var externalCredentialProvider: String = ""
-    var externalPasswordResetLinkMap: Dictionary<String, String> = [String: String]()
+    var externalPasswordResetLinkMap: [String: String] = [String: String]()
     /**
      * Set if the server allows a saml2 based login. If not set, it is also not supported.
      */
-    var saml2: Saml2Config? = nil
+    var saml2: Saml2Config?
 }

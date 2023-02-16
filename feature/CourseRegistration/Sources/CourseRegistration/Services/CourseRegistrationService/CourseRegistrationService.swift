@@ -16,7 +16,7 @@ public protocol CourseRegistrationService {
 }
 
 enum CourseRegistrationServiceFactory {
-    
+
     static let shared: CourseRegistrationService = CourseRegistrationServiceImpl()
-    
+
 }

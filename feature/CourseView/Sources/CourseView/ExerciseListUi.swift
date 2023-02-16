@@ -29,8 +29,8 @@ struct ExerciseListView: View {
                                 ExerciseItemView(exerciseWithParticipationStatus: exercise, onClick: {
 
                                 })
-                                        .frame(maxWidth: .infinity)
-                                        .padding(.horizontal, 8)
+                                .frame(maxWidth: .infinity)
+                                .padding(.horizontal, 8)
                             }
                         }
                     }
@@ -45,7 +45,7 @@ struct ExerciseListView: View {
             let daysDiff = Calendar.current.dateComponents([.day], from: firstDayOfWeek, to: Date()).day ?? 0
             let defaultValue = daysDiff < 14
             return dict[firstDayOfWeek] ?? defaultValue
-        case .Unbound(_):
+        case .Unbound:
             let defaultValue = true
             return dict[nil] ?? defaultValue
         }
@@ -97,44 +97,44 @@ private struct ExerciseItemView: View {
                 HStack {
                     ZStack {
                         ExerciseTypeIconView(exercise: exerciseWithParticipationStatus.exercise)
-                                .frame(width: 60, height: 60)
-                                .padding([.leading, .top], 8)
+                            .frame(width: 60, height: 60)
+                            .padding([.leading, .top], 8)
                     }
-                            .frame(width: 80, height: 80)
+                    .frame(width: 80, height: 80)
 
                     ExerciseDataTextView(
-                            exercise: exerciseWithParticipationStatus.exercise,
-                            participationStatus: exerciseWithParticipationStatus.participationStatus
+                        exercise: exerciseWithParticipationStatus.exercise,
+                        participationStatus: exerciseWithParticipationStatus.participationStatus
                     )
-                            .frame(maxWidth: .infinity)
-                            .padding(.horizontal, 8)
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, 8)
                 }
-                        .frame(maxWidth: .infinity)
+                .frame(maxWidth: .infinity)
 
-                //Display a row of chips
+                // Display a row of chips
                 ScrollView(.horizontal) {
                     HStack {
                         ForEach(exerciseWithParticipationStatus.categoryChips) { chip in
                             ExerciseCategoryChip(data: chip)
                         }
                     }
-                            .frame(maxWidth: .infinity)
-                            .padding(.horizontal, 8)
-                }
-                        .frame(maxWidth: .infinity)
-            }
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 8)
+                    .padding(.horizontal, 8)
+                }
+                .frame(maxWidth: .infinity)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 8)
         }
-                .clipShape(cardShape)
-                .background(
-                        cardShape
-                                .stroke(Color.outline)
-                )
-                .background(
-                        cardShape
-                                .fill(Color.primaryContainer.surface)
-                )
+        .clipShape(cardShape)
+        .background(
+            cardShape
+                .stroke(Color.outline)
+        )
+        .background(
+            cardShape
+                .fill(Color.primaryContainer.surface)
+        )
     }
 }
 
@@ -144,19 +144,19 @@ private struct ExerciseTypeIconView: View {
 
     init(exercise: Exercise) {
         switch exercise {
-        case .FileUpload(exercise: _): icon = "square.and.arrow.up"
-        case .Modeling(exercise: _): icon = "compass.drawing"
-        case .Programming(exercise: _): icon = "terminal"
-        case .Quiz(exercise: _): icon = "questionmark.bubble"
-        case .Text(exercise: _): icon = "note.text"
-        case .Unknown(exercise: _): icon = "exclamationmark.triangle"
+        case .FileUpload: icon = "square.and.arrow.up"
+        case .Modeling: icon = "compass.drawing"
+        case .Programming: icon = "terminal"
+        case .Quiz: icon = "questionmark.bubble"
+        case .Text: icon = "note.text"
+        case .Unknown: icon = "exclamationmark.triangle"
         }
     }
 
     var body: some View {
         Image(systemName: icon)
-                .resizable()
-                .scaledToFit()
+            .resizable()
+            .scaledToFit()
     }
 }
 
@@ -186,23 +186,23 @@ private struct ExerciseDataTextView: View {
     var body: some View {
         VStack {
             Text(verbatim: exercise.baseExercise.title ?? "")
-                    .font(.title3)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                .font(.title3)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
             Text(dueDateText)
-                    .font(.callout)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                .font(.callout)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
             switch participationStatus {
             case .QuizFinished(participation: let p), .Initialized(participation: let p), .Inactive(participation: let p), .ExerciseSubmitted(participation: let p):
                 ExerciseResultView(
-                        exercise: exercise, participation: p, result: nil, showUngradedResults: true, personal: true
+                    exercise: exercise, participation: p, result: nil, showUngradedResults: true, personal: true
                 )
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
             default:
                 Text(participationStatus.submissionResultStatusText)
-                        .font(.callout)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    .font(.callout)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
 
         }
@@ -226,10 +226,10 @@ private struct ExerciseCategoryChip: View {
                 }
             }.padding(.all, 4)
         }
-                .clipShape(chipShape)
-                .background(
-                        chipShape.fill(data.color)
-                )
+        .clipShape(chipShape)
+        .background(
+            chipShape.fill(data.color)
+        )
     }
 }
 

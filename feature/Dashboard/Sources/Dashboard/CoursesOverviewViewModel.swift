@@ -1,6 +1,7 @@
 import Foundation
 import Model
 import APIClient
+import UserStore
 import Common
 
 @MainActor class CoursesOverviewViewModel: ObservableObject {
@@ -8,7 +9,7 @@ import Common
     @Published var courses: DataState<[Course]> = DataState.loading
 
     init() {
-        
+
         Task {
             await loadCourses()
         }
@@ -20,6 +21,7 @@ import Common
 
     func logout() {
         // TODO: move to other view
-//        accountService.logout()
+        //        accountService.logout()
+        UserSession.shared.setUserLoggedIn(isLoggedIn: false, shouldRemember: false)
     }
 }

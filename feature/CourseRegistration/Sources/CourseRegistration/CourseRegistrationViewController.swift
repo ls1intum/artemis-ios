@@ -20,7 +20,7 @@ class CourseRegistrationViewController: ObservableObject {
     func reloadRegistrableCourses() async {
         await loadCourses()
     }
-    
+
     func loadCourses() async {
         let courses = await CourseRegistrationServiceFactory.shared.fetchRegistrableCourses()
         switch courses {
@@ -33,8 +33,6 @@ class CourseRegistrationViewController: ObservableObject {
                 .map { semester, courses in
                     SemesterCourses(semester: semester, courses: courses)
                 })
-        case .suspended(let error):
-            registrableCourses = .suspended(error: error)
         }
     }
 }
