@@ -10,6 +10,7 @@ import Foundation
 import UIKit
 import UserNotifications
 import UserStore
+import PushNotifications
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
@@ -32,7 +33,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 }
 
-// MARK: Extension Push Notification Registration
+// MARK: Extension for Push Notifications
 extension AppDelegate: UNUserNotificationCenterDelegate {
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         UserSession.shared.apnsDeviceToken = String(deviceToken: deviceToken)
@@ -42,6 +43,24 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
         UserSession.shared.apnsDeviceToken = nil
         print(error)
+    }
+
+    // important to set the 'content_available' field, otherwise the method wont be called in the background
+    func application(_ application: UIApplication,
+                     didReceiveRemoteNotification payload: [AnyHashable: Any],
+                     fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        print(payload)
+
+        defer {
+            completionHandler(.newData)
+        }
+
+        guard let payloadString = payload["payload"] as? String,
+              let iv = payload["iv"] as? String else {
+            return
+        }
+
+        PushNotificationHandler.handle(payload: payloadString, iv: iv)
     }
 }
 
