@@ -8,6 +8,7 @@
 import Foundation
 import Common
 import APIClient
+import SharedModels
 
 @MainActor
 class AccountNavigationBarMenuViewModel: ObservableObject {

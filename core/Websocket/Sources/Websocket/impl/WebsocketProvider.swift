@@ -1,7 +1,7 @@
 import Foundation
 import RxSwift
 import SwiftStompClient
-import Model
+import SharedModels
 import Device
 
 public class WebsocketProvider {

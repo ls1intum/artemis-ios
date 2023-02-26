@@ -8,6 +8,7 @@
 import Foundation
 import APIClient
 import Common
+import SharedModels
 
 class AccountServiceImpl: AccountService {
     private let client = APIClient()

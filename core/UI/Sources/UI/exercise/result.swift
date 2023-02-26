@@ -1,6 +1,6 @@
 import Foundation
 import SwiftUI
-import Model
+import SharedModels
 import Websocket
 
 private let MIN_SCORE_GREEN: Float = 80.0

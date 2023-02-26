@@ -1,7 +1,7 @@
 import Foundation
 import SwiftUI
 import SDWebImageSwiftUI
-import Model
+import SharedModels
 
 public struct CoursesHeaderView<Content: View>: View {
 

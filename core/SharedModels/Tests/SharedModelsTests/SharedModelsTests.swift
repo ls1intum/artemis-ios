@@ -1,11 +1,11 @@
 import XCTest
-@testable import Model
+@testable import SharedModels
 
-final class ModelTests: XCTestCase {
+final class SharedModelsTests: XCTestCase {
     func testExample() throws {
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct
         // results.
-        XCTAssertEqual("", "Hello, World!")
+        XCTAssertEqual(SharedModels().text, "Hello, World!")
     }
 }

@@ -14,7 +14,6 @@
 		2152FB042600AC8F00CF470E /* iOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2152FB032600AC8F00CF470E /* iOSApp.swift */; };
 		220409A728D4EF1A00204B1C /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220409A628D4EF1A00204B1C /* RootView.swift */; };
 		22B12972290048A800C4910E /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 22B12971290048A800C4910E /* Localizable.strings */; };
-		22B6A920292D787300F08C7E /* Model in Frameworks */ = {isa = PBXBuildFile; productRef = 22B6A91F292D787300F08C7E /* Model */; };
 		22B6A922292D815A00F08C7E /* CourseRegistration in Frameworks */ = {isa = PBXBuildFile; productRef = 22B6A921292D815A00F08C7E /* CourseRegistration */; };
 		22B6A924292D815A00F08C7E /* CourseView in Frameworks */ = {isa = PBXBuildFile; productRef = 22B6A923292D815A00F08C7E /* CourseView */; };
 		22B6A926292D815A00F08C7E /* Dashboard in Frameworks */ = {isa = PBXBuildFile; productRef = 22B6A925292D815A00F08C7E /* Dashboard */; };
@@ -25,6 +24,7 @@
 		D54B8BEF296F745B00BB1AA3 /* APIClient in Frameworks */ = {isa = PBXBuildFile; productRef = D54B8BEE296F745B00BB1AA3 /* APIClient */; };
 		D54B8BF52970760900BB1AA3 /* UserStore in Frameworks */ = {isa = PBXBuildFile; productRef = D54B8BF42970760900BB1AA3 /* UserStore */; };
 		D54B8BF7297082C400BB1AA3 /* RootViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54B8BF6297082C400BB1AA3 /* RootViewModel.swift */; };
+		D59E86A129AB8F040012C378 /* SharedModels in Frameworks */ = {isa = PBXBuildFile; productRef = D59E86A029AB8F040012C378 /* SharedModels */; };
 		D5B8C106299E73F100835976 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B8C105299E73F100835976 /* AppDelegate.swift */; };
 		D5BA7B2B299EE35A0085CC6E /* Account in Frameworks */ = {isa = PBXBuildFile; productRef = D5BA7B2A299EE35A0085CC6E /* Account */; };
 		D5BA7B2D299EE35A0085CC6E /* ProfileInfo in Frameworks */ = {isa = PBXBuildFile; productRef = D5BA7B2C299EE35A0085CC6E /* ProfileInfo */; };
@@ -41,7 +41,6 @@
 		223F7CDC292ECB6100600784 /* Common */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Common; path = core/Common; sourceTree = "<group>"; };
 		22B12971290048A800C4910E /* Localizable.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
 		22B6A911292D3F7100F08C7E /* Device */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Device; path = core/Device; sourceTree = "<group>"; };
-		22B6A912292D3F7B00F08C7E /* Model */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Model; path = core/Model; sourceTree = "<group>"; };
 		22B6A913292D3F9000F08C7E /* UI */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = UI; path = core/UI; sourceTree = "<group>"; };
 		22B6A914292D3F9900F08C7E /* Websocket */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Websocket; path = core/Websocket; sourceTree = "<group>"; };
 		22B6A916292D417900F08C7E /* CourseView */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = CourseView; path = feature/CourseView; sourceTree = "<group>"; };
@@ -56,9 +55,10 @@
 		D54B8BED296F741D00BB1AA3 /* APIClient */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = APIClient; path = core/APIClient; sourceTree = "<group>"; };
 		D54B8BF3297075C100BB1AA3 /* UserStore */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = UserStore; path = core/UserStore; sourceTree = "<group>"; };
 		D54B8BF6297082C400BB1AA3 /* RootViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewModel.swift; sourceTree = "<group>"; };
+		D59E869F29AB8DFB0012C378 /* SharedModels */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = SharedModels; path = core/SharedModels; sourceTree = "<group>"; };
 		D5B8C105299E73F100835976 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		D5B8C113299EE28000835976 /* Account */ = {isa = PBXFileReference; lastKnownFileType = text; name = Account; path = feature/Account; sourceTree = SOURCE_ROOT; };
-		D5B8C114299EE29600835976 /* ProfileInfo */ = {isa = PBXFileReference; lastKnownFileType = text; name = ProfileInfo; path = feature/ProfileInfo; sourceTree = SOURCE_ROOT; };
+		D5B8C113299EE28000835976 /* Account */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Account; sourceTree = SOURCE_ROOT; };
+		D5B8C114299EE29600835976 /* ProfileInfo */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = ProfileInfo; sourceTree = SOURCE_ROOT; };
 		D5BA7B3229A2A3CA0085CC6E /* PushNotifications */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = PushNotifications; path = core/PushNotifications; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -70,7 +70,6 @@
 				22B6A936292D8F3400F08C7E /* Common in Frameworks */,
 				D54B8BF52970760900BB1AA3 /* UserStore in Frameworks */,
 				22B6A930292D815A00F08C7E /* Login in Frameworks */,
-				22B6A920292D787300F08C7E /* Model in Frameworks */,
 				D5BA7B2D299EE35A0085CC6E /* ProfileInfo in Frameworks */,
 				22B6A924292D815A00F08C7E /* CourseView in Frameworks */,
 				22B6A92C292D815A00F08C7E /* Device in Frameworks */,
@@ -80,6 +79,7 @@
 				D54B8BEF296F745B00BB1AA3 /* APIClient in Frameworks */,
 				22B6A92E292D815A00F08C7E /* ExerciseView in Frameworks */,
 				22B6A926292D815A00F08C7E /* Dashboard in Frameworks */,
+				D59E86A129AB8F040012C378 /* SharedModels in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -97,10 +97,9 @@
 		22B6A90D292D3CAB00F08C7E /* Packages */ = {
 			isa = PBXGroup;
 			children = (
+				D5383C7529AB8B01007BAECB /* Features */,
 				D5ED2D0529AB82C600B5EE69 /* Core */,
-				D5B8C110299EE22900835976 /* Features */,
 				22B6A911292D3F7100F08C7E /* Device */,
-				22B6A912292D3F7B00F08C7E /* Model */,
 				22B6A913292D3F9000F08C7E /* UI */,
 				22B6A914292D3F9900F08C7E /* Websocket */,
 				22B6A916292D417900F08C7E /* CourseView */,
@@ -156,18 +155,19 @@
 			path = iosApp;
 			sourceTree = "<group>";
 		};
-		D5B8C110299EE22900835976 /* Features */ = {
+		D5383C7529AB8B01007BAECB /* Features */ = {
 			isa = PBXGroup;
 			children = (
-				D5B8C114299EE29600835976 /* ProfileInfo */,
 				D5B8C113299EE28000835976 /* Account */,
+				D5B8C114299EE29600835976 /* ProfileInfo */,
 			);
-			path = Features;
+			name = Features;
 			sourceTree = "<group>";
 		};
 		D5ED2D0529AB82C600B5EE69 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				D59E869F29AB8DFB0012C378 /* SharedModels */,
 				223F7CDC292ECB6100600784 /* Common */,
 				D54B8BED296F741D00BB1AA3 /* APIClient */,
 				D54B8BF3297075C100BB1AA3 /* UserStore */,
@@ -193,7 +193,6 @@
 			);
 			name = Artemis;
 			packageProductDependencies = (
-				22B6A91F292D787300F08C7E /* Model */,
 				22B6A921292D815A00F08C7E /* CourseRegistration */,
 				22B6A923292D815A00F08C7E /* CourseView */,
 				22B6A925292D815A00F08C7E /* Dashboard */,
@@ -206,6 +205,7 @@
 				D5BA7B2A299EE35A0085CC6E /* Account */,
 				D5BA7B2C299EE35A0085CC6E /* ProfileInfo */,
 				D5BA7B3329A2A3E90085CC6E /* PushNotifications */,
+				D59E86A029AB8F040012C378 /* SharedModels */,
 			);
 			productName = iosApp;
 			productReference = 7555FF7B242A565900829871 /* Artemis.app */;
@@ -470,10 +470,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		22B6A91F292D787300F08C7E /* Model */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = Model;
-		};
 		22B6A921292D815A00F08C7E /* CourseRegistration */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = CourseRegistration;
@@ -509,6 +505,10 @@
 		D54B8BF42970760900BB1AA3 /* UserStore */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = UserStore;
+		};
+		D59E86A029AB8F040012C378 /* SharedModels */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SharedModels;
 		};
 		D5BA7B2A299EE35A0085CC6E /* Account */ = {
 			isa = XCSwiftPackageProductDependency;

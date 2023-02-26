@@ -7,6 +7,8 @@
 
 import Foundation
 import Common
+import SharedModels
+
 
 public protocol AccountService {
     /**
