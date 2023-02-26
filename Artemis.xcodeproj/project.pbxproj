@@ -56,7 +56,6 @@
 		D54B8BED296F741D00BB1AA3 /* APIClient */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = APIClient; path = core/APIClient; sourceTree = "<group>"; };
 		D54B8BF3297075C100BB1AA3 /* UserStore */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = UserStore; path = core/UserStore; sourceTree = "<group>"; };
 		D54B8BF6297082C400BB1AA3 /* RootViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewModel.swift; sourceTree = "<group>"; };
-		D54B8BF82970BCBB00BB1AA3 /* AccountView */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = AccountView; path = feature/AccountView; sourceTree = "<group>"; };
 		D5B8C105299E73F100835976 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D5B8C113299EE28000835976 /* Account */ = {isa = PBXFileReference; lastKnownFileType = text; name = Account; path = feature/Account; sourceTree = SOURCE_ROOT; };
 		D5B8C114299EE29600835976 /* ProfileInfo */ = {isa = PBXFileReference; lastKnownFileType = text; name = ProfileInfo; path = feature/ProfileInfo; sourceTree = SOURCE_ROOT; };
@@ -98,11 +97,8 @@
 		22B6A90D292D3CAB00F08C7E /* Packages */ = {
 			isa = PBXGroup;
 			children = (
-				D5BA7B3229A2A3CA0085CC6E /* PushNotifications */,
+				D5ED2D0529AB82C600B5EE69 /* Core */,
 				D5B8C110299EE22900835976 /* Features */,
-				D54B8BF82970BCBB00BB1AA3 /* AccountView */,
-				D54B8BF3297075C100BB1AA3 /* UserStore */,
-				D54B8BED296F741D00BB1AA3 /* APIClient */,
 				22B6A911292D3F7100F08C7E /* Device */,
 				22B6A912292D3F7B00F08C7E /* Model */,
 				22B6A913292D3F9000F08C7E /* UI */,
@@ -113,7 +109,6 @@
 				22B6A919292D419800F08C7E /* Login */,
 				22B6A91A292D529400F08C7E /* CourseRegistration */,
 				22B6A91B292D783200F08C7E /* CourseRegistration */,
-				223F7CDC292ECB6100600784 /* Common */,
 			);
 			name = Packages;
 			sourceTree = "<group>";
@@ -168,6 +163,17 @@
 				D5B8C113299EE28000835976 /* Account */,
 			);
 			path = Features;
+			sourceTree = "<group>";
+		};
+		D5ED2D0529AB82C600B5EE69 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				223F7CDC292ECB6100600784 /* Common */,
+				D54B8BED296F741D00BB1AA3 /* APIClient */,
+				D54B8BF3297075C100BB1AA3 /* UserStore */,
+				D5BA7B3229A2A3CA0085CC6E /* PushNotifications */,
+			);
+			name = Core;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
