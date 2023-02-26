@@ -23,7 +23,7 @@ public class PushNotificationHandler {
         dispatchNotification(notification)
     }
 
-    static private func dispatchNotification(_ notification: PushNotification) {
+    private static func dispatchNotification(_ notification: PushNotification) {
         UNUserNotificationCenter.current().getNotificationSettings { (settings) in
           if settings.authorizationStatus != .authorized {
             log.error("Notifications are not allowed")
@@ -43,7 +43,7 @@ public class PushNotificationHandler {
         }
     }
 
-    static  private func prepareNotification(_ notification: PushNotification) async -> UNMutableNotificationContent {
+    private static func prepareNotification(_ notification: PushNotification) async -> UNMutableNotificationContent {
         let content = UNMutableNotificationContent()
         content.title = notification.title
         content.body = notification.body
