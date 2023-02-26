@@ -103,9 +103,7 @@
 				22B6A913292D3F9000F08C7E /* UI */,
 				22B6A914292D3F9900F08C7E /* Websocket */,
 				22B6A916292D417900F08C7E /* CourseView */,
-				22B6A917292D418300F08C7E /* Dashboard */,
 				22B6A918292D418F00F08C7E /* ExerciseView */,
-				22B6A919292D419800F08C7E /* Login */,
 				22B6A91A292D529400F08C7E /* CourseRegistration */,
 				22B6A91B292D783200F08C7E /* CourseRegistration */,
 			);
@@ -158,6 +156,8 @@
 		D5383C7529AB8B01007BAECB /* Features */ = {
 			isa = PBXGroup;
 			children = (
+				22B6A919292D419800F08C7E /* Login */,
+				22B6A917292D418300F08C7E /* Dashboard */,
 				D5B8C113299EE28000835976 /* Account */,
 				D5B8C114299EE29600835976 /* ProfileInfo */,
 			);

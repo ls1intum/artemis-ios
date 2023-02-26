@@ -1,5 +1,5 @@
 import Foundation
-import Model
+import SharedModels
 import APIClient
 import Common
 

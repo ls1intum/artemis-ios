@@ -1,5 +1,5 @@
 import Foundation
-import Model
+import SharedModels
 import APIClient
 import UserStore
 import Common
@@ -9,7 +9,6 @@ import Common
     @Published var courses: DataState<[Course]> = DataState.loading
 
     init() {
-
         Task {
             await loadCourses()
         }
