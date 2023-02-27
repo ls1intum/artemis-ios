@@ -56,6 +56,9 @@ private struct CourseRegistrationListCell: View {
                         await viewModel.signUpForCourse(course)
                     }
                 }
+                Button("Cancel", role: .cancel) {
+                    showSignUpAlert = false
+                }
             })
         }
             .padding(8)
