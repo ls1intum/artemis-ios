@@ -3,17 +3,20 @@ import Login
 import Dashboard
 import CourseRegistration
 import CourseView
+import Navigation
 
 struct RootView: View {
 
     @StateObject private var viewModel = RootViewModel()
+
+    @EnvironmentObject var navigationController: NavigationController
 
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         Group {
             if viewModel.isLoggedIn {
-                NavigationStack(path: $viewModel.path) {
+                NavigationStack(path: $navigationController.path) {
                     CoursesOverviewView()
 
 //                    EmptyView()

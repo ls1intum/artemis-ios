@@ -2,6 +2,7 @@ import SwiftUI
 import Common
 import SharedModels
 import CourseRegistration
+import DesignLibrary
 
 /**
  * Display the course overview with the course list.
@@ -21,8 +22,13 @@ public struct CoursesOverviewView: View {
                 List {
                     ForEach(courses) { course in
                         CourseListCell(course: course)
-                    }.padding(.horizontal, 8)
+                    }
+                        .listRowSeparator(.hidden)
                 }
+                    .listStyle(PlainListStyle())
+                    .refreshable {
+                        await viewModel.loadCourses()
+                    }
             }
         }
         .navigationTitle(Text("course_overview_title"))
@@ -52,12 +58,28 @@ private struct CourseListCell: View {
     let course: Course
 
     var body: some View {
-        VStack {
-            HStack {
-                VStack {
+        VStack(alignment: .leading) {
+            HStack(alignment: .top) {
+                AsyncImage(url: course.courseIconURL) { phase in
+                    switch phase {
+                    case .empty:
+                        ProgressView()
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFit()
+                    case .failure:
+                        Image("questionmark.square.dashed")
+                    @unknown default:
+                        EmptyView()
+                    }
+                }
+                    .frame(width: .largeImage, height: .largeImage)
+                VStack(alignment: .leading) {
                     Text(course.title ?? "TODO")
                         .font(.title)
-                    Text(course.description ?? "TODO")
+                    Text("Exercises: \(course.exercises?.count ?? 0)")
+                    Text("Lectures: \(course.lectures?.count ?? 0)")
                 }
             }
             Spacer()

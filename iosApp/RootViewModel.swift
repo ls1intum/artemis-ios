@@ -14,7 +14,6 @@ import SwiftUI
 class RootViewModel: ObservableObject {
 
     @Published var isLoggedIn = false
-    @Published var path = NavigationPath()
 
     private var cancellables: Set<AnyCancellable> = Set()
 

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Common
 
 public protocol APIRequest: Codable {
     associatedtype Response: Decodable

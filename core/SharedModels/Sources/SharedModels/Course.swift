@@ -1,4 +1,5 @@
 import Foundation
+import Common
 
 /**
  * Representation of a single course.
@@ -11,6 +12,7 @@ public struct Course: Decodable, Identifiable {
     public var semester: String? = ""
     public var registrationConfirmationMessage: String? = ""
     public var exercises: [Exercise]?
+    public var lectures: [Lecture]?
 
     public init(id: Int? = nil, title: String? = "", description: String? = "", courseIcon: String? = nil, semester: String? = "", registrationConfirmationMessage: String? = "", exercises: [Exercise]? = nil) {
         self.id = id
@@ -20,5 +22,10 @@ public struct Course: Decodable, Identifiable {
         self.semester = semester
         self.registrationConfirmationMessage = registrationConfirmationMessage
         self.exercises = exercises
+    }
+
+    public var courseIconURL: URL? {
+        guard let courseIcon = courseIcon else { return nil }
+        return URL(string: courseIcon, relativeTo: Config.baseEndpointUrl)
     }
 }
