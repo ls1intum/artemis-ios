@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import Model
+import SharedModels
 
 class ParticipationServiceImpl: ParticipationService {
 

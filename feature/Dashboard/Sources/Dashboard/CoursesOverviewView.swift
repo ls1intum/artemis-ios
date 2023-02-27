@@ -1,16 +1,18 @@
 import SwiftUI
 import Common
 import SharedModels
+import CourseRegistration
 
 /**
  * Display the course overview with the course list.
  */
 public struct CoursesOverviewView: View {
 
-    @StateObject var viewModel: CoursesOverviewViewModel = CoursesOverviewViewModel()
-    let onClickRegisterForCourse: () -> Void
-    let onNavigateToCourse: (_ courseId: Int) -> Void
-    let onLogout: () -> Void
+    @StateObject private var viewModel = CoursesOverviewViewModel()
+
+    @State private var showCourseRegistrationSheet = false
+
+    public init() { }
 
     public var body: some View {
         VStack(alignment: .center) {
@@ -26,15 +28,17 @@ public struct CoursesOverviewView: View {
         .navigationTitle(Text("course_overview_title"))
         .toolbar {
             ToolbarItemGroup(placement: .navigationBarTrailing) {
-                Button(action: onClickRegisterForCourse, label: {
+                Button(action: { showCourseRegistrationSheet = true }, label: {
                     Label("course_overview_register_button_text", systemImage: "pencil")
                 })
 
                 Button("Logout") {
                     viewModel.logout()
-                    onLogout()
                 }
             }
+        }
+        .sheet(isPresented: $showCourseRegistrationSheet) {
+            CourseRegistrationView()
         }
         .navigationBarBackButtonHidden()
         .task {

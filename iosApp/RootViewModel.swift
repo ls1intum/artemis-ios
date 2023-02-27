@@ -26,6 +26,5 @@ class RootViewModel: ObservableObject {
         }.store(in: &cancellables)
 
         isLoggedIn = UserSession.shared.isLoggedIn
-        path.appendDashboard()
     }
 }

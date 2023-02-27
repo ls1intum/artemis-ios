@@ -1,19 +1,16 @@
 import Foundation
-import SwiftUI
-import Model
-import Websocket
+import SharedModels
 import Common
 import APIClient
 
 @MainActor
-class CourseViewController: ObservableObject {
+class CourseViewModel: ObservableObject {
 
     @Published var course: DataState<Course> = DataState.loading
-    @Published var exercisesGroupedByWeek: DataState<[WeeklyExercises]> = DataState.loading
 
-    init(courseId: Int) {
+    init(course: Course) {
         Task {
-            await loadCourse(courseId: courseId)
+            await loadCourse(course)
         }
 
         //        /*
@@ -131,128 +128,86 @@ class CourseViewController: ObservableObject {
         //                .assign(to: &$exercisesGroupedByWeek)
     }
 
-    func loadCourse(courseId: Int) async {
-        course = await CourseServiceFactory.shared.getCourse(courseId: courseId)
+    func loadCourse(_ course: Course) async {
+        self.course = await CourseServiceFactory.shared.getCourse(courseId: course.id ?? 1) // TODO: why optional
     }
 }
 
-struct ExerciseWithParticipationStatus: Identifiable {
-    typealias ID = Int
-
-    let exercise: Exercise
-    let participationStatus: ParticipationStatus
-    var id: ID {
-        exercise.baseExercise.id ?? 0
-    }
-
-    let categoryChips: [ExerciseCategoryChipData]
-
-    init(exercise: Exercise, participationStatus: ParticipationStatus) {
-        self.exercise = exercise
-        self.participationStatus = participationStatus
-
-        categoryChips = ExerciseWithParticipationStatus.collectExerciseCategoryChips(exercise: exercise)
-    }
-
-    /**
-     * A list of the chips that are displayed in the ui from the data available in the exercise.
-     */
-    private static func collectExerciseCategoryChips(exercise: Exercise) -> [ExerciseCategoryChipData] {
-        let liveQuizChips: [ExerciseCategoryChipData]
-        if exercise.baseExercise is QuizExercise && (exercise.baseExercise as! QuizExercise).status == .ACTIVE {
-            liveQuizChips = [ExerciseCategoryChipData(text: .Localized(text: "exercise_live_quiz"), color: Color(hexValue: 0xff28a745))]
-        } else {
-            liveQuizChips = []
-        }
-
-        let difficultyChips: [ExerciseCategoryChipData]
-        if let difficulty = exercise.baseExercise.difficulty {
-            switch difficulty {
-            case .EASY: difficultyChips = [ExerciseCategoryChipData(text: .Localized(text: "exercise_difficulty_easy"), color: Color(hexValue: 0xff28a745))]
-            case .MEDIUM: difficultyChips = [ExerciseCategoryChipData(text: .Localized(text: "exercise_difficulty_medium"), color: Color(hexValue: 0xffffc107))]
-            case .HARD: difficultyChips = [ExerciseCategoryChipData(text: .Localized(text: "exercise_difficulty_hard"), color: Color(hexValue: 0xffdc3545))]
-            }
-        } else {
-            difficultyChips = []
-        }
-
-        let bonusChips: [ExerciseCategoryChipData]
-        if exercise.baseExercise.includedInOverallScore == .INCLUDED_AS_BONUS {
-            bonusChips = [ExerciseCategoryChipData(text: .Localized(text: "exercise_is_bonus"), color: Color(hexValue: 0xFF00FFFF))]
-        } else {
-            bonusChips = []
-        }
-
-        let categoryChips = (exercise.baseExercise.categories ?? []).map { category in
-            ExerciseCategoryChipData(text: .Verbatim(text: category.category), color: Color(hexValue: category.colorCode ?? 0xFFFFFFFF))
-        }
-
-        return liveQuizChips + categoryChips + difficultyChips + bonusChips
-    }
-}
-
-/**
- * Struct that holds information about a chip displayed for an exercise.
- * For example the exercise difficulty (easy, hard, ...) or if it as an easy exercise
- */
-struct ExerciseCategoryChipData: Identifiable {
-    typealias ID = String
-    let text: TextType
-    let color: Color
-    var id: ID {
-        switch text {
-        case .Verbatim(text: let text): return text
-        case .Localized(text: let text): return text.key
-        }
-    }
-
-    /**
-     * There is probably an easier way to do this.
-     */
-    enum TextType {
-        case Verbatim(text: String)
-        case Localized(text: LocalizedStringResource)
-    }
-}
-
-enum WeeklyExercises: Comparable, Identifiable {
-    typealias ID = Int
-
-    case BoundToWeek(firstDayOfWeek: Date, lastDayOfWeek: Date, exercises: [ExerciseWithParticipationStatus])
-    case Unbound(exercises: [ExerciseWithParticipationStatus])
-
-    private var dateToCompare: Date {
-        switch self {
-        case .BoundToWeek(firstDayOfWeek: let firstDayOfWeek, _, _):
-            return firstDayOfWeek
-        case .Unbound:
-            return Date.distantFuture
-        }
-    }
-
-    var exercises: [ExerciseWithParticipationStatus] {
-        switch self {
-        case .BoundToWeek(_, _, exercises: let exercises):
-            return exercises
-        case .Unbound(exercises: let exercises):
-            return exercises
-        }
-    }
-
-    static func <(lhs: WeeklyExercises, rhs: WeeklyExercises) -> Bool {
-        lhs.dateToCompare < rhs.dateToCompare
-    }
-
-    static func ==(lhs: WeeklyExercises, rhs: WeeklyExercises) -> Bool {
-        lhs.dateToCompare == rhs.dateToCompare
-    }
-
-    var id: ID {
-        switch self {
-        case .BoundToWeek(firstDayOfWeek: let firstDayOfWeek, _, _):
-            return Int(firstDayOfWeek.timeIntervalSince1970.rounded())
-        case .Unbound:
-            return 0
-        }
-    }
-}
+//struct ExerciseWithParticipationStatus: Identifiable {
+//    typealias ID = Int
+//
+//    let exercise: Exercise
+//    let participationStatus: ParticipationStatus
+//    var id: ID {
+//        exercise.baseExercise.id ?? 0
+//    }
+//
+//    let categoryChips: [ExerciseCategoryChipData]
+//
+//    init(exercise: Exercise, participationStatus: ParticipationStatus) {
+//        self.exercise = exercise
+//        self.participationStatus = participationStatus
+//
+//        categoryChips = ExerciseWithParticipationStatus.collectExerciseCategoryChips(exercise: exercise)
+//    }
+//
+//    /**
+//     * A list of the chips that are displayed in the ui from the data available in the exercise.
+//     */
+//    private static func collectExerciseCategoryChips(exercise: Exercise) -> [ExerciseCategoryChipData] {
+//        let liveQuizChips: [ExerciseCategoryChipData]
+//        if exercise.baseExercise is QuizExercise && (exercise.baseExercise as! QuizExercise).status == .ACTIVE {
+//            liveQuizChips = [ExerciseCategoryChipData(text: .Localized(text: "exercise_live_quiz"), color: Color(hexValue: 0xff28a745))]
+//        } else {
+//            liveQuizChips = []
+//        }
+//
+//        let difficultyChips: [ExerciseCategoryChipData]
+//        if let difficulty = exercise.baseExercise.difficulty {
+//            switch difficulty {
+//            case .EASY: difficultyChips = [ExerciseCategoryChipData(text: .Localized(text: "exercise_difficulty_easy"), color: Color(hexValue: 0xff28a745))]
+//            case .MEDIUM: difficultyChips = [ExerciseCategoryChipData(text: .Localized(text: "exercise_difficulty_medium"), color: Color(hexValue: 0xffffc107))]
+//            case .HARD: difficultyChips = [ExerciseCategoryChipData(text: .Localized(text: "exercise_difficulty_hard"), color: Color(hexValue: 0xffdc3545))]
+//            }
+//        } else {
+//            difficultyChips = []
+//        }
+//
+//        let bonusChips: [ExerciseCategoryChipData]
+//        if exercise.baseExercise.includedInOverallScore == .INCLUDED_AS_BONUS {
+//            bonusChips = [ExerciseCategoryChipData(text: .Localized(text: "exercise_is_bonus"), color: Color(hexValue: 0xFF00FFFF))]
+//        } else {
+//            bonusChips = []
+//        }
+//
+//        let categoryChips = (exercise.baseExercise.categories ?? []).map { category in
+//            ExerciseCategoryChipData(text: .Verbatim(text: category.category), color: Color(hexValue: category.colorCode ?? 0xFFFFFFFF))
+//        }
+//
+//        return liveQuizChips + categoryChips + difficultyChips + bonusChips
+//    }
+//}
+//
+///**
+// * Struct that holds information about a chip displayed for an exercise.
+// * For example the exercise difficulty (easy, hard, ...) or if it as an easy exercise
+// */
+//struct ExerciseCategoryChipData: Identifiable {
+//    typealias ID = String
+//    let text: TextType
+//    let color: Color
+//    var id: ID {
+//        switch text {
+//        case .Verbatim(text: let text): return text
+//        case .Localized(text: let text): return text.key
+//        }
+//    }
+//
+//    /**
+//     * There is probably an easier way to do this.
+//     */
+//    enum TextType {
+//        case Verbatim(text: String)
+//        case Localized(text: LocalizedStringResource)
+//    }
+//}

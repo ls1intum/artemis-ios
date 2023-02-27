@@ -1,13 +1,10 @@
 import Foundation
-import SwiftUI
-import Model
-import Device
+import SharedModels
 import APIClient
-import UI
 import Common
 
 @MainActor
-class CourseRegistrationViewController: ObservableObject {
+class CourseRegistrationViewModel: ObservableObject {
 
     @Published var registrableCourses: DataState<[SemesterCourses]> = .loading
 
@@ -30,6 +27,23 @@ class CourseRegistrationViewController: ObservableObject {
             registrableCourses = .loading
         case .done(response: let result):
             registrableCourses = .done(response: Dictionary(grouping: result, by: { $0.semester ?? "" })
+                .map { semester, courses in
+                    SemesterCourses(semester: semester, courses: courses)
+                })
+        }
+    }
+
+    func signUpForCourse(_ course: Course) async {
+
+        let result = await CourseRegistrationServiceFactory.shared.registerInCourse(courseId: course.id ?? 1) // TODO: wraping
+
+        switch result {
+        case .loading:
+            registrableCourses = .loading
+        case .failure(let error):
+            registrableCourses = .failure(error: error)
+        case .done(let response):
+            registrableCourses = .done(response: Dictionary(grouping: response, by: { $0.semester ?? "" })
                 .map { semester, courses in
                     SemesterCourses(semester: semester, courses: courses)
                 })

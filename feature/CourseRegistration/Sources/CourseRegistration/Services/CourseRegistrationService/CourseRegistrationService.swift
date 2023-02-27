@@ -1,5 +1,5 @@
 import Foundation
-import Model
+import SharedModels
 import Common
 
 /**
@@ -12,7 +12,7 @@ public protocol CourseRegistrationService {
      */
     func fetchRegistrableCourses() async -> DataState<[Course]>
 
-    func registerInCourse(courseId: Int) async throws
+    func registerInCourse(courseId: Int) async -> DataState<[Course]>
 }
 
 enum CourseRegistrationServiceFactory {

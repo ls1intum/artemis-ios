@@ -1,5 +1,5 @@
 import Foundation
-import Model
+import SharedModels
 import APIClient
 import Common
 
@@ -31,7 +31,7 @@ class CourseRegistrationServiceImpl: CourseRegistrationService {
     }
 
     struct RegisterCourseRequest: APIRequest {
-        typealias Response = [Course] // TODO: change response
+        typealias Response = [Course]
 
         var courseId: Int
 
@@ -44,14 +44,14 @@ class CourseRegistrationServiceImpl: CourseRegistrationService {
         }
     }
 
-    func registerInCourse(courseId: Int) async throws {
+    func registerInCourse(courseId: Int) async -> DataState<[Course]> {
         let result = await client.sendRequest(RegisterCourseRequest(courseId: courseId))
 
         switch result {
-        case .success:
-            return
+        case .success((let response, _)):
+            return .done(response: response)
         case .failure(let error):
-            throw error
+            return .failure(error: UserFacingError(error: error))
         }
     }
 }

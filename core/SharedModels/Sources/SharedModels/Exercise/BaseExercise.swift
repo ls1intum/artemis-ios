@@ -35,7 +35,7 @@ public protocol BaseExercise: Decodable {
     func copyWithUpdatedParticipations(newParticipations: [Participation]) -> SelfType
 }
 
-public enum Exercise: Decodable {
+public enum Exercise: Decodable, Identifiable {
 
     fileprivate enum Keys: String, CodingKey {
         case type
@@ -57,6 +57,10 @@ public enum Exercise: Decodable {
         case .Text(exercise: let exercise): return exercise
         case .Unknown(exercise: let exercise): return exercise
         }
+    }
+
+    public var id: Int {
+        baseExercise.id ?? -1 // TODO: why optional
     }
 
     public init(from decoder: Decoder) throws {

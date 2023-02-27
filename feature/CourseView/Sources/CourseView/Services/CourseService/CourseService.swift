@@ -1,5 +1,5 @@
 import Foundation
-import Model
+import SharedModels
 import Common
 
 protocol CourseService {

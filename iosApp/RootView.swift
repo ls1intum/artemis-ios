@@ -14,28 +14,30 @@ struct RootView: View {
         Group {
             if viewModel.isLoggedIn {
                 NavigationStack(path: $viewModel.path) {
-                    EmptyView()
-                        .dashboardDestination(
-                            onLogout: {
-                                viewModel.path.removeLast(viewModel.path.count)
-                            },
-                            onClickRegisterForCourse: {
-                                viewModel.path.appendCourseRegistration()
-                            },
-                            onViewCourse: { courseId in
-                                viewModel.path.appendCourseView(courseId: courseId)
-                            }
-                        )
-                        .courseRegistrationDestination(
-                            onNavigateUp: {
-                                viewModel.path.removeLast()
-                            },
-                            onRegisteredInCourse: { courseId in
-                                viewModel.path.removeLast()
-                                viewModel.path.appendCourseView(courseId: courseId)
-                            }
-                        )
-                        .courseViewDestination()
+                    CoursesOverviewView()
+
+//                    EmptyView()
+//                        .dashboardDestination(
+//                            onLogout: {
+//                                viewModel.path.removeLast(viewModel.path.count)
+//                            },
+//                            onClickRegisterForCourse: {
+//                                viewModel.path.appendCourseRegistration()
+//                            },
+//                            onViewCourse: { courseId in
+//                                viewModel.path.appendCourseView(courseId: courseId)
+//                            }
+//                        )
+//                        .courseRegistrationDestination(
+//                            onNavigateUp: {
+//                                viewModel.path.removeLast()
+//                            },
+//                            onRegisteredInCourse: { courseId in
+//                                viewModel.path.removeLast()
+//                                viewModel.path.appendCourseView(courseId: courseId)
+//                            }
+//                        )
+//                        .courseViewDestination()
                 }
             } else {
                 LoginView()
