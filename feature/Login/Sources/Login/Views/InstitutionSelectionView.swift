@@ -21,7 +21,8 @@ struct InstitutionSelectionView: View {
                 Text(institutionIdentifier.name)
                     .listRowSeparator(.hidden)
                     .onTapGesture {
-                        institution = institutionIdentifier
+                        // TODO: for custom instance different handling -> TextField and check if valid artemis instance
+                        UserSession.shared.saveInstitution(identifier: institutionIdentifier)
                         dismiss()
                     }
             }

@@ -69,5 +69,15 @@ public enum InstitutionIdentifier: CaseIterable, Identifiable {
         }
     }
 
+    public var baseURL: URL? {
+        switch self {
+        case .tum:
+            return Config.tumBaseEndpointUrl
+        case .kit:
+            return Config.kitBaseEndpointUrl
+        case .custom(let url):
+            return url
+        }
+    }
 
 }

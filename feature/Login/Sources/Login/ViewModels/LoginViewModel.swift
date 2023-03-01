@@ -25,11 +25,7 @@ class LoginViewModel: ObservableObject {
     @Published var externalUserManagementUrl: DataState<URL> = .loading
     @Published var externalUserManagementName: DataState<String> = .loading
 
-    @Published var instituiton: InstitutionIdentifier = .tum {
-        didSet {
-            UserSession.shared.saveInstitution(identifier: instituiton)
-        }
-    }
+    @Published var instituiton: InstitutionIdentifier = .tum
 
     private var cancellables: Set<AnyCancellable> = Set()
 
