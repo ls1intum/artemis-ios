@@ -1,154 +1,107 @@
 import SwiftUI
-import Combine
-import SDWebImageSwiftUI
-import SDWebImage
-import Model
-import UI
-
-public extension View {
-    func dashboardDestination(onLogout: @escaping () -> Void, onClickRegisterForCourse: @escaping () -> Void, onViewCourse: @escaping (_ courseId: Int) -> Void) -> some View {
-        navigationDestination(for: CourseOverviewDest.self) { _ in
-            CoursesOverviewView(onClickRegisterForCourse: onClickRegisterForCourse, onNavigateToCourse: onViewCourse, onLogout: onLogout)
-        }
-    }
-}
-
-public extension NavigationPath {
-    mutating func appendDashboard() {
-        append(CourseOverviewDest())
-    }
-}
-
-struct CourseOverviewDest: Hashable {
-}
+import Common
+import SharedModels
+import CourseRegistration
+import DesignLibrary
+import Navigation
+import CourseView
 
 /**
  * Display the course overview with the course list.
  */
-struct CoursesOverviewView: View {
+public struct CoursesOverviewView: View {
 
-    @StateObject var viewModel: CoursesOverviewViewModel = CoursesOverviewViewModel()
-    let onClickRegisterForCourse: () -> Void
-    let onNavigateToCourse: (_ courseId: Int) -> Void
-    let onLogout: () -> Void
+    @StateObject private var viewModel = CoursesOverviewViewModel()
 
-    var body: some View {
+    @State private var showCourseRegistrationSheet = false
+
+    public init() { }
+
+    public var body: some View {
         VStack(alignment: .center) {
-            BasicDataStateView(
-                    data: viewModel.dashboard,
-                    loadingText: "course_overview_loading_courses_loading",
-                    failureText: "course_overview_loading_courses_failed",
-                    suspendedText: "course_overview_loading_courses_suspended",
-                    retryButtonText: "course_overview_loading_courses_button_try_again",
-                    clickRetryButtonAction: {
-                        Task {
-                            await viewModel.reloadDashboard()
-                        }
+            DataStateView(data: $viewModel.courses,
+                          retryHandler: { await viewModel.loadCourses() }) { courses in
+                List {
+                    ForEach(courses) { course in
+                        CourseListCell(course: course)
                     }
-            ) { data in
-                ZStack {
-                    CourseListView(
-                            courses: data.courses,
-                            serverUrl: viewModel.serverUrl,
-                            bearer: viewModel.bearer,
-                            onClickCourse: { course in onNavigateToCourse(course.id ?? 0) }
-                    )
-                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                        .listRowSeparator(.hidden)
                 }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .listStyle(PlainListStyle())
+                    .refreshable {
+                        await viewModel.loadCourses()
+                    }
             }
         }
-                .navigationTitle(Text("course_overview_title"))
-                .toolbar {
-                    ToolbarItemGroup(placement: .navigationBarTrailing) {
-                        Button(action: onClickRegisterForCourse, label: {
-                            Label("course_overview_register_button_text", systemImage: "pencil")
-                        })
+        .navigationDestination(for: Course.self) { course in
+            CourseView(course: course)
+        }
+        .navigationTitle(Text("course_overview_title"))
+        .toolbar {
+            ToolbarItemGroup(placement: .navigationBarTrailing) {
+                Button(action: { showCourseRegistrationSheet = true }, label: {
+                    Label("course_overview_register_button_text", systemImage: "pencil")
+                })
 
-                        Button("Logout") {
-                            viewModel.logout()
-                            onLogout()
-                        }
-                    }
-                }
-                .navigationBarBackButtonHidden()
-                .task {
-                    await viewModel.reloadDashboard()
-                }
-    }
-}
-
-/**
- * Displays a lazy list of all the courses supplied.
- */
-private struct CourseListView: View {
-
-    let courses: [Course]
-    let serverUrl: String
-    let bearer: String
-    let onClickCourse: (Course) -> Void
-
-    var body: some View {
-        ScrollView {
-            LazyVStack(spacing: 8) {
-                ForEach(courses, id: \.self.id) { course in
-                    CourseItemView(course: course, serverUrl: serverUrl, bearer: bearer, onClick: { onClickCourse(course) })
-                            .padding(.horizontal, 8)
+                Button("Logout") {
+                    viewModel.logout()
                 }
             }
+        }
+        .sheet(isPresented: $showCourseRegistrationSheet) {
+            CourseRegistrationView()
+        }
+        .navigationBarBackButtonHidden()
+        .task {
+            await viewModel.loadCourses()
         }
     }
 }
 
-private struct CourseItemView: View {
+private struct CourseListCell: View {
+
+    @EnvironmentObject var navigationController: NavigationController
+
     let course: Course
-    let serverUrl: String
-    let bearer: String
-    let onClick: () -> Void
 
     var body: some View {
-        CoursesHeaderView(
-                course: course,
-                serverUrl: serverUrl,
-                bearer: bearer
-        ) {
-            VStack(spacing: 0) {
-                Divider()
-
-                HStack(spacing: 8) {
-                    ProgressView(value: 0.4)
-                            .frame(maxWidth: .infinity)
-
-                    Text("30P/40P (12%)")
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(alignment: .top) {
+                AsyncImage(url: course.courseIconURL) { phase in
+                    switch phase {
+                    case .empty:
+                        ProgressView()
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFit()
+                    case .failure:
+                        Image("questionmark.square.dashed")
+                    @unknown default:
+                        EmptyView()
+                    }
                 }
-                        .padding(.vertical, 8)
-                        .padding(.horizontal, 16)
+                    .frame(width: .extraLargeImage, height: .extraLargeImage)
+                VStack(alignment: .leading) {
+                    Text(course.title ?? "TODO")
+                        .font(.custom("SF Pro", size: 22, relativeTo: .title))
+                    Text("Exercises: \(course.exercises?.count ?? 0)")
+                    Text("Lectures: \(course.lectures?.count ?? 0)")
+                }
+                    .padding(.m)
             }
+            Divider()
+            HStack {
+                ProgressView(value: 40, total: 100)
+                    .progressViewStyle(LinearProgressViewStyle())
+                    .padding(.trailing)
+                Text("\(40)/\(100)P (\(40)%)")
+            }.padding(.m)
         }
-                .onTapGesture {
-                    onClick()
-                }
-    }
-}
-
-
-class CoursesOverviewView_Previews: PreviewProvider {
-    static var previews: some View {
-        Group {
-            let serverUrl = "https://via.placeholder.com"
-
-            let sampleCourse = Course(id: 12, title: "Sample Course", description: "Sample Course Description", courseIcon: "/150/0000FF")
-//
-//            let courses = [sampleCourse,
-//                           Course(id: 13,
-//                                   title: "Other Course", description: "Playing with penguins", courseIconPath: "/150/0000FF"),
-//                           Course(id: 14,
-//                                   title: "Another Course", description: "Description 123", courseIconPath: "/150/0000FF"),
-//            ]
-//
-//            CoursesList(courses: courses, serverUrl: "", bearer: "")
-//
-            CourseItemView(course: sampleCourse, serverUrl: serverUrl, bearer: "", onClick: {})
-        }
+            .background(Color.Artemis.cardBackgroundColor)
+            .cornerRadius(16)
+            .onTapGesture {
+                navigationController.path.append(course)
+            }
     }
 }

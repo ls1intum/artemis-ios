@@ -1,67 +1,55 @@
 import SwiftUI
-import Factory
-import Combine
-import Datastore
 import Login
 import Dashboard
 import CourseRegistration
 import CourseView
+import Navigation
 
 struct RootView: View {
-    @StateObject private var viewController: RootViewViewController = RootViewViewController()
+
+    @StateObject private var viewModel = RootViewModel()
+
+    @EnvironmentObject var navigationController: NavigationController
+
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
-        NavigationStack(path: $viewController.path) {
-            EmptyView()
-                    .accountDestination(
-                            onLoggedIn: {
-                                viewController.path.removeLast()
-                                viewController.path.appendDashboard()
-                            }
-                    )
-                    .dashboardDestination(
-                            onLogout: {
-                                viewController.path.removeLast(viewController.path.count)
-                                viewController.path.appendAccountView()
-                            },
-                            onClickRegisterForCourse: {
-                                viewController.path.appendCourseRegistration()
-                            },
-                            onViewCourse: { courseId in
-                                viewController.path.appendCourseView(courseId: courseId)
-                            }
-                    )
-                    .courseRegistrationDestination(
-                            onNavigateUp: {
-                                viewController.path.removeLast()
-                            },
-                            onRegisteredInCourse: { courseId in
-                                viewController.path.removeLast()
-                                viewController.path.appendCourseView(courseId: courseId)
-                            }
-                    )
-                    .courseViewDestination()
-        }
-                .onChange(of: scenePhase) { phase in
-                    if phase == .background {
-                        //viewController.save()
-                    }
+        Group {
+            if viewModel.isLoggedIn {
+                NavigationStack(path: $navigationController.path) {
+                    CoursesOverviewView()
+
+//                    EmptyView()
+//                        .dashboardDestination(
+//                            onLogout: {
+//                                viewModel.path.removeLast(viewModel.path.count)
+//                            },
+//                            onClickRegisterForCourse: {
+//                                viewModel.path.appendCourseRegistration()
+//                            },
+//                            onViewCourse: { courseId in
+//                                viewModel.path.appendCourseView(courseId: courseId)
+//                            }
+//                        )
+//                        .courseRegistrationDestination(
+//                            onNavigateUp: {
+//                                viewModel.path.removeLast()
+//                            },
+//                            onRegisteredInCourse: { courseId in
+//                                viewModel.path.removeLast()
+//                                viewModel.path.appendCourseView(courseId: courseId)
+//                            }
+//                        )
+//                        .courseViewDestination()
                 }
-    }
-}
-
-class RootViewViewController: ObservableObject {
-    private let accountService: AccountService = Container.accountService()
-
-    @Published var path: NavigationPath
-
-    init() {
-        path = NavigationPath()
-        if accountService.isLoggedIn() {
-            path.appendDashboard()
-        } else {
-            path.appendAccountView()
+            } else {
+                LoginView()
+            }
+        }
+        .onChange(of: scenePhase) { phase in
+            if phase == .background {
+                // viewModel.save()
+            }
         }
     }
 }
