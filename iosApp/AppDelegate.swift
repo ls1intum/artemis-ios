@@ -36,12 +36,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 // MARK: Extension for Push Notifications
 extension AppDelegate: UNUserNotificationCenterDelegate {
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        UserSession.shared.apnsDeviceToken = String(deviceToken: deviceToken)
+        UserSession.shared.saveApnsDeviceToken(token: String(deviceToken: deviceToken))
         print(deviceToken)
     }
 
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-        UserSession.shared.apnsDeviceToken = nil
+        UserSession.shared.saveApnsDeviceToken(token: nil)
         print(error)
     }
 
