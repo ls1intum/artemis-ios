@@ -3,6 +3,8 @@ import Common
 import SharedModels
 import CourseRegistration
 import DesignLibrary
+import Navigation
+import CourseView
 
 /**
  * Display the course overview with the course list.
@@ -31,6 +33,9 @@ public struct CoursesOverviewView: View {
                     }
             }
         }
+        .navigationDestination(for: Course.self) { course in
+            CourseView(course: course)
+        }
         .navigationTitle(Text("course_overview_title"))
         .toolbar {
             ToolbarItemGroup(placement: .navigationBarTrailing) {
@@ -55,10 +60,12 @@ public struct CoursesOverviewView: View {
 
 private struct CourseListCell: View {
 
+    @EnvironmentObject var navigationController: NavigationController
+
     let course: Course
 
     var body: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .top) {
                 AsyncImage(url: course.courseIconURL) { phase in
                     switch phase {
@@ -74,31 +81,27 @@ private struct CourseListCell: View {
                         EmptyView()
                     }
                 }
-                    .frame(width: .largeImage, height: .largeImage)
+                    .frame(width: .extraLargeImage, height: .extraLargeImage)
                 VStack(alignment: .leading) {
                     Text(course.title ?? "TODO")
-                        .font(.title)
+                        .font(.custom("SF Pro", size: 22, relativeTo: .title))
                     Text("Exercises: \(course.exercises?.count ?? 0)")
                     Text("Lectures: \(course.lectures?.count ?? 0)")
                 }
+                    .padding(.m)
             }
-            Spacer()
+            Divider()
             HStack {
                 ProgressView(value: 40, total: 100)
                     .progressViewStyle(LinearProgressViewStyle())
                     .padding(.trailing)
                 Text("\(40)/\(100)P (\(40)%)")
-            }
+            }.padding(.m)
         }
-            .padding(8)
-            .overlay(
-                RoundedRectangle(cornerRadius: 25)
-                    .stroke(lineWidth: 1)
-                    .foregroundColor(.white)
-                    .shadow(color: .gray, radius: 2, x: 0, y: 2)
-            )
-        // TODO: add click action
-
-
+            .background(Color.Artemis.cardBackgroundColor)
+            .cornerRadius(16)
+            .onTapGesture {
+                navigationController.path.append(course)
+            }
     }
 }

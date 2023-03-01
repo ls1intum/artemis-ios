@@ -18,14 +18,16 @@ let package = Package(
         .package(path: "../../core/APIClient"),
         .package(path: "../../core/SharedModels"),
         .package(path: "../../core/DesignLibrary"),
-        .package(path: "../CourseRegistration")
+        .package(path: "../../core/Navigation"),
+        .package(path: "../CourseRegistration"),
+        .package(path: "../CourseView")
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "Dashboard",
-            dependencies: ["APIClient", "SharedModels", "CourseRegistration", "DesignLibrary"]),
+            dependencies: ["APIClient", "SharedModels", "CourseRegistration", "DesignLibrary", "Navigation", "CourseView"]),
         .testTarget(
             name: "DashboardTests",
             dependencies: ["Dashboard"])

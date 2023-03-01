@@ -2,17 +2,17 @@ import SwiftUI
 import Common
 import SharedModels
 
-struct CourseView: View {
+public struct CourseView: View {
 
     @StateObject var viewModel: CourseViewModel
 
     @State private var tabSelection: TabIdentifier = .exercise
 
-    init(course: Course) {
+    public init(course: Course) {
         self._viewModel = StateObject(wrappedValue: CourseViewModel(course: course))
     }
 
-    var body: some View {
+    public var body: some View {
         TabView(selection: $tabSelection) {
             Text("Exercises TODO")
                 .tabItem {
