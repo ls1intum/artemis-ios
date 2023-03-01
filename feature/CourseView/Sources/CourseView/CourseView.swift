@@ -16,19 +16,19 @@ public struct CourseView: View {
         TabView(selection: $tabSelection) {
             Text("Exercises TODO")
                 .tabItem {
-                    Label("Exercises", image: "list.dash")
+                    Label("Exercises", systemImage: "list.bullet.clipboard.fill")
                 }
                 .tag(TabIdentifier.exercise)
 
             Text("Lectures TODO")
                 .tabItem {
-                    Label("Lectures", image: "list.dash")
+                    Label("Lectures", systemImage: "character.book.closed.fill")
                 }
                 .tag(TabIdentifier.lecture)
 
             Text("Communication TODO")
                 .tabItem {
-                    Label("Communication", image: "list.dash")
+                    Label("Communication", systemImage: "bubble.right.fill")
                 }
                 .tag(TabIdentifier.communication)
         }.navigationTitle(viewModel.course.value?.title ?? "Loading...")
