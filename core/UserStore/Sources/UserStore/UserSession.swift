@@ -21,7 +21,7 @@ public class UserSession: ObservableObject {
     @Published public private(set) var notificationsEncryptionKey: String?
 
     // Institution Selection
-    @Published public var institution: InstitutionIdentifier?
+    @Published public private(set) var institution: InstitutionIdentifier?
 
     public static let shared = UserSession()
 
@@ -118,6 +118,17 @@ public class UserSession: ObservableObject {
             KeychainHelper.shared.save(keyData, service: "notificationsEncryptionKey", account: "Artemis")
         } else {
             KeychainHelper.shared.delete(service: "notificationsEncryptionKey", account: "Artemis")
+        }
+    }
+
+    public func saveInstitution(identifier: InstitutionIdentifier?) {
+        self.institution = identifier
+
+        if let identifier = identifier {
+            let identifierData = Data(identifier.value.utf8)
+            KeychainHelper.shared.save(identifierData, service: "institution", account: "Artemis")
+        } else {
+            KeychainHelper.shared.delete(service: "institution", account: "Artemis")
         }
     }
 }

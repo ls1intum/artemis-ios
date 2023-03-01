@@ -8,6 +8,7 @@
 import Foundation
 import CryptoSwift
 import UserStore
+import Common
 
 class PushNotificationEncrypter {
 
@@ -31,7 +32,7 @@ class PushNotificationEncrypter {
             let decoder = JSONDecoder()
             return try decoder.decode(PushNotification.self, from: Data(decrypted))
         } catch {
-            print("error encrypting: \(error)")
+            log.error("error encrypting: \(error)")
             return nil
         }
     }
