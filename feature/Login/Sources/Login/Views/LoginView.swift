@@ -21,11 +21,12 @@ public struct LoginView: View {
 
             VStack(spacing: .m) {
                 TextField("Username", text: $viewModel.username)
-                    .textFieldStyle(.roundedBorder)
+                    .textFieldStyle(ArtemisTextField())
                 SecureField("Password", text: $viewModel.password)
-                    .textFieldStyle(.roundedBorder)
+                    .textFieldStyle(ArtemisTextField())
                 Toggle("Automatic login", isOn: $viewModel.rememberMe)
                     .toggleStyle(.switch)
+                    .tint(Color.Artemis.toggleColor)
             }
 
             Button("Login", action: {
@@ -35,7 +36,7 @@ public struct LoginView: View {
                 }
             })
                 .disabled(viewModel.username.isEmpty || viewModel.password.count < 8)
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(ArtemisButton())
 
             Spacer()
 
@@ -48,7 +49,7 @@ public struct LoginView: View {
         }
             .padding(.horizontal, .l)
             .loadingIndicator(isLoading: $viewModel.isLoading)
-            .background(Color.Artemis.artemisLightBlue)
+            .background(Color.Artemis.loginBackgroundColor)
             .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
             .alert(isPresented: $viewModel.loginExpired) {
                 Alert(title: Text("Your session expired. Please login again!"),

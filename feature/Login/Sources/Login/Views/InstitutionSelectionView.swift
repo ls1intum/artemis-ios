@@ -59,7 +59,7 @@ private struct CustomInstanceCell: View {
             }
 
             TextField("Your Custom Artemis Instance URL", text: $customUrl)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .textFieldStyle(ArtemisTextField())
                 .background(Color.gray.opacity(0.2))
             Button("Select") {
                 // TODO: check if valid URL
@@ -79,12 +79,13 @@ private struct CustomInstanceCell: View {
                         isLoading = true
                     case .failure:
                         showErrorAlert = true
+                        UserSession.shared.saveInstitution(identifier: .tum)
                     case .done:
                         dismiss()
                     }
                 }
             }
-                .buttonStyle(BorderedButtonStyle())
+                .buttonStyle(ArtemisButton())
                 .loadingIndicator(isLoading: $isLoading)
                 .alert("The URL is incorrect or does not link to an Artemis instance!", isPresented: $showErrorAlert, actions: { })
         }
