@@ -89,6 +89,10 @@ public extension Color {
     // MARK: Semantic Colors
     struct Artemis {
 
+        // Primary Artemis Color
+        public static let artemisBlue = UIColor.ColorPalette.ArtemisBlue.suColor
+        public static let artemisLightBlue = UIColor.ColorPalette.ArtemisLightBlue.suColor
+
         // Text
         public static let primaryLabel = UIColor.label.suColor
         public static let secondaryLabel = UIColor(UIColor.ColorPalette.Gray80, darkModeColor: UIColor.ColorPalette.Gray20).suColor

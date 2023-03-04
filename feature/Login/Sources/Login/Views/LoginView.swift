@@ -12,7 +12,57 @@ public struct LoginView: View {
 
     public var body: some View {
         VStack(spacing: .l) {
+
+            header
+
+            Text("Please sign in with your \(viewModel.instituiton.shortName) account.")
+                .font(.title2)
+                .multilineTextAlignment(.center)
+
+            VStack(spacing: .m) {
+                TextField("Username", text: $viewModel.username)
+                    .textFieldStyle(.roundedBorder)
+                SecureField("Password", text: $viewModel.password)
+                    .textFieldStyle(.roundedBorder)
+                Toggle("Automatic login", isOn: $viewModel.rememberMe)
+                    .toggleStyle(.switch)
+            }
+
+            Button("Login", action: {
+                viewModel.isLoading = true
+                Task {
+                    await viewModel.login()
+                }
+            })
+                .disabled(viewModel.username.isEmpty || viewModel.password.count < 8)
+                .buttonStyle(.borderedProminent)
+
             Spacer()
+
+            Button("Not your university?") {
+                showInstituionSelection = true
+            }
+                .sheet(isPresented: $showInstituionSelection) {
+                    InstitutionSelectionView(institution: $viewModel.instituiton)
+                }
+        }
+            .padding(.horizontal, .l)
+            .loadingIndicator(isLoading: $viewModel.isLoading)
+            .background(Color.Artemis.artemisLightBlue)
+            .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
+            .alert(isPresented: $viewModel.loginExpired) {
+                Alert(title: Text("Your session expired. Please login again!"),
+                      dismissButton: .default(Text("OK"),
+                                              action: { viewModel.resetLoginExpired() }))
+            }
+    }
+
+    var header: some View {
+        VStack(spacing: .l) {
+
+            InstitutionLogo(institution: viewModel.instituiton)
+                .frame(width: .extraLargeImage)
+                .padding(.vertical, .xxl)
 
             Text("Welcome to Artemis!")
                 .font(.largeTitle)
@@ -35,44 +85,6 @@ public struct LoginView: View {
                     }
                 }
             }
-
-            Text("Please sign in with your \(viewModel.instituiton.shortName) account.")
-                .font(.title2)
-                .multilineTextAlignment(.center)
-
-            VStack(spacing: .m) {
-                TextField("Username", text: $viewModel.username)
-                    .textFieldStyle(.roundedBorder)
-                SecureField("Password", text: $viewModel.password)
-                    .textFieldStyle(.roundedBorder)
-                Toggle("Automatic login", isOn: $viewModel.rememberMe)
-                    .toggleStyle(.switch)
-            }
-
-            Button("Login", action: {
-                Task {
-                    await viewModel.login()
-                }
-            })
-                .disabled(viewModel.username.isEmpty || viewModel.password.count < 8)
-                .buttonStyle(.borderedProminent)
-
-            Spacer()
-
-            Button("Not your university?") {
-                showInstituionSelection = true
-            }
-                .sheet(isPresented: $showInstituionSelection) {
-                    InstitutionSelectionView(institution: $viewModel.instituiton)
-                }
         }
-            .padding(.horizontal, .l)
-            .loadingIndicator(isLoading: $viewModel.isLoading)
-            .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
-            .alert(isPresented: $viewModel.loginExpired) {
-                Alert(title: Text("Your session expired. Please login again!"),
-                      dismissButton: .default(Text("OK"),
-                                              action: { viewModel.resetLoginExpired() }))
-            }
     }
 }

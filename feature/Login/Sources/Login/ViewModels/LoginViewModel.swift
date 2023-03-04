@@ -48,7 +48,6 @@ class LoginViewModel: ObservableObject {
     }
 
     func login() async {
-        isLoading = true
         let response = await LoginServiceFactory.shared.login(username: username, password: password, rememberMe: rememberMe)
 
         switch response {

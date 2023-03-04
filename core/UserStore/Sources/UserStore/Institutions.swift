@@ -11,10 +11,12 @@ public enum InstitutionIdentifier: CaseIterable, Identifiable {
 
     case tum
     case kit
+    case codeability
+    case hochschuleMuenchen
     case custom(URL?)
 
     public static var allCases: [InstitutionIdentifier] {
-        return [.tum, .kit, .custom(nil)]
+        return [.tum, .kit, .codeability, .hochschuleMuenchen, .custom(nil)]
     }
 
     public var id: String {
@@ -27,6 +29,10 @@ public enum InstitutionIdentifier: CaseIterable, Identifiable {
             return "tum"
         case .kit:
             return "kit"
+        case .hochschuleMuenchen:
+            return "hm"
+        case .codeability:
+            return "codeability"
         case .custom(let url):
             return url?.absoluteString ?? "nil"
         }
@@ -38,6 +44,10 @@ public enum InstitutionIdentifier: CaseIterable, Identifiable {
             self = .tum
         case "kit":
             self = .kit
+        case "hm":
+            self = .hochschuleMuenchen
+        case "codeability":
+            self = .codeability
         default:
             guard let value = value else {
                 self = .custom(nil)
@@ -53,6 +63,10 @@ public enum InstitutionIdentifier: CaseIterable, Identifiable {
             return "Technical University of Munich"
         case .kit:
             return "Karlsruhe Institute of Technology"
+        case .codeability:
+            return "codeAbility"
+        case .hochschuleMuenchen:
+            return "Hochschule München"
         case .custom(let url):
             return url?.absoluteString ?? "Custom Instance"
         }
@@ -64,6 +78,10 @@ public enum InstitutionIdentifier: CaseIterable, Identifiable {
             return "TUM"
         case .kit:
             return "KIT"
+        case .hochschuleMuenchen:
+            return "HM"
+        case .codeability:
+            return "codeAbility"
         case .custom(let url):
             return url?.absoluteString ?? "Custom Instance"
         }
@@ -75,9 +93,15 @@ public enum InstitutionIdentifier: CaseIterable, Identifiable {
             return Config.tumBaseEndpointUrl
         case .kit:
             return Config.kitBaseEndpointUrl
+        case .hochschuleMuenchen:
+            return Config.hmBaseEndpointUrl
+        case .codeability:
+            return Config.codeAbilityBaseEndpointUrl
         case .custom(let url):
             return url
         }
     }
 
 }
+
+extension InstitutionIdentifier: Equatable { }

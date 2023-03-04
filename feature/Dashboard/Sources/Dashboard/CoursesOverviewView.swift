@@ -98,8 +98,7 @@ private struct CourseListCell: View {
                 Text("\(40)/\(100)P (\(40)%)")
             }.padding(.m)
         }
-            .background(Color.Artemis.cardBackgroundColor)
-            .cornerRadius(16)
+            .cardModifier()
             .onTapGesture {
                 navigationController.path.append(course)
             }
