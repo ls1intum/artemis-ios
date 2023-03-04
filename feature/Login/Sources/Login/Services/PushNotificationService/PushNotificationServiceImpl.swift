@@ -67,7 +67,7 @@ class PushNotificationServiceImpl: PushNotificationService {
 
         switch result {
         case .success(let response):
-            UserSession.shared.notificationsEncryptionKey = response.0.secretKey
+            UserSession.shared.saveNotificationsEncryptionKey(key: response.0.secretKey) 
             return .success
         case .failure(let error):
             return .failure(error: error)

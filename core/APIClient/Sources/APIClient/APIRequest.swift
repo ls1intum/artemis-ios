@@ -7,6 +7,7 @@
 
 import Foundation
 import Common
+import UserStore
 
 public protocol APIRequest: Codable {
     associatedtype Response: Decodable
@@ -21,10 +22,11 @@ public struct MultipartFormDataRequest {
     let url: URL
 
     public init(path: String) {
-        guard let baseUrl = URL(string: path, relativeTo: Config.baseEndpointUrl) else {
+        guard let baseUrl = UserSession.shared.institution?.baseURL,
+            let url = URL(string: path, relativeTo: baseUrl) else {
             fatalError("Bad resourceName: \(path)")
         }
-        url = baseUrl
+        self.url = url
     }
 
     public func addTextField(named name: String, value: String) {

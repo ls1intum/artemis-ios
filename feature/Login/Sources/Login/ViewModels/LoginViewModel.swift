@@ -25,7 +25,7 @@ class LoginViewModel: ObservableObject {
     @Published var externalUserManagementUrl: DataState<URL> = .loading
     @Published var externalUserManagementName: DataState<String> = .loading
 
-//    "externalUserManagementWarning": "<span class='bold'>You have entered your password incorrectly too many times :-(</span><br />Please go to <a href='{{ url }}' target='_blank'>{{ name }}</a>, sign in with your account and solve the <a href='{{ url }}' target='_blank'>CAPTCHA</a>. After you have solved it, try to log in again here.",
+    @Published var instituiton: InstitutionIdentifier = .tum
 
     private var cancellables: Set<AnyCancellable> = Set()
 
@@ -36,6 +36,7 @@ class LoginViewModel: ObservableObject {
                 self?.password = UserSession.shared.password ?? ""
                 self?.rememberMe = UserSession.shared.rememberMe
                 self?.loginExpired = UserSession.shared.tokenExpired
+                self?.instituiton = UserSession.shared.institution ?? .tum
             }
         }.store(in: &cancellables)
 
@@ -43,10 +44,10 @@ class LoginViewModel: ObservableObject {
         password = UserSession.shared.password ?? ""
         rememberMe = UserSession.shared.rememberMe
         loginExpired = UserSession.shared.tokenExpired
+        instituiton = UserSession.shared.institution ?? .tum
     }
 
     func login() async {
-        isLoading = true
         let response = await LoginServiceFactory.shared.login(username: username, password: password, rememberMe: rememberMe)
 
         switch response {

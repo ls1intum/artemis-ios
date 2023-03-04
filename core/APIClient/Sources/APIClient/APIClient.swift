@@ -4,21 +4,15 @@ import UserStore
 
 // swiftlint:disable force_cast
 public final class APIClient {
-    private var baseUrl: URL?
 
     private let session = URLSession.shared
 
-    /// Instantiate WebClient for Artemis server from Configuration.swift
-    public convenience init() {
-        self.init(baseUrl: Config.baseEndpointUrl)
+    private var baseUrl: URL? {
+        UserSession.shared.institution?.baseURL
     }
 
-    /// Instantiate WebClient with given baseURL
-    ///
-    /// - Parameter baseUrl: A base URL of remote API
-    init(baseUrl: URL?) {
-        self.baseUrl = baseUrl
-    }
+    /// Instantiate WebClient for Artemis server from Configuration.swift
+    public init() { }
 
     /// Send an Multipath/Form-Data request to remote server
     ///

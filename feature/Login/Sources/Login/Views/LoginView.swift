@@ -1,27 +1,78 @@
 import Foundation
 import SwiftUI
 import Common
+import DesignLibrary
 
 public struct LoginView: View {
     @StateObject private var viewModel = LoginViewModel()
 
+    @State private var showInstituionSelection = false
+
     public init() { }
 
     public var body: some View {
-        VStack {
+        VStack(spacing: .l) {
+
+            header
+
+            Text("Please sign in with your \(viewModel.instituiton.shortName) account.")
+                .font(.title2)
+                .multilineTextAlignment(.center)
+
+            VStack(spacing: .m) {
+                TextField("Username", text: $viewModel.username)
+                    .textFieldStyle(ArtemisTextField())
+                SecureField("Password", text: $viewModel.password)
+                    .textFieldStyle(ArtemisTextField())
+                Toggle("Automatic login", isOn: $viewModel.rememberMe)
+                    .toggleStyle(.switch)
+                    .tint(Color.Artemis.toggleColor)
+            }
+
+            Button("Login", action: {
+                viewModel.isLoading = true
+                Task {
+                    await viewModel.login()
+                }
+            })
+                .disabled(viewModel.username.isEmpty || viewModel.password.count < 8)
+                .buttonStyle(ArtemisButton())
+
             Spacer()
 
+            Button("Not your university?") {
+                showInstituionSelection = true
+            }
+                .sheet(isPresented: $showInstituionSelection) {
+                    InstitutionSelectionView(institution: $viewModel.instituiton)
+                }
+        }
+            .padding(.horizontal, .l)
+            .loadingIndicator(isLoading: $viewModel.isLoading)
+            .background(Color.Artemis.loginBackgroundColor)
+            .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
+            .alert(isPresented: $viewModel.loginExpired) {
+                Alert(title: Text("Your session expired. Please login again!"),
+                      dismissButton: .default(Text("OK"),
+                                              action: { viewModel.resetLoginExpired() }))
+            }
+    }
+
+    var header: some View {
+        VStack(spacing: .l) {
+
+            InstitutionLogo(institution: viewModel.instituiton)
+                .frame(width: .extraLargeImage)
+                .padding(.vertical, .xxl)
+
             Text("Welcome to Artemis!")
-                .font(.system(size: 35, weight: .bold))
-                .padding(.horizontal, 10)
-                .frame(maxWidth: .infinity)
+                .font(.largeTitle)
                 .multilineTextAlignment(.center)
 
-            Text("Please login with your TUM login credentials.")
-                .font(.system(size: 25))
-                .padding(.horizontal, 10)
-                .frame(maxWidth: .infinity)
+            Text("Interactive Learning with Individual Feedback")
+                .font(.title2)
                 .multilineTextAlignment(.center)
+                .padding(.bottom, .xl)
 
             if viewModel.captchaRequired {
                 DataStateView(data: $viewModel.externalUserManagementUrl, retryHandler: viewModel.getProfileInfo) { externalUserManagementURL in
@@ -35,36 +86,6 @@ public struct LoginView: View {
                     }
                 }
             }
-
-            VStack(spacing: 10) {
-                TextField("Username", text: $viewModel.username)
-                    .textFieldStyle(.roundedBorder)
-                SecureField("Password", text: $viewModel.password)
-                    .textFieldStyle(.roundedBorder)
-                Toggle("Automatic login", isOn: $viewModel.rememberMe)
-                    .toggleStyle(.switch)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.horizontal, 40)
-
-            Button("Login", action: {
-                Task {
-                    await viewModel.login()
-                }
-            })
-            .frame(maxWidth: .infinity)
-            .disabled(viewModel.username.isEmpty || viewModel.password.count < 8)
-            .buttonStyle(.borderedProminent)
-
-            Spacer()
-        }
-        .loadingIndicator(isLoading: $viewModel.isLoading)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
-        .alert(isPresented: $viewModel.loginExpired) {
-            Alert(title: Text("Your session expired. Please login again!"),
-                  dismissButton: .default(Text("OK"),
-                                          action: { viewModel.resetLoginExpired() }))
         }
     }
 }

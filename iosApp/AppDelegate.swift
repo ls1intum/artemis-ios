@@ -11,6 +11,7 @@ import UIKit
 import UserNotifications
 import UserStore
 import PushNotifications
+import Common
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
@@ -36,20 +37,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 // MARK: Extension for Push Notifications
 extension AppDelegate: UNUserNotificationCenterDelegate {
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        UserSession.shared.apnsDeviceToken = String(deviceToken: deviceToken)
-        print(deviceToken)
+        UserSession.shared.saveApnsDeviceToken(token: String(deviceToken: deviceToken))
+        log.info(deviceToken)
     }
 
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-        UserSession.shared.apnsDeviceToken = nil
-        print(error)
+        UserSession.shared.saveApnsDeviceToken(token: nil)
+        log.error("Did Fail To Register For Remote Notifications With Error: \(error)")
     }
 
     // important to set the 'content_available' field, otherwise the method wont be called in the background
     func application(_ application: UIApplication,
                      didReceiveRemoteNotification payload: [AnyHashable: Any],
                      fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-        print(payload)
+        log.debug(payload)
 
         defer {
             completionHandler(.newData)

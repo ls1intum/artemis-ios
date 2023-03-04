@@ -1,6 +1,5 @@
 //
 //  LoadingIndicator.swift
-//  Artemis Exam Check
 //
 //  Created by Sven Andabaka on 27.01.23.
 //

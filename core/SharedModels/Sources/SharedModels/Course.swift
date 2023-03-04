@@ -1,5 +1,6 @@
 import Foundation
 import Common
+import UserStore
 
 /**
  * Representation of a single course.
@@ -26,7 +27,7 @@ public struct Course: Decodable, Identifiable {
 
     public var courseIconURL: URL? {
         guard let courseIcon = courseIcon else { return nil }
-        return URL(string: courseIcon, relativeTo: Config.baseEndpointUrl)
+        return URL(string: courseIcon, relativeTo: UserSession.shared.institution?.baseURL)
     }
 }
 
