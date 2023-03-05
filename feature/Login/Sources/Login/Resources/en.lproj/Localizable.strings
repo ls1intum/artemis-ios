@@ -1,1 +1,25 @@
-"username" = "Username";
+// MARK: LoginView
+"account_screen_title" = "Welcome to Artemis!";
+"account_screen_subtitle" = "Interactive Learning with Individual Feedback";
+"login_please_sign_in_account" = "Please sign in with your %@ account.";
+"login_username_label" = "Login";
+"login_password_label" = "Password";
+"login_remember_me_label" = "Automatic login";
+"login_perform_login_button_text" = "Login";
+"account_change_artemis_instance_label" = "Not your university?";
+// captcha
+"account_captcha_title" = "You have entered your password incorrectly too many times :-(";
+"account_captcha_message" = "Please go to [%@](%@), sign in with your account and solve the [CAPTCHA](%@). After you have solved it, try to log in again here.";
+"account_captcha_alert_message" = "You entered your password incorrectly. Solve the capture to continue.";
+
+// MARK: InstanceSelectionView
+"account_select_artemis_instance_select_text" = "Please select your university:";
+"account_select_artemis_instance_custom_instance" = "Your custom Artemis instance URL";
+"account_select_artemis_instance_error" = "The URL is incorrect or does not link to an Artemis instance!";
+
+// MARK: Errors
+"account_session_expired_error" = "Your session expired. Please login again!";
+
+// MARK: General
+"ok" = "OK";
+"select" = "Select";

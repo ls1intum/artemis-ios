@@ -15,47 +15,47 @@ public struct LoginView: View {
 
             header
 
-            Text("Please sign in with your \(viewModel.instituiton.shortName) account.")
+            Text(R.string.localizable.login_please_sign_in_account(viewModel.instituiton.shortName))
                 .font(.title2)
                 .multilineTextAlignment(.center)
 
             VStack(spacing: .m) {
-                TextField(R.string.localizable.username(), text: $viewModel.username)
+                TextField(R.string.localizable.login_username_label(), text: $viewModel.username)
                     .textFieldStyle(ArtemisTextField())
-                SecureField("Password", text: $viewModel.password)
+                SecureField(R.string.localizable.login_password_label(), text: $viewModel.password)
                     .textFieldStyle(ArtemisTextField())
-                Toggle("Automatic login", isOn: $viewModel.rememberMe)
+                Toggle(R.string.localizable.login_remember_me_label(), isOn: $viewModel.rememberMe)
                     .toggleStyle(.switch)
                     .tint(Color.Artemis.toggleColor)
             }
 
-            Button("Login", action: {
+            Button(R.string.localizable.login_perform_login_button_text()) {
                 viewModel.isLoading = true
                 Task {
                     await viewModel.login()
                 }
-            })
-            .disabled(viewModel.username.isEmpty || viewModel.password.count < 8)
-            .buttonStyle(ArtemisButton())
+            }
+                .disabled(viewModel.username.isEmpty || viewModel.password.count < 8)
+                .buttonStyle(ArtemisButton())
 
             Spacer()
 
-            Button("Not your university?") {
+            Button(R.string.localizable.account_change_artemis_instance_label()) {
                 showInstituionSelection = true
             }
-            .sheet(isPresented: $showInstituionSelection) {
-                InstitutionSelectionView(institution: $viewModel.instituiton)
+                .sheet(isPresented: $showInstituionSelection) {
+                    InstitutionSelectionView(institution: $viewModel.instituiton)
+                }
+        }
+            .padding(.horizontal, .l)
+            .loadingIndicator(isLoading: $viewModel.isLoading)
+            .background(Color.Artemis.loginBackgroundColor)
+            .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
+            .alert(isPresented: $viewModel.loginExpired) {
+                Alert(title: Text(R.string.localizable.account_session_expired_error()),
+                      dismissButton: .default(Text(R.string.localizable.ok()),
+                                              action: { viewModel.resetLoginExpired() }))
             }
-        }
-        .padding(.horizontal, .l)
-        .loadingIndicator(isLoading: $viewModel.isLoading)
-        .background(Color.Artemis.loginBackgroundColor)
-        .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
-        .alert(isPresented: $viewModel.loginExpired) {
-            Alert(title: Text("Your session expired. Please login again!"),
-                  dismissButton: .default(Text("OK"),
-                                          action: { viewModel.resetLoginExpired() }))
-        }
     }
 
     var header: some View {
@@ -65,11 +65,11 @@ public struct LoginView: View {
                 .frame(width: .extraLargeImage)
                 .padding(.vertical, .xxl)
 
-            Text("Welcome to Artemis!")
+            Text(R.string.localizable.account_screen_title())
                 .font(.largeTitle)
                 .multilineTextAlignment(.center)
 
-            Text("Interactive Learning with Individual Feedback")
+            Text(R.string.localizable.account_screen_subtitle())
                 .font(.title2)
                 .multilineTextAlignment(.center)
                 .padding(.bottom, .xl)
@@ -78,8 +78,10 @@ public struct LoginView: View {
                 DataStateView(data: $viewModel.externalUserManagementUrl, retryHandler: viewModel.getProfileInfo) { externalUserManagementURL in
                     DataStateView(data: $viewModel.externalUserManagementName, retryHandler: viewModel.getProfileInfo) { externalUserManagementName in
                         VStack {
-                            Text("You have entered your password incorrectly too many times :-(")
-                            Text(.init("Please go to [\(externalUserManagementName)](\(externalUserManagementURL.absoluteString)), sign in with your account and solve the [CAPTCHA](\(externalUserManagementURL.absoluteString)). After you have solved it, try to log in again here."))
+                            Text(R.string.localizable.account_captcha_title())
+                            Text(.init(R.string.localizable.account_captcha_message(externalUserManagementName,
+                                                                                    externalUserManagementURL.absoluteString,
+                                                                                    externalUserManagementURL.absoluteString)))
                         }
                         .padding()
                         .border(.red)
