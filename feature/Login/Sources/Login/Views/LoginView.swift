@@ -35,27 +35,27 @@ public struct LoginView: View {
                     await viewModel.login()
                 }
             })
-                .disabled(viewModel.username.isEmpty || viewModel.password.count < 8)
-                .buttonStyle(ArtemisButton())
+            .disabled(viewModel.username.isEmpty || viewModel.password.count < 8)
+            .buttonStyle(ArtemisButton())
 
             Spacer()
 
             Button("Not your university?") {
                 showInstituionSelection = true
             }
-                .sheet(isPresented: $showInstituionSelection) {
-                    InstitutionSelectionView(institution: $viewModel.instituiton)
-                }
-        }
-            .padding(.horizontal, .l)
-            .loadingIndicator(isLoading: $viewModel.isLoading)
-            .background(Color.Artemis.loginBackgroundColor)
-            .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
-            .alert(isPresented: $viewModel.loginExpired) {
-                Alert(title: Text("Your session expired. Please login again!"),
-                      dismissButton: .default(Text("OK"),
-                                              action: { viewModel.resetLoginExpired() }))
+            .sheet(isPresented: $showInstituionSelection) {
+                InstitutionSelectionView(institution: $viewModel.instituiton)
             }
+        }
+        .padding(.horizontal, .l)
+        .loadingIndicator(isLoading: $viewModel.isLoading)
+        .background(Color.Artemis.loginBackgroundColor)
+        .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
+        .alert(isPresented: $viewModel.loginExpired) {
+            Alert(title: Text("Your session expired. Please login again!"),
+                  dismissButton: .default(Text("OK"),
+                                          action: { viewModel.resetLoginExpired() }))
+        }
     }
 
     var header: some View {
@@ -81,8 +81,8 @@ public struct LoginView: View {
                             Text("You have entered your password incorrectly too many times :-(")
                             Text(.init("Please go to [\(externalUserManagementName)](\(externalUserManagementURL.absoluteString)), sign in with your account and solve the [CAPTCHA](\(externalUserManagementURL.absoluteString)). After you have solved it, try to log in again here."))
                         }
-                            .padding()
-                            .border(.red)
+                        .padding()
+                        .border(.red)
                     }
                 }
             }

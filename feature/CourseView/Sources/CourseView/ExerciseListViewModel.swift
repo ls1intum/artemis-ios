@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Sven Andabaka on 27.02.23.
 //
@@ -55,8 +55,8 @@ struct WeeklyExerciseId: Identifiable, Hashable {
     let year: Int?
 
     var id: String {
-        guard let week = week,
-              let year = year else {
+        guard let week,
+              let year else {
             return "undefined"
         }
         return "\(week)/\(year)"

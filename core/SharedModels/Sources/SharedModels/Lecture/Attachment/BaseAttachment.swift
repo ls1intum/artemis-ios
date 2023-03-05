@@ -14,15 +14,15 @@ public enum Attachment: Decodable {
         case type = "attachmentType"
     }
 
-    case File(attachment: FileAttachment)
-    case Unknown(attachment: UnknownAttachment)
+    case file(attachment: FileAttachment)
+    case unknown(attachment: UnknownAttachment)
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: Keys.self)
         let type = try container.decode(String.self, forKey: Keys.type)
         switch type {
-        case FileAttachment.type: self = .File(attachment: try FileAttachment(from: decoder))
-        default: self = .Unknown(attachment: try UnknownAttachment(from: decoder))
+        case FileAttachment.type: self = .file(attachment: try FileAttachment(from: decoder))
+        default: self = .unknown(attachment: try UnknownAttachment(from: decoder))
         }
     }
 }

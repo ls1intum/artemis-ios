@@ -17,15 +17,15 @@ public enum Participation: Decodable {
         case type
     }
 
-    case Student(participation: StudentParticipationImpl)
-    case ProgrammingExerciseStudent(participation: ProgrammingExerciseStudentParticipation)
-    case Unknown(participation: UnknownParticipation)
+    case student(participation: StudentParticipationImpl)
+    case programmingExerciseStudent(participation: ProgrammingExerciseStudentParticipation)
+    case unknown(participation: UnknownParticipation)
 
     public var baseParticipation: BaseParticipation {
         switch self {
-        case .Student(participation: let participation): return participation
-        case .ProgrammingExerciseStudent(participation: let participation): return participation
-        case .Unknown(participation: let participation): return participation
+        case .student(participation: let participation): return participation
+        case .programmingExerciseStudent(participation: let participation): return participation
+        case .unknown(participation: let participation): return participation
         }
     }
 
@@ -33,19 +33,19 @@ public enum Participation: Decodable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let type = try container.decode(String.self, forKey: CodingKeys.type)
         switch type {
-        case StudentParticipationImpl.type: self = .Student(participation: try StudentParticipationImpl(from: decoder))
-        case ProgrammingExerciseStudentParticipation.type: self = .ProgrammingExerciseStudent(participation: try ProgrammingExerciseStudentParticipation(from: decoder))
-        default: self = .Unknown(participation: try UnknownParticipation(from: decoder))
+        case StudentParticipationImpl.type: self = .student(participation: try StudentParticipationImpl(from: decoder))
+        case ProgrammingExerciseStudentParticipation.type: self = .programmingExerciseStudent(participation: try ProgrammingExerciseStudentParticipation(from: decoder))
+        default: self = .unknown(participation: try UnknownParticipation(from: decoder))
         }
     }
 }
 
 public enum InitializationState: String, Decodable {
-    case UNINITIALIZED
-    case REPO_COPIED
-    case REPO_CONFIGURED
-    case BUILD_PLAN_COPIED
-    case BUILD_PLAN_CONFIGURED
+    case uninitalized = "UNINITIALIZED"
+    case repoCopied = "REPO_COPIED"
+    case repoConfigured = "REPO_CONFIGURED"
+    case buildPlanCopied = "BUILD_PLAN_COPIED"
+    case buildPlanConfigured = "BUILD_PLAN_CONFIGURED"
 
     /**
      * The participation is set up for submissions from the student

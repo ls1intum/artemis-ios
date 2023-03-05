@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Sven Andabaka on 01.03.23.
 //
@@ -26,10 +26,10 @@ struct InstitutionSelectionView: View {
                         InstanceCell(currentInstitution: $institution, institution: institutionIdentifier)
                     }
                 }
-                    .listRowSeparator(.hidden)
+                .listRowSeparator(.hidden)
             }
         }
-            .listStyle(PlainListStyle())            
+        .listStyle(PlainListStyle())
     }
 }
 
@@ -85,22 +85,22 @@ private struct CustomInstanceCell: View {
                     }
                 }
             }
-                .buttonStyle(ArtemisButton())
-                .loadingIndicator(isLoading: $isLoading)
-                .alert("The URL is incorrect or does not link to an Artemis instance!", isPresented: $showErrorAlert, actions: { })
+            .buttonStyle(ArtemisButton())
+            .loadingIndicator(isLoading: $isLoading)
+            .alert("The URL is incorrect or does not link to an Artemis instance!", isPresented: $showErrorAlert, actions: { })
         }
-            .frame(maxWidth: .infinity)
-            .padding(.l)
-            .cardModifier()
-            .onChange(of: currentInstitution) { newInstitution in
-                if case .custom(let url) = institution {
-                    customUrl = url?.absoluteString ?? ""
-                }
-            }.onAppear {
-                if case .custom(let url) = currentInstitution {
-                    customUrl = url?.absoluteString ?? ""
-                }
+        .frame(maxWidth: .infinity)
+        .padding(.l)
+        .cardModifier()
+        .onChange(of: currentInstitution) { _ in
+            if case .custom(let url) = institution {
+                customUrl = url?.absoluteString ?? ""
             }
+        }.onAppear {
+            if case .custom(let url) = currentInstitution {
+                customUrl = url?.absoluteString ?? ""
+            }
+        }
     }
 }
 

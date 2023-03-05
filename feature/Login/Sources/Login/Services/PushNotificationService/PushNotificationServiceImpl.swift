@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Sven Andabaka on 16.02.23.
 //
@@ -28,7 +28,7 @@ class PushNotificationServiceImpl: PushNotificationService {
             return "api/push_notification/unregister"
         }
     }
-    
+
     func unregister() async -> NetworkResponse {
         guard let deviceToken = UserSession.shared.apnsDeviceToken else { return .failure(error: APIClientError.wrongParameters)}
         let result = await client.sendRequest(UnregisterRequest(token: deviceToken))
@@ -67,12 +67,10 @@ class PushNotificationServiceImpl: PushNotificationService {
 
         switch result {
         case .success(let response):
-            UserSession.shared.saveNotificationsEncryptionKey(key: response.0.secretKey) 
+            UserSession.shared.saveNotificationsEncryptionKey(key: response.0.secretKey)
             return .success
         case .failure(let error):
             return .failure(error: error)
         }
     }
-
-
 }

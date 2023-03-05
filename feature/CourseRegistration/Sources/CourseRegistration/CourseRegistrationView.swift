@@ -22,10 +22,10 @@ public struct CourseRegistrationView: View {
                     }
                 }
             }
-                .refreshable {
-                    await viewModel.loadCourses()
-                }
-                .navigationTitle("course_registration_title")
+            .refreshable {
+                await viewModel.loadCourses()
+            }
+            .navigationTitle("course_registration_title")
         }
     }
 }
@@ -61,12 +61,12 @@ private struct CourseRegistrationListCell: View {
                 }
             })
         }
-            .padding(8)
-            .overlay(
-                RoundedRectangle(cornerRadius: 25)
-                    .stroke(lineWidth: 1)
-                    .foregroundColor(.white)
-                    .shadow(color: .gray, radius: 2, x: 0, y: 2)
-            )
+        .padding(8)
+        .overlay(
+            RoundedRectangle(cornerRadius: 25)
+                .stroke(lineWidth: 1)
+                .foregroundColor(.white)
+                .shadow(color: .gray, radius: 2, x: 0, y: 2)
+        )
     }
 }

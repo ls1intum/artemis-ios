@@ -27,15 +27,15 @@ class CourseRegistrationViewModel: ObservableObject {
             registrableCourses = .loading
         case .done(response: let result):
             registrableCourses = .done(response: Dictionary(grouping: result, by: { $0.semester ?? "" })
-                .map { semester, courses in
-                    SemesterCourses(semester: semester, courses: courses)
-                })
+                                        .map { semester, courses in
+                                            SemesterCourses(semester: semester, courses: courses)
+                                        })
         }
     }
 
     func signUpForCourse(_ course: Course) async {
 
-        let result = await CourseRegistrationServiceFactory.shared.registerInCourse(courseId: course.id ?? 1) // TODO: wraping
+        let result = await CourseRegistrationServiceFactory.shared.registerInCourse(courseId: course.id) // TODO: wraping
 
         switch result {
         case .loading:
@@ -44,9 +44,9 @@ class CourseRegistrationViewModel: ObservableObject {
             registrableCourses = .failure(error: error)
         case .done(let response):
             registrableCourses = .done(response: Dictionary(grouping: response, by: { $0.semester ?? "" })
-                .map { semester, courses in
-                    SemesterCourses(semester: semester, courses: courses)
-                })
+                                        .map { semester, courses in
+                                            SemesterCourses(semester: semester, courses: courses)
+                                        })
         }
     }
 }
@@ -56,8 +56,6 @@ struct SemesterCourses: Identifiable {
     let courses: [Course]
 
     var id: Int {
-        get {
-            semester.hash
-        }
+        semester.hash
     }
 }

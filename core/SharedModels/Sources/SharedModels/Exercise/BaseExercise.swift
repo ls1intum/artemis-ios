@@ -10,7 +10,7 @@ public protocol BaseExercise: Decodable {
     var shortName: String? { get }
     var maxPoints: Float? { get }
     var bonusPoints: Float? { get }
-//    var releaseDate: Date? { get }
+    //    var releaseDate: Date? { get }
     var dueDate: Date? { get }
     var assessmentDueDate: Date? { get }
     var difficulty: Difficulty? { get }
@@ -41,21 +41,21 @@ public enum Exercise: Decodable, Identifiable {
         case type
     }
 
-    case FileUpload(exercise: FileUploadExercise)
-    case Modeling(exercise: ModelingExercise)
-    case Programming(exercise: ProgrammingExercise)
-    case Quiz(exercise: QuizExercise)
-    case Text(exercise: TextExercise)
-    case Unknown(exercise: UnknownExercise)
+    case fileUpload(exercise: FileUploadExercise)
+    case modeling(exercise: ModelingExercise)
+    case programming(exercise: ProgrammingExercise)
+    case quiz(exercise: QuizExercise)
+    case text(exercise: TextExercise)
+    case unknown(exercise: UnknownExercise)
 
     public var baseExercise: any BaseExercise {
         switch self {
-        case .FileUpload(exercise: let exercise): return exercise
-        case .Modeling(exercise: let exercise): return exercise
-        case .Programming(exercise: let exercise): return exercise
-        case .Quiz(exercise: let exercise): return exercise
-        case .Text(exercise: let exercise): return exercise
-        case .Unknown(exercise: let exercise): return exercise
+        case .fileUpload(exercise: let exercise): return exercise
+        case .modeling(exercise: let exercise): return exercise
+        case .programming(exercise: let exercise): return exercise
+        case .quiz(exercise: let exercise): return exercise
+        case .text(exercise: let exercise): return exercise
+        case .unknown(exercise: let exercise): return exercise
         }
     }
 
@@ -67,29 +67,29 @@ public enum Exercise: Decodable, Identifiable {
         let container = try decoder.container(keyedBy: Keys.self)
         let type = try container.decode(String.self, forKey: Keys.type)
         switch type {
-        case FileUploadExercise.type: self = .FileUpload(exercise: try FileUploadExercise(from: decoder))
-        case ModelingExercise.type: self = .Modeling(exercise: try ModelingExercise(from: decoder))
-        case ProgrammingExercise.type: self = .Programming(exercise: try ProgrammingExercise(from: decoder))
-        case QuizExercise.type: self = .Quiz(exercise: try QuizExercise(from: decoder))
-        case TextExercise.type: self = .Text(exercise: try TextExercise(from: decoder))
-        default: self = .Unknown(exercise: try UnknownExercise(from: decoder))
+        case FileUploadExercise.type: self = .fileUpload(exercise: try FileUploadExercise(from: decoder))
+        case ModelingExercise.type: self = .modeling(exercise: try ModelingExercise(from: decoder))
+        case ProgrammingExercise.type: self = .programming(exercise: try ProgrammingExercise(from: decoder))
+        case QuizExercise.type: self = .quiz(exercise: try QuizExercise(from: decoder))
+        case TextExercise.type: self = .text(exercise: try TextExercise(from: decoder))
+        default: self = .unknown(exercise: try UnknownExercise(from: decoder))
         }
     }
 
     public func copyWithUpdatedParticipations(newParticipations: [Participation]) -> Exercise {
         switch self {
-        case .FileUpload(exercise: let exercise):
-            return .FileUpload(exercise: exercise.copyWithUpdatedParticipations(newParticipations: newParticipations))
-        case .Modeling(exercise: let exercise):
-            return .Modeling(exercise: exercise.copyWithUpdatedParticipations(newParticipations: newParticipations))
-        case .Programming(exercise: let exercise):
-            return .Programming(exercise: exercise.copyWithUpdatedParticipations(newParticipations: newParticipations))
-        case .Quiz(exercise: let exercise):
-            return .Quiz(exercise: exercise.copyWithUpdatedParticipations(newParticipations: newParticipations))
-        case .Text(exercise: let exercise):
-            return .Text(exercise: exercise.copyWithUpdatedParticipations(newParticipations: newParticipations))
-        case .Unknown(exercise: let exercise):
-            return .Unknown(exercise: exercise.copyWithUpdatedParticipations(newParticipations: newParticipations))
+        case .fileUpload(exercise: let exercise):
+            return .fileUpload(exercise: exercise.copyWithUpdatedParticipations(newParticipations: newParticipations))
+        case .modeling(exercise: let exercise):
+            return .modeling(exercise: exercise.copyWithUpdatedParticipations(newParticipations: newParticipations))
+        case .programming(exercise: let exercise):
+            return .programming(exercise: exercise.copyWithUpdatedParticipations(newParticipations: newParticipations))
+        case .quiz(exercise: let exercise):
+            return .quiz(exercise: exercise.copyWithUpdatedParticipations(newParticipations: newParticipations))
+        case .text(exercise: let exercise):
+            return .text(exercise: exercise.copyWithUpdatedParticipations(newParticipations: newParticipations))
+        case .unknown(exercise: let exercise):
+            return .unknown(exercise: exercise.copyWithUpdatedParticipations(newParticipations: newParticipations))
         }
     }
 }
@@ -108,39 +108,41 @@ public enum Mode: String, Decodable {
 // IMPORTANT NOTICE: The following strings have to be consistent with the ones defined in Exercise.java
 
 public enum IncludedInOverallScore: String, Decodable {
-    case INCLUDED_COMPLETELY
-    case INCLUDED_AS_BONUS
-    case NOT_INCLUDED
+    case includedCompletly = "INCLUDED_COMPLETELY"
+    case includedAsBonus = "INCLUDED_AS_BONUS"
+    case notIncluded = "NOT_INCLUDED"
 }
 
 public enum ParticipationStatus {
-    case QuizNotInitialized
-    case QuizActive
-    case QuizSubmitted
-    case QuizNotStarted
-    case QuizNotParticipated
-    case QuizFinished(participation: Participation)
-    case NoTeamAssigned
-    case Uninitialized
-    case Initialized(participation: Participation)
+    case quizNotInitialized
+    case quizActive
+    case quizSubmitted
+    case quizNotStarted
+    case quizNotParticipated
+    case quizFinished(participation: Participation)
+    case noTeamAssigned
+    case uninitialized
+    case initialized(participation: Participation)
 
-    case Inactive(participation: Participation)
+    case inactive(participation: Participation)
 
-    case ExerciseActive
-    case ExerciseSubmitted(participation: Participation)
-    case ExerciseMissed
+    case exerciseActive
+    case exerciseSubmitted(participation: Participation)
+    case exerciseMissed
 }
 
 public enum AssessmentType: String, Decodable {
-    case AUTOMATIC
-    case SEMI_AUTOMATIC
-    case MANUAL
+    case automatic = "AUTOMATIC"
+    case semiAutomatic = "SEMI_AUTOMATIC"
+    case manual = "MANUAL"
 }
 
 public struct Category: Decodable {
     public let category: String
     public let colorCode: Int64?
 
+    // TODO: remove force unwrap
+    // swiftlint:disable force_try force_cast
     public init(from decoder: Decoder) {
         let string: String = try! decoder.singleValueContainer().decode(String.self)
         let impl = try! JSONDecoder().decode(CategoryImpl.self, from: Data(string.utf8))
@@ -178,10 +180,10 @@ public extension BaseExercise {
         if testRun == nil {
             studentParticipation = (studentParticipations ?? []).first
         } else {
-            let foo: [Participation] = studentParticipations ?? []
-            studentParticipation = foo.first { it in
-                if it is StudentParticipation {
-                    return (it as! StudentParticipation).testRun == testRun
+            let participations: [Participation] = studentParticipations ?? []
+            studentParticipation = participations.first { participation in
+                if participation is StudentParticipation {
+                    return (participation as! StudentParticipation).testRun == testRun
                 } else {
                     return false
                 }
@@ -208,20 +210,20 @@ public extension BaseExercise {
 
         // The following evaluations are relevant for programming exercises in general and for modeling, text and file upload exercises that don't have participations.
         if studentParticipation == nil ||
-                initState == InitializationState.UNINITIALIZED ||
-                initState == InitializationState.REPO_COPIED ||
-                initState == InitializationState.REPO_CONFIGURED ||
-                initState == InitializationState.BUILD_PLAN_COPIED ||
-                initState == InitializationState.BUILD_PLAN_CONFIGURED {
+            initState == InitializationState.uninitalized ||
+            initState == InitializationState.repoCopied ||
+            initState == InitializationState.repoConfigured ||
+            initState == InitializationState.buildPlanCopied ||
+            initState == InitializationState.buildPlanConfigured {
             if self is ProgrammingExercise && !isStartExerciseAvailable(exercise: self as! ProgrammingExercise) && testRun == nil || testRun == false {
-                return ParticipationStatus.ExerciseMissed
+                return ParticipationStatus.exerciseMissed
             } else {
-                return ParticipationStatus.Uninitialized
+                return ParticipationStatus.uninitialized
             }
         } else if studentParticipation!.baseParticipation.initializationState == InitializationState.INITIALIZED {
-            return ParticipationStatus.Initialized(participation: studentParticipation!)
+            return ParticipationStatus.initialized(participation: studentParticipation!)
         }
-        return ParticipationStatus.Inactive(participation: studentParticipation!)
+        return ParticipationStatus.inactive(participation: studentParticipation!)
     }
 
     private func isStartExerciseAvailable(exercise: ProgrammingExercise) -> Bool {
@@ -229,38 +231,38 @@ public extension BaseExercise {
     }
 
     private func participationStatusForQuizExercise(exercise: QuizExercise) -> ParticipationStatus {
-        if exercise.status == QuizStatus.CLOSED {
+        if exercise.status == QuizStatus.closed {
             if !(exercise.studentParticipations ?? []).isEmpty && !(exercise.studentParticipations!.first!.baseParticipation.results ?? []).isEmpty {
-                return ParticipationStatus.QuizFinished(participation: exercise.studentParticipations!.first!)
+                return ParticipationStatus.quizFinished(participation: exercise.studentParticipations!.first!)
             }
 
-            return ParticipationStatus.QuizNotParticipated
+            return ParticipationStatus.quizNotParticipated
         } else if !(exercise.studentParticipations ?? []).isEmpty {
             let initState = exercise.studentParticipations!.first!.baseParticipation.initializationState
             if initState == InitializationState.INITIALIZED {
-                return ParticipationStatus.QuizActive
+                return ParticipationStatus.quizActive
             } else if initState == InitializationState.FINISHED {
-                return ParticipationStatus.QuizSubmitted
+                return ParticipationStatus.quizSubmitted
             }
-        } else if ((exercise.quizBatches ?? []).contains { it in
-            it.started == true
+        } else if ((exercise.quizBatches ?? []).contains { item in
+            item.started == true
         }) {
-            return ParticipationStatus.QuizNotInitialized
+            return ParticipationStatus.quizNotInitialized
         }
-        return ParticipationStatus.QuizNotStarted
+        return ParticipationStatus.quizNotStarted
     }
 
     private func participationStatusForModelingTextFileUploadExercise(participation: Participation) -> ParticipationStatus {
         if participation.baseParticipation.initializationState == InitializationState.INITIALIZED {
             if hasDueDataPassed(participation: participation) {
-                return ParticipationStatus.ExerciseMissed
+                return ParticipationStatus.exerciseMissed
             } else {
-                return ParticipationStatus.ExerciseActive
+                return ParticipationStatus.exerciseActive
             }
         } else if participation.baseParticipation.initializationState == InitializationState.FINISHED {
-            return ParticipationStatus.ExerciseSubmitted(participation: participation)
+            return ParticipationStatus.exerciseSubmitted(participation: participation)
         } else {
-            return ParticipationStatus.Uninitialized
+            return ParticipationStatus.uninitialized
         }
     }
 

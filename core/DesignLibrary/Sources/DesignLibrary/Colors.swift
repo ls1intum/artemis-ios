@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Sven Andabaka on 01.03.23.
 //
@@ -22,7 +22,7 @@ extension UIColor {
         self.init(red: (netHex >> 16) & 0xff, green: (netHex >> 8) & 0xff, blue: netHex & 0xff)
     }
 
-    //swiftlint:disable identifier_name
+    // swiftlint:disable identifier_name
     convenience init(hexString: String) {
         let hex = hexString.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
         var int = UInt64()
@@ -73,7 +73,7 @@ fileprivate extension UIColor {
         static let Gray30 = UIColor(netHex: 0xb3b3b3)
         static let Gray40 = UIColor(netHex: 0x999999)
         static let Gray50 = UIColor(netHex: 0x808080)
-        static let Gray60 = UIColor(netHex: 0666666)
+        static let Gray60 = UIColor(netHex: 0x666666)
         static let Gray70 = UIColor(netHex: 0x4d4d4d)
         static let Gray80 = UIColor(netHex: 0x333333)
         static let Gray90 = UIColor(netHex: 0x1a1a1a)

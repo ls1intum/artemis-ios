@@ -17,15 +17,15 @@ public enum Submission: Decodable {
         case type = "submissionExerciseType"
     }
 
-    case Unknown(submission: UnknownSubmission)
-    case Instructor(submission: InstructorSubmission)
-    case Test(submission: TestSubmission)
+    case unknown(submission: UnknownSubmission)
+    case instructor(submission: InstructorSubmission)
+    case test(submission: TestSubmission)
 
     public var baseSubmission: BaseSubmission {
         switch self {
-        case .Unknown(let submission): return submission
-        case .Instructor(let submission): return submission
-        case .Test(let submission): return submission
+        case .unknown(let submission): return submission
+        case .instructor(let submission): return submission
+        case .test(let submission): return submission
         }
     }
 
@@ -33,9 +33,9 @@ public enum Submission: Decodable {
         let container = try decoder.container(keyedBy: Keys.self)
         let type = try container.decode(String.self, forKey: Keys.type)
         switch type {
-        case InstructorSubmission.type: self = .Instructor(submission: try InstructorSubmission(from: decoder))
-        case TestSubmission.type: self = .Test(submission: try TestSubmission(from: decoder))
-        default: self = .Unknown(submission: try UnknownSubmission(from: decoder))
+        case InstructorSubmission.type: self = .instructor(submission: try InstructorSubmission(from: decoder))
+        case TestSubmission.type: self = .test(submission: try TestSubmission(from: decoder))
+        default: self = .unknown(submission: try UnknownSubmission(from: decoder))
         }
     }
 }

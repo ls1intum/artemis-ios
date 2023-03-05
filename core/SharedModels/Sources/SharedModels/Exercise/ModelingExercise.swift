@@ -11,7 +11,7 @@ public struct ModelingExercise: BaseExercise {
     public var shortName: String?
     public var maxPoints: Float?
     public var bonusPoints: Float?
-//    public var releaseDate: Date?
+    //    public var releaseDate: Date?
     public var dueDate: Date?
     public var assessmentDueDate: Date?
     public var difficulty: Difficulty?
@@ -23,7 +23,7 @@ public struct ModelingExercise: BaseExercise {
     public var assessmentType: AssessmentType?
     public var allowComplaintsForAutomaticAssessments: Bool?
     public var allowManualFeedbackRequests: Bool?
-    public var includedInOverallScore: IncludedInOverallScore = .INCLUDED_COMPLETELY
+    public var includedInOverallScore: IncludedInOverallScore = .includedCompletly
     public var exampleSolutionPublicationDate: Date?
     public var studentParticipations: [Participation]?
     public var attachments: [Attachment]? = []
@@ -40,14 +40,14 @@ public struct ModelingExercise: BaseExercise {
 }
 
 public enum UMLDiagramType: String, Decodable {
-    case ClassDiagram
-    case ObjectDiagram
-    case ActivityDiagram
-    case UseCaseDiagram
-    case CommunicationDiagram
-    case ComponentDiagram
-    case DeploymentDiagram
-    case PetriNet
-    case SyntaxTree
-    case Flowchart
+    case classDiagram = "ClassDiagram"
+    case objectDiagram = "ObjectDiagram"
+    case activityDiagram = "ActivityDiagram"
+    case useCaseDiagram = "UseCaseDiagram"
+    case communicationDiagram = "CommunicationDiagram"
+    case componentDiagram = "ComponentDiagram"
+    case deploymentDiagram = "DeploymentDiagram"
+    case petriNet = "PetriNet"
+    case syntaxTree = "SyntaxTree"
+    case flowchart = "Flowchart"
 }

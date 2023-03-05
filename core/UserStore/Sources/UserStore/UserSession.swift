@@ -80,7 +80,7 @@ public class UserSession: ObservableObject {
     public func saveUsername(username: String?) {
         self.username = username
 
-        if let username = username {
+        if let username {
             let usernameData = Data(username.description.utf8)
             KeychainHelper.shared.save(usernameData, service: "username", account: "Artemis")
         } else {
@@ -91,7 +91,7 @@ public class UserSession: ObservableObject {
     public func savePassword(password: String?) {
         self.password = password
 
-        if let password = password {
+        if let password {
             let passwordData = Data(password.description.utf8)
             KeychainHelper.shared.save(passwordData, service: "password", account: "Artemis")
         } else {
@@ -102,7 +102,7 @@ public class UserSession: ObservableObject {
     public func saveApnsDeviceToken(token: String?) {
         self.apnsDeviceToken = token
 
-        if let token = token {
+        if let token {
             let tokenData = Data(token.description.utf8)
             KeychainHelper.shared.save(tokenData, service: "apnsDeviceToken", account: "Artemis")
         } else {
@@ -113,7 +113,7 @@ public class UserSession: ObservableObject {
     public func saveNotificationsEncryptionKey(key: String?) {
         self.notificationsEncryptionKey = key
 
-        if let key = key {
+        if let key {
             let keyData = Data(key.description.utf8)
             KeychainHelper.shared.save(keyData, service: "notificationsEncryptionKey", account: "Artemis")
         } else {
@@ -124,7 +124,7 @@ public class UserSession: ObservableObject {
     public func saveInstitution(identifier: InstitutionIdentifier?) {
         self.institution = identifier
 
-        if let identifier = identifier {
+        if let identifier {
             let identifierData = Data(identifier.value.utf8)
             KeychainHelper.shared.save(identifierData, service: "institution", account: "Artemis")
         } else {

@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Sven Andabaka on 01.03.23.
 //
@@ -49,7 +49,7 @@ public enum InstitutionIdentifier: CaseIterable, Identifiable {
         case "codeability":
             self = .codeability
         default:
-            guard let value = value else {
+            guard let value else {
                 self = .custom(nil)
                 return
             }
@@ -101,7 +101,6 @@ public enum InstitutionIdentifier: CaseIterable, Identifiable {
             return url
         }
     }
-
 }
 
 extension InstitutionIdentifier: Equatable { }

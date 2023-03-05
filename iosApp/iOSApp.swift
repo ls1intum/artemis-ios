@@ -2,7 +2,7 @@ import SwiftUI
 import Navigation
 
 @main
-struct iOSApp: App {
+struct ArtemisApp: App {
 
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
 

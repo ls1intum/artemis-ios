@@ -53,7 +53,7 @@ public struct DataStateView<T, Content: View>: View {
                     Spacer()
                 }
             case .done(let result):
-                if let content = content {
+                if let content {
                     content(result)
                 } else {
                     Text("An error occured")

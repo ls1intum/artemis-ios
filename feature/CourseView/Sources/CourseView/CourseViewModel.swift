@@ -129,11 +129,11 @@ class CourseViewModel: ObservableObject {
     }
 
     func loadCourse(_ course: Course) async {
-        self.course = await CourseServiceFactory.shared.getCourse(courseId: course.id ?? 1) // TODO: why optional
+        self.course = await CourseServiceFactory.shared.getCourse(courseId: course.id) // TODO: why optional
     }
 }
 
-//struct ExerciseWithParticipationStatus: Identifiable {
+// struct ExerciseWithParticipationStatus: Identifiable {
 //    typealias ID = Int
 //
 //    let exercise: Exercise
@@ -186,13 +186,13 @@ class CourseViewModel: ObservableObject {
 //
 //        return liveQuizChips + categoryChips + difficultyChips + bonusChips
 //    }
-//}
+// }
 //
-///**
+/// **
 // * Struct that holds information about a chip displayed for an exercise.
 // * For example the exercise difficulty (easy, hard, ...) or if it as an easy exercise
 // */
-//struct ExerciseCategoryChipData: Identifiable {
+// struct ExerciseCategoryChipData: Identifiable {
 //    typealias ID = String
 //    let text: TextType
 //    let color: Color
@@ -210,4 +210,4 @@ class CourseViewModel: ObservableObject {
 //        case Verbatim(text: String)
 //        case Localized(text: LocalizedStringResource)
 //    }
-//}
+// }

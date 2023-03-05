@@ -205,7 +205,7 @@ extension APIClient {
 
     private func printResponse(for urlRequest: URLRequest, data: Data?, response: URLResponse?, error: Error?) {
         let urlString = urlRequest.url?.absoluteString ?? "empty"
-        if let error = error {
+        if let error {
             log.error(
                 """
                 \n––––––––––––––––––––––––––––––––––––––Error––––––––––––––––––––––––––––––––––––––––––––––

@@ -10,7 +10,7 @@ let package = Package(
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
             name: "PushNotifications",
-            targets: ["PushNotifications"]),
+            targets: ["PushNotifications"])
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -27,6 +27,6 @@ let package = Package(
             dependencies: ["CryptoSwift", "Common", "UserStore"]),
         .testTarget(
             name: "PushNotificationsTests",
-            dependencies: ["PushNotifications"]),
+            dependencies: ["PushNotifications"])
     ]
 )

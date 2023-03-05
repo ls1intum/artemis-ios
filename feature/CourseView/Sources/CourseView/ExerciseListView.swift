@@ -24,7 +24,7 @@ struct ExerciseListView: View {
     }
 }
 
-//struct ExerciseListView2: View {
+// struct ExerciseListView2: View {
 //
 //    let exerciseDataState: DataState<[WeeklyExercises]>
 //    let onClickExercise: (_ exerciseId: Int) -> Void
@@ -62,9 +62,9 @@ struct ExerciseListView: View {
 //            return dict[nil] ?? defaultValue
 //        }
 //    }
-//}
+// }
 //
-//private struct ExerciseWeekSectionHeaderView: View {
+// private struct ExerciseWeekSectionHeaderView: View {
 //    let weeklyExercises: WeeklyExercises
 //
 //    private let text: String
@@ -91,13 +91,13 @@ struct ExerciseListView: View {
 //    var body: some View {
 //        Text(text)
 //    }
-//}
+// }
 //
-///**
+/// **
 // * Display a single exercise.
 // * The exercise is displayed in a card with an icon specific to the exercise type.
 // */
-//private struct ExerciseItemView: View {
+// private struct ExerciseItemView: View {
 //    let exerciseWithParticipationStatus: ExerciseWithParticipationStatus
 //    let onClick: () -> Void
 //
@@ -148,9 +148,9 @@ struct ExerciseListView: View {
 //                .fill(Color.primaryContainer.surface)
 //        )
 //    }
-//}
+// }
 //
-//private struct ExerciseTypeIconView: View {
+// private struct ExerciseTypeIconView: View {
 //
 //    let icon: String
 //
@@ -170,12 +170,12 @@ struct ExerciseListView: View {
 //            .resizable()
 //            .scaledToFit()
 //    }
-//}
+// }
 //
-///**
+/// **
 // * Displays the exercise title, the due data and the participation info. The participation info is automatically updated.
 // */
-//private struct ExerciseDataTextView: View {
+// private struct ExerciseDataTextView: View {
 //    let exercise: Exercise
 //    let participationStatus: ParticipationStatus
 //
@@ -219,12 +219,12 @@ struct ExerciseListView: View {
 //
 //        }
 //    }
-//}
+// }
 //
-///**
+/// **
 // * Displays a colored rounded rectangle with the given text in it.
 // */
-//private struct ExerciseCategoryChip: View {
+// private struct ExerciseCategoryChip: View {
 //
 //    let data: ExerciseCategoryChipData
 //
@@ -243,9 +243,9 @@ struct ExerciseListView: View {
 //            chipShape.fill(data.color)
 //        )
 //    }
-//}
+// }
 //
-//private extension ParticipationStatus {
+// private extension ParticipationStatus {
 //    var submissionResultStatusText: LocalizedStringKey {
 //        switch self {
 //        case .QuizNotInitialized: return "exercise_quiz_not_started"
@@ -260,4 +260,4 @@ struct ExerciseListView: View {
 //        default: return ""
 //        }
 //    }
-//}
+// }

@@ -26,7 +26,7 @@ public struct Course: Decodable, Identifiable {
     }
 
     public var courseIconURL: URL? {
-        guard let courseIcon = courseIcon else { return nil }
+        guard let courseIcon else { return nil }
         return URL(string: courseIcon, relativeTo: UserSession.shared.institution?.baseURL)
     }
 }

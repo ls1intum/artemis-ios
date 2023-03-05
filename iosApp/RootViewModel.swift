@@ -19,8 +19,8 @@ class RootViewModel: ObservableObject {
 
     init() {
         UserSession.shared.objectWillChange.sink {
-            DispatchQueue.main.async { [unowned self] in
-                self.isLoggedIn = UserSession.shared.isLoggedIn
+            DispatchQueue.main.async { [weak self] in
+                self?.isLoggedIn = UserSession.shared.isLoggedIn
             }
         }.store(in: &cancellables)
 

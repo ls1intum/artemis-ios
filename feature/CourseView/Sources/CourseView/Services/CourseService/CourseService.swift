@@ -10,5 +10,4 @@ protocol CourseService {
 enum CourseServiceFactory {
 
     static let shared: CourseService = CourseServiceImpl()
-
 }
