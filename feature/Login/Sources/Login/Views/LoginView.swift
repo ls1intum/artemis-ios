@@ -20,7 +20,7 @@ public struct LoginView: View {
                 .multilineTextAlignment(.center)
 
             VStack(spacing: .m) {
-                TextField("Username", text: $viewModel.username)
+                TextField(R.string.localizable.username(), text: $viewModel.username)
                     .textFieldStyle(ArtemisTextField())
                 SecureField("Password", text: $viewModel.password)
                     .textFieldStyle(ArtemisTextField())
