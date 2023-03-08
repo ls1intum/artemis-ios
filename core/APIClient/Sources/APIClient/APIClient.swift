@@ -8,7 +8,7 @@ public final class APIClient {
     private let session = URLSession.shared
 
     private var baseUrl: URL? {
-        UserSession.shared.institution?.baseURL
+        UserSession.shared.institution?.baseURL ?? InstitutionIdentifier.tum.baseURL
     }
 
     /// Instantiate WebClient for Artemis server from Configuration.swift
