@@ -46,7 +46,7 @@ public struct DataStateView<T, Content: View>: View {
                             .font(.footnote)
                             .foregroundColor(.gray)
                     }
-                    Button("Retry") {
+                    Button(R.string.localizable.retryButton()) {
                         Task {
                             await retryHandler()
                         }
@@ -57,7 +57,7 @@ public struct DataStateView<T, Content: View>: View {
                 if let content {
                     content(result)
                 } else {
-                    Text("An error occured")
+                    Text(R.string.localizable.dataStateUnknownError())
                 }
             }
         }
