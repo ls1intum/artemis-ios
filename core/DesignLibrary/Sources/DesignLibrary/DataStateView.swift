@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Common
 
 public struct DataStateView<T, Content: View>: View {
     @Binding var data: DataState<T>

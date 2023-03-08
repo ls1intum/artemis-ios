@@ -1,6 +1,6 @@
 import SwiftUI
 import SharedModels
-import Common
+import DesignLibrary
 
 public struct CourseRegistrationView: View {
 

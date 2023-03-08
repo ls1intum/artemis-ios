@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import Common
+import DesignLibrary
 
 struct AccountNavigationBarMenuView: View {
     @StateObject private var viewModel = AccountNavigationBarMenuViewModel()
