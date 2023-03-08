@@ -1,3 +1,7 @@
+included:
+  - iosApp
+  - core
+  - feature
 excluded:
   - Tests/SwiftLintFrameworkTests/Resources
 analyzer_rules:
