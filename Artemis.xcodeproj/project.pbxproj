@@ -10,7 +10,6 @@
 		058557BB273AAA24004C7B11 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 058557BA273AAA24004C7B11 /* Assets.xcassets */; };
 		058557D9273AAEEB004C7B11 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 058557D8273AAEEB004C7B11 /* Preview Assets.xcassets */; };
 		1C098983990545800E8F932E /* readme.md in Sources */ = {isa = PBXBuildFile; fileRef = 1C098BE94B1D25D8F4F19DAD /* readme.md */; };
-		1C0989F5F99E3E5D8E09A81B /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 1C098681E5B54683749B1859 /* .gitignore */; };
 		2152FB042600AC8F00CF470E /* iOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2152FB032600AC8F00CF470E /* iOSApp.swift */; };
 		220409A728D4EF1A00204B1C /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220409A628D4EF1A00204B1C /* RootView.swift */; };
 		22B12972290048A800C4910E /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 22B12971290048A800C4910E /* Localizable.strings */; };
@@ -46,10 +45,10 @@
 		22B6A919292D419800F08C7E /* Login */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Login; path = feature/Login; sourceTree = "<group>"; };
 		22B6A91A292D529400F08C7E /* CourseRegistration */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = CourseRegistration; path = feature/CourseRegistration; sourceTree = "<group>"; };
 		7555FF7B242A565900829871 /* Artemis.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Artemis.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		7555FF8C242A565B00829871 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D515291029AD1BD0002CAD2F /* DesignLibrary */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = DesignLibrary; path = core/DesignLibrary; sourceTree = "<group>"; };
 		D515291329AD2DFB002CAD2F /* Navigation */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Navigation; path = core/Navigation; sourceTree = "<group>"; };
 		D51AD00C299E390700FA5B94 /* Artemis.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Artemis.entitlements; sourceTree = "<group>"; };
+		D52CEEAA29B8FA2D003C7B2E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D54B8BED296F741D00BB1AA3 /* APIClient */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = APIClient; path = core/APIClient; sourceTree = "<group>"; };
 		D54B8BF3297075C100BB1AA3 /* UserStore */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = UserStore; path = core/UserStore; sourceTree = "<group>"; };
 		D54B8BF6297082C400BB1AA3 /* RootViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewModel.swift; sourceTree = "<group>"; };
@@ -134,16 +133,24 @@
 		7555FF7D242A565900829871 /* iosApp */ = {
 			isa = PBXGroup;
 			children = (
+				D52CEEA929B8F9FB003C7B2E /* Supporting */,
 				220409A628D4EF1A00204B1C /* RootView.swift */,
 				D54B8BF6297082C400BB1AA3 /* RootViewModel.swift */,
 				058557BA273AAA24004C7B11 /* Assets.xcassets */,
-				7555FF8C242A565B00829871 /* Info.plist */,
 				2152FB032600AC8F00CF470E /* iOSApp.swift */,
 				D5B8C105299E73F100835976 /* AppDelegate.swift */,
 				058557D7273AAEEB004C7B11 /* Preview Content */,
 				22B12971290048A800C4910E /* Localizable.strings */,
 			);
 			path = iosApp;
+			sourceTree = "<group>";
+		};
+		D52CEEA929B8F9FB003C7B2E /* Supporting */ = {
+			isa = PBXGroup;
+			children = (
+				D52CEEAA29B8FA2D003C7B2E /* Info.plist */,
+			);
+			path = Supporting;
 			sourceTree = "<group>";
 		};
 		D5383C7529AB8B01007BAECB /* Features */ = {
@@ -254,7 +261,6 @@
 				058557D9273AAEEB004C7B11 /* Preview Assets.xcassets in Resources */,
 				22B12972290048A800C4910E /* Localizable.strings in Resources */,
 				058557BB273AAA24004C7B11 /* Assets.xcassets in Resources */,
-				1C0989F5F99E3E5D8E09A81B /* .gitignore in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -428,7 +434,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_TESTING_SEARCH_PATHS = YES;
 				FRAMEWORK_SEARCH_PATHS = "";
-				INFOPLIST_FILE = iosApp/Info.plist;
+				INFOPLIST_FILE = iosApp/Supporting/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -454,7 +460,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_TESTING_SEARCH_PATHS = YES;
 				FRAMEWORK_SEARCH_PATHS = "";
-				INFOPLIST_FILE = iosApp/Info.plist;
+				INFOPLIST_FILE = iosApp/Supporting/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
