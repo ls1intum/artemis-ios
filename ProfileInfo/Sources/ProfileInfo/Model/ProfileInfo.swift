@@ -9,7 +9,7 @@ import Foundation
 
 public struct ProfileInfo: Decodable {
     public let contact: String
-    public let imprint: URL
+    public let imprint: URL?
     public let build: Build
     public let features: [String]
     public let registrationEnabled: Bool
