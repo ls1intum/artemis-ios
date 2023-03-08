@@ -16,5 +16,4 @@ protocol DashboardService {
 enum DashboardServiceFactory {
 
     static let shared: DashboardService = DashboardServiceImpl()
-
 }

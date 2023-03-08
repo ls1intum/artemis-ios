@@ -1,15 +1,16 @@
 //
 //  SwiftUIView.swift
-//  
+//
 //
 //  Created by Sven Andabaka on 04.03.23.
 //
 
 import SwiftUI
 
+// swiftlint:disable identifier_name
 public struct ArtemisTextField: TextFieldStyle {
 
-    var backgroundColor: Color = Color.Artemis.textFieldColor
+    var backgroundColor = Color.Artemis.textFieldColor
 
     public init() { }
 

@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Sven Andabaka on 01.03.23.
 //
@@ -49,7 +49,7 @@ public enum InstitutionIdentifier: CaseIterable, Identifiable {
         case "codeability":
             self = .codeability
         default:
-            guard let value = value else {
+            guard let value else {
                 self = .custom(nil)
                 return
             }
@@ -60,30 +60,30 @@ public enum InstitutionIdentifier: CaseIterable, Identifiable {
     public var name: String {
         switch self {
         case .tum:
-            return "Technical University of Munich"
+            return R.string.localizable.nameTum()
         case .kit:
-            return "Karlsruhe Institute of Technology"
+            return R.string.localizable.nameKit()
         case .codeability:
-            return "codeAbility"
+            return R.string.localizable.nameCodeAbility()
         case .hochschuleMuenchen:
-            return "Hochschule München"
+            return R.string.localizable.nameHm()
         case .custom(let url):
-            return url?.absoluteString ?? "Custom Instance"
+            return url?.absoluteString ?? R.string.localizable.customInstance()
         }
     }
 
     public var shortName: String {
         switch self {
         case .tum:
-            return "TUM"
+            return R.string.localizable.nicknameTum()
         case .kit:
-            return "KIT"
+            return R.string.localizable.nicknameKit()
         case .hochschuleMuenchen:
-            return "HM"
+            return R.string.localizable.nicknameHm()
         case .codeability:
-            return "codeAbility"
+            return R.string.localizable.nicknameCodeAbility()
         case .custom(let url):
-            return url?.absoluteString ?? "Custom Instance"
+            return url?.absoluteString ?? R.string.localizable.customInstance()
         }
     }
 
@@ -101,7 +101,6 @@ public enum InstitutionIdentifier: CaseIterable, Identifiable {
             return url
         }
     }
-
 }
 
 extension InstitutionIdentifier: Equatable { }

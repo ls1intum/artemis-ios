@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Sven Andabaka on 01.03.23.
 //
@@ -16,7 +16,7 @@ struct InstitutionSelectionView: View {
 
     var body: some View {
         List {
-            Text("Please select your university:")
+            Text(R.string.localizable.account_select_artemis_instance_select_text())
                 .font(.headline)
             ForEach(InstitutionIdentifier.allCases) { institutionIdentifier in
                 Group {
@@ -26,10 +26,10 @@ struct InstitutionSelectionView: View {
                         InstanceCell(currentInstitution: $institution, institution: institutionIdentifier)
                     }
                 }
-                    .listRowSeparator(.hidden)
+                .listRowSeparator(.hidden)
             }
         }
-            .listStyle(PlainListStyle())            
+        .listStyle(PlainListStyle())
     }
 }
 
@@ -58,11 +58,10 @@ private struct CustomInstanceCell: View {
                 }
             }
 
-            TextField("Your Custom Artemis Instance URL", text: $customUrl)
+            TextField(R.string.localizable.account_select_artemis_instance_custom_instance(), text: $customUrl)
                 .textFieldStyle(ArtemisTextField())
                 .background(Color.gray.opacity(0.2))
-            Button("Select") {
-                // TODO: check if valid URL
+            Button(R.string.localizable.select()) {
                 guard let url = URL(string: customUrl) else {
                     showErrorAlert = true
                     return
@@ -85,22 +84,22 @@ private struct CustomInstanceCell: View {
                     }
                 }
             }
-                .buttonStyle(ArtemisButton())
-                .loadingIndicator(isLoading: $isLoading)
-                .alert("The URL is incorrect or does not link to an Artemis instance!", isPresented: $showErrorAlert, actions: { })
+            .buttonStyle(ArtemisButton())
+            .loadingIndicator(isLoading: $isLoading)
+            .alert(R.string.localizable.account_select_artemis_instance_error(), isPresented: $showErrorAlert, actions: { })
         }
-            .frame(maxWidth: .infinity)
-            .padding(.l)
-            .cardModifier()
-            .onChange(of: currentInstitution) { newInstitution in
-                if case .custom(let url) = institution {
-                    customUrl = url?.absoluteString ?? ""
-                }
-            }.onAppear {
-                if case .custom(let url) = currentInstitution {
-                    customUrl = url?.absoluteString ?? ""
-                }
+        .frame(maxWidth: .infinity)
+        .padding(.l)
+        .cardModifier()
+        .onChange(of: currentInstitution) { _ in
+            if case .custom(let url) = institution {
+                customUrl = url?.absoluteString ?? ""
             }
+        }.onAppear {
+            if case .custom(let url) = currentInstitution {
+                customUrl = url?.absoluteString ?? ""
+            }
+        }
     }
 }
 

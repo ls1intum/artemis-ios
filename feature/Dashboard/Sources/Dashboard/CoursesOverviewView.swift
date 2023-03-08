@@ -25,12 +25,12 @@ public struct CoursesOverviewView: View {
                     ForEach(courses) { course in
                         CourseListCell(course: course)
                     }
-                        .listRowSeparator(.hidden)
+                    .listRowSeparator(.hidden)
                 }
-                    .listStyle(PlainListStyle())
-                    .refreshable {
-                        await viewModel.loadCourses()
-                    }
+                .listStyle(PlainListStyle())
+                .refreshable {
+                    await viewModel.loadCourses()
+                }
             }
         }
         .navigationDestination(for: Course.self) { course in
@@ -81,14 +81,14 @@ private struct CourseListCell: View {
                         EmptyView()
                     }
                 }
-                    .frame(width: .extraLargeImage, height: .extraLargeImage)
+                .frame(width: .extraLargeImage, height: .extraLargeImage)
                 VStack(alignment: .leading) {
                     Text(course.title ?? "TODO")
                         .font(.custom("SF Pro", size: 22, relativeTo: .title))
                     Text("Exercises: \(course.exercises?.count ?? 0)")
                     Text("Lectures: \(course.lectures?.count ?? 0)")
                 }
-                    .padding(.m)
+                .padding(.m)
             }
             Divider()
             HStack {
@@ -98,9 +98,9 @@ private struct CourseListCell: View {
                 Text("\(40)/\(100)P (\(40)%)")
             }.padding(.m)
         }
-            .cardModifier()
-            .onTapGesture {
-                navigationController.path.append(course)
-            }
+        .cardModifier()
+        .onTapGesture {
+            navigationController.path.append(course)
+        }
     }
 }

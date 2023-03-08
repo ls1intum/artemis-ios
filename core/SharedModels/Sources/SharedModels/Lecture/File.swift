@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Sven Andabaka on 27.02.23.
 //
@@ -13,5 +13,5 @@ public struct Lecture: Codable {
     let description: String?
     let startDate: Date?
     let endDate: Date?
-//    let attachments: [Attachment]
+    //    let attachments: [Attachment]
 }

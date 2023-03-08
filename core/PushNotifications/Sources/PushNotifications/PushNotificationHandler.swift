@@ -12,6 +12,7 @@ import UserNotifications
 
 public class PushNotificationHandler {
 
+    // swiftlint:disable identifier_name
     public static func handle(payload: String, iv: String) {
         log.verbose("Notification received with payload: \(payload)")
 
@@ -24,19 +25,19 @@ public class PushNotificationHandler {
     }
 
     private static func dispatchNotification(_ notification: PushNotification) {
-        UNUserNotificationCenter.current().getNotificationSettings { (settings) in
-          if settings.authorizationStatus != .authorized {
-            log.error("Notifications are not allowed")
-            return
-          }
+        UNUserNotificationCenter.current().getNotificationSettings { settings in
+            if settings.authorizationStatus != .authorized {
+                log.error("Notifications are not allowed")
+                return
+            }
         }
 
         Task {
             let notification = await prepareNotification(notification)
             let request = UNNotificationRequest(identifier: UUID().uuidString, content: notification, trigger: nil)
 
-            UNUserNotificationCenter.current().add(request) { (error) in
-                if let error = error {
+            UNUserNotificationCenter.current().add(request) { error in
+                if let error {
                     log.error(error.localizedDescription)
                 }
             }
@@ -47,15 +48,15 @@ public class PushNotificationHandler {
         let content = UNMutableNotificationContent()
         content.title = notification.title
         content.body = notification.body
-//        content.sound = .default()
-//        content.categoryIdentifier = type.rawValue
-//        content.userInfo = userInfos
+        //        content.sound = .default()
+        //        content.categoryIdentifier = type.rawValue
+        //        content.userInfo = userInfos
 
-//        guard let imgUrl = avatarResource,
-//              let attachment = await createNotificationAttachmentFromImage(withName: imgUrl.absoluteString, url: imgUrl, applyCircleMask: true) else {
-//            return content
-//        }
-//        content.attachments = [attachment]
+        //        guard let imgUrl = avatarResource,
+        //              let attachment = await createNotificationAttachmentFromImage(withName: imgUrl.absoluteString, url: imgUrl, applyCircleMask: true) else {
+        //            return content
+        //        }
+        //        content.attachments = [attachment]
         return content
     }
 }

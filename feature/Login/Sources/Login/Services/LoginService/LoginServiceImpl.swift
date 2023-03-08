@@ -45,7 +45,7 @@ class LoginServiceImpl: LoginService {
                 UserSession.shared.savePassword(password: password)
             }
 
-            return await PushNotificationServiceFactory.shared.register()            
+            return await PushNotificationServiceFactory.shared.register()
         case .failure(let error):
             switch error {
             case let .httpURLResponseError(statusCode, artemisError):

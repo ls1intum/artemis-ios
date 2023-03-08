@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Sven Andabaka on 19.02.23.
 //
@@ -12,7 +12,7 @@ import Common
 
 class PushNotificationEncrypter {
 
-    // TODO: decrypt does not work: invalidKeySize with .utf8 dataPaddingRequired with base64 ... try ...
+    // swiftlint:disable identifier_name
     static func decrypt(payload: String, iv: String) -> PushNotification? {
         // decode PrivateKey from base64 to String
         guard let privateKey = UserSession.shared.notificationsEncryptionKey,

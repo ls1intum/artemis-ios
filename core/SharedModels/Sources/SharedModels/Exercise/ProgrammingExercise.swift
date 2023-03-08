@@ -12,7 +12,7 @@ public struct ProgrammingExercise: BaseExercise, Decodable {
     public var shortName: String?
     public var maxPoints: Float?
     public var bonusPoints: Float?
-//    public var releaseDate: Date?
+    //    public var releaseDate: Date?
     public var dueDate: Date?
     public var assessmentDueDate: Date?
     public var difficulty: Difficulty?
@@ -24,7 +24,7 @@ public struct ProgrammingExercise: BaseExercise, Decodable {
     public var assessmentType: AssessmentType?
     public var allowComplaintsForAutomaticAssessments: Bool?
     public var allowManualFeedbackRequests: Bool?
-    public var includedInOverallScore: IncludedInOverallScore = .INCLUDED_COMPLETELY
+    public var includedInOverallScore: IncludedInOverallScore = .includedCompletly
     public var exampleSolutionPublicationDate: Date?
     public var studentParticipations: [Participation]?
     public var attachments: [Attachment]? = []
@@ -37,15 +37,16 @@ public struct ProgrammingExercise: BaseExercise, Decodable {
     }
 }
 
+// swiftlint:disable identifier_name
 public enum ProgrammingLanguage: String, Decodable {
-    case JAVA
-    case PYTHON
-    case C
-    case HASKELL
-    case KOTLIN
-    case VHDL
-    case ASSEMBLER
-    case SWIFT
-    case OCAML
-    case EMPTY
+    case java = "JAVA"
+    case python = "PYTHON"
+    case c = "C"
+    case haskell = "HASKELL"
+    case kotlin = "KOTLIN"
+    case vhdl = "VHDL"
+    case assembler = "ASSEMBLER"
+    case swift = "SWIFT"
+    case ocaml = "OCAML"
+    case empty = "EMPTY"
 }

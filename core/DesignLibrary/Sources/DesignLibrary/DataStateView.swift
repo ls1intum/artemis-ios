@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Common
 
 public struct DataStateView<T, Content: View>: View {
     @Binding var data: DataState<T>
@@ -45,7 +46,7 @@ public struct DataStateView<T, Content: View>: View {
                             .font(.footnote)
                             .foregroundColor(.gray)
                     }
-                    Button("Retry") {
+                    Button(R.string.localizable.retryButton()) {
                         Task {
                             await retryHandler()
                         }
@@ -53,10 +54,10 @@ public struct DataStateView<T, Content: View>: View {
                     Spacer()
                 }
             case .done(let result):
-                if let content = content {
+                if let content {
                     content(result)
                 } else {
-                    Text("An error occured")
+                    Text(R.string.localizable.dataStateUnknownError())
                 }
             }
         }

@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Sven Andabaka on 10.02.23.
 //
@@ -8,7 +8,6 @@
 import Foundation
 import Common
 import SharedModels
-
 
 public protocol AccountService {
     /**

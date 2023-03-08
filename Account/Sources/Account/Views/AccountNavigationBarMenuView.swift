@@ -1,12 +1,12 @@
 //
 //  SwiftUIView.swift
-//  
+//
 //
 //  Created by Sven Andabaka on 10.02.23.
 //
 
 import SwiftUI
-import Common
+import DesignLibrary
 
 struct AccountNavigationBarMenuView: View {
     @StateObject private var viewModel = AccountNavigationBarMenuViewModel()

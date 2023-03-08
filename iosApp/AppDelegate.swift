@@ -22,8 +22,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     private func registerForPushNotifications() {
         UNUserNotificationCenter.current().delegate = self
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) {
-            (granted, error) in
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
             // 1. Check to see if permission is granted
             guard granted else { return }
             // 2. Attempt registration for remote notifications on the main thread
@@ -57,11 +56,11 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         }
 
         guard let payloadString = payload["payload"] as? String,
-              let iv = payload["iv"] as? String else {
+              let initVector = payload["iv"] as? String else {
             return
         }
 
-        PushNotificationHandler.handle(payload: payloadString, iv: iv)
+        PushNotificationHandler.handle(payload: payloadString, iv: initVector)
     }
 
     func userNotificationCenter(_ center: UNUserNotificationCenter,

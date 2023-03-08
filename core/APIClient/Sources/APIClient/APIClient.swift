@@ -8,7 +8,7 @@ public final class APIClient {
     private let session = URLSession.shared
 
     private var baseUrl: URL? {
-        UserSession.shared.institution?.baseURL
+        UserSession.shared.institution?.baseURL ?? InstitutionIdentifier.tum.baseURL
     }
 
     /// Instantiate WebClient for Artemis server from Configuration.swift
@@ -205,7 +205,7 @@ extension APIClient {
 
     private func printResponse(for urlRequest: URLRequest, data: Data?, response: URLResponse?, error: Error?) {
         let urlString = urlRequest.url?.absoluteString ?? "empty"
-        if let error = error {
+        if let error {
             log.error(
                 """
                 \n––––––––––––––––––––––––––––––––––––––Error––––––––––––––––––––––––––––––––––––––––––––––

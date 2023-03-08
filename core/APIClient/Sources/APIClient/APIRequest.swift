@@ -23,7 +23,7 @@ public struct MultipartFormDataRequest {
 
     public init(path: String) {
         guard let baseUrl = UserSession.shared.institution?.baseURL,
-            let url = URL(string: path, relativeTo: baseUrl) else {
+              let url = URL(string: path, relativeTo: baseUrl) else {
             fatalError("Bad resourceName: \(path)")
         }
         self.url = url

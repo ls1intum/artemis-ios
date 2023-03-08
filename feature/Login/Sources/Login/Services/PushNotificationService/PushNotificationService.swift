@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Sven Andabaka on 16.02.23.
 //
@@ -24,5 +24,4 @@ public protocol PushNotificationService {
 enum PushNotificationServiceFactory {
 
     static let shared: PushNotificationService = PushNotificationServiceImpl()
-
 }

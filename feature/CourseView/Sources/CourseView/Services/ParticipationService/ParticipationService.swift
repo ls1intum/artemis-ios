@@ -29,16 +29,15 @@ protocol ParticipationService {
 public enum ParticipationServiceFactory {
 
     static let shared: ParticipationService = ParticipationServiceImpl()
-
 }
 
 enum ProgrammingSubmissionStateData {
     // The last submission of participation has a result.
-    case NoPendingSubmission(participationId: Int)
+    case noPendingSubmission(participationId: Int)
 
     // The submission was createvd on the server, we assume that the build is running within an expected time frame.
-    case IsBuildingPendingSubmission(participationId: Int, submission: Submission)
+    case isBuildingPendingSubmission(participationId: Int, submission: Submission)
 
     // A failed submission is a pending submission that has not received a result within an expected time frame.
-    case FailedSubmission(participationId: Int)
+    case failedSubmission(participationId: Int)
 }

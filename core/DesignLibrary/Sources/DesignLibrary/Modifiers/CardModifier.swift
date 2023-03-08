@@ -1,12 +1,11 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Sven Andabaka on 04.03.23.
 //
 
 import SwiftUI
-
 
 struct CardModifier: ViewModifier {
     func body(content: Content) -> some View {

@@ -1,6 +1,6 @@
 //
 //  SwiftUIView.swift
-//  
+//
 //
 //  Created by Sven Andabaka on 04.03.23.
 //
@@ -8,7 +8,7 @@
 import SwiftUI
 
 public enum ButtonPriority {
-     case primary, secondary, custom
+    case primary, secondary, custom
 }
 
 public struct ArtemisButton: ButtonStyle {
@@ -18,8 +18,8 @@ public struct ArtemisButton: ButtonStyle {
     var width: CGFloat = UIScreen.main.bounds.size.width
     var verticalInlinePadding: CGFloat = .m
     var horizontalInlinePadding: CGFloat = .l
-    var buttonColor: Color = Color.Artemis.primaryButtonColor
-    var buttonTextColor: Color = Color.Artemis.primaryButtonTextColor
+    var buttonColor = Color.Artemis.primaryButtonColor
+    var buttonTextColor = Color.Artemis.primaryButtonTextColor
     var buttonPriority: ButtonPriority = .primary
 
     public init(priority: ButtonPriority = .primary) {

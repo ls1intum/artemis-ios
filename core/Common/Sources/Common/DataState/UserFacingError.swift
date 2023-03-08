@@ -28,10 +28,10 @@ public struct UserFacingError: Codable {
 extension UserFacingError: LocalizedError {
     public var errorDescription: String? {
         var description = title
-        if let message = message {
+        if let message {
             description += "\nMessage: \(message)"
         }
-        if let detail = detail {
+        if let detail {
             description += "\nDetail: \(detail)"
         }
         return description
