@@ -2,7 +2,6 @@
 .DS_Store
 .Trashes
 *.swp
-*.lock
 *~.nib
 DerivedData/
 build/
