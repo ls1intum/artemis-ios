@@ -15,11 +15,11 @@ public struct ProfileInfo: Decodable {
     public let registrationEnabled: Bool
     public let needsToAcceptTerms: Bool
     public let accountName: String
-    public let externalUserManagementURL: URL
-    public let externalUserManagementName: String
+    public let externalUserManagementURL: URL?
+    public let externalUserManagementName: String?
     public let versionControlUrl: URL
-    public let externalCredentialProvider: String
-    public let externalPasswordResetLinkMap: [String: String]
+    public let externalCredentialProvider: String?
+    public let externalPasswordResetLinkMap: [String: String]?
     public let useExternal: Bool
     public let buildPlanURLTemplate: String
     public let activeProfiles: [String]

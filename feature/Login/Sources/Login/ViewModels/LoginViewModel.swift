@@ -88,8 +88,12 @@ class LoginViewModel: ObservableObject {
         case .failure(let error):
             self.error = error
         case .done(let response):
-            externalUserManagementUrl = .done(response: response.externalUserManagementURL)
-            externalUserManagementName = .done(response: response.externalUserManagementName)
+            if let externalUserManagementURL = response.externalUserManagementURL {
+                self.externalUserManagementUrl = .done(response: externalUserManagementURL)
+            }
+            if let externalUserManagementName = response.externalUserManagementName {
+                self.externalUserManagementName = .done(response: externalUserManagementName)
+            }
         }
     }
 }
