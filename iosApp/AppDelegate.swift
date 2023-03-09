@@ -37,7 +37,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 extension AppDelegate: UNUserNotificationCenterDelegate {
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         UserSession.shared.saveApnsDeviceToken(token: String(deviceToken: deviceToken))
-        log.info(deviceToken)
+        log.info("Device Token: \(String(deviceToken: deviceToken))")
     }
 
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
