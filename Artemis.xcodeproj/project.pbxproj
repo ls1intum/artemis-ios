@@ -26,9 +26,9 @@
 		D59E86A129AB8F040012C378 /* SharedModels in Frameworks */ = {isa = PBXBuildFile; productRef = D59E86A029AB8F040012C378 /* SharedModels */; };
 		D59E86A429ACC6EB0012C378 /* CourseRegistration in Frameworks */ = {isa = PBXBuildFile; productRef = D59E86A329ACC6EB0012C378 /* CourseRegistration */; };
 		D5B8C106299E73F100835976 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B8C105299E73F100835976 /* AppDelegate.swift */; };
-		D5BA7B2B299EE35A0085CC6E /* Account in Frameworks */ = {isa = PBXBuildFile; productRef = D5BA7B2A299EE35A0085CC6E /* Account */; };
-		D5BA7B2D299EE35A0085CC6E /* ProfileInfo in Frameworks */ = {isa = PBXBuildFile; productRef = D5BA7B2C299EE35A0085CC6E /* ProfileInfo */; };
 		D5BA7B3429A2A3E90085CC6E /* PushNotifications in Frameworks */ = {isa = PBXBuildFile; productRef = D5BA7B3329A2A3E90085CC6E /* PushNotifications */; };
+		D5F1D7B029B9E6BA0010B875 /* Account in Frameworks */ = {isa = PBXBuildFile; productRef = D5F1D7AF29B9E6BA0010B875 /* Account */; };
+		D5F1D7B329B9E7020010B875 /* ProfileInfo in Frameworks */ = {isa = PBXBuildFile; productRef = D5F1D7B229B9E7020010B875 /* ProfileInfo */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -49,15 +49,15 @@
 		D515291329AD2DFB002CAD2F /* Navigation */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Navigation; path = core/Navigation; sourceTree = "<group>"; };
 		D51AD00C299E390700FA5B94 /* Artemis.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Artemis.entitlements; sourceTree = "<group>"; };
 		D52CEEAA29B8FA2D003C7B2E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D52CEEB129B9E5A1003C7B2E /* Account */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Account; path = feature/Account; sourceTree = "<group>"; };
 		D54B8BED296F741D00BB1AA3 /* APIClient */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = APIClient; path = core/APIClient; sourceTree = "<group>"; };
 		D54B8BF3297075C100BB1AA3 /* UserStore */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = UserStore; path = core/UserStore; sourceTree = "<group>"; };
 		D54B8BF6297082C400BB1AA3 /* RootViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewModel.swift; sourceTree = "<group>"; };
 		D59E869F29AB8DFB0012C378 /* SharedModels */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = SharedModels; path = core/SharedModels; sourceTree = "<group>"; };
 		D59E86A229ACB26C0012C378 /* Dashboard */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Dashboard; path = feature/Dashboard; sourceTree = "<group>"; };
 		D5B8C105299E73F100835976 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		D5B8C113299EE28000835976 /* Account */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Account; sourceTree = SOURCE_ROOT; };
-		D5B8C114299EE29600835976 /* ProfileInfo */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = ProfileInfo; sourceTree = SOURCE_ROOT; };
 		D5BA7B3229A2A3CA0085CC6E /* PushNotifications */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = PushNotifications; path = core/PushNotifications; sourceTree = "<group>"; };
+		D5F1D7B129B9E6F20010B875 /* ProfileInfo */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = ProfileInfo; path = feature/ProfileInfo; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -69,13 +69,13 @@
 				D54B8BF52970760900BB1AA3 /* UserStore in Frameworks */,
 				D59E86A429ACC6EB0012C378 /* CourseRegistration in Frameworks */,
 				22B6A930292D815A00F08C7E /* Login in Frameworks */,
+				D5F1D7B329B9E7020010B875 /* ProfileInfo in Frameworks */,
 				D515291529AD2E83002CAD2F /* Navigation in Frameworks */,
-				D5BA7B2D299EE35A0085CC6E /* ProfileInfo in Frameworks */,
 				D515291229AD1BE6002CAD2F /* DesignLibrary in Frameworks */,
 				22B6A924292D815A00F08C7E /* CourseView in Frameworks */,
 				D5BA7B3429A2A3E90085CC6E /* PushNotifications in Frameworks */,
-				D5BA7B2B299EE35A0085CC6E /* Account in Frameworks */,
 				D54B8BEF296F745B00BB1AA3 /* APIClient in Frameworks */,
+				D5F1D7B029B9E6BA0010B875 /* Account in Frameworks */,
 				22B6A92E292D815A00F08C7E /* ExerciseView in Frameworks */,
 				22B6A926292D815A00F08C7E /* Dashboard in Frameworks */,
 				D59E86A129AB8F040012C378 /* SharedModels in Frameworks */,
@@ -156,13 +156,13 @@
 		D5383C7529AB8B01007BAECB /* Features */ = {
 			isa = PBXGroup;
 			children = (
+				D5F1D7B129B9E6F20010B875 /* ProfileInfo */,
+				D52CEEB129B9E5A1003C7B2E /* Account */,
 				22B6A916292D417900F08C7E /* CourseView */,
 				22B6A919292D419800F08C7E /* Login */,
 				D59E86A229ACB26C0012C378 /* Dashboard */,
 				22B6A918292D418F00F08C7E /* ExerciseView */,
 				22B6A91A292D529400F08C7E /* CourseRegistration */,
-				D5B8C113299EE28000835976 /* Account */,
-				D5B8C114299EE29600835976 /* ProfileInfo */,
 			);
 			name = Features;
 			sourceTree = "<group>";
@@ -206,13 +206,13 @@
 				22B6A935292D8F3400F08C7E /* Common */,
 				D54B8BEE296F745B00BB1AA3 /* APIClient */,
 				D54B8BF42970760900BB1AA3 /* UserStore */,
-				D5BA7B2A299EE35A0085CC6E /* Account */,
-				D5BA7B2C299EE35A0085CC6E /* ProfileInfo */,
 				D5BA7B3329A2A3E90085CC6E /* PushNotifications */,
 				D59E86A029AB8F040012C378 /* SharedModels */,
 				D59E86A329ACC6EB0012C378 /* CourseRegistration */,
 				D515291129AD1BE6002CAD2F /* DesignLibrary */,
 				D515291429AD2E83002CAD2F /* Navigation */,
+				D5F1D7AF29B9E6BA0010B875 /* Account */,
+				D5F1D7B229B9E7020010B875 /* ProfileInfo */,
 			);
 			productName = iosApp;
 			productReference = 7555FF7B242A565900829871 /* Artemis.app */;
@@ -542,17 +542,17 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = CourseRegistration;
 		};
-		D5BA7B2A299EE35A0085CC6E /* Account */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = Account;
-		};
-		D5BA7B2C299EE35A0085CC6E /* ProfileInfo */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = ProfileInfo;
-		};
 		D5BA7B3329A2A3E90085CC6E /* PushNotifications */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = PushNotifications;
+		};
+		D5F1D7AF29B9E6BA0010B875 /* Account */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Account;
+		};
+		D5F1D7B229B9E7020010B875 /* ProfileInfo */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ProfileInfo;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
