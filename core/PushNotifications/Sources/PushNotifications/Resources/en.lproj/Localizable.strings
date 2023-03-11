@@ -1,0 +1,6 @@
+"push_notification_settings_receive_label" = "Receive push notifications on this device?";
+"push_notification_settings_receive_information" = "Push notifications are end-to-end encrypted. Additonal preferences can be activated or deactivated in your profile settings later.";
+
+// MARK: General
+"skip" = "Skip";
+"activate" = "Activate";

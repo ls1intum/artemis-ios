@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Common
 
 public class UserSession: ObservableObject {
 
@@ -16,8 +17,7 @@ public class UserSession: ObservableObject {
     @Published public private(set) var tokenExpired = false
 
     // Push Notifications
-    @Published public private(set) var apnsDeviceToken: String?
-    @Published public private(set) var notificationsEncryptionKey: String?
+    @Published private var notificationDeviceConfigurations: [NotificationDeviceConfiguration] = []
 
     // Institution Selection
     @Published public private(set) var institution: InstitutionIdentifier?
@@ -33,15 +33,21 @@ public class UserSession: ObservableObject {
     private func setupInstitutionSelection() {
         if let institutionData = KeychainHelper.shared.read(service: "institution", account: "Artemis") {
             institution = InstitutionIdentifier(value: String(data: institutionData, encoding: .utf8))
+        } else {
+            institution = .tum
+            saveInstitution(identifier: .tum)
         }
     }
 
     private func setupNotificationData() {
-        if let apnsDeviceTokenData = KeychainHelper.shared.read(service: "apnsDeviceToken", account: "Artemis") {
-            apnsDeviceToken = String(data: apnsDeviceTokenData, encoding: .utf8)
-        }
-        if let notificationsEncryptionKeyData = KeychainHelper.shared.read(service: "notificationsEncryptionKey", account: "Artemis") {
-            notificationsEncryptionKey = String(data: notificationsEncryptionKeyData, encoding: .utf8)
+        if let notificationDeviceConfigurationData = KeychainHelper.shared.read(service: "notificationDeviceConfigurations", account: "Artemis") {
+            let decoder = JSONDecoder()
+            do {
+                notificationDeviceConfigurations = try decoder.decode([NotificationDeviceConfiguration].self, from: notificationDeviceConfigurationData)
+            } catch {
+                log.error("Could not decrypt notificationDeviceConfigurations")
+                notificationDeviceConfigurations = []
+            }
         }
     }
 
@@ -91,26 +97,28 @@ public class UserSession: ObservableObject {
         }
     }
 
-    public func saveApnsDeviceToken(token: String?) {
-        self.apnsDeviceToken = token
+    public func saveNotificationDeviceConfiguration(token: String?, encryptionKey: String?, skippedNotifications: Bool) {
+        print("sven: " + (institution?.value ?? ""))
+        guard let institution else { return }
+        let notificationDeviceConfiguration = NotificationDeviceConfiguration(institutionIdentifier: institution,
+                                                                              skippedNotifications: skippedNotifications,
+                                                                              apnsDeviceToken: token,
+                                                                              notificationsEncryptionKey: encryptionKey)
 
-        if let token {
-            let tokenData = Data(token.description.utf8)
-            KeychainHelper.shared.save(tokenData, service: "apnsDeviceToken", account: "Artemis")
+        if let index = notificationDeviceConfigurations.firstIndex(where: { $0.institutionIdentifier == institution }) {
+            notificationDeviceConfigurations[index] = notificationDeviceConfiguration
         } else {
-            KeychainHelper.shared.delete(service: "apnsDeviceToken", account: "Artemis")
+            notificationDeviceConfigurations.append(notificationDeviceConfiguration)
+        }
+
+        let encoder = JSONEncoder()
+        if let encodedData = try? encoder.encode(notificationDeviceConfigurations) {
+            KeychainHelper.shared.save(encodedData, service: "notificationDeviceConfigurations", account: "Artemis")
         }
     }
 
-    public func saveNotificationsEncryptionKey(key: String?) {
-        self.notificationsEncryptionKey = key
-
-        if let key {
-            let keyData = Data(key.description.utf8)
-            KeychainHelper.shared.save(keyData, service: "notificationsEncryptionKey", account: "Artemis")
-        } else {
-            KeychainHelper.shared.delete(service: "notificationsEncryptionKey", account: "Artemis")
-        }
+    public func getCurrentNotificationDeviceConfiguration() -> NotificationDeviceConfiguration? {
+        notificationDeviceConfigurations.first(where: { $0.institutionIdentifier == institution })
     }
 
     public func saveInstitution(identifier: InstitutionIdentifier?) {
@@ -123,4 +131,11 @@ public class UserSession: ObservableObject {
             KeychainHelper.shared.delete(service: "institution", account: "Artemis")
         }
     }
+}
+
+public struct NotificationDeviceConfiguration: Codable {
+    var institutionIdentifier: InstitutionIdentifier
+    public var skippedNotifications: Bool
+    public var apnsDeviceToken: String?
+    public var notificationsEncryptionKey: String?
 }

@@ -21,27 +21,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     private func registerForPushNotifications() {
-        UNUserNotificationCenter.current().delegate = self
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
-            // 1. Check to see if permission is granted
-            guard granted else { return }
-            // 2. Attempt registration for remote notifications on the main thread
-            DispatchQueue.main.async {
-                UIApplication.shared.registerForRemoteNotifications()
-            }
-        }
+        UNUserNotificationCenter.current().delegate = self        
     }
 }
 
 // MARK: Extension for Push Notifications
 extension AppDelegate: UNUserNotificationCenterDelegate {
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        UserSession.shared.saveApnsDeviceToken(token: String(deviceToken: deviceToken))
+        Task {
+            await PushNotificationServiceFactory.shared.register(deviceToken: String(deviceToken: deviceToken))
+        }
         log.info("Device Token: \(String(deviceToken: deviceToken))")
     }
 
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-        UserSession.shared.saveApnsDeviceToken(token: nil)
+        UserSession.shared.saveNotificationDeviceConfiguration(token: nil, encryptionKey: nil, skippedNotifications: true)
         log.error("Did Fail To Register For Remote Notifications With Error: \(error)")
     }
 

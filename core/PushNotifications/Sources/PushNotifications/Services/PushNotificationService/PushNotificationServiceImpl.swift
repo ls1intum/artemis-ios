@@ -30,7 +30,7 @@ class PushNotificationServiceImpl: PushNotificationService {
     }
 
     func unregister() async -> NetworkResponse {
-        guard let deviceToken = UserSession.shared.apnsDeviceToken else { return .failure(error: APIClientError.wrongParameters)}
+        guard let deviceToken = UserSession.shared.getCurrentNotificationDeviceConfiguration()?.apnsDeviceToken else { return .failure(error: APIClientError.wrongParameters)}
         let result = await client.sendRequest(UnregisterRequest(token: deviceToken))
 
         switch result {
@@ -61,13 +61,12 @@ class PushNotificationServiceImpl: PushNotificationService {
         }
     }
 
-    func register() async -> NetworkResponse {
-        guard let deviceToken = UserSession.shared.apnsDeviceToken else { return .failure(error: APIClientError.wrongParameters)}
+    func register(deviceToken: String) async -> NetworkResponse {
         let result = await client.sendRequest(RegisterRequest(token: deviceToken))
 
         switch result {
         case .success(let response):
-            UserSession.shared.saveNotificationsEncryptionKey(key: response.0.secretKey)
+            UserSession.shared.saveNotificationDeviceConfiguration(token: deviceToken, encryptionKey: response.0.secretKey, skippedNotifications: false)
             return .success
         case .failure(let error):
             return .failure(error: error)

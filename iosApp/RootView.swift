@@ -4,6 +4,7 @@ import Dashboard
 import CourseRegistration
 import CourseView
 import Navigation
+import PushNotifications
 
 struct RootView: View {
 
@@ -16,8 +17,12 @@ struct RootView: View {
     var body: some View {
         Group {
             if viewModel.isLoggedIn {
-                NavigationStack(path: $navigationController.path) {
-                    CoursesOverviewView()
+                if viewModel.didSetupNotifications {
+                    NavigationStack(path: $navigationController.path) {
+                        CoursesOverviewView()
+                    }
+                } else {
+                    PushNotificationSetupView()
                 }
             } else {
                 LoginView()
