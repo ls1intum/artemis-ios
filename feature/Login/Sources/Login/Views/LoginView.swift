@@ -17,7 +17,7 @@ public struct LoginView: View {
                 .padding(.top, .xl)
 
             Text(R.string.localizable.login_please_sign_in_account(viewModel.instituiton.shortName))
-                .font(.title2)
+                .font(.customBody)
                 .multilineTextAlignment(.center)
                 .padding(.top, -.l)
 
@@ -59,7 +59,7 @@ public struct LoginView: View {
 
             Spacer()
 
-            VStack(spacing: .m) {
+            VStack(spacing: .l) {
                 if let url = viewModel.externalPasswordResetLink.value {
                     Button(R.string.localizable.login_forgot_password_label()) {
                         UIApplication.shared.open(url)
@@ -73,7 +73,7 @@ public struct LoginView: View {
                         InstitutionSelectionView(institution: $viewModel.instituiton,
                                                  handleProfileInfoCompletion: viewModel.handleProfileInfoReceived)
                     }
-            }
+            }.padding(.bottom, .m)
         }
             .padding(.horizontal, .l)
             .frame(maxWidth: .infinity)
@@ -94,10 +94,11 @@ public struct LoginView: View {
         VStack(spacing: .l) {
             Text(R.string.localizable.account_screen_title())
                 .font(.largeTitle)
+                .bold()
                 .multilineTextAlignment(.center)
 
             Text(R.string.localizable.account_screen_subtitle())
-                .font(.title2)
+                .font(.customBody)
                 .multilineTextAlignment(.center)
                 .padding(.bottom, .xl)
 

@@ -8,7 +8,7 @@
 "login_password_label" = "Password";
 "login_remember_me_label" = "Remember me";
 "login_perform_login_button_text" = "Sign in";
-"account_change_artemis_instance_label" = "Not your university?";
+"account_change_artemis_instance_label" = "Select university";
 "login_forgot_password_label" = "Did you forget your password?";
 "login_username_validation_tum_info_label" = "If you are a TUM student, your username should have the format ab12xyz. Do not include '@mytum.de' or '@tum.de'.";
 // captcha
