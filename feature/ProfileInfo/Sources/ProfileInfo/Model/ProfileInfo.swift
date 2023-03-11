@@ -14,6 +14,7 @@ public struct ProfileInfo: Decodable {
     public let features: [String]
     public let registrationEnabled: Bool
     public let needsToAcceptTerms: Bool
+    public let allowedLdapUsernamePattern: String?
     public let accountName: String
     public let externalUserManagementURL: URL?
     public let externalUserManagementName: String?

@@ -13,7 +13,6 @@ public class UserSession: ObservableObject {
     @Published public private(set) var isLoggedIn = false
     @Published public private(set) var username: String?
     @Published public private(set) var password: String?
-    @Published public private(set) var rememberMe = false
     @Published public private(set) var tokenExpired = false
 
     // Push Notifications
@@ -47,11 +46,7 @@ public class UserSession: ObservableObject {
     }
 
     private func setupLoginData() {
-        if let rememberData = KeychainHelper.shared.read(service: "shouldRemember", account: "Artemis") {
-            rememberMe = String(data: rememberData, encoding: .utf8) == "true"
-        }
-        if rememberMe,
-           let tokenData = KeychainHelper.shared.read(service: "isLoggedIn", account: "Artemis") {
+        if let tokenData = KeychainHelper.shared.read(service: "isLoggedIn", account: "Artemis") {
             isLoggedIn = String(data: tokenData, encoding: .utf8) == "true"
         }
 
@@ -68,13 +63,10 @@ public class UserSession: ObservableObject {
         tokenExpired = expired
     }
 
-    public func setUserLoggedIn(isLoggedIn: Bool, shouldRemember: Bool) {
+    public func setUserLoggedIn(isLoggedIn: Bool) {
         self.isLoggedIn = isLoggedIn
-        self.rememberMe = shouldRemember
         let isLoggedInData = Data(isLoggedIn.description.utf8)
-        let rememberData = Data(shouldRemember.description.utf8)
         KeychainHelper.shared.save(isLoggedInData, service: "isLoggedIn", account: "Artemis")
-        KeychainHelper.shared.save(rememberData, service: "shouldRemember", account: "Artemis")
     }
 
     public func saveUsername(username: String?) {

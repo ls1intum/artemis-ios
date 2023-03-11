@@ -2,11 +2,15 @@
 "account_screen_title" = "Welcome to Artemis!";
 "account_screen_subtitle" = "Interactive Learning with Individual Feedback";
 "login_please_sign_in_account" = "Please sign in with your %@ account.";
-"login_username_label" = "Login";
+"login_your_username_label" = "Your Username";
+"login_your_password_label" = "Your Password";
+"login_username_label" = "Username";
 "login_password_label" = "Password";
-"login_remember_me_label" = "Automatic login";
-"login_perform_login_button_text" = "Login";
+"login_remember_me_label" = "Remember me";
+"login_perform_login_button_text" = "Sign in";
 "account_change_artemis_instance_label" = "Not your university?";
+"login_forgot_password_label" = "Did you forget your password?";
+"login_username_validation_tum_info_label" = "If you are a TUM student, your username should have the format ab12xyz. Do not include '@mytum.de' or '@tum.de'.";
 // captcha
 "account_captcha_title" = "You have entered your password incorrectly too many times :-(";
 "account_captcha_message" = "Please go to [%@](%@), sign in with your account and solve the [CAPTCHA](%@). After you have solved it, try to log in again here.";

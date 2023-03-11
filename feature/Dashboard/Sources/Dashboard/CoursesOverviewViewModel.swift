@@ -19,8 +19,6 @@ import Common
     }
 
     func logout() {
-        // TODO: move to other view
-        //        accountService.logout()
-        UserSession.shared.setUserLoggedIn(isLoggedIn: false, shouldRemember: false)
+        UserSession.shared.setUserLoggedIn(isLoggedIn: false)
     }
 }

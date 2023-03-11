@@ -11,23 +11,42 @@ public struct LoginView: View {
     public init() { }
 
     public var body: some View {
-        VStack(spacing: .l) {
+        VStack(spacing: .xl) {
 
             header
+                .padding(.top, .xl)
 
             Text(R.string.localizable.login_please_sign_in_account(viewModel.instituiton.shortName))
                 .font(.title2)
                 .multilineTextAlignment(.center)
+                .padding(.top, -.l)
 
-            VStack(spacing: .m) {
-                TextField(R.string.localizable.login_username_label(), text: $viewModel.username)
-                    .textFieldStyle(ArtemisTextField())
-                SecureField(R.string.localizable.login_password_label(), text: $viewModel.password)
-                    .textFieldStyle(ArtemisTextField())
+            VStack(spacing: .l) {
+                VStack(alignment: .leading, spacing: .xxs) {
+                    Text(R.string.localizable.login_username_label())
+                    TextField(R.string.localizable.login_your_username_label(), text: $viewModel.username)
+                        .textContentType(.username)
+                        .textInputAutocapitalization(.never)
+                        .textFieldStyle(ArtemisTextField())
+                        .border(Color.Artemis.loginTextFieldBorderColor, width: 1)
+                    if viewModel.showUsernameWarning {
+                        Text(String(R.string.localizable.login_username_validation_tum_info_label()))
+                            .foregroundColor(Color.Artemis.infoLabel)
+                            .font(.callout)
+                    }
+                }
+                VStack(alignment: .leading, spacing: .xxs) {
+                    Text(R.string.localizable.login_password_label)
+                    SecureField(R.string.localizable.login_your_password_label(), text: $viewModel.password)
+                        .textContentType(.password)
+                        .textInputAutocapitalization(.never)
+                        .textFieldStyle(ArtemisTextField())
+                        .border(Color.Artemis.loginTextFieldBorderColor, width: 1)
+                }
                 Toggle(R.string.localizable.login_remember_me_label(), isOn: $viewModel.rememberMe)
                     .toggleStyle(.switch)
                     .tint(Color.Artemis.toggleColor)
-            }
+            }.frame(maxWidth: 520)
 
             Button(R.string.localizable.login_perform_login_button_text()) {
                 viewModel.isLoading = true
@@ -40,14 +59,24 @@ public struct LoginView: View {
 
             Spacer()
 
-            Button(R.string.localizable.account_change_artemis_instance_label()) {
-                showInstituionSelection = true
-            }
-                .sheet(isPresented: $showInstituionSelection) {
-                    InstitutionSelectionView(institution: $viewModel.instituiton)
+            VStack(spacing: .m) {
+                if let url = viewModel.externalPasswordResetLink.value {
+                    Button(R.string.localizable.login_forgot_password_label()) {
+                        UIApplication.shared.open(url)
+                    }
                 }
+
+                Button(R.string.localizable.account_change_artemis_instance_label()) {
+                    showInstituionSelection = true
+                }
+                    .sheet(isPresented: $showInstituionSelection) {
+                        InstitutionSelectionView(institution: $viewModel.instituiton,
+                                                 handleProfileInfoCompletion: viewModel.handleProfileInfoReceived)
+                    }
+            }
         }
             .padding(.horizontal, .l)
+            .frame(maxWidth: .infinity)
             .loadingIndicator(isLoading: $viewModel.isLoading)
             .background(Color.Artemis.loginBackgroundColor)
             .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
@@ -56,15 +85,13 @@ public struct LoginView: View {
                       dismissButton: .default(Text(R.string.localizable.ok()),
                                               action: { viewModel.resetLoginExpired() }))
             }
+            .task {
+                await viewModel.getProfileInfo()
+            }
     }
 
     var header: some View {
         VStack(spacing: .l) {
-
-            InstitutionLogo(institution: viewModel.instituiton)
-                .frame(width: .extraLargeImage)
-                .padding(.vertical, .xxl)
-
             Text(R.string.localizable.account_screen_title())
                 .font(.largeTitle)
                 .multilineTextAlignment(.center)

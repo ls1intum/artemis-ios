@@ -96,6 +96,7 @@ public extension Color {
         // Text
         public static let primaryLabel = UIColor.label.suColor
         public static let secondaryLabel = UIColor(UIColor.ColorPalette.Gray80, darkModeColor: UIColor.ColorPalette.Gray20).suColor
+        public static let infoLabel = UIColor(UIColor.ColorPalette.ArtemisBlue, darkModeColor: UIColor.ColorPalette.ArtemisBlue).suColor
 
         // Button
         public static let primaryButtonColor = UIColor.ColorPalette.ArtemisBlue.suColor
@@ -114,7 +115,8 @@ public extension Color {
         public static let cardBackgroundColor = UIColor(UIColor.ColorPalette.ArtemisLightBlue, darkModeColor: UIColor.ColorPalette.Gray80).suColor
 
         // Login
-        public static let loginBackgroundColor = UIColor(UIColor.ColorPalette.ArtemisLightBlue, darkModeColor: UIColor.ColorPalette.Gray80).suColor
+        public static let loginBackgroundColor = UIColor(UIColor.ColorPalette.White, darkModeColor: UIColor.ColorPalette.Gray80).suColor
+        public static let loginTextFieldBorderColor = UIColor(UIColor.ColorPalette.Gray20, darkModeColor: UIColor.ColorPalette.Gray80).suColor
     }
 }
 

@@ -4,10 +4,15 @@ import Common
 import UserStore
 import Combine
 import ProfileInfo
+import SharedModels
 
 @MainActor
 class LoginViewModel: ObservableObject {
-    @Published var username: String = ""
+    @Published var username: String = "" {
+        didSet {
+            usernameValidation()
+        }
+    }
     @Published var password: String = ""
     @Published var rememberMe = true
 
@@ -24,6 +29,9 @@ class LoginViewModel: ObservableObject {
 
     @Published var externalUserManagementUrl: DataState<URL> = .loading
     @Published var externalUserManagementName: DataState<String> = .loading
+    @Published var externalPasswordResetLink: DataState<URL> = .loading
+    @Published var usernamePattern: String?
+    @Published var showUsernameWarning = false
 
     @Published var instituiton: InstitutionIdentifier = .tum
 
@@ -34,7 +42,6 @@ class LoginViewModel: ObservableObject {
             DispatchQueue.main.async { [weak self] in
                 self?.username = UserSession.shared.username ?? ""
                 self?.password = UserSession.shared.password ?? ""
-                self?.rememberMe = UserSession.shared.rememberMe
                 self?.loginExpired = UserSession.shared.tokenExpired
                 self?.instituiton = UserSession.shared.institution ?? .tum
             }
@@ -42,7 +49,6 @@ class LoginViewModel: ObservableObject {
 
         username = UserSession.shared.username ?? ""
         password = UserSession.shared.password ?? ""
-        rememberMe = UserSession.shared.rememberMe
         loginExpired = UserSession.shared.tokenExpired
         instituiton = UserSession.shared.institution ?? .tum
     }
@@ -88,12 +94,42 @@ class LoginViewModel: ObservableObject {
         case .failure(let error):
             self.error = error
         case .done(let response):
-            if let externalUserManagementURL = response.externalUserManagementURL {
-                self.externalUserManagementUrl = .done(response: externalUserManagementURL)
-            }
-            if let externalUserManagementName = response.externalUserManagementName {
-                self.externalUserManagementName = .done(response: externalUserManagementName)
-            }
+            handleProfileInfoReceived(profileInfo: response)
+        }
+    }
+
+    func handleProfileInfoReceived(profileInfo: ProfileInfo?) {
+        if let externalUserManagementURL = profileInfo?.externalUserManagementURL {
+            self.externalUserManagementUrl = .done(response: externalUserManagementURL)
+        } else {
+            self.externalUserManagementUrl = .loading
+        }
+        if let externalUserManagementName = profileInfo?.externalUserManagementName {
+            self.externalUserManagementName = .done(response: externalUserManagementName)
+        } else {
+            self.externalUserManagementUrl = .loading
+        }
+        if let allowedLdapUsernamePattern = profileInfo?.allowedLdapUsernamePattern,
+           profileInfo?.accountName == "TUM" {
+            self.usernamePattern = allowedLdapUsernamePattern
+        } else {
+            self.usernamePattern = nil
+        }
+        if let externalPasswordResetLinkMap = profileInfo?.externalPasswordResetLinkMap,
+           let url = URL(string: externalPasswordResetLinkMap[Language.currentLanguage.rawValue] ?? "") {
+            self.externalPasswordResetLink = .done(response: url)
+        } else {
+            self.externalPasswordResetLink = .loading
+        }
+        showUsernameWarning = false
+        usernameValidation()
+    }
+
+    private func usernameValidation() {
+        if username.count > 6,
+           let usernamePattern,
+           username.range(of: usernamePattern, options: .regularExpression) == nil {
+            showUsernameWarning = true
         }
     }
 }
