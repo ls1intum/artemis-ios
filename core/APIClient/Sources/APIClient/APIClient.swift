@@ -114,6 +114,11 @@ public final class APIClient {
 
             // logout
             if response.statusCode == 401 {
+                let decoder = JSONDecoder()
+                if let error = try? decoder.decode(UserFacingError.self, from: data),
+                   error.detail == "Bad credentials" {
+                    return .failure(.jhipsterError(error: error))
+                }
                 perfomLogout()
                 UserSession.shared.setTokenExpired(expired: true)
             }
@@ -183,7 +188,7 @@ public final class APIClient {
             Task {
                 await URLSession.shared.reset()
             }
-            UserSession.shared.setUserLoggedIn(isLoggedIn: false, shouldRemember: false)
+            UserSession.shared.setUserLoggedIn(isLoggedIn: false)
             UserSession.shared.savePassword(password: nil)
         }
     }

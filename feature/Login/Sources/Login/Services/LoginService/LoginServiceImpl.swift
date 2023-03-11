@@ -39,7 +39,7 @@ class LoginServiceImpl: LoginService {
 
         switch result {
         case .success:
-            UserSession.shared.setUserLoggedIn(isLoggedIn: true, shouldRemember: rememberMe)
+            UserSession.shared.setUserLoggedIn(isLoggedIn: true)
             if rememberMe {
                 UserSession.shared.saveUsername(username: username)
                 UserSession.shared.savePassword(password: password)

@@ -14,6 +14,8 @@ struct InstitutionSelectionView: View {
 
     @Binding var institution: InstitutionIdentifier
 
+    var handleProfileInfoCompletion: @MainActor (ProfileInfo?) -> Void
+
     var body: some View {
         List {
             Text(R.string.localizable.account_select_artemis_instance_select_text())
@@ -21,9 +23,13 @@ struct InstitutionSelectionView: View {
             ForEach(InstitutionIdentifier.allCases) { institutionIdentifier in
                 Group {
                     if case .custom = institutionIdentifier {
-                        CustomInstanceCell(currentInstitution: $institution, institution: institutionIdentifier)
+                        CustomInstanceCell(currentInstitution: $institution,
+                                           institution: institutionIdentifier,
+                                           handleProfileInfoCompletion: handleProfileInfoCompletion)
                     } else {
-                        InstanceCell(currentInstitution: $institution, institution: institutionIdentifier)
+                        InstanceCell(currentInstitution: $institution,
+                                     institution: institutionIdentifier,
+                                     handleProfileInfoCompletion: handleProfileInfoCompletion)
                     }
                 }
                 .listRowSeparator(.hidden)
@@ -43,6 +49,8 @@ private struct CustomInstanceCell: View {
     @State private var isLoading = false
 
     var institution: InstitutionIdentifier
+
+    var handleProfileInfoCompletion: @MainActor (ProfileInfo?) -> Void
 
     var body: some View {
         VStack {
@@ -79,7 +87,8 @@ private struct CustomInstanceCell: View {
                     case .failure:
                         showErrorAlert = true
                         UserSession.shared.saveInstitution(identifier: .tum)
-                    case .done:
+                    case .done(let response):
+                        handleProfileInfoCompletion(response)
                         dismiss()
                     }
                 }
@@ -109,7 +118,12 @@ private struct InstanceCell: View {
 
     @Binding var currentInstitution: InstitutionIdentifier
 
+    @State private var showErrorAlert = false
+    @State private var isLoading = false
+
     var institution: InstitutionIdentifier
+
+    var handleProfileInfoCompletion: @MainActor (ProfileInfo?) -> Void
 
     var body: some View {
         HStack {
@@ -126,9 +140,24 @@ private struct InstanceCell: View {
         .frame(maxWidth: .infinity)
         .padding(.l)
         .cardModifier()
+        .loadingIndicator(isLoading: $isLoading)
+        .alert(R.string.localizable.account_select_artemis_instance_error(), isPresented: $showErrorAlert, actions: { })
         .onTapGesture {
             UserSession.shared.saveInstitution(identifier: institution)
-            dismiss()
+            Task {
+                let result = await ProfileInfoServiceFactory.shared.getProfileInfo()
+                isLoading = false
+                switch result {
+                case .loading:
+                    isLoading = true
+                case .failure:
+                    showErrorAlert = true
+                    UserSession.shared.saveInstitution(identifier: .tum)
+                case .done(let response):
+                    handleProfileInfoCompletion(response)
+                    dismiss()
+                }
+            }
         }
     }
 }
