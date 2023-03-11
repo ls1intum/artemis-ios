@@ -12,6 +12,8 @@ public struct PushNotificationSetupView: View {
 
     @StateObject private var viewModel = PushNotificationSetupViewModel()
 
+    @State private var isLoading = false
+
     public init() { }
 
     public var body: some View {
@@ -22,6 +24,7 @@ public struct PushNotificationSetupView: View {
                 .font(.caption)
                 .padding(.l)
             Button("Register") {
+                isLoading = true
                 Task {
                     await viewModel.register()
                 }
@@ -31,6 +34,6 @@ public struct PushNotificationSetupView: View {
                 viewModel.skip()
             }
                 .buttonStyle(ArtemisButton(priority: .secondary))
-        }
+        }.loadingIndicator(isLoading: $isLoading)
     }
 }

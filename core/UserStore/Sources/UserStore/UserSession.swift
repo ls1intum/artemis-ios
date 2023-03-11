@@ -98,7 +98,6 @@ public class UserSession: ObservableObject {
     }
 
     public func saveNotificationDeviceConfiguration(token: String?, encryptionKey: String?, skippedNotifications: Bool) {
-        print("sven: " + (institution?.value ?? ""))
         guard let institution else { return }
         let notificationDeviceConfiguration = NotificationDeviceConfiguration(institutionIdentifier: institution,
                                                                               skippedNotifications: skippedNotifications,
@@ -130,6 +129,15 @@ public class UserSession: ObservableObject {
         } else {
             KeychainHelper.shared.delete(service: "institution", account: "Artemis")
         }
+    }
+
+    // only used for debugging
+    public func wipeKeychain() {
+        KeychainHelper.shared.delete(service: "username", account: "Artemis")
+        KeychainHelper.shared.delete(service: "isLoggedIn", account: "Artemis")
+        KeychainHelper.shared.delete(service: "password", account: "Artemis")
+        KeychainHelper.shared.delete(service: "institution", account: "Artemis")
+        KeychainHelper.shared.delete(service: "notificationDeviceConfigurations", account: "Artemis")
     }
 }
 

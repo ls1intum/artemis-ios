@@ -5,6 +5,7 @@ import CourseRegistration
 import DesignLibrary
 import Navigation
 import CourseView
+import Account
 
 /**
  * Display the course overview with the course list.
@@ -37,15 +38,13 @@ public struct CoursesOverviewView: View {
             CourseView(course: course)
         }
         .navigationTitle(Text("course_overview_title"))
+        .accountMenu(error: $viewModel.error)
+        .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
         .toolbar {
             ToolbarItemGroup(placement: .navigationBarTrailing) {
                 Button(action: { showCourseRegistrationSheet = true }, label: {
                     Label("course_overview_register_button_text", systemImage: "pencil")
                 })
-
-                Button("Logout") {
-                    viewModel.logout()
-                }
             }
         }
         .sheet(isPresented: $showCourseRegistrationSheet) {

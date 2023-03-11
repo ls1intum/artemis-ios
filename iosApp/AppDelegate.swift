@@ -21,7 +21,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     private func registerForPushNotifications() {
-        UNUserNotificationCenter.current().delegate = self        
+        UNUserNotificationCenter.current().delegate = self
     }
 }
 

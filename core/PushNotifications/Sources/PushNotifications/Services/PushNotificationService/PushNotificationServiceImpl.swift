@@ -30,6 +30,7 @@ class PushNotificationServiceImpl: PushNotificationService {
     }
 
     func unregister() async -> NetworkResponse {
+        // TODO: deviceToken is nil
         guard let deviceToken = UserSession.shared.getCurrentNotificationDeviceConfiguration()?.apnsDeviceToken else { return .failure(error: APIClientError.wrongParameters)}
         let result = await client.sendRequest(UnregisterRequest(token: deviceToken))
 
