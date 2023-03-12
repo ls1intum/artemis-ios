@@ -12,19 +12,21 @@ public struct PushNotificationSetupView: View {
 
     @StateObject private var viewModel = PushNotificationSetupViewModel()
 
-    @State private var isLoading = false
-
     public init() { }
 
     public var body: some View {
-        VStack(spacing: .m) {
+        VStack(spacing: .l) {
+            Image("notifications", bundle: .module)
+                .resizable()
+                .scaledToFit()
+                .frame(width: UIScreen.main.bounds.size.width * 0.8)
             Text(R.string.localizable.push_notification_settings_receive_label())
                 .bold()
             Text(R.string.localizable.push_notification_settings_receive_information())
                 .font(.caption)
                 .padding(.l)
             Button("Register") {
-                isLoading = true
+                viewModel.isLoading = true
                 Task {
                     await viewModel.register()
                 }
@@ -34,6 +36,9 @@ public struct PushNotificationSetupView: View {
                 viewModel.skip()
             }
                 .buttonStyle(ArtemisButton(priority: .secondary))
-        }.loadingIndicator(isLoading: $isLoading)
+        }
+            .loadingIndicator(isLoading: $viewModel.isLoading)
+            .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
+            .padding(.l)
     }
 }

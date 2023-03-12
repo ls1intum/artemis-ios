@@ -110,10 +110,10 @@ public struct LoginView: View {
                 }
                 .padding(.horizontal, .l)
                 .frame(minHeight: geometry.size.height)
+                .frame(maxWidth: .infinity)
             }
             .scrollDisabled(!viewModel.captchaRequired && focusedField != .password)
         }
-            .frame(maxWidth: .infinity)
             .loadingIndicator(isLoading: $viewModel.isLoading)
             .background(Color.Artemis.loginBackgroundColor)
             .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})

@@ -78,6 +78,7 @@ class PushNotificationServiceImpl: PushNotificationService {
             UserSession.shared.saveNotificationDeviceConfiguration(token: deviceToken, encryptionKey: response.0.secretKey, skippedNotifications: false)
             return .success
         case .failure(let error):
+            UserSession.shared.notificationSetupError = UserFacingError(error: error)
             return .failure(error: error)
         }
     }

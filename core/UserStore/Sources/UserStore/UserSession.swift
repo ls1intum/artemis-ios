@@ -18,6 +18,7 @@ public class UserSession: ObservableObject {
 
     // Push Notifications
     @Published private var notificationDeviceConfigurations: [NotificationDeviceConfiguration] = []
+    @Published public var notificationSetupError: UserFacingError?
 
     // Institution Selection
     @Published public private(set) var institution: InstitutionIdentifier?
