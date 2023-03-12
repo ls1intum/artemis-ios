@@ -98,13 +98,15 @@ public class UserSession: ObservableObject {
     }
 
     public func saveNotificationDeviceConfiguration(token: String?, encryptionKey: String?, skippedNotifications: Bool) {
-        guard let institution else { return }
+        guard let institution,
+              let username else { return }
         let notificationDeviceConfiguration = NotificationDeviceConfiguration(institutionIdentifier: institution,
+                                                                              username: username,
                                                                               skippedNotifications: skippedNotifications,
                                                                               apnsDeviceToken: token,
                                                                               notificationsEncryptionKey: encryptionKey)
 
-        if let index = notificationDeviceConfigurations.firstIndex(where: { $0.institutionIdentifier == institution }) {
+        if let index = notificationDeviceConfigurations.firstIndex(where: { $0.institutionIdentifier == institution && $0.username == username }) {
             notificationDeviceConfigurations[index] = notificationDeviceConfiguration
         } else {
             notificationDeviceConfigurations.append(notificationDeviceConfiguration)
@@ -117,7 +119,7 @@ public class UserSession: ObservableObject {
     }
 
     public func getCurrentNotificationDeviceConfiguration() -> NotificationDeviceConfiguration? {
-        notificationDeviceConfigurations.first(where: { $0.institutionIdentifier == institution })
+        notificationDeviceConfigurations.first(where: { $0.institutionIdentifier == institution && $0.username == username })
     }
 
     public func saveInstitution(identifier: InstitutionIdentifier?) {
@@ -143,6 +145,7 @@ public class UserSession: ObservableObject {
 
 public struct NotificationDeviceConfiguration: Codable {
     var institutionIdentifier: InstitutionIdentifier
+    var username: String
     public var skippedNotifications: Bool
     public var apnsDeviceToken: String?
     public var notificationsEncryptionKey: String?

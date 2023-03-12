@@ -9,6 +9,7 @@ import Foundation
 import APIClient
 import UserStore
 import Common
+import PushNotifications
 
 class LoginServiceImpl: LoginService {
     private let client = APIClient()
@@ -35,7 +36,7 @@ class LoginServiceImpl: LoginService {
             UserSession.shared.savePassword(password: nil)
         }
 
-        let result = await client.sendRequest(LoginUser(username: username, password: password, rememberMe: rememberMe))
+        let result = await client.sendRequest(LoginUser(username: username, password: password, rememberMe: rememberMe), currentTry: 3)
 
         switch result {
         case .success:
@@ -43,6 +44,12 @@ class LoginServiceImpl: LoginService {
             if rememberMe {
                 UserSession.shared.saveUsername(username: username)
                 UserSession.shared.savePassword(password: password)
+            }
+
+            if let notificationConfig = UserSession.shared.getCurrentNotificationDeviceConfiguration(),
+               let deviceToken = notificationConfig.apnsDeviceToken,
+               !notificationConfig.skippedNotifications {
+                return await PushNotificationServiceFactory.shared.register(deviceToken: deviceToken)
             }
             return .success
         case .failure(let error):
