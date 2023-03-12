@@ -13,7 +13,7 @@ public protocol PushNotificationService {
     /**
      * Register Device to receive Push Notifications
      */
-    func register() async -> NetworkResponse
+    func register(deviceToken: String) async -> NetworkResponse
 
     /**
      * Unregister Device to receive Push Notifications
@@ -21,7 +21,7 @@ public protocol PushNotificationService {
     func unregister() async -> NetworkResponse
 }
 
-enum PushNotificationServiceFactory {
+public enum PushNotificationServiceFactory {
 
-    static let shared: PushNotificationService = PushNotificationServiceImpl()
+    public static let shared: PushNotificationService = PushNotificationServiceImpl()
 }

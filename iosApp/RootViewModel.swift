@@ -14,6 +14,7 @@ import SwiftUI
 class RootViewModel: ObservableObject {
 
     @Published var isLoggedIn = false
+    @Published var didSetupNotifications = false
 
     private var cancellables: Set<AnyCancellable> = Set()
 
@@ -21,9 +22,11 @@ class RootViewModel: ObservableObject {
         UserSession.shared.objectWillChange.sink {
             DispatchQueue.main.async { [weak self] in
                 self?.isLoggedIn = UserSession.shared.isLoggedIn
+                self?.didSetupNotifications = UserSession.shared.getCurrentNotificationDeviceConfiguration() != nil
             }
         }.store(in: &cancellables)
 
         isLoggedIn = UserSession.shared.isLoggedIn
+        didSetupNotifications = UserSession.shared.getCurrentNotificationDeviceConfiguration() != nil
     }
 }

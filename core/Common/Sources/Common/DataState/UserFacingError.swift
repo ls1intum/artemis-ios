@@ -37,3 +37,5 @@ extension UserFacingError: LocalizedError {
         return description
     }
 }
+
+extension UserFacingError: Equatable { }

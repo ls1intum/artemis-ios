@@ -104,3 +104,5 @@ public enum InstitutionIdentifier: CaseIterable, Identifiable {
 }
 
 extension InstitutionIdentifier: Equatable { }
+
+extension InstitutionIdentifier: Codable { }

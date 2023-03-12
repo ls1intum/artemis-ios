@@ -7,9 +7,12 @@
 
 import SwiftUI
 import DesignLibrary
+import Common
 
 struct AccountNavigationBarMenuView: View {
     @StateObject private var viewModel = AccountNavigationBarMenuViewModel()
+
+    @Binding var error: UserFacingError?
 
     var body: some View {
         Menu(content: {
@@ -30,22 +33,29 @@ struct AccountNavigationBarMenuView: View {
             }
         })
         .padding(.horizontal, 16)
+        .loadingIndicator(isLoading: $viewModel.isLoading)
+        .onChange(of: viewModel.error) { error in
+            self.error = error
+        }
     }
 }
 
 struct AccountMenu: ViewModifier {
+
+    @Binding var error: UserFacingError?
+
     func body(content: Content) -> some View {
         content
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    AccountNavigationBarMenuView()
+                    AccountNavigationBarMenuView(error: $error)
                 }
             }
     }
 }
 
 public extension View {
-    func accountMenu() -> some View {
-        modifier(AccountMenu())
+    func accountMenu(error: Binding<UserFacingError?>) -> some View {
+        modifier(AccountMenu(error: error))
     }
 }
