@@ -9,6 +9,7 @@ import Foundation
 
 public class PushNotificationResponseHandler {
 
+    // TODO: implement for other types
     public static func getTarget(userInfo: [AnyHashable: Any]) -> String? {
         guard let targetString = userInfo[PushNotificationUserInfoKeys.target] as? String,
               let typeString = userInfo[PushNotificationUserInfoKeys.type] as? String else {

@@ -28,7 +28,6 @@ public enum TabIdentifier {
     case exercise, lecture, communication
 }
 
-
 public struct CoursePath: Hashable {
     public let id: Int
     public let course: Course?
