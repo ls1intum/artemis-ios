@@ -57,7 +57,8 @@ public struct LoginView: View {
                         Toggle(R.string.localizable.login_remember_me_label(), isOn: $viewModel.rememberMe)
                             .toggleStyle(.switch)
                             .tint(Color.Artemis.toggleColor)
-                    }.frame(maxWidth: 520)
+                    }
+                        .frame(maxWidth: 520)
                         .onSubmit {
                             if focusedField == .username {
                                 focusedField = .password
@@ -66,6 +67,15 @@ public struct LoginView: View {
                                 viewModel.isLoading = true
                                 Task {
                                     await viewModel.login()
+                                }
+                            }
+                        }
+                        .toolbar {
+                            ToolbarItemGroup(placement: .keyboard) {
+                                Spacer()
+
+                                Button("Done") {
+                                    focusedField = nil
                                 }
                             }
                         }
@@ -97,7 +107,6 @@ public struct LoginView: View {
                         }
                     }
                         .padding(.bottom, .m)
-                        .padding(.bottom, focusedField == .password ? .xxxl : 0)
                 }
                 .padding(.horizontal, .l)
                 .frame(minHeight: geometry.size.height)
