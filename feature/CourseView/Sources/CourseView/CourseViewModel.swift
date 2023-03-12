@@ -8,9 +8,9 @@ class CourseViewModel: ObservableObject {
 
     @Published var course: DataState<Course> = DataState.loading
 
-    init(course: Course) {
+    init(courseId: Int) {
         Task {
-            await loadCourse(course)
+            await loadCourse(id: courseId)
         }
 
         //        /*
@@ -128,8 +128,8 @@ class CourseViewModel: ObservableObject {
         //                .assign(to: &$exercisesGroupedByWeek)
     }
 
-    func loadCourse(_ course: Course) async {
-        self.course = await CourseServiceFactory.shared.getCourse(courseId: course.id) // TODO: why optional
+    func loadCourse(id: Int) async {
+        self.course = await CourseServiceFactory.shared.getCourse(courseId: id)
     }
 }
 

@@ -1,19 +1,20 @@
 import SwiftUI
 import Common
 import SharedModels
+import Navigation
 
 public struct CourseView: View {
 
     @StateObject var viewModel: CourseViewModel
 
-    @State private var tabSelection: TabIdentifier = .exercise
+    @EnvironmentObject private var navigationController: NavigationController
 
-    public init(course: Course) {
-        self._viewModel = StateObject(wrappedValue: CourseViewModel(course: course))
+    public init(courseId: Int) {
+        self._viewModel = StateObject(wrappedValue: CourseViewModel(courseId: courseId))
     }
 
     public var body: some View {
-        TabView(selection: $tabSelection) {
+        TabView(selection: $navigationController.courseTab) {
             Text("Exercises TODO")
                 .tabItem {
                     Label("Exercises", systemImage: "list.bullet.clipboard.fill")
@@ -33,8 +34,4 @@ public struct CourseView: View {
                 .tag(TabIdentifier.communication)
         }.navigationTitle(viewModel.course.value?.title ?? "Loading...")
     }
-}
-
-private enum TabIdentifier {
-    case exercise, lecture, communication
 }

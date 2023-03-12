@@ -48,15 +48,14 @@ public class PushNotificationHandler {
         let content = UNMutableNotificationContent()
         content.title = notification.title
         content.body = notification.body
-        //        content.sound = .default()
-        //        content.categoryIdentifier = type.rawValue
-        //        content.userInfo = userInfos
-
-        //        guard let imgUrl = avatarResource,
-        //              let attachment = await createNotificationAttachmentFromImage(withName: imgUrl.absoluteString, url: imgUrl, applyCircleMask: true) else {
-        //            return content
-        //        }
-        //        content.attachments = [attachment]
+//        content.categoryIdentifier = type.rawValue
+        content.userInfo = [PushNotificationUserInfoKeys.target: notification.target,
+                            PushNotificationUserInfoKeys.type: notification.type.rawValue]
         return content
     }
+}
+
+class PushNotificationUserInfoKeys {
+    static var target = "target"
+    static var type = "type"
 }

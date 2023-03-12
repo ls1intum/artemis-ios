@@ -11,6 +11,7 @@ import UIKit
 import UserNotifications
 import UserStore
 import PushNotifications
+import Navigation
 import Common
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -61,6 +62,21 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
                                 willPresent notification: UNNotification,
                                 withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         completionHandler([.banner, .badge, .sound])
+    }
+
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                didReceive response: UNNotificationResponse,
+                                withCompletionHandler completionHandler: @escaping () -> Void) {
+        let userInfo = response.notification.request.content.userInfo
+        guard let targetURL = PushNotificationResponseHandler.getTarget(userInfo: userInfo) else {
+            log.error("Could not handle click on push notification!")
+            completionHandler()
+            return
+        }
+
+        DeeplinkHandler.shared.handle(path: targetURL)
+        // TODO: maybe add as param above
+        completionHandler()
     }
 }
 

@@ -34,8 +34,8 @@ public struct CoursesOverviewView: View {
                 }
             }
         }
-        .navigationDestination(for: Course.self) { course in
-            CourseView(course: course)
+        .navigationDestination(for: CoursePath.self) { coursePath in
+            CourseView(courseId: coursePath.id)
         }
         .navigationTitle(Text("course_overview_title"))
         .accountMenu(error: $viewModel.error)
@@ -99,7 +99,7 @@ private struct CourseListCell: View {
         }
         .cardModifier()
         .onTapGesture {
-            navigationController.path.append(course)
+            navigationController.path.append(CoursePath(id: course.id, course: course))
         }
     }
 }
