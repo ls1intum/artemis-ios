@@ -74,7 +74,7 @@ public struct LoginView: View {
                             ToolbarItemGroup(placement: .keyboard) {
                                 Spacer()
 
-                                Button("Done") {
+                                Button(R.string.localizable.done()) {
                                     focusedField = nil
                                 }
                             }
