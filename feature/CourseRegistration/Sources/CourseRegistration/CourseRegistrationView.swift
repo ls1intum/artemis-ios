@@ -17,11 +17,12 @@ public struct CourseRegistrationView: View {
                         Section(semesterCourse.semester) {
                             ForEach(semesterCourse.courses) { course in
                                 CourseRegistrationListCell(viewModel: viewModel, course: course)
-                            }
+                            }.listRowSeparator(.hidden)
                         }
                     }
                 }
             }
+            .listStyle(PlainListStyle())
             .refreshable {
                 await viewModel.loadCourses()
             }
@@ -39,17 +40,20 @@ private struct CourseRegistrationListCell: View {
     let course: Course
 
     var body: some View {
-        VStack {
-            HStack {
-                VStack {
-                    Text(course.title ?? "TODO")
-                        .font(.title)
-                    Text(course.description ?? "TODO")
-                }
+        VStack(spacing: .m) {
+            VStack(alignment: .leading) {
+                Text(course.title ?? "TODO")
+                    .font(.title2)
+                Text(course.description ?? "TODO")
+                    .font(.caption)
             }
             Button("Sign Up") {
                 showSignUpAlert = true
-            }
+            }.buttonStyle(ArtemisButton())
+        }
+            .padding(.m)
+            .frame(maxWidth: .infinity)
+            .cardModifier()
             .alert("course_registration_sign_up_dialog_message", isPresented: $showSignUpAlert, actions: {
                 Button("Sign Up Now") {
                     Task {
@@ -60,13 +64,5 @@ private struct CourseRegistrationListCell: View {
                     showSignUpAlert = false
                 }
             })
-        }
-        .padding(8)
-        .overlay(
-            RoundedRectangle(cornerRadius: 25)
-                .stroke(lineWidth: 1)
-                .foregroundColor(.white)
-                .shadow(color: .gray, radius: 2, x: 0, y: 2)
-        )
     }
 }

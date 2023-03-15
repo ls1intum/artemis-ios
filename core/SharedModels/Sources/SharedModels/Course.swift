@@ -39,6 +39,27 @@ public struct Course: Decodable, Identifiable {
         }
         return UIColor(hexString: color).suColor
     }
+
+    /// Returns all exercises which have no due date or a due date in the future
+    public var upcomingExercises: [Exercise] {
+        return (exercises ?? [])
+            .filter { exercise in
+                guard let dueDate = exercise.baseExercise.dueDate else {
+                    return true
+                }
+                return dueDate > Date.now
+            }
+            .sorted(by: { exerciseA, exerciseB in
+                if let dueDateA = exerciseA.baseExercise.dueDate,
+                   let dueDateB = exerciseB.baseExercise.dueDate {
+                    return dueDateA < dueDateB
+                } else if exerciseA.baseExercise.dueDate != nil {
+                    return true
+                } else {
+                    return false
+                }
+            })
+    }
 }
 
 extension Course: Hashable {

@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 public protocol BaseExercise: Decodable {
     associatedtype SelfType: BaseExercise
@@ -61,6 +62,26 @@ public enum Exercise: Decodable, Identifiable {
 
     public var id: Int {
         baseExercise.id ?? -1 // TODO: why optional
+    }
+
+    // TODO: adjust image
+    public var image: Image {
+        switch self {
+//        case .fileUpload(let exercise):
+//            return Image(systemName: "")
+//        case .modeling(let exercise):
+//            <#code#>
+//        case .programming(let exercise):
+//            <#code#>
+//        case .quiz(let exercise):
+//            <#code#>
+//        case .text(let exercise):
+//            <#code#>
+//        case .unknown(let exercise):
+//            <#code#>
+        default:
+            return Image(systemName: "doc.text.fill")
+        }
     }
 
     public init(from decoder: Decoder) throws {

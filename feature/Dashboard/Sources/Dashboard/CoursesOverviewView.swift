@@ -73,6 +73,15 @@ private struct CourseListCell: View {
 
     let course: Course
 
+    var nextExercise: Exercise? {
+        // TODO: change -> different result than web
+        // filters out every already successful (100%) exercise, only exercises left that still need work
+        let exercisesWithOpenTasks = course.upcomingExercises.filter { exercise in
+            return !(exercise.baseExercise.studentParticipations?.first?.baseParticipation.submissions?.first?.baseSubmission.results?.first?.successful ?? true)
+        }
+        return exercisesWithOpenTasks.first
+    }
+
     var body: some View {
         HStack {
             Spacer()
@@ -118,9 +127,19 @@ private struct CourseListCell: View {
                     Spacer()
                 }.padding(.vertical, .m)
                 HStack {
-                    // TODO: show next planned exercise
-                    Text(R.string.localizable.dashboard_no_exercise_planned_label())
-                        .padding(.l)
+                    if let nextExercise {
+                        HStack {
+                            Text("Next Exercise:")
+                                .padding(.trailing, .m)
+                            nextExercise.image
+                            Text(nextExercise.baseExercise.title ?? "Unknown")
+                                .bold()
+                                .lineLimit(1)
+                        }.padding(.l)
+                    } else {
+                        Text(R.string.localizable.dashboard_no_exercise_planned_label())
+                            .padding(.l)
+                    }
                     Spacer()
                 }
                     .frame(maxWidth: .infinity)
