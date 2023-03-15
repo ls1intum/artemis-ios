@@ -74,43 +74,63 @@ private struct CourseListCell: View {
     let course: Course
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            HStack(alignment: .top) {
-                AsyncImage(url: course.courseIconURL) { phase in
-                    switch phase {
-                    case .empty:
-                        ProgressView()
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .scaledToFit()
-                    case .failure:
-                        Image("questionmark.square.dashed")
-                    @unknown default:
-                        EmptyView()
+        HStack {
+            Spacer()
+            VStack(alignment: .leading, spacing: 0) {
+                HStack(alignment: .center) {
+                    AsyncImage(url: course.courseIconURL) { phase in
+                        switch phase {
+                        case .empty:
+                            ProgressView()
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .scaledToFit()
+                        case .failure:
+                            Image("questionmark.square.dashed")
+                        @unknown default:
+                            EmptyView()
+                        }
                     }
+                        .frame(width: .extraLargeImage, height: .extraLargeImage)
+                        .clipShape(Circle())
+                        .padding(.m)
+                    VStack(alignment: .leading) {
+                        Text(course.title ?? "TODO")
+                            .font(.custom("SF Pro", size: 22, relativeTo: .title))
+                        Text("Exercises: \(course.exercises?.count ?? 0)")
+                        Text("Lectures: \(course.lectures?.count ?? 0)")
+                    }
+                        .foregroundColor(.white)
+                        .padding(.m)
+                    Spacer()
                 }
-                .frame(width: .extraLargeImage, height: .extraLargeImage)
-                VStack(alignment: .leading) {
-                    Text(course.title ?? "TODO")
-                        .font(.custom("SF Pro", size: 22, relativeTo: .title))
-                    Text("Exercises: \(course.exercises?.count ?? 0)")
-                    Text("Lectures: \(course.lectures?.count ?? 0)")
+                    .frame(maxWidth: .infinity)
+                    .background(course.courseColor)
+                HStack {
+                    Spacer()
+                    ProgressBar(value: 40,
+                                total: 100,
+                                color: course.courseColor)
+                        .frame(height: 120)
+                        .padding(.vertical, .l)
+                    Spacer()
+                }.padding(.vertical, .m)
+                HStack {
+                    Text("No exercise planned")
+                        .padding(.l)
+                    Spacer()
                 }
-                .padding(.m)
+                    .frame(maxWidth: .infinity)
+                    .background(Color.Artemis.dashboardCardBackgroundColor)
+                    .foregroundColor(Color.Artemis.secondaryLabel)
             }
-            Divider()
-            HStack {
-                ProgressView(value: 40, total: 100)
-                    .progressViewStyle(LinearProgressViewStyle())
-                    .tint(course.courseColor)
-                    .padding(.trailing)
-                Text("\(40)/\(100)P (\(40)%)")
-            }.padding(.m)
-        }
-        .cardModifier()
-        .onTapGesture {
-            navigationController.path.append(CoursePath(id: course.id, course: course))
+                .cardModifier(backgroundColor: .clear, hasBorder: true)
+                .onTapGesture {
+                    navigationController.path.append(CoursePath(id: course.id, course: course))
+                }
+                .frame(maxWidth: 720)
+            Spacer()
         }
     }
 }

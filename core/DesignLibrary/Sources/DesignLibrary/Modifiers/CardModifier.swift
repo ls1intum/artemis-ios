@@ -8,15 +8,25 @@
 import SwiftUI
 
 struct CardModifier: ViewModifier {
+
+    var backgroundColor: Color
+    var hasBorder: Bool
+
     func body(content: Content) -> some View {
         content
-            .background(Color.Artemis.cardBackgroundColor)
+            .background(backgroundColor)
             .cornerRadius(16)
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color.Artemis.cardBorderColor, lineWidth: hasBorder ? 1 : 0)
+            )
     }
 }
 
 public extension View {
-    func cardModifier() -> some View {
-        modifier(CardModifier())
+    func cardModifier(backgroundColor: Color = Color.Artemis.cardBackgroundColor,
+                      hasBorder: Bool = false) -> some View {
+        modifier(CardModifier(backgroundColor: backgroundColor,
+                              hasBorder: hasBorder))
     }
 }
