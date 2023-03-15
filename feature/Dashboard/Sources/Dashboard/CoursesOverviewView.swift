@@ -15,6 +15,7 @@ public struct CoursesOverviewView: View {
     @StateObject private var viewModel = CoursesOverviewViewModel()
 
     @State private var showCourseRegistrationSheet = false
+    @State private var showNotificationSheet = false
 
     public init() { }
 
@@ -23,8 +24,14 @@ public struct CoursesOverviewView: View {
             DataStateView(data: $viewModel.courses,
                           retryHandler: { await viewModel.loadCourses() }) { courses in
                 List {
-                    ForEach(courses) { course in
-                        CourseListCell(course: course)
+                    Group {
+                        ForEach(courses) { course in
+                            CourseListCell(course: course)
+                        }
+                        Button("Register for a course") {
+                            showCourseRegistrationSheet = true
+                        }
+                            .buttonStyle(ArtemisButton())
                     }
                     .listRowSeparator(.hidden)
                 }
@@ -41,14 +48,17 @@ public struct CoursesOverviewView: View {
         .accountMenu(error: $viewModel.error)
         .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
         .toolbar {
-            ToolbarItemGroup(placement: .navigationBarTrailing) {
-                Button(action: { showCourseRegistrationSheet = true }, label: {
-                    Label("course_overview_register_button_text", systemImage: "pencil")
+            ToolbarItemGroup(placement: .navigationBarLeading) {
+                Button(action: { showNotificationSheet = true }, label: {
+                    Label("Notifications", systemImage: "bell.fill")
                 })
             }
         }
         .sheet(isPresented: $showCourseRegistrationSheet) {
             CourseRegistrationView()
+        }
+        .sheet(isPresented: $showNotificationSheet) {
+            Text("Notification TODO")
         }
         .navigationBarBackButtonHidden()
         .task {
@@ -93,6 +103,7 @@ private struct CourseListCell: View {
             HStack {
                 ProgressView(value: 40, total: 100)
                     .progressViewStyle(LinearProgressViewStyle())
+                    .tint(course.courseColor)
                     .padding(.trailing)
                 Text("\(40)/\(100)P (\(40)%)")
             }.padding(.m)

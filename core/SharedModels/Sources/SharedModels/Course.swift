@@ -1,6 +1,8 @@
 import Foundation
 import Common
 import UserStore
+import DesignLibrary
+import SwiftUI
 
 /**
  * Representation of a single course.
@@ -10,6 +12,7 @@ public struct Course: Decodable, Identifiable {
     public var title: String? = ""
     public var description: String? = ""
     public var courseIcon: String?
+    public var color: String?
     public var semester: String? = ""
     public var registrationConfirmationMessage: String? = ""
     public var exercises: [Exercise]?
@@ -28,6 +31,13 @@ public struct Course: Decodable, Identifiable {
     public var courseIconURL: URL? {
         guard let courseIcon else { return nil }
         return URL(string: courseIcon, relativeTo: UserSession.shared.institution?.baseURL)
+    }
+
+    public var courseColor: Color {
+        guard let color else {
+            return Color.Artemis.artemisBlue
+        }
+        return UIColor(hexString: color).suColor
     }
 }
 

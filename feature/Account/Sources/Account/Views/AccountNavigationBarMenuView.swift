@@ -23,17 +23,14 @@ struct AccountNavigationBarMenuView: View {
                 viewModel.logout()
             }
         }, label: {
-            HStack(spacing: 4) {
+            HStack(alignment: .center, spacing: .s) {
                 Image(systemName: "person.fill")
-                DataStateView(data: $viewModel.account, retryHandler: viewModel.getAccount) { account in
-                    Text(account.login)
-                }
+                Text(viewModel.account.value?.login ?? "xx12xxx")
+                    .redacted(reason: viewModel.isLoading ? .placeholder : [])
                 Image(systemName: "arrowtriangle.down.fill")
-                    .scaleEffect(0.3)
+                    .scaleEffect(0.5)
             }
         })
-        .padding(.horizontal, 16)
-        .loadingIndicator(isLoading: $viewModel.isLoading)
         .onChange(of: viewModel.error) { error in
             self.error = error
         }
