@@ -5,6 +5,9 @@
 	<key>aps-environment</key>
 	<string>development</string>
 	<key>com.apple.developer.associated-domains</key>
-	<array/>
+	<array>
+		<string>applinks:artemis.ase.in.tum.de</string>
+		<string>applinks:*.artemis.ase.in.tum.de</string>
+	</array>
 </dict>
 </plist>
