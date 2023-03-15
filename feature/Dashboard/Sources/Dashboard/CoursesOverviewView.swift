@@ -28,7 +28,7 @@ public struct CoursesOverviewView: View {
                         ForEach(courses) { course in
                             CourseListCell(course: course)
                         }
-                        Button("Register for a course") {
+                        Button(R.string.localizable.dasboard_register_for_course()) {
                             showCourseRegistrationSheet = true
                         }
                             .buttonStyle(ArtemisButton())
@@ -44,13 +44,13 @@ public struct CoursesOverviewView: View {
         .navigationDestination(for: CoursePath.self) { coursePath in
             CourseView(courseId: coursePath.id)
         }
-        .navigationTitle(Text("course_overview_title"))
+        .navigationTitle(Text(R.string.localizable.dashboard_title()))
         .accountMenu(error: $viewModel.error)
         .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
         .toolbar {
             ToolbarItemGroup(placement: .navigationBarLeading) {
                 Button(action: { showNotificationSheet = true }, label: {
-                    Label("Notifications", systemImage: "bell.fill")
+                    Label(R.string.localizable.dashboard_notifications_label(), systemImage: "bell.fill")
                 })
             }
         }
@@ -97,9 +97,10 @@ private struct CourseListCell: View {
                         .padding(.m)
                     VStack(alignment: .leading) {
                         Text(course.title ?? "TODO")
-                            .font(.custom("SF Pro", size: 22, relativeTo: .title))
-                        Text("Exercises: \(course.exercises?.count ?? 0)")
-                        Text("Lectures: \(course.lectures?.count ?? 0)")
+                            .font(.custom("SF Pro", size: 21, relativeTo: .title))
+                            .lineLimit(2)
+                        Text(R.string.localizable.dashboard_exercises_label(course.exercises?.count ?? 0))
+                        Text(R.string.localizable.dashboard_lectures_label(course.lectures?.count ?? 0))
                     }
                         .foregroundColor(.white)
                         .padding(.m)
@@ -117,7 +118,8 @@ private struct CourseListCell: View {
                     Spacer()
                 }.padding(.vertical, .m)
                 HStack {
-                    Text("No exercise planned")
+                    // TODO: show next planned exercise
+                    Text(R.string.localizable.dashboard_no_exercise_planned_label())
                         .padding(.l)
                     Spacer()
                 }
