@@ -35,7 +35,9 @@ class CourseRegistrationViewModel: ObservableObject {
 
     func signUpForCourse(_ course: Course) async {
 
-        let result = await CourseRegistrationServiceFactory.shared.registerInCourse(courseId: course.id) // TODO: wraping
+        // TODO: result of this call is wrong
+        // TODO: add loading indicator
+        let result = await CourseRegistrationServiceFactory.shared.registerInCourse(courseId: course.id)
 
         switch result {
         case .loading:
@@ -47,6 +49,7 @@ class CourseRegistrationViewModel: ObservableObject {
                                         .map { semester, courses in
                                             SemesterCourses(semester: semester, courses: courses)
                                         })
+            // TODO: navigate back to dashboard
         }
     }
 }

@@ -31,6 +31,7 @@ public struct CourseRegistrationView: View {
     }
 }
 
+// TODO: adjust strings
 private struct CourseRegistrationListCell: View {
 
     @ObservedObject var viewModel: CourseRegistrationViewModel
