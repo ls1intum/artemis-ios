@@ -74,10 +74,9 @@ private struct CourseListCell: View {
     let course: Course
 
     var nextExercise: Exercise? {
-        // TODO: change -> different result than web
         // filters out every already successful (100%) exercise, only exercises left that still need work
         let exercisesWithOpenTasks = course.upcomingExercises.filter { exercise in
-            return !(exercise.baseExercise.studentParticipations?.first?.baseParticipation.submissions?.first?.baseSubmission.results?.first?.successful ?? true)
+            return !(exercise.baseExercise.studentParticipations?.first?.baseParticipation.submissions?.first?.baseSubmission.results?.first?.successful ?? false)
         }
         return exercisesWithOpenTasks.first
     }

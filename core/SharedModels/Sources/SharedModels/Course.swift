@@ -53,10 +53,10 @@ public struct Course: Decodable, Identifiable {
                 if let dueDateA = exerciseA.baseExercise.dueDate,
                    let dueDateB = exerciseB.baseExercise.dueDate {
                     return dueDateA < dueDateB
-                } else if exerciseA.baseExercise.dueDate != nil {
-                    return true
-                } else {
+                } else if exerciseA.baseExercise.dueDate == nil {
                     return false
+                } else {
+                    return true
                 }
             })
     }
