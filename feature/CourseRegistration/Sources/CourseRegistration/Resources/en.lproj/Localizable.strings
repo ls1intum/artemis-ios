@@ -1,6 +1,7 @@
 "course_registration_title" = "Register for a course";
 "course_registration_register_button" = "Register";
 "course_registration_sign_up_dialog_message" = "Are you sure you want to register?";
+"course_registration_no_course_available" = "There is no course available for registration!";
 
 // MARK: General
 "unknown" = "Unknown";

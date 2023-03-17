@@ -6,6 +6,8 @@ public struct CourseRegistrationView: View {
 
     @StateObject var viewModel: CourseRegistrationViewModel
 
+    @Environment(\.dismiss) var dismiss
+
     public init(successCompletion: @escaping () -> Void) {
         _viewModel = StateObject(wrappedValue: CourseRegistrationViewModel(successCompletion: successCompletion))
     }
@@ -15,14 +17,17 @@ public struct CourseRegistrationView: View {
             List {
                 DataStateView(data: $viewModel.registrableCourses,
                               retryHandler: { await viewModel.loadCourses() }) { registrableCourses in
+                    if registrableCourses.isEmpty {
+                        Text(R.string.localizable.course_registration_no_course_available())
+                    }
                     ForEach(registrableCourses) { semesterCourse in
                         Section(semesterCourse.semester) {
                             ForEach(semesterCourse.courses) { course in
                                 CourseRegistrationListCell(viewModel: viewModel, course: course)
-                            }.listRowSeparator(.hidden)
+                            }
                         }
                     }
-                }
+                }.listRowSeparator(.hidden)
             }
             .listStyle(PlainListStyle())
             .refreshable {
@@ -34,6 +39,13 @@ public struct CourseRegistrationView: View {
             .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
             .loadingIndicator(isLoading: $viewModel.isLoading)
             .navigationTitle(R.string.localizable.course_registration_title())
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(R.string.localizable.cancel()) {
+                        dismiss()
+                    }
+                }
+            }
         }
     }
 }

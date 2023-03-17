@@ -26,7 +26,7 @@ struct AccountNavigationBarMenuView: View {
             HStack(alignment: .center, spacing: .s) {
                 Image(systemName: "person.fill")
                 Text(viewModel.account.value?.login ?? "xx12xxx")
-                    .redacted(reason: viewModel.isLoading ? .placeholder : [])
+                    .redacted(reason: viewModel.account.value == nil ? .placeholder : [])
                 Image(systemName: "arrowtriangle.down.fill")
                     .scaleEffect(0.5)
             }

@@ -110,7 +110,7 @@ private struct CourseListCell: View {
                         .clipShape(Circle())
                         .padding(.m)
                     VStack(alignment: .leading) {
-                        Text(course.title ?? "TODO")
+                        Text(course.title ?? R.string.localizable.unknown())
                             .font(.custom("SF Pro", size: 21, relativeTo: .title))
                             .lineLimit(2)
                         Text(R.string.localizable.dashboard_exercises_label(course.exercises?.count ?? 0))
@@ -134,10 +134,10 @@ private struct CourseListCell: View {
                 HStack {
                     if let nextExercise {
                         HStack {
-                            Text("Next Exercise:")
+                            Text(R.string.localizable.dashboard_next_exercise_label())
                                 .padding(.trailing, .m)
                             nextExercise.image
-                            Text(nextExercise.baseExercise.title ?? "Unknown")
+                            Text(nextExercise.baseExercise.title ?? R.string.localizable.unknown())
                                 .bold()
                                 .lineLimit(1)
                         }.padding(.l)
