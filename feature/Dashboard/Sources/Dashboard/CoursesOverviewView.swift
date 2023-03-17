@@ -61,7 +61,7 @@ public struct CoursesOverviewView: View {
                     await viewModel.loadCourses()
                 }
             })
-        }       
+        }
         .navigationBarBackButtonHidden()
         .task {
             await viewModel.loadCourses()

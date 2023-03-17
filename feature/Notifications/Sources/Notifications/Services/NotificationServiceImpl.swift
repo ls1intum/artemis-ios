@@ -38,6 +38,4 @@ class NotificationServiceImpl: NotificationService {
             return .failure(error: UserFacingError(error: error))
         }
     }
-
-    
 }
