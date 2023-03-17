@@ -6,6 +6,7 @@ import DesignLibrary
 import Navigation
 import CourseView
 import Account
+import Notifications
 
 /**
  * Display the course overview with the course list.
@@ -64,7 +65,7 @@ public struct CoursesOverviewView: View {
             })
         }
         .sheet(isPresented: $showNotificationSheet) {
-            Text("Notification TODO")
+            NotificationView()
         }
         .navigationBarBackButtonHidden()
         .task {

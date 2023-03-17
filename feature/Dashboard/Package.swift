@@ -31,7 +31,15 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "Dashboard",
-            dependencies: ["APIClient", "SharedModels", "CourseRegistration", "DesignLibrary", "Navigation", "Notifications", "CourseView", "Account", .product(name: "RswiftLibrary", package: "R.swift")],
+            dependencies: ["APIClient",
+                           "SharedModels",
+                           "CourseRegistration",
+                           "DesignLibrary",
+                           "Navigation",
+                           "Notifications",
+                           "CourseView",
+                           "Account",
+                           .product(name: "RswiftLibrary", package: "R.swift")],
             plugins: [.plugin(name: "RswiftGeneratePublicResources", package: "R.swift")]
         ),
         .testTarget(
