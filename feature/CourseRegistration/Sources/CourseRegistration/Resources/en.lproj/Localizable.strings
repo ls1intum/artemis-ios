@@ -1,8 +1,8 @@
-"course_registration_title" = "Register for a course"
-"course_registration_register_button" = "Register"
+"course_registration_title" = "Register for a course";
+"course_registration_register_button" = "Register";
 "course_registration_sign_up_dialog_message" = "Are you sure you want to register?";
 
 // MARK: General
-"unknown" = "Unknown"
-"confirm" = "Confirm"
-"cancel" = "Cancel"
+"unknown" = "Unknown";
+"confirm" = "Confirm";
+"cancel" = "Cancel";

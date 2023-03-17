@@ -12,7 +12,7 @@ public protocol CourseRegistrationService {
      */
     func fetchRegistrableCourses() async -> DataState<[Course]>
 
-    func registerInCourse(courseId: Int) async -> DataState<[Course]>
+    func registerInCourse(courseId: Int) async -> DataState<User>
 }
 
 enum CourseRegistrationServiceFactory {

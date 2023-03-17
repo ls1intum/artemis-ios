@@ -4,9 +4,11 @@ import DesignLibrary
 
 public struct CourseRegistrationView: View {
 
-    @StateObject var viewModel = CourseRegistrationViewModel()
+    @StateObject var viewModel: CourseRegistrationViewModel
 
-    public init() { }
+    public init(successCompletion: @escaping () -> Void) {
+        _viewModel = StateObject(wrappedValue: CourseRegistrationViewModel(successCompletion: successCompletion))
+    }
 
     public var body: some View {
         NavigationView {
@@ -26,12 +28,16 @@ public struct CourseRegistrationView: View {
             .refreshable {
                 await viewModel.loadCourses()
             }
-            .navigationTitle("course_registration_title")
+            .task {
+                await viewModel.loadCourses()
+            }
+            .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
+            .loadingIndicator(isLoading: $viewModel.isLoading)
+            .navigationTitle(R.string.localizable.course_registration_title())
         }
     }
 }
 
-// TODO: adjust strings
 private struct CourseRegistrationListCell: View {
 
     @ObservedObject var viewModel: CourseRegistrationViewModel
@@ -43,25 +49,26 @@ private struct CourseRegistrationListCell: View {
     var body: some View {
         VStack(spacing: .m) {
             VStack(alignment: .leading) {
-                Text(course.title ?? "TODO")
+                Text(course.title ?? R.string.localizable.unknown())
                     .font(.title2)
-                Text(course.description ?? "TODO")
+                Text(course.description ?? R.string.localizable.unknown())
                     .font(.caption)
             }
-            Button("Sign Up") {
+            Button(R.string.localizable.course_registration_register_button()) {
                 showSignUpAlert = true
             }.buttonStyle(ArtemisButton())
         }
             .padding(.m)
             .frame(maxWidth: .infinity)
             .cardModifier()
-            .alert("course_registration_sign_up_dialog_message", isPresented: $showSignUpAlert, actions: {
-                Button("Sign Up Now") {
+            .alert(R.string.localizable.course_registration_sign_up_dialog_message(), isPresented: $showSignUpAlert, actions: {
+                Button(R.string.localizable.confirm()) {
+                    viewModel.isLoading = true
                     Task {
                         await viewModel.signUpForCourse(course)
                     }
                 }
-                Button("Cancel", role: .cancel) {
+                Button(R.string.localizable.cancel(), role: .cancel) {
                     showSignUpAlert = false
                 }
             })

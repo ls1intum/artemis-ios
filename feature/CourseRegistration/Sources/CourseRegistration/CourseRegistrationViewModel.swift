@@ -7,11 +7,19 @@ import Common
 class CourseRegistrationViewModel: ObservableObject {
 
     @Published var registrableCourses: DataState<[SemesterCourses]> = .loading
+    @Published var isLoading = false
 
-    init() {
-        Task {
-            await loadCourses()
+    @Published var error: UserFacingError? {
+        didSet {
+            showError = error != nil
         }
+    }
+    @Published var showError = false
+
+    var successCompletion: () -> Void
+
+    init(successCompletion: @escaping () -> Void) {
+        self.successCompletion = successCompletion
     }
 
     func reloadRegistrableCourses() async {
@@ -34,22 +42,17 @@ class CourseRegistrationViewModel: ObservableObject {
     }
 
     func signUpForCourse(_ course: Course) async {
-
-        // TODO: result of this call is wrong
-        // TODO: add loading indicator
         let result = await CourseRegistrationServiceFactory.shared.registerInCourse(courseId: course.id)
+        isLoading = false
 
         switch result {
         case .loading:
             registrableCourses = .loading
         case .failure(let error):
             registrableCourses = .failure(error: error)
-        case .done(let response):
-            registrableCourses = .done(response: Dictionary(grouping: response, by: { $0.semester ?? "" })
-                                        .map { semester, courses in
-                                            SemesterCourses(semester: semester, courses: courses)
-                                        })
-            // TODO: navigate back to dashboard
+            self.error = error
+        case .done:
+            successCompletion()
         }
     }
 }

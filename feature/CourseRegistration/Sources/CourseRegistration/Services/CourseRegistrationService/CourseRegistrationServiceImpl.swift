@@ -31,7 +31,7 @@ class CourseRegistrationServiceImpl: CourseRegistrationService {
     }
 
     struct RegisterCourseRequest: APIRequest {
-        typealias Response = [Course]
+        typealias Response = User
 
         var courseId: Int
 
@@ -44,7 +44,7 @@ class CourseRegistrationServiceImpl: CourseRegistrationService {
         }
     }
 
-    func registerInCourse(courseId: Int) async -> DataState<[Course]> {
+    func registerInCourse(courseId: Int) async -> DataState<User> {
         let result = await client.sendRequest(RegisterCourseRequest(courseId: courseId))
 
         switch result {

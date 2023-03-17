@@ -55,7 +55,13 @@ public struct CoursesOverviewView: View {
             }
         }
         .sheet(isPresented: $showCourseRegistrationSheet) {
-            CourseRegistrationView()
+            CourseRegistrationView(successCompletion: {
+                showCourseRegistrationSheet = false
+                viewModel.courses = .loading
+                Task {
+                    await viewModel.loadCourses()
+                }
+            })
         }
         .sheet(isPresented: $showNotificationSheet) {
             Text("Notification TODO")
