@@ -7,6 +7,7 @@
 
 import Foundation
 import Common
+import UserNotifications
 
 @MainActor
 class NotificationViewModel: ObservableObject {
@@ -23,11 +24,18 @@ class NotificationViewModel: ObservableObject {
 
     init() {
         lastNotificationSeenDate = UserDefaults.standard.object(forKey: "lastNotificationSeenDate") as? Date
+
         Task {
             await loadNotifications()
         }
+
+        // add observer to reload once new notification is received
+        NotificationCenter.default.addObserver(self, selector: #selector(loadNotifications),
+                                               name: UserNotifications.Notification.Name("receivedNewNotification"),
+                                               object: nil)
     }
 
+    @objc
     func loadNotifications() async {
         notifications = await NotificationServiceFactory.shared.loadNotifications(page: 0, size: 25)
 
