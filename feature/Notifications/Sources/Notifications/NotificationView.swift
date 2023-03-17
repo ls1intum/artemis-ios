@@ -10,9 +10,7 @@ import DesignLibrary
 
 struct NotificationView: View {
 
-    @StateObject private var viewModel = NotificationViewModel()
-
-    @Binding var badgeCount: Int
+    @ObservedObject var viewModel: NotificationViewModel
 
     var body: some View {
         NavigationView {
@@ -33,9 +31,6 @@ struct NotificationView: View {
                     await viewModel.loadNotifications()
                 }
                 .navigationTitle("TODO")
-                .onChange(of: viewModel.newNotificationCount) {
-                    badgeCount = $0
-                }
                 .onAppear {
                     viewModel.lastNotificationSeenDate = .now
                 }
@@ -68,7 +63,8 @@ struct NotificationCell: View {
 
 struct NotificationBell: ViewModifier {
 
-    @State private var badgeCount = 0
+    @StateObject private var viewModel = NotificationViewModel()
+
     @State private var showNotificationSheet = false
 
     func body(content: Content) -> some View {
@@ -78,11 +74,12 @@ struct NotificationBell: ViewModifier {
                     Button(action: { showNotificationSheet = true }, label: {
                         //                    Label(R.string.localizable.dashboard_notifications_label(), systemImage: "bell.fill")
                         Label("TODO", systemImage: "bell.fill")
-                    }).badge(badgeCount)
+                            .overlay(Badge(count: viewModel.newNotificationCount))
+                    })
                 }
             }
             .sheet(isPresented: $showNotificationSheet) {
-                NotificationView(badgeCount: $badgeCount)
+                NotificationView(viewModel: viewModel)
             }
     }
 }
@@ -90,5 +87,28 @@ struct NotificationBell: ViewModifier {
 public extension View {
     func notificationToolBar() -> some View {
         modifier(NotificationBell())
+    }
+}
+
+struct Badge: View {
+    let count: Int
+
+    var body: some View {
+        // swiftlint:disable:next empty_count
+        if count > 0 {
+            ZStack(alignment: .topTrailing) {
+                Color.clear
+                Text(String(count))
+                    .font(.system(size: 16))
+                    .foregroundColor(.white)
+                    .padding(.s)
+                    .background(Color.red)
+                    .clipShape(Circle())
+                    .alignmentGuide(.top) { $0[.bottom] }
+                    .alignmentGuide(.trailing) { $0[.trailing] - $0.width * 0.25 }
+            }
+        } else {
+            EmptyView()
+        }
     }
 }

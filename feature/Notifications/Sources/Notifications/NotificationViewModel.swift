@@ -38,6 +38,5 @@ class NotificationViewModel: ObservableObject {
         } else {
             newNotificationCount = notifications.value?.count ?? 0
         }
-
     }
 }
