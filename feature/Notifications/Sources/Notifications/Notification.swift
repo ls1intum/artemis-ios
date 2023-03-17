@@ -1,4 +1,5 @@
 import Foundation
+import SharedModels
 
 struct Notification: Codable {
     var id: Int
@@ -6,6 +7,7 @@ struct Notification: Codable {
     let text: String?
     let notificationDate: Date
     let target: String
+    let author: User?
 }
 
 extension Notification: Identifiable { }

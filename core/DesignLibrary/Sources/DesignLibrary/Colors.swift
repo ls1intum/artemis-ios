@@ -113,6 +113,7 @@ public extension Color {
 
         // Card Colors
         public static let cardBackgroundColor = UIColor(UIColor.ColorPalette.ArtemisLightBlue, darkModeColor: UIColor.ColorPalette.Gray80).suColor
+        public static let modalCardBackgroundColor = UIColor(UIColor.ColorPalette.Gray10, darkModeColor: UIColor.ColorPalette.Gray80).suColor
         public static let dashboardCardBackgroundColor = UIColor(UIColor.ColorPalette.Gray10, darkModeColor: UIColor.ColorPalette.Gray90).suColor
         public static let cardBorderColor = UIColor(UIColor.ColorPalette.Gray20, darkModeColor: UIColor.ColorPalette.Gray80).suColor
 

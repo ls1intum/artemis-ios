@@ -8,13 +8,13 @@
 import SwiftUI
 import DesignLibrary
 
-public struct NotificationView: View {
+struct NotificationView: View {
 
     @StateObject private var viewModel = NotificationViewModel()
 
-    public init() { }
+    @Binding var badgeCount: Int
 
-    public var body: some View {
+    var body: some View {
         NavigationView {
             List {
                 DataStateView(data: $viewModel.notifications,
@@ -32,10 +32,13 @@ public struct NotificationView: View {
                 .refreshable {
                     await viewModel.loadNotifications()
                 }
-                .task {
-                    await viewModel.loadNotifications()
-                }
                 .navigationTitle("TODO")
+                .onChange(of: viewModel.newNotificationCount) {
+                    badgeCount = $0
+                }
+                .onAppear {
+                    viewModel.lastNotificationSeenDate = .now
+                }
         }
     }
 }
@@ -45,12 +48,47 @@ struct NotificationCell: View {
     let notification: Notification
 
     var body: some View {
-        VStack {
+        VStack(alignment: .leading, spacing: .m) {
             Text(notification.title)
                 .font(.title2)
             if let text = notification.text {
                 Text(text)
             }
+            HStack {
+                Spacer()
+                Text("\(notification.notificationDate.shortDateAndTime) by \(notification.author?.name ?? "Artemis")")
+                    .multilineTextAlignment(.trailing)
+                    .foregroundColor(Color.Artemis.secondaryLabel)
+            }
         }
+            .padding(.l)
+            .cardModifier(backgroundColor: Color.Artemis.modalCardBackgroundColor)
+    }
+}
+
+struct NotificationBell: ViewModifier {
+
+    @State private var badgeCount = 0
+    @State private var showNotificationSheet = false
+
+    func body(content: Content) -> some View {
+        content
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: { showNotificationSheet = true }, label: {
+                        //                    Label(R.string.localizable.dashboard_notifications_label(), systemImage: "bell.fill")
+                        Label("TODO", systemImage: "bell.fill")
+                    }).badge(badgeCount)
+                }
+            }
+            .sheet(isPresented: $showNotificationSheet) {
+                NotificationView(badgeCount: $badgeCount)
+            }
+    }
+}
+
+public extension View {
+    func notificationToolBar() -> some View {
+        modifier(NotificationBell())
     }
 }
