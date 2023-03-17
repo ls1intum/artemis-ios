@@ -19,6 +19,7 @@ class NotificationViewModel: ObservableObject {
     var lastNotificationSeenDate: Date? {
         didSet {
             UserDefaults.standard.set(lastNotificationSeenDate, forKey: "lastNotificationSeenDate")
+            updateNewNotificationCount()
         }
     }
 
@@ -35,10 +36,7 @@ class NotificationViewModel: ObservableObject {
                                                object: nil)
     }
 
-    @objc
-    func loadNotifications() async {
-        notifications = await NotificationServiceFactory.shared.loadNotifications(page: 0, size: 25)
-
+    private func updateNewNotificationCount() {
         if let lastNotificationSeenDate {
             newNotificationCount = notifications.value?.filter {
                 $0.notificationDate > lastNotificationSeenDate
@@ -46,5 +44,12 @@ class NotificationViewModel: ObservableObject {
         } else {
             newNotificationCount = notifications.value?.count ?? 0
         }
+    }
+
+    @objc
+    func loadNotifications() async {
+        notifications = await NotificationServiceFactory.shared.loadNotifications(page: 0, size: 25)
+
+        updateNewNotificationCount()
     }
 }
