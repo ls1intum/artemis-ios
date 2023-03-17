@@ -15,6 +15,7 @@ public struct CoursesOverviewView: View {
     @StateObject private var viewModel = CoursesOverviewViewModel()
 
     @State private var showCourseRegistrationSheet = false
+    @State private var showNotificationSheet = false
 
     public init() { }
 
@@ -23,8 +24,14 @@ public struct CoursesOverviewView: View {
             DataStateView(data: $viewModel.courses,
                           retryHandler: { await viewModel.loadCourses() }) { courses in
                 List {
-                    ForEach(courses) { course in
-                        CourseListCell(course: course)
+                    Group {
+                        ForEach(courses) { course in
+                            CourseListCell(course: course)
+                        }
+                        Button(R.string.localizable.dasboard_register_for_course()) {
+                            showCourseRegistrationSheet = true
+                        }
+                            .buttonStyle(ArtemisButton())
                     }
                     .listRowSeparator(.hidden)
                 }
@@ -37,18 +44,27 @@ public struct CoursesOverviewView: View {
         .navigationDestination(for: CoursePath.self) { coursePath in
             CourseView(courseId: coursePath.id)
         }
-        .navigationTitle(Text("course_overview_title"))
+        .navigationTitle(Text(R.string.localizable.dashboard_title()))
         .accountMenu(error: $viewModel.error)
         .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
         .toolbar {
-            ToolbarItemGroup(placement: .navigationBarTrailing) {
-                Button(action: { showCourseRegistrationSheet = true }, label: {
-                    Label("course_overview_register_button_text", systemImage: "pencil")
+            ToolbarItemGroup(placement: .navigationBarLeading) {
+                Button(action: { showNotificationSheet = true }, label: {
+                    Label(R.string.localizable.dashboard_notifications_label(), systemImage: "bell.fill")
                 })
             }
         }
         .sheet(isPresented: $showCourseRegistrationSheet) {
-            CourseRegistrationView()
+            CourseRegistrationView(successCompletion: {
+                showCourseRegistrationSheet = false
+                viewModel.courses = .loading
+                Task {
+                    await viewModel.loadCourses()
+                }
+            })
+        }
+        .sheet(isPresented: $showNotificationSheet) {
+            Text("Notification TODO")
         }
         .navigationBarBackButtonHidden()
         .task {
@@ -63,43 +79,84 @@ private struct CourseListCell: View {
 
     let course: Course
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            HStack(alignment: .top) {
-                AsyncImage(url: course.courseIconURL) { phase in
-                    switch phase {
-                    case .empty:
-                        ProgressView()
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .scaledToFit()
-                    case .failure:
-                        Image("questionmark.square.dashed")
-                    @unknown default:
-                        EmptyView()
-                    }
-                }
-                .frame(width: .extraLargeImage, height: .extraLargeImage)
-                VStack(alignment: .leading) {
-                    Text(course.title ?? "TODO")
-                        .font(.custom("SF Pro", size: 22, relativeTo: .title))
-                    Text("Exercises: \(course.exercises?.count ?? 0)")
-                    Text("Lectures: \(course.lectures?.count ?? 0)")
-                }
-                .padding(.m)
-            }
-            Divider()
-            HStack {
-                ProgressView(value: 40, total: 100)
-                    .progressViewStyle(LinearProgressViewStyle())
-                    .padding(.trailing)
-                Text("\(40)/\(100)P (\(40)%)")
-            }.padding(.m)
+    var nextExercise: Exercise? {
+        // filters out every already successful (100%) exercise, only exercises left that still need work
+        let exercisesWithOpenTasks = course.upcomingExercises.filter { exercise in
+            return !(exercise.baseExercise.studentParticipations?.first?.baseParticipation.submissions?.first?.baseSubmission.results?.first?.successful ?? false)
         }
-        .cardModifier()
-        .onTapGesture {
-            navigationController.path.append(CoursePath(id: course.id, course: course))
+        return exercisesWithOpenTasks.first
+    }
+
+    var body: some View {
+        HStack {
+            Spacer()
+            VStack(alignment: .leading, spacing: 0) {
+                HStack(alignment: .center) {
+                    AsyncImage(url: course.courseIconURL) { phase in
+                        switch phase {
+                        case .empty:
+                            ProgressView()
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .scaledToFit()
+                        case .failure:
+                            Image("questionmark.square.dashed")
+                        @unknown default:
+                            EmptyView()
+                        }
+                    }
+                        .frame(width: .extraLargeImage, height: .extraLargeImage)
+                        .clipShape(Circle())
+                        .padding(.m)
+                    VStack(alignment: .leading) {
+                        Text(course.title ?? R.string.localizable.unknown())
+                            .font(.custom("SF Pro", size: 21, relativeTo: .title))
+                            .lineLimit(2)
+                        Text(R.string.localizable.dashboard_exercises_label(course.exercises?.count ?? 0))
+                        Text(R.string.localizable.dashboard_lectures_label(course.lectures?.count ?? 0))
+                    }
+                        .foregroundColor(.white)
+                        .padding(.m)
+                    Spacer()
+                }
+                    .frame(maxWidth: .infinity)
+                    .background(course.courseColor)
+                HStack {
+                    Spacer()
+                    ProgressBar(value: 40,
+                                total: 100,
+                                color: course.courseColor)
+                        .frame(height: 120)
+                        .padding(.vertical, .l)
+                    Spacer()
+                }.padding(.vertical, .m)
+                HStack {
+                    if let nextExercise {
+                        HStack {
+                            Text(R.string.localizable.dashboard_next_exercise_label())
+                                .padding(.trailing, .m)
+                            nextExercise.image
+                            Text(nextExercise.baseExercise.title ?? R.string.localizable.unknown())
+                                .bold()
+                                .lineLimit(1)
+                        }.padding(.l)
+                    } else {
+                        Text(R.string.localizable.dashboard_no_exercise_planned_label())
+                            .padding(.l)
+                    }
+                    Spacer()
+                }
+                    .frame(maxWidth: .infinity)
+                    .background(Color.Artemis.dashboardCardBackgroundColor)
+                    .foregroundColor(Color.Artemis.secondaryLabel)
+            }
+                .cardModifier(backgroundColor: .clear, hasBorder: true)
+                .onTapGesture {
+                    navigationController.path.append(CoursePath(id: course.id, course: course))
+                }
+                .frame(maxWidth: 720)
+            Spacer()
         }
     }
 }

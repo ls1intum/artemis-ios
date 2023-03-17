@@ -1,0 +1,10 @@
+"dasboard_register_for_course" = "Register for a course";
+"dashboard_title" = "Dashboard";
+"dashboard_notifications_label" = "Notifications";
+"dashboard_exercises_label" = "Exercises: %d";
+"dashboard_lectures_label" = "Lectures: %d";
+"dashboard_no_exercise_planned_label" = "No exercise planned";
+"dashboard_next_exercise_label" = "Next Exercise:";
+
+// MARK: General
+"unknown" = "Unknown";
