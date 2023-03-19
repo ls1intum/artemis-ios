@@ -31,7 +31,6 @@ class NotificationViewModel: ObservableObject {
         }
 
         // add observer to reload once new notification is received
-        // TODO: test if works
         NotificationCenter.default.addObserver(self, selector: #selector(reloadNotifications),
                                                name: UserNotifications.Notification.Name("receivedNewNotification"),
                                                object: nil)
