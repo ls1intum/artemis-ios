@@ -22,6 +22,9 @@ public class PushNotificationHandler {
         }
 
         dispatchNotification(notification)
+
+        // post local notification
+        NotificationCenter.default.post(name: Notification.Name("receivedNewNotification"), object: nil)
     }
 
     private static func dispatchNotification(_ notification: PushNotification) {

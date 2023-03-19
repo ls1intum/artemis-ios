@@ -47,6 +47,7 @@ public struct DataStateView<T, Content: View>: View {
                             .foregroundColor(.gray)
                     }
                     Button(R.string.localizable.retryButton()) {
+                        data = .loading
                         Task {
                             await retryHandler()
                         }

@@ -6,6 +6,7 @@ import DesignLibrary
 import Navigation
 import CourseView
 import Account
+import Notifications
 
 /**
  * Display the course overview with the course list.
@@ -46,12 +47,10 @@ public struct CoursesOverviewView: View {
         }
         .navigationTitle(Text(R.string.localizable.dashboard_title()))
         .accountMenu(error: $viewModel.error)
+        .notificationToolBar()
         .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
         .toolbar {
             ToolbarItemGroup(placement: .navigationBarLeading) {
-                Button(action: { showNotificationSheet = true }, label: {
-                    Label(R.string.localizable.dashboard_notifications_label(), systemImage: "bell.fill")
-                })
             }
         }
         .sheet(isPresented: $showCourseRegistrationSheet) {
@@ -62,9 +61,6 @@ public struct CoursesOverviewView: View {
                     await viewModel.loadCourses()
                 }
             })
-        }
-        .sheet(isPresented: $showNotificationSheet) {
-            Text("Notification TODO")
         }
         .navigationBarBackButtonHidden()
         .task {
