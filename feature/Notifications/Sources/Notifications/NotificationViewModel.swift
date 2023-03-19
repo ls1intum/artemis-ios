@@ -31,7 +31,8 @@ class NotificationViewModel: ObservableObject {
         }
 
         // add observer to reload once new notification is received
-        NotificationCenter.default.addObserver(self, selector: #selector(loadNotifications),
+        // TODO: test if works
+        NotificationCenter.default.addObserver(self, selector: #selector(reloadNotifications),
                                                name: UserNotifications.Notification.Name("receivedNewNotification"),
                                                object: nil)
     }
@@ -47,9 +48,21 @@ class NotificationViewModel: ObservableObject {
     }
 
     @objc
+    func reloadNotifications() {
+        Task {
+            await loadNotifications()
+        }
+    }
+
     func loadNotifications() async {
         notifications = await NotificationServiceFactory.shared.loadNotifications(page: 0, size: 25)
 
         updateNewNotificationCount()
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self,
+                                                  name: UserNotifications.Notification.Name("receivedNewNotification"),
+                                                  object: nil)
     }
 }
