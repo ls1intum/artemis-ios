@@ -15,7 +15,7 @@ public struct CourseView: View {
 
     public var body: some View {
         TabView(selection: $navigationController.courseTab) {
-            Text("Exercises TODO")
+            ExerciseListView(viewModel: viewModel)
                 .tabItem {
                     Label("Exercises", systemImage: "list.bullet.clipboard.fill")
                 }
