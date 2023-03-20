@@ -19,6 +19,7 @@ public struct Chip: View {
 
     public var body: some View {
         Text(text)
+            .lineLimit(1)
             .foregroundColor(.white)
             .padding(.m)
             .background(backgroundColor)

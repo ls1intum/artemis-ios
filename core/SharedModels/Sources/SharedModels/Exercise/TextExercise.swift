@@ -8,7 +8,7 @@ public struct TextExercise: BaseExercise, Decodable {
         "text"
     }
 
-    public var id: Int?
+    public var id: Int
     public var title: String?
     public var shortName: String?
     public var maxPoints: Float?

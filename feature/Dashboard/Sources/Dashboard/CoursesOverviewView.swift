@@ -133,6 +133,9 @@ private struct CourseListCell: View {
                             Text(R.string.localizable.dashboard_next_exercise_label())
                                 .padding(.trailing, .m)
                             nextExercise.image
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: .extraSmallImage)
                             Text(nextExercise.baseExercise.title ?? R.string.localizable.unknown())
                                 .bold()
                                 .lineLimit(1)

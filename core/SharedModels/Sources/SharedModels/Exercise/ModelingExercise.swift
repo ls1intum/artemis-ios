@@ -6,7 +6,7 @@ public struct ModelingExercise: BaseExercise {
         "modeling"
     }
 
-    public var id: Int?
+    public var id: Int
     public var title: String?
     public var shortName: String?
     public var maxPoints: Float?

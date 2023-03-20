@@ -6,7 +6,7 @@ public protocol BaseExercise: Decodable {
 
     static var type: String { get }
 
-    var id: Int? { get }
+    var id: Int { get }
     var title: String? { get }
     var shortName: String? { get }
     var maxPoints: Float? { get }
@@ -62,26 +62,23 @@ public enum Exercise: Decodable, Identifiable {
     }
 
     public var id: Int {
-        baseExercise.id ?? -1 // TODO: why optional
+        baseExercise.id
     }
 
-    // TODO: adjust image
     public var image: Image {
         switch self {
-//        case .fileUpload(let exercise):
-//            return Image(systemName: "")
-//        case .modeling(let exercise):
-//            <#code#>
-//        case .programming(let exercise):
-//            <#code#>
-//        case .quiz(let exercise):
-//            <#code#>
-//        case .text(let exercise):
-//            <#code#>
-//        case .unknown(let exercise):
-//            <#code#>
-        default:
-            return Image(systemName: "doc.text.fill")
+        case .fileUpload:
+            return Image("file-arrow-up-solid", bundle: .module)
+        case .modeling:
+            return Image("diagram-project-solid", bundle: .module)
+        case .programming:
+            return Image("keyboard-solid", bundle: .module)
+        case .quiz:
+            return Image("check-double-solid", bundle: .module)
+        case .text:
+            return Image("font-solid", bundle: .module)
+        case .unknown:
+            return Image("question-solid", bundle: .module)
         }
     }
 
@@ -186,7 +183,23 @@ public enum AssessmentType: String, Decodable {
 public struct Category: Decodable {
     public let category: String
     public let colorCode: String
+
+    // TODO: remove force unwrap
+    // swiftlint:disable force_try force_cast
+    public init(from decoder: Decoder) {
+        let string: String = try! decoder.singleValueContainer().decode(String.self)
+        let impl = try! JSONDecoder().decode(CategoryImpl.self, from: Data(string.utf8))
+
+        category = impl.category
+        colorCode = impl.color
+    }
 }
+
+private struct CategoryImpl: Decodable {
+    let category: String
+    let color: String
+}
+
 
 // swiftlint:disable force_cast
 public extension BaseExercise {

@@ -12,8 +12,8 @@ struct ExerciseListView: View {
         var groupedDates = [WeeklyExerciseId: [Exercise]]()
 
         viewModel.course.value?.exercises?.forEach { exercise in
-            var week: Int?
-            var year: Int?
+            var week: Int? = nil
+            var year: Int? = nil
             if let dueDate = exercise.baseExercise.dueDate {
                 week = Calendar.current.component(.weekOfYear, from: dueDate)
                 year = Calendar.current.component(.year, from: dueDate)
@@ -63,7 +63,7 @@ struct ExerciseListSection: View {
                         isExpanded: $isExpanded) {
             ForEach(weeklyExercise.exercises) { exercise in
                 ExerciseListCell(exercise: exercise)
-            }
+            }.listRowInsets(EdgeInsets(top: .s, leading: 0, bottom: .s, trailing: .l))
         }.listRowSeparator(.hidden)
     }
 }
@@ -72,52 +72,51 @@ struct ExerciseListCell: View {
 
     let exercise: Exercise
 
-    let formatter: RelativeDateTimeFormatter = {
-        let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .full
-        return formatter
-    }()
-
-    let columns = [
-        GridItem(.adaptive(minimum: 20))
+    let rows = [
+        GridItem()
     ]
 
     var body: some View {
         VStack(alignment: .leading, spacing: .m) {
-            HStack(spacing: .m) {
+            HStack(spacing: .l) {
                 exercise.image
                     .resizable()
                     .scaledToFit()
-                    .frame(width: .mediumImage)
+                    .frame(width: .smallImage)
                 Text(exercise.baseExercise.title ?? "Unknown")
                 Spacer()
             }
             if let dueDate = exercise.baseExercise.dueDate {
-                Text(dueDate, formatter: formatter)
+                Text("Due Date: \(dueDate.relative ?? "?")")
             } else {
                 Text("No due date")
             }
             Text("You have missed the Deadline!")
                 .foregroundColor(Color.Artemis.secondaryLabel)
-            LazyVGrid(columns: columns, spacing: .s) {
-                if let releaseDate = exercise.baseExercise.releaseDate,
-                   releaseDate > .now {
-                    Chip(text: "Not Released", backgroundColor: .red)
-                }
-                ForEach(exercise.baseExercise.categories ?? [], id: \.category) { category in
-                    Chip(text: category.category, backgroundColor: UIColor(hexString: category.colorCode).suColor)
-                }
-                if let difficulty = exercise.baseExercise.difficulty {
-                    Chip(text: difficulty.description, backgroundColor: .green)
-                }
-                if let includedInOverallScore = exercise.baseExercise.includedInOverallScore {
-                    Chip(text: includedInOverallScore.description, backgroundColor: .blue)
+            ScrollView(.horizontal) {
+                LazyHGrid(rows: rows, spacing: .s) {
+                    if let releaseDate = exercise.baseExercise.releaseDate,
+                       releaseDate > .now {
+                        Chip(text: "Not Released", backgroundColor: .red)
+                    }
+                    ForEach(exercise.baseExercise.categories ?? [], id: \.category) { category in
+                        Chip(text: category.category, backgroundColor: UIColor(hexString: category.colorCode).suColor)
+                    }
+                    if let difficulty = exercise.baseExercise.difficulty {
+                        Chip(text: difficulty.description, backgroundColor: .green)
+                    }
+                    if let includedInOverallScore = exercise.baseExercise.includedInOverallScore {
+                        Chip(text: includedInOverallScore.description, backgroundColor: .blue)
+                    }
                 }
             }
         }
             .frame(maxWidth: .infinity)
             .padding(.l)
-            .cardModifier(backgroundColor: Color.Artemis.modalCardBackgroundColor, hasBorder: true)
+            .cardModifier(backgroundColor: Color.Artemis.modalCardBackgroundColor,
+                          hasBorder: true,
+                          borderColor: Color.Artemis.artemisBlue,
+                          cornerRadius: 2)
     }
 }
 
@@ -377,6 +376,8 @@ private struct WeeklyExerciseId: Identifiable, Hashable {
     }
 
     var startOfWeek: Date? {
+        guard let week, let year else { return nil }
+
         var dateComponents = DateComponents()
         dateComponents.yearForWeekOfYear = year
         dateComponents.weekOfYear = week

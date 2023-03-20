@@ -8,12 +8,11 @@ public struct FileUploadExercise: BaseExercise, Decodable {
         "file-upload"
     }
 
-    public var id: Int?
+    public var id: Int
     public var title: String?
     public var shortName: String?
     public var maxPoints: Float?
     public var bonusPoints: Float?
-    //    public var releaseDate: Date?
     public var dueDate: Date?
     public var releaseDate: Date?
     public var assessmentDueDate: Date?

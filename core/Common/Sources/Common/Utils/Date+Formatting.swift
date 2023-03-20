@@ -47,6 +47,18 @@ public extension Date {
     var dateOnly: String {
         return DateFormatter.dateOnly.string(from: self)
     }
+
+    var relative: String? {
+        return RelativeDateTimeFormatter.formatter.string(for: self)
+    }
+}
+
+public extension RelativeDateTimeFormatter {
+    static var formatter: RelativeDateTimeFormatter {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .full
+        return formatter
+    }
 }
 
 public extension DateFormatter {

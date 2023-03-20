@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "font-solid.svg",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
