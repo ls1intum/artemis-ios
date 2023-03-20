@@ -18,7 +18,7 @@ struct NotificationView: View {
                 DataStateView(data: $viewModel.notifications,
                               retryHandler: { await viewModel.loadNotifications() }) { notifications in
                     if notifications.isEmpty {
-                        Text("No Notifications yet!")
+                        Text(R.string.localizable.no_notifications_yet_label())
                     } else {
                         ForEach(notifications) { notification in
                             NotificationCell(notification: notification)
@@ -30,7 +30,7 @@ struct NotificationView: View {
                 .refreshable {
                     await viewModel.loadNotifications()
                 }
-                .navigationTitle("TODO")
+                .navigationTitle(R.string.localizable.notifications_title())
                 .onAppear {
                     viewModel.lastNotificationSeenDate = .now
                 }
@@ -51,7 +51,8 @@ struct NotificationCell: View {
             }
             HStack {
                 Spacer()
-                Text("\(notification.notificationDate.shortDateAndTime) by \(notification.author?.name ?? "Artemis")")
+                Text(R.string.localizable.notification_author_label(notification.notificationDate.shortDateAndTime,
+                                                                    notification.author?.name ?? R.string.localizable.artemis_label()))
                     .multilineTextAlignment(.trailing)
                     .foregroundColor(Color.Artemis.secondaryLabel)
             }
@@ -72,8 +73,7 @@ struct NotificationBell: ViewModifier {
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: { showNotificationSheet = true }, label: {
-                        //                    Label(R.string.localizable.dashboard_notifications_label(), systemImage: "bell.fill")
-                        Label("TODO", systemImage: "bell.fill")
+                        Image(systemName: "bell.fill")
                             .overlay(Badge(count: viewModel.newNotificationCount))
                     })
                 }

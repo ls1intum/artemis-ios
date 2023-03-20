@@ -29,6 +29,8 @@ public struct QuizExercise: BaseExercise, Decodable {
     public var exampleSolutionPublicationDate: Date?
     public var studentParticipations: [Participation]?
     public var attachments: [Attachment]? = []
+    public var studentAssignedTeamIdComputed: Bool?
+    public var studentAssignedTeamId: Int?
 
     public var allowedNumberOfAttempts: Int?
     public var remainingNumberOfAttempts: Int?
@@ -38,12 +40,29 @@ public struct QuizExercise: BaseExercise, Decodable {
     public var quizQuestions: [QuizQuestion]? = []
     public var status: QuizStatus?
     public var quizMode: QuizMode? = QuizMode.INDIVIDUAL
+    public var quizEnded: Bool?
     public var quizBatches: [QuizBatch]? = []
 
     public func copyWithUpdatedParticipations(newParticipations: [Participation]) -> QuizExercise {
         var clone = self
         clone[keyPath: \.studentParticipations] = newParticipations
         return clone
+    }
+
+    public var isUninitialized: Bool {
+        notEndedSubmittedOrFinished && startedQuizBatch
+    }
+
+    private var notEndedSubmittedOrFinished: Bool {
+        !(quizEnded ?? false)
+        && (studentParticipations?.first?.baseParticipation.initializationState == nil
+            || [InitializationState.INITIALIZED, InitializationState.FINISHED].contains(
+                studentParticipations?.first?.baseParticipation.initializationState)
+        )
+    }
+
+    private var startedQuizBatch: Bool {
+        !(quizBatches ?? []).contains(where: { $0.started ?? false })
     }
 }
 

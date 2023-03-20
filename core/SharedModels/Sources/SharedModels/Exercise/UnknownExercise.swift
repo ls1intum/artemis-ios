@@ -29,6 +29,8 @@ public struct UnknownExercise: BaseExercise, Decodable {
     public var exampleSolutionPublicationDate: Date?
     public var studentParticipations: [Participation]?
     public var attachments: [Attachment]? = []
+    public var studentAssignedTeamIdComputed: Bool?
+    public var studentAssignedTeamId: Int?
 
     public func copyWithUpdatedParticipations(newParticipations: [Participation]) -> UnknownExercise {
         var clone = self

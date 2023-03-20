@@ -1,0 +1,12 @@
+//"userNotAssignedToTeamShort" = "No team yet.";
+//"userNotStartedExerciseShort" = "Not yet started.";
+//"exerciseMissedDeadlineShort" = "Deadline missed.";
+
+"userNotAssignedToTeam" = "You have not been assigned to a team yet.";
+"userNotStartedExercise" = "You have not started this exercise yet.";
+"exerciseMissedDeadline" = "You have missed the deadline.";
+
+
+//"exerciseLateSubmission": "Late submission, waiting for feedback."
+//"exerciseLateFeedback": "Late submission with feedback.",
+//"quizNotStarted": "The quiz is not active.",

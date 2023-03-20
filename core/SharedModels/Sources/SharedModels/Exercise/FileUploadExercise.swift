@@ -29,6 +29,8 @@ public struct FileUploadExercise: BaseExercise, Decodable {
     public var exampleSolutionPublicationDate: Date?
     public var studentParticipations: [Participation]?
     public var attachments: [Attachment]? = []
+    public var studentAssignedTeamIdComputed: Bool?
+    public var studentAssignedTeamId: Int?
 
     public var filePattern: String?
     public var exampleSolution: String?

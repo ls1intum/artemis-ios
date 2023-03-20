@@ -27,6 +27,8 @@ public protocol BaseExercise: Decodable {
     var includedInOverallScore: IncludedInOverallScore { get }
     var exampleSolutionPublicationDate: Date? { get }
     var studentParticipations: [Participation]? { get }
+    var studentAssignedTeamIdComputed: Bool? { get }
+    var studentAssignedTeamId: Int? { get }
 
     // -------
     var attachments: [Attachment]? { get }
@@ -109,6 +111,24 @@ public enum Exercise: Decodable, Identifiable {
             return .text(exercise: exercise.copyWithUpdatedParticipations(newParticipations: newParticipations))
         case .unknown(exercise: let exercise):
             return .unknown(exercise: exercise.copyWithUpdatedParticipations(newParticipations: newParticipations))
+        }
+    }
+
+    public func getSpecificStudentParticipation(testRun: Bool) -> StudentParticipation? {
+        let studentParticipation = (baseExercise.studentParticipations ?? []).filter { participation in
+            switch participation {
+            case .student(let studentParticipation):
+                return studentParticipation.testRun == testRun
+            default:
+                return false
+            }
+        }.first
+
+        switch studentParticipation {
+        case .student(let participation):
+            return participation
+        default:
+            return nil
         }
     }
 }

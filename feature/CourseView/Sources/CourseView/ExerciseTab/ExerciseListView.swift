@@ -80,10 +80,13 @@ struct ExerciseListCell: View {
         VStack(alignment: .leading, spacing: .m) {
             HStack(spacing: .l) {
                 exercise.image
+                    .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
+                    .foregroundColor(Color.Artemis.primaryLabel)
                     .frame(width: .smallImage)
                 Text(exercise.baseExercise.title ?? "Unknown")
+                    .font(.title3)
                 Spacer()
             }
             if let dueDate = exercise.baseExercise.dueDate {
@@ -91,8 +94,7 @@ struct ExerciseListCell: View {
             } else {
                 Text("No due date")
             }
-            Text("You have missed the Deadline!")
-                .foregroundColor(Color.Artemis.secondaryLabel)
+            SubmissionResultStatusView(exercise: exercise)
             ScrollView(.horizontal) {
                 LazyHGrid(rows: rows, spacing: .s) {
                     if let releaseDate = exercise.baseExercise.releaseDate,
@@ -113,7 +115,7 @@ struct ExerciseListCell: View {
         }
             .frame(maxWidth: .infinity)
             .padding(.l)
-            .cardModifier(backgroundColor: Color.Artemis.modalCardBackgroundColor,
+            .cardModifier(backgroundColor: Color.Artemis.exerciseCardBackgroundColor,
                           hasBorder: true,
                           borderColor: Color.Artemis.artemisBlue,
                           cornerRadius: 2)
@@ -371,7 +373,7 @@ private struct WeeklyExerciseId: Identifiable, Hashable {
     }
 
     var description: String {
-        guard let startOfWeek, let endOfWeek else { return "Unspecified" }
+        guard let startOfWeek, let endOfWeek else { return "No date associated" }
         return "\(startOfWeek.dateOnly) - \(endOfWeek.dateOnly)"
     }
 

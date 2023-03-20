@@ -27,6 +27,8 @@ public struct ModelingExercise: BaseExercise {
     public var exampleSolutionPublicationDate: Date?
     public var studentParticipations: [Participation]?
     public var attachments: [Attachment]? = []
+    public var studentAssignedTeamIdComputed: Bool?
+    public var studentAssignedTeamId: Int?
 
     public var diagramType: UMLDiagramType?
     public var exampleSolutionModel: String?
