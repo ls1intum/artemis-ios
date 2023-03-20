@@ -12,8 +12,8 @@ struct ExerciseListView: View {
         var groupedDates = [WeeklyExerciseId: [Exercise]]()
 
         viewModel.course.value?.exercises?.forEach { exercise in
-            var week: Int? = nil
-            var year: Int? = nil
+            var week: Int?
+            var year: Int?
             if let dueDate = exercise.baseExercise.dueDate {
                 week = Calendar.current.component(.weekOfYear, from: dueDate)
                 year = Calendar.current.component(.year, from: dueDate)
@@ -29,7 +29,7 @@ struct ExerciseListView: View {
         }
 
         return groupedDates.map { week in
-            WeeklyExercise(id: week.key, exercises: week.value)
+            WeeklyExercise(id: week.key, exercises: week.value.sorted(by: { $0.baseExercise.title ?? "" < $1.baseExercise.title ?? "" }))
         }.sorted(by: { $0.id.startOfWeek ?? .now < $1.id.startOfWeek ?? .now })
     }
 
