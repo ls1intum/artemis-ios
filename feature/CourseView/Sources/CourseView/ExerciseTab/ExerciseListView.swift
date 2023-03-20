@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 import SharedModels
 import Common
+import DesignLibrary
 
 struct ExerciseListView: View {
 
@@ -77,6 +78,10 @@ struct ExerciseListCell: View {
         return formatter
     }()
 
+    let columns = [
+        GridItem(.adaptive(minimum: 20))
+    ]
+
     var body: some View {
         VStack(alignment: .leading, spacing: .m) {
             HStack(spacing: .m) {
@@ -94,7 +99,21 @@ struct ExerciseListCell: View {
             }
             Text("You have missed the Deadline!")
                 .foregroundColor(Color.Artemis.secondaryLabel)
-            Text("Label")
+            LazyVGrid(columns: columns, spacing: .s) {
+                if let releaseDate = exercise.baseExercise.releaseDate,
+                   releaseDate > .now {
+                    Chip(text: "Not Released", backgroundColor: .red)
+                }
+                ForEach(exercise.baseExercise.categories ?? [], id: \.category) { category in
+                    Chip(text: category.category, backgroundColor: UIColor(hexString: category.colorCode).suColor)
+                }
+                if let difficulty = exercise.baseExercise.difficulty {
+                    Chip(text: difficulty.description, backgroundColor: .green)
+                }
+                if let includedInOverallScore = exercise.baseExercise.includedInOverallScore {
+                    Chip(text: includedInOverallScore.description, backgroundColor: .blue)
+                }
+            }
         }
             .frame(maxWidth: .infinity)
             .padding(.l)

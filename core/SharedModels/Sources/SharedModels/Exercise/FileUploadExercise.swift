@@ -1,6 +1,7 @@
 import Foundation
 
 public struct FileUploadExercise: BaseExercise, Decodable {
+
     public typealias SelfType = FileUploadExercise
 
     public static var type: String {
@@ -14,6 +15,7 @@ public struct FileUploadExercise: BaseExercise, Decodable {
     public var bonusPoints: Float?
     //    public var releaseDate: Date?
     public var dueDate: Date?
+    public var releaseDate: Date?
     public var assessmentDueDate: Date?
     public var difficulty: Difficulty?
     public var mode: Mode = .INDIVIDUAL

@@ -13,6 +13,7 @@ public protocol BaseExercise: Decodable {
     var bonusPoints: Float? { get }
     //    var releaseDate: Date? { get }
     var dueDate: Date? { get }
+    var releaseDate: Date? { get }
     var assessmentDueDate: Date? { get }
     var difficulty: Difficulty? { get }
     var mode: Mode { get }
@@ -119,6 +120,18 @@ public enum Difficulty: String, Decodable {
     case EASY
     case MEDIUM
     case HARD
+
+    // TODO: localize
+    public var description: String {
+        switch self {
+        case .EASY:
+            return "Easy"
+        case .MEDIUM:
+            return "Medium"
+        case .HARD:
+            return "Hard"
+        }
+    }
 }
 
 public enum Mode: String, Decodable {
@@ -132,6 +145,18 @@ public enum IncludedInOverallScore: String, Decodable {
     case includedCompletly = "INCLUDED_COMPLETELY"
     case includedAsBonus = "INCLUDED_AS_BONUS"
     case notIncluded = "NOT_INCLUDED"
+
+    // TODO: localize
+    public var description: String {
+        switch self {
+        case .includedCompletly:
+            return "TODO"
+        case .includedAsBonus:
+            return "Bonus"
+        case .notIncluded:
+            return "TODO"
+        }
+    }
 }
 
 public enum ParticipationStatus {
@@ -160,37 +185,10 @@ public enum AssessmentType: String, Decodable {
 
 public struct Category: Decodable {
     public let category: String
-    public let colorCode: Int64?
-
-    // TODO: remove force unwrap
-    // swiftlint:disable force_try force_cast
-    public init(from decoder: Decoder) {
-        let string: String = try! decoder.singleValueContainer().decode(String.self)
-        let impl = try! JSONDecoder().decode(CategoryImpl.self, from: Data(string.utf8))
-
-        category = impl.category
-        colorCode = Category.decodeColor(colorString: impl.color)
-    }
-
-    static func decodeColor(colorString: String) -> Int64? {
-        if colorString.isEmpty || colorString == "null" {
-            return nil
-        }
-
-        if !colorString.starts(with: "#") {
-            return nil
-        }
-
-        let intCode = Int64(colorString.dropFirst(), radix: 16)
-        return 0xff000000 + intCode!
-    }
+    public let colorCode: String
 }
 
-private struct CategoryImpl: Decodable {
-    let category: String
-    let color: String
-}
-
+// swiftlint:disable force_cast
 public extension BaseExercise {
     // -------------------------------------------------------------
     // Copy of https://github.com/ls1intum/Artemis/blob/5c13e2e1b5b6d81594b9123946f040cbf6f0cfc6/src/main/webapp/app/exercises/shared/exercise/exercise.utils.ts
