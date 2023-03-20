@@ -56,7 +56,7 @@ public struct QuizExercise: BaseExercise, Decodable {
     private var notEndedSubmittedOrFinished: Bool {
         !(quizEnded ?? false)
         && (studentParticipations?.first?.baseParticipation.initializationState == nil
-            || [InitializationState.INITIALIZED, InitializationState.FINISHED].contains(
+            || [InitializationState.initialized, InitializationState.finished].contains(
                 studentParticipations?.first?.baseParticipation.initializationState)
         )
     }

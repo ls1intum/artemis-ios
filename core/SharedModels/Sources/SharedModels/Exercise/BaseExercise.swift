@@ -272,7 +272,7 @@ public extension BaseExercise {
             } else {
                 return ParticipationStatus.uninitialized
             }
-        } else if studentParticipation!.baseParticipation.initializationState == InitializationState.INITIALIZED {
+        } else if studentParticipation!.baseParticipation.initializationState == InitializationState.initialized {
             return ParticipationStatus.initialized(participation: studentParticipation!)
         }
         return ParticipationStatus.inactive(participation: studentParticipation!)
@@ -291,9 +291,9 @@ public extension BaseExercise {
             return ParticipationStatus.quizNotParticipated
         } else if !(exercise.studentParticipations ?? []).isEmpty {
             let initState = exercise.studentParticipations!.first!.baseParticipation.initializationState
-            if initState == InitializationState.INITIALIZED {
+            if initState == InitializationState.initialized {
                 return ParticipationStatus.quizActive
-            } else if initState == InitializationState.FINISHED {
+            } else if initState == InitializationState.finished {
                 return ParticipationStatus.quizSubmitted
             }
         } else if ((exercise.quizBatches ?? []).contains { item in
@@ -305,13 +305,13 @@ public extension BaseExercise {
     }
 
     private func participationStatusForModelingTextFileUploadExercise(participation: Participation) -> ParticipationStatus {
-        if participation.baseParticipation.initializationState == InitializationState.INITIALIZED {
+        if participation.baseParticipation.initializationState == InitializationState.initialized {
             if hasDueDataPassed(participation: participation) {
                 return ParticipationStatus.exerciseMissed
             } else {
                 return ParticipationStatus.exerciseActive
             }
-        } else if participation.baseParticipation.initializationState == InitializationState.FINISHED {
+        } else if participation.baseParticipation.initializationState == InitializationState.finished {
             return ParticipationStatus.exerciseSubmitted(participation: participation)
         } else {
             return ParticipationStatus.uninitialized

@@ -50,13 +50,13 @@ public enum InitializationState: String, Decodable {
     /**
      * The participation is set up for submissions from the student
      */
-    case INITIALIZED
+    case initialized = "INITIALIZED"
 
     /**
      * Text- / Modelling: At least one submission is done. Quiz: No further submissions should be possible
      */
-    case FINISHED
-    case INACTIVE
+    case finished = "FINISHED"
+    case inactive = "INACTIVE"
 }
 
 public extension Participation {
