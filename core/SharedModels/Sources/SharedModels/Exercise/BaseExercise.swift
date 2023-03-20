@@ -115,17 +115,21 @@ public enum Exercise: Decodable, Identifiable {
     }
 
     public func getSpecificStudentParticipation(testRun: Bool) -> StudentParticipation? {
-        let studentParticipation = (baseExercise.studentParticipations ?? []).filter { participation in
+        let studentParticipation = (baseExercise.studentParticipations ?? []).first(where: { participation in
             switch participation {
-            case .student(let studentParticipation):
-                return studentParticipation.testRun == testRun
+            case .student(let participation):
+                return (participation.testRun ?? false) == testRun
+            case .programmingExerciseStudent(let participation):
+                return (participation.testRun ?? false) == testRun
             default:
                 return false
             }
-        }.first
+        })
 
         switch studentParticipation {
         case .student(let participation):
+            return participation
+        case .programmingExerciseStudent(let participation):
             return participation
         default:
             return nil

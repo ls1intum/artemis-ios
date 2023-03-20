@@ -53,6 +53,10 @@ public struct QuizExercise: BaseExercise, Decodable {
         notEndedSubmittedOrFinished && startedQuizBatch
     }
 
+    public var notStarted: Bool {
+        notEndedSubmittedOrFinished && !startedQuizBatch
+    }
+
     private var notEndedSubmittedOrFinished: Bool {
         !(quizEnded ?? false)
         && (studentParticipations?.first?.baseParticipation.initializationState == nil
@@ -62,7 +66,7 @@ public struct QuizExercise: BaseExercise, Decodable {
     }
 
     private var startedQuizBatch: Bool {
-        !(quizBatches ?? []).contains(where: { $0.started ?? false })
+        (quizBatches ?? []).contains(where: { $0.started ?? false })
     }
 }
 

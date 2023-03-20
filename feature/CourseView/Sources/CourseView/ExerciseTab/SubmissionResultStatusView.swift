@@ -17,8 +17,17 @@ struct SubmissionResultStatusView: View {
         case .quiz(let quiz):
             return quiz.isUninitialized
         default:
-            return (exercise.baseExercise.dueDate ?? .yesterday) > .now
+            return (exercise.baseExercise.dueDate ?? .tomorrow) > .now
             && studentParticipation == nil
+        }
+    }
+
+    var quizNotStarted: Bool {
+        switch exercise {
+        case .quiz(let quiz):
+            return quiz.notStarted
+        default:
+            return false
         }
     }
 
@@ -36,11 +45,10 @@ struct SubmissionResultStatusView: View {
         case .quiz:
             return false
         default:
-            // check
             return exercise.baseExercise.dueDate ?? .tomorrow > .now && studentParticipation != nil && (studentParticipation?.submissions?.isEmpty ?? true)
-//            return !afterDueDate && !!this.studentParticipation && !this.studentParticipation.submissions?.length;
         }
     }
+
 
     var text: [String] {
         var result: [String] = []
@@ -58,14 +66,30 @@ struct SubmissionResultStatusView: View {
         if notSubmitted {
             result.append(R.string.localizable.exerciseNotSubmitted())
         }
+        if studentParticipation?.initializationState == .finished {
+            result.append(R.string.localizable.userSubmitted())
+        }
+        if studentParticipation?.initializationState == .initialized,
+           case .quiz = exercise {
+            result.append(R.string.localizable.userParticipating())
+        }
+        if quizNotStarted {
+            result.append(R.string.localizable.quizNotStarted())
+        }
         return result
     }
 
     var body: some View {
-        VStack(alignment: .leading) {
-            ForEach(text, id: \.self) { text in
-                Text(text)
-                    .foregroundColor(Color.Artemis.secondaryLabel)
+        if let studentParticipation,
+           !(studentParticipation.results ?? []).isEmpty {
+            // TODO: result view (jhi-updating-result)
+            Text("TODO results")
+        } else {
+            VStack(alignment: .leading) {
+                ForEach(text, id: \.self) { text in
+                    Text(text)
+                        .foregroundColor(Color.Artemis.secondaryLabel)
+                }
             }
         }
     }

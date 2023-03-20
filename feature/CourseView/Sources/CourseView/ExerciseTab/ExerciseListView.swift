@@ -29,7 +29,7 @@ struct ExerciseListView: View {
         }
 
         return groupedDates.map { week in
-            WeeklyExercise(id: week.key, exercises: week.value.sorted(by: { $0.baseExercise.title ?? "" < $1.baseExercise.title ?? "" }))
+            WeeklyExercise(id: week.key, exercises: week.value.sorted(by: { $0.baseExercise.title?.lowercased() ?? "" < $1.baseExercise.title?.lowercased() ?? "" }))
         }.sorted(by: { $0.id.startOfWeek ?? .now < $1.id.startOfWeek ?? .now })
     }
 
