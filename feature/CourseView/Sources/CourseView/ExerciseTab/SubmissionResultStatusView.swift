@@ -17,7 +17,7 @@ struct SubmissionResultStatusView: View {
         case .quiz(let quiz):
             return quiz.isUninitialized
         default:
-            return (exercise.baseExercise.dueDate ?? .now) > .now
+            return (exercise.baseExercise.dueDate ?? .yesterday) > .now
             && studentParticipation == nil
         }
     }
@@ -27,27 +27,46 @@ struct SubmissionResultStatusView: View {
     }
 
     var exerciseMissedDeadline: Bool {
-        return (exercise.baseExercise.dueDate ?? .now) < .now
+        return (exercise.baseExercise.dueDate ?? .tomorrow) < .now
         && studentParticipation == nil
     }
 
-    var text: String {
+    var notSubmitted: Bool {
+        switch exercise {
+        case .quiz:
+            return false
+        default:
+            // check
+            return exercise.baseExercise.dueDate ?? .tomorrow > .now && studentParticipation != nil && (studentParticipation?.submissions?.isEmpty ?? true)
+//            return !afterDueDate && !!this.studentParticipation && !this.studentParticipation.submissions?.length;
+        }
+    }
+
+    var text: [String] {
+        var result: [String] = []
         if exercise.baseExercise.teamMode ?? false,
            exercise.baseExercise.studentAssignedTeamIdComputed ?? false,
            exercise.baseExercise.studentAssignedTeamId == nil {
-            return R.string.localizable.userNotAssignedToTeam()
+            result.append(R.string.localizable.userNotAssignedToTeam())
         }
         if isUninitialized {
-            return R.string.localizable.userNotStartedExercise()
+            result.append(R.string.localizable.userNotStartedExercise())
         }
         if exerciseMissedDeadline {
-            return R.string.localizable.exerciseMissedDeadline()
+            result.append(R.string.localizable.exerciseMissedDeadline())
         }
-        return "You have missed the Deadline!"
+        if notSubmitted {
+            result.append(R.string.localizable.exerciseNotSubmitted())
+        }
+        return result
     }
 
     var body: some View {
-        Text(text)
-            .foregroundColor(Color.Artemis.secondaryLabel)
+        VStack(alignment: .leading) {
+            ForEach(text, id: \.self) { text in
+                Text(text)
+                    .foregroundColor(Color.Artemis.secondaryLabel)
+            }
+        }
     }
 }

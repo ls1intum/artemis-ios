@@ -114,4 +114,16 @@ public extension Date {
         components.second = -1
         return Calendar.current.date(byAdding: components, to: startOfDay)!
     }
+
+    static var tomorrow: Date {
+        var components = DateComponents()
+        components.day = 1
+        return Calendar.current.date(byAdding: components, to: .now)!
+    }
+
+    static var yesterday: Date {
+        var components = DateComponents()
+        components.day = -1
+        return Calendar.current.date(byAdding: components, to: .now)!
+    }
 }

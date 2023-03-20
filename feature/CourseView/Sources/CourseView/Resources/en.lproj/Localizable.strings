@@ -5,6 +5,7 @@
 "userNotAssignedToTeam" = "You have not been assigned to a team yet.";
 "userNotStartedExercise" = "You have not started this exercise yet.";
 "exerciseMissedDeadline" = "You have missed the deadline.";
+"exerciseNotSubmitted" = "No Submission";
 
 
 //"exerciseLateSubmission": "Late submission, waiting for feedback."
