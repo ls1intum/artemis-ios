@@ -49,7 +49,6 @@ struct SubmissionResultStatusView: View {
         }
     }
 
-
     var text: [String] {
         var result: [String] = []
         if exercise.baseExercise.teamMode ?? false,

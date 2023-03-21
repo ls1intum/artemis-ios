@@ -1,5 +1,5 @@
 //
-//  UnknownSubmission.swift
+//  File.swift
 //  
 //
 //  Created by Sven Andabaka on 21.03.23.
@@ -7,9 +7,9 @@
 
 import Foundation
 
-public struct UnknownSubmission: BaseSubmission {
+public struct QuizSubmission: BaseSubmission {
     public static var type: String {
-        "unknown"
+        "quiz"
     }
 
     public var id: Int?
