@@ -214,7 +214,7 @@ public struct Category: Decodable {
     public let colorCode: String
 
     // TODO: remove force unwrap
-    // swiftlint:disable force_try force_cast
+    // swiftlint:disable force_try
     public init(from decoder: Decoder) {
         let string: String = try! decoder.singleValueContainer().decode(String.self)
         let impl = try! JSONDecoder().decode(CategoryImpl.self, from: Data(string.utf8))
@@ -228,7 +228,6 @@ private struct CategoryImpl: Decodable {
     let category: String
     let color: String
 }
-
 
 //// swiftlint:disable force_cast
 //public extension BaseExercise {

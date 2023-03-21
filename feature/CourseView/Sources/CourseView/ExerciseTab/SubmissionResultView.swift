@@ -28,6 +28,10 @@ struct SubmissionResultView: View {
     }
 }
 
+// swiftlint:disable identifier_name
+let MIN_SCORE_GREEN: Float = 80
+let MIN_SCORE_ORANGE: Float = 40
+
 extension ResultTemplateStatus {
 
     private func getIconName(result: Result?) -> String {
@@ -41,9 +45,20 @@ extension ResultTemplateStatus {
             if result.isBuildFailedAndResultIsAutomatic {
                 return "circle-xmark-solid"
             }
-            
-            return "circle-question-solid"
-            
+            if result.isResultPreliminary {
+                return "circle-question-solid"
+            }
+            if result.isOnlyCompilationTested(for: self) {
+                return "circle-check-solid"
+            }
+            if result.score == nil {
+                return result.successful ?? false ? "circle-check-solid" : "circle-xmark-solid"
+            }
+            if result.score! >= MIN_SCORE_GREEN {
+                return "circle-check-solid"
+            }
+            return "circle-xmark-solid"
+
 //        case .noResult:
 //            <#code#>
 //        case .submitted:

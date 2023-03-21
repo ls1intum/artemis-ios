@@ -22,12 +22,7 @@ public struct Result: Decodable {
     // val feedbacks: List<Feedback>? = nil,
     public var participation: Participation?
 
-    public var resultIsPreliminary: Bool {
-        isProgrammingExerciseStudentParticipation
-//        && isResultPreliminary(result, result.participation.exercise as ProgrammingExercise)
-//        );
-    }
-
+    // swiftlint:disable:next identifier_name
     public var isProgrammingExerciseStudentParticipation: Bool {
         switch participation {
         case .programmingExerciseStudent:
@@ -35,7 +30,7 @@ public struct Result: Decodable {
         default:
             return false
         }
-    };
+    }
 
     /**
      * A result is preliminary if:
@@ -44,49 +39,45 @@ public struct Result: Decodable {
      *
      * Note: We check some error cases in this method as a null value for the given parameters, because the clients using this method might unwillingly provide them (result component).
      */
-    var isResultPreliminary: Bool {
+    public var isResultPreliminary: Bool {
         guard let exercise = participation?.baseParticipation.exercise else { return false }
-
-        switch participation {
-        case .programmingExerciseStudent(let participation):
-            if participation.testRun ?? false {
-                return false
-            }
-        default:
-            // do nothing
-            print("do nothing")
-        }
-
-        // We use the result completion date
-        guard let completionDate else {
-            // in the unlikely case the completion date is not set yet (this should not happen), it is preliminary
-            return true
-        }
 
         switch exercise {
         case .programming(let exercise):
-            // TODO
-            print("TODO")
-//            if exercise.assessmentType != .automatic // ....
+            switch participation {
+            case .programmingExerciseStudent(let participation):
+                if participation.testRun ?? false {
+                    return false
+                }
+            default:
+                // do nothing
+                print("do nothing")
+            }
+
+            // We use the result completion date
+            guard let completionDate else {
+                // in the unlikely case the completion date is not set yet (this should not happen), it is preliminary
+                return true
+            }
+
+            // If an exercise's assessment type is not automatic the last result is supposed to be manually assessed
+            if exercise.assessmentType != .automatic {
+                // either the semi-automatic result is not yet available as last result (then it is preliminary), or it is already available (then it still can be changed)
+                if let assessmentDueDate = exercise.assessmentDueDate {
+                    return assessmentDueDate > .now
+                }
+                // in case the assessment due date is not set, the assessment type of the latest result is checked. If it is automatic the result is still preliminary.
+                return assessmentType == .automatic
+            }
+            // swiftlint:disable:next identifier_name
+            if let buildAndTestStudentSubmissionsAfterDueDate = exercise.buildAndTestStudentSubmissionsAfterDueDate {
+                return completionDate < buildAndTestStudentSubmissionsAfterDueDate
+            }
+            return false
         default:
             return false
         }
-
-//        // If an exercise's assessment type is not automatic the last result is supposed to be manually assessed
-//        if (programmingExercise.assessmentType !== AssessmentType.AUTOMATIC) {
-//            // either the semi-automatic result is not yet available as last result (then it is preliminary), or it is already available (then it still can be changed)
-//            if (programmingExercise.assessmentDueDate) {
-//                return dayjs().isBefore(dayjs(programmingExercise.assessmentDueDate));
-//            }
-//            // in case the assessment due date is not set, the assessment type of the latest result is checked. If it is automatic the result is still preliminary.
-//            return latestResult.assessmentType === AssessmentType.AUTOMATIC;
-//        }
-//        // When the due date for the automatic building and testing is available but not reached, the result is preliminary
-//        if (programmingExercise.buildAndTestStudentSubmissionsAfterDueDate) {
-//            return resultCompletionDate.isBefore(dayjs(programmingExercise.buildAndTestStudentSubmissionsAfterDueDate));
-//        }
-        return false;
-    };
+    }
 
     public var isBuildFailedAndResultIsAutomatic: Bool {
         isBuildFailed && !isManualResult
@@ -103,14 +94,35 @@ public struct Result: Decodable {
 
     public var isManualResult: Bool {
         assessmentType != .automatic
-    };
+    }
 
+    /**
+     * Checks if only compilation was tested. This is the case, when a successful result is present with 0 of 0 passed tests
+     * This could be because all test cases are only visible after the due date.
+     */
+    public func isOnlyCompilationTested(for templateStatus: ResultTemplateStatus) -> Bool {
+        let zeroTests = (testCaseCount ?? 0) == 0
+        switch participation {
+        case .programmingExerciseStudent(let participation):
+            if case .programming = participation.exercise {
+                return templateStatus != .noResult &&
+                    templateStatus != .isBuilding &&
+                    !isBuildFailed &&
+                    zeroTests
+            }
+            return false
+        default:
+            return false
+        }
+    }
+
+    // swiftlint:disable:next cyclomatic_complexity
     public func getTemplateStatus(for exercise: Exercise,
                                   and participation: Participation,
                                   isBuilding: Bool,
-                                  missingResultInfo: MissingResultInformation = .none) -> ResultTemplateStatus {
+                                  missingResultInfo: MissingResultInformation = .noInformation) -> ResultTemplateStatus {
         // If there is a problem, it has priority, and we show that instead
-        if missingResultInfo != .none {
+        if missingResultInfo != .noInformation {
             return .missing
         }
 
@@ -164,7 +176,6 @@ public struct Result: Decodable {
             return .noResult
         }
     }
-
 }
 
 public enum ResultTemplateStatus: String, RawRepresentable {
@@ -211,7 +222,7 @@ public enum ResultTemplateStatus: String, RawRepresentable {
  * Information about a missing result to communicate problems and give hints how to respond.
  */
 public enum MissingResultInformation: String, RawRepresentable {
-    case none = "NONE"
+    case noInformation = "NONE"
     case failedProgrammingSubmissionOnlineIDE = "FAILED_PROGRAMMING_SUBMISSION_ONLINE_IDE"
     case failedProgrammingSubmissionOfflineIDE = "FAILED_PROGRAMMING_SUBMISSION_OFFLINE_IDE"
 }
