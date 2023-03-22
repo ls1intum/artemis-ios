@@ -15,6 +15,7 @@ struct SubmissionResultView: View {
     let result: Result?
     let missingResultInfo: MissingResultInformation
     let isBuilding: Bool
+    let showUngradedResult = false
 
     var templateStatus: ResultTemplateStatus {
         guard let result else { return .noResult }
@@ -25,11 +26,38 @@ struct SubmissionResultView: View {
                                         missingResultInfo: missingResultInfo)
     }
 
+    var text: String {
+        switch templateStatus {
+        case .isBuilding:
+            return R.string.localizable.building()
+        case .missing:
+            return R.string.localizable.programmingFailedSubmissionMesage()
+        case .lateNoFeedback:
+            return R.string.localizable.exerciseLateSubmission()
+        case .submitted:
+            return R.string.localizable.exerciseSubmitted()
+        case .submittedWaitingForGrading:
+            return R.string.localizable.exerciseSubmittedWaitingForGrading()
+        case .late:
+            return R.string.localizable.exerciseLateFeedback()
+        case .hasResult:
+            return "TODO"
+        default:
+            return showUngradedResult ? R.string.localizable.noResult() : R.string.localizable.noGradedResult()
+        }
+    }
+
     var body: some View {
         HStack {
-            templateStatus.getIcon(for: result)
-            Text("TODO")
-        }
+            if let icon = templateStatus.getIcon(for: result) {
+                icon
+                    .resizable()
+                    .renderingMode(.template)
+                    .scaledToFit()
+                    .frame(width: .extraSmallImage)
+            }
+            Text(text)
+        }.foregroundColor(templateStatus.getColor(for: result))
     }
 }
 
@@ -74,5 +102,42 @@ extension ResultTemplateStatus {
             return nil
         }
         return Image(iconName, bundle: .module)
+    }
+
+    func getColor(for result: Result?) -> Color {
+        switch self {
+        case .isBuilding:
+            return Color.Artemis.primaryLabel
+        case .late:
+            return Color.Artemis.resultLateColor
+        case .missing:
+            return Color.Artemis.resultFailedColor
+        case .hasResult:
+            guard let result else {
+                return Color.Artemis.resultPendingColor
+            }
+
+            if result.isBuildFailedAndResultIsAutomatic {
+                return Color.Artemis.resultFailedColor
+            }
+            if result.isResultPreliminary {
+                return Color.Artemis.resultPendingColor
+            }
+            if result.score == nil {
+                return result.successful ?? false ? Color.Artemis.resultSuccess : Color.Artemis.resultFailedColor
+            }
+            if result.isOnlyCompilationTested(for: self) {
+                return Color.Artemis.resultSuccess
+            }
+            if result.score! >= MIN_SCORE_GREEN {
+                return Color.Artemis.resultSuccess
+            }
+            if result.score! >= MIN_SCORE_ORANGE {
+                return Color.Artemis.resultSuccessBelowScore
+            }
+            return Color.Artemis.resultFailedColor
+        default:
+            return Color.Artemis.resultPendingColor
+        }
     }
 }

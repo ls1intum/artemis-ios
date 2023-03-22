@@ -81,8 +81,13 @@ fileprivate extension UIColor {
         static let Gray95 = UIColor(netHex: 0x0d0d0d)
         static let Black = UIColor(netHex: 0x000000)
 
-        static let ArtemisBlue = UIColor(netHex: 0x3f89cc)
+        static let ArtemisBlue = UIColor(netHex: 0x3e8acc)
         static let ArtemisLightBlue = UIColor(netHex: 0xb5cee4)
+
+        static let Red = UIColor(netHex: 0xdc3545)
+        static let Orange = UIColor(netHex: 0xfd7e14)
+        static let Yellow = UIColor(netHex: 0xffc107)
+        static let Green = UIColor(netHex: 0x28a745)
     }
 }
 
@@ -123,6 +128,13 @@ public extension Color {
         // Login
         public static let loginBackgroundColor = UIColor(UIColor.ColorPalette.White, darkModeColor: UIColor.ColorPalette.Gray80).suColor
         public static let loginTextFieldBorderColor = UIColor(UIColor.ColorPalette.Gray20, darkModeColor: UIColor.ColorPalette.Gray80).suColor
+
+        // Result
+        public static let resultFailedColor = UIColor.ColorPalette.Red.suColor
+        public static let resultLateColor = UIColor(UIColor.ColorPalette.Gray60, darkModeColor: UIColor.ColorPalette.Gray40).suColor
+        public static let resultPendingColor = UIColor(UIColor.ColorPalette.Gray60, darkModeColor: UIColor.ColorPalette.Gray40).suColor
+        public static let resultSuccess = UIColor.ColorPalette.Green.suColor
+        public static let resultSuccessBelowScore = UIColor.ColorPalette.Orange.suColor
     }
 }
 
