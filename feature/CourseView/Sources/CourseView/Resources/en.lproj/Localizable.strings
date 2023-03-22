@@ -8,6 +8,7 @@
 "quizNotStarted" = "The quiz is not active.";
 
 // MARK: SubmissionResultView
+
 "noResult" = "No result";
 "noGradedResult" = "No graded result";
 "building" = "Building and testing...";
@@ -16,13 +17,16 @@
 "exerciseSubmittedWaitingForGrading" = "Submitted, waiting for grading.";
 "exerciseLateSubmission" = "Late submission, waiting for feedback.";
 "programmingFailedSubmissionMesage" = "No corresponding result available.";
-"programmingFailedSubmissionTooltipOfflineIde" = "No result was found / could be generated in time for your most recent submission. Please check your code manually in your IDE, e.g. check that your code compiles locally and works correctly.";
-"programmingFailedSubmissionTooltipOnlineIde" = "No result was found / could be generated in time for your most recent submission. Please check your code manually as far as possible.";
+//"programmingFailedSubmissionTooltipOfflineIde" = "No result was found / could be generated in time for your most recent submission. Please check your code manually in your IDE, e.g. check that your code compiles locally and works correctly.";
+//"programmingFailedSubmissionTooltipOnlineIde" = "No result was found / could be generated in time for your most recent submission. Please check your code manually as far as possible.";
 
-"nonProgramming" = "%f%, %f points";
-"programming" = "%f%, %s, %f points";
+// Score
+"nonProgramming" = "%s%%, %s points";
+"programming" = "%s%%, %s, %s points";
 "buildFailed" = "Build failed";
 "buildSuccessfulNoTests" = "Build successful, no tests executed";
 "buildSuccessfulTests" = "%s of %s passed";
-"programmingCodeIssues" = "%f%, %s, %s issues, %f points";
+"programmingCodeIssues" = "%s%%, %s, %s issues, %s points";
 "preliminary" = "preliminary";
+"short" = "%s%%";
+"programmingShort" = "%s%%, %s";

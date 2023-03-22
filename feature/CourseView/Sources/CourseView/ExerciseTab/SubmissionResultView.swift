@@ -17,7 +17,8 @@ struct SubmissionResultView: View {
     let result: Result?
     let missingResultInfo: MissingResultInformation
     let isBuilding: Bool
-    let showUngradedResult = false
+    var showUngradedResult = false
+    var short = false
 
     var templateStatus: ResultTemplateStatus {
         guard let result else { return .noResult }
@@ -28,6 +29,7 @@ struct SubmissionResultView: View {
                                         missingResultInfo: missingResultInfo)
     }
 
+    // TODO: add short versions
     var text: String {
         switch templateStatus {
         case .isBuilding:
@@ -57,12 +59,19 @@ struct SubmissionResultView: View {
             return nil
         }
 
-        let relativeScore = Course.roundValueSpecifiedByCourseSettings(value: result.score ?? 0, for: nil)
-        let points = Course.roundValueSpecifiedByCourseSettings(value: (result.score ?? 0) * (exercise.baseExercise.maxPoints ?? 0) / 100, for: nil)
+        let relativeScore = Course.roundValueSpecifiedByCourseSettings(value: result.score ?? 0, for: nil).clean
+        print("Sven: \(relativeScore)")
+        let points = Course.roundValueSpecifiedByCourseSettings(value: (result.score ?? 0) * (exercise.baseExercise.maxPoints ?? 0) / 100, for: nil).clean
         switch exercise {
         case .programming:
             var resultString = ""
-            if result.codeIssueCount ?? 0 > 0 {
+            if short {
+                if result.testCaseCount == nil {
+                    resultString = R.string.localizable.programmingShort(relativeScore, buildAndTestMessage ?? "")
+                } else {
+                    resultString = R.string.localizable.short(relativeScore)
+                }
+            } else if result.codeIssueCount ?? 0 > 0 {
                 resultString = R.string.localizable.programmingCodeIssues(
                     relativeScore,
                     buildAndTestMessage ?? "",
@@ -81,7 +90,8 @@ struct SubmissionResultView: View {
 
             return resultString
         default:
-            return R.string.localizable.nonProgramming(relativeScore, points)
+            return short ? R.string.localizable.short(relativeScore) :
+                R.string.localizable.nonProgramming(relativeScore, points)
         }
     }
 
@@ -198,5 +208,11 @@ extension ResultTemplateStatus {
         default:
             return Color.Artemis.resultPendingColor
         }
+    }
+}
+
+extension Double {
+    var clean: String {
+       return self.truncatingRemainder(dividingBy: 1) == 0 ? String(format: "%.0f", self) : String(self)
     }
 }
