@@ -10,8 +10,8 @@ public struct ProgrammingExercise: BaseExercise, Decodable {
     public var id: Int
     public var title: String?
     public var shortName: String?
-    public var maxPoints: Float?
-    public var bonusPoints: Float?
+    public var maxPoints: Double?
+    public var bonusPoints: Double?
     public var dueDate: Date?
     public var releaseDate: Date?
     public var assessmentDueDate: Date?

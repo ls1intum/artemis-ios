@@ -16,7 +16,7 @@ public struct ProgrammingSubmission: BaseSubmission {
     public var submitted: Bool?
     public var submissionDate: Date?
     public var exampleSubmission: Bool?
-    public var durationInMinutes: Float?
+    public var durationInMinutes: Double?
     public var results: [Result]?
     public var participation: Participation?
 

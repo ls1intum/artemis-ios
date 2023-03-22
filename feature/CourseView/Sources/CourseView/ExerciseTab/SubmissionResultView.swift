@@ -8,6 +8,8 @@
 import SwiftUI
 import SharedModels
 
+private let maxValueProgrammingResultInts = 255
+
 struct SubmissionResultView: View {
 
     let exercise: Exercise
@@ -39,11 +41,68 @@ struct SubmissionResultView: View {
         case .submittedWaitingForGrading:
             return R.string.localizable.exerciseSubmittedWaitingForGrading()
         case .late:
+            if let score {
+                return "\(score) \(R.string.localizable.exerciseLateFeedback())"
+            }
             return R.string.localizable.exerciseLateFeedback()
         case .hasResult:
-            return "TODO"
+            return score ?? ""
         default:
             return showUngradedResult ? R.string.localizable.noResult() : R.string.localizable.noGradedResult()
+        }
+    }
+
+    var score: String? {
+        guard let result else {
+            return nil
+        }
+
+        let relativeScore = Course.roundValueSpecifiedByCourseSettings(value: result.score ?? 0, for: nil)
+        let points = Course.roundValueSpecifiedByCourseSettings(value: (result.score ?? 0) * (exercise.baseExercise.maxPoints ?? 0) / 100, for: nil)
+        switch exercise {
+        case .programming:
+            var resultString = ""
+            if result.codeIssueCount ?? 0 > 0 {
+                resultString = R.string.localizable.programmingCodeIssues(
+                    relativeScore,
+                    buildAndTestMessage ?? "",
+                    result.codeIssueCount ?? 0 >= maxValueProgrammingResultInts ? "\(maxValueProgrammingResultInts)+" : "\(result.codeIssueCount ?? 0)",
+                    points)
+            } else {
+                resultString = R.string.localizable.programming(
+                    relativeScore,
+                    buildAndTestMessage ?? "",
+                    points)
+            }
+
+            if result.isResultPreliminary {
+                resultString += " (\(R.string.localizable.preliminary()))"
+            }
+
+            return resultString
+        default:
+            return R.string.localizable.nonProgramming(relativeScore, points)
+        }
+    }
+
+    var buildAndTestMessage: String? {
+        guard let result else {
+            return nil
+        }
+
+        switch result.submission {
+        case .programming(let submission):
+            if submission.buildFailed ?? false {
+                return R.string.localizable.buildFailed()
+            }
+            if (result.testCaseCount ?? 0) < 1 {
+                return R.string.localizable.buildSuccessfulNoTests()
+            }
+            return R.string.localizable.buildSuccessfulTests(
+                result.passedTestCaseCount ?? 0 >= maxValueProgrammingResultInts ? "\(maxValueProgrammingResultInts)+" : "\(result.passedTestCaseCount ?? 0)",
+                result.testCaseCount ?? 0 >= maxValueProgrammingResultInts ? "\(maxValueProgrammingResultInts)+" : "\(result.testCaseCount ?? 0)")
+        default:
+            return nil
         }
     }
 

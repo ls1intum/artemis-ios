@@ -9,7 +9,7 @@ public struct Result: Decodable {
      * Current score in percent i.e. between 1 - 100
      * - Can be larger than 100 if bonus points are available
      */
-    public var score: Float?
+    public var score: Double?
     public var assessmentType: AssessmentType?
     public var rated: Bool?
     public var hasComplaint: Bool?

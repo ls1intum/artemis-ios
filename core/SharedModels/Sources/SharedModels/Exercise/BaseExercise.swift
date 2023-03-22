@@ -9,8 +9,8 @@ public protocol BaseExercise: Decodable {
     var id: Int { get }
     var title: String? { get }
     var shortName: String? { get }
-    var maxPoints: Float? { get }
-    var bonusPoints: Float? { get }
+    var maxPoints: Double? { get }
+    var bonusPoints: Double? { get }
     //    var releaseDate: Date? { get }
     var dueDate: Date? { get }
     var releaseDate: Date? { get }

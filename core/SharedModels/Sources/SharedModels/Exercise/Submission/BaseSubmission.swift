@@ -7,7 +7,7 @@ public protocol BaseSubmission: Decodable {
     var submitted: Bool? { get }
     var submissionDate: Date? { get }
     var exampleSubmission: Bool? { get }
-    var durationInMinutes: Float? { get }
+    var durationInMinutes: Double? { get }
     var results: [Result]? { get }
     var participation: Participation? { get }
 }
