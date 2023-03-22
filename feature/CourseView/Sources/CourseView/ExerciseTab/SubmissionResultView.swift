@@ -11,34 +11,36 @@ import SharedModels
 struct SubmissionResultView: View {
 
     let exercise: Exercise
-    let participation: Participation
-    let result: Result
+    let participation: BaseParticipation
+    let result: Result?
     let missingResultInfo: MissingResultInformation
     let isBuilding: Bool
 
     var templateStatus: ResultTemplateStatus {
-        result.getTemplateStatus(for: exercise,
-                                 and: participation,
-                                 isBuilding: isBuilding,
-                                 missingResultInfo: missingResultInfo)
+        guard let result else { return .noResult }
+
+        return result.getTemplateStatus(for: exercise,
+                                        and: participation,
+                                        isBuilding: isBuilding,
+                                        missingResultInfo: missingResultInfo)
     }
 
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        HStack {
+            templateStatus.getIcon(for: result)
+            Text("TODO")
+        }
     }
 }
 
-// swiftlint:disable identifier_name
-let MIN_SCORE_GREEN: Float = 80
-let MIN_SCORE_ORANGE: Float = 40
-
 extension ResultTemplateStatus {
 
-    private func getIconName(result: Result?) -> String {
+    // swiftlint:disable cyclomatic_complexity
+    private func getIconName(result: Result?) -> String? {
         switch self {
         case .isBuilding:
             return "circle-notch-solid"
-        case .hasResult:
+        case .hasResult, .late:
             guard let result else {
                 return "circle-question-solid"
             }
@@ -58,25 +60,19 @@ extension ResultTemplateStatus {
                 return "circle-check-solid"
             }
             return "circle-xmark-solid"
-
-//        case .noResult:
-//            <#code#>
-//        case .submitted:
-//            <#code#>
-//        case .submittedWaitingForGrading:
-//            <#code#>
-//        case .lateNoFeedback:
-//            <#code#>
-//        case .late:
-//            <#code#>
-//        case .missing:
-//            <#code#>
+        case .submitted, .submittedWaitingForGrading, .lateNoFeedback:
+            return nil
+        case .missing:
+            return "circle-exclamation-solid"
         default:
-            return "circle-question-solid"
+            return "circle-solid"
         }
     }
 
-    func getIcon(for result: Result?) -> Image {
-        return Image(getIconName(result: result), bundle: .module)
+    func getIcon(for result: Result?) -> Image? {
+        guard let iconName = getIconName(result: result) else {
+            return nil
+        }
+        return Image(iconName, bundle: .module)
     }
 }

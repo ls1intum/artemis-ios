@@ -118,7 +118,7 @@ public struct Result: Decodable {
 
     // swiftlint:disable:next cyclomatic_complexity
     public func getTemplateStatus(for exercise: Exercise,
-                                  and participation: Participation,
+                                  and participation: BaseParticipation,
                                   isBuilding: Bool,
                                   missingResultInfo: MissingResultInformation = .noInformation) -> ResultTemplateStatus {
         // If there is a problem, it has priority, and we show that instead

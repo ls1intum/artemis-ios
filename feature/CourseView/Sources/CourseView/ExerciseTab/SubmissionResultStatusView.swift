@@ -12,6 +12,8 @@ struct SubmissionResultStatusView: View {
 
     let exercise: Exercise
 
+    let showUngradedResults = false
+
     var isUninitialized: Bool {
         switch exercise {
         case .quiz(let quiz):
@@ -78,11 +80,23 @@ struct SubmissionResultStatusView: View {
         return result
     }
 
+    var result: Result? {
+        // The latest result is the first rated result in the sorted array (=newest) or any result if the option is active to show ungraded results.
+        if showUngradedResults {
+            return studentParticipation?.results?.first
+        } else {
+            return studentParticipation?.results?.first(where: { $0.rated == true })
+        }
+    }
+
     var body: some View {
         if let studentParticipation,
            !(studentParticipation.results ?? []).isEmpty {
-            // TODO: result view (jhi-updating-result)
-            Text("TODO results")
+            SubmissionResultView(exercise: exercise,
+                                 participation: studentParticipation,
+                                 result: result,
+                                 missingResultInfo: .noInformation,
+                                 isBuilding: false) // TODO: fix once subscription works
         } else {
             VStack(alignment: .leading) {
                 ForEach(text, id: \.self) { text in

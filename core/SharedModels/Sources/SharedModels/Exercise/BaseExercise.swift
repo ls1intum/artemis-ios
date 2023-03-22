@@ -136,9 +136,9 @@ public enum Exercise: Decodable, Identifiable {
         }
     }
 
-    public func getDueDate(for participation: Participation) -> Date? {
+    public func getDueDate(for participation: BaseParticipation) -> Date? {
         guard let dueDate = baseExercise.dueDate else { return nil }
-        return participation.baseParticipation.initializationDate ?? dueDate
+        return participation.initializationDate ?? dueDate
     }
 }
 
@@ -228,113 +228,3 @@ private struct CategoryImpl: Decodable {
     let category: String
     let color: String
 }
-
-//// swiftlint:disable force_cast
-//public extension BaseExercise {
-//    // -------------------------------------------------------------
-//    // Copy of https://github.com/ls1intum/Artemis/blob/5c13e2e1b5b6d81594b9123946f040cbf6f0cfc6/src/main/webapp/app/exercises/shared/exercise/exercise.utils.ts
-//    // TODO: Remove me once this is calculated on the server.
-//
-//    func computeParticipationStatus(testRun: Bool?) -> ParticipationStatus {
-//        let studentParticipation: Participation?
-//        if testRun == nil {
-//            studentParticipation = (studentParticipations ?? []).first
-//        } else {
-//            let participations: [Participation] = studentParticipations ?? []
-//            studentParticipation = participations.first { participation in
-//                if participation is StudentParticipation {
-//                    return (participation as! StudentParticipation).testRun == testRun
-//                } else {
-//                    return false
-//                }
-//            }
-//        }
-//
-//        // For team exercises check whether the student has been assigned to a team yet
-//        // !!!! TODO: Not yet implemented
-//        //        if (teamMode == true && studentAssignedTeamIdComputed && !studentAssignedTeamId) {
-//        //            return ParticipationStatus.NO_TEAM_ASSIGNED
-//        //        }
-//
-//        // Evaluate the participation status for quiz exercises.
-//        if self is QuizExercise {
-//            return participationStatusForQuizExercise(exercise: self as! QuizExercise)
-//        }
-//
-//        // Evaluate the participation status for modeling, text and file upload exercises if the exercise has participations.
-//        if (self is ModelingExercise || self is TextExercise || self is FileUploadExercise) && studentParticipation != nil {
-//            return participationStatusForModelingTextFileUploadExercise(participation: studentParticipation!)
-//        }
-//
-//        let initState = studentParticipation?.baseParticipation.initializationState
-//
-//        // The following evaluations are relevant for programming exercises in general and for modeling, text and file upload exercises that don't have participations.
-//        if studentParticipation == nil ||
-//            initState == InitializationState.uninitalized ||
-//            initState == InitializationState.repoCopied ||
-//            initState == InitializationState.repoConfigured ||
-//            initState == InitializationState.buildPlanCopied ||
-//            initState == InitializationState.buildPlanConfigured {
-//            if self is ProgrammingExercise && !isStartExerciseAvailable(exercise: self as! ProgrammingExercise) && testRun == nil || testRun == false {
-//                return ParticipationStatus.exerciseMissed
-//            } else {
-//                return ParticipationStatus.uninitialized
-//            }
-//        } else if studentParticipation!.baseParticipation.initializationState == InitializationState.initialized {
-//            return ParticipationStatus.initialized(participation: studentParticipation!)
-//        }
-//        return ParticipationStatus.inactive(participation: studentParticipation!)
-//    }
-//
-//    private func isStartExerciseAvailable(exercise: ProgrammingExercise) -> Bool {
-//        exercise.dueDate == nil || Date() < exercise.dueDate!
-//    }
-//
-//    private func participationStatusForQuizExercise(exercise: QuizExercise) -> ParticipationStatus {
-//        if exercise.status == QuizStatus.closed {
-//            if !(exercise.studentParticipations ?? []).isEmpty && !(exercise.studentParticipations!.first!.baseParticipation.results ?? []).isEmpty {
-//                return ParticipationStatus.quizFinished(participation: exercise.studentParticipations!.first!)
-//            }
-//
-//            return ParticipationStatus.quizNotParticipated
-//        } else if !(exercise.studentParticipations ?? []).isEmpty {
-//            let initState = exercise.studentParticipations!.first!.baseParticipation.initializationState
-//            if initState == InitializationState.initialized {
-//                return ParticipationStatus.quizActive
-//            } else if initState == InitializationState.finished {
-//                return ParticipationStatus.quizSubmitted
-//            }
-//        } else if ((exercise.quizBatches ?? []).contains { item in
-//            item.started == true
-//        }) {
-//            return ParticipationStatus.quizNotInitialized
-//        }
-//        return ParticipationStatus.quizNotStarted
-//    }
-
-//    private func participationStatusForModelingTextFileUploadExercise(participation: Participation) -> ParticipationStatus {
-//        if participation.baseParticipation.initializationState == InitializationState.initialized {
-//            if hasDueDataPassed(participation: participation) {
-//                return ParticipationStatus.exerciseMissed
-//            } else {
-//                return ParticipationStatus.exerciseActive
-//            }
-//        } else if participation.baseParticipation.initializationState == InitializationState.finished {
-//            return ParticipationStatus.exerciseSubmitted(participation: participation)
-//        } else {
-//            return ParticipationStatus.uninitialized
-//        }
-//    }
-
-//    private func hasDueDataPassed(participation: Participation) -> Bool {
-//        if dueDate == nil {
-//            return false
-//        } else {
-//            let dueDate = getDueDate(participation: participation)
-//            if dueDate == nil {
-//                return false
-//            }
-//            return dueDate! > Date()
-//        }
-//    }
-//}
