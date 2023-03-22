@@ -29,7 +29,6 @@ struct SubmissionResultView: View {
                                         missingResultInfo: missingResultInfo)
     }
 
-    // TODO: add short versions
     var text: String {
         switch templateStatus {
         case .isBuilding:
@@ -48,7 +47,7 @@ struct SubmissionResultView: View {
             }
             return R.string.localizable.exerciseLateFeedback()
         case .hasResult:
-            return score ?? ""
+            return "\(score ?? "") (\(result?.completionDate?.relative ?? ""))"
         default:
             return showUngradedResult ? R.string.localizable.noResult() : R.string.localizable.noGradedResult()
         }
@@ -60,7 +59,6 @@ struct SubmissionResultView: View {
         }
 
         let relativeScore = Course.roundValueSpecifiedByCourseSettings(value: result.score ?? 0, for: nil).clean
-        print("Sven: \(relativeScore)")
         let points = Course.roundValueSpecifiedByCourseSettings(value: (result.score ?? 0) * (exercise.baseExercise.maxPoints ?? 0) / 100, for: nil).clean
         switch exercise {
         case .programming:
