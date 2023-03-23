@@ -147,15 +147,25 @@ public enum Difficulty: String, Decodable {
     case MEDIUM
     case HARD
 
-    // TODO: localize
     public var description: String {
         switch self {
         case .EASY:
-            return "Easy"
+            return R.string.localizable.difficulty_easy()
         case .MEDIUM:
-            return "Medium"
+            return R.string.localizable.difficulty_medium()
         case .HARD:
-            return "Hard"
+            return R.string.localizable.difficulty_hard()
+        }
+    }
+
+    public var color: Color {
+        switch self {
+        case .EASY:
+            return Color.Artemis.badgeSuccessColor
+        case .MEDIUM:
+            return Color.Artemis.badgeWarningColor
+        case .HARD:
+            return Color.Artemis.badgeDangerColor
         }
     }
 }
@@ -172,15 +182,25 @@ public enum IncludedInOverallScore: String, Decodable {
     case includedAsBonus = "INCLUDED_AS_BONUS"
     case notIncluded = "NOT_INCLUDED"
 
-    // TODO: localize
     public var description: String {
         switch self {
         case .includedCompletly:
-            return "TODO"
+            return R.string.localizable.includedInOverallScore_includedCompletely()
         case .includedAsBonus:
-            return "Bonus"
+            return R.string.localizable.includedInOverallScore_includedAsBonus()
         case .notIncluded:
-            return "TODO"
+            return R.string.localizable.includedInOverallScore_notIncluded()
+        }
+    }
+
+    public var color: Color {
+        switch self {
+        case .includedCompletly:
+            return Color.Artemis.badgeSuccessColor
+        case .includedAsBonus:
+            return Color.Artemis.badgeWarningColor
+        case .notIncluded:
+            return Color.Artemis.badgeSecondaryColor
         }
     }
 }

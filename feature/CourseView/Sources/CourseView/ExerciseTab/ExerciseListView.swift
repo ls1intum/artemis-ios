@@ -99,16 +99,19 @@ struct ExerciseListCell: View {
                 LazyHGrid(rows: rows, spacing: .s) {
                     if let releaseDate = exercise.baseExercise.releaseDate,
                        releaseDate > .now {
-                        Chip(text: "Not Released", backgroundColor: .red)
+                        Chip(text: R.string.localizable.notReleased(),
+                             backgroundColor: Color.Artemis.badgeWarningColor)
                     }
                     ForEach(exercise.baseExercise.categories ?? [], id: \.category) { category in
                         Chip(text: category.category, backgroundColor: UIColor(hexString: category.colorCode).suColor)
                     }
+                    // TODO: maybe add isActiveQuiz in presentationMode badge
                     if let difficulty = exercise.baseExercise.difficulty {
-                        Chip(text: difficulty.description, backgroundColor: .green)
+                        Chip(text: difficulty.description, backgroundColor: difficulty.color)
                     }
-                    if let includedInOverallScore = exercise.baseExercise.includedInOverallScore {
-                        Chip(text: includedInOverallScore.description, backgroundColor: .blue)
+                    if let includedInOverallScore = exercise.baseExercise.includedInOverallScore,
+                       includedInOverallScore != .includedCompletly {
+                        Chip(text: includedInOverallScore.description, backgroundColor: includedInOverallScore.color)
                     }
                 }
             }

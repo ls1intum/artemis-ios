@@ -64,10 +64,10 @@ struct SubmissionResultView: View {
         case .programming:
             var resultString = ""
             if short {
-                if result.testCaseCount == nil {
-                    resultString = R.string.localizable.programmingShort(relativeScore, buildAndTestMessage ?? "")
-                } else {
+                if result.testCaseCount ?? 0 > 0 {
                     resultString = R.string.localizable.short(relativeScore)
+                } else {
+                    resultString = R.string.localizable.programmingShort(relativeScore, buildAndTestMessage ?? "")
                 }
             } else if result.codeIssueCount ?? 0 > 0 {
                 resultString = R.string.localizable.programmingCodeIssues(

@@ -135,6 +135,12 @@ public extension Color {
         public static let resultPendingColor = UIColor(UIColor.ColorPalette.Gray60, darkModeColor: UIColor.ColorPalette.Gray40).suColor
         public static let resultSuccess = UIColor.ColorPalette.Green.suColor
         public static let resultSuccessBelowScore = UIColor.ColorPalette.Orange.suColor
+
+        // Badges
+        public static let badgeWarningColor = UIColor.ColorPalette.Yellow.suColor
+        public static let badgeSuccessColor = UIColor.ColorPalette.Green.suColor
+        public static let badgeDangerColor = UIColor.ColorPalette.Red.suColor
+        public static let badgeSecondaryColor = UIColor.ColorPalette.Gray60.suColor
     }
 }
 

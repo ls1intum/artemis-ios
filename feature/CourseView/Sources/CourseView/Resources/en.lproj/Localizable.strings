@@ -30,3 +30,6 @@
 "preliminary" = "preliminary";
 "short" = "%s%%";
 "programmingShort" = "%s%%, %s";
+
+// Badges
+"notReleased" = "Not released";
