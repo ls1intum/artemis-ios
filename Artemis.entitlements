@@ -15,6 +15,15 @@
 		<string>applinks:artemis-test5.artemis.in.tum.de</string>
 		<string>applinks:artemis-test6.artemis.in.tum.de</string>
 		<string>applinks:artemis-test10.artemis.in.tum.de</string>
+		<string>webcredentials:artemis.in.tum.de</string>
+		<string>webcredentials:artemis.ase.in.tum.de</string>
+		<string>webcredentials:artemis-test1.artemis.in.tum.de</string>
+		<string>webcredentials:artemis-test2.artemis.in.tum.de</string>
+		<string>webcredentials:artemis-staging.artemis.in.tum.de/</string>
+		<string>webcredentials:artemis-test3.artemis.in.tum.de</string>
+		<string>webcredentials:artemis-test5.artemis.in.tum.de</string>
+		<string>webcredentials:artemis-test6.artemis.in.tum.de</string>
+		<string>webcredentials:artemis-test10.artemis.in.tum.de</string>
 	</array>
 </dict>
 </plist>
