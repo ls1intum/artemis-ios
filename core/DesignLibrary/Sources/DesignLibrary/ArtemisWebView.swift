@@ -10,11 +10,11 @@ import WebKit
 
 public struct ArtemisWebView: UIViewRepresentable {
 
-    var url: URL
+    @Binding var urlRequest: URLRequest
     @Binding var contentHeight: CGFloat
 
-    public init(url: URL, contentHeight: Binding<CGFloat>) {
-        self.url = url
+    public init(urlRequest: Binding<URLRequest>, contentHeight: Binding<CGFloat>) {
+        self._urlRequest = urlRequest
         self._contentHeight = contentHeight
     }
 
@@ -26,13 +26,12 @@ public struct ArtemisWebView: UIViewRepresentable {
     }
 
     public func updateUIView(_ webView: WKWebView, context: Context) {
-        let request = URLRequest(url: url)
         if let cookie = URLSession.shared.authenticationCookie?.first {
             webView.configuration.websiteDataStore.httpCookieStore.setCookie(cookie)
         }
         // TODO: this does not supress the warning
         DispatchQueue.main.async {
-            webView.load(request)
+            webView.load(urlRequest)
         }
     }
 

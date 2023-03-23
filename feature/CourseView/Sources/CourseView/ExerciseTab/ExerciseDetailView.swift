@@ -12,9 +12,16 @@ import DesignLibrary
 struct ExerciseDetailView: View {
 
     @State var webViewHeight = CGFloat.s
+    @State var urlRequest: URLRequest
 
     let course: Course
     let exercise: Exercise
+
+    init(course: Course, exercise: Exercise) {
+        self._urlRequest = State(wrappedValue: URLRequest(url: URL(string: "https://artemis.ase.in.tum.de/courses/\(course.id)/exercises/\(exercise.id)")!))
+        self.course = course
+        self.exercise = exercise
+    }
 
     var body: some View {
         ScrollView {
@@ -50,7 +57,7 @@ struct ExerciseDetailView: View {
                     SubmissionResultStatusView(exercise: exercise)
                 }
                 .padding(.horizontal, .l)
-                ArtemisWebView(url: URL(string: "https://artemis.ase.in.tum.de/courses/\(course.id)/exercises/\(exercise.id)")!,
+                ArtemisWebView(urlRequest: $urlRequest,
                                contentHeight: $webViewHeight)
                     .frame(height: webViewHeight)
                     .disabled(true)
