@@ -30,7 +30,10 @@ public struct ArtemisWebView: UIViewRepresentable {
         if let cookie = URLSession.shared.authenticationCookie?.first {
             webView.configuration.websiteDataStore.httpCookieStore.setCookie(cookie)
         }
-        webView.load(request)
+        // TODO: this does not supress the warning
+        DispatchQueue.main.async {
+            webView.load(request)
+        }
     }
 
     public func makeCoordinator() -> Coordinator {
@@ -45,12 +48,13 @@ public struct ArtemisWebView: UIViewRepresentable {
         }
 
         public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            webView.evaluateJavaScript("document.readyState") { complete, _ in
-                guard complete != nil else { return }
-                webView.evaluateJavaScript("document.body.scrollHeight") { height, _ in
-                    guard let height = height as? CGFloat else { return }
-
-                    self.contentHeight = height
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                webView.evaluateJavaScript("document.readyState") { complete, _ in
+                    guard complete != nil else { return }
+                    webView.evaluateJavaScript("document.body.scrollHeight") { height, _ in
+                        guard let height = height as? CGFloat else { return }
+                        self.contentHeight = height
+                    }
                 }
             }
         }
