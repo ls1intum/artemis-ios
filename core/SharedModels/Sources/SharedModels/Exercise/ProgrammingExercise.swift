@@ -31,6 +31,7 @@ public struct ProgrammingExercise: BaseExercise, Decodable {
     public var programmingLanguage: ProgrammingLanguage?
     public var studentAssignedTeamIdComputed: Bool?
     public var studentAssignedTeamId: Int?
+    // swiftlint:disable:next identifier_name
     public var buildAndTestStudentSubmissionsAfterDueDate: Date?
 
     public func copyWithUpdatedParticipations(newParticipations: [Participation]) -> ProgrammingExercise {
