@@ -68,9 +68,11 @@ struct ExerciseListSection: View {
     var body: some View {
         DisclosureGroup("\(weeklyExercise.id.description) (Exercises: \(weeklyExercise.exercises.count))",
                         isExpanded: $isExpanded) {
-            ForEach(weeklyExercise.exercises) { exercise in
-                ExerciseListCell(course: course, exercise: exercise)
-            }.listRowInsets(EdgeInsets(top: .s, leading: 0, bottom: .s, trailing: .l))
+            VStack(spacing: .m) {
+                ForEach(weeklyExercise.exercises) { exercise in
+                    ExerciseListCell(course: course, exercise: exercise)
+                }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: .l))
+            }
         }.listRowSeparator(.hidden)
     }
 }
