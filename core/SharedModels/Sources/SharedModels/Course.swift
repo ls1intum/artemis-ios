@@ -70,7 +70,7 @@ public var accuracyOfScores: Int?
     public static func roundValueSpecifiedByCourseSettings(value: Double, for course: Course?) -> Double {
         let accuracy = Double(course?.accuracyOfScores ?? 1)
         return round(value * pow(10.0, accuracy)) / pow(10.0, accuracy)
-    };
+    }
 }
 
 extension Course: Hashable {

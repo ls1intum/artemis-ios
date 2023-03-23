@@ -12,6 +12,6 @@ struct ArtemisApp: App {
         WindowGroup {
             RootView()
                 .environmentObject(navigationController)
-    }
+        }
     }
 }
