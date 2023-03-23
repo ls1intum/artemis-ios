@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SharedModels
+import UserStore
 import DesignLibrary
 
 struct ExerciseDetailView: View {
@@ -18,7 +19,8 @@ struct ExerciseDetailView: View {
     let exercise: Exercise
 
     init(course: Course, exercise: Exercise) {
-        self._urlRequest = State(wrappedValue: URLRequest(url: URL(string: "https://artemis.ase.in.tum.de/courses/\(course.id)/exercises/\(exercise.id)")!))
+
+        self._urlRequest = State(wrappedValue: URLRequest(url: URL(string: "/courses/\(course.id)/exercises/\(exercise.id)", relativeTo: UserSession.shared.institution?.baseURL)!))
         self.course = course
         self.exercise = exercise
     }
