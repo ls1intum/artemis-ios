@@ -8,13 +8,13 @@ public struct UnknownExercise: BaseExercise, Decodable {
         "unknown"
     }
 
-    public var id: Int?
+    public var id: Int
     public var title: String?
     public var shortName: String?
-    public var maxPoints: Float?
-    public var bonusPoints: Float?
-    //    public var releaseDate: Date?
+    public var maxPoints: Double?
+    public var bonusPoints: Double?
     public var dueDate: Date?
+    public var releaseDate: Date?
     public var assessmentDueDate: Date?
     public var difficulty: Difficulty?
     public var mode: Mode = .INDIVIDUAL
@@ -29,6 +29,8 @@ public struct UnknownExercise: BaseExercise, Decodable {
     public var exampleSolutionPublicationDate: Date?
     public var studentParticipations: [Participation]?
     public var attachments: [Attachment]? = []
+    public var studentAssignedTeamIdComputed: Bool?
+    public var studentAssignedTeamId: Int?
 
     public func copyWithUpdatedParticipations(newParticipations: [Participation]) -> UnknownExercise {
         var clone = self

@@ -17,6 +17,7 @@ public struct Course: Decodable, Identifiable {
     public var registrationConfirmationMessage: String? = ""
     public var exercises: [Exercise]?
     public var lectures: [Lecture]?
+public var accuracyOfScores: Int?
 
     public init(id: Int, title: String? = "", description: String? = "", courseIcon: String? = nil, semester: String? = "", registrationConfirmationMessage: String? = "", exercises: [Exercise]? = nil) {
         self.id = id
@@ -60,6 +61,16 @@ public struct Course: Decodable, Identifiable {
                 }
             })
     }
+
+    /**
+     * Rounds the given value to the accuracy defined by the course.
+     * @param value The value that should be rounded.
+     * @returns The rounded value.
+     */
+    public static func roundValueSpecifiedByCourseSettings(value: Double, for course: Course?) -> Double {
+        let accuracy = Double(course?.accuracyOfScores ?? 1)
+        return round(value * pow(10.0, accuracy)) / pow(10.0, accuracy)
+    };
 }
 
 extension Course: Hashable {

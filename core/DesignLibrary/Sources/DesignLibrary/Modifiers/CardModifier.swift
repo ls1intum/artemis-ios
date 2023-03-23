@@ -11,22 +11,28 @@ struct CardModifier: ViewModifier {
 
     var backgroundColor: Color
     var hasBorder: Bool
+    var borderColor: Color
+    var cornerRadius: CGFloat
 
     func body(content: Content) -> some View {
         content
             .background(backgroundColor)
-            .cornerRadius(16)
+            .cornerRadius(cornerRadius)
             .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(Color.Artemis.cardBorderColor, lineWidth: hasBorder ? 1 : 0)
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .stroke(borderColor, lineWidth: hasBorder ? 1 : 0)
             )
     }
 }
 
 public extension View {
     func cardModifier(backgroundColor: Color = Color.Artemis.cardBackgroundColor,
-                      hasBorder: Bool = false) -> some View {
+                      hasBorder: Bool = false,
+                      borderColor: Color = Color.Artemis.cardBorderColor,
+                      cornerRadius: CGFloat = 16) -> some View {
         modifier(CardModifier(backgroundColor: backgroundColor,
-                              hasBorder: hasBorder))
+                              hasBorder: hasBorder,
+                              borderColor: borderColor,
+                              cornerRadius: cornerRadius))
     }
 }

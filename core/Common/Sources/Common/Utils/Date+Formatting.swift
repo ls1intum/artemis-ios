@@ -43,6 +43,22 @@ public extension Date {
     var timeOnly: String {
         return DateFormatter.timeOnly.string(from: self)
     }
+
+    var dateOnly: String {
+        return DateFormatter.dateOnly.string(from: self)
+    }
+
+    var relative: String? {
+        return RelativeDateTimeFormatter.formatter.string(for: self)
+    }
+}
+
+public extension RelativeDateTimeFormatter {
+    static var formatter: RelativeDateTimeFormatter {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .full
+        return formatter
+    }
 }
 
 public extension DateFormatter {
@@ -58,8 +74,12 @@ public extension DateFormatter {
         locale = .current
     }
 
-    // DE: "DD/MM/YYYY, HH:MM"
-    // US: "Mon DD, YYYY at HH:MM AM"
+    static var dateOnly: DateFormatter {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .medium
+        dateFormatter.timeStyle = .none
+        return dateFormatter
+    }
 
     static var dateAndTime: DateFormatter {
         let dateFormatter = DateFormatter(dateStyle: .medium, timeStyle: .short)
@@ -93,5 +113,17 @@ public extension Date {
         components.day = 1
         components.second = -1
         return Calendar.current.date(byAdding: components, to: startOfDay)!
+    }
+
+    static var tomorrow: Date {
+        var components = DateComponents()
+        components.day = 1
+        return Calendar.current.date(byAdding: components, to: .now)!
+    }
+
+    static var yesterday: Date {
+        var components = DateComponents()
+        components.day = -1
+        return Calendar.current.date(byAdding: components, to: .now)!
     }
 }

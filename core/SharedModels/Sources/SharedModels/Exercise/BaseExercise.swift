@@ -6,13 +6,14 @@ public protocol BaseExercise: Decodable {
 
     static var type: String { get }
 
-    var id: Int? { get }
+    var id: Int { get }
     var title: String? { get }
     var shortName: String? { get }
-    var maxPoints: Float? { get }
-    var bonusPoints: Float? { get }
+    var maxPoints: Double? { get }
+    var bonusPoints: Double? { get }
     //    var releaseDate: Date? { get }
     var dueDate: Date? { get }
+    var releaseDate: Date? { get }
     var assessmentDueDate: Date? { get }
     var difficulty: Difficulty? { get }
     var mode: Mode { get }
@@ -26,6 +27,8 @@ public protocol BaseExercise: Decodable {
     var includedInOverallScore: IncludedInOverallScore { get }
     var exampleSolutionPublicationDate: Date? { get }
     var studentParticipations: [Participation]? { get }
+    var studentAssignedTeamIdComputed: Bool? { get }
+    var studentAssignedTeamId: Int? { get }
 
     // -------
     var attachments: [Attachment]? { get }
@@ -61,26 +64,23 @@ public enum Exercise: Decodable, Identifiable {
     }
 
     public var id: Int {
-        baseExercise.id ?? -1 // TODO: why optional
+        baseExercise.id
     }
 
-    // TODO: adjust image
     public var image: Image {
         switch self {
-//        case .fileUpload(let exercise):
-//            return Image(systemName: "")
-//        case .modeling(let exercise):
-//            <#code#>
-//        case .programming(let exercise):
-//            <#code#>
-//        case .quiz(let exercise):
-//            <#code#>
-//        case .text(let exercise):
-//            <#code#>
-//        case .unknown(let exercise):
-//            <#code#>
-        default:
-            return Image(systemName: "doc.text.fill")
+        case .fileUpload:
+            return Image("file-arrow-up-solid", bundle: .module)
+        case .modeling:
+            return Image("diagram-project-solid", bundle: .module)
+        case .programming:
+            return Image("keyboard-solid", bundle: .module)
+        case .quiz:
+            return Image("check-double-solid", bundle: .module)
+        case .text:
+            return Image("font-solid", bundle: .module)
+        case .unknown:
+            return Image("question-solid", bundle: .module)
         }
     }
 
@@ -113,12 +113,61 @@ public enum Exercise: Decodable, Identifiable {
             return .unknown(exercise: exercise.copyWithUpdatedParticipations(newParticipations: newParticipations))
         }
     }
+
+    public func getSpecificStudentParticipation(testRun: Bool) -> StudentParticipation? {
+        let studentParticipation = (baseExercise.studentParticipations ?? []).first(where: { participation in
+            switch participation {
+            case .student(let participation):
+                return (participation.testRun ?? false) == testRun
+            case .programmingExerciseStudent(let participation):
+                return (participation.testRun ?? false) == testRun
+            default:
+                return false
+            }
+        })
+
+        switch studentParticipation {
+        case .student(let participation):
+            return participation
+        case .programmingExerciseStudent(let participation):
+            return participation
+        default:
+            return nil
+        }
+    }
+
+    public func getDueDate(for participation: BaseParticipation) -> Date? {
+        guard let dueDate = baseExercise.dueDate else { return nil }
+        return participation.initializationDate ?? dueDate
+    }
 }
 
 public enum Difficulty: String, Decodable {
     case EASY
     case MEDIUM
     case HARD
+
+    public var description: String {
+        switch self {
+        case .EASY:
+            return R.string.localizable.difficulty_easy()
+        case .MEDIUM:
+            return R.string.localizable.difficulty_medium()
+        case .HARD:
+            return R.string.localizable.difficulty_hard()
+        }
+    }
+
+    public var color: Color {
+        switch self {
+        case .EASY:
+            return Color.Artemis.badgeSuccessColor
+        case .MEDIUM:
+            return Color.Artemis.badgeWarningColor
+        case .HARD:
+            return Color.Artemis.badgeDangerColor
+        }
+    }
 }
 
 public enum Mode: String, Decodable {
@@ -132,6 +181,28 @@ public enum IncludedInOverallScore: String, Decodable {
     case includedCompletly = "INCLUDED_COMPLETELY"
     case includedAsBonus = "INCLUDED_AS_BONUS"
     case notIncluded = "NOT_INCLUDED"
+
+    public var description: String {
+        switch self {
+        case .includedCompletly:
+            return R.string.localizable.includedInOverallScore_includedCompletely()
+        case .includedAsBonus:
+            return R.string.localizable.includedInOverallScore_includedAsBonus()
+        case .notIncluded:
+            return R.string.localizable.includedInOverallScore_notIncluded()
+        }
+    }
+
+    public var color: Color {
+        switch self {
+        case .includedCompletly:
+            return Color.Artemis.badgeSuccessColor
+        case .includedAsBonus:
+            return Color.Artemis.badgeWarningColor
+        case .notIncluded:
+            return Color.Artemis.badgeSecondaryColor
+        }
+    }
 }
 
 public enum ParticipationStatus {
@@ -160,150 +231,20 @@ public enum AssessmentType: String, Decodable {
 
 public struct Category: Decodable {
     public let category: String
-    public let colorCode: Int64?
+    public let colorCode: String
 
     // TODO: remove force unwrap
-    // swiftlint:disable force_try force_cast
+    // swiftlint:disable force_try
     public init(from decoder: Decoder) {
         let string: String = try! decoder.singleValueContainer().decode(String.self)
         let impl = try! JSONDecoder().decode(CategoryImpl.self, from: Data(string.utf8))
 
         category = impl.category
-        colorCode = Category.decodeColor(colorString: impl.color)
-    }
-
-    static func decodeColor(colorString: String) -> Int64? {
-        if colorString.isEmpty || colorString == "null" {
-            return nil
-        }
-
-        if !colorString.starts(with: "#") {
-            return nil
-        }
-
-        let intCode = Int64(colorString.dropFirst(), radix: 16)
-        return 0xff000000 + intCode!
+        colorCode = impl.color
     }
 }
 
 private struct CategoryImpl: Decodable {
     let category: String
     let color: String
-}
-
-public extension BaseExercise {
-    // -------------------------------------------------------------
-    // Copy of https://github.com/ls1intum/Artemis/blob/5c13e2e1b5b6d81594b9123946f040cbf6f0cfc6/src/main/webapp/app/exercises/shared/exercise/exercise.utils.ts
-    // TODO: Remove me once this is calculated on the server.
-
-    func computeParticipationStatus(testRun: Bool?) -> ParticipationStatus {
-        let studentParticipation: Participation?
-        if testRun == nil {
-            studentParticipation = (studentParticipations ?? []).first
-        } else {
-            let participations: [Participation] = studentParticipations ?? []
-            studentParticipation = participations.first { participation in
-                if participation is StudentParticipation {
-                    return (participation as! StudentParticipation).testRun == testRun
-                } else {
-                    return false
-                }
-            }
-        }
-
-        // For team exercises check whether the student has been assigned to a team yet
-        // !!!! TODO: Not yet implemented
-        //        if (teamMode == true && studentAssignedTeamIdComputed && !studentAssignedTeamId) {
-        //            return ParticipationStatus.NO_TEAM_ASSIGNED
-        //        }
-
-        // Evaluate the participation status for quiz exercises.
-        if self is QuizExercise {
-            return participationStatusForQuizExercise(exercise: self as! QuizExercise)
-        }
-
-        // Evaluate the participation status for modeling, text and file upload exercises if the exercise has participations.
-        if (self is ModelingExercise || self is TextExercise || self is FileUploadExercise) && studentParticipation != nil {
-            return participationStatusForModelingTextFileUploadExercise(participation: studentParticipation!)
-        }
-
-        let initState = studentParticipation?.baseParticipation.initializationState
-
-        // The following evaluations are relevant for programming exercises in general and for modeling, text and file upload exercises that don't have participations.
-        if studentParticipation == nil ||
-            initState == InitializationState.uninitalized ||
-            initState == InitializationState.repoCopied ||
-            initState == InitializationState.repoConfigured ||
-            initState == InitializationState.buildPlanCopied ||
-            initState == InitializationState.buildPlanConfigured {
-            if self is ProgrammingExercise && !isStartExerciseAvailable(exercise: self as! ProgrammingExercise) && testRun == nil || testRun == false {
-                return ParticipationStatus.exerciseMissed
-            } else {
-                return ParticipationStatus.uninitialized
-            }
-        } else if studentParticipation!.baseParticipation.initializationState == InitializationState.INITIALIZED {
-            return ParticipationStatus.initialized(participation: studentParticipation!)
-        }
-        return ParticipationStatus.inactive(participation: studentParticipation!)
-    }
-
-    private func isStartExerciseAvailable(exercise: ProgrammingExercise) -> Bool {
-        exercise.dueDate == nil || Date() < exercise.dueDate!
-    }
-
-    private func participationStatusForQuizExercise(exercise: QuizExercise) -> ParticipationStatus {
-        if exercise.status == QuizStatus.closed {
-            if !(exercise.studentParticipations ?? []).isEmpty && !(exercise.studentParticipations!.first!.baseParticipation.results ?? []).isEmpty {
-                return ParticipationStatus.quizFinished(participation: exercise.studentParticipations!.first!)
-            }
-
-            return ParticipationStatus.quizNotParticipated
-        } else if !(exercise.studentParticipations ?? []).isEmpty {
-            let initState = exercise.studentParticipations!.first!.baseParticipation.initializationState
-            if initState == InitializationState.INITIALIZED {
-                return ParticipationStatus.quizActive
-            } else if initState == InitializationState.FINISHED {
-                return ParticipationStatus.quizSubmitted
-            }
-        } else if ((exercise.quizBatches ?? []).contains { item in
-            item.started == true
-        }) {
-            return ParticipationStatus.quizNotInitialized
-        }
-        return ParticipationStatus.quizNotStarted
-    }
-
-    private func participationStatusForModelingTextFileUploadExercise(participation: Participation) -> ParticipationStatus {
-        if participation.baseParticipation.initializationState == InitializationState.INITIALIZED {
-            if hasDueDataPassed(participation: participation) {
-                return ParticipationStatus.exerciseMissed
-            } else {
-                return ParticipationStatus.exerciseActive
-            }
-        } else if participation.baseParticipation.initializationState == InitializationState.FINISHED {
-            return ParticipationStatus.exerciseSubmitted(participation: participation)
-        } else {
-            return ParticipationStatus.uninitialized
-        }
-    }
-
-    private func hasDueDataPassed(participation: Participation) -> Bool {
-        if dueDate == nil {
-            return false
-        } else {
-            let dueDate = getDueDate(participation: participation)
-            if dueDate == nil {
-                return false
-            }
-            return dueDate! > Date()
-        }
-    }
-
-    func getDueDate(participation: Participation) -> Date? {
-        if dueDate == nil {
-            return nil
-        } else {
-            return participation.baseParticipation.initializationDate ?? dueDate
-        }
-    }
 }

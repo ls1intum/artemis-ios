@@ -7,8 +7,14 @@
 	<key>com.apple.developer.associated-domains</key>
 	<array>
 		<string>applinks:artemis.in.tum.de</string>
-		<string>applinks:*.artemis.in.tum.de</string>
 		<string>applinks:artemis.ase.in.tum.de</string>
+		<string>applinks:artemis-test1.artemis.in.tum.de</string>
+		<string>applinks:artemis-test2.artemis.in.tum.de</string>
+		<string>applinks:artemis-staging.artemis.in.tum.de/</string>
+		<string>applinks:artemis-test3.artemis.in.tum.de</string>
+		<string>applinks:artemis-test5.artemis.in.tum.de</string>
+		<string>applinks:artemis-test6.artemis.in.tum.de</string>
+		<string>applinks:artemis-test10.artemis.in.tum.de</string>
 	</array>
 </dict>
 </plist>

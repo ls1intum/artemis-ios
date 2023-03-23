@@ -68,6 +68,7 @@ public extension UIColor {
 fileprivate extension UIColor {
     struct ColorPalette {
         static let White = UIColor(netHex: 0xffffff)
+        static let Gray05 = UIColor(netHex: 0xf2f2f2)
         static let Gray10 = UIColor(netHex: 0xe6e6e6)
         static let Gray20 = UIColor(netHex: 0xcccccc)
         static let Gray30 = UIColor(netHex: 0xb3b3b3)
@@ -77,10 +78,16 @@ fileprivate extension UIColor {
         static let Gray70 = UIColor(netHex: 0x4d4d4d)
         static let Gray80 = UIColor(netHex: 0x333333)
         static let Gray90 = UIColor(netHex: 0x1a1a1a)
+        static let Gray95 = UIColor(netHex: 0x0d0d0d)
         static let Black = UIColor(netHex: 0x000000)
 
-        static let ArtemisBlue = UIColor(netHex: 0x3f89cc)
+        static let ArtemisBlue = UIColor(netHex: 0x3e8acc)
         static let ArtemisLightBlue = UIColor(netHex: 0xb5cee4)
+
+        static let Red = UIColor(netHex: 0xdc3545)
+        static let Orange = UIColor(netHex: 0xfd7e14)
+        static let Yellow = UIColor(netHex: 0xffc107)
+        static let Green = UIColor(netHex: 0x28a745)
     }
 }
 
@@ -116,10 +123,24 @@ public extension Color {
         public static let modalCardBackgroundColor = UIColor(UIColor.ColorPalette.Gray10, darkModeColor: UIColor.ColorPalette.Gray80).suColor
         public static let dashboardCardBackgroundColor = UIColor(UIColor.ColorPalette.Gray10, darkModeColor: UIColor.ColorPalette.Gray90).suColor
         public static let cardBorderColor = UIColor(UIColor.ColorPalette.Gray20, darkModeColor: UIColor.ColorPalette.Gray80).suColor
+        public static let exerciseCardBackgroundColor = UIColor(UIColor.ColorPalette.Gray05, darkModeColor: UIColor.ColorPalette.Gray80).suColor
 
         // Login
         public static let loginBackgroundColor = UIColor(UIColor.ColorPalette.White, darkModeColor: UIColor.ColorPalette.Gray80).suColor
         public static let loginTextFieldBorderColor = UIColor(UIColor.ColorPalette.Gray20, darkModeColor: UIColor.ColorPalette.Gray80).suColor
+
+        // Result
+        public static let resultFailedColor = UIColor.ColorPalette.Red.suColor
+        public static let resultLateColor = UIColor(UIColor.ColorPalette.Gray60, darkModeColor: UIColor.ColorPalette.Gray40).suColor
+        public static let resultPendingColor = UIColor(UIColor.ColorPalette.Gray60, darkModeColor: UIColor.ColorPalette.Gray40).suColor
+        public static let resultSuccess = UIColor.ColorPalette.Green.suColor
+        public static let resultSuccessBelowScore = UIColor.ColorPalette.Orange.suColor
+
+        // Badges
+        public static let badgeWarningColor = UIColor.ColorPalette.Yellow.suColor
+        public static let badgeSuccessColor = UIColor.ColorPalette.Green.suColor
+        public static let badgeDangerColor = UIColor.ColorPalette.Red.suColor
+        public static let badgeSecondaryColor = UIColor.ColorPalette.Gray60.suColor
     }
 }
 

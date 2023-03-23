@@ -1,1 +1,4 @@
-"notifications_title" = "Notifications"
+"notifications_title" = "Notifications";
+"no_notifications_yet_label" = "No Notifications yet!";
+"notification_author_label" = "%@ by %@";
+"artemis_label" = "Artemis";

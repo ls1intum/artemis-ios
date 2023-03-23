@@ -8,13 +8,13 @@ public struct QuizExercise: BaseExercise, Decodable {
         "quiz"
     }
 
-    public var id: Int?
+    public var id: Int
     public var title: String?
     public var shortName: String?
-    public var maxPoints: Float?
-    public var bonusPoints: Float?
-    //    public var releaseDate: Date?
+    public var maxPoints: Double?
+    public var bonusPoints: Double?
     public var dueDate: Date?
+    public var releaseDate: Date?
     public var assessmentDueDate: Date?
     public var difficulty: Difficulty?
     public var mode: Mode = .INDIVIDUAL
@@ -29,6 +29,8 @@ public struct QuizExercise: BaseExercise, Decodable {
     public var exampleSolutionPublicationDate: Date?
     public var studentParticipations: [Participation]?
     public var attachments: [Attachment]? = []
+    public var studentAssignedTeamIdComputed: Bool?
+    public var studentAssignedTeamId: Int?
 
     public var allowedNumberOfAttempts: Int?
     public var remainingNumberOfAttempts: Int?
@@ -38,12 +40,33 @@ public struct QuizExercise: BaseExercise, Decodable {
     public var quizQuestions: [QuizQuestion]? = []
     public var status: QuizStatus?
     public var quizMode: QuizMode? = QuizMode.INDIVIDUAL
+    public var quizEnded: Bool?
     public var quizBatches: [QuizBatch]? = []
 
     public func copyWithUpdatedParticipations(newParticipations: [Participation]) -> QuizExercise {
         var clone = self
         clone[keyPath: \.studentParticipations] = newParticipations
         return clone
+    }
+
+    public var isUninitialized: Bool {
+        notEndedSubmittedOrFinished && startedQuizBatch
+    }
+
+    public var notStarted: Bool {
+        notEndedSubmittedOrFinished && !startedQuizBatch
+    }
+
+    private var notEndedSubmittedOrFinished: Bool {
+        !(quizEnded ?? false)
+        && (studentParticipations?.first?.baseParticipation.initializationState == nil
+            || [InitializationState.initialized, InitializationState.finished].contains(
+                studentParticipations?.first?.baseParticipation.initializationState)
+        )
+    }
+
+    private var startedQuizBatch: Bool {
+        (quizBatches ?? []).contains(where: { $0.started ?? false })
     }
 }
 

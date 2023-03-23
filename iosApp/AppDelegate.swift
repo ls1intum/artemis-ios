@@ -21,6 +21,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
 
+    func applicationDidEnterBackground(_ application: UIApplication) {
+        UIApplication.shared.applicationIconBadgeNumber = 0
+    }
+
     private func registerForPushNotifications() {
         UNUserNotificationCenter.current().delegate = self
     }
@@ -75,6 +79,10 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         }
 
         DeeplinkHandler.shared.handle(path: targetURL)
+
+        // update app badge count
+        UIApplication.shared.applicationIconBadgeNumber += 1
+
         // TODO: maybe add as param above
         completionHandler()
     }
