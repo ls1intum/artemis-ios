@@ -71,8 +71,8 @@ struct ExerciseListSection: View {
             VStack(spacing: .m) {
                 ForEach(weeklyExercise.exercises) { exercise in
                     ExerciseListCell(course: course, exercise: exercise)
-                }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: .l))
-            }
+                }
+            }.listRowInsets(EdgeInsets(top: .m, leading: 0, bottom: .m, trailing: .l))
         }.listRowSeparator(.hidden)
     }
 }

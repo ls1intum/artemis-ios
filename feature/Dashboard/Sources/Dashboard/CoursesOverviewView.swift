@@ -133,6 +133,7 @@ private struct CourseListCell: View {
                             Text(R.string.localizable.dashboard_next_exercise_label())
                                 .padding(.trailing, .m)
                             nextExercise.image
+                                .renderingMode(.template)
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: .extraSmallImage)
