@@ -227,6 +227,18 @@ public enum AssessmentType: String, Decodable {
     case automatic = "AUTOMATIC"
     case semiAutomatic = "SEMI_AUTOMATIC"
     case manual = "MANUAL"
+
+    // TODO: localization
+    public var description: String {
+        switch self {
+        case .automatic:
+            return "automatic"
+        case .semiAutomatic:
+            return "semi-automatic"
+        case .manual:
+            return "manual"
+        }
+    }
 }
 
 public struct Category: Decodable {
@@ -247,4 +259,14 @@ public struct Category: Decodable {
 private struct CategoryImpl: Decodable {
     let category: String
     let color: String
+}
+
+extension Exercise: Hashable {
+    public static func == (lhs: Exercise, rhs: Exercise) -> Bool {
+        lhs.id == rhs.id
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
 }

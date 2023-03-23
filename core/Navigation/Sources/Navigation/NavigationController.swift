@@ -37,8 +37,26 @@ public struct CoursePath: Hashable {
         self.course = nil
     }
 
-    public init(id: Int, course: Course) {
-        self.id = id
+    public init(course: Course) {
+        self.id = course.id
         self.course = course
+    }
+}
+
+public struct ExercisePath: Hashable {
+    public let id: Int
+    public let exercise: Exercise?
+    public let coursePath: CoursePath
+
+    init(id: Int, coursePath: CoursePath) {
+        self.id = id
+        self.exercise = nil
+        self.coursePath = coursePath
+    }
+
+    public init(exercise: Exercise, coursePath: CoursePath) {
+        self.id = exercise.id
+        self.exercise = exercise
+        self.coursePath = coursePath
     }
 }

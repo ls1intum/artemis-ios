@@ -152,7 +152,7 @@ private struct CourseListCell: View {
             }
                 .cardModifier(backgroundColor: .clear, hasBorder: true)
                 .onTapGesture {
-                    navigationController.path.append(CoursePath(id: course.id, course: course))
+                    navigationController.path.append(CoursePath(course: course))
                 }
                 .frame(maxWidth: 720)
             Spacer()

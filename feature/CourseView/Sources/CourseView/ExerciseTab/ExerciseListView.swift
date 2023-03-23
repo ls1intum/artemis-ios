@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 import SharedModels
 import Common
+import Navigation
 import DesignLibrary
 
 struct ExerciseListView: View {
@@ -36,19 +37,25 @@ struct ExerciseListView: View {
     var body: some View {
         List {
             ForEach(weeklyExercises) { weeklyExercise in
-                ExerciseListSection(weeklyExercise: weeklyExercise)
+                ExerciseListSection(course: viewModel.course.value!, weeklyExercise: weeklyExercise)  // TODO: force unwrap
             }
-        }.listStyle(PlainListStyle())
+        }
+            .listStyle(PlainListStyle())
+            .navigationDestination(for: ExercisePath.self) { exercisePath in
+                ExerciseDetailView(course: exercisePath.coursePath.course!, exercise: exercisePath.exercise!) // TODO: force unwrap
+            }
     }
 }
 
 struct ExerciseListSection: View {
 
+    private let course: Course
     private let weeklyExercise: WeeklyExercise
 
     @State private var isExpanded: Bool
 
-    fileprivate init(weeklyExercise: WeeklyExercise) {
+    fileprivate init(course: Course, weeklyExercise: WeeklyExercise) {
+        self.course = course
         self.weeklyExercise = weeklyExercise
 
         var isExpanded = false
@@ -62,7 +69,7 @@ struct ExerciseListSection: View {
         DisclosureGroup("\(weeklyExercise.id.description) (Exercises: \(weeklyExercise.exercises.count))",
                         isExpanded: $isExpanded) {
             ForEach(weeklyExercise.exercises) { exercise in
-                ExerciseListCell(exercise: exercise)
+                ExerciseListCell(course: course, exercise: exercise)
             }.listRowInsets(EdgeInsets(top: .s, leading: 0, bottom: .s, trailing: .l))
         }.listRowSeparator(.hidden)
     }
@@ -70,6 +77,9 @@ struct ExerciseListSection: View {
 
 struct ExerciseListCell: View {
 
+    @EnvironmentObject var navigationController: NavigationController
+
+    let course: Course
     let exercise: Exercise
 
     let rows = [
@@ -122,6 +132,9 @@ struct ExerciseListCell: View {
                           hasBorder: true,
                           borderColor: Color.Artemis.artemisBlue,
                           cornerRadius: 2)
+            .onTapGesture {
+                navigationController.path.append(ExercisePath(exercise: exercise, coursePath: CoursePath(course: course)))
+            }
     }
 }
 
