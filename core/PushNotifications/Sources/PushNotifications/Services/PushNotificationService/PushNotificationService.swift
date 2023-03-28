@@ -19,6 +19,11 @@ public protocol PushNotificationService {
      * Unregister Device to receive Push Notifications
      */
     func unregister() async -> NetworkResponse
+
+    /**
+     * Get Notification Settings
+     */
+    func getNotificationSettings() async -> DataState<[PushNotificationSetting]>
 }
 
 public enum PushNotificationServiceFactory {

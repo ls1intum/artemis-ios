@@ -8,11 +8,14 @@
 import SwiftUI
 import DesignLibrary
 import Common
+import PushNotifications
 
 struct AccountNavigationBarMenuView: View {
     @StateObject private var viewModel = AccountNavigationBarMenuViewModel()
 
     @Binding var error: UserFacingError?
+
+    @State private var showNotificationSettings = false
 
     var body: some View {
         Menu(content: {
@@ -21,6 +24,9 @@ struct AccountNavigationBarMenuView: View {
             }
             Button("Logout") {
                 viewModel.logout()
+            }
+            Button("Notification Settings") {
+                showNotificationSettings = true
             }
         }, label: {
             HStack(alignment: .center, spacing: .s) {
@@ -33,6 +39,9 @@ struct AccountNavigationBarMenuView: View {
         })
         .onChange(of: viewModel.error) { error in
             self.error = error
+        }
+        .sheet(isPresented: $showNotificationSettings) {
+            PushNotificationSettingsView()
         }
     }
 }
