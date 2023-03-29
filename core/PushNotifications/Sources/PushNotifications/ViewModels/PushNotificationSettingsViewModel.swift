@@ -25,6 +25,7 @@ class PushNotificationSettingsViewModel: ObservableObject {
 
     func saveNotificationSettings() async {
         pushNotificationSettingsRequest = .loading
+        isSaveDisabled = true
         let notificationSettings = pushNotificationSettings.map { $0.value }
         let result = await PushNotificationServiceFactory.shared.saveNotificationSettings(notificationSettings)
 
@@ -39,7 +40,8 @@ class PushNotificationSettingsViewModel: ObservableObject {
             pushNotificationSettingsRequest = .failure(error: error)
         case .done(let response):
             pushNotificationSettingsRequest = .done(response: true)
-            self.pushNotificationSettings = Dictionary(uniqueKeysWithValues: response.filter {
+            self.pushNotificationSettings = Dictionary(uniqueKeysWithValues: response
+                .filter {
                     $0.settingId != .other
                 }
                 .map {

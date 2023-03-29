@@ -18,6 +18,7 @@ public struct PushNotificationSettingsView: View {
 
     public var body: some View {
         NavigationView {
+            // TODO: show setupView instead if not activated yet
             DataStateView(data: $viewModel.pushNotificationSettingsRequest,
                           retryHandler: { await viewModel.getNotificationSettings() }) { _ in
                 List {
