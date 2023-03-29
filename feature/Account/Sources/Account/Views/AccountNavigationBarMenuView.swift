@@ -22,20 +22,27 @@ struct AccountNavigationBarMenuView: View {
             DataStateView(data: $viewModel.account, retryHandler: viewModel.getAccount) { account in
                 Text(account.login)
             }
+            Button(action: {
+                showNotificationSettings = true
+            }, label: {
+                HStack {
+                    Image(systemName: "gearshape.fill")
+                    Text("Notification Settings")
+                    Spacer()
+                }
+            })
             Button("Logout") {
                 viewModel.logout()
             }
-            Button("Notification Settings") {
-                showNotificationSettings = true
-            }
         }, label: {
             HStack(alignment: .center, spacing: .s) {
+                Spacer()
                 Image(systemName: "person.fill")
                 Text(viewModel.account.value?.login ?? "xx12xxx")
                     .redacted(reason: viewModel.account.value == nil ? .placeholder : [])
                 Image(systemName: "arrowtriangle.down.fill")
                     .scaleEffect(0.5)
-            }
+            }.frame(width: 150)
         })
         .onChange(of: viewModel.error) { error in
             self.error = error

@@ -49,10 +49,6 @@ public struct CoursesOverviewView: View {
         .accountMenu(error: $viewModel.error)
         .notificationToolBar()
         .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
-        .toolbar {
-            ToolbarItemGroup(placement: .navigationBarLeading) {
-            }
-        }
         .sheet(isPresented: $showCourseRegistrationSheet) {
             CourseRegistrationView(successCompletion: {
                 showCourseRegistrationSheet = false
