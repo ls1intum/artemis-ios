@@ -24,6 +24,11 @@ public protocol PushNotificationService {
      * Get Notification Settings
      */
     func getNotificationSettings() async -> DataState<[PushNotificationSetting]>
+
+    /**
+     * Save Notification Settings
+     */
+    func saveNotificationSettings(_ settings: [PushNotificationSetting]) async -> DataState<[PushNotificationSetting]>
 }
 
 public enum PushNotificationServiceFactory {

@@ -8,10 +8,11 @@
 import Foundation
 
 public struct PushNotificationSetting: Codable {
+    public let id: Int
     public let settingId: PushNotificationSettingId
     public let webapp: Bool
     public let email: Bool
-//    public var push: Bool
+    public var push: Bool = false
 }
 
 public enum PushNotificationSettingId: String, RawRepresentable, Codable {

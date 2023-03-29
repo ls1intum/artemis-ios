@@ -14,11 +14,23 @@ public enum DataState<T> {
     case done(response: T)
 
     public var value: T? {
-        switch self {
-        case .done(let value):
-            return value
-        default:
-            return nil
+        get {
+            switch self {
+            case .done(let value):
+                return value
+            default:
+                return nil
+            }
+        }
+        set {
+            switch self {
+            case .done:
+                if let newValue {
+                    self = .done(response: newValue)
+                }
+            default:
+                print("Do nothing")
+            }
         }
     }
 }

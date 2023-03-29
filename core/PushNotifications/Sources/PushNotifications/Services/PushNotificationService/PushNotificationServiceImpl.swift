@@ -106,4 +106,35 @@ class PushNotificationServiceImpl: PushNotificationService {
             return .failure(error: UserFacingError(error: error))
         }
     }
+
+    struct SaveNotificationSettingsRequest: APIRequest {
+        typealias Response = [PushNotificationSetting]
+
+        var notificationSettings: [PushNotificationSetting]
+
+        var method: HTTPMethod {
+            return .put
+        }
+
+        var resourceName: String {
+            return "api/notification-settings"
+        }
+
+        func encode(to encoder: Encoder) throws {
+            var container = encoder.singleValueContainer()
+            try container.encode(notificationSettings)
+        }
+    }
+
+    func saveNotificationSettings(_ settings: [PushNotificationSetting]) async -> DataState<[PushNotificationSetting]> {
+        let result = await client.sendRequest(SaveNotificationSettingsRequest(notificationSettings: settings))
+
+        switch result {
+        case .success(let (response, _)):
+            return .done(response: response)
+        case .failure(let error):
+            log.error(error, "Could not save Notification Settings")
+            return .failure(error: UserFacingError(error: error))
+        }
+    }
 }
