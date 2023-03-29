@@ -19,71 +19,75 @@ public struct PushNotificationSettingsView: View {
     public var body: some View {
         NavigationView {
             // TODO: show setupView instead if not activated yet
-            DataStateView(data: $viewModel.pushNotificationSettingsRequest,
-                          retryHandler: { await viewModel.getNotificationSettings() }) { _ in
-                List {
-                    Section(R.string.localizable.courseWideDiscussionNotificationsSectionTitle()) {
-                        SettingsCell(viewModel: viewModel,
-                                     type: .newCoursePost)
-                        SettingsCell(viewModel: viewModel,
-                                     type: .newReplyForCoursePost)
-                        SettingsCell(viewModel: viewModel,
-                                     type: .newAnnouncementPost)
-                    }
-                    Section(R.string.localizable.exerciseNotificationsSectionTitle()) {
-                        SettingsCell(viewModel: viewModel,
-                                     type: .exerciseReleased)
-                        SettingsCell(viewModel: viewModel,
-                                     type: .exercisePractice)
-                        SettingsCell(viewModel: viewModel,
-                                     type: .exerciseSubmissionAssessed)
-                        SettingsCell(viewModel: viewModel,
-                                     type: .fileSubmissionSuccessful)
-                        SettingsCell(viewModel: viewModel,
-                                     type: .newExercisePost)
-                        SettingsCell(viewModel: viewModel,
-                                     type: .newReplyForExercisePost)
-                    }
-                    Section(R.string.localizable.lectureNotificationsSectionTitle()) {
-                        SettingsCell(viewModel: viewModel,
-                                     type: .attachmentChange)
-                        SettingsCell(viewModel: viewModel,
-                                     type: .newLecturePost)
-                        SettingsCell(viewModel: viewModel,
-                                     type: .newReplyForLecturePost)
-                    }
-                    Section(R.string.localizable.tutorialGroupNotificationsSectionTitle()) {
-                        SettingsCell(viewModel: viewModel,
-                                     type: .tutorialGroupRegistrationStudent)
-                        SettingsCell(viewModel: viewModel,
-                                     type: .tutorialGroupDeleteUpdateStudent)
-                    }
-                    Section(R.string.localizable.tutorNotificationsSectionTitle()) {
-                        SettingsCell(viewModel: viewModel,
-                                     type: .tutorialGroupRegistrationTutor)
-                        SettingsCell(viewModel: viewModel,
-                                     type: .tutorialGroupAssignUnassignTutor)
-                    }
-                }
-            }.task {
-                await viewModel.getNotificationSettings()
-            }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Save") {
-                        viewModel.pushNotificationSettingsRequest = .loading
-                        Task {
-                            await viewModel.saveNotificationSettings()
+            if viewModel.didSetupNotifications {
+                DataStateView(data: $viewModel.pushNotificationSettingsRequest,
+                              retryHandler: { await viewModel.getNotificationSettings() }) { _ in
+                    List {
+                        Section(R.string.localizable.courseWideDiscussionNotificationsSectionTitle()) {
+                            SettingsCell(viewModel: viewModel,
+                                         type: .newCoursePost)
+                            SettingsCell(viewModel: viewModel,
+                                         type: .newReplyForCoursePost)
+                            SettingsCell(viewModel: viewModel,
+                                         type: .newAnnouncementPost)
                         }
-                    }.disabled(viewModel.isSaveDisabled)
+                        Section(R.string.localizable.exerciseNotificationsSectionTitle()) {
+                            SettingsCell(viewModel: viewModel,
+                                         type: .exerciseReleased)
+                            SettingsCell(viewModel: viewModel,
+                                         type: .exercisePractice)
+                            SettingsCell(viewModel: viewModel,
+                                         type: .exerciseSubmissionAssessed)
+                            SettingsCell(viewModel: viewModel,
+                                         type: .fileSubmissionSuccessful)
+                            SettingsCell(viewModel: viewModel,
+                                         type: .newExercisePost)
+                            SettingsCell(viewModel: viewModel,
+                                         type: .newReplyForExercisePost)
+                        }
+                        Section(R.string.localizable.lectureNotificationsSectionTitle()) {
+                            SettingsCell(viewModel: viewModel,
+                                         type: .attachmentChange)
+                            SettingsCell(viewModel: viewModel,
+                                         type: .newLecturePost)
+                            SettingsCell(viewModel: viewModel,
+                                         type: .newReplyForLecturePost)
+                        }
+                        Section(R.string.localizable.tutorialGroupNotificationsSectionTitle()) {
+                            SettingsCell(viewModel: viewModel,
+                                         type: .tutorialGroupRegistrationStudent)
+                            SettingsCell(viewModel: viewModel,
+                                         type: .tutorialGroupDeleteUpdateStudent)
+                        }
+                        Section(R.string.localizable.tutorNotificationsSectionTitle()) {
+                            SettingsCell(viewModel: viewModel,
+                                         type: .tutorialGroupRegistrationTutor)
+                            SettingsCell(viewModel: viewModel,
+                                         type: .tutorialGroupAssignUnassignTutor)
+                        }
+                    }
+                }.task {
+                    await viewModel.getNotificationSettings()
                 }
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button("Cancel") {
+                            dismiss()
+                        }
+                    }
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button("Save") {
+                            viewModel.pushNotificationSettingsRequest = .loading
+                            Task {
+                                await viewModel.saveNotificationSettings()
+                            }
+                        }.disabled(viewModel.isSaveDisabled)
+                    }
+                }
+                .navigationTitle("Notification Settings")
+            } else {
+                PushNotificationSetupView(shouldCloseOnSkip: true)
             }
-            .navigationTitle("Notification Settings")
         }
     }
 }

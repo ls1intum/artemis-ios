@@ -7,14 +7,30 @@
 
 import Foundation
 import Common
+import Combine
+import UserStore
 
 @MainActor
 class PushNotificationSettingsViewModel: ObservableObject {
+
+    @Published var didSetupNotifications = false
 
     @Published var isSaveDisabled = true
     @Published var pushNotificationSettingsRequest: DataState<Bool> = .loading
 
     @Published var pushNotificationSettings: [PushNotificationSettingId: PushNotificationSetting] = [:]
+
+    private var cancellables: Set<AnyCancellable> = Set()
+
+    init() {
+        UserSession.shared.objectWillChange.sink {
+            DispatchQueue.main.async { [weak self] in
+                self?.didSetupNotifications = UserSession.shared.getCurrentNotificationDeviceConfiguration()?.notificationsEncryptionKey != nil
+            }
+        }.store(in: &cancellables)
+
+        didSetupNotifications = UserSession.shared.getCurrentNotificationDeviceConfiguration()?.notificationsEncryptionKey != nil
+    }
 
     func getNotificationSettings() async {
         pushNotificationSettingsRequest = .loading
