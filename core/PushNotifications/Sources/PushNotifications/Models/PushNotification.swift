@@ -8,11 +8,18 @@
 
 import Foundation
 
+//record PushNotificationData(String[] notificationPlaceholders, String target, String type, String date) {
 struct PushNotification: Codable {
-    var title: String
-    var body: String
+    var notificationPlaceholders: [String] = []
     var target: String
     var type: PushNotificationType
+
+    var title: String {
+        return "TODO"
+    }
+    var body: String {
+        return "TODO Body"
+    }
 }
 
 enum PushNotificationType: String, RawRepresentable, Codable {
