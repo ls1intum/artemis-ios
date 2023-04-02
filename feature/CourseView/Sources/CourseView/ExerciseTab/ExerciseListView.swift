@@ -31,19 +31,29 @@ struct ExerciseListView: View {
 
         return groupedDates.map { week in
             WeeklyExercise(id: week.key, exercises: week.value.sorted(by: { $0.baseExercise.title?.lowercased() ?? "" < $1.baseExercise.title?.lowercased() ?? "" }))
-        }.sorted(by: { $0.id.startOfWeek ?? .now < $1.id.startOfWeek ?? .now })
+        }.sorted(by: { $0.id.startOfWeek ?? .distantFuture < $1.id.startOfWeek ?? .distantFuture })
     }
 
     var body: some View {
-        List {
-            ForEach(weeklyExercises) { weeklyExercise in
-                ExerciseListSection(course: viewModel.course.value!, weeklyExercise: weeklyExercise)  // TODO: force unwrap
+        ScrollViewReader { value in
+            List {
+                ForEach(weeklyExercises) { weeklyExercise in
+                    ExerciseListSection(course: viewModel.course.value!, weeklyExercise: weeklyExercise) // TODO: force unwrap
+                        .id(weeklyExercise.id)
+                }
             }
+                .listStyle(PlainListStyle())
+                .navigationDestination(for: ExercisePath.self) { exercisePath in
+                    ExerciseDetailView(course: exercisePath.coursePath.course!, exercise: exercisePath.exercise!) // TODO: force unwrap
+                }
+                .onChange(of: weeklyExercises) { newValue in
+                    withAnimation {
+                        if let id = newValue.first(where: { $0.exercises.first?.baseExercise.dueDate ?? .tomorrow > .now })?.id {
+                            value.scrollTo(id, anchor: .top)
+                        }
+                    }
+                }
         }
-            .listStyle(PlainListStyle())
-            .navigationDestination(for: ExercisePath.self) { exercisePath in
-                ExerciseDetailView(course: exercisePath.coursePath.course!, exercise: exercisePath.exercise!) // TODO: force unwrap
-            }
     }
 }
 
@@ -172,7 +182,7 @@ private struct WeeklyExerciseId: Identifiable, Hashable {
     }
 }
 
-private struct WeeklyExercise: Identifiable {
+private struct WeeklyExercise: Identifiable, Hashable {
     let id: WeeklyExerciseId
     var exercises: [Exercise]
 }

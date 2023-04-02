@@ -11,12 +11,17 @@ public struct ProgressBar: View {
 
     let value: Int
     let total: Int
-    let color: Color
+    let backgroundColor: Color
+    let ringColor: Color
 
-    public init(value: Int, total: Int, color: Color) {
+    public init(value: Int,
+                total: Int,
+                backgroundColor: Color = Color.Artemis.courseScoreProgressBackgroundColor,
+                ringColor: Color = Color.Artemis.courseScoreProgressRingColor) {
         self.value = value
         self.total = total
-        self.color = color
+        self.backgroundColor = backgroundColor
+        self.ringColor = ringColor
     }
 
     private var progress: Double {
@@ -27,13 +32,12 @@ public struct ProgressBar: View {
         ZStack {
             Circle()
                 .stroke(lineWidth: 20.0)
-                .opacity(0.3)
-                .foregroundColor(color)
+                .foregroundColor(backgroundColor)
 
             Circle()
                 .trim(from: 0.0, to: CGFloat(min(self.progress, 1.0)))
                 .stroke(style: StrokeStyle(lineWidth: 20.0, lineCap: .round, lineJoin: .round))
-                .foregroundColor(color)
+                .foregroundColor(ringColor)
                 .rotationEffect(Angle(degrees: 270.0))
                 .animation(.linear, value: progress)
             VStack {

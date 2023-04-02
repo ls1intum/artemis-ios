@@ -117,8 +117,7 @@ private struct CourseListCell: View {
                 HStack {
                     Spacer()
                     ProgressBar(value: 40,
-                                total: 100,
-                                color: course.courseColor)
+                                total: 100)
                         .frame(height: 120)
                         .padding(.vertical, .l)
                     Spacer()
