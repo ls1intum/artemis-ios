@@ -79,7 +79,10 @@ public struct PushNotificationSettingsView: View {
                         Button("Save") {
                             viewModel.pushNotificationSettingsRequest = .loading
                             Task {
-                                await viewModel.saveNotificationSettings()
+                                let isSuccessful = await viewModel.saveNotificationSettings()
+                                if isSuccessful {
+                                    dismiss()
+                                }
                             }
                         }.disabled(viewModel.isSaveDisabled)
                     }

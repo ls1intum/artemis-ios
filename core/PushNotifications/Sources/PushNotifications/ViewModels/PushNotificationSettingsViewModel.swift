@@ -36,19 +36,19 @@ class PushNotificationSettingsViewModel: ObservableObject {
         pushNotificationSettingsRequest = .loading
         let result = await PushNotificationServiceFactory.shared.getNotificationSettings()
 
-        handleNetworkResponse(result: result)
+        _ = handleNetworkResponse(result: result)
     }
 
-    func saveNotificationSettings() async {
+    func saveNotificationSettings() async -> Bool {
         pushNotificationSettingsRequest = .loading
         isSaveDisabled = true
         let notificationSettings = pushNotificationSettings.map { $0.value }
         let result = await PushNotificationServiceFactory.shared.saveNotificationSettings(notificationSettings)
 
-        handleNetworkResponse(result: result)
+        return handleNetworkResponse(result: result)
     }
 
-    private func handleNetworkResponse(result: DataState<[PushNotificationSetting]>) {
+    private func handleNetworkResponse(result: DataState<[PushNotificationSetting]>) -> Bool {
         switch result {
         case .loading:
             pushNotificationSettingsRequest = .loading
@@ -63,6 +63,8 @@ class PushNotificationSettingsViewModel: ObservableObject {
                 .map {
                     ($0.settingId, $0)
                 })
+            return true
         }
+        return false
     }
 }

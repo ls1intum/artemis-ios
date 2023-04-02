@@ -8,7 +8,6 @@
 
 import Foundation
 
-//record PushNotificationData(String[] notificationPlaceholders, String target, String type, String date) {
 struct PushNotification: Codable {
     var notificationPlaceholders: [String] = []
     var target: String
