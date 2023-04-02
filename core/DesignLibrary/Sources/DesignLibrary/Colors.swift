@@ -141,6 +141,10 @@ public extension Color {
         public static let badgeSuccessColor = UIColor.ColorPalette.Green.suColor
         public static let badgeDangerColor = UIColor.ColorPalette.Red.suColor
         public static let badgeSecondaryColor = UIColor.ColorPalette.Gray60.suColor
+
+        // Course Score
+        public static let courseScoreProgressBackgroundColor = UIColor.ColorPalette.Red.suColor
+        public static let courseScoreProgressRingColor = UIColor.ColorPalette.Green.suColor
     }
 }
 

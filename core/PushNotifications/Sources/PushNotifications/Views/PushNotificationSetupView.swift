@@ -12,7 +12,13 @@ public struct PushNotificationSetupView: View {
 
     @StateObject private var viewModel = PushNotificationSetupViewModel()
 
-    public init() { }
+    @Environment(\.dismiss) var dismiss
+
+    private let shouldCloseOnSkip: Bool
+
+    public init(shouldCloseOnSkip: Bool = false) {
+        self.shouldCloseOnSkip = shouldCloseOnSkip
+    }
 
     public var body: some View {
         VStack(spacing: .l) {
@@ -34,6 +40,9 @@ public struct PushNotificationSetupView: View {
                 .buttonStyle(ArtemisButton())
             Button("Skip") {
                 viewModel.skip()
+                if shouldCloseOnSkip {
+                    dismiss()
+                }
             }
                 .buttonStyle(ArtemisButton(priority: .secondary))
         }

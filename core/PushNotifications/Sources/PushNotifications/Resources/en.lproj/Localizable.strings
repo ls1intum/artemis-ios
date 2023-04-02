@@ -1,6 +1,58 @@
 "push_notification_settings_receive_label" = "Receive push notifications on this device?";
 "push_notification_settings_receive_information" = "Push notifications are end-to-end encrypted. Additonal preferences can be activated or deactivated in your profile settings later.";
 
+// MARK: Notification Settings
+// Section Titles
+"courseWideDiscussionNotificationsSectionTitle" = "Course-wide Discussion Notifications";
+"exerciseNotificationsSectionTitle" = "Exercise Notifications";
+"lectureNotificationsSectionTitle" = "Lecture Notifications";
+"tutorialGroupNotificationsSectionTitle" = "Tutorial Group Notifications";
+"tutorNotificationsSectionTitle" = "Tutor Notifications";
+
+// Settings Names
+"newCoursePostSettingsName" = "New Course Post";
+"newReplyForCoursePostSettingsName" = "New Reply for Course Post";
+"newAnnouncementPostSettingsName" = "New Announcement";
+
+"exerciseReleasedSettingsName" = "Exercise released";
+"exerciseOpenForPracticeSettingsName" = "Exercise Open for Practice";
+"exerciseSubmissionAssessedSettingsName" = "Exercise Submission assessed";
+"fileSubmissionSuccessfulSettingsName" = "File Submission Successful";
+"newExercisePostSettingsName" = "New Exercise Post";
+"newReplyForExercisePostSettingsName" = "New Reply for Exercise Post";
+
+"attachmentChangesSettingsName" = "Attachment Changes";
+"newLecturePostSettingsName" = "New Lecture Post";
+"newReplyForLecturePostSettingsName" = "New Reply for Lecture Post";
+
+"registrationTutorialGroupSettingsName" = "Registration and Deregistration for Tutorial Group";
+"tutorialGroupUpdateDeleteSettingsName" = "Update and Delete of Tutorial Groups";
+
+"assignUnassignTutorialGroupSettingsName" = "Assign and Unassign of Tutorial Groups";
+
+// Settings Description
+"newCoursePostDescription" = "Receive a notification when a new course-wide post has been created";
+"newReplyForCoursePostDescription" = "Receive a notification when a new reply for a course-wide post has been created";
+"newAnnouncementPostDescription" = "Receive a notification when a new announcement has been created";
+
+"exerciseReleasedDescription" = "Get notified when a new exercise has been released";
+"exerciseOpenForPracticeDescription" = "Get notified when an exercise has been opened for practice (e.g. Quiz)";
+"exerciseSubmissionAssessedDescription" = "Get notified when your exercise submissions get assessed";
+"fileSubmissionSuccessfulDescription" = "Receive a notification after you successfully submitted a file upload exercise";
+"newExercisePostDescription" = "Get notified when a new exercise post has been created";
+"newReplyForExercisePostDescription" = "Get notified when a new reply for an exercise post has been created";
+
+"attachmentChangesDescription" = "Receive a notification when an attachment was changed";
+"newLecturePostDescription" = "Get notified when a new lecture post has been created";
+"newReplyForLecturePostDescription" = "Get notified when a new reply for a lecture post has been created";
+
+
+"registrationTutorialGroupStudentDescription" = "Get notified when you were registered or deregistered from a tutorial group";
+"tutorialGroupUpdateDeleteDescription" = "Get notified when a tutorial group for which you are registered or a tutor was updated or deleted";
+
+"registrationTutorialGroupTutorDescription" = "Get notified when a student was registered or deregistered from your tutorial group";
+"assignUnassignTutorialGroupDescription" = "Get notified when you were assigned or unassigned to lead a tutorial group";
+
 // MARK: General
 "skip" = "Skip";
 "activate" = "Activate";

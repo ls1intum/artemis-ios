@@ -1,5 +1,5 @@
 "dasboard_register_for_course" = "Register for a course";
-"dashboard_title" = "Dashboard";
+"dashboard_title" = "Courses";
 "dashboard_notifications_label" = "Notifications";
 "dashboard_exercises_label" = "Exercises: %d";
 "dashboard_lectures_label" = "Lectures: %d";

@@ -50,9 +50,8 @@ struct ExerciseDetailView: View {
                     }
                     HStack {
                         Text("Points: \(exercise.baseExercise.studentParticipations?.first?.baseParticipation.submissions?.first?.baseSubmission.results?.first?.score?.clean ?? "0") of \(exercise.baseExercise.maxPoints?.clean ?? "0")")
-                        if let includedInOverallScore = exercise.baseExercise.includedInOverallScore,
-                           includedInOverallScore != .includedCompletly {
-                            Chip(text: includedInOverallScore.description, backgroundColor: includedInOverallScore.color)
+                        if exercise.baseExercise.includedInOverallScore != .includedCompletly {
+                            Chip(text: exercise.baseExercise.includedInOverallScore.description, backgroundColor: exercise.baseExercise.includedInOverallScore.color)
                         }
                         Text("Assessment: \(exercise.baseExercise.assessmentType?.description ?? "Unknown")")
                     }

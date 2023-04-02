@@ -49,10 +49,6 @@ public struct CoursesOverviewView: View {
         .accountMenu(error: $viewModel.error)
         .notificationToolBar()
         .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
-        .toolbar {
-            ToolbarItemGroup(placement: .navigationBarLeading) {
-            }
-        }
         .sheet(isPresented: $showCourseRegistrationSheet) {
             CourseRegistrationView(successCompletion: {
                 showCourseRegistrationSheet = false
@@ -121,8 +117,7 @@ private struct CourseListCell: View {
                 HStack {
                     Spacer()
                     ProgressBar(value: 40,
-                                total: 100,
-                                color: course.courseColor)
+                                total: 100)
                         .frame(height: 120)
                         .padding(.vertical, .l)
                     Spacer()
