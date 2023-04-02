@@ -109,12 +109,14 @@ struct SettingsCell: View {
     var body: some View {
         if viewModel.pushNotificationSettings[type]?.push != nil {
             VStack(alignment: .leading, spacing: .s) {
-                Text(type.title)
-                    .font(.title3)
+                Toggle(isOn: binding) {
+                    Text(type.title)
+                        .font(.title3)
+                        .lineLimit(2)
+                }
                 Text(type.description)
                     .font(.caption2)
                     .foregroundColor(Color.Artemis.secondaryLabel)
-                Toggle("Push", isOn: binding)
             }
         } else {
             EmptyView()
