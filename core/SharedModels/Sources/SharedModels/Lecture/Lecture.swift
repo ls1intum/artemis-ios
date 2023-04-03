@@ -9,7 +9,7 @@ import Foundation
 
 public struct Lecture: Codable {
     let id: Int
-    let title: String
+    let title: String?
     let description: String?
     let startDate: Date?
     let endDate: Date?

@@ -19,6 +19,7 @@ let package = Package(
         .package(path: "../../core/APIClient"),
         .package(path: "../../core/Navigation"),
         .package(path: "../../core/SharedModels"),
+        .package(path: "../../core/DesignLibrary"),
         .package(url: "https://github.com/mac-cain13/R.swift.git", from: "7.0.0")
     ],
     targets: [
@@ -26,7 +27,7 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "Messages",
-            dependencies: ["SharedModels", "APIClient", "Navigation", .product(name: "RswiftLibrary", package: "R.swift")],
+            dependencies: ["SharedModels", "APIClient", "DesignLibrary", "Navigation", .product(name: "RswiftLibrary", package: "R.swift")],
             plugins: [.plugin(name: "RswiftGeneratePublicResources", package: "R.swift")]
         ),
         .testTarget(

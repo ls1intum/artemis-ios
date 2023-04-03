@@ -10,7 +10,10 @@ public struct CourseView: View {
 
     @EnvironmentObject private var navigationController: NavigationController
 
+    private let courseId: Int
+
     public init(courseId: Int) {
+        self.courseId = courseId
         self._viewModel = StateObject(wrappedValue: CourseViewModel(courseId: courseId))
     }
 
@@ -28,7 +31,7 @@ public struct CourseView: View {
                 }
                 .tag(TabIdentifier.lecture)
 
-            MessagesTabView()
+            MessagesTabView(courseId: courseId)
                 .tabItem {
                     Label(R.string.localizable.messagesTabLabel(), systemImage: "bubble.right.fill")
                 }
