@@ -44,6 +44,7 @@ class AccountNavigationBarMenuViewModel: ObservableObject {
             case .failure(let error):
                 if let error = error as? APIClientError,
                    case .networkError = error {
+                    // TODO: schedule task to retry above functionality
                     APIClient().perfomLogout()
                 }
                 log.error(error.localizedDescription)

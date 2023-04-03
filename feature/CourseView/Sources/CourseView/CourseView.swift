@@ -2,6 +2,7 @@ import SwiftUI
 import Common
 import SharedModels
 import Navigation
+import Messages
 
 public struct CourseView: View {
 
@@ -17,21 +18,21 @@ public struct CourseView: View {
         TabView(selection: $navigationController.courseTab) {
             ExerciseListView(viewModel: viewModel)
                 .tabItem {
-                    Label("Exercises", systemImage: "list.bullet.clipboard.fill")
+                    Label(R.string.localizable.exercisesTabLabel(), systemImage: "list.bullet.clipboard.fill")
                 }
                 .tag(TabIdentifier.exercise)
 
             Text("Lectures TODO")
                 .tabItem {
-                    Label("Lectures", systemImage: "character.book.closed.fill")
+                    Label(R.string.localizable.lectureTabLabel(), systemImage: "character.book.closed.fill")
                 }
                 .tag(TabIdentifier.lecture)
 
-            Text("Communication TODO")
+            MessagesTabView()
                 .tabItem {
-                    Label("Communication", systemImage: "bubble.right.fill")
+                    Label(R.string.localizable.messagesTabLabel(), systemImage: "bubble.right.fill")
                 }
                 .tag(TabIdentifier.communication)
-        }.navigationTitle(viewModel.course.value?.title ?? "Loading...")
+        }.navigationTitle(viewModel.course.value?.title ?? R.string.localizable.loading())
     }
 }
