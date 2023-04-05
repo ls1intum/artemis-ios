@@ -9,3 +9,5 @@
 
 // MARK: Conversation
 "archived" = "(Archived)";
+"onlyYou" = "Only you";
+"others" = "%d others";

@@ -25,7 +25,8 @@ public struct OneToOneChat: BaseConversation {
     public var members: Set<ConversationUser>
 
     public var conversationName: String {
-        return "TODO"
+        let otherUser = members.first(where: { $0.isRequestingUser == false })
+        return otherUser?.name ?? ""
     }
 
     public var icon: Image? {

@@ -26,7 +26,21 @@ public struct GroupChat: BaseConversation {
     public var members: Set<ConversationUser>
 
     public var conversationName: String {
-        return "TODO"
+        if let name, !name.isEmpty {
+            return name
+        }
+        // fallback to the list of members if no name is set
+        let containsCurrentUser = members.first(where: { $0.isRequestingUser ?? false })
+        let membersWithoutUser = members.filter { $0.isRequestingUser == false }
+        if membersWithoutUser.isEmpty {
+            return containsCurrentUser == nil ? R.string.localizable.onlyYou() : ""
+        }
+        if membersWithoutUser.count < 3 {
+            return membersWithoutUser
+                .map { $0.name ?? "" }
+                .joined(separator: ", ")
+        }
+        return "\(membersWithoutUser.map { $0.name ?? "" }.prefix(2).joined(separator: ", ")), \(R.string.localizable.others(membersWithoutUser.count - 2))"
     }
 
     public var icon: Image? {
