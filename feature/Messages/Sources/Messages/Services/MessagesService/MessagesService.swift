@@ -7,6 +7,7 @@
 
 import Foundation
 import Common
+import SharedModels
 
 protocol MessagesService {
 

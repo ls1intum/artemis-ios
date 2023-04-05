@@ -3,12 +3,15 @@ import Common
 import SharedModels
 import Navigation
 import Messages
+import DesignLibrary
 
 public struct CourseView: View {
 
     @StateObject var viewModel: CourseViewModel
 
     @EnvironmentObject private var navigationController: NavigationController
+
+    @State private var showNewMessageDialog = false
 
     private let courseId: Int
 
@@ -36,6 +39,23 @@ public struct CourseView: View {
                     Label(R.string.localizable.messagesTabLabel(), systemImage: "bubble.right.fill")
                 }
                 .tag(TabIdentifier.communication)
-        }.navigationTitle(viewModel.course.value?.title ?? R.string.localizable.loading())
+        }
+            .navigationTitle(viewModel.course.value?.title ?? R.string.localizable.loading())
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    if navigationController.courseTab == .communication {
+                        Button(action: { showNewMessageDialog = true }, label: {
+                            Image(systemName: "square.and.pencil.circle.fill")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: .smallImage)
+                        })
+                    } else {
+                        EmptyView()
+                    }
+                }
+            }
+            .plusActionDialog(isPresented: $showNewMessageDialog)
     }
 }

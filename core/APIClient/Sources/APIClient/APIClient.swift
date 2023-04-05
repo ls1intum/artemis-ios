@@ -101,7 +101,9 @@ public final class APIClient {
 
         do {
             let (data, response) = try await session.data(for: urlRequest)
-            self.printResponse(for: urlRequest, data: data, response: response, error: nil)
+            // TODO: comment this in but currently buggy during development because response super huge
+//            self.printResponse(for: urlRequest, data: data, response: response, error: nil)
+            self.printResponse(for: urlRequest, data: nil, response: response, error: nil)
 
             guard let response = response as? HTTPURLResponse else {
                 return .failure(.notHTTPResponse)

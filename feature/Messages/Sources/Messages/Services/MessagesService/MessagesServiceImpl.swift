@@ -8,6 +8,7 @@
 import Foundation
 import APIClient
 import Common
+import SharedModels
 
 class MessagesServiceImpl: MessagesService {
 
@@ -27,7 +28,6 @@ class MessagesServiceImpl: MessagesService {
         }
     }
 
-
     func getConversations(for courseId: Int) async -> DataState<[Conversation]> {
         let result = await client.sendRequest(GetConversationsRequest(courseId: courseId))
 
@@ -38,5 +38,4 @@ class MessagesServiceImpl: MessagesService {
             return DataState(error: error)
         }
     }
-    
 }

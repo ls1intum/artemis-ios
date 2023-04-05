@@ -7,15 +7,22 @@
 
 import Foundation
 import Common
+import SharedModels
 
 @MainActor
 class MessagesTabViewModel: ObservableObject {
 
-    @Published var channels: DataState<[Conversation]> = .loading
-    @Published var groupChats: DataState<[Conversation]> = .loading
-    @Published var oneToOneChats: DataState<[Conversation]> = .loading
+    @Published var allConversations: DataState<[Conversation]> = .loading
 
-    private let courseId: Int
+    @Published var channels: DataState<[Channel]> = .loading
+    @Published var groupChats: DataState<[GroupChat]> = .loading
+    @Published var oneToOneChats: DataState<[OneToOneChat]> = .loading
+
+    @Published var hiddenChannels: DataState<[Channel]> = .loading
+    @Published var hiddenGroupChats: DataState<[GroupChat]> = .loading
+    @Published var hiddenOneToOneChats: DataState<[OneToOneChat]> = .loading
+
+    let courseId: Int
 
     init(courseId: Int) {
         self.courseId = courseId
@@ -23,30 +30,32 @@ class MessagesTabViewModel: ObservableObject {
 
     func loadConversations() async {
         let result = await MessagesServiceFactory.shared.getConversations(for: courseId)
-        handleResult(result: result, by: .channel)
-        handleResult(result: result, by: .groupChat)
-        handleResult(result: result, by: .oneToOneChat)
-    }
-
-    private func handleResult(result: DataState<[Conversation]>, by conversationType: ConversationType) {
-        var filteredResult: DataState<[Conversation]>
+        allConversations = result
 
         switch result {
         case .loading:
-            filteredResult = .loading
+            channels = .loading
+            groupChats = .loading
+            oneToOneChats = .loading
+            hiddenChannels = .loading
+            hiddenGroupChats = .loading
+            hiddenOneToOneChats = .loading
         case .failure(let error):
-            filteredResult = .failure(error: error)
+            hiddenChannels = .failure(error: error)
+            hiddenGroupChats = .failure(error: error)
+            hiddenOneToOneChats = .failure(error: error)
         case .done(let response):
-            filteredResult = .done(response: response.filter { $0.type == conversationType })
-        }
+            let hiddenConversations = response.filter { $0.baseConversation.isHidden ?? false }
+            let notHiddenConversations = response.filter { !($0.baseConversation.isHidden ?? false) }
 
-        switch conversationType {
-        case .oneToOneChat:
-            oneToOneChats = filteredResult
-        case .groupChat:
-            groupChats = filteredResult
-        case .channel:
-            channels = filteredResult
+            channels = .done(response: notHiddenConversations.compactMap({ $0.baseConversation as? Channel }))
+            hiddenChannels = .done(response: hiddenConversations.compactMap({ $0.baseConversation as? Channel }))
+
+            groupChats = .done(response: notHiddenConversations.compactMap({ $0.baseConversation as? GroupChat }))
+            hiddenGroupChats = .done(response: hiddenConversations.compactMap({ $0.baseConversation as? GroupChat }))
+
+            oneToOneChats = .done(response: notHiddenConversations.compactMap({ $0.baseConversation as? OneToOneChat }))
+            oneToOneChats = .done(response: hiddenConversations.compactMap({ $0.baseConversation as? OneToOneChat }))
         }
     }
 }
