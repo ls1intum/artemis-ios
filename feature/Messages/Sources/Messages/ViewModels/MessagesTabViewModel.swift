@@ -55,7 +55,7 @@ class MessagesTabViewModel: ObservableObject {
             hiddenGroupChats = .done(response: hiddenConversations.compactMap({ $0.baseConversation as? GroupChat }))
 
             oneToOneChats = .done(response: notHiddenConversations.compactMap({ $0.baseConversation as? OneToOneChat }))
-            oneToOneChats = .done(response: hiddenConversations.compactMap({ $0.baseConversation as? OneToOneChat }))
+            hiddenOneToOneChats = .done(response: hiddenConversations.compactMap({ $0.baseConversation as? OneToOneChat }))
         }
     }
 }
