@@ -13,28 +13,34 @@ struct ConversationView: View {
 
     @StateObject private var viewModel: ConversationViewModel
 
+    @State private var responseText = ""
+
     init(courseId: Int, conversation: Conversation) {
         _viewModel = StateObject(wrappedValue: ConversationViewModel(courseId: courseId, conversation: conversation))
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading) {
-                DataStateView(data: $viewModel.dailyMessages,
-                              retryHandler: { await viewModel.loadMessages() }) { dailyMessages in
-                    if dailyMessages.isEmpty {
-                        Text("There are no messages yet! Write the first message to kickstart this conversation.")
-                            .padding(.vertical, .xl)
-                    } else {
-                        ForEach(dailyMessages.sorted(by: { $0.key < $1.key }), id: \.key) { dailyMessage in
-                            ConversationDaySection(day: dailyMessage.key,
-                                                   messages: dailyMessage.value)
+        VStack {
+            ScrollView {
+                VStack(alignment: .leading) {
+                    DataStateView(data: $viewModel.dailyMessages,
+                                  retryHandler: { await viewModel.loadMessages() }) { dailyMessages in
+                        if dailyMessages.isEmpty {
+                            Text("There are no messages yet! Write the first message to kickstart this conversation.")
+                                .padding(.vertical, .xl)
+                        } else {
+                            ForEach(dailyMessages.sorted(by: { $0.key < $1.key }), id: \.key) { dailyMessage in
+                                ConversationDaySection(day: dailyMessage.key,
+                                                       messages: dailyMessage.value)
+                            }
+                            Spacer()
                         }
-                        Spacer()
                     }
                 }
+                    .padding(.horizontal, .l)
             }
-                .padding(.horizontal, .l)
+            TextField("Message \(viewModel.conversation.baseConversation.conversationName)", text: $responseText, axis: .vertical)
+                .lineLimit(10)
         }
             .navigationTitle(viewModel.conversation.baseConversation.conversationName)
             .task {
