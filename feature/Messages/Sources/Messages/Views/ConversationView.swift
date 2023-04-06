@@ -63,13 +63,13 @@ private struct MessageCell: View {
     let message: Message
 
     var body: some View {
-        HStack(alignment: .top, spacing: .m) {
+        HStack(alignment: .top, spacing: .l) {
             Image(systemName: "person")
                 .resizable()
                 .scaledToFit()
-                .frame(width: .smallImage)
+                .frame(width: 40, height: 40)
                 .padding(.top, .s)
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: .m) {
                 HStack(alignment: .bottom, spacing: .m) {
                     Text(message.author?.name ?? "")
                         .bold()
