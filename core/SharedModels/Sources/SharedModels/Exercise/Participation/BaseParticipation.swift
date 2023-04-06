@@ -3,7 +3,7 @@ import Foundation
 public protocol BaseParticipation: Codable {
     static var type: String { get }
 
-    var id: Int? { get }
+    var id: Int { get }
     var initializationState: InitializationState? { get }
     var initializationDate: Date? { get }
     var individualDueDate: Date? { get }
@@ -12,7 +12,7 @@ public protocol BaseParticipation: Codable {
     var submissions: [Submission]? { get }
 }
 
-public enum Participation: Codable {
+public enum Participation: Identifiable, Codable {
     fileprivate enum CodingKeys: String, CodingKey {
         case type
     }
@@ -23,10 +23,14 @@ public enum Participation: Codable {
 
     public var baseParticipation: BaseParticipation {
         switch self {
-        case .student(participation: let participation): return participation
-        case .programmingExerciseStudent(participation: let participation): return participation
-        case .unknown(participation: let participation): return participation
+        case .student(let participation): return participation
+        case .programmingExerciseStudent(let participation): return participation
+        case .unknown(let participation): return participation
         }
+    }
+
+    public var id: Int {
+        baseParticipation.id
     }
 
     public init(from decoder: Decoder) throws {
@@ -36,6 +40,17 @@ public enum Participation: Codable {
         case StudentParticipationImpl.type: self = .student(participation: try StudentParticipationImpl(from: decoder))
         case ProgrammingExerciseStudentParticipation.type: self = .programmingExerciseStudent(participation: try ProgrammingExerciseStudentParticipation(from: decoder))
         default: self = .unknown(participation: try UnknownParticipation(from: decoder))
+        }
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        switch self {
+        case .student(let participation):
+            try participation.encode(to: encoder)
+        case .programmingExerciseStudent(let participation):
+            try participation.encode(to: encoder)
+        case .unknown(let participation):
+            try participation.encode(to: encoder)
         }
     }
 }

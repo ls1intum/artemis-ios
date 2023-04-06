@@ -10,7 +10,7 @@ import SharedModels
 
 struct Reaction: Codable {
     var id: Int64
-    var user: User
+    var user: ConversationUser?
     var creationDate: Date?
     var emojiId: String
     var post: Message?

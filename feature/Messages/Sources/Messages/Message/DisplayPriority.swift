@@ -11,5 +11,5 @@
 enum DisplayPriority: String, RawRepresentable, Codable {
     case pinned = "PINNED"
     case archived = "ARCHIVED"
-    case none = "NONE"
+    case noInformation = "NONE"
 }

@@ -11,14 +11,14 @@ import SharedModels
 struct AnswerMessage: BaseMessage {
 
     var id: Int64
-    var author: User
-    var creationDate: Date
-    var content: String
-    var tokenizedContent: String
+    var author: ConversationUser?
+    var creationDate: Date?
+    var content: String?
+    var tokenizedContent: String?
     var authorRoleTransient: UserRole?
 
-    var resolvesPost = false
-    var reactions = Set<Reaction>()
+    var resolvesPost: Bool?
+    var reactions: [Reaction]?
     var post: Message?
 }
 

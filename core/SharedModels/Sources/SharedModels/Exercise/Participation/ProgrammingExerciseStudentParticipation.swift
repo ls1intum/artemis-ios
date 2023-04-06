@@ -1,6 +1,6 @@
 import Foundation
 
-public class ProgrammingExerciseStudentParticipation: StudentParticipation {
+public class ProgrammingExerciseStudentParticipation: StudentParticipation, Codable {
 
     public static var type: String {
         "programming"
@@ -10,7 +10,7 @@ public class ProgrammingExerciseStudentParticipation: StudentParticipation {
     public var team: Team?
     public var participantIdentifier: String?
     public var testRun: Bool?
-    public var id: Int?
+    public var id: Int
     public var initializationState: InitializationState?
     public var initializationDate: Date?
     public var individualDueDate: Date?

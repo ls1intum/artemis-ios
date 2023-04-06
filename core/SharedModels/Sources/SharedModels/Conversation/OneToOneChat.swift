@@ -22,10 +22,10 @@ public struct OneToOneChat: BaseConversation {
     public var isMember: Bool?
     public var numberOfMembers: Int?
 
-    public var members: Set<ConversationUser>
+    public var members: [ConversationUser]?
 
     public var conversationName: String {
-        let otherUser = members.first(where: { $0.isRequestingUser == false })
+        let otherUser = (members ?? []).first(where: { $0.isRequestingUser == false })
         return otherUser?.name ?? ""
     }
 

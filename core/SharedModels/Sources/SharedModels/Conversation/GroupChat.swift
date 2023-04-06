@@ -23,15 +23,15 @@ public struct GroupChat: BaseConversation {
     public var numberOfMembers: Int?
 
     public var name: String?
-    public var members: Set<ConversationUser>
+    public var members: [ConversationUser]?
 
     public var conversationName: String {
         if let name, !name.isEmpty {
             return name
         }
         // fallback to the list of members if no name is set
-        let containsCurrentUser = members.first(where: { $0.isRequestingUser ?? false })
-        let membersWithoutUser = members.filter { $0.isRequestingUser == false }
+        let containsCurrentUser = (members ?? []).first(where: { $0.isRequestingUser ?? false })
+        let membersWithoutUser = (members ?? []).filter { $0.isRequestingUser == false }
         if membersWithoutUser.isEmpty {
             return containsCurrentUser == nil ? R.string.localizable.onlyYou() : ""
         }

@@ -5,7 +5,7 @@ public struct UnknownParticipation: BaseParticipation {
         "unknown"
     }
 
-    public var id: Int?
+    public var id: Int
     public var initializationState: InitializationState?
     public var initializationDate: Date?
     public var individualDueDate: Date?

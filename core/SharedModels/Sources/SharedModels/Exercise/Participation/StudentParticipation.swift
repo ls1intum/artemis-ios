@@ -7,7 +7,7 @@ public protocol StudentParticipation: BaseParticipation {
     var testRun: Bool? { get }
 }
 
-public struct StudentParticipationImpl: StudentParticipation {
+public struct StudentParticipationImpl: StudentParticipation, Codable {
 
     public static var type: String {
         "student"
@@ -17,7 +17,7 @@ public struct StudentParticipationImpl: StudentParticipation {
     public var team: Team?
     public var participantIdentifier: String?
     public var testRun: Bool?
-    public var id: Int?
+    public var id: Int
     public var initializationState: InitializationState?
     public var initializationDate: Date?
     public var individualDueDate: Date?

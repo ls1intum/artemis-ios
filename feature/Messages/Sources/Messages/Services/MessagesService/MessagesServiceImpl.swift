@@ -50,7 +50,7 @@ class MessagesServiceImpl: MessagesService {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/messages?postSortCriterion=CREATION_DATE&sortingOrder=DESCENDING&conversationId=\(conversationId)&pagingEnabled=true&page=0&size=50"
+            return "api/courses/\(courseId)/messages?postSortCriterion=CREATION_DATE&sortingOrder=ASCENDING&conversationId=\(conversationId)&pagingEnabled=true&page=0&size=50"
         }
     }
 
