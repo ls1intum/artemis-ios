@@ -1,13 +1,13 @@
 import Foundation
 
-public protocol StudentParticipation: BaseParticipation, Decodable {
+public protocol StudentParticipation: BaseParticipation {
     //    var student: User? { get }
     var team: Team? { get }
     var participantIdentifier: String? { get }
     var testRun: Bool? { get }
 }
 
-public struct StudentParticipationImpl: StudentParticipation, Decodable {
+public struct StudentParticipationImpl: StudentParticipation {
 
     public static var type: String {
         "student"

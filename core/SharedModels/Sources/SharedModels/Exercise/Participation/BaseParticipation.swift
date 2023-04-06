@@ -1,6 +1,6 @@
 import Foundation
 
-public protocol BaseParticipation: Decodable {
+public protocol BaseParticipation: Codable {
     static var type: String { get }
 
     var id: Int? { get }
@@ -12,7 +12,7 @@ public protocol BaseParticipation: Decodable {
     var submissions: [Submission]? { get }
 }
 
-public enum Participation: Decodable {
+public enum Participation: Codable {
     fileprivate enum CodingKeys: String, CodingKey {
         case type
     }
@@ -40,7 +40,7 @@ public enum Participation: Decodable {
     }
 }
 
-public enum InitializationState: String, Decodable {
+public enum InitializationState: String, Codable {
     case uninitalized = "UNINITIALIZED"
     case repoCopied = "REPO_COPIED"
     case repoConfigured = "REPO_CONFIGURED"

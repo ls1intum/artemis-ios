@@ -1,6 +1,6 @@
 import Foundation
 
-public protocol BaseSubmission: Decodable {
+public protocol BaseSubmission: Codable {
     static var type: String { get }
 
     var id: Int? { get }
@@ -12,7 +12,7 @@ public protocol BaseSubmission: Decodable {
     var participation: Participation? { get }
 }
 
-public enum Submission: Decodable {
+public enum Submission: Codable {
     fileprivate enum Keys: String, CodingKey {
         case type = "submissionExerciseType"
     }

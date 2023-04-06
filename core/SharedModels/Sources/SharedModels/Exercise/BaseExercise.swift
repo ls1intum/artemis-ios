@@ -1,7 +1,7 @@
 import Foundation
 import SwiftUI
 
-public protocol BaseExercise: Decodable {
+public protocol BaseExercise: Codable {
     associatedtype SelfType: BaseExercise
 
     static var type: String { get }
@@ -39,7 +39,7 @@ public protocol BaseExercise: Decodable {
     func copyWithUpdatedParticipations(newParticipations: [Participation]) -> SelfType
 }
 
-public enum Exercise: Decodable, Identifiable {
+public enum Exercise: Codable, Identifiable {
 
     fileprivate enum Keys: String, CodingKey {
         case type
@@ -142,7 +142,7 @@ public enum Exercise: Decodable, Identifiable {
     }
 }
 
-public enum Difficulty: String, Decodable {
+public enum Difficulty: String, Codable {
     case EASY
     case MEDIUM
     case HARD
@@ -170,14 +170,14 @@ public enum Difficulty: String, Decodable {
     }
 }
 
-public enum Mode: String, Decodable {
-    case INDIVIDUAL
-    case TEAM
+public enum Mode: String, Codable {
+    case individual = "INDIVIDUAL"
+    case team = "TEAM"
 }
 
 // IMPORTANT NOTICE: The following strings have to be consistent with the ones defined in Exercise.java
 
-public enum IncludedInOverallScore: String, Decodable {
+public enum IncludedInOverallScore: String, Codable {
     case includedCompletly = "INCLUDED_COMPLETELY"
     case includedAsBonus = "INCLUDED_AS_BONUS"
     case notIncluded = "NOT_INCLUDED"
@@ -205,25 +205,7 @@ public enum IncludedInOverallScore: String, Decodable {
     }
 }
 
-public enum ParticipationStatus {
-    case quizNotInitialized
-    case quizActive
-    case quizSubmitted
-    case quizNotStarted
-    case quizNotParticipated
-    case quizFinished(participation: Participation)
-    case noTeamAssigned
-    case uninitialized
-    case initialized(participation: Participation)
-
-    case inactive(participation: Participation)
-
-    case exerciseActive
-    case exerciseSubmitted(participation: Participation)
-    case exerciseMissed
-}
-
-public enum AssessmentType: String, Decodable {
+public enum AssessmentType: String, Codable {
     case automatic = "AUTOMATIC"
     case semiAutomatic = "SEMI_AUTOMATIC"
     case manual = "MANUAL"
@@ -241,7 +223,7 @@ public enum AssessmentType: String, Decodable {
     }
 }
 
-public struct Category: Decodable {
+public struct Category: Codable {
     public let category: String
     public let colorCode: String
 
@@ -256,7 +238,7 @@ public struct Category: Decodable {
     }
 }
 
-private struct CategoryImpl: Decodable {
+private struct CategoryImpl: Codable {
     let category: String
     let color: String
 }

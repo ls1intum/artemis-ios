@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct ProfileInfo: Decodable {
+public struct ProfileInfo: Codable {
     public let contact: String
     public let imprint: URL?
     public let build: Build
@@ -26,7 +26,7 @@ public struct ProfileInfo: Decodable {
     public let activeProfiles: [String]
 }
 
-public struct Build: Decodable {
+public struct Build: Codable {
     public let name: String
     public let version: String
 }

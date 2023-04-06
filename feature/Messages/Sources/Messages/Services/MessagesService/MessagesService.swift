@@ -12,9 +12,14 @@ import SharedModels
 protocol MessagesService {
 
     /**
-     * Perform a get request for Messages to the server.
+     * Perform a get request for all Conversations of a course to the server.
      */
     func getConversations(for courseId: Int) async -> DataState<[Conversation]>
+
+    /**
+     * Perform a get request for Messages of a specific conversation in a specific course to the server.
+     */
+    func getMessages(for courseId: Int, and conversationId: Int64) async -> DataState<[Message]>
 }
 
 enum MessagesServiceFactory {

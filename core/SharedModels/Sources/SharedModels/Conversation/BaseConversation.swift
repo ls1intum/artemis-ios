@@ -44,7 +44,7 @@ public protocol BaseConversation: Codable {
     var icon: Image? { get }
 }
 
-public enum Conversation: Decodable, Identifiable {
+public enum Conversation: Codable, Identifiable {
 
     fileprivate enum Keys: String, CodingKey {
         case type

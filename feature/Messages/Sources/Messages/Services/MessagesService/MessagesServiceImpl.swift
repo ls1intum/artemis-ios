@@ -38,4 +38,30 @@ class MessagesServiceImpl: MessagesService {
             return DataState(error: error)
         }
     }
+
+    struct GetMessagesRequest: APIRequest {
+        typealias Response = [Message]
+
+        let courseId: Int
+        let conversationId: Int64
+
+        var method: HTTPMethod {
+            return .get
+        }
+
+        var resourceName: String {
+            return "api/courses/\(courseId)/messages?postSortCriterion=CREATION_DATE&sortingOrder=DESCENDING&conversationId=\(conversationId)&pagingEnabled=true&page=0&size=50"
+        }
+    }
+
+    func getMessages(for courseId: Int, and conversationId: Int64) async -> DataState<[Message]> {
+        let result = await client.sendRequest(GetMessagesRequest(courseId: courseId, conversationId: conversationId))
+
+        switch result {
+        case .success((let messages, _)):
+            return .done(response: messages)
+        case .failure(let error):
+            return DataState(error: error)
+        }
+    }
 }

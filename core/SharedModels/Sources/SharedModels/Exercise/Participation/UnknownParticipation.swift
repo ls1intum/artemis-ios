@@ -1,6 +1,6 @@
 import Foundation
 
-public struct UnknownParticipation: BaseParticipation, Decodable {
+public struct UnknownParticipation: BaseParticipation {
     public static var type: String {
         "unknown"
     }

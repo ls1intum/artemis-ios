@@ -15,7 +15,7 @@ public struct ModelingExercise: BaseExercise {
     public var releaseDate: Date?
     public var assessmentDueDate: Date?
     public var difficulty: Difficulty?
-    public var mode: Mode = .INDIVIDUAL
+    public var mode: Mode = .individual
     public var categories: [Category]? = []
     public var visibleToStudents: Bool?
     public var teamMode: Bool?
@@ -41,7 +41,7 @@ public struct ModelingExercise: BaseExercise {
     }
 }
 
-public enum UMLDiagramType: String, Decodable {
+public enum UMLDiagramType: String, Codable {
     case classDiagram = "ClassDiagram"
     case objectDiagram = "ObjectDiagram"
     case activityDiagram = "ActivityDiagram"

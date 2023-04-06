@@ -7,7 +7,7 @@ import SwiftUI
 /**
  * Representation of a single course.
  */
-public struct Course: Decodable, Identifiable {
+public struct Course: Codable, Identifiable {
     public var id: Int
     public var title: String? = ""
     public var description: String? = ""
@@ -17,7 +17,7 @@ public struct Course: Decodable, Identifiable {
     public var registrationConfirmationMessage: String? = ""
     public var exercises: [Exercise]?
     public var lectures: [Lecture]?
-public var accuracyOfScores: Int?
+    public var accuracyOfScores: Int?
 
     public init(id: Int, title: String? = "", description: String? = "", courseIcon: String? = nil, semester: String? = "", registrationConfirmationMessage: String? = "", exercises: [Exercise]? = nil) {
         self.id = id

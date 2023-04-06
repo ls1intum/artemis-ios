@@ -1,6 +1,6 @@
 import Foundation
 
-public struct TextExercise: BaseExercise, Decodable {
+public struct TextExercise: BaseExercise {
 
     public typealias SelfType = TextExercise
 
@@ -17,7 +17,7 @@ public struct TextExercise: BaseExercise, Decodable {
     public var releaseDate: Date?
     public var assessmentDueDate: Date?
     public var difficulty: Difficulty?
-    public var mode: Mode = .INDIVIDUAL
+    public var mode: Mode = .individual
     public var categories: [Category]? = []
     public var visibleToStudents: Bool?
     public var teamMode: Bool?
