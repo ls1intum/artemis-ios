@@ -15,7 +15,7 @@ public struct GroupChat: BaseConversation {
     public var lastMessageDate: Date?
     public var creator: ConversationUser?
     public var lastReadDate: Date?
-    public var unreadMessagesCount: Int64?
+    public var unreadMessagesCount: Int?
     public var isFavorite: Bool?
     public var isHidden: Bool?
     public var isCreator: Bool?

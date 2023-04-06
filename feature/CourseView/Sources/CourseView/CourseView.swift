@@ -49,7 +49,7 @@ public struct CourseView: View {
                             Image(systemName: "square.and.pencil.circle.fill")
                                 .resizable()
                                 .scaledToFit()
-                                .frame(width: .smallImage)
+                                .frame(width: .buttonMinSize)
                         })
                     } else {
                         EmptyView()

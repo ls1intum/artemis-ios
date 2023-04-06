@@ -32,7 +32,7 @@ public protocol BaseConversation: Codable {
     var lastMessageDate: Date? { get }
     var creator: ConversationUser? { get }
     var lastReadDate: Date? { get }
-    var unreadMessagesCount: Int64? { get }
+    var unreadMessagesCount: Int? { get }
     var isFavorite: Bool? { get }
     var isHidden: Bool? { get }
     var isCreator: Bool? { get }

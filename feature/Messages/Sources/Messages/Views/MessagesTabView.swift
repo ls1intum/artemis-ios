@@ -21,18 +21,22 @@ public struct MessagesTabView: View {
 
     public var body: some View {
         List {
-            MessageSection(viewModel: viewModel,
-                           conversations: $viewModel.channels,
-                           sectionTitle: "Channels",
-                           conversationType: .channel)
-            MessageSection(viewModel: viewModel,
-                           conversations: $viewModel.groupChats,
-                           sectionTitle: "Group Chats",
-                           conversationType: .groupChat)
-            MessageSection(viewModel: viewModel,
-                           conversations: $viewModel.oneToOneChats,
-                           sectionTitle: "Direct Messages",
-                           conversationType: .oneToOneChat)
+            Group {
+                MessageSection(viewModel: viewModel,
+                               conversations: $viewModel.channels,
+                               sectionTitle: "Channels",
+                               conversationType: .channel)
+                MessageSection(viewModel: viewModel,
+                               conversations: $viewModel.groupChats,
+                               sectionTitle: "Group Chats",
+                               conversationType: .groupChat)
+                MessageSection(viewModel: viewModel,
+                               conversations: $viewModel.oneToOneChats,
+                               sectionTitle: "Direct Messages",
+                               conversationType: .oneToOneChat)
+            }
+                .listRowSeparator(.visible, edges: .top)
+                .listRowInsets(EdgeInsets(top: .s, leading: .l, bottom: .s, trailing: .l))
         }
             .navigationDestination(for: ConversationPath.self) { conversationPath in
                 ConversationView()
@@ -80,16 +84,42 @@ struct MessageSection<T: BaseConversation>: View {
                             }
                             Text(conversation.conversationName)
                             Spacer()
+                            if let unreadCount = conversation.unreadMessagesCount,
+                               unreadCount > 0 {
+                                Text("\(unreadCount)")
+                                    .foregroundColor(.white)
+                                    .font(.headline)
+                                    .padding(.m)
+                                    .background(.red)
+                                    .clipShape(Circle())
+                            }
                         }
+                            .opacity((conversation.unreadMessagesCount ?? 0) > 0 ? 1 : 0.7)
+                            .contextMenu {
+                                contextMenuItems
+                            }
                     })
-                }.listRowInsets(EdgeInsets(top: .m, leading: 0, bottom: .m, trailing: .l))
+                        .listRowSeparator(.hidden)
+                }
             }
         }, label: {
             HStack {
                 Text(sectionTitle)
                     .font(.headline)
+                    .italic()
             }
-        }).listRowSeparator(.hidden)
+        })
+    }
+
+    var contextMenuItems: some View {
+        Group {
+            Button("Hide") {
+                print("TODO")
+            }
+            Button("Favorite") {
+                print("TODO")
+            }
+        }
     }
 }
 
