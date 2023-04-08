@@ -78,3 +78,21 @@ public struct ConversationPath: Hashable {
         self.coursePath = coursePath
     }
 }
+
+public struct MessagePath: Hashable {
+    public let id: Int64
+    public let message: Message?
+    public let conversationPath: ConversationPath
+
+    init(id: Int64, conversationPath: ConversationPath) {
+        self.id = id
+        self.message = nil
+        self.conversationPath = conversationPath
+    }
+
+    public init(message: Message, conversationPath: ConversationPath) {
+        self.id = message.id
+        self.message = message
+        self.conversationPath = conversationPath
+    }
+}

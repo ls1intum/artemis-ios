@@ -8,6 +8,7 @@
 import SwiftUI
 import SharedModels
 import DesignLibrary
+import Navigation
 
 struct ConversationView: View {
 
@@ -29,7 +30,9 @@ struct ConversationView: View {
                         } else {
                             ForEach(dailyMessages.sorted(by: { $0.key < $1.key }), id: \.key) { dailyMessage in
                                 ConversationDaySection(day: dailyMessage.key,
-                                                       messages: dailyMessage.value)
+                                                       messages: dailyMessage.value,
+                                                       conversationPath: ConversationPath(conversation: viewModel.conversation,
+                                                                                          coursePath: CoursePath(id: viewModel.courseId)))
                             }
                             Spacer()
                         }
@@ -42,6 +45,10 @@ struct ConversationView: View {
             .navigationTitle(viewModel.conversation.baseConversation.conversationName)
             .task {
                 await viewModel.loadMessages()
+            }
+            .navigationDestination(for: MessagePath.self) { messagePath in
+                // TODO: remove force unwrap
+                MessageDetailView(message: messagePath.message!)
             }
     }
 }
@@ -163,6 +170,7 @@ private struct SendMessageView: View {
 private struct ConversationDaySection: View {
     let day: Date
     let messages: [Message]
+    let conversationPath: ConversationPath
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -170,14 +178,18 @@ private struct ConversationDaySection: View {
                 .font(.headline)
             Divider()
             ForEach(messages, id: \.id) { message in
-                MessageCell(message: message)
+                MessageCell(message: message, conversationPath: conversationPath)
             }
         }
     }
 }
 
 private struct MessageCell: View {
+
+    @EnvironmentObject var navigationController: NavigationController
+
     let message: Message
+    let conversationPath: ConversationPath
 
     var body: some View {
         HStack(alignment: .top, spacing: .l) {
@@ -196,6 +208,12 @@ private struct MessageCell: View {
                     }
                 }
                 Text(message.content ?? "")
+                if let answerCount = message.answers?.count,
+                   answerCount > 0 {
+                    Button("\(answerCount) reply") {
+                        navigationController.path.append(MessagePath(message: message, conversationPath: conversationPath))
+                    }
+                }
             }
             Spacer()
         }

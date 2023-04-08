@@ -6,9 +6,8 @@
 //
 
 import Foundation
-import SharedModels
 
-protocol BaseMessage: Codable {
+public protocol BaseMessage: Codable {
     var id: Int64 { get }
     var author: ConversationUser? { get }
     var creationDate: Date? { get }
