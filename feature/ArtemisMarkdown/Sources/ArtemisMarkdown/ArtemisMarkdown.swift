@@ -13,12 +13,17 @@ public struct ArtemisMarkdownView: View {
     private var markdownString: String {
         let replacedProgramming = replaceExercises(replaceType: .programming, string)
         let replacedQuiz = replaceExercises(replaceType: .quiz, replacedProgramming)
-        let replacedLecture = replaceLecture(replacedQuiz)
-        return replacedLecture
+        let replacedText = replaceExercises(replaceType: .text, replacedQuiz)
+        let replacedModeling = replaceExercises(replaceType: .modeling, replacedText)
+        let replacedFileUpload = replaceExercises(replaceType: .fileUpload, replacedModeling)
+        let replacedLecture = replaceLecture(replacedFileUpload)
+        let replacedInsTag = replaceInsTag(replacedLecture)
+        return replacedInsTag
     }
 
     public var body: some View {
         Markdown(markdownString)
+            .markdownTheme(.gitHub)
             .markdownTextStyle(\.code) {
                 FontFamilyVariant(.monospaced)
                 ForegroundColor(.red)
@@ -64,9 +69,18 @@ public struct ArtemisMarkdownView: View {
         return outputString
     }
 
+    private func replaceInsTag(_ input: String) -> String {
+        let regex = try! NSRegularExpression(pattern: "<ins>(.*?)</ins>")
+        let replacement = "$1"
+        return regex.stringByReplacingMatches(in: input, range: NSRange(input.startIndex..., in: input), withTemplate: replacement)
+    }
+
     enum ReplaceType: String, RawRepresentable {
         case programming
         case quiz
+        case text
+        case fileUpload = "file-upload"
+        case modeling
 
         var altText: String {
             switch self {
@@ -74,6 +88,12 @@ public struct ArtemisMarkdownView: View {
                 return "Programming"
             case .quiz:
                 return "Quiz"
+            case .text:
+                return "Text"
+            case .fileUpload:
+                return "File Upload"
+            case .modeling:
+                return "Modeling"
             }
         }
 
@@ -82,6 +102,9 @@ public struct ArtemisMarkdownView: View {
             case .programming:
                 return "fa-keyboard"
             case .quiz:
+                return "fa-check-double"
+            // TODO
+            default:
                 return "fa-check-double"
             }
         }

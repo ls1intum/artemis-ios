@@ -21,25 +21,34 @@ struct ConversationView: View {
 
     var body: some View {
         VStack {
-            ScrollView {
-                VStack(alignment: .leading) {
-                    DataStateView(data: $viewModel.dailyMessages,
-                                  retryHandler: { await viewModel.loadMessages() }) { dailyMessages in
-                        if dailyMessages.isEmpty {
-                            Text("There are no messages yet! Write the first message to kickstart this conversation.")
-                                .padding(.vertical, .xl)
-                        } else {
-                            ForEach(dailyMessages.sorted(by: { $0.key < $1.key }), id: \.key) { dailyMessage in
-                                ConversationDaySection(day: dailyMessage.key,
-                                                       messages: dailyMessage.value,
-                                                       conversationPath: ConversationPath(conversation: viewModel.conversation,
-                                                                                          coursePath: CoursePath(id: viewModel.courseId)))
+            ScrollViewReader { value in
+                ScrollView {
+                    VStack(alignment: .leading) {
+                        DataStateView(data: $viewModel.dailyMessages,
+                                      retryHandler: { await viewModel.loadMessages() }) { dailyMessages in
+                            if dailyMessages.isEmpty {
+                                Text("There are no messages yet! Write the first message to kickstart this conversation.")
+                                    .padding(.vertical, .xl)
+                            } else {
+                                ForEach(dailyMessages.sorted(by: { $0.key < $1.key }), id: \.key) { dailyMessage in
+                                    ConversationDaySection(day: dailyMessage.key,
+                                                           messages: dailyMessage.value,
+                                                           conversationPath: ConversationPath(conversation: viewModel.conversation,
+                                                                                              coursePath: CoursePath(id: viewModel.courseId)))
+                                }
+                                Spacer()
                             }
-                            Spacer()
                         }
                     }
-                }
                     .padding(.horizontal, .l)
+                }
+                    .onChange(of: viewModel.dailyMessages.value) { dailyMessages in
+                        if let dailyMessages,
+                           let lastKey = dailyMessages.keys.max(),
+                           let lastMessage = dailyMessages[lastKey]?.last {
+                            value.scrollTo(lastMessage.id, anchor: .center)
+                        }
+                    }
             }
             SendMessageView(viewModel: viewModel)
         }
@@ -66,6 +75,7 @@ private struct ConversationDaySection: View {
             Divider()
             ForEach(messages, id: \.id) { message in
                 MessageCell(message: message, conversationPath: conversationPath)
+                    .id(message.id)
             }
         }
     }
