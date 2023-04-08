@@ -1,5 +1,5 @@
 public struct Account: Codable {
-    public let id: Int
+    public let id: Int64
     public let login: String
     public let name: String
     public let firstName: String

@@ -75,7 +75,6 @@ private struct ConversationDaySection: View {
             Divider()
             ForEach(messages, id: \.id) { message in
                 MessageCell(message: message, conversationPath: conversationPath)
-                    .id(message.id)
             }
         }
     }
@@ -84,6 +83,8 @@ private struct ConversationDaySection: View {
 private struct MessageCell: View {
 
     @EnvironmentObject var navigationController: NavigationController
+
+    @State private var showMessageActionSheet = false
 
     let message: Message
     let conversationPath: ConversationPath
@@ -105,15 +106,26 @@ private struct MessageCell: View {
                     }
                 }
                 ArtemisMarkdownView(string: message.content ?? "")
+                ReactionsView(message: message, showEmojiAddButton: false)
                 if let answerCount = message.answers?.count,
                    answerCount > 0 {
                     Button("\(answerCount) reply") {
                         navigationController.path.append(MessagePath(message: message, conversationPath: conversationPath))
                     }
                 }
-            }
+            }.id(message.id)
             Spacer()
         }
+            .onTapGesture {
+                print("tapped")
+            }
+            .onLongPressGesture(minimumDuration: 0.3, maximumDistance: 30) {
+                showMessageActionSheet = true
+            }
+            .sheet(isPresented: $showMessageActionSheet) {
+                MessageActionSheet(message: message, conversationPath: conversationPath)
+                    .presentationDetents([.height(250), .large])
+            }
     }
 }
 

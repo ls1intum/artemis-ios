@@ -103,7 +103,7 @@ public struct ArtemisMarkdownView: View {
                 return "fa-keyboard"
             case .quiz:
                 return "fa-check-double"
-            // TODO
+            // TODO: add images for other cases
             default:
                 return "fa-check-double"
             }
