@@ -7,13 +7,36 @@
 
 import SwiftUI
 import SharedModels
+import EmojiPicker
 import ArtemisMarkdown
+import Smile
 
 struct MessageDetailView: View {
 
     @ObservedObject var viewModel: ConversationViewModel
 
+    @State private var showEmojiPicker = false
+    @State var selectedEmoji: Emoji?
+
     let message: Message
+
+    let rows = [ GridItem() ]
+
+    var mappedReaction: [String: [Reaction]] {
+        var reactions = [String: [Reaction]]()
+
+        message.reactions?.forEach {
+            guard let emoji = Smile.emoji(alias: $0.emojiId) else {
+                return
+            }
+            if reactions[emoji] != nil {
+                reactions[emoji]?.append($0)
+            } else {
+                reactions[emoji] = [$0]
+            }
+        }
+        return reactions
+    }
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -25,7 +48,6 @@ struct MessageDetailView: View {
                         .frame(width: 40, height: 40)
                         .padding(.top, .s)
                     VStack(alignment: .leading, spacing: .m) {
-
                         Text(message.author?.name ?? "")
                             .bold()
                         if let creationDate = message.creationDate {
@@ -34,10 +56,10 @@ struct MessageDetailView: View {
                         }
                     }
                 }
+
                 ArtemisMarkdownView(string: message.content ?? "")
-                Button("Emoji TODO") {
-                    print("TODO")
-                }
+
+                reactions
             }.padding(.horizontal, .l)
             Divider()
             ScrollView {
@@ -50,6 +72,31 @@ struct MessageDetailView: View {
             Spacer()
             SendMessageView(viewModel: viewModel)
         }.navigationTitle("Thread")
+    }
+
+    var reactions: some View {
+        LazyHGrid(rows: rows) {
+            ForEach(mappedReaction.sorted(by: { $0.key < $1.key }), id: \.key) { map in
+                HStack {
+                    Text(map.key)
+                }
+            }
+            Button(action: { showEmojiPicker = true }, label: {
+                Image("face-smile", bundle: .module)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: .smallImage)
+                    .padding(.s)
+                    .background(Capsule().fill(.gray))
+            })
+                .sheet(isPresented: $showEmojiPicker) {
+                    NavigationView {
+                        EmojiPickerView(selectedEmoji: $selectedEmoji, selectedColor: Color.Artemis.artemisBlue)
+                            .navigationTitle("Emojis")
+                            .navigationBarTitleDisplayMode(.inline)
+                    }
+                }
+        }
     }
 }
 

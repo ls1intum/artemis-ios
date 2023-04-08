@@ -21,14 +21,15 @@ let package = Package(
         .package(path: "../../core/SharedModels"),
         .package(path: "../../core/DesignLibrary"),
         .package(path: "../ArtemisMarkdown"),
-        .package(url: "https://github.com/mac-cain13/R.swift.git", from: "7.0.0")
+        .package(url: "https://github.com/mac-cain13/R.swift.git", from: "7.0.0"),
+        .package(url: "https://github.com/Kelvas09/EmojiPicker.git", from: "1.0.0")
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "Messages",
-            dependencies: ["SharedModels", "APIClient", "DesignLibrary", "Navigation", "ArtemisMarkdown", .product(name: "RswiftLibrary", package: "R.swift")],
+            dependencies: ["SharedModels", "APIClient", "DesignLibrary", "Navigation", "ArtemisMarkdown", "EmojiPicker", .product(name: "RswiftLibrary", package: "R.swift")],
             plugins: [.plugin(name: "RswiftGeneratePublicResources", package: "R.swift")]
         ),
         .testTarget(
