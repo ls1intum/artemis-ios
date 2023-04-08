@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "chalkboard-user-solid.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

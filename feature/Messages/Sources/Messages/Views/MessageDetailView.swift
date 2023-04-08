@@ -7,8 +7,11 @@
 
 import SwiftUI
 import SharedModels
+import ArtemisMarkdown
 
 struct MessageDetailView: View {
+
+    @ObservedObject var viewModel: ConversationViewModel
 
     let message: Message
 
@@ -31,7 +34,7 @@ struct MessageDetailView: View {
                         }
                     }
                 }
-                Text(message.content ?? "")
+                ArtemisMarkdownView(string: message.content ?? "")
                 Button("Emoji TODO") {
                     print("TODO")
                 }
@@ -45,6 +48,7 @@ struct MessageDetailView: View {
                 }.padding(.horizontal, .l)
             }
             Spacer()
+            SendMessageView(viewModel: viewModel)
         }.navigationTitle("Thread")
     }
 }
@@ -69,7 +73,7 @@ struct ThreadMessageCell: View {
                             .font(.caption)
                     }
                 }
-                Text(message.content ?? "")
+                ArtemisMarkdownView(string: message.content ?? "")
             }
             Spacer()
         }
