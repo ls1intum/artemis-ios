@@ -47,4 +47,8 @@ class ConversationViewModel: ObservableObject {
             self.dailyMessages = .done(response: dailyMessages)
         }
     }
+
+    func sendMessage(text: String) async {
+        print("TODO")
+    }
 }
