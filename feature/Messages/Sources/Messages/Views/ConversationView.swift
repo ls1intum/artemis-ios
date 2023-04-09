@@ -116,10 +116,13 @@ private struct MessageCell: View {
             }.id(message.id)
             Spacer()
         }
+            .contentShape(Rectangle())
             .onTapGesture {
-                print("tapped")
+                print("This somehow fixes scrolling...")
             }
-            .onLongPressGesture(minimumDuration: 0.3, maximumDistance: 30) {
+            .onLongPressGesture(maximumDistance: 30) {
+                let impactMed = UIImpactFeedbackGenerator(style: .heavy)
+                impactMed.impactOccurred()
                 showMessageActionSheet = true
             }
             .sheet(isPresented: $showMessageActionSheet) {

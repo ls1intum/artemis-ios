@@ -7,16 +7,27 @@ public class NavigationController: ObservableObject {
 
     @Published public var courseTab = TabIdentifier.exercise
 
-    public init(path: NavigationPath) {
-        self.path = path
+    public init() {
+        self.path = NavigationPath()
 
         DeeplinkHandler.shared.setup(navigationController: self)
     }
 
-    func setCourse(id: Int) {
+    func popToRoot() {
         path.removeLast(path.count)
+    }
+
+    func setCourse(id: Int) {
+        popToRoot()
 
         path.append(CoursePath(id: id))
+    }
+
+    func setExercise(courseId: Int, exerciseId: Int) {
+        setCourse(id: courseId)
+        courseTab = .exercise
+        path.append(ExercisePath(id: exerciseId,
+                                 coursePath: CoursePath(id: courseId)))
     }
 
     func setTab(identifier: TabIdentifier) {

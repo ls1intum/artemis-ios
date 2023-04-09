@@ -15,8 +15,8 @@ struct ExerciseDetailView: View {
     @State var webViewHeight = CGFloat.s
     @State var urlRequest: URLRequest
 
-    let course: Course
-    let exercise: Exercise
+    let course: Course?
+    let exercise: Exercise?
 
     init(course: Course, exercise: Exercise) {
 
@@ -25,46 +25,57 @@ struct ExerciseDetailView: View {
         self.exercise = exercise
     }
 
+    init(courseId: Int, exerciseId: Int) {
+        self._urlRequest = State(wrappedValue: URLRequest(url: URL(string: "/courses/\(courseId)/exercises/\(exerciseId)", relativeTo: UserSession.shared.institution?.baseURL)!))
+        course = nil
+        exercise = nil
+        // TODO: load exercise
+    }
+
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: .m) {
+        if let exercise {
+            ScrollView {
                 VStack(alignment: .leading, spacing: .m) {
-                    HStack(spacing: .l) {
-                        exercise.image
-                            .renderingMode(.template)
-                            .resizable()
-                            .scaledToFit()
-                            .foregroundColor(Color.Artemis.primaryLabel)
-                            .frame(width: .smallImage)
-                        Text(exercise.baseExercise.title ?? "Unknown")
-                            .font(.title3)
-                        Spacer()
-                    }
-                    ForEach(exercise.baseExercise.categories ?? [], id: \.category) { category in
-                        Chip(text: category.category, backgroundColor: UIColor(hexString: category.colorCode).suColor)
-                    }
-                    if let dueDate = exercise.baseExercise.dueDate {
-                        Text("Due Date: \(dueDate.relative ?? "?")")
-                    } else {
-                        Text("No due date")
-                    }
-                    HStack {
-                        Text("Points: \(exercise.baseExercise.studentParticipations?.first?.baseParticipation.submissions?.first?.baseSubmission.results?.first?.score?.clean ?? "0") of \(exercise.baseExercise.maxPoints?.clean ?? "0")")
-                        if exercise.baseExercise.includedInOverallScore != .includedCompletly {
-                            Chip(text: exercise.baseExercise.includedInOverallScore.description, backgroundColor: exercise.baseExercise.includedInOverallScore.color)
+                    VStack(alignment: .leading, spacing: .m) {
+                        HStack(spacing: .l) {
+                            exercise.image
+                                .renderingMode(.template)
+                                .resizable()
+                                .scaledToFit()
+                                .foregroundColor(Color.Artemis.primaryLabel)
+                                .frame(width: .smallImage)
+                            Text(exercise.baseExercise.title ?? "Unknown")
+                                .font(.title3)
+                            Spacer()
                         }
-                        Text("Assessment: \(exercise.baseExercise.assessmentType?.description ?? "Unknown")")
+                        ForEach(exercise.baseExercise.categories ?? [], id: \.category) { category in
+                            Chip(text: category.category, backgroundColor: UIColor(hexString: category.colorCode).suColor)
+                        }
+                        if let dueDate = exercise.baseExercise.dueDate {
+                            Text("Due Date: \(dueDate.relative ?? "?")")
+                        } else {
+                            Text("No due date")
+                        }
+                        HStack {
+                            Text("Points: \(exercise.baseExercise.studentParticipations?.first?.baseParticipation.submissions?.first?.baseSubmission.results?.first?.score?.clean ?? "0") of \(exercise.baseExercise.maxPoints?.clean ?? "0")")
+                            if exercise.baseExercise.includedInOverallScore != .includedCompletly {
+                                Chip(text: exercise.baseExercise.includedInOverallScore.description, backgroundColor: exercise.baseExercise.includedInOverallScore.color)
+                            }
+                            Text("Assessment: \(exercise.baseExercise.assessmentType?.description ?? "Unknown")")
+                        }
+                        SubmissionResultStatusView(exercise: exercise)
                     }
-                    SubmissionResultStatusView(exercise: exercise)
-                }
-                .padding(.horizontal, .l)
-                ArtemisWebView(urlRequest: $urlRequest,
-                               contentHeight: $webViewHeight)
+                    .padding(.horizontal, .l)
+                    ArtemisWebView(urlRequest: $urlRequest,
+                                   contentHeight: $webViewHeight)
                     .frame(height: webViewHeight)
                     .disabled(true)
-                Spacer()
+                    Spacer()
+                }
             }
-        }
             .navigationTitle(exercise.baseExercise.title ?? "Unknown")
+        } else {
+            Text("Loading...")
+        }
     }
 }

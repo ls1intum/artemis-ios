@@ -41,6 +41,7 @@ struct MessageActionSheet: View {
                 Divider()
                 Button(action: {
                     UIPasteboard.general.string = message.content
+                    dismiss()
                 }, label: {
                     ButtonContent(title: "Copy Text", icon: "clipboard.fill")
                 })

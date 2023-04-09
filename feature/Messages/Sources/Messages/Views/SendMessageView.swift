@@ -22,15 +22,6 @@ struct SendMessageView: View {
                     .fill(Color.secondary)
                     .frame(width: 50, height: 3)
                     .padding(.top, .m)
-                    .gesture(
-                        DragGesture(minimumDistance: 0, coordinateSpace: .local)
-                            .onEnded({ value in
-                                if value.translation.height > 0 {
-                                    // down
-                                    isFocused = false
-                                }
-                            })
-                    )
             }
             HStack(alignment: .bottom) {
                 TextField("Message \(viewModel.conversation.baseConversation.conversationName)", text: $responseText, axis: .vertical)
@@ -53,6 +44,17 @@ struct SendMessageView: View {
                 RoundedRectangle(cornerRadius: 20)
                     .trim(from: isFocused ? 0.52 : 0.51, to: isFocused ? 0.98 : 0.99)
                     .stroke(Color.Artemis.artemisBlue, lineWidth: 2)
+            )
+            .gesture(
+                DragGesture(minimumDistance: 30, coordinateSpace: .local)
+                    .onEnded({ value in
+                        if value.translation.height > 0 {
+                            // down
+                            isFocused = false
+                            let impactMed = UIImpactFeedbackGenerator(style: .medium)
+                            impactMed.impactOccurred()
+                        }
+                    })
             )
     }
 

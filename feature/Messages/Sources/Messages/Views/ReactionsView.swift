@@ -16,7 +16,7 @@ struct ReactionsView: View {
     let message: Message
     let showEmojiAddButton: Bool
 
-    let columns = [ GridItem(.adaptive(minimum: 40)) ]
+    let columns = [ GridItem(.adaptive(minimum: 45)) ]
 
     var mappedReaction: [String: [Reaction]] {
         var reactions = [String: [Reaction]]()

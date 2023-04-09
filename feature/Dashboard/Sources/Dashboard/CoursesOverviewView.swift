@@ -151,6 +151,9 @@ private struct CourseListCell: View {
                     navigationController.path.append(CoursePath(course: course))
                 }
                 .frame(maxWidth: 720)
+                .onChange(of: navigationController.path) { _ in
+                    print("TODO")
+                }
             Spacer()
         }
     }

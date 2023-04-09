@@ -42,7 +42,10 @@ struct MessageDetailView: View {
                 ReactionsView(message: message)
             }
                 .padding(.horizontal, .l)
-                .onLongPressGesture(minimumDuration: 0.3, maximumDistance: 30) {
+                .contentShape(Rectangle())
+                .onLongPressGesture(maximumDistance: 30) {
+                    let impactMed = UIImpactFeedbackGenerator(style: .heavy)
+                    impactMed.impactOccurred()
                     showMessageActionSheet = true
                 }
                 .sheet(isPresented: $showMessageActionSheet) {
