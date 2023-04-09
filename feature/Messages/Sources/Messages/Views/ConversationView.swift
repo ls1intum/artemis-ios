@@ -72,6 +72,7 @@ private struct ConversationDaySection: View {
         VStack(alignment: .leading) {
             Text(day, formatter: DateFormatter.dateOnly)
                 .font(.headline)
+                .padding(.top, .m)
             Divider()
             ForEach(messages, id: \.id) { message in
                 MessageCell(message: message, conversationPath: conversationPath)
@@ -120,14 +121,14 @@ private struct MessageCell: View {
             .onTapGesture {
                 print("This somehow fixes scrolling...")
             }
-            .onLongPressGesture(maximumDistance: 30) {
+            .onLongPressGesture(minimumDuration: 0.1, maximumDistance: 30) {
                 let impactMed = UIImpactFeedbackGenerator(style: .heavy)
                 impactMed.impactOccurred()
                 showMessageActionSheet = true
             }
             .sheet(isPresented: $showMessageActionSheet) {
                 MessageActionSheet(message: message, conversationPath: conversationPath)
-                    .presentationDetents([.height(250), .large])
+                    .presentationDetents([.height(300), .large])
             }
     }
 }

@@ -28,7 +28,8 @@ struct MessageActionSheet: View {
                     EmojiTextButton(emoji: "➕")
                     EmojiTextButton(emoji: "🚀")
                     EmojiPickerButton(message: message)
-                }.padding(.horizontal, .l)
+                }
+                    .padding(.l)
                 if let conversationPath {
                     Divider()
                     Button(action: {
@@ -60,7 +61,7 @@ struct MessageActionSheet: View {
             }
             Spacer()
         }
-            .padding(.vertical, .xl)
+            .padding(.vertical, .xxl)
     }
 }
 
@@ -85,8 +86,9 @@ private struct EmojiTextButton: View {
 
     var body: some View {
         Text("\(emoji)")
+            .font(.title3)
             .foregroundColor(Color.Artemis.primaryLabel)
-            .frame(height: .smallImage)
+            .frame(width: .mediumImage, height: .mediumImage)
             .padding(.m)
             .background(
                 Capsule().fill(Color.Artemis.reactionCapsuleColor)
@@ -108,8 +110,8 @@ private struct EmojiPickerButton: View {
                 .resizable()
                 .scaledToFit()
                 .foregroundColor(Color.Artemis.secondaryLabel)
-                .frame(height: .smallImage)
-                .padding(.m)
+                .frame(width: .smallImage, height: .smallImage)
+                .padding(20)
                 .background(Capsule().fill(Color.Artemis.reactionCapsuleColor))
         })
             .sheet(isPresented: $showEmojiPicker) {
