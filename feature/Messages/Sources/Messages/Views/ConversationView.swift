@@ -34,7 +34,7 @@ public struct ConversationView: View {
                         DataStateView(data: $viewModel.dailyMessages,
                                       retryHandler: { await viewModel.loadMessages() }) { dailyMessages in
                             if dailyMessages.isEmpty {
-                                Text("There are no messages yet! Write the first message to kickstart this conversation.")
+                                Text(R.string.localizable.noMessagesYet())
                                     .padding(.vertical, .xl)
                                     .padding(.horizontal, .l)
                             } else {
@@ -67,7 +67,7 @@ public struct ConversationView: View {
             }
             SendMessageView(viewModel: viewModel)
         }
-            .navigationTitle(viewModel.conversation.value?.baseConversation.conversationName ?? "Loading...")
+            .navigationTitle(viewModel.conversation.value?.baseConversation.conversationName ?? R.string.localizable.loading())
             .task {
                 await viewModel.loadMessages()
             }
@@ -88,7 +88,9 @@ private struct ConversationDaySection: View {
             Divider()
                 .padding(.horizontal, .l)
             ForEach(Array(messages.enumerated()), id: \.1.id) { index, message in
-                MessageCell(message: message, conversationPath: conversationPath, showHeader: (index == 0 ? true : shouldShowHeader(message: message, previousMessage: messages[index - 1])))
+                MessageCell(message: message,
+                            conversationPath: conversationPath,
+                            showHeader: (index == 0 ? true : shouldShowHeader(message: message, previousMessage: messages[index - 1])))
             }
         }
     }
@@ -134,7 +136,7 @@ private struct MessageCell: View {
                 ReactionsView(message: message, showEmojiAddButton: false)
                 if let answerCount = message.answers?.count,
                    answerCount > 0 {
-                    Button("\(answerCount) reply") {
+                    Button(R.string.localizable.replyAction(answerCount)) {
                         navigationController.path.append(MessagePath(message: message, coursePath: conversationPath.coursePath, conversationPath: conversationPath))
                     }
                 }

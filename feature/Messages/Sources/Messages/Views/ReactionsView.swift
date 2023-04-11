@@ -104,7 +104,7 @@ private struct EmojiPickerButton: View {
             .sheet(isPresented: $showEmojiPicker) {
                 NavigationView {
                     EmojiPickerView(selectedEmoji: $selectedEmoji, selectedColor: Color.Artemis.artemisBlue)
-                        .navigationTitle("Emojis")
+                        .navigationTitle(R.string.localizable.emojis())
                         .navigationBarTitleDisplayMode(.inline)
                 }
             }

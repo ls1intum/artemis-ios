@@ -2,3 +2,39 @@
 
 // MARK: MessagesTabView
 "archived" = "(Archived)";
+
+// MARK: SendMessageView
+"exercise" = "Exercise";
+"lecture" = "Lecture";
+"messageAction" = "Message %@";
+
+// MARK: ReactionsView
+"emojis" = "Emojis";
+
+// MARK: MessagesTabView
+"browseChannels" = "Browse Channels";
+"createChannel" = "Create Channel";
+"createGroupChat" = "Create Group Chat";
+"createOneToOneChat" = "Create OneToOne Chat";
+"favorite" = "Favorite";
+"hide" = "Hide";
+"channels" = "Channels";
+"groupChats" = "Group Chats";
+"directMessages" = "Direct Messages";
+
+// MARK: MessageDetailView
+"messageCouldNotBeLoadedError" = "Message could not be loaded.";
+"thread" = "Thread";
+
+// MARK: MessageActionSheet
+"replyInThread" = "Reply in Thread";
+"copyText" = "Copy Text";
+"editMessage" = "Edit Message";
+"deleteMessage" = "Delete Message";
+
+// MARK: ConversationView
+"noMessagesYet" = "There are no messages yet! Write the first message to kickstart this conversation.";
+"replyAction" = "%d reply";
+
+// MARK: General
+"loading" = "Loading...";

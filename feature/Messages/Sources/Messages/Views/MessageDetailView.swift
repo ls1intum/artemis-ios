@@ -81,7 +81,7 @@ public struct MessageDetailView: View {
                 }
                 Spacer()
                 SendMessageView(viewModel: viewModel)
-            }.navigationTitle("Thread")
+            }.navigationTitle(R.string.localizable.thread())
         }
             .task {
                 await loadMessage()
@@ -99,7 +99,7 @@ public struct MessageDetailView: View {
                 message = .failure(error: error)
             case .done(let response):
                 guard let message = response.first(where: { $0.id == messageId }) else {
-                    message = .failure(error: UserFacingError(title: "Message could not be loaded."))
+                    message = .failure(error: UserFacingError(title: R.string.localizable.messageCouldNotBeLoadedError()))
                     return
                 }
                 self.message = .done(response: message)

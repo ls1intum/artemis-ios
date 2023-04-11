@@ -24,7 +24,8 @@ struct SendMessageView: View {
                     .padding(.top, .m)
             }
             HStack(alignment: .bottom) {
-                TextField("Message \(viewModel.conversation.value?.baseConversation.conversationName ?? "")", text: $responseText, axis: .vertical)
+                TextField(R.string.localizable.messageAction(viewModel.conversation.value?.baseConversation.conversationName ?? ""),
+                          text: $responseText, axis: .vertical)
                     .lineLimit(10)
                     .focused($isFocused)
                     .toolbar {
@@ -100,12 +101,12 @@ struct SendMessageView: View {
                     Button(action: {
                         print("show Picker")
                     }, label: {
-                        Text("Exercise")
+                        Text(R.string.localizable.exercise())
                     })
                     Button(action: {
                         print("show Picker")
                     }, label: {
-                        Text("Lecture")
+                        Text(R.string.localizable.lecture())
                     })
                 }
             }

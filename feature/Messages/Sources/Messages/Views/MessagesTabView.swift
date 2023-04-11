@@ -24,15 +24,15 @@ public struct MessagesTabView: View {
             Group {
                 MessageSection(viewModel: viewModel,
                                conversations: $viewModel.channels,
-                               sectionTitle: "Channels",
+                               sectionTitle: R.string.localizable.channels(),
                                conversationType: .channel)
                 MessageSection(viewModel: viewModel,
                                conversations: $viewModel.groupChats,
-                               sectionTitle: "Group Chats",
+                               sectionTitle: R.string.localizable.groupChats(),
                                conversationType: .groupChat)
                 MessageSection(viewModel: viewModel,
                                conversations: $viewModel.oneToOneChats,
-                               sectionTitle: "Direct Messages",
+                               sectionTitle: R.string.localizable.directMessages(),
                                conversationType: .oneToOneChat)
                 // TODO: show hidden sections
             }
@@ -111,10 +111,10 @@ struct MessageSection<T: BaseConversation>: View {
 
     var contextMenuItems: some View {
         Group {
-            Button("Hide") {
+            Button(R.string.localizable.hide()) {
                 print("TODO")
             }
-            Button("Favorite") {
+            Button(R.string.localizable.favorite()) {
                 print("TODO")
             }
         }
@@ -133,16 +133,16 @@ private struct PlusActionDialog: ViewModifier {
     func body(content: Content) -> some View {
         content
             .confirmationDialog("", isPresented: $isPresented, titleVisibility: .hidden, actions: {
-                Button("Browse Channels") {
+                Button(R.string.localizable.browseChannels()) {
                     showBrowseChannels = true
                 }
-                Button("Create Channel") {
+                Button(R.string.localizable.createChannel()) {
                     showCreateChannel = true
                 }
-                Button("Create Group Chat") {
+                Button(R.string.localizable.createGroupChat()) {
                     showCreateGroupChat = true
                 }
-                Button("Create OneToOne Chat") {
+                Button(R.string.localizable.createOneToOneChat()) {
                     showCreateOneToOneChat = true
                 }
             })

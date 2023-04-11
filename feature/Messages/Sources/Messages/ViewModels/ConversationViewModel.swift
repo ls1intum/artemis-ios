@@ -74,7 +74,7 @@ public class ConversationViewModel: ObservableObject {
             conversation = .failure(error: error)
         case .done(let response):
             guard let conversation = response.first(where: { $0.id == conversationId }) else {
-                self.conversation = .failure(error: UserFacingError(title: "There is no conversation with this id."))
+                self.conversation = .failure(error: UserFacingError(title: "The conversation could not be found."))
                 return
             }
             self.conversation = .done(response: conversation)

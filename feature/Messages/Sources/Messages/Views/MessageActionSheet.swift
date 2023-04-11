@@ -36,7 +36,7 @@ struct MessageActionSheet: View {
                         dismiss()
                         navigationController.path.append(MessagePath(message: message, coursePath: conversationPath.coursePath, conversationPath: conversationPath))
                     }, label: {
-                        ButtonContent(title: "Reply in Thread", icon: "text.bubble.fill")
+                        ButtonContent(title: R.string.localizable.replyInThread(), icon: "text.bubble.fill")
                     })
                 }
                 Divider()
@@ -44,18 +44,18 @@ struct MessageActionSheet: View {
                     UIPasteboard.general.string = message.content
                     dismiss()
                 }, label: {
-                    ButtonContent(title: "Copy Text", icon: "clipboard.fill")
+                    ButtonContent(title: R.string.localizable.copyText(), icon: "clipboard.fill")
                 })
                 Divider()
                 Button(action: {
                     print("edit todo")
                 }, label: {
-                    ButtonContent(title: "Edit Message", icon: "pencil")
+                    ButtonContent(title: R.string.localizable.editMessage(), icon: "pencil")
                 })
                 Button(action: {
                     print("delete todo")
                 }, label: {
-                    ButtonContent(title: "Delete Message", icon: "trash.fill")
+                    ButtonContent(title: R.string.localizable.deleteMessage(), icon: "trash.fill")
                         .foregroundColor(.red)
                 })
                 Spacer()
@@ -122,7 +122,7 @@ private struct EmojiPickerButton: View {
             .sheet(isPresented: $showEmojiPicker) {
                 NavigationView {
                     EmojiPickerView(selectedEmoji: $selectedEmoji, selectedColor: Color.Artemis.artemisBlue)
-                        .navigationTitle("Emojis")
+                        .navigationTitle(R.string.localizable.emojis())
                         .navigationBarTitleDisplayMode(.inline)
                 }
             }
