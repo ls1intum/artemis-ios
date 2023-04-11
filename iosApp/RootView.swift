@@ -21,6 +21,9 @@ struct RootView: View {
                     NavigationStack(path: $navigationController.path) {
                         CoursesOverviewView()
                     }
+                        .onChange(of: navigationController.path) { _ in
+                            print("TODO")
+                        }
                 } else {
                     PushNotificationSetupView()
                 }

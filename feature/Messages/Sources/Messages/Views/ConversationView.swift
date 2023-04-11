@@ -11,6 +11,9 @@ import DesignLibrary
 import Navigation
 import ArtemisMarkdown
 
+// swiftlint:disable:next identifier_name
+private let MAX_MINUTES_FOR_GROUPING_MESSAGES = 5
+
 struct ConversationView: View {
 
     @StateObject private var viewModel: ConversationViewModel
@@ -84,7 +87,8 @@ private struct ConversationDaySection: View {
 
     // header is not shown if same person messages multiple times within 5 minutes
     private func shouldShowHeader(message: Message, previousMessage: Message) -> Bool {
-        !(message.author == previousMessage.author && message.creationDate ?? .now < (previousMessage.creationDate ?? .yesterday).addingTimeInterval(5*60))
+        !(message.author == previousMessage.author &&
+          message.creationDate ?? .now < (previousMessage.creationDate ?? .yesterday).addingTimeInterval(TimeInterval(MAX_MINUTES_FOR_GROUPING_MESSAGES * 60)))
     }
 }
 

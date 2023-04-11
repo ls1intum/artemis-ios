@@ -16,6 +16,7 @@ let package = Package(
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
         .package(path: "../../core/UserStore"),
+        .package(path: "../../core/DesignLibrary"),
         .package(url: "https://github.com/gonzalezreal/swift-markdown-ui", from: "2.0.0")
     ],
     targets: [
@@ -25,6 +26,7 @@ let package = Package(
             name: "ArtemisMarkdown",
             dependencies: [
                 "UserStore",
+                "DesignLibrary",
                 .product(name: "MarkdownUI", package: "swift-markdown-ui")
             ]),
         .testTarget(
