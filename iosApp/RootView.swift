@@ -23,6 +23,7 @@ struct RootView: View {
                         CoursesOverviewView()
                             .navigationDestination(for: CoursePath.self) { coursePath in
                                 CourseView(courseId: coursePath.id)
+                                    .id(coursePath.id)
                             }
                             .navigationDestination(for: ExercisePath.self) { exercisePath in
                                 if let course = exercisePath.coursePath.course,
