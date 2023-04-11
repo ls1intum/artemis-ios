@@ -51,8 +51,8 @@ public enum APIClientError: Error {
             return message
         case .jhipsterError(let error):
             return error.description
-        case .httpURLResponseError(_, let artemisError):
-            return artemisError?.description ?? localizedDescription
+        case let .httpURLResponseError(statusCode, artemisError):
+            return "\(artemisError?.description ?? localizedDescription) (Status Code: \(statusCode?.rawValue.description ?? ""))"
         case .networkError(let error):
             return error.localizedDescription
         case .decodingError(let error, _):

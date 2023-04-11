@@ -100,9 +100,12 @@ public struct ArtemisMarkdownView: View {
                 return "fa-keyboard"
             case .quiz:
                 return "fa-check-double"
-            // TODO: add images for other cases
-            default:
-                return "fa-check-double"
+            case .fileUpload:
+                return "file-upload"
+            case .text:
+                return "text"
+            case .modeling:
+                return "uml"
             }
         }
     }
