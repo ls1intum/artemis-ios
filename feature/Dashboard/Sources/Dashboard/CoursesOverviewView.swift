@@ -13,8 +13,6 @@ import Notifications
  */
 public struct CoursesOverviewView: View {
 
-    @EnvironmentObject var navigationController: NavigationController
-
     @StateObject private var viewModel = CoursesOverviewViewModel()
 
     @State private var showCourseRegistrationSheet = false

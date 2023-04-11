@@ -7,8 +7,6 @@ import DesignLibrary
 
 struct ExerciseListView: View {
 
-    @EnvironmentObject var navigationController: NavigationController
-
     @ObservedObject var viewModel: CourseViewModel
 
     private var weeklyExercises: [WeeklyExercise] {

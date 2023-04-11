@@ -27,7 +27,6 @@ public class NavigationController: ObservableObject {
     }
 
     func setExercise(courseId: Int, exerciseId: Int) {
-        // TODO: change to setCourse when fixed
         courseTab = .exercise
         setCourse(id: courseId)
         path.append(ExercisePath(id: exerciseId,

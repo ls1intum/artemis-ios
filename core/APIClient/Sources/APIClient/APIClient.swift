@@ -197,15 +197,15 @@ public final class APIClient {
 // MARK: - Logging
 extension APIClient {
     private func printRequest(urlRequest: URLRequest) {
-//        log.verbose(
-//            """
-//            \n––––––––––––––––––––––––––––––––––––––––Request––––––––––––––––––––––––––––––––––––––––––
-//            \(urlRequest.httpMethod ?? "empty") \(urlRequest.url?.absoluteString ?? "empty")
-//            Body: \(String(data: urlRequest.httpBody ?? Data(), encoding: .utf8) ?? "")
-//            Length: \(urlRequest.httpBody?.debugDescription ?? "0")
-//            Content-Type: \(urlRequest.value(forHTTPHeaderField: "Content-Type") ?? "unknown")
-//            –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––\n
-//            """)
+        log.verbose(
+            """
+            \n––––––––––––––––––––––––––––––––––––––––Request––––––––––––––––––––––––––––––––––––––––––
+            \(urlRequest.httpMethod ?? "empty") \(urlRequest.url?.absoluteString ?? "empty")
+            Body: \(String(data: urlRequest.httpBody ?? Data(), encoding: .utf8) ?? "")
+            Length: \(urlRequest.httpBody?.debugDescription ?? "0")
+            Content-Type: \(urlRequest.value(forHTTPHeaderField: "Content-Type") ?? "unknown")
+            –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––\n
+            """)
     }
 
     private func printResponse(for urlRequest: URLRequest, data: Data?, response: URLResponse?, error: Error?) {
@@ -220,13 +220,13 @@ extension APIClient {
                 """)
         }
         if let response = response as? HTTPURLResponse {
-//            log.verbose(
-//                """
-//                \n––––––––––––––––––––––––––––––––––––––––Response–––––––––––––––––––––––––––––––––––––––––
-//                \(response.statusCode) \(urlString)
-//                Body: \(String(data: data ?? Data(), encoding: .utf8) ?? "empty")
-//                –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––\n
-//                """)
+            log.verbose(
+                """
+                \n––––––––––––––––––––––––––––––––––––––––Response–––––––––––––––––––––––––––––––––––––––––
+                \(response.statusCode) \(urlString)
+                Body: \(String(data: data ?? Data(), encoding: .utf8) ?? "empty")
+                –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––\n
+                """)
         }
     }
 }
