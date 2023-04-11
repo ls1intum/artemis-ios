@@ -14,15 +14,19 @@ import ArtemisMarkdown
 // swiftlint:disable:next identifier_name
 private let MAX_MINUTES_FOR_GROUPING_MESSAGES = 5
 
-struct ConversationView: View {
+public struct ConversationView: View {
 
     @StateObject private var viewModel: ConversationViewModel
 
-    init(courseId: Int, conversation: Conversation) {
+    public init(courseId: Int, conversation: Conversation) {
         _viewModel = StateObject(wrappedValue: ConversationViewModel(courseId: courseId, conversation: conversation))
     }
 
-    var body: some View {
+    public init(courseId: Int, conversationId: Int64) {
+        _viewModel = StateObject(wrappedValue: ConversationViewModel(courseId: courseId, conversationId: conversationId))
+    }
+
+    public var body: some View {
         VStack {
             ScrollViewReader { value in
                 ScrollView {
@@ -30,16 +34,23 @@ struct ConversationView: View {
                         DataStateView(data: $viewModel.dailyMessages,
                                       retryHandler: { await viewModel.loadMessages() }) { dailyMessages in
                             if dailyMessages.isEmpty {
-                                Text("There are no messages yet! Write the first message to kickstart this conversation.")
+                                Text(R.string.localizable.noMessagesYet())
                                     .padding(.vertical, .xl)
                                     .padding(.horizontal, .l)
                             } else {
                                 ForEach(dailyMessages.sorted(by: { $0.key < $1.key }), id: \.key) { dailyMessage in
                                     // TODO: load older messages when scrolled to top
-                                    ConversationDaySection(day: dailyMessage.key,
-                                                           messages: dailyMessage.value,
-                                                           conversationPath: ConversationPath(conversation: viewModel.conversation,
-                                                                                              coursePath: CoursePath(id: viewModel.courseId)))
+                                    if let conversation = viewModel.conversation.value {
+                                        ConversationDaySection(day: dailyMessage.key,
+                                                               messages: dailyMessage.value,
+                                                               conversationPath: ConversationPath(conversation: conversation,
+                                                                                                  coursePath: CoursePath(id: viewModel.courseId)))
+                                    } else {
+                                        ConversationDaySection(day: dailyMessage.key,
+                                                               messages: dailyMessage.value,
+                                                               conversationPath: ConversationPath(id: viewModel.conversationId,
+                                                                                                  coursePath: CoursePath(id: viewModel.courseId)))
+                                    }
                                 }
                                 Spacer()
                             }
@@ -56,13 +67,9 @@ struct ConversationView: View {
             }
             SendMessageView(viewModel: viewModel)
         }
-            .navigationTitle(viewModel.conversation.baseConversation.conversationName)
+            .navigationTitle(viewModel.conversation.value?.baseConversation.conversationName ?? R.string.localizable.loading())
             .task {
                 await viewModel.loadMessages()
-            }
-            .navigationDestination(for: MessagePath.self) { messagePath in
-                // TODO: remove force unwrap
-                MessageDetailView(viewModel: viewModel, message: messagePath.message!)
             }
     }
 }
@@ -81,7 +88,9 @@ private struct ConversationDaySection: View {
             Divider()
                 .padding(.horizontal, .l)
             ForEach(Array(messages.enumerated()), id: \.1.id) { index, message in
-                MessageCell(message: message, conversationPath: conversationPath, showHeader: (index == 0 ? true : shouldShowHeader(message: message, previousMessage: messages[index - 1])))
+                MessageCell(message: message,
+                            conversationPath: conversationPath,
+                            showHeader: (index == 0 ? true : shouldShowHeader(message: message, previousMessage: messages[index - 1])))
             }
         }
     }
@@ -127,8 +136,8 @@ private struct MessageCell: View {
                 ReactionsView(message: message, showEmojiAddButton: false)
                 if let answerCount = message.answers?.count,
                    answerCount > 0 {
-                    Button("\(answerCount) reply") {
-                        navigationController.path.append(MessagePath(message: message, conversationPath: conversationPath))
+                    Button(R.string.localizable.replyAction(answerCount)) {
+                        navigationController.path.append(MessagePath(message: message, coursePath: conversationPath.coursePath, conversationPath: conversationPath))
                     }
                 }
             }.id(message.id)

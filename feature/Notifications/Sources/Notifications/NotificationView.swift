@@ -7,10 +7,13 @@
 
 import SwiftUI
 import DesignLibrary
+import Navigation
 
 struct NotificationView: View {
 
     @ObservedObject var viewModel: NotificationViewModel
+
+    @Environment(\.dismiss) var dismiss
 
     var body: some View {
         NavigationView {
@@ -22,6 +25,13 @@ struct NotificationView: View {
                     } else {
                         ForEach(notifications) { notification in
                             NotificationCell(notification: notification)
+                                .onTapGesture {
+                                    dismiss()
+                                    let decoder = JSONDecoder()
+                                    guard let target = try? decoder.decode(NewExerciseTarget.self, from: Data(notification.target.utf8)) else { return }
+                                    let targetPath = "courses/\(target.course)/exercises/\(target.id)"
+                                    DeeplinkHandler.shared.handle(path: targetPath)
+                                }
                         }
                     }
                 }.listRowSeparator(.hidden)
@@ -111,4 +121,9 @@ struct Badge: View {
             EmptyView()
         }
     }
+}
+
+private struct NewExerciseTarget: Codable {
+    var id: Int
+    var course: Int
 }

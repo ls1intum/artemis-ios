@@ -10,20 +10,32 @@ import Common
 import SharedModels
 
 @MainActor
-class ConversationViewModel: ObservableObject {
+public class ConversationViewModel: ObservableObject {
 
     @Published var dailyMessages: DataState<[Date: [Message]]> = .loading
+    @Published var conversation: DataState<Conversation> = .loading
 
     let courseId: Int
-    let conversation: Conversation
+    let conversationId: Int64
 
-    init(courseId: Int, conversation: Conversation) {
+    public init(courseId: Int, conversation: Conversation) {
         self.courseId = courseId
-        self.conversation = conversation
+        self._conversation = Published(wrappedValue: .done(response: conversation))
+        self.conversationId = conversation.id
+    }
+
+    public init(courseId: Int, conversationId: Int64) {
+        self.courseId = courseId
+        self.conversationId = conversationId
+        self._conversation = Published(wrappedValue: .loading)
+
+        Task {
+            await loadConversation()
+        }
     }
 
     func loadMessages() async {
-        let result = await MessagesServiceFactory.shared.getMessages(for: courseId, and: conversation.id)
+        let result = await MessagesServiceFactory.shared.getMessages(for: courseId, and: conversationId)
 
         switch result {
         case .loading:
@@ -50,5 +62,22 @@ class ConversationViewModel: ObservableObject {
 
     func sendMessage(text: String) async {
         print("TODO")
+    }
+
+    private func loadConversation() async {
+        let result = await MessagesServiceFactory.shared.getConversations(for: courseId)
+
+        switch result {
+        case .loading:
+            conversation = .loading
+        case .failure(let error):
+            conversation = .failure(error: error)
+        case .done(let response):
+            guard let conversation = response.first(where: { $0.id == conversationId }) else {
+                self.conversation = .failure(error: UserFacingError(title: "The conversation could not be found."))
+                return
+            }
+            self.conversation = .done(response: conversation)
+        }
     }
 }

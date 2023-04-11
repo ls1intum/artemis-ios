@@ -42,9 +42,6 @@ public struct CoursesOverviewView: View {
                 }
             }
         }
-        .navigationDestination(for: CoursePath.self) { coursePath in
-            CourseView(courseId: coursePath.id)
-        }
         .navigationTitle(Text(R.string.localizable.dashboard_title()))
         .accountMenu(error: $viewModel.error)
         .notificationToolBar()

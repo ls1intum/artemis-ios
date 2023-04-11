@@ -38,19 +38,13 @@ struct ExerciseListView: View {
         ScrollViewReader { value in
             List {
                 ForEach(weeklyExercises) { weeklyExercise in
-                    ExerciseListSection(course: viewModel.course.value!, weeklyExercise: weeklyExercise) // TODO: force unwrap
-                        .id(weeklyExercise.id)
+                    if let course = viewModel.course.value {
+                        ExerciseListSection(course: course, weeklyExercise: weeklyExercise)
+                            .id(weeklyExercise.id)
+                    }
                 }
             }
                 .listStyle(PlainListStyle())
-                .navigationDestination(for: ExercisePath.self) { exercisePath in
-                    if let course = exercisePath.coursePath.course,
-                       let exercise = exercisePath.exercise {
-                        ExerciseDetailView(course: course, exercise: exercise)
-                    } else {
-                        ExerciseDetailView(courseId: exercisePath.coursePath.id, exerciseId: exercisePath.id)
-                    }
-                }
                 .onChange(of: weeklyExercises) { newValue in
                     withAnimation {
                         if let id = newValue.first(where: { $0.exercises.first?.baseExercise.dueDate ?? .tomorrow > .now })?.id {

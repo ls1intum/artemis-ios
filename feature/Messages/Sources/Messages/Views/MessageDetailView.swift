@@ -9,38 +9,57 @@ import SwiftUI
 import SharedModels
 import ArtemisMarkdown
 import Navigation
+import DesignLibrary
+import Common
 
-struct MessageDetailView: View {
+public struct MessageDetailView: View {
 
     @ObservedObject var viewModel: ConversationViewModel
 
     @State private var showMessageActionSheet = false
 
-    let message: Message
+    @State private var message: DataState<Message>
 
-    var body: some View {
-        VStack(alignment: .leading) {
-            Group {
-                HStack(alignment: .top, spacing: .l) {
-                    Image(systemName: "person")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 40, height: 40)
-                        .padding(.top, .s)
-                    VStack(alignment: .leading, spacing: .m) {
-                        Text(message.author?.name ?? "")
-                            .bold()
-                        if let creationDate = message.creationDate {
-                            Text(creationDate, formatter: DateFormatter.timeOnly)
-                                .font(.caption)
+    private let messageId: Int64
+
+    public init(viewModel: ConversationViewModel,
+                message: Message) {
+        self.viewModel = viewModel
+        self.messageId = message.id
+        self._message = State(wrappedValue: .done(response: message))
+    }
+
+    public init(viewModel: ConversationViewModel,
+                messageId: Int64) {
+        self.viewModel = viewModel
+        self.messageId = messageId
+        self._message = State(wrappedValue: .loading)
+    }
+
+    public var body: some View {
+        DataStateView(data: $message, retryHandler: { await loadMessage() }) { message in
+            VStack(alignment: .leading) {
+                Group {
+                    HStack(alignment: .top, spacing: .l) {
+                        Image(systemName: "person")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 40, height: 40)
+                            .padding(.top, .s)
+                        VStack(alignment: .leading, spacing: .m) {
+                            Text(message.author?.name ?? "")
+                                .bold()
+                            if let creationDate = message.creationDate {
+                                Text(creationDate, formatter: DateFormatter.timeOnly)
+                                    .font(.caption)
+                            }
                         }
                     }
+
+                    ArtemisMarkdownView(string: message.content ?? "")
+
+                    ReactionsView(message: message)
                 }
-
-                ArtemisMarkdownView(string: message.content ?? "")
-
-                ReactionsView(message: message)
-            }
                 .padding(.horizontal, .l)
                 .contentShape(Rectangle())
                 .onLongPressGesture(maximumDistance: 30) {
@@ -52,17 +71,40 @@ struct MessageDetailView: View {
                     MessageActionSheet(message: message, conversationPath: nil)
                         .presentationDetents([.height(350), .large])
                 }
-            Divider()
-            ScrollView {
-                VStack {
-                    ForEach(message.answers ?? [], id: \.id) { answerMessage in
-                        ThreadMessageCell(message: answerMessage)
-                    }
-                }.padding(.horizontal, .l)
+                Divider()
+                ScrollView {
+                    VStack {
+                        ForEach(message.answers ?? [], id: \.id) { answerMessage in
+                            ThreadMessageCell(message: answerMessage)
+                        }
+                    }.padding(.horizontal, .l)
+                }
+                Spacer()
+                SendMessageView(viewModel: viewModel)
+            }.navigationTitle(R.string.localizable.thread())
+        }
+            .task {
+                await loadMessage()
             }
-            Spacer()
-            SendMessageView(viewModel: viewModel)
-        }.navigationTitle("Thread")
+    }
+
+    private func loadMessage() async {
+        if message.value == nil {
+            let result = await MessagesServiceFactory.shared.getMessages(for: viewModel.courseId, and: viewModel.conversationId)
+
+            switch result {
+            case .loading:
+                message = .loading
+            case .failure(let error):
+                message = .failure(error: error)
+            case .done(let response):
+                guard let message = response.first(where: { $0.id == messageId }) else {
+                    message = .failure(error: UserFacingError(title: R.string.localizable.messageCouldNotBeLoadedError()))
+                    return
+                }
+                self.message = .done(response: message)
+            }
+        }
     }
 }
 

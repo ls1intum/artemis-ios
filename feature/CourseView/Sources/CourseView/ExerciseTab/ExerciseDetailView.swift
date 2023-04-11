@@ -9,31 +9,31 @@ import SwiftUI
 import SharedModels
 import UserStore
 import DesignLibrary
+import Common
 
-struct ExerciseDetailView: View {
+public struct ExerciseDetailView: View {
 
-    @State var webViewHeight = CGFloat.s
-    @State var urlRequest: URLRequest
+    @State private var webViewHeight = CGFloat.s
+    @State private var urlRequest: URLRequest
 
-    let course: Course?
-    let exercise: Exercise?
+    @State private var exercise: DataState<Exercise>
 
-    init(course: Course, exercise: Exercise) {
+    private let exerciseId: Int
 
+    public init(course: Course, exercise: Exercise) {
+        self._exercise = State(wrappedValue: .done(response: exercise))
         self._urlRequest = State(wrappedValue: URLRequest(url: URL(string: "/courses/\(course.id)/exercises/\(exercise.id)", relativeTo: UserSession.shared.institution?.baseURL)!))
-        self.course = course
-        self.exercise = exercise
+        self.exerciseId = exercise.id
     }
 
-    init(courseId: Int, exerciseId: Int) {
+    public init(courseId: Int, exerciseId: Int) {
+        self._exercise = State(wrappedValue: .loading)
         self._urlRequest = State(wrappedValue: URLRequest(url: URL(string: "/courses/\(courseId)/exercises/\(exerciseId)", relativeTo: UserSession.shared.institution?.baseURL)!))
-        course = nil
-        exercise = nil
-        // TODO: load exercise
+        self.exerciseId = exerciseId
     }
 
-    var body: some View {
-        if let exercise {
+    public var body: some View {
+        DataStateView(data: $exercise, retryHandler: { await loadExercise() }) { exercise in
             ScrollView {
                 VStack(alignment: .leading, spacing: .m) {
                     VStack(alignment: .leading, spacing: .m) {
@@ -74,8 +74,15 @@ struct ExerciseDetailView: View {
                 }
             }
             .navigationTitle(exercise.baseExercise.title ?? "Unknown")
-        } else {
-            Text("Loading...")
+        }
+            .task {
+                await loadExercise()
+            }
+    }
+
+    private func loadExercise() async {
+        if exercise.value == nil {
+            self.exercise = await ExerciseServiceFactory.shared.getExercise(exerciseId: exerciseId)
         }
     }
 }
