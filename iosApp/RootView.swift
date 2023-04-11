@@ -22,7 +22,7 @@ struct RootView: View {
                         CoursesOverviewView()
                     }
                         .onChange(of: navigationController.path) { _ in
-                            print("TODO")
+                            print("NavigationController count: \(navigationController.path.count)")
                         }
                 } else {
                     PushNotificationSetupView()

@@ -1,6 +1,7 @@
 import SwiftUI
 import SharedModels
 
+@MainActor
 public class NavigationController: ObservableObject {
 
     @Published public var path: NavigationPath

@@ -25,12 +25,8 @@ struct ExerciseHandler: Deeplink {
 
     func handle(with navigationController: NavigationController) {
         // TODO: does not work ...
-        print(navigationController.path.count)
-        navigationController.popToRoot()
-//        print(navigationController.path.count)
-        navigationController.setCourse(id: courseId)
-//        print(navigationController.path.count)
-        navigationController.setExercise(courseId: courseId, exerciseId: exerciseId)
-//        print(navigationController.path.count)
+        DispatchQueue.main.async {
+            navigationController.setExercise(courseId: courseId, exerciseId: exerciseId)
+        }
     }
 }

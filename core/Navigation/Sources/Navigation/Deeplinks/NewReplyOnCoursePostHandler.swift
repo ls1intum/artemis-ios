@@ -23,8 +23,9 @@ struct NewReplyOnCoursePostHandler: Deeplink {
     }
 
     func handle(with navigationController: NavigationController) {
-        navigationController.setCourse(id: courseId)
-        navigationController.setTab(identifier: .communication)
-        // TODO: set postId
+        DispatchQueue.main.async {
+            navigationController.setTab(identifier: .communication)
+            navigationController.setCourse(id: courseId)
+        }
     }
 }
