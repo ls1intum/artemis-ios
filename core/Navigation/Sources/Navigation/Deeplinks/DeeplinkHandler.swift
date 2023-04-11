@@ -39,10 +39,14 @@ public class DeeplinkHandler {
     }
 
     private func buildHandler(from url: URL) -> Deeplink? {
-        // warning: the order of thsi array matters
+        // warning: the order of the array matters
         let builderFuncs: [(URL) -> Deeplink?] = [
             ExerciseHandler.build,
-            NewReplyOnCoursePostHandler.build
+            NewReplyOnCoursePostHandler.build,
+            MessageHandler.build,
+            MessagesHandler.build,
+            CourseHandler.build,
+            DashboardHandler.build
         ]
 
         return builderFuncs

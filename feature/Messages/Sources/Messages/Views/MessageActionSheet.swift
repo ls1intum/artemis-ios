@@ -34,7 +34,7 @@ struct MessageActionSheet: View {
                     Divider()
                     Button(action: {
                         dismiss()
-                        navigationController.path.append(MessagePath(message: message, conversationPath: conversationPath))
+                        navigationController.path.append(MessagePath(message: message, coursePath: conversationPath.coursePath, conversationPath: conversationPath))
                     }, label: {
                         ButtonContent(title: "Reply in Thread", icon: "text.bubble.fill")
                     })

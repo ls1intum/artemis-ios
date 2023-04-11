@@ -9,38 +9,53 @@ import SwiftUI
 import SharedModels
 import ArtemisMarkdown
 import Navigation
+import DesignLibrary
+import Common
 
-struct MessageDetailView: View {
+public struct MessageDetailView: View {
 
     @ObservedObject var viewModel: ConversationViewModel
 
     @State private var showMessageActionSheet = false
 
-    let message: Message
+    @State private var message: DataState<Message>
 
-    var body: some View {
-        VStack(alignment: .leading) {
-            Group {
-                HStack(alignment: .top, spacing: .l) {
-                    Image(systemName: "person")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 40, height: 40)
-                        .padding(.top, .s)
-                    VStack(alignment: .leading, spacing: .m) {
-                        Text(message.author?.name ?? "")
-                            .bold()
-                        if let creationDate = message.creationDate {
-                            Text(creationDate, formatter: DateFormatter.timeOnly)
-                                .font(.caption)
+    public init(viewModel: ConversationViewModel,
+                message: Message) {
+        self.viewModel = viewModel
+        self._message = State(wrappedValue: .done(response: message))
+    }
+
+    public init(viewModel: ConversationViewModel,
+                messageId: Int64) {
+        self.viewModel = viewModel
+        self._message = State(wrappedValue: .loading)
+    }
+
+    public var body: some View {
+        DataStateView(data: $message, retryHandler: { await loadMessage() }) { message in
+            VStack(alignment: .leading) {
+                Group {
+                    HStack(alignment: .top, spacing: .l) {
+                        Image(systemName: "person")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 40, height: 40)
+                            .padding(.top, .s)
+                        VStack(alignment: .leading, spacing: .m) {
+                            Text(message.author?.name ?? "")
+                                .bold()
+                            if let creationDate = message.creationDate {
+                                Text(creationDate, formatter: DateFormatter.timeOnly)
+                                    .font(.caption)
+                            }
                         }
                     }
+
+                    ArtemisMarkdownView(string: message.content ?? "")
+
+                    ReactionsView(message: message)
                 }
-
-                ArtemisMarkdownView(string: message.content ?? "")
-
-                ReactionsView(message: message)
-            }
                 .padding(.horizontal, .l)
                 .contentShape(Rectangle())
                 .onLongPressGesture(maximumDistance: 30) {
@@ -52,17 +67,25 @@ struct MessageDetailView: View {
                     MessageActionSheet(message: message, conversationPath: nil)
                         .presentationDetents([.height(350), .large])
                 }
-            Divider()
-            ScrollView {
-                VStack {
-                    ForEach(message.answers ?? [], id: \.id) { answerMessage in
-                        ThreadMessageCell(message: answerMessage)
-                    }
-                }.padding(.horizontal, .l)
+                Divider()
+                ScrollView {
+                    VStack {
+                        ForEach(message.answers ?? [], id: \.id) { answerMessage in
+                            ThreadMessageCell(message: answerMessage)
+                        }
+                    }.padding(.horizontal, .l)
+                }
+                Spacer()
+                SendMessageView(viewModel: viewModel)
+            }.navigationTitle("Thread")
+        }
+            .task {
+                await loadMessage()
             }
-            Spacer()
-            SendMessageView(viewModel: viewModel)
-        }.navigationTitle("Thread")
+    }
+
+    private func loadMessage() async {
+        // TODO
     }
 }
 

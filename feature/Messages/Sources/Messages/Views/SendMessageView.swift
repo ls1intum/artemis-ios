@@ -24,7 +24,7 @@ struct SendMessageView: View {
                     .padding(.top, .m)
             }
             HStack(alignment: .bottom) {
-                TextField("Message \(viewModel.conversation.baseConversation.conversationName)", text: $responseText, axis: .vertical)
+                TextField("Message \(viewModel.conversation.value?.baseConversation.conversationName ?? "")", text: $responseText, axis: .vertical)
                     .lineLimit(10)
                     .focused($isFocused)
                     .toolbar {

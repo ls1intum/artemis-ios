@@ -39,11 +39,6 @@ public struct MessagesTabView: View {
                 .listRowSeparator(.visible, edges: .top)
                 .listRowInsets(EdgeInsets(top: .s, leading: .l, bottom: .s, trailing: .l))
         }
-            .navigationDestination(for: ConversationPath.self) { conversationPath in
-                // TODO: remove force unwrap
-                ConversationView(courseId: conversationPath.coursePath.id,
-                                 conversation: conversationPath.conversation!)
-            }
             .listStyle(PlainListStyle())
             .refreshable {
                 await viewModel.loadConversations()

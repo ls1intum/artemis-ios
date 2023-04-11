@@ -25,7 +25,7 @@ struct ExerciseHandler: Deeplink {
 
     func handle(with navigationController: NavigationController) {
         Task(priority: .userInitiated) {
-            await navigationController.setExercise(courseId: courseId, exerciseId: exerciseId)
+            await navigationController.goToExercise(courseId: courseId, exerciseId: exerciseId)
         }
     }
 }
