@@ -35,6 +35,7 @@ struct ConversationView: View {
                                     .padding(.horizontal, .l)
                             } else {
                                 ForEach(dailyMessages.sorted(by: { $0.key < $1.key }), id: \.key) { dailyMessage in
+                                    // TODO: load older messages when scrolled to top
                                     ConversationDaySection(day: dailyMessage.key,
                                                            messages: dailyMessage.value,
                                                            conversationPath: ConversationPath(conversation: viewModel.conversation,
