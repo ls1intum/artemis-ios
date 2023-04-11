@@ -5,8 +5,17 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/krzyzanowskim/CryptoSwift.git",
       "state" : {
-        "revision" : "19b3c3ceed117c5cc883517c4e658548315ba70b",
-        "version" : "1.6.0"
+        "revision" : "95c18f1c1bc44d5547728621ed680850368f7a45",
+        "version" : "1.7.0"
+      }
+    },
+    {
+      "identity" : "emojipicker",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Kelvas09/EmojiPicker.git",
+      "state" : {
+        "revision" : "d787591e2121b617209172ad6a8ebf2975f605ae",
+        "version" : "1.0.1"
       }
     },
     {
@@ -19,12 +28,30 @@
       }
     },
     {
+      "identity" : "smile",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/onmyway133/Smile",
+      "state" : {
+        "revision" : "40604722a7a56f735124e069fcbb58307637744b",
+        "version" : "2.1.0"
+      }
+    },
+    {
       "identity" : "swift-argument-parser",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-argument-parser",
       "state" : {
         "revision" : "fee6933f37fde9a5e12a1e4aeaa93fe60116ff2a",
         "version" : "1.2.2"
+      }
+    },
+    {
+      "identity" : "swift-markdown-ui",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/gonzalezreal/swift-markdown-ui",
+      "state" : {
+        "revision" : "4392c3cefd08db10f13ffb019d7c7a4a622824f5",
+        "version" : "2.0.2"
       }
     },
     {

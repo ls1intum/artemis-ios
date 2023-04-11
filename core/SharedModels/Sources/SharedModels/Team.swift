@@ -1,4 +1,4 @@
 import Foundation
 
-public struct Team: Decodable {
+public struct Team: Codable {
 }

@@ -1,3 +1,8 @@
+// MARK: CourseView
+"exercisesTabLabel" = "Exercises";
+"lectureTabLabel" = "Lectures";
+"messagesTabLabel" = "Messages";
+
 // MARK: SubmissionResultStatusView
 "userNotAssignedToTeam" = "You have not been assigned to a team yet.";
 "userNotStartedExercise" = "You have not started this exercise yet.";
@@ -33,3 +38,6 @@
 
 // Badges
 "notReleased" = "Not released";
+
+// MARK: General
+"loading" = "Loading...";

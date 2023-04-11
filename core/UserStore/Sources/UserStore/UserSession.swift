@@ -23,6 +23,9 @@ public class UserSession: ObservableObject {
     // Institution Selection
     @Published public private(set) var institution: InstitutionIdentifier?
 
+    // User Data
+    @Published public var userId: Int64?
+
     public static let shared = UserSession()
 
     private init() {

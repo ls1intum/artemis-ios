@@ -9,6 +9,7 @@ import Foundation
 import APIClient
 import Common
 import SharedModels
+import UserStore
 
 class AccountServiceImpl: AccountService {
     private let client = APIClient()
@@ -30,6 +31,7 @@ class AccountServiceImpl: AccountService {
 
         switch result {
         case .success((let account, _)):
+            UserSession.shared.userId = account.id
             return .done(response: account)
         case .failure(let error):
             return DataState(error: error)

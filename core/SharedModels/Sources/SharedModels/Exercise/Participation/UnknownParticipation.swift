@@ -1,11 +1,11 @@
 import Foundation
 
-public struct UnknownParticipation: BaseParticipation, Decodable {
+public struct UnknownParticipation: BaseParticipation {
     public static var type: String {
         "unknown"
     }
 
-    public var id: Int?
+    public var id: Int
     public var initializationState: InitializationState?
     public var initializationDate: Date?
     public var individualDueDate: Date?

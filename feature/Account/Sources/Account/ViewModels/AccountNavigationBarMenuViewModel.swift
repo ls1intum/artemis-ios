@@ -42,6 +42,11 @@ class AccountNavigationBarMenuViewModel: ObservableObject {
                                                                        skippedNotifications: notificationDeviceConfiguration.skippedNotifications)
                 APIClient().perfomLogout()
             case .failure(let error):
+                if let error = error as? APIClientError,
+                   case .networkError = error {
+                    // TODO: schedule task to retry above functionality
+                    APIClient().perfomLogout()
+                }
                 log.error(error.localizedDescription)
                 self.error = UserFacingError(title: error.localizedDescription)
             default:

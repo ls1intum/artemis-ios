@@ -1,4 +1,4 @@
 import Foundation
 
-public struct QuizQuestion: Decodable {
+public struct QuizQuestion: Codable {
 }

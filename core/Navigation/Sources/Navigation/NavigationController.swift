@@ -1,22 +1,34 @@
 import SwiftUI
 import SharedModels
 
+@MainActor
 public class NavigationController: ObservableObject {
 
     @Published public var path: NavigationPath
 
     @Published public var courseTab = TabIdentifier.exercise
 
-    public init(path: NavigationPath) {
-        self.path = path
+    public init() {
+        self.path = NavigationPath()
 
         DeeplinkHandler.shared.setup(navigationController: self)
     }
 
-    func setCourse(id: Int) {
+    func popToRoot() {
         path.removeLast(path.count)
+    }
+
+    func setCourse(id: Int) {
+        popToRoot()
 
         path.append(CoursePath(id: id))
+    }
+
+    func setExercise(courseId: Int, exerciseId: Int) {
+        setCourse(id: courseId)
+        courseTab = .exercise
+        path.append(ExercisePath(id: exerciseId,
+                                 coursePath: CoursePath(id: courseId)))
     }
 
     func setTab(identifier: TabIdentifier) {
@@ -32,7 +44,7 @@ public struct CoursePath: Hashable {
     public let id: Int
     public let course: Course?
 
-    init(id: Int) {
+    public init(id: Int) {
         self.id = id
         self.course = nil
     }
@@ -58,5 +70,41 @@ public struct ExercisePath: Hashable {
         self.id = exercise.id
         self.exercise = exercise
         self.coursePath = coursePath
+    }
+}
+
+public struct ConversationPath: Hashable {
+    public let id: Int64
+    public let conversation: Conversation?
+    public let coursePath: CoursePath
+
+    init(id: Int64, coursePath: CoursePath) {
+        self.id = id
+        self.conversation = nil
+        self.coursePath = coursePath
+    }
+
+    public init(conversation: Conversation, coursePath: CoursePath) {
+        self.id = conversation.id
+        self.conversation = conversation
+        self.coursePath = coursePath
+    }
+}
+
+public struct MessagePath: Hashable {
+    public let id: Int64
+    public let message: Message?
+    public let conversationPath: ConversationPath
+
+    init(id: Int64, conversationPath: ConversationPath) {
+        self.id = id
+        self.message = nil
+        self.conversationPath = conversationPath
+    }
+
+    public init(message: Message, conversationPath: ConversationPath) {
+        self.id = message.id
+        self.message = message
+        self.conversationPath = conversationPath
     }
 }

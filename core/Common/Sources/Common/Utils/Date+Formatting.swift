@@ -78,6 +78,7 @@ public extension DateFormatter {
         let dateFormatter = DateFormatter()
         dateFormatter.dateStyle = .medium
         dateFormatter.timeStyle = .none
+        dateFormatter.doesRelativeDateFormatting = true
         return dateFormatter
     }
 

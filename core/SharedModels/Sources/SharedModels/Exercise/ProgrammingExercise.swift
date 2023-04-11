@@ -1,6 +1,6 @@
 import Foundation
 
-public struct ProgrammingExercise: BaseExercise, Decodable {
+public struct ProgrammingExercise: BaseExercise {
     public typealias SelfType = ProgrammingExercise
 
     public static var type: String {
@@ -16,7 +16,7 @@ public struct ProgrammingExercise: BaseExercise, Decodable {
     public var releaseDate: Date?
     public var assessmentDueDate: Date?
     public var difficulty: Difficulty?
-    public var mode: Mode = .INDIVIDUAL
+    public var mode: Mode = .individual
     public var categories: [Category]? = []
     public var visibleToStudents: Bool?
     public var teamMode: Bool?
@@ -42,7 +42,7 @@ public struct ProgrammingExercise: BaseExercise, Decodable {
 }
 
 // swiftlint:disable identifier_name
-public enum ProgrammingLanguage: String, Decodable {
+public enum ProgrammingLanguage: String, RawRepresentable, Codable {
     case java = "JAVA"
     case python = "PYTHON"
     case c = "C"

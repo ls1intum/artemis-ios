@@ -1,6 +1,6 @@
 import Foundation
 
-public protocol BaseAttachment: Decodable {
+public protocol BaseAttachment: Codable {
 
     static var type: String { get }
 
@@ -9,7 +9,7 @@ public protocol BaseAttachment: Decodable {
     var visibleToStudents: Bool? { get }
 }
 
-public enum Attachment: Decodable {
+public enum Attachment: Codable {
     fileprivate enum Keys: String, CodingKey {
         case type = "attachmentType"
     }

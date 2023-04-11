@@ -1,6 +1,6 @@
 import Foundation
 
-public struct QuizExercise: BaseExercise, Decodable {
+public struct QuizExercise: BaseExercise {
 
     public typealias SelfType = QuizExercise
 
@@ -17,7 +17,7 @@ public struct QuizExercise: BaseExercise, Decodable {
     public var releaseDate: Date?
     public var assessmentDueDate: Date?
     public var difficulty: Difficulty?
-    public var mode: Mode = .INDIVIDUAL
+    public var mode: Mode = .individual
     public var categories: [Category]? = []
     public var visibleToStudents: Bool?
     public var teamMode: Bool?
@@ -70,7 +70,7 @@ public struct QuizExercise: BaseExercise, Decodable {
     }
 }
 
-public enum QuizStatus: String, Decodable {
+public enum QuizStatus: String, RawRepresentable, Codable {
     case closed = "CLOSED"
     case openForPractice = "OPEN_FOR_PRACTICE"
     case active = "ACTIVE"
@@ -78,13 +78,13 @@ public enum QuizStatus: String, Decodable {
     case invisible = "INVISIBLE"
 }
 
-public enum QuizMode: String, Decodable {
+public enum QuizMode: String, RawRepresentable, Codable {
     case SYNCHRONIZED
     case BATCHED
     case INDIVIDUAL
 }
 
-public struct QuizBatch: Decodable {
+public struct QuizBatch: Codable {
     var id: Int?
     var startTime: Date?
     var started: Bool?

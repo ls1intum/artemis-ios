@@ -44,7 +44,12 @@ struct ExerciseListView: View {
             }
                 .listStyle(PlainListStyle())
                 .navigationDestination(for: ExercisePath.self) { exercisePath in
-                    ExerciseDetailView(course: exercisePath.coursePath.course!, exercise: exercisePath.exercise!) // TODO: force unwrap
+                    if let course = exercisePath.coursePath.course,
+                       let exercise = exercisePath.exercise {
+                        ExerciseDetailView(course: course, exercise: exercise)
+                    } else {
+                        ExerciseDetailView(courseId: exercisePath.coursePath.id, exerciseId: exercisePath.id)
+                    }
                 }
                 .onChange(of: weeklyExercises) { newValue in
                     withAnimation {
