@@ -34,6 +34,7 @@ public struct MessagesTabView: View {
                                conversations: $viewModel.oneToOneChats,
                                sectionTitle: "Direct Messages",
                                conversationType: .oneToOneChat)
+                // TODO: show hidden sections
             }
                 .listRowSeparator(.visible, edges: .top)
                 .listRowInsets(EdgeInsets(top: .s, leading: .l, bottom: .s, trailing: .l))
