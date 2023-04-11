@@ -16,7 +16,7 @@ struct MessageHandler: Deeplink {
         guard let indexOfCourseId = url.pathComponents.firstIndex(where: { $0 == "courses" }),
               url.pathComponents.count > indexOfCourseId + 1,
               let courseId = Int(url.pathComponents[indexOfCourseId + 1]),
-              url.pathComponents.firstIndex(where: { $0 == "messages" }) != nil,
+              url.pathComponents.contains("messages"),
               let urlComponent = URLComponents(string: url.absoluteString),
               let conversationIdString = urlComponent.queryItems?.first(where: { $0.name == "conversationId" })?.value,
               let conversationId = Int64(conversationIdString) else { return nil }

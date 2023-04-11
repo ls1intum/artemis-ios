@@ -10,7 +10,7 @@ import Foundation
 struct DashboardHandler: Deeplink {
 
     static func build(from url: URL) -> DashboardHandler? {
-        if url.pathComponents.isEmpty || url.pathComponents.firstIndex(where: { $0 == "courses" }) != nil {
+        if url.pathComponents.isEmpty || url.pathComponents.contains("courses") {
             return DashboardHandler()
         }
         return nil

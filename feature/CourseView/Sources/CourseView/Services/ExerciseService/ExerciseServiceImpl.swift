@@ -11,7 +11,7 @@ import APIClient
 import SharedModels
 
 class ExerciseServiceImpl: ExerciseService {
-    
+
     let client = APIClient()
 
     struct GetExerciseRequest: APIRequest {
@@ -27,7 +27,7 @@ class ExerciseServiceImpl: ExerciseService {
             return "api/exercises/\(exerciseId)/details"
         }
     }
-    
+
     func getExercise(exerciseId: Int) async -> DataState<Exercise> {
         let result = await client.sendRequest(GetExerciseRequest(exerciseId: exerciseId))
 

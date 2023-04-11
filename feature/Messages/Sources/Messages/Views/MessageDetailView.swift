@@ -20,15 +20,19 @@ public struct MessageDetailView: View {
 
     @State private var message: DataState<Message>
 
+    private let messageId: Int64
+
     public init(viewModel: ConversationViewModel,
                 message: Message) {
         self.viewModel = viewModel
+        self.messageId = message.id
         self._message = State(wrappedValue: .done(response: message))
     }
 
     public init(viewModel: ConversationViewModel,
                 messageId: Int64) {
         self.viewModel = viewModel
+        self.messageId = messageId
         self._message = State(wrappedValue: .loading)
     }
 
@@ -85,7 +89,22 @@ public struct MessageDetailView: View {
     }
 
     private func loadMessage() async {
-        // TODO
+        if message.value == nil {
+            let result = await MessagesServiceFactory.shared.getMessages(for: viewModel.courseId, and: viewModel.conversationId)
+
+            switch result {
+            case .loading:
+                message = .loading
+            case .failure(let error):
+                message = .failure(error: error)
+            case .done(let response):
+                guard let message = response.first(where: { $0.id == messageId }) else {
+                    message = .failure(error: UserFacingError(title: "Message could not be loaded."))
+                    return
+                }
+                self.message = .done(response: message)
+            }
+        }
     }
 }
 

@@ -38,8 +38,10 @@ struct ExerciseListView: View {
         ScrollViewReader { value in
             List {
                 ForEach(weeklyExercises) { weeklyExercise in
-                    ExerciseListSection(course: viewModel.course.value!, weeklyExercise: weeklyExercise) // TODO: force unwrap
-                        .id(weeklyExercise.id)
+                    if let course = viewModel.course.value {
+                        ExerciseListSection(course: course, weeklyExercise: weeklyExercise)
+                            .id(weeklyExercise.id)
+                    }
                 }
             }
                 .listStyle(PlainListStyle())
