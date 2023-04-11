@@ -7,6 +7,8 @@ import DesignLibrary
 
 struct ExerciseListView: View {
 
+    @EnvironmentObject var navigationController: NavigationController
+
     @ObservedObject var viewModel: CourseViewModel
 
     private var weeklyExercises: [WeeklyExercise] {
@@ -43,14 +45,6 @@ struct ExerciseListView: View {
                 }
             }
                 .listStyle(PlainListStyle())
-                .navigationDestination(for: ExercisePath.self) { exercisePath in
-                    if let course = exercisePath.coursePath.course,
-                       let exercise = exercisePath.exercise {
-                        ExerciseDetailView(course: course, exercise: exercise)
-                    } else {
-                        ExerciseDetailView(courseId: exercisePath.coursePath.id, exerciseId: exercisePath.id)
-                    }
-                }
                 .onChange(of: weeklyExercises) { newValue in
                     withAnimation {
                         if let id = newValue.first(where: { $0.exercises.first?.baseExercise.dueDate ?? .tomorrow > .now })?.id {

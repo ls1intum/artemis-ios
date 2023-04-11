@@ -10,7 +10,7 @@ import SharedModels
 import UserStore
 import DesignLibrary
 
-struct ExerciseDetailView: View {
+public struct ExerciseDetailView: View {
 
     @State var webViewHeight = CGFloat.s
     @State var urlRequest: URLRequest
@@ -18,21 +18,21 @@ struct ExerciseDetailView: View {
     let course: Course?
     let exercise: Exercise?
 
-    init(course: Course, exercise: Exercise) {
+    public init(course: Course, exercise: Exercise) {
 
         self._urlRequest = State(wrappedValue: URLRequest(url: URL(string: "/courses/\(course.id)/exercises/\(exercise.id)", relativeTo: UserSession.shared.institution?.baseURL)!))
         self.course = course
         self.exercise = exercise
     }
 
-    init(courseId: Int, exerciseId: Int) {
+    public init(courseId: Int, exerciseId: Int) {
         self._urlRequest = State(wrappedValue: URLRequest(url: URL(string: "/courses/\(courseId)/exercises/\(exerciseId)", relativeTo: UserSession.shared.institution?.baseURL)!))
         course = nil
         exercise = nil
         // TODO: load exercise
     }
 
-    var body: some View {
+    public var body: some View {
         if let exercise {
             ScrollView {
                 VStack(alignment: .leading, spacing: .m) {

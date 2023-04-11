@@ -13,6 +13,8 @@ import Notifications
  */
 public struct CoursesOverviewView: View {
 
+    @EnvironmentObject var navigationController: NavigationController
+
     @StateObject private var viewModel = CoursesOverviewViewModel()
 
     @State private var showCourseRegistrationSheet = false
@@ -41,9 +43,6 @@ public struct CoursesOverviewView: View {
                     await viewModel.loadCourses()
                 }
             }
-        }
-        .navigationDestination(for: CoursePath.self) { coursePath in
-            CourseView(courseId: coursePath.id)
         }
         .navigationTitle(Text(R.string.localizable.dashboard_title()))
         .accountMenu(error: $viewModel.error)

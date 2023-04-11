@@ -50,7 +50,7 @@ struct MessageDetailView: View {
                 }
                 .sheet(isPresented: $showMessageActionSheet) {
                     MessageActionSheet(message: message, conversationPath: nil)
-                        .presentationDetents([.height(350), .large])
+                        .presentationDetents([.height(250), .large])
                 }
             Divider()
             ScrollView {

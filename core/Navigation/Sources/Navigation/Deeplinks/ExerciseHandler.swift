@@ -24,9 +24,8 @@ struct ExerciseHandler: Deeplink {
     }
 
     func handle(with navigationController: NavigationController) {
-        // TODO: does not work ...
-        DispatchQueue.main.async {
-            navigationController.setExercise(courseId: courseId, exerciseId: exerciseId)
+        Task(priority: .userInitiated) {
+            await navigationController.setExercise(courseId: courseId, exerciseId: exerciseId)
         }
     }
 }

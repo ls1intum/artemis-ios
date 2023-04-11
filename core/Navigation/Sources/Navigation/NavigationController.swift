@@ -1,5 +1,6 @@
 import SwiftUI
 import SharedModels
+import Common
 
 @MainActor
 public class NavigationController: ObservableObject {
@@ -8,32 +9,59 @@ public class NavigationController: ObservableObject {
 
     @Published public var courseTab = TabIdentifier.exercise
 
+//    private var pathsToBeAppended: [Any]
+
     public init() {
         self.path = NavigationPath()
+//        self.pathsToBeAppended = []
 
         DeeplinkHandler.shared.setup(navigationController: self)
     }
 
     func popToRoot() {
         path.removeLast(path.count)
+//        pathsToBeAppended.removeLast(pathsToBeAppended.count)
     }
 
     func setCourse(id: Int) {
         popToRoot()
 
+//        pathsToBeAppended.append(CoursePath(id: id))
         path.append(CoursePath(id: id))
+        log.debug("CoursePath was appended to queue")
     }
 
     func setExercise(courseId: Int, exerciseId: Int) {
-        setCourse(id: courseId)
+        // TODO: change to setCourse when fixed
         courseTab = .exercise
+        setCourse(id: courseId)
         path.append(ExercisePath(id: exerciseId,
                                  coursePath: CoursePath(id: courseId)))
+//        pathsToBeAppended.append(ExercisePath(id: exerciseId,
+//                                              coursePath: CoursePath(id: courseId)))
+        log.debug("ExercisePath was appended to queue")
     }
 
     func setTab(identifier: TabIdentifier) {
         courseTab = identifier
     }
+
+    // MARK: append path after loading
+//    public func tryToAppendCourse() {
+//        if let coursePath = pathsToBeAppended.first as? CoursePath {
+//            pathsToBeAppended.removeFirst()
+//            path.append(coursePath)
+//            log.debug("CoursePath was appended")
+//        }
+//    }
+//
+//    public func tryToAppendExercise() {
+//        if let exercisePath = pathsToBeAppended.first as? ExercisePath {
+//            pathsToBeAppended.removeFirst()
+//            path.append(exercisePath)
+//            log.debug("ExercisePath was appended")
+//        }
+//    }
 }
 
 public enum TabIdentifier {
@@ -53,6 +81,10 @@ public struct CoursePath: Hashable {
         self.id = course.id
         self.course = course
     }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
 }
 
 public struct ExercisePath: Hashable {
@@ -70,6 +102,10 @@ public struct ExercisePath: Hashable {
         self.id = exercise.id
         self.exercise = exercise
         self.coursePath = coursePath
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
 }
 
