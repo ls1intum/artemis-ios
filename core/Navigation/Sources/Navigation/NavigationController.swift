@@ -57,10 +57,6 @@ public struct CoursePath: Hashable {
         self.id = course.id
         self.course = course
     }
-
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
 }
 
 public struct ExercisePath: Hashable {
@@ -78,10 +74,6 @@ public struct ExercisePath: Hashable {
         self.id = exercise.id
         self.exercise = exercise
         self.coursePath = coursePath
-    }
-
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
     }
 }
 
