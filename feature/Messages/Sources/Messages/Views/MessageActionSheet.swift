@@ -21,7 +21,7 @@ struct MessageActionSheet: View {
 
     var body: some View {
         HStack {
-            VStack(alignment: .leading, spacing: .m) {
+            VStack(alignment: .leading, spacing: .l) {
                 HStack(spacing: .m) {
                     EmojiTextButton(emoji: "😂")
                     EmojiTextButton(emoji: "👍")
@@ -56,6 +56,7 @@ struct MessageActionSheet: View {
                     print("delete todo")
                 }, label: {
                     ButtonContent(title: "Delete Message", icon: "trash.fill")
+                        .foregroundColor(.red)
                 })
                 Spacer()
             }
@@ -71,12 +72,16 @@ private struct ButtonContent: View {
     let icon: String
 
     var body: some View {
-        HStack(spacing: .m) {
+        HStack(spacing: .s) {
             Image(systemName: icon)
-                .imageScale(.large)
+                .resizable()
+                .scaledToFit()
+                .frame(width: .mediumImage, height: .smallImage)
             Text(title)
                 .font(.headline)
-        }.padding(.horizontal, .l)
+        }
+            .padding(.horizontal, .l)
+            .foregroundColor(.Artemis.primaryLabel)
     }
 }
 

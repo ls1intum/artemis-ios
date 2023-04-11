@@ -148,6 +148,7 @@ public extension Color {
 
         // Message
         public static let reactionCapsuleColor = UIColor(UIColor.ColorPalette.Gray10, darkModeColor: UIColor.ColorPalette.Gray90).suColor
+        public static let messsageCellPressed = UIColor(UIColor.ColorPalette.Gray05, darkModeColor: UIColor.ColorPalette.Gray95).suColor
     }
 }
 

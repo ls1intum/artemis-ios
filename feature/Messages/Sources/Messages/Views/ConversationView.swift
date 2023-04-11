@@ -29,6 +29,7 @@ struct ConversationView: View {
                             if dailyMessages.isEmpty {
                                 Text("There are no messages yet! Write the first message to kickstart this conversation.")
                                     .padding(.vertical, .xl)
+                                    .padding(.horizontal, .l)
                             } else {
                                 ForEach(dailyMessages.sorted(by: { $0.key < $1.key }), id: \.key) { dailyMessage in
                                     ConversationDaySection(day: dailyMessage.key,
@@ -40,7 +41,6 @@ struct ConversationView: View {
                             }
                         }
                     }
-                    .padding(.horizontal, .l)
                 }
                     .onChange(of: viewModel.dailyMessages.value) { dailyMessages in
                         if let dailyMessages,
@@ -73,11 +73,18 @@ private struct ConversationDaySection: View {
             Text(day, formatter: DateFormatter.dateOnly)
                 .font(.headline)
                 .padding(.top, .m)
+                .padding(.horizontal, .l)
             Divider()
-            ForEach(messages, id: \.id) { message in
-                MessageCell(message: message, conversationPath: conversationPath)
+                .padding(.horizontal, .l)
+            ForEach(Array(messages.enumerated()), id: \.1.id) { index, message in
+                MessageCell(message: message, conversationPath: conversationPath, showHeader: (index == 0 ? true : shouldShowHeader(message: message, previousMessage: messages[index - 1])))
             }
         }
+    }
+
+    // header is not shown if same person messages multiple times within 5 minutes
+    private func shouldShowHeader(message: Message, previousMessage: Message) -> Bool {
+        !(message.author == previousMessage.author && message.creationDate ?? .now < (previousMessage.creationDate ?? .yesterday).addingTimeInterval(5*60))
     }
 }
 
@@ -86,24 +93,29 @@ private struct MessageCell: View {
     @EnvironmentObject var navigationController: NavigationController
 
     @State private var showMessageActionSheet = false
+    @State private var isPressed = false
 
     let message: Message
     let conversationPath: ConversationPath
+    let showHeader: Bool
 
     var body: some View {
         HStack(alignment: .top, spacing: .l) {
             Image(systemName: "person")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 40, height: 40)
+                .frame(width: 30, height: 30)
                 .padding(.top, .s)
+                .opacity(showHeader ? 1 : 0)
             VStack(alignment: .leading, spacing: .m) {
-                HStack(alignment: .bottom, spacing: .m) {
-                    Text(message.author?.name ?? "")
-                        .bold()
-                    if let creationDate = message.creationDate {
-                        Text(creationDate, formatter: DateFormatter.timeOnly)
-                            .font(.caption)
+                if showHeader {
+                    HStack(alignment: .bottom, spacing: .m) {
+                        Text(message.author?.name ?? "")
+                            .bold()
+                        if let creationDate = message.creationDate {
+                            Text(creationDate, formatter: DateFormatter.timeOnly)
+                                .font(.caption)
+                        }
                     }
                 }
                 ArtemisMarkdownView(string: message.content ?? "")
@@ -117,18 +129,23 @@ private struct MessageCell: View {
             }.id(message.id)
             Spacer()
         }
+            .padding(.horizontal, .l)
             .contentShape(Rectangle())
+            .background(isPressed ? Color.Artemis.messsageCellPressed : Color.clear)
             .onTapGesture {
                 print("This somehow fixes scrolling...")
             }
-            .onLongPressGesture(minimumDuration: 0.1, maximumDistance: 30) {
+            .onLongPressGesture(minimumDuration: 0.1, maximumDistance: 30, perform: {
                 let impactMed = UIImpactFeedbackGenerator(style: .heavy)
                 impactMed.impactOccurred()
                 showMessageActionSheet = true
-            }
+                isPressed = false
+            }, onPressingChanged: { pressed in
+                isPressed = pressed
+            })
             .sheet(isPresented: $showMessageActionSheet) {
                 MessageActionSheet(message: message, conversationPath: conversationPath)
-                    .presentationDetents([.height(300), .large])
+                    .presentationDetents([.height(350), .large])
             }
     }
 }
