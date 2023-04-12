@@ -16,7 +16,7 @@ struct MessageActionSheet: View {
     @EnvironmentObject var navigationController: NavigationController
     @Environment(\.dismiss) var dismiss
 
-    let message: Message
+    let message: BaseMessage
     let conversationPath: ConversationPath?
 
     var body: some View {
@@ -30,7 +30,8 @@ struct MessageActionSheet: View {
                     EmojiPickerButton(message: message)
                 }
                     .padding(.l)
-                if let conversationPath {
+                if let message = message as? Message,
+                   let conversationPath {
                     Divider()
                     Button(action: {
                         dismiss()
@@ -106,7 +107,7 @@ private struct EmojiPickerButton: View {
     @State private var showEmojiPicker = false
     @State var selectedEmoji: Emoji?
 
-    let message: Message
+    let message: BaseMessage
 
     var body: some View {
         Button(action: { showEmojiPicker = true }, label: {

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UserStore
 
 public protocol BaseMessage: Codable {
     var id: Int64 { get }
@@ -14,4 +15,19 @@ public protocol BaseMessage: Codable {
     var content: String? { get }
     var tokenizedContent: String? { get }
     var authorRoleTransient: UserRole? { get }
+    var reactions: [Reaction]? { get }
+}
+
+extension BaseMessage {
+    public func containsReactionFromMe(emojiId: String) -> Bool {
+        getReactionFromMe(emojiId: emojiId) != nil
+    }
+
+    public func getReactionFromMe(emojiId: String) -> Reaction? {
+        guard let userId = UserSession.shared.userId else { return nil }
+        return (reactions ?? []).first(where: {
+            guard let authorId = $0.user?.id else { return false }
+            return authorId == userId && $0.emojiId == emojiId
+        })
+    }
 }

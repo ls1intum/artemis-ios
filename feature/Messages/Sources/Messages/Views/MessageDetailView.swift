@@ -12,6 +12,9 @@ import Navigation
 import DesignLibrary
 import Common
 
+// swiftlint:disable:next identifier_name
+private let MAX_MINUTES_FOR_GROUPING_MESSAGES = 5
+
 public struct MessageDetailView: View {
 
     @ObservedObject var viewModel: ConversationViewModel
@@ -44,7 +47,7 @@ public struct MessageDetailView: View {
                         Image(systemName: "person")
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 40, height: 40)
+                            .frame(width: 30, height: 30)
                             .padding(.top, .s)
                         VStack(alignment: .leading, spacing: .m) {
                             Text(message.author?.name ?? "")
@@ -74,8 +77,11 @@ public struct MessageDetailView: View {
                 Divider()
                 ScrollView {
                     VStack {
-                        ForEach(message.answers ?? [], id: \.id) { answerMessage in
-                            ThreadMessageCell(message: answerMessage)
+                        ForEach(Array((message.answers ?? []).enumerated()), id: \.1.id) { index, answerMessage in
+                            MessageCell(viewModel: viewModel,
+                                        message: answerMessage,
+                                        conversationPath: nil,
+                                        showHeader: (index == 0 ? true : shouldShowHeader(message: answerMessage, previousMessage: message.answers![index - 1])))
                         }
                     }.padding(.horizontal, .l)
                 }
@@ -86,6 +92,12 @@ public struct MessageDetailView: View {
             .task {
                 await loadMessage()
             }
+    }
+
+    // header is not shown if same person messages multiple times within 5 minutes
+    private func shouldShowHeader(message: AnswerMessage, previousMessage: AnswerMessage) -> Bool {
+        !(message.author == previousMessage.author &&
+          message.creationDate ?? .now < (previousMessage.creationDate ?? .yesterday).addingTimeInterval(TimeInterval(MAX_MINUTES_FOR_GROUPING_MESSAGES * 60)))
     }
 
     private func loadMessage(force: Bool = false) async {
@@ -104,33 +116,6 @@ public struct MessageDetailView: View {
                 }
                 self.message = .done(response: message)
             }
-        }
-    }
-}
-
-struct ThreadMessageCell: View {
-
-    var message: AnswerMessage
-
-    var body: some View {
-        HStack(alignment: .top, spacing: .l) {
-            Image(systemName: "person")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 40, height: 40)
-                .padding(.top, .s)
-            VStack(alignment: .leading, spacing: .m) {
-                HStack(alignment: .bottom, spacing: .m) {
-                    Text(message.author?.name ?? "")
-                        .bold()
-                    if let creationDate = message.creationDate {
-                        Text(creationDate, formatter: RelativeDateTimeFormatter.formatter)
-                            .font(.caption)
-                    }
-                }
-                ArtemisMarkdownView(string: message.content ?? "")
-            }
-            Spacer()
         }
     }
 }

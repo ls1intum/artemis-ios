@@ -15,7 +15,7 @@ struct ReactionsView: View {
 
     @ObservedObject private var viewModel: ConversationViewModel
 
-    let message: Message
+    let message: BaseMessage
     let showEmojiAddButton: Bool
 
     let columns = [ GridItem(.adaptive(minimum: 45)) ]
@@ -36,7 +36,7 @@ struct ReactionsView: View {
         return reactions
     }
 
-    init(viewModel: ConversationViewModel, message: Message, showEmojiAddButton: Bool = true) {
+    init(viewModel: ConversationViewModel, message: BaseMessage, showEmojiAddButton: Bool = true) {
         self.viewModel = viewModel
         self.message = message
         self.showEmojiAddButton = showEmojiAddButton
@@ -59,7 +59,7 @@ private struct EmojiTextButton: View {
     @ObservedObject var viewModel: ConversationViewModel
 
     let pair: (String, [Reaction])
-    let message: Message
+    let message: BaseMessage
 
     var body: some View {
         Text("\(pair.0) \(pair.1.count)")
@@ -81,7 +81,11 @@ private struct EmojiTextButton: View {
             .onTapGesture {
                 if let emojiId = Smile.alias(emoji: pair.0) {
                     Task {
-                        await viewModel.addReactionToMessage(for: message, emojiId: emojiId)
+                        if let message = message as? Message {
+                            _ = await viewModel.addReactionToMessage(for: message, emojiId: emojiId)
+                        } else {
+                            // TODO
+                        }
                     }
                 }
             }
@@ -102,7 +106,7 @@ private struct EmojiPickerButton: View {
     @State private var showEmojiPicker = false
     @State var selectedEmoji: Emoji?
 
-    let message: Message
+    let message: BaseMessage
 
     var body: some View {
         Button(action: { showEmojiPicker = true }, label: {
@@ -126,10 +130,14 @@ private struct EmojiPickerButton: View {
                 if let newEmoji,
                    let emojiId = Smile.alias(emoji: newEmoji.value) {
                     Task {
-                        let result = await viewModel.addReactionToMessage(for: message, emojiId: emojiId)
-                        switch result {
-                        default:
-                            selectedEmoji = nil
+                        if let message = message as? Message {
+                            let result = await viewModel.addReactionToMessage(for: message, emojiId: emojiId)
+                            switch result {
+                            default:
+                                selectedEmoji = nil
+                            }
+                        } else {
+                            // TODO
                         }
                     }
                 }
