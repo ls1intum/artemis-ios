@@ -81,6 +81,8 @@ public struct MessagesTabView: View {
             .task {
                 await viewModel.loadConversations()
             }
+            .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
+            .loadingIndicator(isLoading: $viewModel.isLoading)
     }
 }
 
@@ -222,8 +224,10 @@ private struct ConversationRow<T: BaseConversation>: View {
                     await viewModel.hideUnhideConversation(conversationId: conversation.id, isHidden: !(conversation.isHidden ?? false))
                 }
             }
-            Button(R.string.localizable.favorite()) {
-                print("TODO")
+            Button((conversation.isFavorite ?? false) ? "Unfavorite" : R.string.localizable.favorite()) {
+                Task(priority: .userInitiated) {
+                    await viewModel.setIsFavoriteConversation(conversationId: conversation.id, isFavorite: !(conversation.isFavorite ?? false))
+                }
             }
         }
     }

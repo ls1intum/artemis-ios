@@ -67,6 +67,34 @@ class MessagesServiceImpl: MessagesService {
         }
     }
 
+    struct SetIsFavoriteConversationRequest: APIRequest {
+        typealias Response = RawResponse
+
+        let courseId: Int
+        let conversationId: Int64
+        let isFavorite: Bool
+
+        var method: HTTPMethod {
+            return .post
+        }
+
+        var resourceName: String {
+            return "api/courses/\(courseId)/conversations/\(conversationId)/favorite?isFavorite=\(isFavorite)"
+        }
+    }
+
+    func setIsFavoriteConversation(for courseId: Int, and conversationId: Int64, isFavorite: Bool) async -> NetworkResponse {
+        let result = await client.sendRequest(SetIsFavoriteConversationRequest(courseId: courseId,
+                                                                               conversationId: conversationId,
+                                                                               isFavorite: isFavorite))
+        switch result {
+        case .success:
+            return .success
+        case .failure(let error):
+            return .failure(error: error)
+        }
+    }
+
     struct GetMessagesRequest: APIRequest {
         typealias Response = [Message]
 

@@ -22,6 +22,11 @@ protocol MessagesService {
     func hideUnhideConversation(for courseId: Int, and conversationId: Int64, isHidden: Bool) async -> NetworkResponse
 
     /**
+     * Perform a set favorite post request for a specific Conversations of a specific course to the server.
+     */
+    func setIsFavoriteConversation(for courseId: Int, and conversationId: Int64, isFavorite: Bool) async -> NetworkResponse
+
+    /**
      * Perform a get request for Messages of a specific conversation in a specific course to the server.
      */
     func getMessages(for courseId: Int, and conversationId: Int64) async -> DataState<[Message]>

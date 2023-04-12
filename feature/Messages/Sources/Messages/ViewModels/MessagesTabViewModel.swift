@@ -8,6 +8,7 @@
 import Foundation
 import Common
 import SharedModels
+import APIClient
 
 @MainActor
 class MessagesTabViewModel: ObservableObject {
@@ -21,6 +22,14 @@ class MessagesTabViewModel: ObservableObject {
     @Published var channels: DataState<[Channel]> = .loading
     @Published var groupChats: DataState<[GroupChat]> = .loading
     @Published var oneToOneChats: DataState<[OneToOneChat]> = .loading
+
+    @Published var error: UserFacingError? {
+        didSet {
+            showError = error != nil
+        }
+    }
+    @Published var showError = false
+    @Published var isLoading = false
 
     let courseId: Int
 
@@ -63,15 +72,40 @@ class MessagesTabViewModel: ObservableObject {
     }
 
     func hideUnhideConversation(conversationId: Int64, isHidden: Bool) async {
+        isLoading = true
         let result = await MessagesServiceFactory.shared.hideUnhideConversation(for: courseId, and: conversationId, isHidden: isHidden)
-        // TODO: do something
         switch result {
         case .notStarted, .loading:
-            return
+            isLoading = false
         case .success:
-            return
+            await loadConversations()
+            isLoading = false
         case .failure(let error):
-            return
+            isLoading = false
+            if let apiClientError = error as? APIClientError {
+                self.error = UserFacingError(error: apiClientError)
+            } else {
+                self.error = UserFacingError(title: error.localizedDescription)
+            }
+        }
+    }
+
+    func setIsFavoriteConversation(conversationId: Int64, isFavorite: Bool) async {
+        isLoading = true
+        let result = await MessagesServiceFactory.shared.setIsFavoriteConversation(for: courseId, and: conversationId, isFavorite: isFavorite)
+        switch result {
+        case .notStarted, .loading:
+            isLoading = false
+        case .success:
+            await loadConversations()
+            isLoading = false
+        case .failure(let error):
+            isLoading = false
+            if let apiClientError = error as? APIClientError {
+                self.error = UserFacingError(error: apiClientError)
+            } else {
+                self.error = UserFacingError(title: error.localizedDescription)
+            }
         }
     }
 }
