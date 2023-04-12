@@ -20,9 +20,7 @@ open class BaseViewModel: ObservableObject {
 
     @Published public var isLoading = false
 
-    public init() {
-        
-    }
+    public init() { }
 
     public func presentError(userFacingError: UserFacingError) {
         error = userFacingError

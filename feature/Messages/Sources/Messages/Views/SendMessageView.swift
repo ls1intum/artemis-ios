@@ -132,7 +132,7 @@ struct SendMessageView: View {
                 case .message:
                     result = await viewModel.sendMessage(text: responseText)
                 case let .answerMessage(message, completion):
-                    result = await viewModel.sendAnswerMessage(text: responseText, for: message, completion: completion)                    
+                    result = await viewModel.sendAnswerMessage(text: responseText, for: message, completion: completion)
                 }
 
                 switch result {
