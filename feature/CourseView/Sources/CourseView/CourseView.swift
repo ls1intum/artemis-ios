@@ -12,6 +12,7 @@ public struct CourseView: View {
     @EnvironmentObject private var navigationController: NavigationController
 
     @State private var showNewMessageDialog = false
+    @State private var searchText = ""
 
     private let courseId: Int
 
@@ -34,7 +35,7 @@ public struct CourseView: View {
                 }
                 .tag(TabIdentifier.lecture)
 
-            MessagesTabView(courseId: courseId)
+            MessagesTabView(searchText: $searchText, courseId: courseId)
                 .tabItem {
                     Label(R.string.localizable.messagesTabLabel(), systemImage: "bubble.right.fill")
                 }
@@ -42,6 +43,10 @@ public struct CourseView: View {
         }
             .navigationTitle(viewModel.course.value?.title ?? R.string.localizable.loading())
             .navigationBarTitleDisplayMode(.inline)
+            .searchable(text: $searchText)
+            .onChange(of: navigationController.courseTab) { _ in
+                searchText = ""
+            }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     if navigationController.courseTab == .communication {

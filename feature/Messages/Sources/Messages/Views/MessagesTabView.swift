@@ -15,29 +15,58 @@ public struct MessagesTabView: View {
 
     @StateObject private var viewModel: MessagesTabViewModel
 
-    public init(courseId: Int) {
+    @Binding private var searchText: String
+
+    private var searchResults: [Conversation] {
+        if searchText.isEmpty {
+            return []
+        }
+        return (viewModel.allConversations.value ?? []).filter { $0.baseConversation.conversationName.lowercased().contains(searchText.lowercased()) }
+    }
+
+    public init(searchText: Binding<String>, courseId: Int) {
+        self._searchText = searchText
         self._viewModel = StateObject(wrappedValue: MessagesTabViewModel(courseId: courseId))
     }
 
     public var body: some View {
         List {
-            Group {
-                MessageSection(viewModel: viewModel,
-                               conversations: $viewModel.channels,
-                               sectionTitle: R.string.localizable.channels(),
-                               conversationType: .channel)
-                MessageSection(viewModel: viewModel,
-                               conversations: $viewModel.groupChats,
-                               sectionTitle: R.string.localizable.groupChats(),
-                               conversationType: .groupChat)
-                MessageSection(viewModel: viewModel,
-                               conversations: $viewModel.oneToOneChats,
-                               sectionTitle: R.string.localizable.directMessages(),
-                               conversationType: .oneToOneChat)
-                // TODO: show hidden sections
+            if !searchText.isEmpty {
+                if searchResults.isEmpty {
+                    Text("There is no result for your search.")
+                        .padding(.l)
+                        .listRowSeparator(.hidden)
+                }
+                ForEach(searchResults) { conversation in
+                    if let channel = conversation.baseConversation as? Channel {
+                        ConversationRow(viewModel: viewModel, conversation: channel)
+                    }
+                    if let groupChat = conversation.baseConversation as? GroupChat {
+                        ConversationRow(viewModel: viewModel, conversation: groupChat)
+                    }
+                    if let oneToOneChat = conversation.baseConversation as? OneToOneChat {
+                        ConversationRow(viewModel: viewModel, conversation: oneToOneChat)
+                    }
+                }
+            } else {
+                Group {
+                    MessageSection(viewModel: viewModel,
+                                   conversations: $viewModel.channels,
+                                   sectionTitle: R.string.localizable.channels(),
+                                   conversationType: .channel)
+                    MessageSection(viewModel: viewModel,
+                                   conversations: $viewModel.groupChats,
+                                   sectionTitle: R.string.localizable.groupChats(),
+                                   conversationType: .groupChat)
+                    MessageSection(viewModel: viewModel,
+                                   conversations: $viewModel.oneToOneChats,
+                                   sectionTitle: R.string.localizable.directMessages(),
+                                   conversationType: .oneToOneChat)
+                    // TODO: show hidden sections
+                }
+                    .listRowSeparator(.visible, edges: .top)
+                    .listRowInsets(EdgeInsets(top: .s, leading: .l, bottom: .s, trailing: .l))
             }
-                .listRowSeparator(.visible, edges: .top)
-                .listRowInsets(EdgeInsets(top: .s, leading: .l, bottom: .s, trailing: .l))
         }
             .listStyle(PlainListStyle())
             .refreshable {
@@ -49,9 +78,7 @@ public struct MessagesTabView: View {
     }
 }
 
-struct MessageSection<T: BaseConversation>: View {
-
-    @EnvironmentObject var navigationController: NavigationController
+private struct MessageSection<T: BaseConversation>: View {
 
     @ObservedObject var viewModel: MessagesTabViewModel
 
@@ -67,37 +94,7 @@ struct MessageSection<T: BaseConversation>: View {
             DataStateView(data: $conversations,
                           retryHandler: { await viewModel.loadConversations() }) { conversations in
                 ForEach(conversations, id: \.id) { conversation in
-                    Button(action: {
-                        // should always be non-optional
-                        if let conversation = Conversation(conversation: conversation) {
-                            navigationController.path.append(ConversationPath(conversation: conversation, coursePath: CoursePath(id: viewModel.courseId)))
-                        }
-                    }, label: {
-                        HStack {
-                            if let icon = conversation.icon {
-                                icon
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: .extraSmallImage, height: .extraSmallImage)
-                            }
-                            Text(conversation.conversationName)
-                            Spacer()
-                            if let unreadCount = conversation.unreadMessagesCount,
-                               unreadCount > 0 {
-                                Text("\(unreadCount)")
-                                    .foregroundColor(.white)
-                                    .font(.headline)
-                                    .padding(.m)
-                                    .background(.red)
-                                    .clipShape(Circle())
-                            }
-                        }
-                            .opacity((conversation.unreadMessagesCount ?? 0) > 0 ? 1 : 0.7)
-                            .contextMenu {
-                                contextMenuItems
-                            }
-                    })
-                        .listRowSeparator(.hidden)
+                    ConversationRow(viewModel: viewModel, conversation: conversation)
                 }
             }
         }, label: {
@@ -107,6 +104,49 @@ struct MessageSection<T: BaseConversation>: View {
                     .italic()
             }
         })
+    }
+}
+
+private struct ConversationRow<T: BaseConversation>: View {
+
+    @EnvironmentObject var navigationController: NavigationController
+
+    @ObservedObject var viewModel: MessagesTabViewModel
+
+    let conversation: T
+
+    var body: some View {
+        Button(action: {
+            // should always be non-optional
+            if let conversation = Conversation(conversation: conversation) {
+                navigationController.path.append(ConversationPath(conversation: conversation, coursePath: CoursePath(id: viewModel.courseId)))
+            }
+        }, label: {
+            HStack {
+                if let icon = conversation.icon {
+                    icon
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: .extraSmallImage, height: .extraSmallImage)
+                }
+                Text(conversation.conversationName)
+                Spacer()
+                if let unreadCount = conversation.unreadMessagesCount,
+                   unreadCount > 0 {
+                    Text("\(unreadCount)")
+                        .foregroundColor(.white)
+                        .font(.headline)
+                        .padding(.m)
+                        .background(.red)
+                        .clipShape(Circle())
+                }
+            }
+                .opacity((conversation.unreadMessagesCount ?? 0) > 0 ? 1 : 0.7)
+                .contextMenu {
+                    contextMenuItems
+                }
+        })
+            .listRowSeparator(.hidden)
     }
 
     var contextMenuItems: some View {
