@@ -50,6 +50,9 @@ public struct MessagesTabView: View {
                 }
             } else {
                 Group {
+                    MixedMessageSection(viewModel: viewModel,
+                                        conversations: $viewModel.favoriteConversations,
+                                        sectionTitle: "Favorites")
                     MessageSection(viewModel: viewModel,
                                    conversations: $viewModel.channels,
                                    sectionTitle: R.string.localizable.channels(),
@@ -62,7 +65,10 @@ public struct MessagesTabView: View {
                                    conversations: $viewModel.oneToOneChats,
                                    sectionTitle: R.string.localizable.directMessages(),
                                    conversationType: .oneToOneChat)
-                    // TODO: show hidden sections
+                    MixedMessageSection(viewModel: viewModel,
+                                        conversations: $viewModel.hiddenConversations,
+                                        sectionTitle: "Hidden",
+                                        isExpanded: false)
                 }
                     .listRowSeparator(.visible, edges: .top)
                     .listRowInsets(EdgeInsets(top: .s, leading: .l, bottom: .s, trailing: .l))
@@ -78,6 +84,72 @@ public struct MessagesTabView: View {
     }
 }
 
+private struct MixedMessageSection: View {
+
+    @ObservedObject private var viewModel: MessagesTabViewModel
+
+    @Binding private var conversations: DataState<[Conversation]>
+
+    @State private var isExpanded = true
+
+    private let sectionTitle: String
+
+    init(viewModel: MessagesTabViewModel,
+         conversations: Binding<DataState<[Conversation]>>,
+         sectionTitle: String,
+         isExpanded: Bool = true) {
+        self.viewModel = viewModel
+        self._conversations = conversations
+        self.sectionTitle = sectionTitle
+        self._isExpanded = State(wrappedValue: isExpanded)
+    }
+
+    var sectionUnreadCount: Int {
+        (conversations.value ?? []).reduce(0, { $0 + ($1.baseConversation.unreadMessagesCount ?? 0) })
+    }
+
+    var body: some View {
+        DataStateView(data: $conversations,
+                      retryHandler: { await viewModel.loadConversations() }) { conversations in
+            if !conversations.isEmpty {
+                DisclosureGroup(isExpanded: $isExpanded, content: {
+                    ForEach(conversations) { conversation in
+                        if let channel = conversation.baseConversation as? Channel {
+                            ConversationRow(viewModel: viewModel, conversation: channel)
+                        }
+                        if let groupChat = conversation.baseConversation as? GroupChat {
+                            ConversationRow(viewModel: viewModel, conversation: groupChat)
+                        }
+                        if let oneToOneChat = conversation.baseConversation as? OneToOneChat {
+                            ConversationRow(viewModel: viewModel, conversation: oneToOneChat)
+                        }
+                    }
+                }, label: {
+                    SectionDisclosureLabel(sectionTitle: sectionTitle, sectionUnreadCount: sectionUnreadCount, showUnreadCount: !isExpanded)
+                })
+            }
+        }
+    }
+}
+
+private struct SectionDisclosureLabel: View {
+    let sectionTitle: String
+    let sectionUnreadCount: Int
+    let showUnreadCount: Bool
+
+    var body: some View {
+        HStack {
+            Text(sectionTitle)
+                .font(.headline)
+                .italic()
+            Spacer()
+            if showUnreadCount {
+                Badge(unreadCount: sectionUnreadCount)
+            }
+        }
+    }
+}
+
 private struct MessageSection<T: BaseConversation>: View {
 
     @ObservedObject var viewModel: MessagesTabViewModel
@@ -89,6 +161,10 @@ private struct MessageSection<T: BaseConversation>: View {
     var sectionTitle: String
     var conversationType: ConversationType
 
+    var sectionUnreadCount: Int {
+        (conversations.value ?? []).reduce(0, { $0 + ($1.unreadMessagesCount ?? 0) })
+    }
+
     var body: some View {
         DisclosureGroup(isExpanded: $isExpanded, content: {
             DataStateView(data: $conversations,
@@ -98,11 +174,7 @@ private struct MessageSection<T: BaseConversation>: View {
                 }
             }
         }, label: {
-            HStack {
-                Text(sectionTitle)
-                    .font(.headline)
-                    .italic()
-            }
+            SectionDisclosureLabel(sectionTitle: sectionTitle, sectionUnreadCount: sectionUnreadCount, showUnreadCount: !isExpanded)
         })
     }
 }
@@ -131,14 +203,8 @@ private struct ConversationRow<T: BaseConversation>: View {
                 }
                 Text(conversation.conversationName)
                 Spacer()
-                if let unreadCount = conversation.unreadMessagesCount,
-                   unreadCount > 0 {
-                    Text("\(unreadCount)")
-                        .foregroundColor(.white)
-                        .font(.headline)
-                        .padding(.m)
-                        .background(.red)
-                        .clipShape(Circle())
+                if let unreadCount = conversation.unreadMessagesCount {
+                    Badge(unreadCount: unreadCount)
                 }
             }
                 .opacity((conversation.unreadMessagesCount ?? 0) > 0 ? 1 : 0.7)
@@ -157,6 +223,23 @@ private struct ConversationRow<T: BaseConversation>: View {
             Button(R.string.localizable.favorite()) {
                 print("TODO")
             }
+        }
+    }
+}
+
+private struct Badge: View {
+    let unreadCount: Int
+
+    var body: some View {
+        if unreadCount > 0 {
+            Text("\(unreadCount)")
+                .foregroundColor(.white)
+                .font(.headline)
+                .padding(.m)
+                .background(.red)
+                .clipShape(Circle())
+        } else {
+            EmptyView()
         }
     }
 }
