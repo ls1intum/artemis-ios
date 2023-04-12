@@ -100,12 +100,14 @@ struct ExerciseListSection: View {
     var body: some View {
         DisclosureGroup("\(weeklyExercise.id.description) (Exercises: \(weeklyExercise.exercises.count))",
                         isExpanded: $isExpanded) {
-            VStack(spacing: .m) {
+            LazyVStack(spacing: .m) {
                 ForEach(weeklyExercise.exercises) { exercise in
                     ExerciseListCell(course: course, exercise: exercise)
                 }
-            }.listRowInsets(EdgeInsets(top: .m, leading: 0, bottom: .m, trailing: .l))
-        }.listRowSeparator(.hidden)
+            }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: .l))
+        }
+            .listRowSeparator(.hidden)
+            .listRowInsets(EdgeInsets(top: .m, leading: .l, bottom: .m, trailing: .l))
     }
 }
 
