@@ -17,7 +17,9 @@
 "createGroupChat" = "Create Group Chat";
 "createOneToOneChat" = "Create OneToOne Chat";
 "favorite" = "Favorite";
+"unfavorite" = "Unfavorite";
 "hide" = "Hide";
+"show" = "Show";
 "channels" = "Channels";
 "groupChats" = "Group Chats";
 "directMessages" = "Direct Messages";

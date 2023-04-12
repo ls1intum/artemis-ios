@@ -143,7 +143,6 @@ private struct SectionDisclosureLabel: View {
         HStack {
             Text(sectionTitle)
                 .font(.headline)
-                .italic()
             Spacer()
             if showUnreadCount {
                 Badge(unreadCount: sectionUnreadCount)
@@ -219,12 +218,12 @@ private struct ConversationRow<T: BaseConversation>: View {
 
     var contextMenuItems: some View {
         Group {
-            Button((conversation.isHidden ?? false) ? "Show" : R.string.localizable.hide()) {
+            Button((conversation.isHidden ?? false) ? R.string.localizable.show() : R.string.localizable.hide()) {
                 Task(priority: .userInitiated) {
                     await viewModel.hideUnhideConversation(conversationId: conversation.id, isHidden: !(conversation.isHidden ?? false))
                 }
             }
-            Button((conversation.isFavorite ?? false) ? "Unfavorite" : R.string.localizable.favorite()) {
+            Button((conversation.isFavorite ?? false) ? R.string.localizable.unfavorite() : R.string.localizable.favorite()) {
                 Task(priority: .userInitiated) {
                     await viewModel.setIsFavoriteConversation(conversationId: conversation.id, isFavorite: !(conversation.isFavorite ?? false))
                 }

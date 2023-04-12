@@ -65,9 +65,11 @@ class MessagesTabViewModel: ObservableObject {
 
             favoriteConversations = .done(response: notHiddenConversations.filter { $0.baseConversation.isFavorite ?? false })
 
-            channels = .done(response: notHiddenConversations.compactMap({ $0.baseConversation as? Channel }))
-            groupChats = .done(response: notHiddenConversations.compactMap({ $0.baseConversation as? GroupChat }))
-            oneToOneChats = .done(response: notHiddenConversations.compactMap({ $0.baseConversation as? OneToOneChat }))
+            let notHiddenNotFavoriteConversations = notHiddenConversations.filter { !($0.baseConversation.isFavorite ?? false) }
+
+            channels = .done(response: notHiddenNotFavoriteConversations.compactMap({ $0.baseConversation as? Channel }))
+            groupChats = .done(response: notHiddenNotFavoriteConversations.compactMap({ $0.baseConversation as? GroupChat }))
+            oneToOneChats = .done(response: notHiddenNotFavoriteConversations.compactMap({ $0.baseConversation as? OneToOneChat }))
         }
     }
 
