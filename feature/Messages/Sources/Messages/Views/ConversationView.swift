@@ -69,7 +69,7 @@ public struct ConversationView: View {
                     }
             }
             if !((viewModel.conversation.value?.baseConversation as? Channel)?.isArchived ?? false) {
-                SendMessageView(viewModel: viewModel)
+                SendMessageView(viewModel: viewModel, sendMessageType: .message)
             }
         }
             .navigationTitle(viewModel.conversation.value?.baseConversation.conversationName ?? R.string.localizable.loading())

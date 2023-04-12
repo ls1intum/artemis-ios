@@ -8,6 +8,11 @@
 import SwiftUI
 import DesignLibrary
 import Common
+import SharedModels
+
+enum SendMessageType {
+    case message, answerMessage(Message, () async -> Void)
+}
 
 struct SendMessageView: View {
 
@@ -16,6 +21,8 @@ struct SendMessageView: View {
     @State private var responseText = ""
 
     @FocusState private var isFocused: Bool
+
+    let sendMessageType: SendMessageType
 
     var body: some View {
         VStack {
@@ -120,7 +127,14 @@ struct SendMessageView: View {
     var sendButton: some View {
         Button(action: {
             Task {
-                let result = await viewModel.sendMessage(text: responseText)
+                let result: NetworkResponse
+                switch sendMessageType {
+                case .message:
+                    result = await viewModel.sendMessage(text: responseText)
+                case let .answerMessage(message, completion):
+                    result = await viewModel.sendAnswerMessage(text: responseText, for: message, completion: completion)                    
+                }
+
                 switch result {
                 case .success:
                     responseText = ""

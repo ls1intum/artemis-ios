@@ -154,4 +154,35 @@ class MessagesServiceImpl: MessagesService {
             return .failure(error: error)
         }
     }
+
+    struct SendAnswerMessageRequest: APIRequest {
+        typealias Response = RawResponse
+
+        let resolvesPost: Bool
+        let content: String
+        let post: Message
+        let courseId: Int
+
+        var method: HTTPMethod {
+            return .post
+        }
+
+        var resourceName: String {
+            return "api/courses/\(courseId)/answer-messages"
+        }
+    }
+
+    func sendAnswerMessage(for courseId: Int, message: Message, content: String) async -> NetworkResponse {
+        let result = await client.sendRequest(SendAnswerMessageRequest(resolvesPost: false,
+                                                                       content: content,
+                                                                       post: message,
+                                                                       courseId: courseId))
+
+        switch result {
+        case .success:
+            return .success
+        case .failure(let error):
+            return .failure(error: error)
+        }
+    }
 }

@@ -80,7 +80,7 @@ public struct MessageDetailView: View {
                     }.padding(.horizontal, .l)
                 }
                 Spacer()
-                SendMessageView(viewModel: viewModel)
+                SendMessageView(viewModel: viewModel, sendMessageType: .answerMessage(message, { await loadMessage(force: true) }))
             }.navigationTitle(R.string.localizable.thread())
         }
             .task {
@@ -88,8 +88,8 @@ public struct MessageDetailView: View {
             }
     }
 
-    private func loadMessage() async {
-        if message.value == nil {
+    private func loadMessage(force: Bool = false) async {
+        if message.value == nil || force {
             let result = await MessagesServiceFactory.shared.getMessages(for: viewModel.courseId, and: viewModel.conversationId, size: 50)
 
             switch result {

@@ -97,6 +97,26 @@ public class ConversationViewModel: BaseViewModel {
         return result
     }
 
+    func sendAnswerMessage(text: String, for message: Message, completion: () async -> Void) async -> NetworkResponse {
+        isLoading = true
+        let result = await MessagesServiceFactory.shared.sendAnswerMessage(for: courseId, message: message, content: text)
+        switch result {
+        case .notStarted, .loading:
+            isLoading = false
+        case .success:
+            await completion()
+            isLoading = false
+        case .failure(let error):
+            isLoading = false
+            if let apiClientError = error as? APIClientError {
+                presentError(userFacingError: UserFacingError(error: apiClientError))
+            } else {
+                presentError(userFacingError: UserFacingError(title: error.localizedDescription))
+            }
+        }
+        return result
+    }
+
     private func loadConversation() async {
         let result = await MessagesServiceFactory.shared.getConversations(for: courseId)
 

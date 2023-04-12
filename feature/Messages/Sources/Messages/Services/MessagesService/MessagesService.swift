@@ -35,7 +35,11 @@ protocol MessagesService {
      * Perform a post request for a new message for a specific conversation in a specific course to the server.
      */
     func sendMessage(for courseId: Int, conversation: Conversation, content: String) async -> NetworkResponse
-    
+
+    /**
+     * Perform a post request for a new message answer for a specific message in a specific course to the server.
+     */
+    func sendAnswerMessage(for courseId: Int, message: Message, content: String) async -> NetworkResponse
 }
 
 enum MessagesServiceFactory {

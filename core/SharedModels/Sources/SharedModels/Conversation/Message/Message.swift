@@ -28,7 +28,9 @@ public struct Message: BaseMessage {
 
 extension Message: Equatable, Hashable {
     public static func == (lhs: Message, rhs: Message) -> Bool {
-        lhs.id == rhs.id
+        lhs.id == rhs.id &&
+        lhs.answers?.count ?? 0 == rhs.answers?.count ?? 0 &&
+        lhs.reactions?.count ?? 0 == rhs.reactions?.count ?? 0
     }
 
     public func hash(into hasher: inout Hasher) {
