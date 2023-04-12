@@ -14,8 +14,6 @@ struct RootView: View {
 
     @StateObject private var navigationController = NavigationController()
 
-    @Environment(\.scenePhase) private var scenePhase
-
     var body: some View {
         Group {
             if viewModel.isLoggedIn {
@@ -69,11 +67,6 @@ struct RootView: View {
                 }
             } else {
                 LoginView()
-            }
-        }
-        .onChange(of: scenePhase) { phase in
-            if phase == .background {
-                // viewModel.save()
             }
         }
     }
