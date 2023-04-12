@@ -115,7 +115,10 @@ public enum Conversation: Codable, Identifiable {
 
 extension Conversation: Equatable, Hashable {
     public static func == (lhs: Conversation, rhs: Conversation) -> Bool {
-        lhs.id == rhs.id
+        lhs.id == rhs.id &&
+        lhs.baseConversation.unreadMessagesCount == rhs.baseConversation.unreadMessagesCount &&
+        lhs.baseConversation.isFavorite == rhs.baseConversation.isFavorite &&
+        lhs.baseConversation.isHidden == rhs.baseConversation.isHidden
     }
 
     public func hash(into hasher: inout Hasher) {
