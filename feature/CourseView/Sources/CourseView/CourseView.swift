@@ -23,7 +23,7 @@ public struct CourseView: View {
 
     public var body: some View {
         TabView(selection: $navigationController.courseTab) {
-            ExerciseListView(viewModel: viewModel)
+            ExerciseListView(viewModel: viewModel, searchText: $searchText)
                 .tabItem {
                     Label(R.string.localizable.exercisesTabLabel(), systemImage: "list.bullet.clipboard.fill")
                 }
