@@ -16,6 +16,8 @@ public class ConversationViewModel: BaseViewModel {
     @Published var dailyMessages: DataState<[Date: [Message]]> = .loading
     @Published var conversation: DataState<Conversation> = .loading
 
+    var shouldScrollToId: String?
+
     let courseId: Int
     let conversationId: Int64
 
@@ -43,6 +45,12 @@ public class ConversationViewModel: BaseViewModel {
 
     func loadFurtherMessages() async {
         size += 50
+        if let dailyMessages = dailyMessages.value,
+           let lastKey = dailyMessages.keys.min(),
+           let lastMessage = dailyMessages[lastKey]?.first {
+            shouldScrollToId = lastMessage.id.description
+        }
+
         await loadMessages()
     }
 
@@ -84,6 +92,7 @@ public class ConversationViewModel: BaseViewModel {
         case .notStarted, .loading:
             isLoading = false
         case .success:
+            shouldScrollToId = "bottom"
             await loadMessages()
             isLoading = false
         case .failure(let error):
@@ -105,6 +114,32 @@ public class ConversationViewModel: BaseViewModel {
             isLoading = false
         case .success:
             await completion()
+            isLoading = false
+        case .failure(let error):
+            isLoading = false
+            if let apiClientError = error as? APIClientError {
+                presentError(userFacingError: UserFacingError(error: apiClientError))
+            } else {
+                presentError(userFacingError: UserFacingError(title: error.localizedDescription))
+            }
+        }
+        return result
+    }
+
+    func addReactionToMessage(for message: Message, emojiId: String) async -> NetworkResponse {
+        isLoading = true
+        let result: NetworkResponse
+        if let reaction = message.getReactionFromMe(emojiId: emojiId) {
+            result = await MessagesServiceFactory.shared.removeReactionFromMessage(for: courseId, reaction: reaction)
+        } else {
+            result = await MessagesServiceFactory.shared.addReactionToMessage(for: courseId, message: message, emojiId: emojiId)
+        }
+        switch result {
+        case .notStarted, .loading:
+            isLoading = false
+        case .success:
+            shouldScrollToId = nil
+            await loadMessages()
             isLoading = false
         case .failure(let error):
             isLoading = false

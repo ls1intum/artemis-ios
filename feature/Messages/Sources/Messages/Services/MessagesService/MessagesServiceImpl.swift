@@ -185,4 +185,88 @@ class MessagesServiceImpl: MessagesService {
             return .failure(error: error)
         }
     }
+
+    struct AddReactionToAnswerMessageRequest: APIRequest {
+        typealias Response = RawResponse
+
+        let emojiId: String
+        let answerPost: AnswerMessage
+        let courseId: Int
+
+        var method: HTTPMethod {
+            return .post
+        }
+
+        var resourceName: String {
+            return "api/courses/\(courseId)/postings/reactions"
+        }
+    }
+
+    func addReactionToAnswerMessage(for courseId: Int, answerMessage: AnswerMessage, emojiId: String) async -> NetworkResponse {
+        let result = await client.sendRequest(AddReactionToAnswerMessageRequest(emojiId: emojiId,
+                                                                                answerPost: answerMessage,
+                                                                                courseId: courseId))
+
+        switch result {
+        case .success:
+            return .success
+        case .failure(let error):
+            return .failure(error: error)
+        }
+    }
+
+    struct AddReactionToMessageRequest: APIRequest {
+        typealias Response = RawResponse
+
+        let emojiId: String
+        let post: Message
+        let courseId: Int
+
+        var method: HTTPMethod {
+            return .post
+        }
+
+        var resourceName: String {
+            return "api/courses/\(courseId)/postings/reactions"
+        }
+    }
+
+    func addReactionToMessage(for courseId: Int, message: Message, emojiId: String) async -> NetworkResponse {
+        let result = await client.sendRequest(AddReactionToMessageRequest(emojiId: emojiId,
+                                                                          post: message,
+                                                                          courseId: courseId))
+
+        switch result {
+        case .success:
+            return .success
+        case .failure(let error):
+            return .failure(error: error)
+        }
+    }
+
+    struct RemoveReactionFromMessageRequest: APIRequest {
+        typealias Response = RawResponse
+
+        let courseId: Int
+        let reactionId: Int64
+
+        var method: HTTPMethod {
+            return .delete
+        }
+
+        var resourceName: String {
+            return "api/courses/\(courseId)/postings/reactions/\(reactionId)"
+        }
+    }
+
+    func removeReactionFromMessage(for courseId: Int, reaction: Reaction) async -> NetworkResponse {
+        let result = await client.sendRequest(RemoveReactionFromMessageRequest(courseId: courseId, reactionId: reaction.id))
+
+        switch result {
+        case .success:
+            return .success
+        case .failure(let error):
+            return .failure(error: error)
+        }
+    }
 }

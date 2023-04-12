@@ -1,4 +1,5 @@
 import Foundation
+import UserStore
 
 public struct Message: BaseMessage {
 
@@ -24,6 +25,18 @@ public struct Message: BaseMessage {
     public var resolved: Bool?
     public var answerCount: Int?
     public var voteCount: Int?
+
+    public func containsReactionFromMe(emojiId: String) -> Bool {
+        getReactionFromMe(emojiId: emojiId) != nil
+    }
+
+    public func getReactionFromMe(emojiId: String) -> Reaction? {
+        guard let userId = UserSession.shared.userId else { return nil }
+        return (reactions ?? []).first(where: {
+            guard let authorId = $0.user?.id else { return false }
+            return authorId == userId && $0.emojiId == emojiId
+        })
+    }
 }
 
 extension Message: Equatable, Hashable {

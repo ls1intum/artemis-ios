@@ -43,28 +43,29 @@ public struct ConversationView: View {
                             } else {
                                 ForEach(dailyMessages.sorted(by: { $0.key < $1.key }), id: \.key) { dailyMessage in
                                     if let conversation = viewModel.conversation.value {
-                                        ConversationDaySection(day: dailyMessage.key,
+                                        ConversationDaySection(viewModel: viewModel,
+                                                               day: dailyMessage.key,
                                                                messages: dailyMessage.value,
                                                                conversationPath: ConversationPath(conversation: conversation,
                                                                                                   coursePath: CoursePath(id: viewModel.courseId)))
                                     } else {
-                                        ConversationDaySection(day: dailyMessage.key,
+                                        ConversationDaySection(viewModel: viewModel,
+                                                               day: dailyMessage.key,
                                                                messages: dailyMessage.value,
                                                                conversationPath: ConversationPath(id: viewModel.conversationId,
                                                                                                   coursePath: CoursePath(id: viewModel.courseId)))
                                     }
                                 }
                                 Spacer()
+                                    .id("bottom")
                             }
                         }
                     }
                 }
                     .coordinateSpace(name: "pullToRefresh")
-                    .onChange(of: viewModel.dailyMessages.value) { dailyMessages in
-                        if let dailyMessages,
-                           let lastKey = dailyMessages.keys.max(),
-                           let lastMessage = dailyMessages[lastKey]?.last {
-                            value.scrollTo(lastMessage.id, anchor: .center)
+                    .onChange(of: viewModel.dailyMessages.value) { _ in
+                        if let id = viewModel.shouldScrollToId {
+                            value.scrollTo(id, anchor: .bottom)
                         }
                     }
             }
@@ -74,12 +75,16 @@ public struct ConversationView: View {
         }
             .navigationTitle(viewModel.conversation.value?.baseConversation.conversationName ?? R.string.localizable.loading())
             .task {
+                viewModel.shouldScrollToId = "bottom"
                 await viewModel.loadMessages()
             }
     }
 }
 
 private struct ConversationDaySection: View {
+
+    @ObservedObject var viewModel: ConversationViewModel
+
     let day: Date
     let messages: [Message]
     let conversationPath: ConversationPath
@@ -93,7 +98,8 @@ private struct ConversationDaySection: View {
             Divider()
                 .padding(.horizontal, .l)
             ForEach(Array(messages.enumerated()), id: \.1.id) { index, message in
-                MessageCell(message: message,
+                MessageCell(viewModel: viewModel,
+                            message: message,
                             conversationPath: conversationPath,
                             showHeader: (index == 0 ? true : shouldShowHeader(message: message, previousMessage: messages[index - 1])))
             }
@@ -110,6 +116,8 @@ private struct ConversationDaySection: View {
 private struct MessageCell: View {
 
     @EnvironmentObject var navigationController: NavigationController
+
+    @ObservedObject var viewModel: ConversationViewModel
 
     @State private var showMessageActionSheet = false
     @State private var isPressed = false
@@ -138,7 +146,7 @@ private struct MessageCell: View {
                     }
                 }
                 ArtemisMarkdownView(string: message.content ?? "")
-                ReactionsView(message: message, showEmojiAddButton: false)
+                ReactionsView(viewModel: viewModel, message: message, showEmojiAddButton: false)
                 if let answerCount = message.answers?.count,
                    answerCount > 0 {
                     Button(R.string.localizable.replyAction(answerCount)) {

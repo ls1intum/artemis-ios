@@ -58,7 +58,7 @@ public struct MessageDetailView: View {
 
                     ArtemisMarkdownView(string: message.content ?? "")
 
-                    ReactionsView(message: message)
+                    ReactionsView(viewModel: viewModel, message: message)
                 }
                 .padding(.horizontal, .l)
                 .contentShape(Rectangle())

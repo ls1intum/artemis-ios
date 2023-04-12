@@ -13,6 +13,8 @@ import EmojiPicker
 
 struct ReactionsView: View {
 
+    @ObservedObject private var viewModel: ConversationViewModel
+
     let message: Message
     let showEmojiAddButton: Bool
 
@@ -34,7 +36,8 @@ struct ReactionsView: View {
         return reactions
     }
 
-    init(message: Message, showEmojiAddButton: Bool = true) {
+    init(viewModel: ConversationViewModel, message: Message, showEmojiAddButton: Bool = true) {
+        self.viewModel = viewModel
         self.message = message
         self.showEmojiAddButton = showEmojiAddButton
     }
@@ -42,10 +45,10 @@ struct ReactionsView: View {
     var body: some View {
         LazyVGrid(columns: columns) {
             ForEach(mappedReaction.sorted(by: { $0.key < $1.key }), id: \.key) { map in
-                EmojiTextButton(pair: (map.key, map.value))
+                EmojiTextButton(viewModel: viewModel, pair: (map.key, map.value), message: message)
             }
             if !mappedReaction.isEmpty || showEmojiAddButton {
-                EmojiPickerButton(message: message)
+                EmojiPickerButton(viewModel: viewModel, message: message)
             }
         }
     }
@@ -53,7 +56,10 @@ struct ReactionsView: View {
 
 private struct EmojiTextButton: View {
 
+    @ObservedObject var viewModel: ConversationViewModel
+
     let pair: (String, [Reaction])
+    let message: Message
 
     var body: some View {
         Text("\(pair.0) \(pair.1.count)")
@@ -72,18 +78,26 @@ private struct EmojiTextButton: View {
                     }
                 }
             )
+            .onTapGesture {
+                if let emojiId = Smile.alias(emoji: pair.0) {
+                    Task {
+                        await viewModel.addReactionToMessage(for: message, emojiId: emojiId)
+                    }
+                }
+            }
     }
 
     private var isMyReaction: Bool {
-        guard let userId = UserSession.shared.userId else { return false }
-        return pair.1.contains(where: {
-            guard let authorId = $0.user?.id else { return false }
-            return authorId == userId
-        })
+        if let emojiId = Smile.alias(emoji: pair.0) {
+            return message.containsReactionFromMe(emojiId: emojiId)
+        }
+        return false
     }
 }
 
 private struct EmojiPickerButton: View {
+
+    @ObservedObject var viewModel: ConversationViewModel
 
     @State private var showEmojiPicker = false
     @State var selectedEmoji: Emoji?
@@ -106,6 +120,18 @@ private struct EmojiPickerButton: View {
                     EmojiPickerView(selectedEmoji: $selectedEmoji, selectedColor: Color.Artemis.artemisBlue)
                         .navigationTitle(R.string.localizable.emojis())
                         .navigationBarTitleDisplayMode(.inline)
+                }
+            }
+            .onChange(of: selectedEmoji) { newEmoji in
+                if let newEmoji,
+                   let emojiId = Smile.alias(emoji: newEmoji.value) {
+                    Task {
+                        let result = await viewModel.addReactionToMessage(for: message, emojiId: emojiId)
+                        switch result {
+                        default:
+                            selectedEmoji = nil
+                        }
+                    }
                 }
             }
     }

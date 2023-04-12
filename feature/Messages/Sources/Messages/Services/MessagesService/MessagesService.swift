@@ -40,6 +40,21 @@ protocol MessagesService {
      * Perform a post request for a new message answer for a specific message in a specific course to the server.
      */
     func sendAnswerMessage(for courseId: Int, message: Message, content: String) async -> NetworkResponse
+
+    /**
+     * Perform a post request for a new reaction on an answer for a specific message in a specific course to the server.
+     */
+    func addReactionToAnswerMessage(for courseId: Int, answerMessage: AnswerMessage, emojiId: String) async -> NetworkResponse
+
+    /**
+     * Perform a post request for a new reaction for a specific message in a specific course to the server.
+     */
+    func addReactionToMessage(for courseId: Int, message: Message, emojiId: String) async -> NetworkResponse
+
+    /**
+     * Perform a delete request to remove a reaction from a specific message in a specific course to the server.
+     */
+    func removeReactionFromMessage(for courseId: Int, reaction: Reaction) async -> NetworkResponse
 }
 
 enum MessagesServiceFactory {
