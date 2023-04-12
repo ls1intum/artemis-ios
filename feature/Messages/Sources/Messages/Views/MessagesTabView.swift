@@ -217,8 +217,10 @@ private struct ConversationRow<T: BaseConversation>: View {
 
     var contextMenuItems: some View {
         Group {
-            Button(R.string.localizable.hide()) {
-                print("TODO")
+            Button((conversation.isHidden ?? false) ? "Show" : R.string.localizable.hide()) {
+                Task(priority: .userInitiated) {
+                    await viewModel.hideUnhideConversation(conversationId: conversation.id, isHidden: !(conversation.isHidden ?? false))
+                }
             }
             Button(R.string.localizable.favorite()) {
                 print("TODO")

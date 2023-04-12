@@ -39,6 +39,34 @@ class MessagesServiceImpl: MessagesService {
         }
     }
 
+    struct HideUnhideConversationRequest: APIRequest {
+        typealias Response = RawResponse
+
+        let courseId: Int
+        let conversationId: Int64
+        let isHidden: Bool
+
+        var method: HTTPMethod {
+            return .post
+        }
+
+        var resourceName: String {
+            return "api/courses/\(courseId)/conversations/\(conversationId)/hidden?isHidden=\(isHidden)"
+        }
+    }
+
+    func hideUnhideConversation(for courseId: Int, and conversationId: Int64, isHidden: Bool) async -> NetworkResponse {
+        let result = await client.sendRequest(HideUnhideConversationRequest(courseId: courseId,
+                                                                            conversationId: conversationId,
+                                                                            isHidden: isHidden))
+        switch result {
+        case .success:
+            return .success
+        case .failure(let error):
+            return .failure(error: error)
+        }
+    }
+
     struct GetMessagesRequest: APIRequest {
         typealias Response = [Message]
 

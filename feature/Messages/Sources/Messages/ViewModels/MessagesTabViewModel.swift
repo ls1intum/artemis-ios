@@ -61,4 +61,17 @@ class MessagesTabViewModel: ObservableObject {
             oneToOneChats = .done(response: notHiddenConversations.compactMap({ $0.baseConversation as? OneToOneChat }))
         }
     }
+
+    func hideUnhideConversation(conversationId: Int64, isHidden: Bool) async {
+        let result = await MessagesServiceFactory.shared.hideUnhideConversation(for: courseId, and: conversationId, isHidden: isHidden)
+        // TODO: do something
+        switch result {
+        case .notStarted, .loading:
+            return
+        case .success:
+            return
+        case .failure(let error):
+            return
+        }
+    }
 }
