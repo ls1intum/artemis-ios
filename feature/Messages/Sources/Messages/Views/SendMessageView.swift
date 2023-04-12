@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import DesignLibrary
+import Common
 
 struct SendMessageView: View {
 
@@ -118,7 +120,13 @@ struct SendMessageView: View {
     var sendButton: some View {
         Button(action: {
             Task {
-                await viewModel.sendMessage(text: responseText)
+                let result = await viewModel.sendMessage(text: responseText)
+                switch result {
+                case .success:
+                    responseText = ""
+                default:
+                    return
+                }
             }
         }, label: {
             Image(systemName: "paperplane.fill")
@@ -126,5 +134,7 @@ struct SendMessageView: View {
         })
             .padding(.leading, .l)
             .disabled(responseText.isEmpty)
+            .loadingIndicator(isLoading: $viewModel.isLoading)
+            .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
     }
 }

@@ -30,6 +30,9 @@ public struct ConversationView: View {
         VStack {
             ScrollViewReader { value in
                 ScrollView {
+                    PullToRefresh(coordinateSpaceName: "pullToRefresh") {
+                        await viewModel.loadFurtherMessages()
+                    }
                     VStack(alignment: .leading) {
                         DataStateView(data: $viewModel.dailyMessages,
                                       retryHandler: { await viewModel.loadMessages() }) { dailyMessages in
@@ -39,7 +42,6 @@ public struct ConversationView: View {
                                     .padding(.horizontal, .l)
                             } else {
                                 ForEach(dailyMessages.sorted(by: { $0.key < $1.key }), id: \.key) { dailyMessage in
-                                    // TODO: load older messages when scrolled to top
                                     if let conversation = viewModel.conversation.value {
                                         ConversationDaySection(day: dailyMessage.key,
                                                                messages: dailyMessage.value,
@@ -57,6 +59,7 @@ public struct ConversationView: View {
                         }
                     }
                 }
+                    .coordinateSpace(name: "pullToRefresh")
                     .onChange(of: viewModel.dailyMessages.value) { dailyMessages in
                         if let dailyMessages,
                            let lastKey = dailyMessages.keys.max(),
@@ -65,7 +68,9 @@ public struct ConversationView: View {
                         }
                     }
             }
-            SendMessageView(viewModel: viewModel)
+            if !((viewModel.conversation.value?.baseConversation as? Channel)?.isArchived ?? false) {
+                SendMessageView(viewModel: viewModel)
+            }
         }
             .navigationTitle(viewModel.conversation.value?.baseConversation.conversationName ?? R.string.localizable.loading())
             .task {
@@ -167,5 +172,37 @@ private struct MessageCell: View {
 extension Date: Identifiable {
     public var id: Date {
         return self
+    }
+}
+
+private struct PullToRefresh: View {
+
+    var coordinateSpaceName: String
+    var onRefresh: () async -> Void
+
+    @State var needRefresh = false
+
+    var body: some View {
+        GeometryReader { geo in
+            if geo.frame(in: .named(coordinateSpaceName)).midY > 50 {
+                Spacer()
+                    .onAppear {
+                        needRefresh = true
+                        Task {
+                            await onRefresh()
+                            needRefresh = false
+                        }
+                    }
+            }
+            HStack {
+                Spacer()
+                if needRefresh {
+                    ProgressView()
+                } else {
+                    EmptyView()
+                }
+                Spacer()
+            }
+        }.padding(.top, -50)
     }
 }

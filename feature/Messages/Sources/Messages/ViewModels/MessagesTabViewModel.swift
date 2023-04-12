@@ -11,7 +11,7 @@ import SharedModels
 import APIClient
 
 @MainActor
-class MessagesTabViewModel: ObservableObject {
+class MessagesTabViewModel: BaseViewModel {
 
     @Published var allConversations: DataState<[Conversation]> = .loading
 
@@ -23,18 +23,12 @@ class MessagesTabViewModel: ObservableObject {
     @Published var groupChats: DataState<[GroupChat]> = .loading
     @Published var oneToOneChats: DataState<[OneToOneChat]> = .loading
 
-    @Published var error: UserFacingError? {
-        didSet {
-            showError = error != nil
-        }
-    }
-    @Published var showError = false
-    @Published var isLoading = false
-
     let courseId: Int
 
     init(courseId: Int) {
         self.courseId = courseId
+
+        super.init()
     }
 
     func loadConversations() async {
@@ -85,9 +79,9 @@ class MessagesTabViewModel: ObservableObject {
         case .failure(let error):
             isLoading = false
             if let apiClientError = error as? APIClientError {
-                self.error = UserFacingError(error: apiClientError)
+                presentError(userFacingError: UserFacingError(error: apiClientError))
             } else {
-                self.error = UserFacingError(title: error.localizedDescription)
+                presentError(userFacingError: UserFacingError(title: error.localizedDescription))
             }
         }
     }
@@ -104,9 +98,9 @@ class MessagesTabViewModel: ObservableObject {
         case .failure(let error):
             isLoading = false
             if let apiClientError = error as? APIClientError {
-                self.error = UserFacingError(error: apiClientError)
+                presentError(userFacingError: UserFacingError(error: apiClientError))
             } else {
-                self.error = UserFacingError(title: error.localizedDescription)
+                presentError(userFacingError: UserFacingError(title: error.localizedDescription))
             }
         }
     }

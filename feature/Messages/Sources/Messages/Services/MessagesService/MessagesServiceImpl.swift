@@ -100,24 +100,58 @@ class MessagesServiceImpl: MessagesService {
 
         let courseId: Int
         let conversationId: Int64
+        let size: Int
 
         var method: HTTPMethod {
             return .get
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/messages?postSortCriterion=CREATION_DATE&sortingOrder=ASCENDING&conversationId=\(conversationId)&pagingEnabled=true&page=0&size=50"
+            return "api/courses/\(courseId)/messages?postSortCriterion=CREATION_DATE&sortingOrder=ASCENDING&conversationId=\(conversationId)&pagingEnabled=true&page=0&size=\(size)"
         }
     }
 
-    func getMessages(for courseId: Int, and conversationId: Int64) async -> DataState<[Message]> {
-        let result = await client.sendRequest(GetMessagesRequest(courseId: courseId, conversationId: conversationId))
+    func getMessages(for courseId: Int, and conversationId: Int64, size: Int) async -> DataState<[Message]> {
+        let result = await client.sendRequest(GetMessagesRequest(courseId: courseId, conversationId: conversationId, size: size))
 
         switch result {
         case .success((let messages, _)):
             return .done(response: messages)
         case .failure(let error):
             return DataState(error: error)
+        }
+    }
+
+    struct SendMessageRequest: APIRequest {
+        typealias Response = RawResponse
+
+        let courseId: Int
+        let visibleForStudents: Bool
+        let displayPriority: DisplayPriority
+        let conversation: Conversation
+        let content: String
+
+        var method: HTTPMethod {
+            return .post
+        }
+
+        var resourceName: String {
+            return "api/courses/\(courseId)/messages"
+        }
+    }
+
+    func sendMessage(for courseId: Int, conversation: Conversation, content: String) async -> NetworkResponse {
+        let result = await client.sendRequest(SendMessageRequest(courseId: courseId,
+                                                                 visibleForStudents: true,
+                                                                 displayPriority: .noInformation,
+                                                                 conversation: conversation,
+                                                                 content: content))
+
+        switch result {
+        case .success:
+            return .success
+        case .failure(let error):
+            return .failure(error: error)
         }
     }
 }

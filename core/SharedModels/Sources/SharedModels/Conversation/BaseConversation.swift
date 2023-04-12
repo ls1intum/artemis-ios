@@ -98,6 +98,19 @@ public enum Conversation: Codable, Identifiable {
         case .unknown: self = .unknown(conversation: try UnknownConversation(from: decoder))
         }
     }
+
+    public func encode(to encoder: Encoder) throws {
+        switch self {
+        case .channel(let conversation):
+            try conversation.encode(to: encoder)
+        case .groupChat(let conversation):
+            try conversation.encode(to: encoder)
+        case .oneToOneChat(let conversation):
+            try conversation.encode(to: encoder)
+        case .unknown(let conversation):
+            try conversation.encode(to: encoder)
+        }
+    }
 }
 
 extension Conversation: Equatable, Hashable {

@@ -90,7 +90,7 @@ public struct MessageDetailView: View {
 
     private func loadMessage() async {
         if message.value == nil {
-            let result = await MessagesServiceFactory.shared.getMessages(for: viewModel.courseId, and: viewModel.conversationId)
+            let result = await MessagesServiceFactory.shared.getMessages(for: viewModel.courseId, and: viewModel.conversationId, size: 50)
 
             switch result {
             case .loading:

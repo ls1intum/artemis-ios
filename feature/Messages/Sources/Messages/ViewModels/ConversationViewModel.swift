@@ -8,9 +8,10 @@
 import Foundation
 import Common
 import SharedModels
+import APIClient
 
 @MainActor
-public class ConversationViewModel: ObservableObject {
+public class ConversationViewModel: BaseViewModel {
 
     @Published var dailyMessages: DataState<[Date: [Message]]> = .loading
     @Published var conversation: DataState<Conversation> = .loading
@@ -18,10 +19,14 @@ public class ConversationViewModel: ObservableObject {
     let courseId: Int
     let conversationId: Int64
 
+    private var size = 50
+
     public init(courseId: Int, conversation: Conversation) {
         self.courseId = courseId
         self._conversation = Published(wrappedValue: .done(response: conversation))
         self.conversationId = conversation.id
+
+        super.init()
     }
 
     public init(courseId: Int, conversationId: Int64) {
@@ -29,13 +34,20 @@ public class ConversationViewModel: ObservableObject {
         self.conversationId = conversationId
         self._conversation = Published(wrappedValue: .loading)
 
+        super.init()
+
         Task {
             await loadConversation()
         }
     }
 
+    func loadFurtherMessages() async {
+        size += 50
+        await loadMessages()
+    }
+
     func loadMessages() async {
-        let result = await MessagesServiceFactory.shared.getMessages(for: courseId, and: conversationId)
+        let result = await MessagesServiceFactory.shared.getMessages(for: courseId, and: conversationId, size: size)
 
         switch result {
         case .loading:
@@ -60,8 +72,29 @@ public class ConversationViewModel: ObservableObject {
         }
     }
 
-    func sendMessage(text: String) async {
-        print("TODO")
+    func sendMessage(text: String) async -> NetworkResponse {
+        guard let conversation = conversation.value else {
+            let error = UserFacingError(title: "Conversation could not be loaded.")
+            presentError(userFacingError: error)
+            return .failure(error: error)
+        }
+        isLoading = true
+        let result = await MessagesServiceFactory.shared.sendMessage(for: courseId, conversation: conversation, content: text)
+        switch result {
+        case .notStarted, .loading:
+            isLoading = false
+        case .success:
+            await loadMessages()
+            isLoading = false
+        case .failure(let error):
+            isLoading = false
+            if let apiClientError = error as? APIClientError {
+                presentError(userFacingError: UserFacingError(error: apiClientError))
+            } else {
+                presentError(userFacingError: UserFacingError(title: error.localizedDescription))
+            }
+        }
+        return result
     }
 
     private func loadConversation() async {

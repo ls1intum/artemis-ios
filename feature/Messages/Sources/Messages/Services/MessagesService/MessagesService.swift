@@ -29,7 +29,13 @@ protocol MessagesService {
     /**
      * Perform a get request for Messages of a specific conversation in a specific course to the server.
      */
-    func getMessages(for courseId: Int, and conversationId: Int64) async -> DataState<[Message]>
+    func getMessages(for courseId: Int, and conversationId: Int64, size: Int) async -> DataState<[Message]>
+
+    /**
+     * Perform a post request for a new message for a specific conversation in a specific course to the server.
+     */
+    func sendMessage(for courseId: Int, conversation: Conversation, content: String) async -> NetworkResponse
+    
 }
 
 enum MessagesServiceFactory {
