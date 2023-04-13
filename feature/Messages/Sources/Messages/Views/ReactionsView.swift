@@ -10,6 +10,7 @@ import SharedModels
 import Smile
 import UserStore
 import EmojiPicker
+import Common
 
 struct ReactionsView: View {
 
@@ -17,6 +18,7 @@ struct ReactionsView: View {
 
     let message: BaseMessage
     let showEmojiAddButton: Bool
+    let reloadCompletion: (() async -> Void)?
 
     let columns = [ GridItem(.adaptive(minimum: 45)) ]
 
@@ -36,19 +38,20 @@ struct ReactionsView: View {
         return reactions
     }
 
-    init(viewModel: ConversationViewModel, message: BaseMessage, showEmojiAddButton: Bool = true) {
+    init(viewModel: ConversationViewModel, message: BaseMessage, showEmojiAddButton: Bool = true, reloadCompletion: (() async -> Void)?) {
         self.viewModel = viewModel
         self.message = message
         self.showEmojiAddButton = showEmojiAddButton
+        self.reloadCompletion = reloadCompletion
     }
 
     var body: some View {
         LazyVGrid(columns: columns) {
             ForEach(mappedReaction.sorted(by: { $0.key < $1.key }), id: \.key) { map in
-                EmojiTextButton(viewModel: viewModel, pair: (map.key, map.value), message: message)
+                EmojiTextButton(viewModel: viewModel, pair: (map.key, map.value), message: message, reloadCompletion: reloadCompletion)
             }
             if !mappedReaction.isEmpty || showEmojiAddButton {
-                EmojiPickerButton(viewModel: viewModel, message: message)
+                EmojiPickerButton(viewModel: viewModel, message: message, reloadCompletion: reloadCompletion)
             }
         }
     }
@@ -60,6 +63,7 @@ private struct EmojiTextButton: View {
 
     let pair: (String, [Reaction])
     let message: BaseMessage
+    let reloadCompletion: (() async -> Void)?
 
     var body: some View {
         Text("\(pair.0) \(pair.1.count)")
@@ -82,9 +86,9 @@ private struct EmojiTextButton: View {
                 if let emojiId = Smile.alias(emoji: pair.0) {
                     Task {
                         if let message = message as? Message {
-                            _ = await viewModel.addReactionToMessage(for: message, emojiId: emojiId)
-                        } else {
-                            // TODO
+                            _ = await viewModel.addReactionToMessage(for: message, emojiId: emojiId, reloadCompletion: reloadCompletion)
+                        } else if let answerMessage = message as? AnswerMessage {
+                            _ = await viewModel.addReactionToAnswerMessage(for: answerMessage, emojiId: emojiId, reloadCompletion: reloadCompletion)
                         }
                     }
                 }
@@ -107,6 +111,7 @@ private struct EmojiPickerButton: View {
     @State var selectedEmoji: Emoji?
 
     let message: BaseMessage
+    let reloadCompletion: (() async -> Void)?
 
     var body: some View {
         Button(action: { showEmojiPicker = true }, label: {
@@ -130,14 +135,15 @@ private struct EmojiPickerButton: View {
                 if let newEmoji,
                    let emojiId = Smile.alias(emoji: newEmoji.value) {
                     Task {
+                        var result: NetworkResponse?
                         if let message = message as? Message {
-                            let result = await viewModel.addReactionToMessage(for: message, emojiId: emojiId)
-                            switch result {
-                            default:
-                                selectedEmoji = nil
-                            }
-                        } else {
-                            // TODO
+                            result = await viewModel.addReactionToMessage(for: message, emojiId: emojiId, reloadCompletion: reloadCompletion)
+                        } else if let answerMessage = message as? AnswerMessage {
+                            result = await viewModel.addReactionToAnswerMessage(for: answerMessage, emojiId: emojiId, reloadCompletion: reloadCompletion)
+                        }
+                        switch result {
+                        default:
+                            selectedEmoji = nil
                         }
                     }
                 }

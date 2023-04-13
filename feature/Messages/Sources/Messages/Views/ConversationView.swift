@@ -102,7 +102,8 @@ private struct ConversationDaySection: View {
                 MessageCell(viewModel: viewModel,
                             message: message,
                             conversationPath: conversationPath,
-                            showHeader: (index == 0 ? true : shouldShowHeader(message: message, previousMessage: messages[index - 1])))
+                            showHeader: (index == 0 ? true : shouldShowHeader(message: message, previousMessage: messages[index - 1])),
+                            reloadCompletion: nil)
             }
         }
     }

@@ -80,6 +80,22 @@ public class ConversationViewModel: BaseViewModel {
         }
     }
 
+    func loadMessage(messageId: Int64) async -> DataState<Message> {
+        let result = await MessagesServiceFactory.shared.getMessages(for: courseId, and: conversationId, size: size)
+
+        switch result {
+        case .loading:
+            return .loading
+        case .failure(let error):
+            return .failure(error: error)
+        case .done(let response):
+            guard let message = response.first(where: { $0.id == messageId }) else {
+                return .failure(error: UserFacingError(title: R.string.localizable.messageCouldNotBeLoadedError()))
+            }
+            return .done(response: message)
+        }
+    }
+
     func sendMessage(text: String) async -> NetworkResponse {
         guard let conversation = conversation.value else {
             let error = UserFacingError(title: "Conversation could not be loaded.")
@@ -126,7 +142,7 @@ public class ConversationViewModel: BaseViewModel {
         return result
     }
 
-    func addReactionToMessage(for message: Message, emojiId: String) async -> NetworkResponse {
+    func addReactionToMessage(for message: Message, emojiId: String, reloadCompletion: (() async -> Void)?) async -> NetworkResponse {
         isLoading = true
         let result: NetworkResponse
         if let reaction = message.getReactionFromMe(emojiId: emojiId) {
@@ -139,7 +155,37 @@ public class ConversationViewModel: BaseViewModel {
             isLoading = false
         case .success:
             shouldScrollToId = nil
-            await loadMessages()
+            if let reloadCompletion {
+                await reloadCompletion()
+            } else {
+                await loadMessages()
+            }
+            isLoading = false
+        case .failure(let error):
+            isLoading = false
+            if let apiClientError = error as? APIClientError {
+                presentError(userFacingError: UserFacingError(error: apiClientError))
+            } else {
+                presentError(userFacingError: UserFacingError(title: error.localizedDescription))
+            }
+        }
+        return result
+    }
+
+    func addReactionToAnswerMessage(for message: AnswerMessage, emojiId: String, reloadCompletion: (() async -> Void)?) async -> NetworkResponse {
+        isLoading = true
+        let result: NetworkResponse
+        if let reaction = message.getReactionFromMe(emojiId: emojiId) {
+            result = await MessagesServiceFactory.shared.removeReactionFromMessage(for: courseId, reaction: reaction)
+        } else {
+            result = await MessagesServiceFactory.shared.addReactionToAnswerMessage(for: courseId, answerMessage: message, emojiId: emojiId)
+        }
+        switch result {
+        case .notStarted, .loading:
+            isLoading = false
+        case .success:
+            shouldScrollToId = nil
+            await reloadCompletion?()
             isLoading = false
         case .failure(let error):
             isLoading = false

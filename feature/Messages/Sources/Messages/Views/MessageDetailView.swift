@@ -40,7 +40,7 @@ public struct MessageDetailView: View {
     }
 
     public var body: some View {
-        DataStateView(data: $message, retryHandler: { await loadMessage() }) { message in
+        DataStateView(data: $message, retryHandler: { self.message = await viewModel.loadMessage(messageId: messageId) }) { message in
             VStack(alignment: .leading) {
                 Group {
                     HStack(alignment: .top, spacing: .l) {
@@ -61,7 +61,7 @@ public struct MessageDetailView: View {
 
                     ArtemisMarkdownView(string: message.content ?? "")
 
-                    ReactionsView(viewModel: viewModel, message: message)
+                    ReactionsView(viewModel: viewModel, message: message, reloadCompletion: reloadMessage)
                 }
                 .padding(.horizontal, .l)
                 .contentShape(Rectangle())
@@ -77,45 +77,36 @@ public struct MessageDetailView: View {
                 Divider()
                 ScrollView {
                     VStack {
-                        ForEach(Array((message.answers ?? []).enumerated()), id: \.1.id) { index, answerMessage in
+                        ForEach(Array((message.answers ?? []).enumerated()), id: \.1) { index, answerMessage in
                             MessageCell(viewModel: viewModel,
                                         message: answerMessage,
                                         conversationPath: nil,
-                                        showHeader: (index == 0 ? true : shouldShowHeader(message: answerMessage, previousMessage: message.answers![index - 1])))
+                                        showHeader: (index == 0 ? true : shouldShowHeader(message: answerMessage, previousMessage: message.answers![index - 1])),
+                                        reloadCompletion: reloadMessage)
                         }
                     }.padding(.horizontal, .l)
                 }
                 Spacer()
-                SendMessageView(viewModel: viewModel, sendMessageType: .answerMessage(message, { await loadMessage(force: true) }))
+                if !((viewModel.conversation.value?.baseConversation as? Channel)?.isArchived ?? false) {
+                    SendMessageView(viewModel: viewModel, sendMessageType: .answerMessage(message, { self.message = await viewModel.loadMessage(messageId: messageId) }))
+                }
             }.navigationTitle(R.string.localizable.thread())
         }
             .task {
-                await loadMessage()
+                if message.value == nil {
+                    message = await viewModel.loadMessage(messageId: messageId)
+                }
             }
+    }
+
+    // TODO: Create MessageDetailViewModel and extract logic there -> also move message there and make it available from all subviews -> replace reloadCompletion with it
+    private func reloadMessage() async {
+        message = await viewModel.loadMessage(messageId: messageId)
     }
 
     // header is not shown if same person messages multiple times within 5 minutes
     private func shouldShowHeader(message: AnswerMessage, previousMessage: AnswerMessage) -> Bool {
         !(message.author == previousMessage.author &&
           message.creationDate ?? .now < (previousMessage.creationDate ?? .yesterday).addingTimeInterval(TimeInterval(MAX_MINUTES_FOR_GROUPING_MESSAGES * 60)))
-    }
-
-    private func loadMessage(force: Bool = false) async {
-        if message.value == nil || force {
-            let result = await MessagesServiceFactory.shared.getMessages(for: viewModel.courseId, and: viewModel.conversationId, size: 50)
-
-            switch result {
-            case .loading:
-                message = .loading
-            case .failure(let error):
-                message = .failure(error: error)
-            case .done(let response):
-                guard let message = response.first(where: { $0.id == messageId }) else {
-                    message = .failure(error: UserFacingError(title: R.string.localizable.messageCouldNotBeLoadedError()))
-                    return
-                }
-                self.message = .done(response: message)
-            }
-        }
     }
 }
