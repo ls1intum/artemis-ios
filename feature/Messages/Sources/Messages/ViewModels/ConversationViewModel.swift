@@ -117,7 +117,7 @@ public class ConversationViewModel: BaseViewModel {
 
     func sendMessage(text: String) async -> NetworkResponse {
         guard let conversation = conversation.value else {
-            let error = UserFacingError(title: "Conversation could not be loaded.")
+            let error = UserFacingError(title: R.string.localizable.conversationNotLoaded())
             presentError(userFacingError: error)
             return .failure(error: error)
         }
@@ -233,7 +233,7 @@ public class ConversationViewModel: BaseViewModel {
             conversation = .failure(error: error)
         case .done(let response):
             guard let conversation = response.first(where: { $0.id == conversationId }) else {
-                self.conversation = .failure(error: UserFacingError(title: "The conversation could not be found."))
+                self.conversation = .failure(error: UserFacingError(title: R.string.localizable.conversationNotLoaded()))
                 return
             }
             self.conversation = .done(response: conversation)

@@ -33,7 +33,7 @@ public struct MessagesTabView: View {
         List {
             if !searchText.isEmpty {
                 if searchResults.isEmpty {
-                    Text("There is no result for your search.")
+                    Text(R.string.localizable.noResultForSearch())
                         .padding(.l)
                         .listRowSeparator(.hidden)
                 }
@@ -52,7 +52,7 @@ public struct MessagesTabView: View {
                 Group {
                     MixedMessageSection(viewModel: viewModel,
                                         conversations: $viewModel.favoriteConversations,
-                                        sectionTitle: "Favorites")
+                                        sectionTitle: R.string.localizable.favoritesSection())
                     MessageSection(viewModel: viewModel,
                                    conversations: $viewModel.channels,
                                    sectionTitle: R.string.localizable.channels(),
@@ -67,7 +67,7 @@ public struct MessagesTabView: View {
                                    conversationType: .oneToOneChat)
                     MixedMessageSection(viewModel: viewModel,
                                         conversations: $viewModel.hiddenConversations,
-                                        sectionTitle: "Hidden",
+                                        sectionTitle: R.string.localizable.hiddenSection(),
                                         isExpanded: false)
                 }
                     .listRowSeparator(.visible, edges: .top)

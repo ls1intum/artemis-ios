@@ -42,7 +42,7 @@ struct MessageActionSheet: View {
                             dismiss()
                             navigationController.path.append(messagePath)
                         } else {
-                            viewModel.presentError(userFacingError: UserFacingError(title: "Detail View cant be opened. Please try again later."))
+                            viewModel.presentError(userFacingError: UserFacingError(title: R.string.localizable.detailViewCantBeOpened()))
                         }
                     }, label: {
                         ButtonContent(title: R.string.localizable.replyInThread(), icon: "text.bubble.fill")
