@@ -21,6 +21,7 @@ public struct MessageDetailView: View {
     @Binding private var message: DataState<BaseMessage>
 
     @State private var showMessageActionSheet = false
+    @State private var viewRerenderWorkaround = false
 
     private let messageId: Int64?
 
@@ -78,11 +79,16 @@ public struct MessageDetailView: View {
                     Divider()
                     ScrollView {
                         VStack {
-                            ForEach(Array((message.answers ?? []).enumerated()), id: \.1) { index, answerMessage in
+                            let sortedArray = (message.answers ?? []).sorted(by: { $0.creationDate ?? .tomorrow < $1.creationDate ?? .yesterday })
+                            ForEach(Array(sortedArray.enumerated()), id: \.1) { index, answerMessage in
                                 MessageCellWrapper(viewModel: viewModel,
                                                    answerMessage: answerMessage,
-                                                   showHeader: (index == 0 ? true : shouldShowHeader(message: answerMessage, previousMessage: message.answers![index - 1])))
+                                                   showHeader: (index == 0 ? true : shouldShowHeader(message: answerMessage, previousMessage: sortedArray[index - 1])))
                             }
+                            .onChange(of: message.answers) {
+                                print($0?.count)
+                            }
+                            Spacer()
                         }.padding(.horizontal, .l)
                     }
                 }
@@ -112,6 +118,7 @@ public struct MessageDetailView: View {
             message = .failure(error: error)
         case .done(let response):
             message = .done(response: response)
+            viewRerenderWorkaround.toggle()
         }
     }
 
@@ -131,10 +138,17 @@ private struct MessageCellWrapper: View {
 
     private var answerMessageBinding: Binding<DataState<BaseMessage>> {
         Binding(get: {
-            if let day = answerMessage.creationDate?.startOfDay,
-               let messageIndex = viewModel.dailyMessages.value?[day]?.firstIndex(where: { $0.answers?.contains(where: { $0.id == answerMessage.id }) ?? false }),
-               let answerMessage = viewModel.dailyMessages.value?[day]?[messageIndex].answers?.first(where: { $0.id == answerMessage.id }) {
-                return .done(response: answerMessage)
+            if let keys = viewModel.dailyMessages.value?.keys {
+                let answerMessage: AnswerMessage? = keys.compactMap { key in
+                    if let messageIndex = viewModel.dailyMessages.value?[key]?.firstIndex(where: { $0.answers?.contains(where: { $0.id == self.answerMessage.id }) ?? false }),
+                       let answerMessage = viewModel.dailyMessages.value?[key]?[messageIndex].answers?.first(where: { $0.id == self.answerMessage.id }) {
+                        return answerMessage
+                    }
+                    return nil
+                }.first
+                if let answerMessage {
+                    return .done(response: answerMessage)
+                }
             }
             return .loading
         }, set: {
