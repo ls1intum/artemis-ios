@@ -81,6 +81,7 @@ public class ConversationViewModel: BaseViewModel {
     }
 
     func loadMessage(messageId: Int64) async -> DataState<Message> {
+        // TODO: add API to only load one single message
         let result = await MessagesServiceFactory.shared.getMessages(for: courseId, and: conversationId, size: size)
 
         switch result {
@@ -142,7 +143,7 @@ public class ConversationViewModel: BaseViewModel {
         return result
     }
 
-    func addReactionToMessage(for message: Message, emojiId: String, reloadCompletion: (() async -> Void)?) async -> NetworkResponse {
+    func addReactionToMessage(for message: Message, emojiId: String) async -> DataState<Message> {
         isLoading = true
         let result: NetworkResponse
         if let reaction = message.getReactionFromMe(emojiId: emojiId) {
@@ -153,23 +154,24 @@ public class ConversationViewModel: BaseViewModel {
         switch result {
         case .notStarted, .loading:
             isLoading = false
+            return .loading
         case .success:
             shouldScrollToId = nil
-            if let reloadCompletion {
-                await reloadCompletion()
-            } else {
-                await loadMessages()
-            }
+            let newMessage = await loadMessage(messageId: message.id)
             isLoading = false
+            return newMessage
         case .failure(let error):
             isLoading = false
             if let apiClientError = error as? APIClientError {
-                presentError(userFacingError: UserFacingError(error: apiClientError))
+                let userFacingError = UserFacingError(error: apiClientError)
+                presentError(userFacingError: userFacingError)
+                return .failure(error: userFacingError)
             } else {
-                presentError(userFacingError: UserFacingError(title: error.localizedDescription))
+                let userFacingError = UserFacingError(title: error.localizedDescription)
+                presentError(userFacingError: userFacingError)
+                return .failure(error: userFacingError)
             }
         }
-        return result
     }
 
     func addReactionToAnswerMessage(for message: AnswerMessage, emojiId: String, reloadCompletion: (() async -> Void)?) async -> NetworkResponse {

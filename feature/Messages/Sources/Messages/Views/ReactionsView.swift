@@ -16,7 +16,7 @@ struct ReactionsView: View {
 
     @ObservedObject private var viewModel: ConversationViewModel
 
-    let message: BaseMessage
+    @Binding var message: DataState<BaseMessage>
     let showEmojiAddButton: Bool
     let reloadCompletion: (() async -> Void)?
 
@@ -25,7 +25,7 @@ struct ReactionsView: View {
     var mappedReaction: [String: [Reaction]] {
         var reactions = [String: [Reaction]]()
 
-        message.reactions?.forEach {
+        message.value?.reactions?.forEach {
             guard let emoji = Smile.emoji(alias: $0.emojiId) else {
                 return
             }
@@ -38,9 +38,9 @@ struct ReactionsView: View {
         return reactions
     }
 
-    init(viewModel: ConversationViewModel, message: BaseMessage, showEmojiAddButton: Bool = true, reloadCompletion: (() async -> Void)?) {
+    init(viewModel: ConversationViewModel, message: Binding<DataState<BaseMessage>>, showEmojiAddButton: Bool = true, reloadCompletion: (() async -> Void)?) {
         self.viewModel = viewModel
-        self.message = message
+        self._message = message
         self.showEmojiAddButton = showEmojiAddButton
         self.reloadCompletion = reloadCompletion
     }
@@ -48,10 +48,10 @@ struct ReactionsView: View {
     var body: some View {
         LazyVGrid(columns: columns) {
             ForEach(mappedReaction.sorted(by: { $0.key < $1.key }), id: \.key) { map in
-                EmojiTextButton(viewModel: viewModel, pair: (map.key, map.value), message: message, reloadCompletion: reloadCompletion)
+                EmojiTextButton(viewModel: viewModel, pair: (map.key, map.value), message: $message, reloadCompletion: reloadCompletion)
             }
             if !mappedReaction.isEmpty || showEmojiAddButton {
-                EmojiPickerButton(viewModel: viewModel, message: message, reloadCompletion: reloadCompletion)
+                EmojiPickerButton(viewModel: viewModel, message: $message, reloadCompletion: reloadCompletion)
             }
         }
     }
@@ -62,7 +62,7 @@ private struct EmojiTextButton: View {
     @ObservedObject var viewModel: ConversationViewModel
 
     let pair: (String, [Reaction])
-    let message: BaseMessage
+    @Binding var message: DataState<BaseMessage>
     let reloadCompletion: (() async -> Void)?
 
     var body: some View {
@@ -85,9 +85,17 @@ private struct EmojiTextButton: View {
             .onTapGesture {
                 if let emojiId = Smile.alias(emoji: pair.0) {
                     Task {
-                        if let message = message as? Message {
-                            _ = await viewModel.addReactionToMessage(for: message, emojiId: emojiId, reloadCompletion: reloadCompletion)
-                        } else if let answerMessage = message as? AnswerMessage {
+                        if let message = message.value as? Message {
+                            let result = await viewModel.addReactionToMessage(for: message, emojiId: emojiId)
+                            switch result {
+                            case .loading:
+                                self.message = .loading
+                            case .failure(let error):
+                                self.message = .failure(error: error)
+                            case .done(let response):
+                                self.message = .done(response: response)
+                            }
+                        } else if let answerMessage = message.value as? AnswerMessage {
                             _ = await viewModel.addReactionToAnswerMessage(for: answerMessage, emojiId: emojiId, reloadCompletion: reloadCompletion)
                         }
                     }
@@ -96,7 +104,8 @@ private struct EmojiTextButton: View {
     }
 
     private var isMyReaction: Bool {
-        if let emojiId = Smile.alias(emoji: pair.0) {
+        if let emojiId = Smile.alias(emoji: pair.0),
+           let message = message.value {
             return message.containsReactionFromMe(emojiId: emojiId)
         }
         return false
@@ -110,7 +119,7 @@ private struct EmojiPickerButton: View {
     @State private var showEmojiPicker = false
     @State var selectedEmoji: Emoji?
 
-    let message: BaseMessage
+    @Binding var message: DataState<BaseMessage>
     let reloadCompletion: (() async -> Void)?
 
     var body: some View {
@@ -136,9 +145,17 @@ private struct EmojiPickerButton: View {
                    let emojiId = Smile.alias(emoji: newEmoji.value) {
                     Task {
                         var result: NetworkResponse?
-                        if let message = message as? Message {
-                            result = await viewModel.addReactionToMessage(for: message, emojiId: emojiId, reloadCompletion: reloadCompletion)
-                        } else if let answerMessage = message as? AnswerMessage {
+                        if let message = message.value as? Message {
+                            let result = await viewModel.addReactionToMessage(for: message, emojiId: emojiId)
+                            switch result {
+                            case .loading:
+                                self.message = .loading
+                            case .failure(let error):
+                                self.message = .failure(error: error)
+                            case .done(let response):
+                                self.message = .done(response: response)
+                            }
+                        } else if let answerMessage = message.value as? AnswerMessage {
                             result = await viewModel.addReactionToAnswerMessage(for: answerMessage, emojiId: emojiId, reloadCompletion: reloadCompletion)
                         }
                         switch result {

@@ -9,6 +9,7 @@ import SwiftUI
 import SharedModels
 import DesignLibrary
 import Navigation
+import Common
 import ArtemisMarkdown
 
 // swiftlint:disable:next identifier_name
@@ -77,8 +78,11 @@ public struct ConversationView: View {
             .navigationTitle(viewModel.conversation.value?.baseConversation.conversationName ?? R.string.localizable.loading())
             .task {
                 viewModel.shouldScrollToId = "bottom"
-                await viewModel.loadMessages()
+                if viewModel.dailyMessages.value == nil {
+                    await viewModel.loadMessages()
+                }
             }
+            .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
     }
 }
 
@@ -99,11 +103,11 @@ private struct ConversationDaySection: View {
             Divider()
                 .padding(.horizontal, .l)
             ForEach(Array(messages.enumerated()), id: \.1.id) { index, message in
-                MessageCell(viewModel: viewModel,
-                            message: message,
-                            conversationPath: conversationPath,
-                            showHeader: (index == 0 ? true : shouldShowHeader(message: message, previousMessage: messages[index - 1])),
-                            reloadCompletion: nil)
+                MessageCellWrapper(viewModel: viewModel,
+                                   day: day,
+                                   message: message,
+                                   conversationPath: conversationPath,
+                                   showHeader: (index == 0 ? true : shouldShowHeader(message: message, previousMessage: messages[index - 1])))
             }
         }
     }
@@ -112,6 +116,38 @@ private struct ConversationDaySection: View {
     private func shouldShowHeader(message: Message, previousMessage: Message) -> Bool {
         !(message.author == previousMessage.author &&
           message.creationDate ?? .now < (previousMessage.creationDate ?? .yesterday).addingTimeInterval(TimeInterval(MAX_MINUTES_FOR_GROUPING_MESSAGES * 60)))
+    }
+}
+
+private struct MessageCellWrapper: View {
+    @ObservedObject var viewModel: ConversationViewModel
+
+    let day: Date
+    let message: Message
+    let conversationPath: ConversationPath
+    let showHeader: Bool
+
+    private var messageBinding: Binding<DataState<BaseMessage>> {
+        Binding(get: {
+            if  let messageIndex = viewModel.dailyMessages.value?[day]?.firstIndex(where: { $0.id == message.id }),
+                let message = viewModel.dailyMessages.value?[day]?[messageIndex] {
+                return .done(response: message)
+            }
+            return .loading
+        }, set: {
+            if  let messageIndex = viewModel.dailyMessages.value?[day]?.firstIndex(where: { $0.id == message.id }),
+                let newMessage = $0.value as? Message {
+                viewModel.dailyMessages.value?[day]?[messageIndex] = newMessage
+            }
+        })
+    }
+
+    var body: some View {
+        MessageCell(viewModel: viewModel,
+                    message: messageBinding,
+                    conversationPath: conversationPath,
+                    showHeader: showHeader,
+                    reloadCompletion: nil)
     }
 }
 

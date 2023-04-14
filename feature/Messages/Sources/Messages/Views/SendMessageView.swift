@@ -149,6 +149,5 @@ struct SendMessageView: View {
             .padding(.leading, .l)
             .disabled(responseText.isEmpty)
             .loadingIndicator(isLoading: $viewModel.isLoading)
-            .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
     }
 }

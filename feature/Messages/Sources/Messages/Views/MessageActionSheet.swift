@@ -10,13 +10,14 @@ import SharedModels
 import UserStore
 import EmojiPicker
 import Navigation
+import Common
 
 struct MessageActionSheet: View {
 
     @EnvironmentObject var navigationController: NavigationController
     @Environment(\.dismiss) var dismiss
 
-    let message: BaseMessage
+    @Binding var message: DataState<BaseMessage>
     let conversationPath: ConversationPath?
 
     var body: some View {
@@ -27,22 +28,25 @@ struct MessageActionSheet: View {
                     EmojiTextButton(emoji: "👍")
                     EmojiTextButton(emoji: "➕")
                     EmojiTextButton(emoji: "🚀")
-                    EmojiPickerButton(message: message)
+                    EmojiPickerButton(message: $message)
                 }
                     .padding(.l)
-                if let message = message as? Message,
+                if message.value is Message,
                    let conversationPath {
                     Divider()
                     Button(action: {
-                        dismiss()
-                        navigationController.path.append(MessagePath(message: message, coursePath: conversationPath.coursePath, conversationPath: conversationPath))
+                        // TODO: maybe present alert
+                        if let messagePath = MessagePath(message: $message, coursePath: conversationPath.coursePath, conversationPath: conversationPath) {
+                            dismiss()
+                            navigationController.path.append(messagePath)
+                        }
                     }, label: {
                         ButtonContent(title: R.string.localizable.replyInThread(), icon: "text.bubble.fill")
                     })
                 }
                 Divider()
                 Button(action: {
-                    UIPasteboard.general.string = message.content
+                    UIPasteboard.general.string = message.value?.content
                     dismiss()
                 }, label: {
                     ButtonContent(title: R.string.localizable.copyText(), icon: "clipboard.fill")
@@ -104,10 +108,10 @@ private struct EmojiTextButton: View {
 
 private struct EmojiPickerButton: View {
 
+    @Binding var message: DataState<BaseMessage>
+
     @State private var showEmojiPicker = false
     @State var selectedEmoji: Emoji?
-
-    let message: BaseMessage
 
     var body: some View {
         Button(action: { showEmojiPicker = true }, label: {

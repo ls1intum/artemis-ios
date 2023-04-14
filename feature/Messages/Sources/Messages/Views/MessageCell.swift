@@ -9,6 +9,7 @@ import SwiftUI
 import ArtemisMarkdown
 import SharedModels
 import Navigation
+import Common
 
 struct MessageCell: View {
 
@@ -16,19 +17,19 @@ struct MessageCell: View {
 
     @ObservedObject var viewModel: ConversationViewModel
 
-    let message: BaseMessage
+    @Binding var message: DataState<BaseMessage>
 
     @State private var showMessageActionSheet = false
     @State private var isPressed = false
 
     var author: String {
-        message.author?.name ?? ""
+        message.value?.author?.name ?? ""
     }
     var creationDate: Date? {
-        message.creationDate
+        message.value?.creationDate
     }
     var content: String {
-        message.content ?? ""
+        message.value?.content ?? ""
     }
 
     let conversationPath: ConversationPath?
@@ -55,16 +56,19 @@ struct MessageCell: View {
                     }
                 }
                 ArtemisMarkdownView(string: content)
-                ReactionsView(viewModel: viewModel, message: message, showEmojiAddButton: false, reloadCompletion: reloadCompletion)
-                if let message = message as? Message,
+                ReactionsView(viewModel: viewModel, message: $message, showEmojiAddButton: false, reloadCompletion: { })
+                if let message = message.value as? Message,
                    let answerCount = message.answers?.count,
                    let conversationPath,
                    answerCount > 0 {
                     Button(R.string.localizable.replyAction(answerCount)) {
-                        navigationController.path.append(MessagePath(message: message, coursePath: conversationPath.coursePath, conversationPath: conversationPath))
+                        // TODO: maybe present alert
+                        if let messagePath = MessagePath(message: self.$message, coursePath: conversationPath.coursePath, conversationPath: conversationPath) {
+                            navigationController.path.append(messagePath)
+                        }
                     }
                 }
-            }.id(message.id)
+            }.id(message.value?.id)
             Spacer()
         }
             .padding(.horizontal, .l)
@@ -82,7 +86,8 @@ struct MessageCell: View {
                 isPressed = pressed
             })
             .sheet(isPresented: $showMessageActionSheet) {
-                MessageActionSheet(message: message, conversationPath: conversationPath)
+                MessageActionSheet(message: $message, conversationPath: conversationPath)
+                EmptyView()
                     .presentationDetents([.height(350), .large])
             }
     }
