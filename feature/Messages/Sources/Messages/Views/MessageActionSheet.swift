@@ -57,12 +57,12 @@ struct MessageActionSheet: View {
                 })
                 Divider()
                 Button(action: {
-                    print("edit todo")
+                    viewModel.presentError(userFacingError: UserFacingError(title: "TODO"))
                 }, label: {
                     ButtonContent(title: R.string.localizable.editMessage(), icon: "pencil")
                 })
                 Button(action: {
-                    print("delete todo")
+                    viewModel.presentError(userFacingError: UserFacingError(title: "TODO"))
                 }, label: {
                     ButtonContent(title: R.string.localizable.deleteMessage(), icon: "trash.fill")
                         .foregroundColor(.red)
@@ -73,6 +73,7 @@ struct MessageActionSheet: View {
         }
             .padding(.vertical, .xxl)
             .loadingIndicator(isLoading: $viewModel.isLoading)
+            .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
     }
 }
 
