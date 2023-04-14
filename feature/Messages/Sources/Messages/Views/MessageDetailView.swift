@@ -117,7 +117,6 @@ public struct MessageDetailView: View {
             .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
     }
 
-    // TODO: Create MessageDetailViewModel and extract logic there -> also move message there and make it available from all subviews -> replace reloadCompletion with it
     private func reloadMessage() async {
         viewModel.shouldScrollToId = "bottom"
         guard let messageId else { return }
