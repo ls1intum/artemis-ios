@@ -34,7 +34,6 @@ struct MessageCell: View {
 
     let conversationPath: ConversationPath?
     let showHeader: Bool
-    let reloadCompletion: (() async -> Void)?
 
     var body: some View {
         HStack(alignment: .top, spacing: .l) {
@@ -56,7 +55,7 @@ struct MessageCell: View {
                     }
                 }
                 ArtemisMarkdownView(string: content)
-                ReactionsView(viewModel: viewModel, message: $message, showEmojiAddButton: false, reloadCompletion: { })
+                ReactionsView(viewModel: viewModel, message: $message, showEmojiAddButton: false)
                 if let message = message.value as? Message,
                    let answerCount = message.answers?.count,
                    let conversationPath,

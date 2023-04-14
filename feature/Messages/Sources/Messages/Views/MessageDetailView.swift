@@ -61,7 +61,7 @@ public struct MessageDetailView: View {
 
                     ArtemisMarkdownView(string: message.content ?? "")
 
-                    ReactionsView(viewModel: viewModel, message: $message, reloadCompletion: { })
+                    ReactionsView(viewModel: viewModel, message: $message)
                 }
                 .padding(.horizontal, .l)
                 .contentShape(Rectangle())
@@ -152,7 +152,6 @@ private struct MessageCellWrapper: View {
         MessageCell(viewModel: viewModel,
                     message: answerMessageBinding,
                     conversationPath: nil,
-                    showHeader: showHeader,
-                    reloadCompletion: { })
+                    showHeader: showHeader)
     }
 }

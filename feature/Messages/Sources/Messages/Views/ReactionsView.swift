@@ -18,7 +18,6 @@ struct ReactionsView: View {
 
     @Binding var message: DataState<BaseMessage>
     let showEmojiAddButton: Bool
-    let reloadCompletion: (() async -> Void)?
 
     @State private var viewRerenderWorkaround = false
     let columns = [ GridItem(.adaptive(minimum: 45)) ]
@@ -39,20 +38,19 @@ struct ReactionsView: View {
         return reactions
     }
 
-    init(viewModel: ConversationViewModel, message: Binding<DataState<BaseMessage>>, showEmojiAddButton: Bool = true, reloadCompletion: (() async -> Void)?) {
+    init(viewModel: ConversationViewModel, message: Binding<DataState<BaseMessage>>, showEmojiAddButton: Bool = true) {
         self.viewModel = viewModel
         self._message = message
         self.showEmojiAddButton = showEmojiAddButton
-        self.reloadCompletion = reloadCompletion
     }
 
     var body: some View {
         LazyVGrid(columns: columns) {
             ForEach(mappedReaction.sorted(by: { $0.key < $1.key }), id: \.key) { map in
-                EmojiTextButton(viewModel: viewModel, pair: (map.key, map.value), message: $message, reloadCompletion: reloadCompletion)
+                EmojiTextButton(viewModel: viewModel, pair: (map.key, map.value), message: $message)
             }
             if !mappedReaction.isEmpty || showEmojiAddButton {
-                EmojiPickerButton(viewModel: viewModel, message: $message, reloadCompletion: reloadCompletion, viewRerenderWorkaround: $viewRerenderWorkaround)
+                EmojiPickerButton(viewModel: viewModel, message: $message, viewRerenderWorkaround: $viewRerenderWorkaround)
             }
         }
     }
@@ -64,7 +62,6 @@ private struct EmojiTextButton: View {
 
     let pair: (String, [Reaction])
     @Binding var message: DataState<BaseMessage>
-    let reloadCompletion: (() async -> Void)?
 
     var body: some View {
         Text("\(pair.0) \(pair.1.count)")
@@ -129,7 +126,6 @@ private struct EmojiPickerButton: View {
     @State var selectedEmoji: Emoji?
 
     @Binding var message: DataState<BaseMessage>
-    let reloadCompletion: (() async -> Void)?
     @Binding var viewRerenderWorkaround: Bool
 
     var body: some View {

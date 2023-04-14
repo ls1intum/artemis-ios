@@ -146,8 +146,7 @@ private struct MessageCellWrapper: View {
         MessageCell(viewModel: viewModel,
                     message: messageBinding,
                     conversationPath: conversationPath,
-                    showHeader: showHeader,
-                    reloadCompletion: nil)
+                    showHeader: showHeader)
     }
 }
 
