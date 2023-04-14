@@ -62,8 +62,7 @@ struct MessageCell: View {
                    let conversationPath,
                    answerCount > 0 {
                     Button(R.string.localizable.replyAction(answerCount)) {
-                        // TODO: maybe present alert
-                        if let messagePath = MessagePath(message: self.$message, coursePath: conversationPath.coursePath, conversationPath: conversationPath) {
+                        if let messagePath = MessagePath(message: self.$message, coursePath: conversationPath.coursePath, conversationPath: conversationPath, conversationViewModel: viewModel) {
                             navigationController.path.append(messagePath)
                         }
                     }
@@ -86,7 +85,7 @@ struct MessageCell: View {
                 isPressed = pressed
             })
             .sheet(isPresented: $showMessageActionSheet) {
-                MessageActionSheet(message: $message, conversationPath: conversationPath)
+                MessageActionSheet(viewModel: viewModel, message: $message, conversationPath: conversationPath)
                 EmptyView()
                     .presentationDetents([.height(350), .large])
             }

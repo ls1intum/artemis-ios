@@ -71,7 +71,7 @@ public struct MessageDetailView: View {
                     showMessageActionSheet = true
                 }
                 .sheet(isPresented: $showMessageActionSheet) {
-                    MessageActionSheet(message: $message, conversationPath: nil)
+                    MessageActionSheet(viewModel: viewModel, message: $message, conversationPath: nil)
                         .presentationDetents([.height(350), .large])
                 }
                 if let message = message as? Message {
@@ -131,7 +131,12 @@ private struct MessageCellWrapper: View {
 
     private var answerMessageBinding: Binding<DataState<BaseMessage>> {
         Binding(get: {
-            return .done(response: answerMessage)
+            if let day = answerMessage.creationDate?.startOfDay,
+               let messageIndex = viewModel.dailyMessages.value?[day]?.firstIndex(where: { $0.answers?.contains(where: { $0.id == answerMessage.id }) ?? false }),
+               let answerMessage = viewModel.dailyMessages.value?[day]?[messageIndex].answers?.first(where: { $0.id == answerMessage.id }) {
+                return .done(response: answerMessage)
+            }
+            return .loading
         }, set: {
             if  let day = answerMessage.creationDate?.startOfDay,
                 let messageIndex = viewModel.dailyMessages.value?[day]?.firstIndex(where: { $0.answers?.contains(where: { $0.id == answerMessage.id }) ?? false }),

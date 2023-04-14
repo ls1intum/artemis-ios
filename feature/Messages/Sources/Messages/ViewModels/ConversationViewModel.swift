@@ -97,6 +97,24 @@ public class ConversationViewModel: BaseViewModel {
         }
     }
 
+    func loadAnswerMessage(answerMessageId: Int64) async -> DataState<AnswerMessage> {
+        // TODO: add API to only load one single answer message
+        let result = await MessagesServiceFactory.shared.getMessages(for: courseId, and: conversationId, size: size)
+
+        switch result {
+        case .loading:
+            return .loading
+        case .failure(let error):
+            return .failure(error: error)
+        case .done(let response):
+            guard let message = response.first(where: { $0.answers?.contains(where: { $0.id == answerMessageId }) ?? false }),
+                  let answerMessage = message.answers?.first(where: { $0.id == answerMessageId }) else {
+                return .failure(error: UserFacingError(title: R.string.localizable.messageCouldNotBeLoadedError()))
+            }
+            return .done(response: answerMessage)
+        }
+    }
+
     func sendMessage(text: String) async -> NetworkResponse {
         guard let conversation = conversation.value else {
             let error = UserFacingError(title: "Conversation could not be loaded.")
@@ -174,7 +192,7 @@ public class ConversationViewModel: BaseViewModel {
         }
     }
 
-    func addReactionToAnswerMessage(for message: AnswerMessage, emojiId: String, reloadCompletion: (() async -> Void)?) async -> NetworkResponse {
+    func addReactionToAnswerMessage(for message: AnswerMessage, emojiId: String) async -> DataState<AnswerMessage> {
         isLoading = true
         let result: NetworkResponse
         if let reaction = message.getReactionFromMe(emojiId: emojiId) {
@@ -185,19 +203,24 @@ public class ConversationViewModel: BaseViewModel {
         switch result {
         case .notStarted, .loading:
             isLoading = false
+            return .loading
         case .success:
             shouldScrollToId = nil
-            await reloadCompletion?()
+            let newMessage = await loadAnswerMessage(answerMessageId: message.id)
             isLoading = false
+            return newMessage
         case .failure(let error):
             isLoading = false
             if let apiClientError = error as? APIClientError {
-                presentError(userFacingError: UserFacingError(error: apiClientError))
+                let userFacingError = UserFacingError(error: apiClientError)
+                presentError(userFacingError: userFacingError)
+                return .failure(error: userFacingError)
             } else {
-                presentError(userFacingError: UserFacingError(title: error.localizedDescription))
+                let userFacingError = UserFacingError(title: error.localizedDescription)
+                presentError(userFacingError: userFacingError)
+                return .failure(error: userFacingError)
             }
         }
-        return result
     }
 
     private func loadConversation() async {

@@ -17,6 +17,8 @@ struct MessageActionSheet: View {
     @EnvironmentObject var navigationController: NavigationController
     @Environment(\.dismiss) var dismiss
 
+    @ObservedObject var viewModel: ConversationViewModel
+
     @Binding var message: DataState<BaseMessage>
     let conversationPath: ConversationPath?
 
@@ -36,7 +38,7 @@ struct MessageActionSheet: View {
                     Divider()
                     Button(action: {
                         // TODO: maybe present alert
-                        if let messagePath = MessagePath(message: $message, coursePath: conversationPath.coursePath, conversationPath: conversationPath) {
+                        if let messagePath = MessagePath(message: $message, coursePath: conversationPath.coursePath, conversationPath: conversationPath, conversationViewModel: viewModel) {
                             dismiss()
                             navigationController.path.append(messagePath)
                         }

@@ -20,6 +20,7 @@ struct ReactionsView: View {
     let showEmojiAddButton: Bool
     let reloadCompletion: (() async -> Void)?
 
+    @State private var viewRerenderWorkaround = false
     let columns = [ GridItem(.adaptive(minimum: 45)) ]
 
     var mappedReaction: [String: [Reaction]] {
@@ -51,7 +52,7 @@ struct ReactionsView: View {
                 EmojiTextButton(viewModel: viewModel, pair: (map.key, map.value), message: $message, reloadCompletion: reloadCompletion)
             }
             if !mappedReaction.isEmpty || showEmojiAddButton {
-                EmojiPickerButton(viewModel: viewModel, message: $message, reloadCompletion: reloadCompletion)
+                EmojiPickerButton(viewModel: viewModel, message: $message, reloadCompletion: reloadCompletion, viewRerenderWorkaround: $viewRerenderWorkaround)
             }
         }
     }
@@ -96,7 +97,15 @@ private struct EmojiTextButton: View {
                                 self.message = .done(response: response)
                             }
                         } else if let answerMessage = message.value as? AnswerMessage {
-                            _ = await viewModel.addReactionToAnswerMessage(for: answerMessage, emojiId: emojiId, reloadCompletion: reloadCompletion)
+                            let result = await viewModel.addReactionToAnswerMessage(for: answerMessage, emojiId: emojiId)
+                            switch result {
+                            case .loading:
+                                self.message = .loading
+                            case .failure(let error):
+                                self.message = .failure(error: error)
+                            case .done(let response):
+                                self.message = .done(response: response)
+                            }
                         }
                     }
                 }
@@ -121,6 +130,7 @@ private struct EmojiPickerButton: View {
 
     @Binding var message: DataState<BaseMessage>
     let reloadCompletion: (() async -> Void)?
+    @Binding var viewRerenderWorkaround: Bool
 
     var body: some View {
         Button(action: { showEmojiPicker = true }, label: {
@@ -144,7 +154,6 @@ private struct EmojiPickerButton: View {
                 if let newEmoji,
                    let emojiId = Smile.alias(emoji: newEmoji.value) {
                     Task {
-                        var result: NetworkResponse?
                         if let message = message.value as? Message {
                             let result = await viewModel.addReactionToMessage(for: message, emojiId: emojiId)
                             switch result {
@@ -156,12 +165,18 @@ private struct EmojiPickerButton: View {
                                 self.message = .done(response: response)
                             }
                         } else if let answerMessage = message.value as? AnswerMessage {
-                            result = await viewModel.addReactionToAnswerMessage(for: answerMessage, emojiId: emojiId, reloadCompletion: reloadCompletion)
+                            let result = await viewModel.addReactionToAnswerMessage(for: answerMessage, emojiId: emojiId)
+                            switch result {
+                            case .loading:
+                                self.message = .loading
+                            case .failure(let error):
+                                self.message = .failure(error: error)
+                            case .done(let response):
+                                self.message = .done(response: response)
+                            }
                         }
-                        switch result {
-                        default:
-                            selectedEmoji = nil
-                        }
+                        viewRerenderWorkaround.toggle()
+                        selectedEmoji = nil
                     }
                 }
             }
