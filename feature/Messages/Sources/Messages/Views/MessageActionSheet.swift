@@ -11,6 +11,7 @@ import UserStore
 import EmojiPicker
 import Navigation
 import Common
+import Smile
 
 struct MessageActionSheet: View {
 
@@ -26,11 +27,11 @@ struct MessageActionSheet: View {
         HStack {
             VStack(alignment: .leading, spacing: .l) {
                 HStack(spacing: .m) {
-                    EmojiTextButton(emoji: "😂")
-                    EmojiTextButton(emoji: "👍")
-                    EmojiTextButton(emoji: "➕")
-                    EmojiTextButton(emoji: "🚀")
-                    EmojiPickerButton(message: $message)
+                    EmojiTextButton(viewModel: viewModel, message: $message, emoji: "😂")
+                    EmojiTextButton(viewModel: viewModel, message: $message, emoji: "👍")
+                    EmojiTextButton(viewModel: viewModel, message: $message, emoji: "➕")
+                    EmojiTextButton(viewModel: viewModel, message: $message, emoji: "🚀")
+                    EmojiPickerButton(viewModel: viewModel, message: $message)
                 }
                     .padding(.l)
                 if message.value is Message,
@@ -70,6 +71,7 @@ struct MessageActionSheet: View {
             Spacer()
         }
             .padding(.vertical, .xxl)
+            .loadingIndicator(isLoading: $viewModel.isLoading)
     }
 }
 
@@ -94,6 +96,12 @@ private struct ButtonContent: View {
 
 private struct EmojiTextButton: View {
 
+    @Environment(\.dismiss) var dismiss
+
+    @ObservedObject var viewModel: ConversationViewModel
+
+    @Binding var message: DataState<BaseMessage>
+
     let emoji: String
 
     var body: some View {
@@ -105,10 +113,42 @@ private struct EmojiTextButton: View {
             .background(
                 Capsule().fill(Color.Artemis.reactionCapsuleColor)
             )
+            .onTapGesture {
+                if let emojiId = Smile.alias(emoji: emoji) {
+                    Task {
+                        if let message = message.value as? Message {
+                            let result = await viewModel.addReactionToMessage(for: message, emojiId: emojiId)
+                            switch result {
+                            case .loading:
+                                self.message = .loading
+                            case .failure(let error):
+                                self.message = .failure(error: error)
+                            case .done(let response):
+                                self.message = .done(response: response)
+                            }
+                        } else if let answerMessage = message.value as? AnswerMessage {
+                            let result = await viewModel.addReactionToAnswerMessage(for: answerMessage, emojiId: emojiId)
+                            switch result {
+                            case .loading:
+                                self.message = .loading
+                            case .failure(let error):
+                                self.message = .failure(error: error)
+                            case .done(let response):
+                                self.message = .done(response: response)
+                            }
+                        }
+                        dismiss()
+                    }
+                }
+            }
     }
 }
 
 private struct EmojiPickerButton: View {
+
+    @Environment(\.dismiss) var dismiss
+
+    @ObservedObject var viewModel: ConversationViewModel
 
     @Binding var message: DataState<BaseMessage>
 
@@ -131,6 +171,36 @@ private struct EmojiPickerButton: View {
                     EmojiPickerView(selectedEmoji: $selectedEmoji, selectedColor: Color.Artemis.artemisBlue)
                         .navigationTitle(R.string.localizable.emojis())
                         .navigationBarTitleDisplayMode(.inline)
+                }
+            }
+            .onChange(of: selectedEmoji) { newEmoji in
+                if let newEmoji,
+                   let emojiId = Smile.alias(emoji: newEmoji.value) {
+                    Task {
+                        if let message = message.value as? Message {
+                            let result = await viewModel.addReactionToMessage(for: message, emojiId: emojiId)
+                            switch result {
+                            case .loading:
+                                self.message = .loading
+                            case .failure(let error):
+                                self.message = .failure(error: error)
+                            case .done(let response):
+                                self.message = .done(response: response)
+                            }
+                        } else if let answerMessage = message.value as? AnswerMessage {
+                            let result = await viewModel.addReactionToAnswerMessage(for: answerMessage, emojiId: emojiId)
+                            switch result {
+                            case .loading:
+                                self.message = .loading
+                            case .failure(let error):
+                                self.message = .failure(error: error)
+                            case .done(let response):
+                                self.message = .done(response: response)
+                            }
+                        }
+                        selectedEmoji = nil
+                        dismiss()
+                    }
                 }
             }
     }
