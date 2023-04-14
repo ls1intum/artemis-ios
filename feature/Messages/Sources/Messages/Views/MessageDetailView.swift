@@ -25,6 +25,8 @@ public struct MessageDetailView: View {
 
     private let messageId: Int64?
 
+    @State private var internalMessage: BaseMessage?
+
     public init(viewModel: ConversationViewModel,
                 message: Binding<DataState<BaseMessage>>) {
         self.viewModel = viewModel
@@ -36,8 +38,19 @@ public struct MessageDetailView: View {
                 messageId: Int64) {
         self.viewModel = viewModel
         self.messageId = messageId
-        // TODO: check what to do here
-        self._message = Binding(get: { .loading }, set: { print($0) })
+        self._message = Binding(get: { .loading }, set: { _ in return })
+        self.internalMessage = nil
+
+        self._message = Binding(get: { [self] in
+            if let internalMessage = self.internalMessage {
+                return .done(response: internalMessage)
+            }
+            return .loading
+        }, set: { [self] in
+            if let message = $0.value as? Message {
+                self.internalMessage = message
+            }
+        })
     }
 
     public var body: some View {

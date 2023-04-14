@@ -61,9 +61,10 @@ struct MessageCell: View {
                    let conversationPath,
                    answerCount > 0 {
                     Button(R.string.localizable.replyAction(answerCount)) {
-                        // TODO: maybe present alert
                         if let messagePath = MessagePath(message: self.$message, coursePath: conversationPath.coursePath, conversationPath: conversationPath, conversationViewModel: viewModel) {
                             navigationController.path.append(messagePath)
+                        } else {
+                            viewModel.presentError(userFacingError: UserFacingError(title: "Detail View cant be opened. Please try again later."))
                         }
                     }
                 }

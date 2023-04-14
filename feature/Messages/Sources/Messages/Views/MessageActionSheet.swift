@@ -38,10 +38,11 @@ struct MessageActionSheet: View {
                    let conversationPath {
                     Divider()
                     Button(action: {
-                        // TODO: maybe present alert
                         if let messagePath = MessagePath(message: $message, coursePath: conversationPath.coursePath, conversationPath: conversationPath, conversationViewModel: viewModel) {
                             dismiss()
                             navigationController.path.append(messagePath)
+                        } else {
+                            viewModel.presentError(userFacingError: UserFacingError(title: "Detail View cant be opened. Please try again later."))
                         }
                     }, label: {
                         ButtonContent(title: R.string.localizable.replyInThread(), icon: "text.bubble.fill")
