@@ -77,19 +77,29 @@ public struct MessageDetailView: View {
                 }
                 if let message = message as? Message {
                     Divider()
-                    ScrollView {
-                        VStack {
-                            let sortedArray = (message.answers ?? []).sorted(by: { $0.creationDate ?? .tomorrow < $1.creationDate ?? .yesterday })
-                            ForEach(Array(sortedArray.enumerated()), id: \.1) { index, answerMessage in
-                                MessageCellWrapper(viewModel: viewModel,
-                                                   answerMessage: answerMessage,
-                                                   showHeader: (index == 0 ? true : shouldShowHeader(message: answerMessage, previousMessage: sortedArray[index - 1])))
+                    ScrollViewReader { value in
+                        ScrollView {
+                            VStack {
+                                let sortedArray = (message.answers ?? []).sorted(by: { $0.creationDate ?? .tomorrow < $1.creationDate ?? .yesterday })
+                                ForEach(Array(sortedArray.enumerated()), id: \.1) { index, answerMessage in
+                                    MessageCellWrapper(viewModel: viewModel,
+                                                       answerMessage: answerMessage,
+                                                       showHeader: (index == 0 ? true : shouldShowHeader(message: answerMessage, previousMessage: sortedArray[index - 1])))
+                                }
+                                Spacer()
+                                    .id("bottom")
+                            }.padding(.horizontal, .l)
+                        }
+                        .onAppear {
+                            value.scrollTo("bottom", anchor: .bottom)
+                        }
+                        .onChange(of: message.answers) { _ in
+                            withAnimation {
+                                if let id = viewModel.shouldScrollToId {
+                                    value.scrollTo(id, anchor: .bottom)
+                                }
                             }
-                            .onChange(of: message.answers) {
-                                print($0?.count)
-                            }
-                            Spacer()
-                        }.padding(.horizontal, .l)
+                        }
                     }
                 }
                 Spacer()
@@ -109,6 +119,7 @@ public struct MessageDetailView: View {
 
     // TODO: Create MessageDetailViewModel and extract logic there -> also move message there and make it available from all subviews -> replace reloadCompletion with it
     private func reloadMessage() async {
+        viewModel.shouldScrollToId = "bottom"
         guard let messageId else { return }
         let result = await viewModel.loadMessage(messageId: messageId)
         switch result {
