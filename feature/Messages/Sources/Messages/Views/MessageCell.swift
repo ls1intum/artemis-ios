@@ -86,7 +86,6 @@ struct MessageCell: View {
             })
             .sheet(isPresented: $showMessageActionSheet) {
                 MessageActionSheet(viewModel: viewModel, message: $message, conversationPath: conversationPath)
-                EmptyView()
                     .presentationDetents([.height(350), .large])
             }
     }

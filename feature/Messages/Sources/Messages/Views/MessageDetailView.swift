@@ -161,13 +161,16 @@ private struct MessageCellWrapper: View {
                 }
             }
             return .loading
-        }, set: {
-            if  let day = answerMessage.creationDate?.startOfDay,
-                let messageIndex = viewModel.dailyMessages.value?[day]?.firstIndex(where: { $0.answers?.contains(where: { $0.id == answerMessage.id }) ?? false }),
-                let answerMessageIndex = viewModel.dailyMessages.value?[day]?[messageIndex].answers?.firstIndex(where: { $0.id == answerMessage.id }),
-                let newAnswerMessage = $0.value as? AnswerMessage {
-
-                viewModel.dailyMessages.value?[day]?[messageIndex].answers?[answerMessageIndex] = newAnswerMessage
+        }, set: { newValue in
+            if let keys = viewModel.dailyMessages.value?.keys {
+                keys.forEach { key in
+                    if let messageIndex = viewModel.dailyMessages.value?[key]?.firstIndex(where: { $0.answers?.contains(where: { $0.id == answerMessage.id }) ?? false }),
+                       let answerMessageIndex = viewModel.dailyMessages.value?[key]?[messageIndex].answers?.firstIndex(where: { $0.id == answerMessage.id }),
+                       let newAnswerMessage = newValue.value as? AnswerMessage {
+                        viewModel.dailyMessages.value?[key]?[messageIndex].answers?[answerMessageIndex] = newAnswerMessage
+                        return
+                    }
+                }
             }
         })
     }
