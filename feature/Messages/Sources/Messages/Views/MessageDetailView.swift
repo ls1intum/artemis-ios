@@ -56,42 +56,43 @@ public struct MessageDetailView: View {
     public var body: some View {
         DataStateView(data: $message, retryHandler: { await reloadMessage() }) { message in
             VStack(alignment: .leading) {
-                Group {
-                    HStack(alignment: .top, spacing: .l) {
-                        Image(systemName: "person")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 30, height: 30)
-                            .padding(.top, .s)
-                        VStack(alignment: .leading, spacing: .m) {
-                            Text(message.author?.name ?? "")
-                                .bold()
-                            if let creationDate = message.creationDate {
-                                Text(creationDate, formatter: DateFormatter.timeOnly)
-                                    .font(.caption)
+                ScrollViewReader { value in
+                    ScrollView {
+                        VStack(alignment: .leading) {
+                            HStack(alignment: .top, spacing: .l) {
+                                Image(systemName: "person")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 30, height: 30)
+                                    .padding(.top, .s)
+                                VStack(alignment: .leading, spacing: .m) {
+                                    Text(message.author?.name ?? "")
+                                        .bold()
+                                    if let creationDate = message.creationDate {
+                                        Text(creationDate, formatter: DateFormatter.timeOnly)
+                                            .font(.caption)
+                                    }
+                                }
+                                Spacer()
                             }
+
+                            ArtemisMarkdownView(string: message.content ?? "")
+
+                            ReactionsView(viewModel: viewModel, message: $message)
                         }
-                    }
-
-                    ArtemisMarkdownView(string: message.content ?? "")
-
-                    ReactionsView(viewModel: viewModel, message: $message)
-                }
-                .padding(.horizontal, .l)
-                .contentShape(Rectangle())
-                .onLongPressGesture(maximumDistance: 30) {
-                    let impactMed = UIImpactFeedbackGenerator(style: .heavy)
-                    impactMed.impactOccurred()
-                    showMessageActionSheet = true
-                }
-                .sheet(isPresented: $showMessageActionSheet) {
-                    MessageActionSheet(viewModel: viewModel, message: $message, conversationPath: nil)
-                        .presentationDetents([.height(350), .large])
-                }
-                if let message = message as? Message {
-                    Divider()
-                    ScrollViewReader { value in
-                        ScrollView {
+                        .padding(.horizontal, .l)
+                        .contentShape(Rectangle())
+                        .onLongPressGesture(maximumDistance: 30) {
+                            let impactMed = UIImpactFeedbackGenerator(style: .heavy)
+                            impactMed.impactOccurred()
+                            showMessageActionSheet = true
+                        }
+                        .sheet(isPresented: $showMessageActionSheet) {
+                            MessageActionSheet(viewModel: viewModel, message: $message, conversationPath: nil)
+                                .presentationDetents([.height(350), .large])
+                        }
+                        if let message = message as? Message {
+                            Divider()
                             VStack {
                                 let sortedArray = (message.answers ?? []).sorted(by: { $0.creationDate ?? .tomorrow < $1.creationDate ?? .yesterday })
                                 ForEach(Array(sortedArray.enumerated()), id: \.1) { index, answerMessage in
@@ -101,17 +102,17 @@ public struct MessageDetailView: View {
                                 }
                                 Spacer()
                                     .id("bottom")
+                                    .onAppear {
+                                        value.scrollTo("bottom", anchor: .bottom)
+                                    }
+                                    .onChange(of: message.answers) { _ in
+                                        withAnimation {
+                                            if let id = viewModel.shouldScrollToId {
+                                                value.scrollTo(id, anchor: .bottom)
+                                            }
+                                        }
+                                    }
                             }.padding(.horizontal, .l)
-                        }
-                        .onAppear {
-                            value.scrollTo("bottom", anchor: .bottom)
-                        }
-                        .onChange(of: message.answers) { _ in
-                            withAnimation {
-                                if let id = viewModel.shouldScrollToId {
-                                    value.scrollTo(id, anchor: .bottom)
-                                }
-                            }
                         }
                     }
                 }
@@ -120,8 +121,9 @@ public struct MessageDetailView: View {
                    let message = message as? Message {
                     SendMessageView(viewModel: viewModel, sendMessageType: .answerMessage(message, { await reloadMessage() }))
                 }
-            }.navigationTitle(R.string.localizable.thread())
+            }
         }
+            .navigationTitle(R.string.localizable.thread())
             .task {
                 if message.value == nil {
                     await reloadMessage()
