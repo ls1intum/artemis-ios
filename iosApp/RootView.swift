@@ -35,9 +35,8 @@ struct RootView: View {
                             }
                             .navigationDestination(for: MessagePath.self) { messagePath in
                                 if let message = messagePath.message,
-                                   let conversation = messagePath.conversationPath.conversation {
-                                    MessageDetailView(viewModel: ConversationViewModel(courseId: messagePath.coursePath.id,
-                                                                                       conversation: conversation),
+                                   let conversationViewModel = messagePath.conversationViewModel as? ConversationViewModel {
+                                    MessageDetailView(viewModel: conversationViewModel,
                                                       message: message)
                                 } else {
                                     MessageDetailView(viewModel: ConversationViewModel(courseId: messagePath.coursePath.id,

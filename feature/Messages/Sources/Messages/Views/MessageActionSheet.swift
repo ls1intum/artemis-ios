@@ -10,50 +10,59 @@ import SharedModels
 import UserStore
 import EmojiPicker
 import Navigation
+import Common
+import Smile
 
 struct MessageActionSheet: View {
 
     @EnvironmentObject var navigationController: NavigationController
     @Environment(\.dismiss) var dismiss
 
-    let message: Message
+    @ObservedObject var viewModel: ConversationViewModel
+
+    @Binding var message: DataState<BaseMessage>
     let conversationPath: ConversationPath?
 
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: .l) {
                 HStack(spacing: .m) {
-                    EmojiTextButton(emoji: "😂")
-                    EmojiTextButton(emoji: "👍")
-                    EmojiTextButton(emoji: "➕")
-                    EmojiTextButton(emoji: "🚀")
-                    EmojiPickerButton(message: message)
+                    EmojiTextButton(viewModel: viewModel, message: $message, emoji: "😂")
+                    EmojiTextButton(viewModel: viewModel, message: $message, emoji: "👍")
+                    EmojiTextButton(viewModel: viewModel, message: $message, emoji: "➕")
+                    EmojiTextButton(viewModel: viewModel, message: $message, emoji: "🚀")
+                    EmojiPickerButton(viewModel: viewModel, message: $message)
                 }
                     .padding(.l)
-                if let conversationPath {
+                if message.value is Message,
+                   let conversationPath {
                     Divider()
                     Button(action: {
-                        dismiss()
-                        navigationController.path.append(MessagePath(message: message, coursePath: conversationPath.coursePath, conversationPath: conversationPath))
+                        if let messagePath = MessagePath(message: $message, coursePath: conversationPath.coursePath, conversationPath: conversationPath, conversationViewModel: viewModel) {
+                            dismiss()
+                            navigationController.path.append(messagePath)
+                        } else {
+                            viewModel.presentError(userFacingError: UserFacingError(title: R.string.localizable.detailViewCantBeOpened()))
+                        }
                     }, label: {
                         ButtonContent(title: R.string.localizable.replyInThread(), icon: "text.bubble.fill")
                     })
                 }
                 Divider()
                 Button(action: {
-                    UIPasteboard.general.string = message.content
+                    UIPasteboard.general.string = message.value?.content
                     dismiss()
                 }, label: {
                     ButtonContent(title: R.string.localizable.copyText(), icon: "clipboard.fill")
                 })
                 Divider()
                 Button(action: {
-                    print("edit todo")
+                    viewModel.presentError(userFacingError: UserFacingError(title: "TODO"))
                 }, label: {
                     ButtonContent(title: R.string.localizable.editMessage(), icon: "pencil")
                 })
                 Button(action: {
-                    print("delete todo")
+                    viewModel.presentError(userFacingError: UserFacingError(title: "TODO"))
                 }, label: {
                     ButtonContent(title: R.string.localizable.deleteMessage(), icon: "trash.fill")
                         .foregroundColor(.red)
@@ -63,6 +72,8 @@ struct MessageActionSheet: View {
             Spacer()
         }
             .padding(.vertical, .xxl)
+            .loadingIndicator(isLoading: $viewModel.isLoading)
+            .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
     }
 }
 
@@ -87,6 +98,12 @@ private struct ButtonContent: View {
 
 private struct EmojiTextButton: View {
 
+    @Environment(\.dismiss) var dismiss
+
+    @ObservedObject var viewModel: ConversationViewModel
+
+    @Binding var message: DataState<BaseMessage>
+
     let emoji: String
 
     var body: some View {
@@ -98,15 +115,47 @@ private struct EmojiTextButton: View {
             .background(
                 Capsule().fill(Color.Artemis.reactionCapsuleColor)
             )
+            .onTapGesture {
+                if let emojiId = Smile.alias(emoji: emoji) {
+                    Task {
+                        if let message = message.value as? Message {
+                            let result = await viewModel.addReactionToMessage(for: message, emojiId: emojiId)
+                            switch result {
+                            case .loading:
+                                self.message = .loading
+                            case .failure(let error):
+                                self.message = .failure(error: error)
+                            case .done(let response):
+                                self.message = .done(response: response)
+                            }
+                        } else if let answerMessage = message.value as? AnswerMessage {
+                            let result = await viewModel.addReactionToAnswerMessage(for: answerMessage, emojiId: emojiId)
+                            switch result {
+                            case .loading:
+                                self.message = .loading
+                            case .failure(let error):
+                                self.message = .failure(error: error)
+                            case .done(let response):
+                                self.message = .done(response: response)
+                            }
+                        }
+                        dismiss()
+                    }
+                }
+            }
     }
 }
 
 private struct EmojiPickerButton: View {
 
+    @Environment(\.dismiss) var dismiss
+
+    @ObservedObject var viewModel: ConversationViewModel
+
+    @Binding var message: DataState<BaseMessage>
+
     @State private var showEmojiPicker = false
     @State var selectedEmoji: Emoji?
-
-    let message: Message
 
     var body: some View {
         Button(action: { showEmojiPicker = true }, label: {
@@ -124,6 +173,36 @@ private struct EmojiPickerButton: View {
                     EmojiPickerView(selectedEmoji: $selectedEmoji, selectedColor: Color.Artemis.artemisBlue)
                         .navigationTitle(R.string.localizable.emojis())
                         .navigationBarTitleDisplayMode(.inline)
+                }
+            }
+            .onChange(of: selectedEmoji) { newEmoji in
+                if let newEmoji,
+                   let emojiId = Smile.alias(emoji: newEmoji.value) {
+                    Task {
+                        if let message = message.value as? Message {
+                            let result = await viewModel.addReactionToMessage(for: message, emojiId: emojiId)
+                            switch result {
+                            case .loading:
+                                self.message = .loading
+                            case .failure(let error):
+                                self.message = .failure(error: error)
+                            case .done(let response):
+                                self.message = .done(response: response)
+                            }
+                        } else if let answerMessage = message.value as? AnswerMessage {
+                            let result = await viewModel.addReactionToAnswerMessage(for: answerMessage, emojiId: emojiId)
+                            switch result {
+                            case .loading:
+                                self.message = .loading
+                            case .failure(let error):
+                                self.message = .failure(error: error)
+                            case .done(let response):
+                                self.message = .done(response: response)
+                            }
+                        }
+                        selectedEmoji = nil
+                        dismiss()
+                    }
                 }
             }
     }

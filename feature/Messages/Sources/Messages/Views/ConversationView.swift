@@ -9,6 +9,7 @@ import SwiftUI
 import SharedModels
 import DesignLibrary
 import Navigation
+import Common
 import ArtemisMarkdown
 
 // swiftlint:disable:next identifier_name
@@ -26,10 +27,20 @@ public struct ConversationView: View {
         _viewModel = StateObject(wrappedValue: ConversationViewModel(courseId: courseId, conversationId: conversationId))
     }
 
+    private var conversationPath: ConversationPath {
+        if let conversation = viewModel.conversation.value {
+            return ConversationPath(conversation: conversation, coursePath: CoursePath(id: viewModel.courseId))
+        }
+        return ConversationPath(id: viewModel.conversationId, coursePath: CoursePath(id: viewModel.courseId))
+    }
+
     public var body: some View {
         VStack {
             ScrollViewReader { value in
                 ScrollView {
+                    PullToRefresh(coordinateSpaceName: "pullToRefresh") {
+                        await viewModel.loadFurtherMessages()
+                    }
                     VStack(alignment: .leading) {
                         DataStateView(data: $viewModel.dailyMessages,
                                       retryHandler: { await viewModel.loadMessages() }) { dailyMessages in
@@ -39,42 +50,46 @@ public struct ConversationView: View {
                                     .padding(.horizontal, .l)
                             } else {
                                 ForEach(dailyMessages.sorted(by: { $0.key < $1.key }), id: \.key) { dailyMessage in
-                                    // TODO: load older messages when scrolled to top
-                                    if let conversation = viewModel.conversation.value {
-                                        ConversationDaySection(day: dailyMessage.key,
-                                                               messages: dailyMessage.value,
-                                                               conversationPath: ConversationPath(conversation: conversation,
-                                                                                                  coursePath: CoursePath(id: viewModel.courseId)))
-                                    } else {
-                                        ConversationDaySection(day: dailyMessage.key,
-                                                               messages: dailyMessage.value,
-                                                               conversationPath: ConversationPath(id: viewModel.conversationId,
-                                                                                                  coursePath: CoursePath(id: viewModel.courseId)))
-                                    }
+                                    ConversationDaySection(viewModel: viewModel,
+                                                           day: dailyMessage.key,
+                                                           messages: dailyMessage.value,
+                                                           conversationPath: conversationPath)
                                 }
                                 Spacer()
+                                    .id("bottom")
                             }
                         }
                     }
                 }
-                    .onChange(of: viewModel.dailyMessages.value) { dailyMessages in
-                        if let dailyMessages,
-                           let lastKey = dailyMessages.keys.max(),
-                           let lastMessage = dailyMessages[lastKey]?.last {
-                            value.scrollTo(lastMessage.id, anchor: .center)
+                    .coordinateSpace(name: "pullToRefresh")
+                    .onChange(of: viewModel.dailyMessages.value) { _ in
+                        // TODO: does not work correctly when loadFurtherMessages is called -> is called to early -> investigate
+                        if let id = viewModel.shouldScrollToId {
+                            withAnimation {
+                                value.scrollTo(id, anchor: .bottom)
+                            }
                         }
                     }
             }
-            SendMessageView(viewModel: viewModel)
+            if !((viewModel.conversation.value?.baseConversation as? Channel)?.isArchived ?? false) {
+                SendMessageView(viewModel: viewModel, sendMessageType: .message)
+            }
         }
             .navigationTitle(viewModel.conversation.value?.baseConversation.conversationName ?? R.string.localizable.loading())
             .task {
-                await viewModel.loadMessages()
+                viewModel.shouldScrollToId = "bottom"
+                if viewModel.dailyMessages.value == nil {
+                    await viewModel.loadMessages()
+                }
             }
+            .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
     }
 }
 
 private struct ConversationDaySection: View {
+
+    @ObservedObject var viewModel: ConversationViewModel
+
     let day: Date
     let messages: [Message]
     let conversationPath: ConversationPath
@@ -88,9 +103,11 @@ private struct ConversationDaySection: View {
             Divider()
                 .padding(.horizontal, .l)
             ForEach(Array(messages.enumerated()), id: \.1.id) { index, message in
-                MessageCell(message: message,
-                            conversationPath: conversationPath,
-                            showHeader: (index == 0 ? true : shouldShowHeader(message: message, previousMessage: messages[index - 1])))
+                MessageCellWrapper(viewModel: viewModel,
+                                   day: day,
+                                   message: message,
+                                   conversationPath: conversationPath,
+                                   showHeader: (index == 0 ? true : shouldShowHeader(message: message, previousMessage: messages[index - 1])))
             }
         }
     }
@@ -102,70 +119,71 @@ private struct ConversationDaySection: View {
     }
 }
 
-private struct MessageCell: View {
+private struct MessageCellWrapper: View {
+    @ObservedObject var viewModel: ConversationViewModel
 
-    @EnvironmentObject var navigationController: NavigationController
-
-    @State private var showMessageActionSheet = false
-    @State private var isPressed = false
-
+    let day: Date
     let message: Message
     let conversationPath: ConversationPath
     let showHeader: Bool
 
+    private var messageBinding: Binding<DataState<BaseMessage>> {
+        Binding(get: {
+            if  let messageIndex = viewModel.dailyMessages.value?[day]?.firstIndex(where: { $0.id == message.id }),
+                let message = viewModel.dailyMessages.value?[day]?[messageIndex] {
+                return .done(response: message)
+            }
+            return .loading
+        }, set: {
+            if  let messageIndex = viewModel.dailyMessages.value?[day]?.firstIndex(where: { $0.id == message.id }),
+                let newMessage = $0.value as? Message {
+                viewModel.dailyMessages.value?[day]?[messageIndex] = newMessage
+            }
+        })
+    }
+
     var body: some View {
-        HStack(alignment: .top, spacing: .l) {
-            Image(systemName: "person")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 30, height: 30)
-                .padding(.top, .s)
-                .opacity(showHeader ? 1 : 0)
-            VStack(alignment: .leading, spacing: .m) {
-                if showHeader {
-                    HStack(alignment: .bottom, spacing: .m) {
-                        Text(message.author?.name ?? "")
-                            .bold()
-                        if let creationDate = message.creationDate {
-                            Text(creationDate, formatter: DateFormatter.timeOnly)
-                                .font(.caption)
-                        }
-                    }
-                }
-                ArtemisMarkdownView(string: message.content ?? "")
-                ReactionsView(message: message, showEmojiAddButton: false)
-                if let answerCount = message.answers?.count,
-                   answerCount > 0 {
-                    Button(R.string.localizable.replyAction(answerCount)) {
-                        navigationController.path.append(MessagePath(message: message, coursePath: conversationPath.coursePath, conversationPath: conversationPath))
-                    }
-                }
-            }.id(message.id)
-            Spacer()
-        }
-            .padding(.horizontal, .l)
-            .contentShape(Rectangle())
-            .background(isPressed ? Color.Artemis.messsageCellPressed : Color.clear)
-            .onTapGesture {
-                print("This somehow fixes scrolling...")
-            }
-            .onLongPressGesture(minimumDuration: 0.1, maximumDistance: 30, perform: {
-                let impactMed = UIImpactFeedbackGenerator(style: .heavy)
-                impactMed.impactOccurred()
-                showMessageActionSheet = true
-                isPressed = false
-            }, onPressingChanged: { pressed in
-                isPressed = pressed
-            })
-            .sheet(isPresented: $showMessageActionSheet) {
-                MessageActionSheet(message: message, conversationPath: conversationPath)
-                    .presentationDetents([.height(350), .large])
-            }
+        MessageCell(viewModel: viewModel,
+                    message: messageBinding,
+                    conversationPath: conversationPath,
+                    showHeader: showHeader)
     }
 }
 
 extension Date: Identifiable {
     public var id: Date {
         return self
+    }
+}
+
+private struct PullToRefresh: View {
+
+    var coordinateSpaceName: String
+    var onRefresh: () async -> Void
+
+    @State var needRefresh = false
+
+    var body: some View {
+        GeometryReader { geo in
+            if geo.frame(in: .named(coordinateSpaceName)).midY > 50 {
+                Spacer()
+                    .onAppear {
+                        needRefresh = true
+                        Task {
+                            await onRefresh()
+                            needRefresh = false
+                        }
+                    }
+            }
+            HStack {
+                Spacer()
+                if needRefresh {
+                    ProgressView()
+                } else {
+                    EmptyView()
+                }
+                Spacer()
+            }
+        }.padding(.top, -50)
     }
 }

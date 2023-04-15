@@ -9,6 +9,15 @@ struct ExerciseListView: View {
 
     @ObservedObject var viewModel: CourseViewModel
 
+    @Binding var searchText: String
+
+    private var searchResults: [Exercise] {
+        if searchText.isEmpty {
+            return []
+        }
+        return (viewModel.course.value?.exercises ?? []).filter { ($0.baseExercise.title ?? "").lowercased().contains(searchText.lowercased()) }
+    }
+
     private var weeklyExercises: [WeeklyExercise] {
         var groupedDates = [WeeklyExerciseId: [Exercise]]()
 
@@ -37,10 +46,24 @@ struct ExerciseListView: View {
     var body: some View {
         ScrollViewReader { value in
             List {
-                ForEach(weeklyExercises) { weeklyExercise in
-                    if let course = viewModel.course.value {
-                        ExerciseListSection(course: course, weeklyExercise: weeklyExercise)
-                            .id(weeklyExercise.id)
+                if searchText.isEmpty {
+                    ForEach(weeklyExercises) { weeklyExercise in
+                        if let course = viewModel.course.value {
+                            ExerciseListSection(course: course, weeklyExercise: weeklyExercise)
+                                .id(weeklyExercise.id)
+                        }
+                    }
+                } else {
+                    if searchResults.isEmpty {
+                        Text("There is no result for your search.")
+                            .padding(.l)
+                            .listRowSeparator(.hidden)
+                    } else {
+                        ForEach(searchResults) { exercise in
+                            if let course = viewModel.course.value {
+                                ExerciseListCell(course: course, exercise: exercise)
+                            }
+                        }
                     }
                 }
             }
@@ -77,12 +100,14 @@ struct ExerciseListSection: View {
     var body: some View {
         DisclosureGroup("\(weeklyExercise.id.description) (Exercises: \(weeklyExercise.exercises.count))",
                         isExpanded: $isExpanded) {
-            VStack(spacing: .m) {
+            LazyVStack(spacing: .m) {
                 ForEach(weeklyExercise.exercises) { exercise in
                     ExerciseListCell(course: course, exercise: exercise)
                 }
-            }.listRowInsets(EdgeInsets(top: .m, leading: 0, bottom: .m, trailing: .l))
-        }.listRowSeparator(.hidden)
+            }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: .l))
+        }
+            .listRowSeparator(.hidden)
+            .listRowInsets(EdgeInsets(top: .m, leading: .l, bottom: .m, trailing: .l))
     }
 }
 

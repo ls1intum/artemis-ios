@@ -8,24 +8,27 @@
 import Foundation
 import Common
 import SharedModels
+import APIClient
 
 @MainActor
-class MessagesTabViewModel: ObservableObject {
+class MessagesTabViewModel: BaseViewModel {
 
     @Published var allConversations: DataState<[Conversation]> = .loading
+
+    @Published var favoriteConversations: DataState<[Conversation]> = .loading
+
+    @Published var hiddenConversations: DataState<[Conversation]> = .loading
 
     @Published var channels: DataState<[Channel]> = .loading
     @Published var groupChats: DataState<[GroupChat]> = .loading
     @Published var oneToOneChats: DataState<[OneToOneChat]> = .loading
 
-    @Published var hiddenChannels: DataState<[Channel]> = .loading
-    @Published var hiddenGroupChats: DataState<[GroupChat]> = .loading
-    @Published var hiddenOneToOneChats: DataState<[OneToOneChat]> = .loading
-
     let courseId: Int
 
     init(courseId: Int) {
         self.courseId = courseId
+
+        super.init()
     }
 
     func loadConversations() async {
@@ -34,28 +37,71 @@ class MessagesTabViewModel: ObservableObject {
 
         switch result {
         case .loading:
+            favoriteConversations = .loading
+
+            hiddenConversations = .loading
+
             channels = .loading
             groupChats = .loading
             oneToOneChats = .loading
-            hiddenChannels = .loading
-            hiddenGroupChats = .loading
-            hiddenOneToOneChats = .loading
         case .failure(let error):
-            hiddenChannels = .failure(error: error)
-            hiddenGroupChats = .failure(error: error)
-            hiddenOneToOneChats = .failure(error: error)
+            favoriteConversations = .failure(error: error)
+
+            hiddenConversations = .failure(error: error)
+
+            channels = .failure(error: error)
+            groupChats = .failure(error: error)
+            oneToOneChats = .failure(error: error)
         case .done(let response):
-            let hiddenConversations = response.filter { $0.baseConversation.isHidden ?? false }
+            hiddenConversations = .done(response: response.filter { $0.baseConversation.isHidden ?? false })
+
             let notHiddenConversations = response.filter { !($0.baseConversation.isHidden ?? false) }
 
-            channels = .done(response: notHiddenConversations.compactMap({ $0.baseConversation as? Channel }))
-            hiddenChannels = .done(response: hiddenConversations.compactMap({ $0.baseConversation as? Channel }))
+            favoriteConversations = .done(response: notHiddenConversations.filter { $0.baseConversation.isFavorite ?? false })
 
-            groupChats = .done(response: notHiddenConversations.compactMap({ $0.baseConversation as? GroupChat }))
-            hiddenGroupChats = .done(response: hiddenConversations.compactMap({ $0.baseConversation as? GroupChat }))
+            let notHiddenNotFavoriteConversations = notHiddenConversations.filter { !($0.baseConversation.isFavorite ?? false) }
 
-            oneToOneChats = .done(response: notHiddenConversations.compactMap({ $0.baseConversation as? OneToOneChat }))
-            hiddenOneToOneChats = .done(response: hiddenConversations.compactMap({ $0.baseConversation as? OneToOneChat }))
+            channels = .done(response: notHiddenNotFavoriteConversations.compactMap({ $0.baseConversation as? Channel }))
+            groupChats = .done(response: notHiddenNotFavoriteConversations.compactMap({ $0.baseConversation as? GroupChat }))
+            oneToOneChats = .done(response: notHiddenNotFavoriteConversations.compactMap({ $0.baseConversation as? OneToOneChat }))
+        }
+    }
+
+    func hideUnhideConversation(conversationId: Int64, isHidden: Bool) async {
+        isLoading = true
+        let result = await MessagesServiceFactory.shared.hideUnhideConversation(for: courseId, and: conversationId, isHidden: isHidden)
+        switch result {
+        case .notStarted, .loading:
+            isLoading = false
+        case .success:
+            await loadConversations()
+            isLoading = false
+        case .failure(let error):
+            isLoading = false
+            if let apiClientError = error as? APIClientError {
+                presentError(userFacingError: UserFacingError(error: apiClientError))
+            } else {
+                presentError(userFacingError: UserFacingError(title: error.localizedDescription))
+            }
+        }
+    }
+
+    func setIsFavoriteConversation(conversationId: Int64, isFavorite: Bool) async {
+        isLoading = true
+        let result = await MessagesServiceFactory.shared.setIsFavoriteConversation(for: courseId, and: conversationId, isFavorite: isFavorite)
+        switch result {
+        case .notStarted, .loading:
+            isLoading = false
+        case .success:
+            await loadConversations()
+            isLoading = false
+        case .failure(let error):
+            isLoading = false
+            if let apiClientError = error as? APIClientError {
+                presentError(userFacingError: UserFacingError(error: apiClientError))
+            } else {
+                presentError(userFacingError: UserFacingError(title: error.localizedDescription))
+            }
         }
     }
 }

@@ -98,11 +98,27 @@ public enum Conversation: Codable, Identifiable {
         case .unknown: self = .unknown(conversation: try UnknownConversation(from: decoder))
         }
     }
+
+    public func encode(to encoder: Encoder) throws {
+        switch self {
+        case .channel(let conversation):
+            try conversation.encode(to: encoder)
+        case .groupChat(let conversation):
+            try conversation.encode(to: encoder)
+        case .oneToOneChat(let conversation):
+            try conversation.encode(to: encoder)
+        case .unknown(let conversation):
+            try conversation.encode(to: encoder)
+        }
+    }
 }
 
 extension Conversation: Equatable, Hashable {
     public static func == (lhs: Conversation, rhs: Conversation) -> Bool {
-        lhs.id == rhs.id
+        lhs.id == rhs.id &&
+        lhs.baseConversation.unreadMessagesCount == rhs.baseConversation.unreadMessagesCount &&
+        lhs.baseConversation.isFavorite == rhs.baseConversation.isFavorite &&
+        lhs.baseConversation.isHidden == rhs.baseConversation.isHidden
     }
 
     public func hash(into hasher: inout Hasher) {

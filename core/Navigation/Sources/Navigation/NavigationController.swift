@@ -107,21 +107,33 @@ public struct ConversationPath: Hashable {
 
 public struct MessagePath: Hashable {
     public let id: Int64
-    public let message: Message?
+    public let message: Binding<DataState<BaseMessage>>?
     public let coursePath: CoursePath
     public let conversationPath: ConversationPath
+    public let conversationViewModel: Any?
 
     init(id: Int64, coursePath: CoursePath, conversationPath: ConversationPath) {
         self.id = id
         self.message = nil
         self.coursePath = coursePath
         self.conversationPath = conversationPath
+        self.conversationViewModel = nil
     }
 
-    public init(message: Message, coursePath: CoursePath, conversationPath: ConversationPath) {
-        self.id = message.id
+    public init?(message: Binding<DataState<BaseMessage>>, coursePath: CoursePath, conversationPath: ConversationPath, conversationViewModel: Any) {
+        guard let id = message.wrappedValue.value?.id else { return nil }
+        self.id = id
         self.message = message
         self.coursePath = coursePath
         self.conversationPath = conversationPath
+        self.conversationViewModel = conversationViewModel
+    }
+
+    public static func == (lhs: MessagePath, rhs: MessagePath) -> Bool {
+        lhs.id == rhs.id && lhs.coursePath == rhs.coursePath && lhs.conversationPath == rhs.conversationPath
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
 }

@@ -10,18 +10,22 @@ import SharedModels
 import Smile
 import UserStore
 import EmojiPicker
+import Common
 
 struct ReactionsView: View {
 
-    let message: Message
+    @ObservedObject private var viewModel: ConversationViewModel
+
+    @Binding var message: DataState<BaseMessage>
     let showEmojiAddButton: Bool
 
+    @State private var viewRerenderWorkaround = false
     let columns = [ GridItem(.adaptive(minimum: 45)) ]
 
     var mappedReaction: [String: [Reaction]] {
         var reactions = [String: [Reaction]]()
 
-        message.reactions?.forEach {
+        message.value?.reactions?.forEach {
             guard let emoji = Smile.emoji(alias: $0.emojiId) else {
                 return
             }
@@ -34,18 +38,19 @@ struct ReactionsView: View {
         return reactions
     }
 
-    init(message: Message, showEmojiAddButton: Bool = true) {
-        self.message = message
+    init(viewModel: ConversationViewModel, message: Binding<DataState<BaseMessage>>, showEmojiAddButton: Bool = true) {
+        self.viewModel = viewModel
+        self._message = message
         self.showEmojiAddButton = showEmojiAddButton
     }
 
     var body: some View {
         LazyVGrid(columns: columns) {
             ForEach(mappedReaction.sorted(by: { $0.key < $1.key }), id: \.key) { map in
-                EmojiTextButton(pair: (map.key, map.value))
+                EmojiTextButton(viewModel: viewModel, pair: (map.key, map.value), message: $message)
             }
             if !mappedReaction.isEmpty || showEmojiAddButton {
-                EmojiPickerButton(message: message)
+                EmojiPickerButton(viewModel: viewModel, message: $message, viewRerenderWorkaround: $viewRerenderWorkaround)
             }
         }
     }
@@ -53,7 +58,10 @@ struct ReactionsView: View {
 
 private struct EmojiTextButton: View {
 
+    @ObservedObject var viewModel: ConversationViewModel
+
     let pair: (String, [Reaction])
+    @Binding var message: DataState<BaseMessage>
 
     var body: some View {
         Text("\(pair.0) \(pair.1.count)")
@@ -72,23 +80,53 @@ private struct EmojiTextButton: View {
                     }
                 }
             )
+            .onTapGesture {
+                if let emojiId = Smile.alias(emoji: pair.0) {
+                    Task {
+                        if let message = message.value as? Message {
+                            let result = await viewModel.addReactionToMessage(for: message, emojiId: emojiId)
+                            switch result {
+                            case .loading:
+                                self.message = .loading
+                            case .failure(let error):
+                                self.message = .failure(error: error)
+                            case .done(let response):
+                                self.message = .done(response: response)
+                            }
+                        } else if let answerMessage = message.value as? AnswerMessage {
+                            let result = await viewModel.addReactionToAnswerMessage(for: answerMessage, emojiId: emojiId)
+                            switch result {
+                            case .loading:
+                                self.message = .loading
+                            case .failure(let error):
+                                self.message = .failure(error: error)
+                            case .done(let response):
+                                self.message = .done(response: response)
+                            }
+                        }
+                    }
+                }
+            }
     }
 
     private var isMyReaction: Bool {
-        guard let userId = UserSession.shared.userId else { return false }
-        return pair.1.contains(where: {
-            guard let authorId = $0.user?.id else { return false }
-            return authorId == userId
-        })
+        if let emojiId = Smile.alias(emoji: pair.0),
+           let message = message.value {
+            return message.containsReactionFromMe(emojiId: emojiId)
+        }
+        return false
     }
 }
 
 private struct EmojiPickerButton: View {
 
+    @ObservedObject var viewModel: ConversationViewModel
+
     @State private var showEmojiPicker = false
     @State var selectedEmoji: Emoji?
 
-    let message: Message
+    @Binding var message: DataState<BaseMessage>
+    @Binding var viewRerenderWorkaround: Bool
 
     var body: some View {
         Button(action: { showEmojiPicker = true }, label: {
@@ -106,6 +144,36 @@ private struct EmojiPickerButton: View {
                     EmojiPickerView(selectedEmoji: $selectedEmoji, selectedColor: Color.Artemis.artemisBlue)
                         .navigationTitle(R.string.localizable.emojis())
                         .navigationBarTitleDisplayMode(.inline)
+                }
+            }
+            .onChange(of: selectedEmoji) { newEmoji in
+                if let newEmoji,
+                   let emojiId = Smile.alias(emoji: newEmoji.value) {
+                    Task {
+                        if let message = message.value as? Message {
+                            let result = await viewModel.addReactionToMessage(for: message, emojiId: emojiId)
+                            switch result {
+                            case .loading:
+                                self.message = .loading
+                            case .failure(let error):
+                                self.message = .failure(error: error)
+                            case .done(let response):
+                                self.message = .done(response: response)
+                            }
+                        } else if let answerMessage = message.value as? AnswerMessage {
+                            let result = await viewModel.addReactionToAnswerMessage(for: answerMessage, emojiId: emojiId)
+                            switch result {
+                            case .loading:
+                                self.message = .loading
+                            case .failure(let error):
+                                self.message = .failure(error: error)
+                            case .done(let response):
+                                self.message = .done(response: response)
+                            }
+                        }
+                        viewRerenderWorkaround.toggle()
+                        selectedEmoji = nil
+                    }
                 }
             }
     }
