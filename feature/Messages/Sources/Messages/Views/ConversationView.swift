@@ -27,6 +27,13 @@ public struct ConversationView: View {
         _viewModel = StateObject(wrappedValue: ConversationViewModel(courseId: courseId, conversationId: conversationId))
     }
 
+    private var conversationPath: ConversationPath {
+        if let conversation = viewModel.conversation.value {
+            return ConversationPath(conversation: conversation, coursePath: CoursePath(id: viewModel.courseId))
+        }
+        return ConversationPath(id: viewModel.conversationId, coursePath: CoursePath(id: viewModel.courseId))
+    }
+
     public var body: some View {
         VStack {
             ScrollViewReader { value in
@@ -43,19 +50,10 @@ public struct ConversationView: View {
                                     .padding(.horizontal, .l)
                             } else {
                                 ForEach(dailyMessages.sorted(by: { $0.key < $1.key }), id: \.key) { dailyMessage in
-                                    if let conversation = viewModel.conversation.value {
-                                        ConversationDaySection(viewModel: viewModel,
-                                                               day: dailyMessage.key,
-                                                               messages: dailyMessage.value,
-                                                               conversationPath: ConversationPath(conversation: conversation,
-                                                                                                  coursePath: CoursePath(id: viewModel.courseId)))
-                                    } else {
-                                        ConversationDaySection(viewModel: viewModel,
-                                                               day: dailyMessage.key,
-                                                               messages: dailyMessage.value,
-                                                               conversationPath: ConversationPath(id: viewModel.conversationId,
-                                                                                                  coursePath: CoursePath(id: viewModel.courseId)))
-                                    }
+                                    ConversationDaySection(viewModel: viewModel,
+                                                           day: dailyMessage.key,
+                                                           messages: dailyMessage.value,
+                                                           conversationPath: conversationPath)
                                 }
                                 Spacer()
                                     .id("bottom")
@@ -67,7 +65,9 @@ public struct ConversationView: View {
                     .onChange(of: viewModel.dailyMessages.value) { _ in
                         // TODO: does not work correctly when loadFurtherMessages is called -> is called to early -> investigate
                         if let id = viewModel.shouldScrollToId {
-                            value.scrollTo(id, anchor: .bottom)
+                            withAnimation {
+                                value.scrollTo(id, anchor: .bottom)
+                            }
                         }
                     }
             }
