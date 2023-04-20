@@ -18,8 +18,15 @@ public struct Course: Codable, Identifiable {
     public var exercises: [Exercise]?
     public var lectures: [Lecture]?
     public var accuracyOfScores: Int?
+    public var courseInformationSharingConfiguration: CourseInformationSharingConfiguration
 
-    public init(id: Int, title: String? = "", description: String? = "", courseIcon: String? = nil, semester: String? = "", registrationConfirmationMessage: String? = "", exercises: [Exercise]? = nil) {
+    public init(id: Int, title: String? = "",
+                description: String? = "",
+                courseIcon: String? = nil,
+                semester: String? = "",
+                registrationConfirmationMessage: String? = "",
+                exercises: [Exercise]? = nil,
+                courseInformationSharingConfiguration: CourseInformationSharingConfiguration) {
         self.id = id
         self.title = title
         self.description = description
@@ -27,6 +34,7 @@ public struct Course: Codable, Identifiable {
         self.semester = semester
         self.registrationConfirmationMessage = registrationConfirmationMessage
         self.exercises = exercises
+        self.courseInformationSharingConfiguration = courseInformationSharingConfiguration
     }
 
     public var courseIconURL: URL? {
@@ -81,4 +89,24 @@ extension Course: Hashable {
     public func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
+}
+
+public enum CourseInformationSharingConfiguration: String, RawRepresentable, Codable {
+    /**
+     * Both Communication and Messaging are disabled VALUE = 0
+     */
+    case disabled = "DISABLED"
+
+    /**
+     * Both Communication and Messaging are enabled VALUE = 1
+     */
+    case communicationAndMessaging = "COMMUNICATION_AND_MESSAGING"
+    /**
+     * Only Communication is enabled VALUE = 2
+     */
+    case communicationOnly = "COMMUNICATION_ONLY"
+    /**
+     * Only Messaging is enabled VALUE = 3
+     */
+    case messagingOnly = "MESSAGING_ONLY"
 }

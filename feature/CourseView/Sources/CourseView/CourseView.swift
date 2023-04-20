@@ -35,11 +35,15 @@ public struct CourseView: View {
                 }
                 .tag(TabIdentifier.lecture)
 
-            MessagesTabView(searchText: $searchText, courseId: courseId)
-                .tabItem {
-                    Label(R.string.localizable.messagesTabLabel(), systemImage: "bubble.right.fill")
-                }
-                .tag(TabIdentifier.communication)
+            if viewModel.course.value == nil ||
+                viewModel.course.value?.courseInformationSharingConfiguration == .communicationAndMessaging ||
+                viewModel.course.value?.courseInformationSharingConfiguration == .messagingOnly {
+                MessagesTabView(searchText: $searchText, courseId: courseId)
+                    .tabItem {
+                        Label(R.string.localizable.messagesTabLabel(), systemImage: "bubble.right.fill")
+                    }
+                    .tag(TabIdentifier.communication)
+            }
         }
             .navigationTitle(viewModel.course.value?.title ?? R.string.localizable.loading())
             .navigationBarTitleDisplayMode(.inline)
