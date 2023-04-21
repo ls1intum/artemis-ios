@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ls1intum/artemis-ios-core-modules",
       "state" : {
-        "revision" : "54144ec914f6b497c3e6000fb8ab7a9d465daadf",
-        "version" : "0.1.0"
+        "revision" : "321654526d03f6e5f0c92128149c1acc3490c87c",
+        "version" : "0.1.1"
       }
     },
     {
@@ -41,8 +41,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/mac-cain13/R.swift.git",
       "state" : {
-        "revision" : "589493fe3907251b62f7684c8451330ee08f4426",
-        "version" : "7.3.0"
+        "revision" : "0e4ec17f329136b712d0a96128597b8ff2f31bdc",
+        "version" : "7.3.2"
       }
     },
     {
@@ -77,8 +77,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/gonzalezreal/swift-markdown-ui",
       "state" : {
-        "revision" : "4392c3cefd08db10f13ffb019d7c7a4a622824f5",
-        "version" : "2.0.2"
+        "revision" : "12b351a75201a8124c2f2e1f9fc6ef5cd812c0b9",
+        "version" : "2.1.0"
       }
     },
     {
