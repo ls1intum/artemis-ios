@@ -15,16 +15,18 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
-        .package(path: "../UserStore"),
-        .package(path: "../Common"),
-        .package(path: "../SharedModels")
+        .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", .upToNextMajor(from: "0.1.0")),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "Navigation",
-            dependencies: ["UserStore", "SharedModels", "Common"]),
+            dependencies: [
+                .product(name: "SharedModels", package: "artemis-ios-core-modules"),
+                .product(name: "Common", package: "artemis-ios-core-modules"),
+                .product(name: "UserStore", package: "artemis-ios-core-modules"),
+            ]),
         .testTarget(
             name: "NavigationTests",
             dependencies: ["Navigation"])

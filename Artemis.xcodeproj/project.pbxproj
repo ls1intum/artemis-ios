@@ -16,22 +16,22 @@
 		22B6A924292D815A00F08C7E /* CourseView in Frameworks */ = {isa = PBXBuildFile; productRef = 22B6A923292D815A00F08C7E /* CourseView */; };
 		22B6A926292D815A00F08C7E /* Dashboard in Frameworks */ = {isa = PBXBuildFile; productRef = 22B6A925292D815A00F08C7E /* Dashboard */; };
 		22B6A92E292D815A00F08C7E /* ExerciseView in Frameworks */ = {isa = PBXBuildFile; productRef = 22B6A92D292D815A00F08C7E /* ExerciseView */; };
-		22B6A930292D815A00F08C7E /* Login in Frameworks */ = {isa = PBXBuildFile; productRef = 22B6A92F292D815A00F08C7E /* Login */; };
-		22B6A936292D8F3400F08C7E /* Common in Frameworks */ = {isa = PBXBuildFile; productRef = 22B6A935292D8F3400F08C7E /* Common */; };
-		D515291229AD1BE6002CAD2F /* DesignLibrary in Frameworks */ = {isa = PBXBuildFile; productRef = D515291129AD1BE6002CAD2F /* DesignLibrary */; };
 		D515291529AD2E83002CAD2F /* Navigation in Frameworks */ = {isa = PBXBuildFile; productRef = D515291429AD2E83002CAD2F /* Navigation */; };
-		D54B8BEF296F745B00BB1AA3 /* APIClient in Frameworks */ = {isa = PBXBuildFile; productRef = D54B8BEE296F745B00BB1AA3 /* APIClient */; };
-		D54B8BF52970760900BB1AA3 /* UserStore in Frameworks */ = {isa = PBXBuildFile; productRef = D54B8BF42970760900BB1AA3 /* UserStore */; };
 		D54B8BF7297082C400BB1AA3 /* RootViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54B8BF6297082C400BB1AA3 /* RootViewModel.swift */; };
 		D54F685929C467E300F05A43 /* Notifications in Frameworks */ = {isa = PBXBuildFile; productRef = D54F685829C467E300F05A43 /* Notifications */; };
-		D59E86A129AB8F040012C378 /* SharedModels in Frameworks */ = {isa = PBXBuildFile; productRef = D59E86A029AB8F040012C378 /* SharedModels */; };
+		D5800FBE29F1BC5B00FA97D7 /* APIClient in Frameworks */ = {isa = PBXBuildFile; productRef = D5800FBD29F1BC5B00FA97D7 /* APIClient */; };
+		D5800FC029F1BC5B00FA97D7 /* Common in Frameworks */ = {isa = PBXBuildFile; productRef = D5800FBF29F1BC5B00FA97D7 /* Common */; };
+		D5800FC229F1BC5B00FA97D7 /* DesignLibrary in Frameworks */ = {isa = PBXBuildFile; productRef = D5800FC129F1BC5B00FA97D7 /* DesignLibrary */; };
+		D5800FC429F1BC5B00FA97D7 /* Login in Frameworks */ = {isa = PBXBuildFile; productRef = D5800FC329F1BC5B00FA97D7 /* Login */; };
+		D5800FC629F1BC5B00FA97D7 /* ProfileInfo in Frameworks */ = {isa = PBXBuildFile; productRef = D5800FC529F1BC5B00FA97D7 /* ProfileInfo */; };
+		D5800FC829F1BC5B00FA97D7 /* PushNotifications in Frameworks */ = {isa = PBXBuildFile; productRef = D5800FC729F1BC5B00FA97D7 /* PushNotifications */; };
+		D5800FCA29F1BC5B00FA97D7 /* SharedModels in Frameworks */ = {isa = PBXBuildFile; productRef = D5800FC929F1BC5B00FA97D7 /* SharedModels */; };
+		D5800FCC29F1BC5B00FA97D7 /* UserStore in Frameworks */ = {isa = PBXBuildFile; productRef = D5800FCB29F1BC5B00FA97D7 /* UserStore */; };
 		D59E86A429ACC6EB0012C378 /* CourseRegistration in Frameworks */ = {isa = PBXBuildFile; productRef = D59E86A329ACC6EB0012C378 /* CourseRegistration */; };
 		D5B8C106299E73F100835976 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B8C105299E73F100835976 /* AppDelegate.swift */; };
 		D5B9225129DB0B2100C73192 /* Messages in Frameworks */ = {isa = PBXBuildFile; productRef = D5B9225029DB0B2100C73192 /* Messages */; };
-		D5BA7B3429A2A3E90085CC6E /* PushNotifications in Frameworks */ = {isa = PBXBuildFile; productRef = D5BA7B3329A2A3E90085CC6E /* PushNotifications */; };
 		D5BBC81029E18CA000FA5CCF /* ArtemisMarkdown in Frameworks */ = {isa = PBXBuildFile; productRef = D5BBC80F29E18CA000FA5CCF /* ArtemisMarkdown */; };
 		D5F1D7B029B9E6BA0010B875 /* Account in Frameworks */ = {isa = PBXBuildFile; productRef = D5F1D7AF29B9E6BA0010B875 /* Account */; };
-		D5F1D7B329B9E7020010B875 /* ProfileInfo in Frameworks */ = {isa = PBXBuildFile; productRef = D5F1D7B229B9E7020010B875 /* ProfileInfo */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,29 +41,21 @@
 		1C098BE94B1D25D8F4F19DAD /* readme.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = readme.md; sourceTree = "<group>"; };
 		2152FB032600AC8F00CF470E /* iOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp.swift; sourceTree = "<group>"; };
 		220409A628D4EF1A00204B1C /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
-		223F7CDC292ECB6100600784 /* Common */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Common; path = core/Common; sourceTree = "<group>"; };
 		22B12971290048A800C4910E /* Localizable.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
 		22B6A916292D417900F08C7E /* CourseView */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = CourseView; path = feature/CourseView; sourceTree = "<group>"; };
 		22B6A918292D418F00F08C7E /* ExerciseView */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = ExerciseView; path = feature/ExerciseView; sourceTree = "<group>"; };
-		22B6A919292D419800F08C7E /* Login */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Login; path = feature/Login; sourceTree = "<group>"; };
 		22B6A91A292D529400F08C7E /* CourseRegistration */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = CourseRegistration; path = feature/CourseRegistration; sourceTree = "<group>"; };
 		7555FF7B242A565900829871 /* Artemis.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Artemis.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		D515291029AD1BD0002CAD2F /* DesignLibrary */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = DesignLibrary; path = core/DesignLibrary; sourceTree = "<group>"; };
 		D515291329AD2DFB002CAD2F /* Navigation */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Navigation; path = core/Navigation; sourceTree = "<group>"; };
 		D51AD00C299E390700FA5B94 /* Artemis.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Artemis.entitlements; sourceTree = "<group>"; };
 		D52CEEAA29B8FA2D003C7B2E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D52CEEB129B9E5A1003C7B2E /* Account */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Account; path = feature/Account; sourceTree = "<group>"; };
-		D54B8BED296F741D00BB1AA3 /* APIClient */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = APIClient; path = core/APIClient; sourceTree = "<group>"; };
-		D54B8BF3297075C100BB1AA3 /* UserStore */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = UserStore; path = core/UserStore; sourceTree = "<group>"; };
 		D54B8BF6297082C400BB1AA3 /* RootViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewModel.swift; sourceTree = "<group>"; };
 		D54F685729C466E000F05A43 /* Notifications */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Notifications; path = feature/Notifications; sourceTree = "<group>"; };
-		D59E869F29AB8DFB0012C378 /* SharedModels */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = SharedModels; path = core/SharedModels; sourceTree = "<group>"; };
 		D59E86A229ACB26C0012C378 /* Dashboard */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Dashboard; path = feature/Dashboard; sourceTree = "<group>"; };
 		D5B8C105299E73F100835976 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		D5BA7B3229A2A3CA0085CC6E /* PushNotifications */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = PushNotifications; path = core/PushNotifications; sourceTree = "<group>"; };
 		D5BBC80E29E1779D00FA5CCF /* ArtemisMarkdown */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = ArtemisMarkdown; path = feature/ArtemisMarkdown; sourceTree = "<group>"; };
 		D5CD8C1F29DACF4200F9F262 /* Messages */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Messages; path = feature/Messages; sourceTree = "<group>"; };
-		D5F1D7B129B9E6F20010B875 /* ProfileInfo */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = ProfileInfo; path = feature/ProfileInfo; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -72,22 +64,22 @@
 			buildActionMask = 2147483647;
 			files = (
 				D5B9225129DB0B2100C73192 /* Messages in Frameworks */,
-				22B6A936292D8F3400F08C7E /* Common in Frameworks */,
-				D54B8BF52970760900BB1AA3 /* UserStore in Frameworks */,
+				D5800FC829F1BC5B00FA97D7 /* PushNotifications in Frameworks */,
+				D5800FCC29F1BC5B00FA97D7 /* UserStore in Frameworks */,
 				D59E86A429ACC6EB0012C378 /* CourseRegistration in Frameworks */,
-				22B6A930292D815A00F08C7E /* Login in Frameworks */,
-				D5F1D7B329B9E7020010B875 /* ProfileInfo in Frameworks */,
+				D5800FBE29F1BC5B00FA97D7 /* APIClient in Frameworks */,
+				D5800FC429F1BC5B00FA97D7 /* Login in Frameworks */,
+				D5800FC629F1BC5B00FA97D7 /* ProfileInfo in Frameworks */,
+				D5800FC029F1BC5B00FA97D7 /* Common in Frameworks */,
+				D5800FCA29F1BC5B00FA97D7 /* SharedModels in Frameworks */,
 				D515291529AD2E83002CAD2F /* Navigation in Frameworks */,
-				D515291229AD1BE6002CAD2F /* DesignLibrary in Frameworks */,
 				22B6A924292D815A00F08C7E /* CourseView in Frameworks */,
-				D5BA7B3429A2A3E90085CC6E /* PushNotifications in Frameworks */,
 				D5BBC81029E18CA000FA5CCF /* ArtemisMarkdown in Frameworks */,
-				D54B8BEF296F745B00BB1AA3 /* APIClient in Frameworks */,
 				D54F685929C467E300F05A43 /* Notifications in Frameworks */,
+				D5800FC229F1BC5B00FA97D7 /* DesignLibrary in Frameworks */,
 				D5F1D7B029B9E6BA0010B875 /* Account in Frameworks */,
 				22B6A92E292D815A00F08C7E /* ExerciseView in Frameworks */,
 				22B6A926292D815A00F08C7E /* Dashboard in Frameworks */,
-				D59E86A129AB8F040012C378 /* SharedModels in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -168,10 +160,8 @@
 				D5BBC80E29E1779D00FA5CCF /* ArtemisMarkdown */,
 				D5CD8C1F29DACF4200F9F262 /* Messages */,
 				D54F685729C466E000F05A43 /* Notifications */,
-				D5F1D7B129B9E6F20010B875 /* ProfileInfo */,
 				D52CEEB129B9E5A1003C7B2E /* Account */,
 				22B6A916292D417900F08C7E /* CourseView */,
-				22B6A919292D419800F08C7E /* Login */,
 				D59E86A229ACB26C0012C378 /* Dashboard */,
 				22B6A918292D418F00F08C7E /* ExerciseView */,
 				22B6A91A292D529400F08C7E /* CourseRegistration */,
@@ -183,12 +173,6 @@
 			isa = PBXGroup;
 			children = (
 				D515291329AD2DFB002CAD2F /* Navigation */,
-				D515291029AD1BD0002CAD2F /* DesignLibrary */,
-				D59E869F29AB8DFB0012C378 /* SharedModels */,
-				223F7CDC292ECB6100600784 /* Common */,
-				D54B8BED296F741D00BB1AA3 /* APIClient */,
-				D54B8BF3297075C100BB1AA3 /* UserStore */,
-				D5BA7B3229A2A3CA0085CC6E /* PushNotifications */,
 			);
 			name = Core;
 			sourceTree = "<group>";
@@ -214,20 +198,20 @@
 				22B6A923292D815A00F08C7E /* CourseView */,
 				22B6A925292D815A00F08C7E /* Dashboard */,
 				22B6A92D292D815A00F08C7E /* ExerciseView */,
-				22B6A92F292D815A00F08C7E /* Login */,
-				22B6A935292D8F3400F08C7E /* Common */,
-				D54B8BEE296F745B00BB1AA3 /* APIClient */,
-				D54B8BF42970760900BB1AA3 /* UserStore */,
-				D5BA7B3329A2A3E90085CC6E /* PushNotifications */,
-				D59E86A029AB8F040012C378 /* SharedModels */,
 				D59E86A329ACC6EB0012C378 /* CourseRegistration */,
-				D515291129AD1BE6002CAD2F /* DesignLibrary */,
 				D515291429AD2E83002CAD2F /* Navigation */,
 				D5F1D7AF29B9E6BA0010B875 /* Account */,
-				D5F1D7B229B9E7020010B875 /* ProfileInfo */,
 				D54F685829C467E300F05A43 /* Notifications */,
 				D5B9225029DB0B2100C73192 /* Messages */,
 				D5BBC80F29E18CA000FA5CCF /* ArtemisMarkdown */,
+				D5800FBD29F1BC5B00FA97D7 /* APIClient */,
+				D5800FBF29F1BC5B00FA97D7 /* Common */,
+				D5800FC129F1BC5B00FA97D7 /* DesignLibrary */,
+				D5800FC329F1BC5B00FA97D7 /* Login */,
+				D5800FC529F1BC5B00FA97D7 /* ProfileInfo */,
+				D5800FC729F1BC5B00FA97D7 /* PushNotifications */,
+				D5800FC929F1BC5B00FA97D7 /* SharedModels */,
+				D5800FCB29F1BC5B00FA97D7 /* UserStore */,
 			);
 			productName = iosApp;
 			productReference = 7555FF7B242A565900829871 /* Artemis.app */;
@@ -258,6 +242,7 @@
 			);
 			mainGroup = 7555FF72242A565900829871;
 			packageReferences = (
+				D5800FBC29F1BC5B00FA97D7 /* XCRemoteSwiftPackageReference "artemis-ios-core-modules" */,
 			);
 			productRefGroup = 7555FF7C242A565900829871 /* Products */;
 			projectDirPath = "";
@@ -512,6 +497,17 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		D5800FBC29F1BC5B00FA97D7 /* XCRemoteSwiftPackageReference "artemis-ios-core-modules" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ls1intum/artemis-ios-core-modules";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.1.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		22B6A923292D815A00F08C7E /* CourseView */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -525,37 +521,53 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = ExerciseView;
 		};
-		22B6A92F292D815A00F08C7E /* Login */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = Login;
-		};
-		22B6A935292D8F3400F08C7E /* Common */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = Common;
-		};
-		D515291129AD1BE6002CAD2F /* DesignLibrary */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = DesignLibrary;
-		};
 		D515291429AD2E83002CAD2F /* Navigation */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Navigation;
-		};
-		D54B8BEE296F745B00BB1AA3 /* APIClient */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = APIClient;
-		};
-		D54B8BF42970760900BB1AA3 /* UserStore */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = UserStore;
 		};
 		D54F685829C467E300F05A43 /* Notifications */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Notifications;
 		};
-		D59E86A029AB8F040012C378 /* SharedModels */ = {
+		D5800FBD29F1BC5B00FA97D7 /* APIClient */ = {
 			isa = XCSwiftPackageProductDependency;
+			package = D5800FBC29F1BC5B00FA97D7 /* XCRemoteSwiftPackageReference "artemis-ios-core-modules" */;
+			productName = APIClient;
+		};
+		D5800FBF29F1BC5B00FA97D7 /* Common */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D5800FBC29F1BC5B00FA97D7 /* XCRemoteSwiftPackageReference "artemis-ios-core-modules" */;
+			productName = Common;
+		};
+		D5800FC129F1BC5B00FA97D7 /* DesignLibrary */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D5800FBC29F1BC5B00FA97D7 /* XCRemoteSwiftPackageReference "artemis-ios-core-modules" */;
+			productName = DesignLibrary;
+		};
+		D5800FC329F1BC5B00FA97D7 /* Login */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D5800FBC29F1BC5B00FA97D7 /* XCRemoteSwiftPackageReference "artemis-ios-core-modules" */;
+			productName = Login;
+		};
+		D5800FC529F1BC5B00FA97D7 /* ProfileInfo */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D5800FBC29F1BC5B00FA97D7 /* XCRemoteSwiftPackageReference "artemis-ios-core-modules" */;
+			productName = ProfileInfo;
+		};
+		D5800FC729F1BC5B00FA97D7 /* PushNotifications */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D5800FBC29F1BC5B00FA97D7 /* XCRemoteSwiftPackageReference "artemis-ios-core-modules" */;
+			productName = PushNotifications;
+		};
+		D5800FC929F1BC5B00FA97D7 /* SharedModels */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D5800FBC29F1BC5B00FA97D7 /* XCRemoteSwiftPackageReference "artemis-ios-core-modules" */;
 			productName = SharedModels;
+		};
+		D5800FCB29F1BC5B00FA97D7 /* UserStore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D5800FBC29F1BC5B00FA97D7 /* XCRemoteSwiftPackageReference "artemis-ios-core-modules" */;
+			productName = UserStore;
 		};
 		D59E86A329ACC6EB0012C378 /* CourseRegistration */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -565,10 +577,6 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = Messages;
 		};
-		D5BA7B3329A2A3E90085CC6E /* PushNotifications */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = PushNotifications;
-		};
 		D5BBC80F29E18CA000FA5CCF /* ArtemisMarkdown */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = ArtemisMarkdown;
@@ -576,10 +584,6 @@
 		D5F1D7AF29B9E6BA0010B875 /* Account */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Account;
-		};
-		D5F1D7B229B9E7020010B875 /* ProfileInfo */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = ProfileInfo;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
