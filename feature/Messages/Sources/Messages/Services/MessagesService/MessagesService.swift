@@ -55,6 +55,16 @@ protocol MessagesService {
      * Perform a delete request to remove a reaction from a specific message in a specific course to the server.
      */
     func removeReactionFromMessage(for courseId: Int, reaction: Reaction) async -> NetworkResponse
+
+    /**
+     * Perform a get request to retrieve all channels in a specific course to the server.
+     */
+    func getChannelsOverview(for courseId: Int) async -> DataState<[Channel]>
+
+    /**
+     * Perform a post request to join a specific channels in a specific course to the server.
+     */
+    func joinChannel(for courseId: Int, channelId: Int64) async -> NetworkResponse
 }
 
 enum MessagesServiceFactory {

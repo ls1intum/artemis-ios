@@ -269,4 +269,55 @@ class MessagesServiceImpl: MessagesService {
             return .failure(error: error)
         }
     }
+
+    struct GetChannelsOverviewRequest: APIRequest {
+        typealias Response = [Channel]
+
+        let courseId: Int
+
+        var method: HTTPMethod {
+            return .get
+        }
+
+        var resourceName: String {
+            return "api/courses/\(courseId)/channels/overview"
+        }
+    }
+
+    func getChannelsOverview(for courseId: Int) async -> DataState<[Channel]> {
+        let result = await client.sendRequest(GetChannelsOverviewRequest(courseId: courseId))
+
+        switch result {
+        case .success((let channels, _)):
+            return .done(response: channels)
+        case .failure(let error):
+            return .failure(error: UserFacingError(error: error))
+        }
+    }
+
+    struct JoinChannelRequest: APIRequest {
+        typealias Response = RawResponse
+
+        let channelId: Int64
+        let courseId: Int
+
+        var method: HTTPMethod {
+            return .post
+        }
+
+        var resourceName: String {
+            return "api/courses/\(courseId)/channels/\(channelId)/register"
+        }
+    }
+
+    func joinChannel(for courseId: Int, channelId: Int64) async -> NetworkResponse {
+        let result = await client.sendRequest(JoinChannelRequest(channelId: channelId, courseId: courseId))
+
+        switch result {
+        case .success:
+            return .success
+        case .failure(let error):
+            return .failure(error: error)
+        }
+    }
 }

@@ -127,7 +127,7 @@ private struct MixedMessageSection: View {
                         }
                     }
                 }, label: {
-                    SectionDisclosureLabel(sectionTitle: sectionTitle, sectionUnreadCount: sectionUnreadCount, showUnreadCount: !isExpanded)
+                    SectionDisclosureLabel(sectionTitle: sectionTitle, sectionUnreadCount: sectionUnreadCount, showUnreadCount: !isExpanded, courseId: viewModel.courseId, conversationType: nil)
                 })
             }
         }
@@ -135,19 +135,59 @@ private struct MixedMessageSection: View {
 }
 
 private struct SectionDisclosureLabel: View {
+
+    @State private var showNewConversationSheet = false
+    @State private var showNewConversationActionDialog = false
+    @State private var showBrowseChannels = false
+    @State private var showCreateChannel = false
+
     let sectionTitle: String
     let sectionUnreadCount: Int
     let showUnreadCount: Bool
+
+    let courseId: Int
+    let conversationType: ConversationType?
 
     var body: some View {
         HStack {
             Text(sectionTitle)
                 .font(.headline)
             Spacer()
+            if let conversationType {
+                Button(action: {
+                    if conversationType == .channel {
+                        showNewConversationActionDialog = true
+                    } else {
+                        showNewConversationSheet = true
+                    }
+                }, label: {
+                    Image(systemName: "plus.bubble")
+                })
+            }
             if showUnreadCount {
                 Badge(unreadCount: sectionUnreadCount)
             }
         }
+            .sheet(isPresented: $showNewConversationSheet) {
+                if let conversationType {
+                    if conversationType == .channel {
+                    }
+                }
+            }
+            .sheet(isPresented: $showCreateChannel) {
+                Text("TODO Create Channel")
+            }
+            .sheet(isPresented: $showBrowseChannels) {
+                BrowseChannelsView(courseId: courseId)
+            }
+            .confirmationDialog("", isPresented: $showNewConversationActionDialog, titleVisibility: .hidden, actions: {
+                Button(R.string.localizable.browseChannels()) {
+                    showBrowseChannels = true
+                }
+                Button(R.string.localizable.createChannel()) {
+                    showCreateChannel = true
+                }
+            })
     }
 }
 
@@ -175,7 +215,7 @@ private struct MessageSection<T: BaseConversation>: View {
                 }
             }
         }, label: {
-            SectionDisclosureLabel(sectionTitle: sectionTitle, sectionUnreadCount: sectionUnreadCount, showUnreadCount: !isExpanded)
+            SectionDisclosureLabel(sectionTitle: sectionTitle, sectionUnreadCount: sectionUnreadCount, showUnreadCount: !isExpanded, courseId: viewModel.courseId, conversationType: conversationType)
         })
     }
 }
@@ -246,51 +286,5 @@ private struct Badge: View {
         } else {
             EmptyView()
         }
-    }
-}
-
-private struct PlusActionDialog: ViewModifier {
-
-    @Binding var isPresented: Bool
-
-    @State private var showBrowseChannels = false
-    @State private var showCreateChannel = false
-    @State private var showCreateGroupChat = false
-    @State private var showCreateOneToOneChat = false
-
-    func body(content: Content) -> some View {
-        content
-            .confirmationDialog("", isPresented: $isPresented, titleVisibility: .hidden, actions: {
-                Button(R.string.localizable.browseChannels()) {
-                    showBrowseChannels = true
-                }
-                Button(R.string.localizable.createChannel()) {
-                    showCreateChannel = true
-                }
-                Button(R.string.localizable.createGroupChat()) {
-                    showCreateGroupChat = true
-                }
-                Button(R.string.localizable.createOneToOneChat()) {
-                    showCreateOneToOneChat = true
-                }
-            })
-            .sheet(isPresented: $showBrowseChannels) {
-                Text("TODO Browse Channels")
-            }
-            .sheet(isPresented: $showCreateChannel) {
-                Text("TODO Create Channel")
-            }
-            .sheet(isPresented: $showCreateGroupChat) {
-                Text("TODO Create Group Chat")
-            }
-            .sheet(isPresented: $showCreateOneToOneChat) {
-                Text("TODO Create oneToOne Chat")
-            }
-    }
-}
-
-public extension View {
-    func plusActionDialog(isPresented: Binding<Bool>) -> some View {
-        modifier(PlusActionDialog(isPresented: isPresented))
     }
 }
