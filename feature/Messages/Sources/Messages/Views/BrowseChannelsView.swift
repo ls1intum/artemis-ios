@@ -14,6 +14,14 @@ struct BrowseChannelsView: View {
 
     @StateObject private var viewModel: BrowseChannelsViewModel
 
+    @State private var searchText = ""
+
+    var filteredResults: [Channel] {
+        (viewModel.allChannels.value ?? []).filter {
+            $0.conversationName.lowercased().contains(searchText.lowercased()) || ($0.description?.lowercased().contains(searchText.lowercased()) ?? false)
+        }
+    }
+
     @Environment(\.dismiss) var dismiss
 
     init(courseId: Int) {
@@ -25,11 +33,18 @@ struct BrowseChannelsView: View {
             List {
                 DataStateView(data: $viewModel.allChannels,
                               retryHandler: { await viewModel.getAllChannels() }) { allChannels in
-                    ForEach(allChannels, id: \.id) { channel in
-                        ChannelRow(viewModel: viewModel, channel: channel, dismissAction: dismiss)
+                    if searchText.isEmpty {
+                        ForEach(allChannels, id: \.id) { channel in
+                            ChannelRow(viewModel: viewModel, channel: channel, dismissAction: dismiss)
+                        }
+                    } else {
+                        ForEach(filteredResults, id: \.id) { channel in
+                            ChannelRow(viewModel: viewModel, channel: channel, dismissAction: dismiss)
+                        }
                     }
                 }
             }
+            .searchable(text: $searchText)
             .task {
                 await viewModel.getAllChannels()
             }
