@@ -32,6 +32,7 @@ class BrowseChannelsViewModel: ObservableObject {
     }
 
     func joinChannel(channelId: Int64) async -> Bool {
+        // TODO: does not work since body is wrong -> body expects array of usernames -> have to rework the whole api client logic
         let result = await MessagesServiceFactory.shared.joinChannel(for: courseId, channelId: channelId)
 
         switch result {

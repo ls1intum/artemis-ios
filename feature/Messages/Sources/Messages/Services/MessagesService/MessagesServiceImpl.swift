@@ -9,6 +9,7 @@ import Foundation
 import APIClient
 import Common
 import SharedModels
+import UserStore
 
 class MessagesServiceImpl: MessagesService {
 
@@ -300,6 +301,7 @@ class MessagesServiceImpl: MessagesService {
 
         let channelId: Int64
         let courseId: Int
+        let usernames: [String]
 
         var method: HTTPMethod {
             return .post
@@ -308,10 +310,16 @@ class MessagesServiceImpl: MessagesService {
         var resourceName: String {
             return "api/courses/\(courseId)/channels/\(channelId)/register"
         }
+
+        func encode(to encoder: Encoder) throws {
+            try usernames.encode(to: encoder)
+        }
     }
 
     func joinChannel(for courseId: Int, channelId: Int64) async -> NetworkResponse {
-        let result = await client.sendRequest(JoinChannelRequest(channelId: channelId, courseId: courseId))
+        guard let username = UserSession.shared.user?.login else { return .failure(error: APIClientError.wrongParameters) }
+
+        let result = await client.sendRequest(JoinChannelRequest(channelId: channelId, courseId: courseId, usernames: [username]))
 
         switch result {
         case .success:

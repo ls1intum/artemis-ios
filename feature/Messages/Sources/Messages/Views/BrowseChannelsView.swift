@@ -26,7 +26,7 @@ struct BrowseChannelsView: View {
                 DataStateView(data: $viewModel.allChannels,
                               retryHandler: { await viewModel.getAllChannels() }) { allChannels in
                     ForEach(allChannels, id: \.id) { channel in
-                        ChannelRow(viewModel: viewModel, channel: channel)
+                        ChannelRow(viewModel: viewModel, channel: channel, dismissAction: dismiss)
                     }
                 }
             }
@@ -47,11 +47,10 @@ struct BrowseChannelsView: View {
 
 private struct ChannelRow: View {
 
-    @Environment(\.dismiss) var dismiss
-
     @ObservedObject var viewModel: BrowseChannelsViewModel
 
     let channel: Channel
+    let dismissAction: DismissAction
 
     var body: some View {
         HStack {
@@ -82,7 +81,7 @@ private struct ChannelRow: View {
                     Task(priority: .userInitiated) {
                         let success = await viewModel.joinChannel(channelId: channel.id)
                         if success {
-                            dismiss()
+                            dismissAction()
                         }
                     }
                 }.buttonStyle(ArtemisButton())

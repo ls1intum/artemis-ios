@@ -31,7 +31,7 @@ class AccountServiceImpl: AccountService {
 
         switch result {
         case .success((let account, _)):
-            UserSession.shared.userId = account.id
+            UserSession.shared.user = account
             return .done(response: account)
         case .failure(let error):
             return DataState(error: error)

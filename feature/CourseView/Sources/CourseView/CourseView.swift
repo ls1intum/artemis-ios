@@ -38,7 +38,7 @@ public struct CourseView: View {
             if viewModel.course.value == nil ||
                 viewModel.course.value?.courseInformationSharingConfiguration == .communicationAndMessaging ||
                 viewModel.course.value?.courseInformationSharingConfiguration == .messagingOnly {
-                MessagesTabView(searchText: $searchText, courseId: courseId)
+                MessagesTabView(searchText: $searchText, course: $viewModel.course, courseId: courseId)
                     .tabItem {
                         Label(R.string.localizable.messagesTabLabel(), systemImage: "bubble.right.fill")
                     }
