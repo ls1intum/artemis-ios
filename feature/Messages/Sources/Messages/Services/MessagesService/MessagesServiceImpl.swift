@@ -328,6 +328,37 @@ class MessagesServiceImpl: MessagesService {
         }
     }
 
+    struct RemoveMembersFromChannelRequest: APIRequest {
+        typealias Response = RawResponse
+
+        let channelId: Int64
+        let courseId: Int
+        let usernames: [String]
+
+        var method: HTTPMethod {
+            return .post
+        }
+
+        var resourceName: String {
+            return "api/courses/\(courseId)/channels/\(channelId)/deregister"
+        }
+
+        func encode(to encoder: Encoder) throws {
+            try usernames.encode(to: encoder)
+        }
+    }
+
+    func removeMembersFromChannel(for courseId: Int, channelId: Int64, usernames: [String]) async -> NetworkResponse {
+        let result = await client.sendRequest(RemoveMembersFromChannelRequest(channelId: channelId, courseId: courseId, usernames: usernames))
+
+        switch result {
+        case .success:
+            return .success
+        case .failure(let error):
+            return .failure(error: error)
+        }
+    }
+
     struct AddMembersToGroupChatRequest: APIRequest {
         typealias Response = RawResponse
 
@@ -350,6 +381,37 @@ class MessagesServiceImpl: MessagesService {
 
     func addMembersToGroupChat(for courseId: Int, groupChatId: Int64, usernames: [String]) async -> NetworkResponse {
         let result = await client.sendRequest(AddMembersToGroupChatRequest(groupChatId: groupChatId, courseId: courseId, usernames: usernames))
+
+        switch result {
+        case .success:
+            return .success
+        case .failure(let error):
+            return .failure(error: error)
+        }
+    }
+
+    struct RemoveMembersFromGroupChatRequest: APIRequest {
+        typealias Response = RawResponse
+
+        let groupChatId: Int64
+        let courseId: Int
+        let usernames: [String]
+
+        var method: HTTPMethod {
+            return .post
+        }
+
+        var resourceName: String {
+            return "api/courses/\(courseId)/group-chats/\(groupChatId)/deregister"
+        }
+
+        func encode(to encoder: Encoder) throws {
+            try usernames.encode(to: encoder)
+        }
+    }
+
+    func removeMembersFromGroupChat(for courseId: Int, groupChatId: Int64, usernames: [String]) async -> NetworkResponse {
+        let result = await client.sendRequest(RemoveMembersFromGroupChatRequest(groupChatId: groupChatId, courseId: courseId, usernames: usernames))
 
         switch result {
         case .success:

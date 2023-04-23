@@ -64,14 +64,24 @@ protocol MessagesService {
     func getChannelsOverview(for courseId: Int) async -> DataState<[Channel]>
 
     /**
-     * Perform a post request to join a specific channels in a specific course to the server.
+     * Perform a post request to add members to a specific channels in a specific course to the server.
      */
     func addMembersToChannel(for courseId: Int, channelId: Int64, usernames: [String]) async -> NetworkResponse
+
+    /**
+     * Perform a post request to remove members from a specific channels in a specific course to the server.
+     */
+    func removeMembersFromChannel(for courseId: Int, channelId: Int64, usernames: [String]) async -> NetworkResponse
 
     /**
      * Perform a post request to add members to a specific group chat in a specific course to the server.
      */
     func addMembersToGroupChat(for courseId: Int, groupChatId: Int64, usernames: [String]) async -> NetworkResponse
+
+    /**
+     * Perform a post request to remove members from a specific group chat in a specific course to the server.
+     */
+    func removeMembersFromGroupChat(for courseId: Int, groupChatId: Int64, usernames: [String]) async -> NetworkResponse
 
     /**
      * Perform a post request to create a specific channels in a specific course to the server.
@@ -114,6 +124,18 @@ extension MessagesService {
         guard let username = UserSession.shared.user?.login else { return .failure(error: UserFacingError(error: APIClientError.wrongParameters)) }
 
         return await addMembersToChannel(for: courseId, channelId: channelId, usernames: [username])
+    }
+
+    func leaveChannel(for courseId: Int, channelId: Int64) async -> NetworkResponse {
+        guard let username = UserSession.shared.user?.login else { return .failure(error: UserFacingError(error: APIClientError.wrongParameters)) }
+
+        return await removeMembersFromChannel(for: courseId, channelId: channelId, usernames: [username])
+    }
+
+    func leaveConversation(for courseId: Int, groupChatId: Int64) async -> NetworkResponse {
+        guard let username = UserSession.shared.user?.login else { return .failure(error: UserFacingError(error: APIClientError.wrongParameters)) }
+
+        return await removeMembersFromGroupChat(for: courseId, groupChatId: groupChatId, usernames: [username])
     }
 }
 

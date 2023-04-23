@@ -9,11 +9,15 @@ import SwiftUI
 import Common
 import SharedModels
 import DesignLibrary
+import UserStore
+import Navigation
 
 // swiftlint:disable:next identifier_name
 private var PAGINATION_SIZE = 20
 
 struct ConversationInfoSheetView: View {
+
+    @EnvironmentObject var navigationController: NavigationController
 
     @StateObject private var viewModel = ConversationInfoSheetViewModel()
 
@@ -68,13 +72,6 @@ struct ConversationInfoSheetView: View {
                                 }
                             }.foregroundColor(.Artemis.badgeWarningColor)
                         }
-                        Button("Leave Conversation") {
-                            viewModel.isLoading = true
-                            Task(priority: .userInitiated) {
-                                await viewModel.leaveConversation(for: course.id, conversationId: conversation.id)
-                                viewModel.isLoading = false
-                            }
-                        }.foregroundColor(.Artemis.badgeDangerColor)
                         Button("Delete Channel") {
                             viewModel.isLoading = true
                             Task(priority: .userInitiated) {
@@ -83,6 +80,18 @@ struct ConversationInfoSheetView: View {
                             }
                         }.foregroundColor(.Artemis.badgeDangerColor)
                     }
+                    Button("Leave Conversation") {
+                        viewModel.isLoading = true
+                        Task(priority: .userInitiated) {
+                            let success = await viewModel.leaveConversation(for: course.id, conversation: conversation)
+
+                            if success {
+                                navigationController.goToCourseConversations(courseId: course.id)
+                            } else {
+                                viewModel.isLoading = false
+                            }
+                        }
+                    }.foregroundColor(.Artemis.badgeDangerColor)
                 }.sheet(isPresented: $showAddMemberSheet, onDismiss: {
                     viewModel.isLoading = true
                     Task {
@@ -137,11 +146,21 @@ struct ConversationInfoSheetView: View {
                     DataStateView(data: $viewModel.members,
                                   retryHandler: { await viewModel.loadMembers(for: course.id, conversationId: conversation.id) }) { members in
                         ForEach(members, id: \.id) { member in
-                            Text(member.name ?? "Unknown")
+                            HStack {
+                                Text(member.name ?? "Unknown")
+                                Spacer()
+                                if UserSession.shared.user?.login == member.login {
+                                    Chip(text: "You", backgroundColor: .Artemis.artemisBlue)
+                                }
+                            }
                                 .contextMenu {
-                                    Button("Remove user") {
-                                        Task(priority: .userInitiated) {
-                                            await viewModel.removeMemberFromConversation(for: course.id, conversationId: conversation.id, member: member)
+                                    if UserSession.shared.user?.login != member.login {
+                                        Button("Remove user") {
+                                            viewModel.isLoading = true
+                                            Task(priority: .userInitiated) {
+                                                self.conversation = await viewModel.removeMemberFromConversation(for: course.id, conversation: conversation, member: member)
+                                                viewModel.isLoading = false
+                                            }
                                         }
                                     }
                                 }

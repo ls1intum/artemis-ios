@@ -7,6 +7,7 @@
 
 import Foundation
 import Common
+import UserStore
 import SharedModels
 
 class ConversationInfoSheetViewModel: BaseViewModel {
@@ -46,12 +47,53 @@ class ConversationInfoSheetViewModel: BaseViewModel {
         }
     }
 
-    func removeMemberFromConversation(for courseId: Int, conversationId: Int64, member: ConversationUser) async {
-        print("TODO")
+    func removeMemberFromConversation(for courseId: Int, conversation: Conversation, member: ConversationUser) async -> DataState<Conversation> {
+        guard let username = member.login else { return .failure(error: UserFacingError(title: "Can not remove members in this conversation.")) }
+
+        let result: NetworkResponse
+        switch conversation {
+        case .channel(let conversation):
+            result = await MessagesServiceFactory.shared.removeMembersFromChannel(for: courseId, channelId: conversation.id, usernames: [username])
+        case .groupChat(let conversation):
+            result = await MessagesServiceFactory.shared.removeMembersFromGroupChat(for: courseId, groupChatId: conversation.id, usernames: [username])
+        case .oneToOneChat, .unknown:
+            // do nothing
+            return .failure(error: UserFacingError(title: "Can not remove members in this conversation."))
+        }
+
+        switch result {
+        case .notStarted, .loading:
+            return .loading
+        case .success:
+            await loadMembers(for: courseId, conversationId: conversation.id)
+            return await reloadConversation(for: courseId, conversationId: conversation.id)
+        case .failure(let error):
+            presentError(userFacingError: UserFacingError(title: error.localizedDescription))
+            return .failure(error: UserFacingError(title: error.localizedDescription))
+        }
     }
 
-    func leaveConversation(for courseId: Int, conversationId: Int64) async {
-        print("TODO")
+    func leaveConversation(for courseId: Int, conversation: Conversation) async -> Bool {
+        let result: NetworkResponse
+        switch conversation {
+        case .channel(let conversation):
+            result = await MessagesServiceFactory.shared.leaveChannel(for: courseId, channelId: conversation.id)
+        case .groupChat(let conversation):
+            result = await MessagesServiceFactory.shared.leaveConversation(for: courseId, groupChatId: conversation.id)
+        case .oneToOneChat, .unknown:
+            // do nothing
+            return false
+        }
+
+        switch result {
+        case .notStarted, .loading:
+            return false
+        case .success:
+            return true
+        case .failure(let error):
+            presentError(userFacingError: UserFacingError(title: error.localizedDescription))
+            return false
+        }
     }
 
     func deleteChannel(for courseId: Int, conversationId: Int64) async {
