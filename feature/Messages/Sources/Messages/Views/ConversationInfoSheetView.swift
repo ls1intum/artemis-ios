@@ -59,7 +59,16 @@ struct ConversationInfoSheetView: View {
                             Button("Unarchive Channel") {
                                 viewModel.isLoading = true
                                 Task(priority: .userInitiated) {
-                                    self.conversation = await viewModel.unarchiveChannel(for: course.id, conversationId: conversation.id)
+                                    let result = await viewModel.unarchiveChannel(for: course.id, conversationId: conversation.id)
+
+                                    switch result {
+                                    case .loading, .failure:
+                                        // do nothing
+                                        break
+                                    case .done:
+                                        self.conversation = result
+                                    }
+
                                     viewModel.isLoading = false
                                 }
                             }.foregroundColor(.Artemis.badgeWarningColor)
@@ -67,7 +76,14 @@ struct ConversationInfoSheetView: View {
                             Button("Archive Channel") {
                                 viewModel.isLoading = true
                                 Task(priority: .userInitiated) {
-                                    self.conversation = await viewModel.archiveChannel(for: course.id, conversationId: conversation.id)
+                                    let result = await viewModel.archiveChannel(for: course.id, conversationId: conversation.id)
+                                    switch result {
+                                    case .loading, .failure:
+                                        // do nothing
+                                        break
+                                    case .done:
+                                        self.conversation = result
+                                    }
                                     viewModel.isLoading = false
                                 }
                             }.foregroundColor(.Artemis.badgeWarningColor)
@@ -95,7 +111,16 @@ struct ConversationInfoSheetView: View {
                 }.sheet(isPresented: $showAddMemberSheet, onDismiss: {
                     viewModel.isLoading = true
                     Task {
-                        self.conversation = await viewModel.reloadConversation(for: course.id, conversationId: conversation.id)
+                        let result = await viewModel.reloadConversation(for: course.id, conversationId: conversation.id)
+
+                        switch result {
+                        case .loading, .failure:
+                            // do nothing
+                            break
+                        case .done:
+                            self.conversation = result
+                        }
+
                         await viewModel.loadMembers(for: course.id, conversationId: conversation.id)
                         viewModel.isLoading = false
                     }
@@ -158,7 +183,16 @@ struct ConversationInfoSheetView: View {
                                         Button("Remove user") {
                                             viewModel.isLoading = true
                                             Task(priority: .userInitiated) {
-                                                self.conversation = await viewModel.removeMemberFromConversation(for: course.id, conversation: conversation, member: member)
+                                                let result = await viewModel.removeMemberFromConversation(for: course.id, conversation: conversation, member: member)
+
+                                                switch result {
+                                                case .loading, .failure:
+                                                    // do nothing
+                                                    break
+                                                case .done:
+                                                    self.conversation = result
+                                                }
+
                                                 viewModel.isLoading = false
                                             }
                                         }
