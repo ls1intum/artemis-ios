@@ -97,6 +97,16 @@ protocol MessagesService {
      * Perform a get request to find 20 users with paging of a specific conversation in a specific course to the server.
      */
     func getMembersOfConversation(for courseId: Int, conversationId: Int64, page: Int) async -> DataState<[ConversationUser]>
+
+    /**
+     * Perform a post request to archive  a specific channel in a specific course to the server.
+     */
+    func archiveChannel(for courseId: Int, channelId: Int64) async -> NetworkResponse
+
+    /**
+     * Perform a post request to unarchive  a specific channel in a specific course to the server.
+     */
+    func unarchiveChannel(for courseId: Int, channelId: Int64) async -> NetworkResponse
 }
 
 extension MessagesService {

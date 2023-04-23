@@ -44,7 +44,6 @@ class ConversationInfoSheetViewModel: BaseViewModel {
             }
             return .done(response: conversation)
         }
-
     }
 
     func removeMemberFromConversation(for courseId: Int, conversationId: Int64, member: ConversationUser) async {
@@ -59,11 +58,33 @@ class ConversationInfoSheetViewModel: BaseViewModel {
         print("TODO")
     }
 
-    func archiveChannel(for courseId: Int, conversationId: Int64) async {
-        print("TODO")
+    func archiveChannel(for courseId: Int, conversationId: Int64) async -> DataState<Conversation> {
+        let result = await MessagesServiceFactory.shared.archiveChannel(for: courseId, channelId: conversationId)
+
+        switch result {
+        case .notStarted, .loading:
+            // do nothing
+            return .loading
+        case .success:
+            return await reloadConversation(for: courseId, conversationId: conversationId)
+        case .failure(let error):
+            presentError(userFacingError: UserFacingError(title: error.localizedDescription))
+            return .failure(error: UserFacingError(title: error.localizedDescription))
+        }
     }
 
-    func unarchiveChannel(for courseId: Int, conversationId: Int64) async {
-        print("TODO")
+    func unarchiveChannel(for courseId: Int, conversationId: Int64) async -> DataState<Conversation> {
+        let result = await MessagesServiceFactory.shared.unarchiveChannel(for: courseId, channelId: conversationId)
+
+        switch result {
+        case .notStarted, .loading:
+            // do nothing
+            return .loading
+        case .success:
+            return await reloadConversation(for: courseId, conversationId: conversationId)
+        case .failure(let error):
+            presentError(userFacingError: UserFacingError(title: error.localizedDescription))
+            return .failure(error: UserFacingError(title: error.localizedDescription))
+        }
     }
 }

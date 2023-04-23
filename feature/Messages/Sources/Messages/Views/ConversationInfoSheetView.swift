@@ -36,6 +36,7 @@ struct ConversationInfoSheetView: View {
                     }
                     .navigationTitle(conversation.baseConversation.conversationName)
                     .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
+                    .loadingIndicator(isLoading: $viewModel.isLoading)
                 }
             }
         }
@@ -49,32 +50,45 @@ struct ConversationInfoSheetView: View {
                     Button("Add users") {
                         showAddMemberSheet = true
                     }
-                    Button("Leave Conversation") {
-                        Task(priority: .userInitiated) {
-                            await viewModel.leaveConversation(for: course.id, conversationId: conversation.id)
-                        }
-                    }
                     if let channel = conversation.baseConversation as? Channel {
-                        Button("Archive Channel") {
-                            Task(priority: .userInitiated) {
-                                await viewModel.archiveChannel(for: course.id, conversationId: conversation.id)
-                            }
+                        if channel.isArchived ?? false {
+                            Button("Unarchive Channel") {
+                                viewModel.isLoading = true
+                                Task(priority: .userInitiated) {
+                                    self.conversation = await viewModel.unarchiveChannel(for: course.id, conversationId: conversation.id)
+                                    viewModel.isLoading = false
+                                }
+                            }.foregroundColor(.Artemis.badgeWarningColor)
+                        } else {
+                            Button("Archive Channel") {
+                                viewModel.isLoading = true
+                                Task(priority: .userInitiated) {
+                                    self.conversation = await viewModel.archiveChannel(for: course.id, conversationId: conversation.id)
+                                    viewModel.isLoading = false
+                                }
+                            }.foregroundColor(.Artemis.badgeWarningColor)
                         }
-                        Button("Unarchive Channel") {
+                        Button("Leave Conversation") {
+                            viewModel.isLoading = true
                             Task(priority: .userInitiated) {
-                                await viewModel.unarchiveChannel(for: course.id, conversationId: conversation.id)
+                                await viewModel.leaveConversation(for: course.id, conversationId: conversation.id)
+                                viewModel.isLoading = false
                             }
-                        }
+                        }.foregroundColor(.Artemis.badgeDangerColor)
                         Button("Delete Channel") {
+                            viewModel.isLoading = true
                             Task(priority: .userInitiated) {
                                 await viewModel.deleteChannel(for: course.id, conversationId: conversation.id)
+                                viewModel.isLoading = false
                             }
-                        }
+                        }.foregroundColor(.Artemis.badgeDangerColor)
                     }
                 }.sheet(isPresented: $showAddMemberSheet, onDismiss: {
+                    viewModel.isLoading = true
                     Task {
                         self.conversation = await viewModel.reloadConversation(for: course.id, conversationId: conversation.id)
                         await viewModel.loadMembers(for: course.id, conversationId: conversation.id)
+                        viewModel.isLoading = false
                     }
                 }) {
                     CreateOrAddToChatView(courseId: course.id, type: .addToChat(conversation))
