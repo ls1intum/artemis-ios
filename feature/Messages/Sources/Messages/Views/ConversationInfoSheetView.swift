@@ -33,7 +33,12 @@ struct ConversationInfoSheetView: View {
                     List {
                         infoSection
                         membersSection
-                        actionsSection
+                        switch conversation {
+                        case .channel, .groupChat:
+                            actionsSection
+                        default:
+                            EmptyView()
+                        }
                     }
                     .task {
                         await viewModel.loadMembers(for: course.id, conversationId: conversation.id)
@@ -46,6 +51,7 @@ struct ConversationInfoSheetView: View {
         }
     }
 
+    // TODO: adapt visibility of actions
     var actionsSection: some View {
         Group {
             if let course = course.value,
@@ -124,6 +130,7 @@ struct ConversationInfoSheetView: View {
         }
     }
 
+    // TODO: add edit actions to info section
     var infoSection: some View {
         Group {
             if let course = course.value,
@@ -172,6 +179,7 @@ struct ConversationInfoSheetView: View {
                                 }
                             }
                                 .contextMenu {
+                                    // TODO: adapt visibility of action
                                     if UserSession.shared.user?.login != member.login {
                                         Button("Remove user") {
                                             viewModel.isLoading = true
