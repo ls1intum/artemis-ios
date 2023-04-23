@@ -95,14 +95,17 @@ private struct ChannelRow: View {
             Spacer()
             if !(channel.isMember ?? false) {
                 Button(R.string.localizable.joinButtonLabel()) {
+                    viewModel.isLoading = true
                     Task(priority: .userInitiated) {
-                        let newConversationId = await viewModel.joinChannel(channelId: channel.id)
-                        if let newConversationId {
+                        let success = await viewModel.joinChannel(channelId: channel.id)
+                        viewModel.isLoading = false
+                        if success {
                             dismissAction()
-                            navigationController.goToCourseConversation(courseId: viewModel.courseId, conversationId: newConversationId)
                         }
                     }
-                }.buttonStyle(ArtemisButton())
+                }
+                    .buttonStyle(ArtemisButton())
+                    .loadingIndicator(isLoading: $viewModel.isLoading)
             }
         }
             .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})

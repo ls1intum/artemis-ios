@@ -1,5 +1,5 @@
 //
-//  CreateChatView.swift
+//  CreateOrAddToChatView.swift
 //  
 //
 //  Created by Sven Andabaka on 23.04.23.
@@ -10,15 +10,41 @@ import SharedModels
 import DesignLibrary
 import Navigation
 
-struct CreateChatView: View {
+enum CreateOrAddToChatViewType {
+    case createChat
+    case addToChat(Conversation)
+}
+
+struct CreateOrAddToChatView: View {
 
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var navigationController: NavigationController
 
     @StateObject private var viewModel: CreateChatViewModel
 
-    init(courseId: Int) {
+    private var type: CreateOrAddToChatViewType
+
+    init(courseId: Int, type: CreateOrAddToChatViewType = .createChat) {
+        self.type = type
         self._viewModel = StateObject(wrappedValue: CreateChatViewModel(courseId: courseId))
+    }
+
+    private var navigationTitle: String {
+        switch type {
+        case .createChat:
+            return "New Conversation"
+        case .addToChat:
+            return "Add User(s)"
+        }
+    }
+
+    private var saveButtonLabel: String {
+        switch type {
+        case .createChat:
+            return "Create Conversation"
+        case .addToChat:
+            return "Add User(s)"
+        }
     }
 
     var body: some View {
@@ -53,7 +79,7 @@ struct CreateChatView: View {
                 }
             }
                 .padding(.l)
-                .navigationTitle("New Conversation")
+                .navigationTitle(navigationTitle)
                 .toolbar {
                     ToolbarItem(placement: .navigationBarLeading) {
                         Button(R.string.localizable.cancel()) {
@@ -61,18 +87,28 @@ struct CreateChatView: View {
                         }
                     }
                     ToolbarItem(placement: .navigationBarTrailing) {
-                        Button("Create Conversation") {
+                        Button(saveButtonLabel) {
                             Task(priority: .userInitiated) {
-                                let newChatId = await viewModel.createChat()
+                                switch type {
+                                case .createChat:
+                                    let newChatId = await viewModel.createChat()
 
-                                if let newChatId {
-                                    dismiss()
-                                    navigationController.goToCourseConversation(courseId: viewModel.courseId, conversationId: newChatId)
+                                    if let newChatId {
+                                        dismiss()
+                                        navigationController.goToCourseConversation(courseId: viewModel.courseId, conversationId: newChatId)
+                                    }
+                                case .addToChat(let conversation):
+                                    let success = await viewModel.addUsersToConversation(conversation)
+
+                                    if success {
+                                        dismiss()
+                                    }
                                 }
                             }
                         }.disabled(viewModel.selectedUsers.isEmpty)
                     }
                 }
+                .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
         }
     }
 }

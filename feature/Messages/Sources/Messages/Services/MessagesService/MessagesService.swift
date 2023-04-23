@@ -7,7 +7,9 @@
 
 import Foundation
 import Common
+import APIClient
 import SharedModels
+import UserStore
 
 protocol MessagesService {
 
@@ -64,7 +66,12 @@ protocol MessagesService {
     /**
      * Perform a post request to join a specific channels in a specific course to the server.
      */
-    func joinChannel(for courseId: Int, channelId: Int64) async -> DataState<Channel>
+    func addMembersToChannel(for courseId: Int, channelId: Int64, usernames: [String]) async -> NetworkResponse
+
+    /**
+     * Perform a post request to add members to a specific group chat in a specific course to the server.
+     */
+    func addMembersToGroupChat(for courseId: Int, groupChatId: Int64, usernames: [String]) async -> NetworkResponse
 
     /**
      * Perform a post request to create a specific channels in a specific course to the server.
@@ -80,11 +87,24 @@ protocol MessagesService {
      * Perform a post request to create a specific group chat in a specific course to the server.
      */
     func createGroupChat(for courseId: Int, usernames: [String]) async -> DataState<GroupChat>
-    
+
     /**
      * Perform a post request to create a specific oneToOne chat in a specific course to the server.
      */
     func createOneToOneChat(for courseId: Int, usernames: [String]) async -> DataState<OneToOneChat>
+
+    /**
+     * Perform a get request to find 20 users with paging of a specific conversation in a specific course to the server.
+     */
+    func getMembersOfConversation(for courseId: Int, conversationId: Int64, page: Int) async -> DataState<[ConversationUser]>
+}
+
+extension MessagesService {
+    func joinChannel(for courseId: Int, channelId: Int64) async -> NetworkResponse {
+        guard let username = UserSession.shared.user?.login else { return .failure(error: UserFacingError(error: APIClientError.wrongParameters)) }
+
+        return await addMembersToChannel(for: courseId, channelId: channelId, usernames: [username])
+    }
 }
 
 enum MessagesServiceFactory {

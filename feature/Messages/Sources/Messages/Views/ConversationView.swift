@@ -19,6 +19,8 @@ public struct ConversationView: View {
 
     @StateObject private var viewModel: ConversationViewModel
 
+    @State private var showConversationInfoSheet = false
+
     public init(course: Course, conversation: Conversation) {
         _viewModel = StateObject(wrappedValue: ConversationViewModel(course: course, conversation: conversation))
     }
@@ -88,7 +90,21 @@ public struct ConversationView: View {
                 SendMessageView(viewModel: viewModel, sendMessageType: .message)
             }
         }
-            .navigationTitle(viewModel.conversation.value?.baseConversation.conversationName ?? R.string.localizable.loading())
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Button(action: {
+                        showConversationInfoSheet = true
+                    }, label: {
+                        Text(viewModel.conversation.value?.baseConversation.conversationName ?? R.string.localizable.loading())
+                            .foregroundColor(.Artemis.primaryLabel)
+                            .frame(width: UIScreen.main.bounds.size.width * 0.6)
+                    })
+                }
+            }
+            .sheet(isPresented: $showConversationInfoSheet) {
+                ConversationInfoSheetView(conversation: $viewModel.conversation,
+                                          course: $viewModel.course)
+            }
             .task {
                 viewModel.shouldScrollToId = "bottom"
                 if viewModel.dailyMessages.value == nil {

@@ -24,17 +24,17 @@ class BrowseChannelsViewModel: BaseViewModel {
         allChannels = await MessagesServiceFactory.shared.getChannelsOverview(for: courseId)
     }
 
-    func joinChannel(channelId: Int64) async -> Int64? {
+    func joinChannel(channelId: Int64) async -> Bool {
         let result = await MessagesServiceFactory.shared.joinChannel(for: courseId, channelId: channelId)
 
         switch result {
-        case .loading:
-            return nil
+        case .loading, .notStarted:
+            return false
         case .failure(let error):
-            presentError(userFacingError: error)
-            return nil
-        case .done(let response):
-            return response.id
+            presentError(userFacingError: UserFacingError(title: error.localizedDescription))
+            return false
+        case .success:
+            return true
         }
     }
 }

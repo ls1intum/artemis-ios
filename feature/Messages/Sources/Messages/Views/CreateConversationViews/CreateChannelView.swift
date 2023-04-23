@@ -97,6 +97,7 @@ struct CreateChannelView: View {
                         }
                     }
                 }
+                .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
         }
     }
 }

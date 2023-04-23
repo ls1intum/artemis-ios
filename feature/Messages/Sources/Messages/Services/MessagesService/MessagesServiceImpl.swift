@@ -296,8 +296,8 @@ class MessagesServiceImpl: MessagesService {
         }
     }
 
-    struct JoinChannelRequest: APIRequest {
-        typealias Response = Channel
+    struct AddMembersToChannelRequest: APIRequest {
+        typealias Response = RawResponse
 
         let channelId: Int64
         let courseId: Int
@@ -316,16 +316,45 @@ class MessagesServiceImpl: MessagesService {
         }
     }
 
-    func joinChannel(for courseId: Int, channelId: Int64) async -> DataState<Channel> {
-        guard let username = UserSession.shared.user?.login else { return .failure(error: UserFacingError(error: APIClientError.wrongParameters)) }
-
-        let result = await client.sendRequest(JoinChannelRequest(channelId: channelId, courseId: courseId, usernames: [username]))
+    func addMembersToChannel(for courseId: Int, channelId: Int64, usernames: [String]) async -> NetworkResponse {
+        let result = await client.sendRequest(AddMembersToChannelRequest(channelId: channelId, courseId: courseId, usernames: usernames))
 
         switch result {
-        case .success((let channel, _)):
-            return .done(response: channel)
+        case .success:
+            return .success
         case .failure(let error):
-            return .failure(error: UserFacingError(error: error))
+            return .failure(error: error)
+        }
+    }
+
+    struct AddMembersToGroupChatRequest: APIRequest {
+        typealias Response = RawResponse
+
+        let groupChatId: Int64
+        let courseId: Int
+        let usernames: [String]
+
+        var method: HTTPMethod {
+            return .post
+        }
+
+        var resourceName: String {
+            return "api/courses/\(courseId)/group-chats/\(groupChatId)/register"
+        }
+
+        func encode(to encoder: Encoder) throws {
+            try usernames.encode(to: encoder)
+        }
+    }
+
+    func addMembersToGroupChat(for courseId: Int, groupChatId: Int64, usernames: [String]) async -> NetworkResponse {
+        let result = await client.sendRequest(AddMembersToGroupChatRequest(groupChatId: groupChatId, courseId: courseId, usernames: usernames))
+
+        switch result {
+        case .success:
+            return .success
+        case .failure(let error):
+            return .failure(error: error)
         }
     }
 
@@ -444,6 +473,37 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success((let oneToOneChat, _)):
             return .done(response: oneToOneChat)
+        case .failure(let error):
+            return .failure(error: UserFacingError(error: error))
+        }
+    }
+
+    struct GetMembersOfConversationRequest: APIRequest {
+        typealias Response = [ConversationUser]
+
+        let courseId: Int
+        let conversationId: Int64
+        let searchText: String?
+        let page: Int
+
+        var method: HTTPMethod {
+            return .get
+        }
+
+        var resourceName: String {
+            return "api/courses/\(courseId)/conversations/\(conversationId)/members/search?loginOrName=\(searchText ?? "")&sort=firstName,asc&sort=lastName,asc&page=\(page)&size=2"
+        }
+    }
+
+    func getMembersOfConversation(for courseId: Int, conversationId: Int64, page: Int) async -> DataState<[ConversationUser]> {
+        let result = await client.sendRequest(GetMembersOfConversationRequest(courseId: courseId,
+                                                                              conversationId: conversationId,
+                                                                              searchText: nil,
+                                                                              page: page))
+
+        switch result {
+        case .success((let users, _)):
+            return .done(response: users)
         case .failure(let error):
             return .failure(error: UserFacingError(error: error))
         }

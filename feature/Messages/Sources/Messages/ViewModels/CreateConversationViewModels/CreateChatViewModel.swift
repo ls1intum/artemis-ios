@@ -67,4 +67,36 @@ class CreateChatViewModel: BaseViewModel {
             }
         }
     }
+
+    func addUsersToConversation(_ conversation: Conversation) async -> Bool {
+        let usernames = selectedUsers.compactMap { $0.login }
+
+        switch conversation {
+        case .channel(let conversation):
+            let result = await MessagesServiceFactory.shared.addMembersToChannel(for: courseId, channelId: conversation.id, usernames: usernames)
+            switch result {
+            case .loading, .notStarted:
+                return false
+            case .failure(let error):
+                presentError(userFacingError: UserFacingError(title: error.localizedDescription))
+                return false
+            case .success:
+                return true
+            }
+        case .groupChat(let conversation):
+            let result = await MessagesServiceFactory.shared.addMembersToGroupChat(for: courseId, groupChatId: conversation.id, usernames: usernames)
+            switch result {
+            case .loading, .notStarted:
+                return false
+            case .failure(let error):
+                presentError(userFacingError: UserFacingError(title: error.localizedDescription))
+                return false
+            case .success:
+                return true
+            }
+        default:
+            presentError(userFacingError: UserFacingError(title: "You cannot add users to this type of conversation!"))
+            return false
+        }
+    }
 }
