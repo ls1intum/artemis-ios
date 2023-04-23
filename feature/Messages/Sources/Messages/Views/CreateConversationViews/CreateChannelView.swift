@@ -27,11 +27,11 @@ struct CreateChannelView: View {
     var body: some View {
         NavigationView {
             VStack(alignment: .leading, spacing: .l) {
-                Text("Name")
+                Text(R.string.localizable.channelNameLabel())
                     .font(.headline)
                 HStack {
                     Text("#")
-                    TextField("Name", text: $name)
+                    TextField(R.string.localizable.channelNameLabel(), text: $name)
                         .textFieldStyle(ArtemisTextField())
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled(true)
@@ -45,31 +45,31 @@ struct CreateChannelView: View {
 
                 Divider()
 
-                Text("Description (Optional)")
+                Text(R.string.localizable.descriptionOptional())
                     .font(.headline)
-                TextField("Description", text: $description)
+                TextField(R.string.localizable.description(), text: $description)
                     .textFieldStyle(ArtemisTextField())
 
                 Divider()
                 Group {
                     VStack(alignment: .leading) {
-                        Toggle("Private Channel?", isOn: $isPrivate)
+                        Toggle(R.string.localizable.privateChannelLabel(), isOn: $isPrivate)
                             .tint(.Artemis.toggleColor)
-                        Text("Every user except instructors will need an invitation to join a private channel. Everybody can join a public channel.")
+                        Text(R.string.localizable.privateChannelDescription())
                             .font(.caption2)
                             .foregroundColor(.Artemis.secondaryLabel)
                     }
 
                     VStack(alignment: .leading) {
-                        Toggle("Announcement Channel?", isOn: $isAnnouncement)
+                        Toggle(R.string.localizable.announcementChannelLabel(), isOn: $isAnnouncement)
                             .tint(.Artemis.toggleColor)
-                        Text("Only instructors and channel moderators can create new messages in an announcement channel. Students can only read the messages and answer to them.")
+                        Text(R.string.localizable.announcementChannelDescription())
                             .font(.caption2)
                             .foregroundColor(.Artemis.secondaryLabel)
                     }
                 }
 
-                Button("Create Channel") {
+                Button(R.string.localizable.createChannelButtonLabel()) {
                     Task(priority: .userInitiated) {
                         let success = await viewModel.createChannel(for: courseId,
                                                                     name: name,
@@ -86,10 +86,10 @@ struct CreateChannelView: View {
                 Spacer()
             }
                 .padding(.horizontal, .l)
-                .navigationTitle("Create Channel")
+                .navigationTitle(R.string.localizable.createChannelNavTitel())
                 .toolbar {
                     ToolbarItem(placement: .navigationBarLeading) {
-                        Button("Cancel") {
+                        Button(R.string.localizable.cancel()) {
                             dismiss()
                         }
                     }

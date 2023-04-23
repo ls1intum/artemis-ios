@@ -41,9 +41,28 @@
 "noMessagesYet" = "There are no messages yet! Write the first message to kickstart this conversation.";
 "replyAction" = "%d reply";
 
+// MARK: CreateChannelView
+"channelNameLabel" = "Name";
+"channelNameWarningText" = "Names can only contain lowercase letters, numbers, and dashes. Only Artemis can create channels that start with a $.";
+"descriptionOptional" = "Description (Optional)";
+"description" = "Description";
+"privateChannelLabel" = "Private Channel?";
+"privateChannelDescription" = "Every user except instructors will need an invitation to join a private channel. Everybody can join a public channel.";
+"announcementChannelLabel" = "Announcement Channel?";
+"announcementChannelDescription" = "Only instructors and channel moderators can create new messages in an announcement channel. Students can only read the messages and answer to them.";
+"createChannelButtonLabel" = "Create Channel";
+"createChannelNavTitel" = "Create Channel";
+
+// MARK: BrowseChannelsView
+"joinedLabel" = "Joined";
+"numberOfMembers" = "%d Members";
+"joinButtonLabel" = "Join";
+"browseChannelsNavTitel" = "Browse Channels";
+
 // MARK: Errors
 "detailViewCantBeOpened" = "Detail View can not be opened. Please try again later.";
 "conversationNotLoaded" = "Conversation could not be loaded.";
 
 // MARK: General
 "loading" = "Loading...";
+"cancel" = "Cancel";

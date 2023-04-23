@@ -40,7 +40,7 @@ class CreateChannelViewModel: BaseViewModel {
         if isValid {
             nameFormatText = nil
         } else {
-            nameFormatText = "Names can only contain lowercase letters, numbers, and dashes. Only Artemis can create channels that start with a $."
+            nameFormatText = R.string.localizable.channelNameWarningText()
         }
         return isValid
     }

@@ -48,10 +48,10 @@ struct BrowseChannelsView: View {
             .task {
                 await viewModel.getAllChannels()
             }
-            .navigationTitle("Browse Channels")
+            .navigationTitle(R.string.localizable.browseChannelsNavTitel())
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
+                    Button(R.string.localizable.cancel()) {
                         dismiss()
                     }
                 }
@@ -81,9 +81,9 @@ private struct ChannelRow: View {
                 }.bold()
                 HStack {
                     if channel.isMember ?? false {
-                        Chip(text: "Joined", backgroundColor: .Artemis.badgeSuccessColor)
+                        Chip(text: R.string.localizable.joinedLabel(), backgroundColor: .Artemis.badgeSuccessColor)
                     }
-                    Text("\(channel.numberOfMembers ?? 0) Members")
+                    Text(R.string.localizable.numberOfMembers(channel.numberOfMembers ?? 0))
                 }
                 if let description = channel.description {
                     Text(description)
@@ -92,7 +92,7 @@ private struct ChannelRow: View {
             }
             Spacer()
             if !(channel.isMember ?? false) {
-                Button("Join") {
+                Button(R.string.localizable.joinButtonLabel()) {
                     Task(priority: .userInitiated) {
                         let success = await viewModel.joinChannel(channelId: channel.id)
                         if success {
