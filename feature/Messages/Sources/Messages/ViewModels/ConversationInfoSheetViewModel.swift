@@ -96,10 +96,6 @@ class ConversationInfoSheetViewModel: BaseViewModel {
         }
     }
 
-    func deleteChannel(for courseId: Int, conversationId: Int64) async {
-        print("TODO")
-    }
-
     func archiveChannel(for courseId: Int, conversationId: Int64) async -> DataState<Conversation> {
         let result = await MessagesServiceFactory.shared.archiveChannel(for: courseId, channelId: conversationId)
 

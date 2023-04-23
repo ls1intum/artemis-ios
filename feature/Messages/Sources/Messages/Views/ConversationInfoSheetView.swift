@@ -88,13 +88,6 @@ struct ConversationInfoSheetView: View {
                                 }
                             }.foregroundColor(.Artemis.badgeWarningColor)
                         }
-                        Button("Delete Channel") {
-                            viewModel.isLoading = true
-                            Task(priority: .userInitiated) {
-                                await viewModel.deleteChannel(for: course.id, conversationId: conversation.id)
-                                viewModel.isLoading = false
-                            }
-                        }.foregroundColor(.Artemis.badgeDangerColor)
                     }
                     Button("Leave Conversation") {
                         viewModel.isLoading = true
