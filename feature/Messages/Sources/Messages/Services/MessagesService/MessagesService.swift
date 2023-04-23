@@ -64,12 +64,27 @@ protocol MessagesService {
     /**
      * Perform a post request to join a specific channels in a specific course to the server.
      */
-    func joinChannel(for courseId: Int, channelId: Int64) async -> NetworkResponse
+    func joinChannel(for courseId: Int, channelId: Int64) async -> DataState<Channel>
 
     /**
      * Perform a post request to create a specific channels in a specific course to the server.
      */
-    func createChannel(for courseId: Int, name: String, description: String?, isPrivate: Bool, isAnnouncement: Bool) async -> NetworkResponse
+    func createChannel(for courseId: Int, name: String, description: String?, isPrivate: Bool, isAnnouncement: Bool) async -> DataState<Channel>
+
+    /**
+     * Perform a get request to find users in a specific course to the server.
+     */
+    func searchForUsers(for courseId: Int, searchText: String) async -> DataState<[ConversationUser]>
+
+    /**
+     * Perform a post request to create a specific group chat in a specific course to the server.
+     */
+    func createGroupChat(for courseId: Int, usernames: [String]) async -> DataState<GroupChat>
+    
+    /**
+     * Perform a post request to create a specific oneToOne chat in a specific course to the server.
+     */
+    func createOneToOneChat(for courseId: Int, usernames: [String]) async -> DataState<OneToOneChat>
 }
 
 enum MessagesServiceFactory {

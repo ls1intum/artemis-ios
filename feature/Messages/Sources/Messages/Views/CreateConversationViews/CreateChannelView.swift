@@ -9,10 +9,12 @@ import SwiftUI
 import DesignLibrary
 import SharedModels
 import Common
+import Navigation
 
 struct CreateChannelView: View {
 
     @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var navigationController: NavigationController
 
     @StateObject private var viewModel = CreateChannelViewModel()
 
@@ -71,14 +73,15 @@ struct CreateChannelView: View {
 
                 Button(R.string.localizable.createChannelButtonLabel()) {
                     Task(priority: .userInitiated) {
-                        let success = await viewModel.createChannel(for: courseId,
-                                                                    name: name,
-                                                                    description: description.isEmpty ? nil : description,
-                                                                    isPrivate: isPrivate,
-                                                                    isAnnouncement: isAnnouncement)
+                        let newChannelId = await viewModel.createChannel(for: courseId,
+                                                                         name: name,
+                                                                         description: description.isEmpty ? nil : description,
+                                                                         isPrivate: isPrivate,
+                                                                         isAnnouncement: isAnnouncement)
 
-                        if success {
+                        if let newChannelId {
                             dismiss()
+                            navigationController.goToCourseConversation(courseId: courseId, conversationId: newChannelId)
                         }
                     }
                 }.buttonStyle(ArtemisButton())

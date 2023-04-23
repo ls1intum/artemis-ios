@@ -62,6 +62,8 @@ struct BrowseChannelsView: View {
 
 private struct ChannelRow: View {
 
+    @EnvironmentObject var navigationController: NavigationController
+
     @ObservedObject var viewModel: BrowseChannelsViewModel
 
     let channel: Channel
@@ -94,9 +96,10 @@ private struct ChannelRow: View {
             if !(channel.isMember ?? false) {
                 Button(R.string.localizable.joinButtonLabel()) {
                     Task(priority: .userInitiated) {
-                        let success = await viewModel.joinChannel(channelId: channel.id)
-                        if success {
+                        let newConversationId = await viewModel.joinChannel(channelId: channel.id)
+                        if let newConversationId {
                             dismissAction()
+                            navigationController.goToCourseConversation(courseId: viewModel.courseId, conversationId: newConversationId)
                         }
                     }
                 }.buttonStyle(ArtemisButton())

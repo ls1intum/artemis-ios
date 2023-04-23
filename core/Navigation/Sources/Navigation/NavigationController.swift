@@ -15,18 +15,18 @@ public class NavigationController: ObservableObject {
         DeeplinkHandler.shared.setup(navigationController: self)
     }
 
-    func popToRoot() {
+    public func popToRoot() {
         path = NavigationPath()
     }
 
-    func goToCourse(id: Int) {
+    public func goToCourse(id: Int) {
         popToRoot()
 
         path.append(CoursePath(id: id))
         log.debug("CoursePath was appended to queue")
     }
 
-    func goToExercise(courseId: Int, exerciseId: Int) {
+    public func goToExercise(courseId: Int, exerciseId: Int) {
         courseTab = .exercise
         goToCourse(id: courseId)
         path.append(ExercisePath(id: exerciseId,
@@ -34,16 +34,16 @@ public class NavigationController: ObservableObject {
         log.debug("ExercisePath was appended to queue")
     }
 
-    func setTab(identifier: TabIdentifier) {
+    public func setTab(identifier: TabIdentifier) {
         courseTab = identifier
     }
 
-    func goToCourseConversations(courseId: Int) {
+    public func goToCourseConversations(courseId: Int) {
         courseTab = .communication
         goToCourse(id: courseId)
     }
 
-    func goToCourseConversation(courseId: Int, conversationId: Int64) {
+    public func goToCourseConversation(courseId: Int, conversationId: Int64) {
         goToCourseConversations(courseId: courseId)
         path.append(ConversationPath(id: conversationId,
                                      coursePath: CoursePath(id: courseId)))

@@ -12,9 +12,9 @@ class CreateChannelViewModel: BaseViewModel {
 
     @Published var nameFormatText: String?
 
-    func createChannel(for courseId: Int, name: String, description: String?, isPrivate: Bool, isAnnouncement: Bool) async -> Bool {
+    func createChannel(for courseId: Int, name: String, description: String?, isPrivate: Bool, isAnnouncement: Bool) async -> Int64? {
         if !validateChannelName(name: name) {
-            return false
+            return nil
         }
 
         let result = await MessagesServiceFactory.shared.createChannel(for: courseId,
@@ -24,13 +24,13 @@ class CreateChannelViewModel: BaseViewModel {
                                                                        isAnnouncement: isAnnouncement)
 
         switch result {
-        case .notStarted, .loading:
-            return false
-        case .success:
-            return true
+        case .loading:
+            return nil
         case .failure(let error):
-            presentError(userFacingError: UserFacingError(title: error.localizedDescription))
-            return false
+            presentError(userFacingError: error)
+            return nil
+        case .done(let response):
+            return response.id
         }
     }
 

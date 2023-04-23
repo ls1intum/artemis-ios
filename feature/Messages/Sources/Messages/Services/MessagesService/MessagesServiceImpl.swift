@@ -297,7 +297,7 @@ class MessagesServiceImpl: MessagesService {
     }
 
     struct JoinChannelRequest: APIRequest {
-        typealias Response = RawResponse
+        typealias Response = Channel
 
         let channelId: Int64
         let courseId: Int
@@ -316,21 +316,21 @@ class MessagesServiceImpl: MessagesService {
         }
     }
 
-    func joinChannel(for courseId: Int, channelId: Int64) async -> NetworkResponse {
-        guard let username = UserSession.shared.user?.login else { return .failure(error: APIClientError.wrongParameters) }
+    func joinChannel(for courseId: Int, channelId: Int64) async -> DataState<Channel> {
+        guard let username = UserSession.shared.user?.login else { return .failure(error: UserFacingError(error: APIClientError.wrongParameters)) }
 
         let result = await client.sendRequest(JoinChannelRequest(channelId: channelId, courseId: courseId, usernames: [username]))
 
         switch result {
-        case .success:
-            return .success
+        case .success((let channel, _)):
+            return .done(response: channel)
         case .failure(let error):
-            return .failure(error: error)
+            return .failure(error: UserFacingError(error: error))
         }
     }
 
     struct CreateChannelRequest: APIRequest {
-        typealias Response = RawResponse
+        typealias Response = Channel
 
         let courseId: Int
         var type: ConversationType = .channel
@@ -348,7 +348,7 @@ class MessagesServiceImpl: MessagesService {
         }
     }
 
-    func createChannel(for courseId: Int, name: String, description: String?, isPrivate: Bool, isAnnouncement: Bool) async -> NetworkResponse {
+    func createChannel(for courseId: Int, name: String, description: String?, isPrivate: Bool, isAnnouncement: Bool) async -> DataState<Channel> {
         let result = await client.sendRequest(CreateChannelRequest(courseId: courseId,
                                                                    name: name,
                                                                    description: description,
@@ -356,10 +356,96 @@ class MessagesServiceImpl: MessagesService {
                                                                    isAnnouncementChannel: isAnnouncement))
 
         switch result {
-        case .success:
-            return .success
+        case .success((let channel, _)):
+            return .done(response: channel)
         case .failure(let error):
-            return .failure(error: error)
+            return .failure(error: UserFacingError(error: error))
+        }
+    }
+
+    struct SearchForUsersRequest: APIRequest {
+        typealias Response = [ConversationUser]
+
+        let courseId: Int
+        let searchText: String
+
+        var method: HTTPMethod {
+            return .get
+        }
+
+        var resourceName: String {
+            return "api/courses/\(courseId)/users/search?loginOrName=\(searchText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&roles=students,tutors,instructors"
+        }
+    }
+
+    func searchForUsers(for courseId: Int, searchText: String) async -> DataState<[ConversationUser]> {
+        let result = await client.sendRequest(SearchForUsersRequest(courseId: courseId, searchText: searchText))
+
+        switch result {
+        case .success((let users, _)):
+            return .done(response: users)
+        case .failure(let error):
+            return .failure(error: UserFacingError(error: error))
+        }
+    }
+
+    struct CreateGroupChatRequest: APIRequest {
+        typealias Response = GroupChat
+
+        let courseId: Int
+        let usernames: [String]
+
+        var method: HTTPMethod {
+            return .post
+        }
+
+        var resourceName: String {
+            return "api/courses/\(courseId)/group-chats"
+        }
+
+        func encode(to encoder: Encoder) throws {
+            try usernames.encode(to: encoder)
+        }
+    }
+
+    func createGroupChat(for courseId: Int, usernames: [String]) async -> DataState<GroupChat> {
+        let result = await client.sendRequest(CreateGroupChatRequest(courseId: courseId, usernames: usernames))
+
+        switch result {
+        case .success((let groupChat, _)):
+            return .done(response: groupChat)
+        case .failure(let error):
+            return .failure(error: UserFacingError(error: error))
+        }
+    }
+
+    struct CreateOneToOneChatRequest: APIRequest {
+        typealias Response = OneToOneChat
+
+        let courseId: Int
+        let usernames: [String]
+
+        var method: HTTPMethod {
+            return .post
+        }
+
+        var resourceName: String {
+            return "api/courses/\(courseId)/one-to-one-chats"
+        }
+
+        func encode(to encoder: Encoder) throws {
+            try usernames.encode(to: encoder)
+        }
+    }
+
+    func createOneToOneChat(for courseId: Int, usernames: [String]) async -> DataState<OneToOneChat> {
+        let result = await client.sendRequest(CreateOneToOneChatRequest(courseId: courseId, usernames: usernames))
+
+        switch result {
+        case .success((let oneToOneChat, _)):
+            return .done(response: oneToOneChat)
+        case .failure(let error):
+            return .failure(error: UserFacingError(error: error))
         }
     }
 }

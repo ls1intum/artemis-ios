@@ -189,10 +189,7 @@ private struct SectionDisclosureLabel: View {
             }
         }
             .sheet(isPresented: $showNewConversationSheet) {
-                if let conversationType {
-                    if conversationType == .channel {
-                    }
-                }
+                CreateChatView(courseId: viewModel.courseId)
             }
             .sheet(isPresented: $showCreateChannel, onDismiss: {
                 Task {
