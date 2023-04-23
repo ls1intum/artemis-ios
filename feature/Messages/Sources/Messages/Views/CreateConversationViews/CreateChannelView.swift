@@ -33,6 +33,8 @@ struct CreateChannelView: View {
                     Text("#")
                     TextField("Name", text: $name)
                         .textFieldStyle(ArtemisTextField())
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled(true)
                 }
 
                 if let warningText = viewModel.nameFormatText {
@@ -57,7 +59,7 @@ struct CreateChannelView: View {
                             .font(.caption2)
                             .foregroundColor(.Artemis.secondaryLabel)
                     }
-                    
+
                     VStack(alignment: .leading) {
                         Toggle("Announcement Channel?", isOn: $isAnnouncement)
                             .tint(.Artemis.toggleColor)
