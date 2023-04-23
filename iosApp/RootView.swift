@@ -45,8 +45,9 @@ struct RootView: View {
                                 }
                             }
                             .navigationDestination(for: ConversationPath.self) { conversationPath in
-                                if let conversation = conversationPath.conversation {
-                                    ConversationView(courseId: conversationPath.coursePath.id,
+                                if let conversation = conversationPath.conversation,
+                                   let course = conversationPath.coursePath.course {
+                                    ConversationView(course: course,
                                                      conversation: conversation)
                                 } else {
                                     ConversationView(courseId: conversationPath.coursePath.id,

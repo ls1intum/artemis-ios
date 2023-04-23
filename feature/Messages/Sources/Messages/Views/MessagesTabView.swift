@@ -41,13 +41,13 @@ public struct MessagesTabView: View {
                 }
                 ForEach(searchResults) { conversation in
                     if let channel = conversation.baseConversation as? Channel {
-                        ConversationRow(viewModel: viewModel, conversation: channel)
+                        ConversationRow(viewModel: viewModel, course: $course, conversation: channel)
                     }
                     if let groupChat = conversation.baseConversation as? GroupChat {
-                        ConversationRow(viewModel: viewModel, conversation: groupChat)
+                        ConversationRow(viewModel: viewModel, course: $course, conversation: groupChat)
                     }
                     if let oneToOneChat = conversation.baseConversation as? OneToOneChat {
-                        ConversationRow(viewModel: viewModel, conversation: oneToOneChat)
+                        ConversationRow(viewModel: viewModel, course: $course, conversation: oneToOneChat)
                     }
                 }
             } else {
@@ -127,13 +127,13 @@ private struct MixedMessageSection: View {
                 DisclosureGroup(isExpanded: $isExpanded, content: {
                     ForEach(conversations) { conversation in
                         if let channel = conversation.baseConversation as? Channel {
-                            ConversationRow(viewModel: viewModel, conversation: channel)
+                            ConversationRow(viewModel: viewModel, course: $course, conversation: channel)
                         }
                         if let groupChat = conversation.baseConversation as? GroupChat {
-                            ConversationRow(viewModel: viewModel, conversation: groupChat)
+                            ConversationRow(viewModel: viewModel, course: $course, conversation: groupChat)
                         }
                         if let oneToOneChat = conversation.baseConversation as? OneToOneChat {
-                            ConversationRow(viewModel: viewModel, conversation: oneToOneChat)
+                            ConversationRow(viewModel: viewModel, course: $course, conversation: oneToOneChat)
                         }
                     }
                 }, label: {
@@ -194,8 +194,12 @@ private struct SectionDisclosureLabel: View {
                     }
                 }
             }
-            .sheet(isPresented: $showCreateChannel) {
-                Text("TODO Create Channel")
+            .sheet(isPresented: $showCreateChannel, onDismiss: {
+                Task {
+                    await viewModel.loadConversations()
+                }
+            }) {
+                CreateChannelView(courseId: viewModel.courseId)
             }
             .sheet(isPresented: $showBrowseChannels, onDismiss: {
                 Task {
@@ -236,7 +240,7 @@ private struct MessageSection<T: BaseConversation>: View {
             DataStateView(data: $conversations,
                           retryHandler: { await viewModel.loadConversations() }) { conversations in
                 ForEach(conversations, id: \.id) { conversation in
-                    ConversationRow(viewModel: viewModel, conversation: conversation)
+                    ConversationRow(viewModel: viewModel, course: $course, conversation: conversation)
                 }
             }
         }, label: {
@@ -256,13 +260,19 @@ private struct ConversationRow<T: BaseConversation>: View {
 
     @ObservedObject var viewModel: MessagesTabViewModel
 
+    @Binding var course: DataState<Course>
+
     let conversation: T
 
     var body: some View {
         Button(action: {
             // should always be non-optional
             if let conversation = Conversation(conversation: conversation) {
-                navigationController.path.append(ConversationPath(conversation: conversation, coursePath: CoursePath(id: viewModel.courseId)))
+                if let course = course.value {
+                    navigationController.path.append(ConversationPath(conversation: conversation, coursePath: CoursePath(course: course)))
+                } else {
+                    navigationController.path.append(ConversationPath(conversation: conversation, coursePath: CoursePath(id: viewModel.courseId)))
+                }
             }
         }, label: {
             HStack {

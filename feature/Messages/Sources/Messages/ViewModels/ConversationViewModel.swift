@@ -15,6 +15,7 @@ public class ConversationViewModel: BaseViewModel {
 
     @Published var dailyMessages: DataState<[Date: [Message]]> = .loading
     @Published var conversation: DataState<Conversation> = .loading
+    @Published var course: DataState<Course> = .loading
 
     var shouldScrollToId: String?
 
@@ -23,8 +24,9 @@ public class ConversationViewModel: BaseViewModel {
 
     private var size = 50
 
-    public init(courseId: Int, conversation: Conversation) {
-        self.courseId = courseId
+    public init(course: Course, conversation: Conversation) {
+        self._course = Published(wrappedValue: .done(response: course))
+        self.courseId = course.id
         self._conversation = Published(wrappedValue: .done(response: conversation))
         self.conversationId = conversation.id
 
@@ -35,11 +37,15 @@ public class ConversationViewModel: BaseViewModel {
         self.courseId = courseId
         self.conversationId = conversationId
         self._conversation = Published(wrappedValue: .loading)
+        self._course = Published(wrappedValue: .loading)
 
         super.init()
 
         Task {
             await loadConversation()
+        }
+        Task {
+            await loadCourse()
         }
     }
 
@@ -238,5 +244,9 @@ public class ConversationViewModel: BaseViewModel {
             }
             self.conversation = .done(response: conversation)
         }
+    }
+
+    private func loadCourse() async {
+        // TODO: load course
     }
 }

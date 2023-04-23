@@ -65,6 +65,11 @@ protocol MessagesService {
      * Perform a post request to join a specific channels in a specific course to the server.
      */
     func joinChannel(for courseId: Int, channelId: Int64) async -> NetworkResponse
+
+    /**
+     * Perform a post request to create a specific channels in a specific course to the server.
+     */
+    func createChannel(for courseId: Int, name: String, description: String?, isPrivate: Bool, isAnnouncement: Bool) async -> NetworkResponse
 }
 
 enum MessagesServiceFactory {

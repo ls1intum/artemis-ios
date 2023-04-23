@@ -328,4 +328,38 @@ class MessagesServiceImpl: MessagesService {
             return .failure(error: error)
         }
     }
+
+    struct CreateChannelRequest: APIRequest {
+        typealias Response = RawResponse
+
+        let courseId: Int
+        var type: ConversationType = .channel
+        let name: String
+        let description: String?
+        let isPublic: Bool
+        let isAnnouncementChannel: Bool
+
+        var method: HTTPMethod {
+            return .post
+        }
+
+        var resourceName: String {
+            return "api/courses/\(courseId)/channels"
+        }
+    }
+
+    func createChannel(for courseId: Int, name: String, description: String?, isPrivate: Bool, isAnnouncement: Bool) async -> NetworkResponse {
+        let result = await client.sendRequest(CreateChannelRequest(courseId: courseId,
+                                                                   name: name,
+                                                                   description: description,
+                                                                   isPublic: !isPrivate,
+                                                                   isAnnouncementChannel: isAnnouncement))
+
+        switch result {
+        case .success:
+            return .success
+        case .failure(let error):
+            return .failure(error: error)
+        }
+    }
 }

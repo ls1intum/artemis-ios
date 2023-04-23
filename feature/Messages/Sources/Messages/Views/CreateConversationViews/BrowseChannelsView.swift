@@ -50,7 +50,7 @@ struct BrowseChannelsView: View {
             }
             .navigationTitle("Browse Channels")
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .navigationBarLeading) {
                     Button("Cancel") {
                         dismiss()
                     }
