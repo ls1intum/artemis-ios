@@ -10,6 +10,9 @@ import Common
 import SharedModels
 import DesignLibrary
 
+// swiftlint:disable:next identifier_name
+private var PAGINATION_SIZE = 20
+
 struct ConversationInfoSheetView: View {
 
     @StateObject private var viewModel = ConversationInfoSheetViewModel()
@@ -145,7 +148,7 @@ struct ConversationInfoSheetView: View {
         Group {
             if let course = course.value,
                let conversation = conversation.value,
-               (conversation.baseConversation.numberOfMembers ?? 0) > 2 || viewModel.page > 0 {
+               (conversation.baseConversation.numberOfMembers ?? 0) > PAGINATION_SIZE || viewModel.page > 0 {
                 HStack(spacing: .l) {
                     Spacer()
                     Text("< Previous")
@@ -163,8 +166,8 @@ struct ConversationInfoSheetView: View {
                                 await viewModel.loadNextMemberPage(for: course.id, conversationId: conversation.id)
                             }
                         }
-                        .disabled((conversation.baseConversation.numberOfMembers ?? 0) <= (viewModel.page + 1) * 2)
-                        .foregroundColor((conversation.baseConversation.numberOfMembers ?? 0) <= (viewModel.page + 1) * 2 ? .Artemis.buttonDisabledColor : .Artemis.artemisBlue)
+                        .disabled((conversation.baseConversation.numberOfMembers ?? 0) <= (viewModel.page + 1) * PAGINATION_SIZE)
+                        .foregroundColor((conversation.baseConversation.numberOfMembers ?? 0) <= (viewModel.page + 1) * PAGINATION_SIZE ? .Artemis.buttonDisabledColor : .Artemis.artemisBlue)
                     Spacer()
                 }.font(.body)
             } else {
