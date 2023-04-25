@@ -10,7 +10,7 @@ protocol DashboardService {
     /**
      * Load the dashboard from the specified server using the specified authentication data.
      */
-    func loadCourses() async -> DataState<[Course]>
+    func loadCourses() async -> DataState<[CourseForDashboard]>
 }
 
 enum DashboardServiceFactory {
