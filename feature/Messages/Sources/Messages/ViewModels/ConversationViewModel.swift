@@ -247,6 +247,15 @@ public class ConversationViewModel: BaseViewModel {
     }
 
     private func loadCourse() async {
-        // TODO: load course
+        let result = await CourseServiceFactory.shared.getCourse(courseId: courseId)
+
+        switch result {
+        case .loading:
+            course = .loading
+        case .failure(let error):
+            course = .failure(error: error)
+        case .done(let response):
+            course = .done(response: response.course)
+        }
     }
 }
