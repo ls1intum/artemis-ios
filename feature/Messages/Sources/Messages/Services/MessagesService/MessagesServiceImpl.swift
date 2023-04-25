@@ -11,7 +11,7 @@ import Common
 import SharedModels
 import UserStore
 
-// swiftlint:disable file_length
+// swiftlint:disable file_length type_body_length
 class MessagesServiceImpl: MessagesService {
 
     private let client = APIClient()
@@ -646,7 +646,7 @@ class MessagesServiceImpl: MessagesService {
     }
 
     func editConversation(for courseId: Int, conversation: Conversation, newName: String?, newTopic: String?, newDescription: String?) async -> DataState<Conversation> {
-        guard let typePath = conversation.baseConversation.type.path else { return .failure(error: UserFacingError(title: "Unsupported Conversation Type"))}
+        guard let typePath = conversation.baseConversation.type.path else { return .failure(error: UserFacingError(title: R.string.localizable.unsupportedConversationType()))}
 
         let result = await client.sendRequest(RenameConversationRequest(courseId: courseId,
                                                                         conversationId: conversation.id,

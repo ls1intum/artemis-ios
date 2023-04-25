@@ -59,10 +59,52 @@
 "joinButtonLabel" = "Join";
 "browseChannelsNavTitel" = "Browse Channels";
 
+// MARK: CreateChatView
+"selectAtLeastOneUser" = "Select at least one user";
+"cantAddUserToThisConversation" = "You cannot add users to this type of conversation!";
+
+// MARK: CreateOrAddTOChatView
+"newConversationTitle" = "New Conversation";
+"newConversationButtonLabel" = "Create Conversation";
+"addUserTitle" = "Add User(s)";
+"addUserButtonLabel" = "Add User(s)";
+"exampleUser" = "ex. Stefan";
+
+// MARK: ConversationInfoSheetView
+"cantRemoveMembers" = "Can not remove members in this conversation.";
+"settings" = "Settings";
+"addUsers" = "Add users";
+"unarchiveChannelButtonLabel" = "Unarchive Channel";
+"archiveChannelButtonLabel" = "Archive Channel";
+"leaveConversationButtonLabel" = "Leave Conversation";
+"youLabel" = "You";
+"removeUserButtonLabel" = "Remove user";
+"membersLabel" = "Members (%d)";
+"nameLabel" = "Name";
+"noNameSet" = "No name set ...";
+"editNameTitle" = "Edit Name";
+"newNameLabel" = "New Name";
+"topicLabel" = "Topic";
+"noTopicSet" = "No topic set ...";
+"editTopicTitle" = "Edit Topic";
+"newTopicLabel" = "New Topic";
+"descriptionLabel" = "Description";
+"noDescriptionSet" = "No description set ...";
+"editDescriptionLabel" = "Edit Description";
+"newDescriptionLabel" = "New Description";
+"moreInfoLabel" = "More info";
+"createdByLabel" = "Created by: %s";
+"createdOnLabel" = "Created on: %s";
+
 // MARK: Errors
 "detailViewCantBeOpened" = "Detail View can not be opened. Please try again later.";
 "conversationNotLoaded" = "Conversation could not be loaded.";
+"unsupportedConversationType" = "Unsupported Conversation Type";
 
 // MARK: General
+"ok" = "OK";
 "loading" = "Loading...";
 "cancel" = "Cancel";
+"unknown" = "Unknown";
+"previous" = "Previous";
+"next" = "Next";

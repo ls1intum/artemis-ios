@@ -41,14 +41,14 @@ class ConversationInfoSheetViewModel: BaseViewModel {
             return .failure(error: error)
         case .done(let response):
             guard let conversation = response.first(where: { $0.id == conversationId }) else {
-                return .failure(error: UserFacingError(title: "Conversation could not be reloaded."))
+                return .failure(error: UserFacingError(title: R.string.localizable.conversationNotLoaded()))
             }
             return .done(response: conversation)
         }
     }
 
     func removeMemberFromConversation(for courseId: Int, conversation: Conversation, member: ConversationUser) async -> DataState<Conversation> {
-        guard let username = member.login else { return .failure(error: UserFacingError(title: "Can not remove members in this conversation.")) }
+        guard let username = member.login else { return .failure(error: UserFacingError(title: R.string.localizable.cantRemoveMembers())) }
 
         let result: NetworkResponse
         switch conversation {
@@ -58,7 +58,7 @@ class ConversationInfoSheetViewModel: BaseViewModel {
             result = await MessagesServiceFactory.shared.removeMembersFromGroupChat(for: courseId, groupChatId: conversation.id, usernames: [username])
         case .oneToOneChat, .unknown:
             // do nothing
-            return .failure(error: UserFacingError(title: "Can not remove members in this conversation."))
+            return .failure(error: UserFacingError(title: R.string.localizable.conversationNotLoaded()))
         }
 
         switch result {

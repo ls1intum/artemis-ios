@@ -162,7 +162,7 @@ private struct SectionDisclosureLabel: View {
                 Image(systemName: "plus.bubble")
                     .onTapGesture {
                         if conversationType == .channel {
-                            if viewModel.course.isAtLeastTutorInCourse ?? false {
+                            if viewModel.course.isAtLeastTutorInCourse {
                                 showNewConversationActionDialog = true
                             } else {
                                 showBrowseChannels = true

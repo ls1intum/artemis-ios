@@ -57,11 +57,13 @@ struct MessageActionSheet: View {
                 })
                 Divider()
                 Button(action: {
+                    // TODO: edit
                     viewModel.presentError(userFacingError: UserFacingError(title: "TODO"))
                 }, label: {
                     ButtonContent(title: R.string.localizable.editMessage(), icon: "pencil")
                 })
                 Button(action: {
+                    // TODO: delete
                     viewModel.presentError(userFacingError: UserFacingError(title: "TODO"))
                 }, label: {
                     ButtonContent(title: R.string.localizable.deleteMessage(), icon: "trash.fill")

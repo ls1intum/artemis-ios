@@ -39,7 +39,7 @@ class CreateChatViewModel: BaseViewModel {
         let usernames = selectedUsers.compactMap { $0.login }
 
         if usernames.isEmpty {
-            presentError(userFacingError: UserFacingError(title: "Select at least one user"))
+            presentError(userFacingError: UserFacingError(title: R.string.localizable.selectAtLeastOneUser()))
             return nil
         }
 
@@ -95,7 +95,7 @@ class CreateChatViewModel: BaseViewModel {
                 return true
             }
         default:
-            presentError(userFacingError: UserFacingError(title: "You cannot add users to this type of conversation!"))
+            presentError(userFacingError: UserFacingError(title: R.string.localizable.cantAddUserToThisConversation()))
             return false
         }
     }

@@ -90,16 +90,16 @@ struct ConversationInfoSheetView: View {
     private var actionsSection: some View {
         Group {
             if let conversation = conversation.value {
-                Section("Settings") {
+                Section(R.string.localizable.settings()) {
                     if canAddUsers {
-                        Button("Add users") {
+                        Button(R.string.localizable.addUsers()) {
                             showAddMemberSheet = true
                         }
                     }
                     if let channel = conversation.baseConversation as? Channel,
                        channel.hasChannelModerationRights ?? false {
                         if channel.isArchived ?? false {
-                            Button("Unarchive Channel") {
+                            Button(R.string.localizable.unarchiveChannelButtonLabel()) {
                                 viewModel.isLoading = true
                                 Task(priority: .userInitiated) {
                                     let result = await viewModel.unarchiveChannel(for: course.id, conversationId: conversation.id)
@@ -116,7 +116,7 @@ struct ConversationInfoSheetView: View {
                                 }
                             }.foregroundColor(.Artemis.badgeWarningColor)
                         } else {
-                            Button("Archive Channel") {
+                            Button(R.string.localizable.archiveChannelButtonLabel()) {
                                 viewModel.isLoading = true
                                 Task(priority: .userInitiated) {
                                     let result = await viewModel.archiveChannel(for: course.id, conversationId: conversation.id)
@@ -133,7 +133,7 @@ struct ConversationInfoSheetView: View {
                         }
                     }
                     if canLeaveConversation {
-                        Button("Leave Conversation") {
+                        Button(R.string.localizable.leaveConversationButtonLabel()) {
                             viewModel.isLoading = true
                             Task(priority: .userInitiated) {
                                 let success = await viewModel.leaveConversation(for: course.id, conversation: conversation)
@@ -177,16 +177,16 @@ struct ConversationInfoSheetView: View {
                                   retryHandler: { await viewModel.loadMembers(for: course.id, conversationId: conversation.id) }) { members in
                         ForEach(members, id: \.id) { member in
                             HStack {
-                                Text(member.name ?? "Unknown")
+                                Text(member.name ?? R.string.localizable.unknown())
                                 Spacer()
                                 if UserSession.shared.user?.login == member.login {
-                                    Chip(text: "You", backgroundColor: .Artemis.artemisBlue)
+                                    Chip(text: R.string.localizable.youLabel(), backgroundColor: .Artemis.artemisBlue)
                                 }
                             }
                                 .contextMenu {
                                     if UserSession.shared.user?.login != member.login,
                                        canRemoveUsers {
-                                        Button("Remove user") {
+                                        Button(R.string.localizable.removeUserButtonLabel()) {
                                             viewModel.isLoading = true
                                             Task(priority: .userInitiated) {
                                                 let result = await viewModel.removeMemberFromConversation(for: course.id, conversation: conversation, member: member)
@@ -207,7 +207,7 @@ struct ConversationInfoSheetView: View {
                         }
                     }
                 }, header: {
-                    Text("Members (\(conversation.baseConversation.numberOfMembers ?? 0))")
+                    Text(R.string.localizable.membersLabel(conversation.baseConversation.numberOfMembers ?? 0))
                 }, footer: {
                     pageActions
                 })
@@ -223,7 +223,7 @@ struct ConversationInfoSheetView: View {
                (conversation.baseConversation.numberOfMembers ?? 0) > PAGINATION_SIZE || viewModel.page > 0 {
                 HStack(spacing: .l) {
                     Spacer()
-                    Text("< Previous")
+                    Text("< \(R.string.localizable.previous())")
                         .onTapGesture {
                             Task {
                                 await viewModel.loadPreviousMemberPage(for: course.id, conversationId: conversation.id)
@@ -232,7 +232,7 @@ struct ConversationInfoSheetView: View {
                         .disabled(viewModel.page == 0)
                         .foregroundColor(viewModel.page == 0 ? .Artemis.buttonDisabledColor : .Artemis.artemisBlue)
                     Text("\(viewModel.page + 1)")
-                    Text("Next >")
+                    Text("\(R.string.localizable.next()) >")
                         .onTapGesture {
                             Task {
                                 await viewModel.loadNextMemberPage(for: course.id, conversationId: conversation.id)
@@ -267,9 +267,9 @@ private struct InfoSection: View {
     var body: some View {
         if let conversation = conversation.value {
             if let channel = conversation.baseConversation as? Channel {
-                Section("Name") {
+                Section(R.string.localizable.nameLabel()) {
                     HStack {
-                        Text(channel.name ?? "No name set ...")
+                        Text(channel.name ?? R.string.localizable.noNameSet())
                         if channel.hasChannelModerationRights ?? false {
                             Spacer()
                             Button(action: { showChangeNameAlert = true }, label: {
@@ -278,45 +278,45 @@ private struct InfoSection: View {
                         }
                     }
                 }
-                Section("Topic") {
+                Section(R.string.localizable.topicLabel()) {
                     HStack {
-                        Text(channel.topic ?? "No topic set ...")
+                        Text(channel.topic ?? R.string.localizable.noTopicSet())
                         if channel.hasChannelModerationRights ?? false {
                             Spacer()
                             Button(action: { showChangeTopicAlert = true }, label: {
                                 Image(systemName: "pencil")
                             })
-                                .alert("Edit Topic", isPresented: $showChangeTopicAlert) {
-                                    TextField("New Topic", text: $newTopic)
-                                    Button("OK") {
+                                .alert(R.string.localizable.editTopicTitle(), isPresented: $showChangeTopicAlert) {
+                                    TextField(R.string.localizable.newTopicLabel(), text: $newTopic)
+                                    Button(R.string.localizable.ok()) {
                                         viewModel.isLoading = true
                                         Task(priority: .userInitiated) {
                                             self.conversation = await viewModel.editTopic(for: course.id, conversation: conversation, newTopic: newTopic)
                                         }
                                     }
-                                    Button("Cancel", role: .cancel) { }
+                                    Button(R.string.localizable.cancel(), role: .cancel) { }
                                 }
                                 .textCase(nil)
                         }
                     }
                 }
-                Section("Description") {
+                Section(R.string.localizable.description()) {
                     HStack {
-                        Text(channel.description ?? "No description set ...")
+                        Text(channel.description ?? R.string.localizable.noDescriptionSet())
                         if channel.hasChannelModerationRights ?? false {
                             Spacer()
                             Button(action: { showChangeDescriptionAlert = true }, label: {
                                 Image(systemName: "pencil")
                             })
-                                .alert("Edit Description", isPresented: $showChangeDescriptionAlert) {
-                                    TextField("New Description", text: $newDescription)
-                                    Button("OK") {
+                                .alert(R.string.localizable.editDescriptionLabel(), isPresented: $showChangeDescriptionAlert) {
+                                    TextField(R.string.localizable.newDescriptionLabel(), text: $newDescription)
+                                    Button(R.string.localizable.ok()) {
                                         viewModel.isLoading = true
                                         Task(priority: .userInitiated) {
                                             self.conversation = await viewModel.editDescription(for: course.id, conversation: conversation, newDescription: newDescription)
                                         }
                                     }
-                                    Button("Cancel", role: .cancel) { }
+                                    Button(R.string.localizable.cancel(), role: .cancel) { }
                                 }
                                 .textCase(nil)
                         }
@@ -328,9 +328,9 @@ private struct InfoSection: View {
                     }
             }
             if let groupChat = conversation.baseConversation as? GroupChat {
-                Section("Name") {
+                Section(R.string.localizable.nameLabel()) {
                     HStack {
-                        Text(groupChat.name ?? "No name set ...")
+                        Text(groupChat.name ?? R.string.localizable.noNameSet())
                         if groupChat.isMember ?? false {
                             Spacer()
                             Button(action: { showChangeNameAlert = true }, label: {
@@ -340,26 +340,22 @@ private struct InfoSection: View {
                     }
                 }
             }
-            Section("More info") {
-                Text("Created by: \(conversation.baseConversation.creator?.name ?? "Unknown")")
-                if let creationDate = conversation.baseConversation.creationDate {
-                    Text("Created on: \(creationDate.mediumDateShortTime)")
-                } else {
-                    Text("Created on: Unknown")
-                }
+            Section(R.string.localizable.moreInfoLabel()) {
+                Text(R.string.localizable.createdByLabel(conversation.baseConversation.creator?.name ?? R.string.localizable.unknown()))
+                Text(R.string.localizable.createdOnLabel(conversation.baseConversation.creationDate?.mediumDateShortTime ?? R.string.localizable.unknown()))
             }
                 .onAppear {
                     newName = conversation.baseConversation.conversationName
                 }
-                .alert("Edit Name", isPresented: $showChangeNameAlert) {
-                    TextField("New Name", text: $newName)
-                    Button("OK") {
+                .alert(R.string.localizable.editNameTitle(), isPresented: $showChangeNameAlert) {
+                    TextField(R.string.localizable.newNameLabel(), text: $newName)
+                    Button(R.string.localizable.ok()) {
                         viewModel.isLoading = true
                         Task(priority: .userInitiated) {
                             self.conversation = await viewModel.editName(for: course.id, conversation: conversation, newName: newName)
                         }
                     }
-                    Button("Cancel", role: .cancel) { }
+                    Button(R.string.localizable.cancel(), role: .cancel) { }
                 }
                 .textCase(nil)
         }

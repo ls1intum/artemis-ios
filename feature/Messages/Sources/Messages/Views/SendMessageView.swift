@@ -108,11 +108,13 @@ struct SendMessageView: View {
                         Image(systemName: "link")
                     })
                     Button(action: {
+                        // TODO: add exercises here
                         print("show Picker")
                     }, label: {
                         Text(R.string.localizable.exercise())
                     })
                     Button(action: {
+                        // TODO: add lectures here
                         print("show Picker")
                     }, label: {
                         Text(R.string.localizable.lecture())

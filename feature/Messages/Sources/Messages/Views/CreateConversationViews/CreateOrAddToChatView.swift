@@ -32,18 +32,18 @@ struct CreateOrAddToChatView: View {
     private var navigationTitle: String {
         switch type {
         case .createChat:
-            return "New Conversation"
+            return R.string.localizable.newConversationTitle()
         case .addToChat:
-            return "Add User(s)"
+            return R.string.localizable.addUserTitle()
         }
     }
 
     private var saveButtonLabel: String {
         switch type {
         case .createChat:
-            return "Create Conversation"
+            return R.string.localizable.newConversationButtonLabel()
         case .addToChat:
-            return "Add User(s)"
+            return R.string.localizable.addUserButtonLabel()
         }
     }
 
@@ -55,11 +55,11 @@ struct CreateOrAddToChatView: View {
                         Button(action: {
                             viewModel.selectedUsers.removeAll(where: { $0.id == user.id })
                         }, label: {
-                            Chip(text: user.name ?? "Unknown", backgroundColor: .Artemis.artemisBlue)
+                            Chip(text: user.name ?? R.string.localizable.unknown(), backgroundColor: .Artemis.artemisBlue)
                         })
                     }
                 }
-                TextField("ex. Stefan", text: $viewModel.searchText)
+                TextField(R.string.localizable.exampleUser(), text: $viewModel.searchText)
                     .textFieldStyle(ArtemisTextField())
                 DataStateView(data: $viewModel.searchResults,
                               retryHandler: { await viewModel.loadUsers() }) { users in
@@ -72,7 +72,7 @@ struct CreateOrAddToChatView: View {
                                     viewModel.selectedUsers.append(user)
                                 }
                             }, label: {
-                                Text(user.name ?? "Unknown")
+                                Text(user.name ?? R.string.localizable.unknown())
                             })
                         }
                     }
