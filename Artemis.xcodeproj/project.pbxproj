@@ -15,7 +15,6 @@
 		22B12972290048A800C4910E /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 22B12971290048A800C4910E /* Localizable.strings */; };
 		22B6A924292D815A00F08C7E /* CourseView in Frameworks */ = {isa = PBXBuildFile; productRef = 22B6A923292D815A00F08C7E /* CourseView */; };
 		22B6A926292D815A00F08C7E /* Dashboard in Frameworks */ = {isa = PBXBuildFile; productRef = 22B6A925292D815A00F08C7E /* Dashboard */; };
-		22B6A92E292D815A00F08C7E /* ExerciseView in Frameworks */ = {isa = PBXBuildFile; productRef = 22B6A92D292D815A00F08C7E /* ExerciseView */; };
 		D515291529AD2E83002CAD2F /* Navigation in Frameworks */ = {isa = PBXBuildFile; productRef = D515291429AD2E83002CAD2F /* Navigation */; };
 		D54B8BF7297082C400BB1AA3 /* RootViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54B8BF6297082C400BB1AA3 /* RootViewModel.swift */; };
 		D54F685929C467E300F05A43 /* Notifications in Frameworks */ = {isa = PBXBuildFile; productRef = D54F685829C467E300F05A43 /* Notifications */; };
@@ -43,7 +42,6 @@
 		220409A628D4EF1A00204B1C /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		22B12971290048A800C4910E /* Localizable.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
 		22B6A916292D417900F08C7E /* CourseView */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = CourseView; path = feature/CourseView; sourceTree = "<group>"; };
-		22B6A918292D418F00F08C7E /* ExerciseView */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = ExerciseView; path = feature/ExerciseView; sourceTree = "<group>"; };
 		22B6A91A292D529400F08C7E /* CourseRegistration */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = CourseRegistration; path = feature/CourseRegistration; sourceTree = "<group>"; };
 		7555FF7B242A565900829871 /* Artemis.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Artemis.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D515291329AD2DFB002CAD2F /* Navigation */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Navigation; path = core/Navigation; sourceTree = "<group>"; };
@@ -78,7 +76,6 @@
 				D54F685929C467E300F05A43 /* Notifications in Frameworks */,
 				D5800FC229F1BC5B00FA97D7 /* DesignLibrary in Frameworks */,
 				D5F1D7B029B9E6BA0010B875 /* Account in Frameworks */,
-				22B6A92E292D815A00F08C7E /* ExerciseView in Frameworks */,
 				22B6A926292D815A00F08C7E /* Dashboard in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -163,7 +160,6 @@
 				D52CEEB129B9E5A1003C7B2E /* Account */,
 				22B6A916292D417900F08C7E /* CourseView */,
 				D59E86A229ACB26C0012C378 /* Dashboard */,
-				22B6A918292D418F00F08C7E /* ExerciseView */,
 				22B6A91A292D529400F08C7E /* CourseRegistration */,
 			);
 			name = Features;
@@ -197,7 +193,6 @@
 			packageProductDependencies = (
 				22B6A923292D815A00F08C7E /* CourseView */,
 				22B6A925292D815A00F08C7E /* Dashboard */,
-				22B6A92D292D815A00F08C7E /* ExerciseView */,
 				D59E86A329ACC6EB0012C378 /* CourseRegistration */,
 				D515291429AD2E83002CAD2F /* Navigation */,
 				D5F1D7AF29B9E6BA0010B875 /* Account */,
@@ -516,10 +511,6 @@
 		22B6A925292D815A00F08C7E /* Dashboard */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Dashboard;
-		};
-		22B6A92D292D815A00F08C7E /* ExerciseView */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = ExerciseView;
 		};
 		D515291429AD2E83002CAD2F /* Navigation */ = {
 			isa = XCSwiftPackageProductDependency;

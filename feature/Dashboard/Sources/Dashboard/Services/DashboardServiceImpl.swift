@@ -11,7 +11,7 @@ class DashboardServiceImpl: DashboardService {
     let client = APIClient()
 
     struct GetCoursesRequest: APIRequest {
-        typealias Response = [Course]
+        typealias Response = [CourseForDashboard]
 
         var method: HTTPMethod {
             return .get
@@ -22,7 +22,7 @@ class DashboardServiceImpl: DashboardService {
         }
     }
 
-    func loadCourses() async -> DataState<[Course]> {
+    func loadCourses() async -> DataState<[CourseForDashboard]> {
         let result = await client.sendRequest(GetCoursesRequest())
 
         switch result {
