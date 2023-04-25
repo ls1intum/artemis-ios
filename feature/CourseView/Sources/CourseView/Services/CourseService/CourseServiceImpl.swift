@@ -8,7 +8,7 @@ class CourseServiceImpl: CourseService {
     let client = APIClient()
 
     struct GetCoursesRequest: APIRequest {
-        typealias Response = Course
+        typealias Response = CourseForDashboard
 
         var courseId: Int
 
@@ -21,7 +21,7 @@ class CourseServiceImpl: CourseService {
         }
     }
 
-    func getCourse(courseId: Int) async -> DataState<Course> {
+    func getCourse(courseId: Int) async -> DataState<CourseForDashboard> {
         let result = await client.sendRequest(GetCoursesRequest(courseId: courseId))
 
         switch result {

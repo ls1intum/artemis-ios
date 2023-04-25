@@ -4,7 +4,7 @@ import Common
 
 protocol CourseService {
 
-    func getCourse(courseId: Int) async -> DataState<Course>
+    func getCourse(courseId: Int) async -> DataState<CourseForDashboard>
 }
 
 enum CourseServiceFactory {

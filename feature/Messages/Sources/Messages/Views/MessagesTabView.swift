@@ -16,7 +16,6 @@ public struct MessagesTabView: View {
     @StateObject private var viewModel: MessagesTabViewModel
 
     @Binding private var searchText: String
-    @Binding private var course: DataState<Course>
 
     private var searchResults: [Conversation] {
         if searchText.isEmpty {
@@ -25,10 +24,9 @@ public struct MessagesTabView: View {
         return (viewModel.allConversations.value ?? []).filter { $0.baseConversation.conversationName.lowercased().contains(searchText.lowercased()) }
     }
 
-    public init(searchText: Binding<String>, course: Binding<DataState<Course>>, courseId: Int) {
-        self._course = course
+    public init(searchText: Binding<String>, course: Course) {
         self._searchText = searchText
-        self._viewModel = StateObject(wrappedValue: MessagesTabViewModel(courseId: courseId))
+        self._viewModel = StateObject(wrappedValue: MessagesTabViewModel(course: course))
     }
 
     public var body: some View {
@@ -41,39 +39,34 @@ public struct MessagesTabView: View {
                 }
                 ForEach(searchResults) { conversation in
                     if let channel = conversation.baseConversation as? Channel {
-                        ConversationRow(viewModel: viewModel, course: $course, conversation: channel)
+                        ConversationRow(viewModel: viewModel, conversation: channel)
                     }
                     if let groupChat = conversation.baseConversation as? GroupChat {
-                        ConversationRow(viewModel: viewModel, course: $course, conversation: groupChat)
+                        ConversationRow(viewModel: viewModel, conversation: groupChat)
                     }
                     if let oneToOneChat = conversation.baseConversation as? OneToOneChat {
-                        ConversationRow(viewModel: viewModel, course: $course, conversation: oneToOneChat)
+                        ConversationRow(viewModel: viewModel, conversation: oneToOneChat)
                     }
                 }
             } else {
                 Group {
                     MixedMessageSection(viewModel: viewModel,
                                         conversations: $viewModel.favoriteConversations,
-                                        course: $course,
                                         sectionTitle: R.string.localizable.favoritesSection())
                     MessageSection(viewModel: viewModel,
                                    conversations: $viewModel.channels,
-                                   course: $course,
                                    sectionTitle: R.string.localizable.channels(),
                                    conversationType: .channel)
                     MessageSection(viewModel: viewModel,
                                    conversations: $viewModel.groupChats,
-                                   course: $course,
                                    sectionTitle: R.string.localizable.groupChats(),
                                    conversationType: .groupChat)
                     MessageSection(viewModel: viewModel,
                                    conversations: $viewModel.oneToOneChats,
-                                   course: $course,
                                    sectionTitle: R.string.localizable.directMessages(),
                                    conversationType: .oneToOneChat)
                     MixedMessageSection(viewModel: viewModel,
                                         conversations: $viewModel.hiddenConversations,
-                                        course: $course,
                                         sectionTitle: R.string.localizable.hiddenSection(),
                                         isExpanded: false)
                 }
@@ -98,7 +91,6 @@ private struct MixedMessageSection: View {
     @ObservedObject private var viewModel: MessagesTabViewModel
 
     @Binding private var conversations: DataState<[Conversation]>
-    @Binding private var course: DataState<Course>
 
     @State private var isExpanded = true
 
@@ -106,14 +98,12 @@ private struct MixedMessageSection: View {
 
     init(viewModel: MessagesTabViewModel,
          conversations: Binding<DataState<[Conversation]>>,
-         course: Binding<DataState<Course>>,
          sectionTitle: String,
          isExpanded: Bool = true) {
         self.viewModel = viewModel
         self._conversations = conversations
         self.sectionTitle = sectionTitle
         self._isExpanded = State(wrappedValue: isExpanded)
-        self._course = course
     }
 
     var sectionUnreadCount: Int {
@@ -127,18 +117,17 @@ private struct MixedMessageSection: View {
                 DisclosureGroup(isExpanded: $isExpanded, content: {
                     ForEach(conversations) { conversation in
                         if let channel = conversation.baseConversation as? Channel {
-                            ConversationRow(viewModel: viewModel, course: $course, conversation: channel)
+                            ConversationRow(viewModel: viewModel, conversation: channel)
                         }
                         if let groupChat = conversation.baseConversation as? GroupChat {
-                            ConversationRow(viewModel: viewModel, course: $course, conversation: groupChat)
+                            ConversationRow(viewModel: viewModel, conversation: groupChat)
                         }
                         if let oneToOneChat = conversation.baseConversation as? OneToOneChat {
-                            ConversationRow(viewModel: viewModel, course: $course, conversation: oneToOneChat)
+                            ConversationRow(viewModel: viewModel, conversation: oneToOneChat)
                         }
                     }
                 }, label: {
                     SectionDisclosureLabel(viewModel: viewModel,
-                                           course: $course,
                                            sectionTitle: sectionTitle,
                                            sectionUnreadCount: sectionUnreadCount,
                                            showUnreadCount: !isExpanded,
@@ -152,7 +141,6 @@ private struct MixedMessageSection: View {
 private struct SectionDisclosureLabel: View {
 
     @ObservedObject var viewModel: MessagesTabViewModel
-    @Binding var course: DataState<Course>
 
     @State private var showNewConversationSheet = false
     @State private var showNewConversationActionDialog = false
@@ -174,7 +162,7 @@ private struct SectionDisclosureLabel: View {
                 Image(systemName: "plus.bubble")
                     .onTapGesture {
                         if conversationType == .channel {
-                            if course.value?.isAtLeastTutorInCourse ?? false {
+                            if viewModel.course.isAtLeastTutorInCourse ?? false {
                                 showNewConversationActionDialog = true
                             } else {
                                 showBrowseChannels = true
@@ -221,7 +209,6 @@ private struct MessageSection<T: BaseConversation>: View {
     @ObservedObject var viewModel: MessagesTabViewModel
 
     @Binding var conversations: DataState<[T]>
-    @Binding var course: DataState<Course>
 
     @State private var isExpanded = true
 
@@ -237,12 +224,11 @@ private struct MessageSection<T: BaseConversation>: View {
             DataStateView(data: $conversations,
                           retryHandler: { await viewModel.loadConversations() }) { conversations in
                 ForEach(conversations, id: \.id) { conversation in
-                    ConversationRow(viewModel: viewModel, course: $course, conversation: conversation)
+                    ConversationRow(viewModel: viewModel, conversation: conversation)
                 }
             }
         }, label: {
             SectionDisclosureLabel(viewModel: viewModel,
-                                   course: $course,
                                    sectionTitle: sectionTitle,
                                    sectionUnreadCount: sectionUnreadCount,
                                    showUnreadCount: !isExpanded,
@@ -257,19 +243,13 @@ private struct ConversationRow<T: BaseConversation>: View {
 
     @ObservedObject var viewModel: MessagesTabViewModel
 
-    @Binding var course: DataState<Course>
-
     let conversation: T
 
     var body: some View {
         Button(action: {
             // should always be non-optional
             if let conversation = Conversation(conversation: conversation) {
-                if let course = course.value {
-                    navigationController.path.append(ConversationPath(conversation: conversation, coursePath: CoursePath(course: course)))
-                } else {
-                    navigationController.path.append(ConversationPath(conversation: conversation, coursePath: CoursePath(id: viewModel.courseId)))
-                }
+                navigationController.path.append(ConversationPath(conversation: conversation, coursePath: CoursePath(course: viewModel.course)))
             }
         }, label: {
             HStack {
