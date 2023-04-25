@@ -22,12 +22,12 @@ public struct CoursesOverviewView: View {
 
     public var body: some View {
         VStack(alignment: .center) {
-            DataStateView(data: $viewModel.courses,
-                          retryHandler: { await viewModel.loadCourses() }) { courses in
+            DataStateView(data: $viewModel.coursesForDashboard,
+                          retryHandler: { await viewModel.loadCourses() }) { coursesForDashboard in
                 List {
                     Group {
-                        ForEach(courses) { course in
-                            CourseListCell(course: course)
+                        ForEach(coursesForDashboard) { courseForDashboard in
+                            CourseListCell(courseForDashboard: courseForDashboard)
                         }
                         Button(R.string.localizable.dasboard_register_for_course()) {
                             showCourseRegistrationSheet = true
@@ -49,7 +49,7 @@ public struct CoursesOverviewView: View {
         .sheet(isPresented: $showCourseRegistrationSheet) {
             CourseRegistrationView(successCompletion: {
                 showCourseRegistrationSheet = false
-                viewModel.courses = .loading
+                viewModel.coursesForDashboard = .loading
                 Task {
                     await viewModel.loadCourses()
                 }
@@ -66,11 +66,11 @@ private struct CourseListCell: View {
 
     @EnvironmentObject var navigationController: NavigationController
 
-    let course: Course
+    let courseForDashboard: CourseForDashboard
 
     var nextExercise: Exercise? {
         // filters out every already successful (100%) exercise, only exercises left that still need work
-        let exercisesWithOpenTasks = course.upcomingExercises.filter { exercise in
+        let exercisesWithOpenTasks = courseForDashboard.course.upcomingExercises.filter { exercise in
             return !(exercise.baseExercise.studentParticipations?.first?.baseParticipation.submissions?.first?.baseSubmission.results?.first?.successful ?? false)
         }
         return exercisesWithOpenTasks.first
@@ -81,7 +81,7 @@ private struct CourseListCell: View {
             Spacer()
             VStack(alignment: .leading, spacing: 0) {
                 HStack(alignment: .center) {
-                    AsyncImage(url: course.courseIconURL) { phase in
+                    AsyncImage(url: courseForDashboard.course.courseIconURL) { phase in
                         switch phase {
                         case .empty:
                             ProgressView()
@@ -99,24 +99,30 @@ private struct CourseListCell: View {
                         .clipShape(Circle())
                         .padding(.m)
                     VStack(alignment: .leading) {
-                        Text(course.title ?? R.string.localizable.unknown())
+                        Text(courseForDashboard.course.title ?? R.string.localizable.unknown())
                             .font(.custom("SF Pro", size: 21, relativeTo: .title))
                             .lineLimit(2)
-                        Text(R.string.localizable.dashboard_exercises_label(course.exercises?.count ?? 0))
-                        Text(R.string.localizable.dashboard_lectures_label(course.lectures?.count ?? 0))
+                        Text(R.string.localizable.dashboard_exercises_label(courseForDashboard.course.exercises?.count ?? 0))
+                        Text(R.string.localizable.dashboard_lectures_label(courseForDashboard.course.lectures?.count ?? 0))
                     }
                         .foregroundColor(.white)
                         .padding(.m)
                     Spacer()
                 }
                     .frame(maxWidth: .infinity)
-                    .background(course.courseColor)
+                    .background(courseForDashboard.course.courseColor)
                 HStack {
                     Spacer()
-                    ProgressBar(value: 40,
-                                total: 100)
-                        .frame(height: 120)
-                        .padding(.vertical, .l)
+                    Group {
+                        if let totalScore = courseForDashboard.totalScores {
+                            ProgressBar(value: Int(totalScore.studentScores.absoluteScore),
+                                        total: Int(totalScore.reachablePoints))
+                            .frame(height: 120)
+                            .padding(.vertical, .l)
+                        } else {
+                            Text("No statistics available")
+                        }
+                    }
                     Spacer()
                 }.padding(.vertical, .m)
                 HStack {
@@ -145,7 +151,7 @@ private struct CourseListCell: View {
             }
                 .cardModifier(backgroundColor: .clear, hasBorder: true)
                 .onTapGesture {
-                    navigationController.path.append(CoursePath(course: course))
+                    navigationController.path.append(CoursePath(course: courseForDashboard.course))
                 }
                 .frame(maxWidth: 720)
             Spacer()

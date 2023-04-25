@@ -7,7 +7,7 @@ import Common
 @MainActor
 class CoursesOverviewViewModel: ObservableObject {
 
-    @Published var courses: DataState<[Course]> = DataState.loading
+    @Published var coursesForDashboard: DataState<[CourseForDashboard]> = DataState.loading
     @Published var error: UserFacingError? {
         didSet {
             showError = error != nil
@@ -22,6 +22,6 @@ class CoursesOverviewViewModel: ObservableObject {
     }
 
     func loadCourses() async {
-        courses = await DashboardServiceFactory.shared.loadCourses()
+        coursesForDashboard = await DashboardServiceFactory.shared.loadCourses()
     }
 }
