@@ -125,4 +125,22 @@ class ConversationInfoSheetViewModel: BaseViewModel {
             return .failure(error: UserFacingError(title: error.localizedDescription))
         }
     }
+
+    func editName(for courseId: Int, conversation: Conversation, newName: String) async -> DataState<Conversation> {
+        let result = await MessagesServiceFactory.shared.editConversation(for: courseId, conversation: conversation, newName: newName)
+        isLoading = false
+        return result
+    }
+
+    func editTopic(for courseId: Int, conversation: Conversation, newTopic: String) async -> DataState<Conversation> {
+        let result = await MessagesServiceFactory.shared.editConversation(for: courseId, conversation: conversation, newTopic: newTopic)
+        isLoading = false
+        return result
+    }
+
+    func editDescription(for courseId: Int, conversation: Conversation, newDescription: String) async -> DataState<Conversation> {
+        let result = await MessagesServiceFactory.shared.editConversation(for: courseId, conversation: conversation, newDescription: newDescription)
+        isLoading = false
+        return result
+    }
 }

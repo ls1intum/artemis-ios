@@ -22,45 +22,82 @@ struct ConversationInfoSheetView: View {
     @StateObject private var viewModel = ConversationInfoSheetViewModel()
 
     @Binding var conversation: DataState<Conversation>
-    @Binding var course: DataState<Course>
+    var course: Course
+    var conversationId: Int64
 
     @State private var showAddMemberSheet = false
 
     var body: some View {
         NavigationView {
-            DataStateView(data: $course, retryHandler: { }) { course in
-                DataStateView(data: $conversation, retryHandler: { }) { conversation in
-                    List {
-                        infoSection
-                        membersSection
-                        switch conversation {
-                        case .channel, .groupChat:
-                            actionsSection
-                        default:
-                            EmptyView()
-                        }
+            DataStateView(data: $conversation, retryHandler: { self.conversation = await viewModel.reloadConversation(for: course.id, conversationId: conversationId) }) { conversation in
+                List {
+                    InfoSection(viewModel: viewModel, conversation: $conversation, course: course)
+                    membersSection
+                    switch conversation {
+                    case .channel, .groupChat:
+                        actionsSection
+                    default:
+                        EmptyView()
                     }
-                    .task {
-                        await viewModel.loadMembers(for: course.id, conversationId: conversation.id)
-                    }
-                    .navigationTitle(conversation.baseConversation.conversationName)
-                    .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
-                    .loadingIndicator(isLoading: $viewModel.isLoading)
                 }
+                .task {
+                    await viewModel.loadMembers(for: course.id, conversationId: conversation.id)
+                }
+                .navigationTitle(conversation.baseConversation.conversationName)
+                .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
+                .loadingIndicator(isLoading: $viewModel.isLoading)
             }
         }
     }
 
-    // TODO: adapt visibility of actions
-    var actionsSection: some View {
+    private var canLeaveConversation: Bool {
+        guard let conversation = conversation.value else { return false }
+
+        // not possible to leave a conversation as not a member
+        if !(conversation.baseConversation.isMember ?? false) {
+            return false
+        }
+        // the creator of a channel can not leave it
+        if conversation.baseConversation is Channel && conversation.baseConversation.isCreator ?? false {
+            return false
+        }
+        // can not leave a oneToOne chat
+        if conversation.baseConversation is OneToOneChat {
+            return false
+        }
+        return true
+    }
+
+    private var canAddUsers: Bool {
+        guard let conversation = conversation.value else { return false }
+
+        switch conversation {
+        case .channel(let conversation):
+            return conversation.hasChannelModerationRights ?? false
+        case .groupChat(let conversation):
+            return conversation.isMember ?? false
+        case .oneToOneChat:
+            return false
+        case .unknown:
+            return false
+        }
+    }
+
+    private var canRemoveUsers: Bool {
+        canAddUsers
+    }
+
+    private var actionsSection: some View {
         Group {
-            if let course = course.value,
-               let conversation = conversation.value {
+            if let conversation = conversation.value {
                 Section("Settings") {
-                    Button("Add users") {
-                        showAddMemberSheet = true
+                    if canAddUsers {
+                        Button("Add users") {
+                            showAddMemberSheet = true
+                        }
                     }
-                    if let channel = conversation.baseConversation as? Channel {
+                    if let channel = conversation.baseConversation as? Channel,
+                       channel.hasChannelModerationRights ?? false {
                         if channel.isArchived ?? false {
                             Button("Unarchive Channel") {
                                 viewModel.isLoading = true
@@ -95,18 +132,20 @@ struct ConversationInfoSheetView: View {
                             }.foregroundColor(.Artemis.badgeWarningColor)
                         }
                     }
-                    Button("Leave Conversation") {
-                        viewModel.isLoading = true
-                        Task(priority: .userInitiated) {
-                            let success = await viewModel.leaveConversation(for: course.id, conversation: conversation)
+                    if canLeaveConversation {
+                        Button("Leave Conversation") {
+                            viewModel.isLoading = true
+                            Task(priority: .userInitiated) {
+                                let success = await viewModel.leaveConversation(for: course.id, conversation: conversation)
 
-                            if success {
-                                navigationController.goToCourseConversations(courseId: course.id)
-                            } else {
-                                viewModel.isLoading = false
+                                if success {
+                                    navigationController.goToCourseConversations(courseId: course.id)
+                                } else {
+                                    viewModel.isLoading = false
+                                }
                             }
-                        }
-                    }.foregroundColor(.Artemis.badgeDangerColor)
+                        }.foregroundColor(.Artemis.badgeDangerColor)
+                    }
                 }.sheet(isPresented: $showAddMemberSheet, onDismiss: {
                     viewModel.isLoading = true
                     Task {
@@ -130,43 +169,9 @@ struct ConversationInfoSheetView: View {
         }
     }
 
-    // TODO: add edit actions to info section
-    var infoSection: some View {
+    private var membersSection: some View {
         Group {
-            if let course = course.value,
-               let conversation = conversation.value {
-                if let channel = conversation.baseConversation as? Channel {
-                    Section("Name") {
-                        Text(channel.name ?? "No name set ...")
-                    }
-                    Section("Topic") {
-                        Text(channel.topic ?? "No topic set ...")
-                    }
-                    Section("Description") {
-                        Text(channel.description ?? "No description set ...")
-                    }
-                }
-                if let groupChat = conversation.baseConversation as? GroupChat {
-                    Section("Name") {
-                        Text(groupChat.name ?? "No name set ...")
-                    }
-                }
-                Section("More info") {
-                    Text("Created by: \(conversation.baseConversation.creator?.name ?? "Unknown")")
-                    if let creationDate = conversation.baseConversation.creationDate {
-                        Text("Created on: \(creationDate.mediumDateShortTime)")
-                    } else {
-                        Text("Created on: Unknown")
-                    }
-                }
-            }
-        }
-    }
-
-    var membersSection: some View {
-        Group {
-            if let course = course.value,
-               let conversation = conversation.value {
+            if let conversation = conversation.value {
                 Section(content: {
                     DataStateView(data: $viewModel.members,
                                   retryHandler: { await viewModel.loadMembers(for: course.id, conversationId: conversation.id) }) { members in
@@ -179,8 +184,8 @@ struct ConversationInfoSheetView: View {
                                 }
                             }
                                 .contextMenu {
-                                    // TODO: adapt visibility of action
-                                    if UserSession.shared.user?.login != member.login {
+                                    if UserSession.shared.user?.login != member.login,
+                                       canRemoveUsers {
                                         Button("Remove user") {
                                             viewModel.isLoading = true
                                             Task(priority: .userInitiated) {
@@ -214,8 +219,7 @@ struct ConversationInfoSheetView: View {
 
     var pageActions: some View {
         Group {
-            if let course = course.value,
-               let conversation = conversation.value,
+            if let conversation = conversation.value,
                (conversation.baseConversation.numberOfMembers ?? 0) > PAGINATION_SIZE || viewModel.page > 0 {
                 HStack(spacing: .l) {
                     Spacer()
@@ -241,6 +245,123 @@ struct ConversationInfoSheetView: View {
             } else {
                 EmptyView()
             }
+        }
+    }
+}
+
+private struct InfoSection: View {
+
+    @ObservedObject var viewModel: ConversationInfoSheetViewModel
+    @Binding var conversation: DataState<Conversation>
+    let course: Course
+
+    @State private var showChangeNameAlert = false
+    @State private var newName = ""
+
+    @State private var showChangeTopicAlert = false
+    @State private var newTopic = ""
+
+    @State private var showChangeDescriptionAlert = false
+    @State private var newDescription = ""
+
+    var body: some View {
+        if let conversation = conversation.value {
+            if let channel = conversation.baseConversation as? Channel {
+                Section("Name") {
+                    HStack {
+                        Text(channel.name ?? "No name set ...")
+                        if channel.hasChannelModerationRights ?? false {
+                            Spacer()
+                            Button(action: { showChangeNameAlert = true }, label: {
+                                Image(systemName: "pencil")
+                            })
+                        }
+                    }
+                }
+                Section("Topic") {
+                    HStack {
+                        Text(channel.topic ?? "No topic set ...")
+                        if channel.hasChannelModerationRights ?? false {
+                            Spacer()
+                            Button(action: { showChangeTopicAlert = true }, label: {
+                                Image(systemName: "pencil")
+                            })
+                                .alert("Edit Topic", isPresented: $showChangeTopicAlert) {
+                                    TextField("New Topic", text: $newTopic)
+                                    Button("OK") {
+                                        viewModel.isLoading = true
+                                        Task(priority: .userInitiated) {
+                                            self.conversation = await viewModel.editTopic(for: course.id, conversation: conversation, newTopic: newTopic)
+                                        }
+                                    }
+                                    Button("Cancel", role: .cancel) { }
+                                }
+                                .textCase(nil)
+                        }
+                    }
+                }
+                Section("Description") {
+                    HStack {
+                        Text(channel.description ?? "No description set ...")
+                        if channel.hasChannelModerationRights ?? false {
+                            Spacer()
+                            Button(action: { showChangeDescriptionAlert = true }, label: {
+                                Image(systemName: "pencil")
+                            })
+                                .alert("Edit Description", isPresented: $showChangeDescriptionAlert) {
+                                    TextField("New Description", text: $newDescription)
+                                    Button("OK") {
+                                        viewModel.isLoading = true
+                                        Task(priority: .userInitiated) {
+                                            self.conversation = await viewModel.editDescription(for: course.id, conversation: conversation, newDescription: newDescription)
+                                        }
+                                    }
+                                    Button("Cancel", role: .cancel) { }
+                                }
+                                .textCase(nil)
+                        }
+                    }
+                }
+                    .onAppear {
+                        newTopic = channel.topic ?? ""
+                        newDescription = channel.description ?? ""
+                    }
+            }
+            if let groupChat = conversation.baseConversation as? GroupChat {
+                Section("Name") {
+                    HStack {
+                        Text(groupChat.name ?? "No name set ...")
+                        if groupChat.isMember ?? false {
+                            Spacer()
+                            Button(action: { showChangeNameAlert = true }, label: {
+                                Image(systemName: "pencil")
+                            })
+                        }
+                    }
+                }
+            }
+            Section("More info") {
+                Text("Created by: \(conversation.baseConversation.creator?.name ?? "Unknown")")
+                if let creationDate = conversation.baseConversation.creationDate {
+                    Text("Created on: \(creationDate.mediumDateShortTime)")
+                } else {
+                    Text("Created on: Unknown")
+                }
+            }
+                .onAppear {
+                    newName = conversation.baseConversation.conversationName
+                }
+                .alert("Edit Name", isPresented: $showChangeNameAlert) {
+                    TextField("New Name", text: $newName)
+                    Button("OK") {
+                        viewModel.isLoading = true
+                        Task(priority: .userInitiated) {
+                            self.conversation = await viewModel.editName(for: course.id, conversation: conversation, newName: newName)
+                        }
+                    }
+                    Button("Cancel", role: .cancel) { }
+                }
+                .textCase(nil)
         }
     }
 }

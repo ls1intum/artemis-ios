@@ -117,6 +117,11 @@ protocol MessagesService {
      * Perform a post request to unarchive  a specific channel in a specific course to the server.
      */
     func unarchiveChannel(for courseId: Int, channelId: Int64) async -> NetworkResponse
+
+    /**
+     * Perform a put request to edit the name/topic/description of  a specific conversation in a specific course to the server.
+     */
+    func editConversation(for courseId: Int, conversation: Conversation, newName: String?, newTopic: String?, newDescription: String?) async -> DataState<Conversation>
 }
 
 extension MessagesService {
@@ -136,6 +141,10 @@ extension MessagesService {
         guard let username = UserSession.shared.user?.login else { return .failure(error: UserFacingError(error: APIClientError.wrongParameters)) }
 
         return await removeMembersFromGroupChat(for: courseId, groupChatId: groupChatId, usernames: [username])
+    }
+
+    func editConversation(for courseId: Int, conversation: Conversation, newName: String? = nil, newTopic: String? = nil, newDescription: String? = nil) async -> DataState<Conversation> {
+        return await editConversation(for: courseId, conversation: conversation, newName: newName, newTopic: newTopic, newDescription: newDescription)
     }
 }
 

@@ -623,4 +623,59 @@ class MessagesServiceImpl: MessagesService {
             return .failure(error: error)
         }
     }
+
+    struct RenameConversationRequest: APIRequest {
+        typealias Response = Conversation
+
+        let courseId: Int
+        let conversationId: Int64
+
+        let type: ConversationType
+        let typePath: String
+        let name: String?
+        let topic: String?
+        let description: String?
+
+        var method: HTTPMethod {
+            return .put
+        }
+
+        var resourceName: String {
+            return "api/courses/\(courseId)/\(typePath)/\(conversationId)"
+        }
+    }
+
+    func editConversation(for courseId: Int, conversation: Conversation, newName: String?, newTopic: String?, newDescription: String?) async -> DataState<Conversation> {
+        guard let typePath = conversation.baseConversation.type.path else { return .failure(error: UserFacingError(title: "Unsupported Conversation Type"))}
+
+        let result = await client.sendRequest(RenameConversationRequest(courseId: courseId,
+                                                                        conversationId: conversation.id,
+                                                                        type: conversation.baseConversation.type,
+                                                                        typePath: typePath,
+                                                                        name: newName,
+                                                                        topic: newTopic,
+                                                                        description: newDescription))
+
+        switch result {
+        case .success((let conversation, _)):
+            return .done(response: conversation)
+        case .failure(let error):
+            return .failure(error: UserFacingError(error: error))
+        }
+    }
+}
+
+private extension ConversationType {
+    var path: String? {
+        switch self {
+        case .oneToOneChat:
+            return "one-to-one-chats"
+        case .groupChat:
+            return "group-chats"
+        case .channel:
+            return "channels"
+        case .unknown:
+            return nil
+        }
+    }
 }

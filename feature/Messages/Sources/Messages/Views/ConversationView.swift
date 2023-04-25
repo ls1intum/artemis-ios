@@ -102,8 +102,13 @@ public struct ConversationView: View {
                 }
             }
             .sheet(isPresented: $showConversationInfoSheet) {
-                ConversationInfoSheetView(conversation: $viewModel.conversation,
-                                          course: $viewModel.course)
+                if let course = viewModel.course.value {
+                    ConversationInfoSheetView(conversation: $viewModel.conversation,
+                                              course: course,
+                                              conversationId: viewModel.conversationId)
+                } else {
+                    Text(R.string.localizable.loading())
+                }
             }
             .task {
                 viewModel.shouldScrollToId = "bottom"
