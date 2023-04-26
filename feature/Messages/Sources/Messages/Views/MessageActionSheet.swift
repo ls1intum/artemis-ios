@@ -24,6 +24,7 @@ struct MessageActionSheet: View {
     let conversationPath: ConversationPath?
 
     @State private var showDeleteAlert = false
+    @State private var showEditSheet = false
 
     var body: some View {
         HStack {
@@ -59,11 +60,33 @@ struct MessageActionSheet: View {
                 })
                 Divider()
                 Button(action: {
-                    // TODO: edit
-                    viewModel.presentError(userFacingError: UserFacingError(title: "TODO"))
+                    showEditSheet = true
                 }, label: {
                     ButtonContent(title: R.string.localizable.editMessage(), icon: "pencil")
                 })
+                .sheet(isPresented: $showEditSheet) {
+                    NavigationView {
+                        Group {
+                            if let message = message.value as? Message {
+                                SendMessageView(viewModel: viewModel, sendMessageType: .editMessage(message, { self.dismiss() }))
+                            } else if let answerMessage = message.value as? AnswerMessage {
+                                SendMessageView(viewModel: viewModel, sendMessageType: .editAnswerMessage(answerMessage, { self.dismiss() }))
+                            } else {
+                                Text(R.string.localizable.loading())
+                            }
+                        }
+                            .navigationTitle(R.string.localizable.editMessage())
+                            .navigationBarTitleDisplayMode(.inline)
+                            .toolbar {
+                                ToolbarItem(placement: .navigationBarLeading) {
+                                    Button(R.string.localizable.cancel()) {
+                                        showEditSheet = false
+                                    }
+                                }
+                            }
+                    }.presentationDetents([.height(200), .medium])
+                }
+
                 Button(action: {
                     showDeleteAlert = true
                 }, label: {

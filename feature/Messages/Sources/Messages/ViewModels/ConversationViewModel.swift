@@ -269,6 +269,36 @@ public class ConversationViewModel: BaseViewModel {
         }
     }
 
+    func editMessage(message: Message) async -> Bool {
+        let result = await MessagesServiceFactory.shared.editMessage(for: courseId, message: message)
+
+        switch result {
+        case .notStarted, .loading:
+            return false
+        case .success:
+            await loadMessages()
+            return true
+        case .failure(let error):
+            presentError(userFacingError: UserFacingError(title: error.localizedDescription))
+            return false
+        }
+    }
+
+    func editAnswerMessage(answerMessage: AnswerMessage) async -> Bool {
+        let result = await MessagesServiceFactory.shared.editAnswerMessage(for: courseId, answerMessage: answerMessage)
+
+        switch result {
+        case .notStarted, .loading:
+            return false
+        case .success:
+            await loadMessages()
+            return true
+        case .failure(let error):
+            presentError(userFacingError: UserFacingError(title: error.localizedDescription))
+            return false
+        }
+    }
+
     private func loadConversation() async {
         let result = await MessagesServiceFactory.shared.getConversations(for: courseId)
 

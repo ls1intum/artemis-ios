@@ -11,7 +11,7 @@ import Common
 import SharedModels
 
 enum SendMessageType {
-    case message, answerMessage(Message, () async -> Void)
+    case message, answerMessage(Message, () async -> Void), editMessage(Message, () -> Void), editAnswerMessage(AnswerMessage, () -> Void)
 }
 
 struct SendMessageView: View {
@@ -24,17 +24,29 @@ struct SendMessageView: View {
 
     let sendMessageType: SendMessageType
 
+    var isEditMode: Bool {
+        switch sendMessageType {
+        case .message:
+            return false
+        case .answerMessage:
+            return false
+        case .editMessage:
+            return true
+        case .editAnswerMessage:
+            return true
+        }
+    }
+
     var body: some View {
         VStack {
-            if isFocused {
+            if isFocused && !isEditMode {
                 Capsule()
                     .fill(Color.secondary)
                     .frame(width: 50, height: 3)
                     .padding(.top, .m)
             }
             HStack(alignment: .bottom) {
-                TextField(R.string.localizable.messageAction(viewModel.conversation.value?.baseConversation.conversationName ?? ""),
-                          text: $responseText, axis: .vertical)
+                textField
                     .lineLimit(10)
                     .focused($isFocused)
                     .toolbar {
@@ -50,10 +62,24 @@ struct SendMessageView: View {
                 .padding(.bottom, .l)
                 .padding(.top, isFocused ? .m : .l)
         }
+            .onAppear {
+                if case .editMessage(let message, _) = sendMessageType {
+                    responseText = message.content ?? ""
+                }
+                if case .editAnswerMessage(let answerMessage, _) = sendMessageType {
+                    responseText = answerMessage.content ?? ""
+                }
+            }
             .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .trim(from: isFocused ? 0.52 : 0.51, to: isFocused ? 0.98 : 0.99)
-                    .stroke(Color.Artemis.artemisBlue, lineWidth: 2)
+                Group {
+                    if isEditMode {
+                        EmptyView()
+                    } else {
+                        RoundedRectangle(cornerRadius: 20)
+                            .trim(from: isFocused ? 0.52 : 0.51, to: isFocused ? 0.98 : 0.99)
+                            .stroke(Color.Artemis.artemisBlue, lineWidth: 2)
+                    }
+                }
             )
             .gesture(
                 DragGesture(minimumDistance: 30, coordinateSpace: .local)
@@ -66,6 +92,19 @@ struct SendMessageView: View {
                         }
                     })
             )
+    }
+
+    var textField: some View {
+        Group {
+            if isEditMode {
+                TextField(R.string.localizable.messageAction(viewModel.conversation.value?.baseConversation.conversationName ?? ""),
+                          text: $responseText, axis: .vertical)
+                    .textFieldStyle(ArtemisTextField())
+            } else {
+                TextField(R.string.localizable.messageAction(viewModel.conversation.value?.baseConversation.conversationName ?? ""),
+                          text: $responseText, axis: .vertical)
+            }
+        }
     }
 
     var keyboardToolbarContent: some View {
@@ -128,13 +167,30 @@ struct SendMessageView: View {
 
     var sendButton: some View {
         Button(action: {
+            viewModel.isLoading = true
             Task {
-                let result: NetworkResponse
+                var result: NetworkResponse?
                 switch sendMessageType {
                 case .message:
                     result = await viewModel.sendMessage(text: responseText)
                 case let .answerMessage(message, completion):
                     result = await viewModel.sendAnswerMessage(text: responseText, for: message, completion: completion)
+                case let .editMessage(message, completion):
+                    var newmessage = message
+                    newmessage.content = responseText
+                    let success = await viewModel.editMessage(message: newmessage)
+                    viewModel.isLoading = false
+                    if success {
+                        completion()
+                    }
+                case let .editAnswerMessage(message, completion):
+                    var newmessage = message
+                    newmessage.content = responseText
+                    let success = await viewModel.editAnswerMessage(answerMessage: newmessage)
+                    viewModel.isLoading = false
+                    if success {
+                        completion()
+                    }
                 }
                 switch result {
                 case .success:

@@ -240,6 +240,65 @@ class MessagesServiceImpl: MessagesService {
         }
     }
 
+    struct EditMessageRequest: APIRequest {
+        typealias Response = RawResponse
+
+        let message: Message
+        let courseId: Int
+
+        var method: HTTPMethod {
+            return .put
+        }
+
+        var resourceName: String {
+            return "api/courses/\(courseId)/messages/\(message.id)"
+        }
+
+        func encode(to encoder: Encoder) throws {
+            try message.encode(to: encoder)
+        }
+    }
+
+    func editMessage(for courseId: Int, message: Message) async -> NetworkResponse {
+        let result = await client.sendRequest(EditMessageRequest(message: message, courseId: courseId))
+
+        switch result {
+        case .success:
+            return .success
+        case .failure(let error):
+            return .failure(error: error)
+        }
+    }
+
+    struct EditAnswerMessageRequest: APIRequest {
+        typealias Response = RawResponse
+
+        let answerMessage: AnswerMessage
+        let courseId: Int
+
+        var method: HTTPMethod {
+            return .put
+        }
+
+        var resourceName: String {
+            return "api/courses/\(courseId)/answer-messages/\(answerMessage.id)"
+        }
+
+        func encode(to encoder: Encoder) throws {
+            try answerMessage.encode(to: encoder)
+        }
+    }
+
+    func editAnswerMessage(for courseId: Int, answerMessage: AnswerMessage) async -> NetworkResponse {
+        let result = await client.sendRequest(EditAnswerMessageRequest(answerMessage: answerMessage, courseId: courseId))
+
+        switch result {
+        case .success:
+            return .success
+        case .failure(let error):
+            return .failure(error: error)
+        }
+    }
 
     struct AddReactionToAnswerMessageRequest: APIRequest {
         typealias Response = RawResponse

@@ -54,6 +54,16 @@ protocol MessagesService {
     func deleteAnswerMessage(for courseId: Int, anserMessageId: Int64) async -> NetworkResponse
 
     /**
+     * Perform a put request to update a message in a specific course to the server.
+     */
+    func editMessage(for courseId: Int, message: Message) async -> NetworkResponse
+
+    /**
+     * Perform a put request to update a message answer in a specific course to the server.
+     */
+    func editAnswerMessage(for courseId: Int, answerMessage: AnswerMessage) async -> NetworkResponse
+
+    /**
      * Perform a post request for a new reaction on an answer for a specific message in a specific course to the server.
      */
     func addReactionToAnswerMessage(for courseId: Int, answerMessage: AnswerMessage, emojiId: String) async -> NetworkResponse
