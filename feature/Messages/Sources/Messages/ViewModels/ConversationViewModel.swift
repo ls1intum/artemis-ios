@@ -229,6 +229,46 @@ public class ConversationViewModel: BaseViewModel {
         }
     }
 
+    func deleteMessage(messageId: Int64?) async -> Bool {
+        guard let messageId else {
+            presentError(userFacingError: UserFacingError(title: R.string.localizable.deletionErrorLabel()))
+            return false
+        }
+
+        let result = await MessagesServiceFactory.shared.deleteMessage(for: courseId, messageId: messageId)
+
+        switch result {
+        case .notStarted, .loading:
+            return false
+        case .success:
+            await loadMessages()
+            return true
+        case .failure(let error):
+            presentError(userFacingError: UserFacingError(title: error.localizedDescription))
+            return false
+        }
+    }
+
+    func deleteAnswerMessage(messageId: Int64?) async -> Bool {
+        guard let messageId else {
+            presentError(userFacingError: UserFacingError(title: R.string.localizable.deletionErrorLabel()))
+            return false
+        }
+
+        let result = await MessagesServiceFactory.shared.deleteAnswerMessage(for: courseId, anserMessageId: messageId)
+
+        switch result {
+        case .notStarted, .loading:
+            return false
+        case .success:
+            await loadMessages()
+            return true
+        case .failure(let error):
+            presentError(userFacingError: UserFacingError(title: error.localizedDescription))
+            return false
+        }
+    }
+
     private func loadConversation() async {
         let result = await MessagesServiceFactory.shared.getConversations(for: courseId)
 

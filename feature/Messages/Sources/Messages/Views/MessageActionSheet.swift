@@ -23,6 +23,8 @@ struct MessageActionSheet: View {
     @Binding var message: DataState<BaseMessage>
     let conversationPath: ConversationPath?
 
+    @State private var showDeleteAlert = false
+
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: .l) {
@@ -63,12 +65,34 @@ struct MessageActionSheet: View {
                     ButtonContent(title: R.string.localizable.editMessage(), icon: "pencil")
                 })
                 Button(action: {
-                    // TODO: delete
-                    viewModel.presentError(userFacingError: UserFacingError(title: "TODO"))
+                    showDeleteAlert = true
                 }, label: {
                     ButtonContent(title: R.string.localizable.deleteMessage(), icon: "trash.fill")
                         .foregroundColor(.red)
                 })
+                    .alert(R.string.localizable.confirmDeletionTitle(), isPresented: $showDeleteAlert) {
+                        Button(R.string.localizable.confirm(), role: .destructive) {
+                            viewModel.isLoading = true
+                            Task(priority: .userInitiated) {
+                                let success: Bool
+                                let tempMessage = message.value
+                                if message.value is AnswerMessage {
+                                    success = await viewModel.deleteAnswerMessage(messageId: message.value?.id)
+                                } else {
+                                    success = await viewModel.deleteMessage(messageId: message.value?.id)
+                                }
+                                viewModel.isLoading = false
+                                if success {
+                                    dismiss()
+                                    // if we deleted a Message and are in the MessageDetailView we pop it
+                                    if navigationController.path.count == 3 && tempMessage is Message {
+                                        navigationController.path.removeLast()
+                                    }
+                                }
+                            }
+                        }
+                        Button(R.string.localizable.cancel(), role: .cancel) { }
+                    }
                 Spacer()
             }
             Spacer()

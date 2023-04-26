@@ -188,6 +188,59 @@ class MessagesServiceImpl: MessagesService {
         }
     }
 
+    struct DeleteMessageRequest: APIRequest {
+        typealias Response = RawResponse
+
+        let messageId: Int64
+        let courseId: Int
+
+        var method: HTTPMethod {
+            return .delete
+        }
+
+        var resourceName: String {
+            return "api/courses/\(courseId)/messages/\(messageId)"
+        }
+    }
+
+    func deleteMessage(for courseId: Int, messageId: Int64) async -> NetworkResponse {
+        let result = await client.sendRequest(DeleteMessageRequest(messageId: messageId, courseId: courseId))
+
+        switch result {
+        case .success:
+            return .success
+        case .failure(let error):
+            return .failure(error: error)
+        }
+    }
+
+    struct DeleteAnswerMessageRequest: APIRequest {
+        typealias Response = RawResponse
+
+        let messageId: Int64
+        let courseId: Int
+
+        var method: HTTPMethod {
+            return .delete
+        }
+
+        var resourceName: String {
+            return "api/courses/\(courseId)/answer-messages/\(messageId)"
+        }
+    }
+
+    func deleteAnswerMessage(for courseId: Int, anserMessageId: Int64) async -> NetworkResponse {
+        let result = await client.sendRequest(DeleteAnswerMessageRequest(messageId: anserMessageId, courseId: courseId))
+
+        switch result {
+        case .success:
+            return .success
+        case .failure(let error):
+            return .failure(error: error)
+        }
+    }
+
+
     struct AddReactionToAnswerMessageRequest: APIRequest {
         typealias Response = RawResponse
 
