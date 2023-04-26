@@ -26,6 +26,21 @@ struct MessageActionSheet: View {
     @State private var showDeleteAlert = false
     @State private var showEditSheet = false
 
+    var isAbleToEditDelete: Bool {
+        guard let message = message.value else { return false }
+
+        if message.isCurrentUserAuthor {
+            return true
+        }
+
+        guard let channel = viewModel.conversation.value?.baseConversation as? Channel else { return false }
+        if channel.hasChannelModerationRights ?? false {
+            return true
+        }
+
+        return false
+    }
+
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: .l) {
@@ -58,23 +73,39 @@ struct MessageActionSheet: View {
                 }, label: {
                     ButtonContent(title: R.string.localizable.copyText(), icon: "clipboard.fill")
                 })
+
+                editDeleteSection
+
+                Spacer()
+            }
+            Spacer()
+        }
+            .padding(.vertical, .xxl)
+            .loadingIndicator(isLoading: $viewModel.isLoading)
+            .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
+    }
+
+    var editDeleteSection: some View {
+        Group {
+            if isAbleToEditDelete {
                 Divider()
+
                 Button(action: {
                     showEditSheet = true
                 }, label: {
                     ButtonContent(title: R.string.localizable.editMessage(), icon: "pencil")
                 })
-                .sheet(isPresented: $showEditSheet) {
-                    NavigationView {
-                        Group {
-                            if let message = message.value as? Message {
-                                SendMessageView(viewModel: viewModel, sendMessageType: .editMessage(message, { self.dismiss() }))
-                            } else if let answerMessage = message.value as? AnswerMessage {
-                                SendMessageView(viewModel: viewModel, sendMessageType: .editAnswerMessage(answerMessage, { self.dismiss() }))
-                            } else {
-                                Text(R.string.localizable.loading())
+                    .sheet(isPresented: $showEditSheet) {
+                        NavigationView {
+                            Group {
+                                if let message = message.value as? Message {
+                                    SendMessageView(viewModel: viewModel, sendMessageType: .editMessage(message, { self.dismiss() }))
+                                } else if let answerMessage = message.value as? AnswerMessage {
+                                    SendMessageView(viewModel: viewModel, sendMessageType: .editAnswerMessage(answerMessage, { self.dismiss() }))
+                                } else {
+                                    Text(R.string.localizable.loading())
+                                }
                             }
-                        }
                             .navigationTitle(R.string.localizable.editMessage())
                             .navigationBarTitleDisplayMode(.inline)
                             .toolbar {
@@ -84,8 +115,8 @@ struct MessageActionSheet: View {
                                     }
                                 }
                             }
-                    }.presentationDetents([.height(200), .medium])
-                }
+                        }.presentationDetents([.height(200), .medium])
+                    }
 
                 Button(action: {
                     showDeleteAlert = true
@@ -116,13 +147,8 @@ struct MessageActionSheet: View {
                         }
                         Button(R.string.localizable.cancel(), role: .cancel) { }
                     }
-                Spacer()
             }
-            Spacer()
         }
-            .padding(.vertical, .xxl)
-            .loadingIndicator(isLoading: $viewModel.isLoading)
-            .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
     }
 }
 

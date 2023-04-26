@@ -43,7 +43,7 @@ public struct ConversationView: View {
             return false
         }
         // Channel is announcement channel and current user is not instructor
-        if channel.isAnnouncementChannel ?? false && !(viewModel.course.value?.isAtLeastTutorInCourse ?? false) {
+        if channel.isAnnouncementChannel ?? false && !(channel.hasChannelModerationRights ?? false) {
             return false
         }
         return true

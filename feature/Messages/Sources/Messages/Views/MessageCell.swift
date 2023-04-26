@@ -78,6 +78,12 @@ struct MessageCell: View {
                 print("This somehow fixes scrolling...")
             }
             .onLongPressGesture(minimumDuration: 0.1, maximumDistance: 30, perform: {
+                guard let conversation = viewModel.conversation.value else { return }
+                if let channel = conversation.baseConversation as? Channel,
+                   channel.isArchived ?? false {
+                    return
+                }
+
                 let impactMed = UIImpactFeedbackGenerator(style: .heavy)
                 impactMed.impactOccurred()
                 showMessageActionSheet = true
