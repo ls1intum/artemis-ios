@@ -19,6 +19,8 @@ struct SendMessageView: View {
     @ObservedObject var viewModel: ConversationViewModel
 
     @State private var responseText = ""
+    @State private var showExercisePicker = false
+    @State private var showLecturePicker = false
 
     @FocusState private var isFocused: Bool
 
@@ -147,17 +149,29 @@ struct SendMessageView: View {
                         Image(systemName: "link")
                     })
                     Button(action: {
-                        // TODO: add exercises here
-                        print("show Picker")
+                        showExercisePicker = true
                     }, label: {
                         Text(R.string.localizable.exercise())
                     })
+                        .sheet(isPresented: $showExercisePicker) {
+                            if let course = viewModel.course.value {
+                                SendMessageExercisePicker(text: $responseText, course: course)
+                            } else {
+                                Text(R.string.localizable.loading())
+                            }
+                        }
                     Button(action: {
-                        // TODO: add lectures here
-                        print("show Picker")
+                        showLecturePicker = true
                     }, label: {
                         Text(R.string.localizable.lecture())
                     })
+                        .sheet(isPresented: $showLecturePicker) {
+                            if let course = viewModel.course.value {
+                                SendMessageLecturePicker(text: $responseText, course: course)
+                            } else {
+                                Text(R.string.localizable.loading())
+                            }
+                        }
                 }
             }
             Spacer()
@@ -206,5 +220,63 @@ struct SendMessageView: View {
             .padding(.leading, .l)
             .disabled(responseText.isEmpty)
             .loadingIndicator(isLoading: $viewModel.isLoading)
+    }
+}
+
+private struct SendMessageExercisePicker: View {
+
+    @Environment(\.dismiss) var dismiss
+
+    @Binding var text: String
+
+    let course: Course
+
+    var body: some View {
+        List(course.exercises ?? []) { exercise in
+            Button(exercise.baseExercise.title ?? R.string.localizable.unknown()) {
+                appendMarkdown(for: exercise)
+                dismiss()
+            }
+        }
+    }
+
+    func appendMarkdown(for exercise: Exercise) {
+        let type: String?
+        switch exercise {
+        case .fileUpload:
+            type = "file-upload"
+        case .modeling:
+            type = "modeling"
+        case .programming:
+            type = "programming"
+        case .quiz:
+            type = "quiz"
+        case .text:
+            type = "text"
+        case .unknown:
+            type = nil
+        }
+
+        guard let type else { return }
+
+        text.append("[\(type)]\(exercise.baseExercise.title ?? R.string.localizable.unknown())(/courses/\(course.id)/exercises/\(exercise.id))[/\(type)]")
+    }
+}
+
+private struct SendMessageLecturePicker: View {
+
+    @Environment(\.dismiss) var dismiss
+
+    @Binding var text: String
+
+    let course: Course
+
+    var body: some View {
+        List(course.lectures ?? [], id: \.id) { lecture in
+            Button(lecture.title ?? R.string.localizable.unknown()) {
+                text.append("[lecture]\(lecture.title ?? R.string.localizable.unknown())(/courses/\(course.id)/lectures/\(lecture.id))[/lecture]")
+                dismiss()
+            }
+        }
     }
 }
