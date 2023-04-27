@@ -15,6 +15,7 @@ public class ConversationViewModel: BaseViewModel {
 
     @Published var dailyMessages: DataState<[Date: [Message]]> = .loading
     @Published var conversation: DataState<Conversation> = .loading
+    @Published var course: DataState<Course> = .loading
 
     var shouldScrollToId: String?
 
@@ -23,8 +24,9 @@ public class ConversationViewModel: BaseViewModel {
 
     private var size = 50
 
-    public init(courseId: Int, conversation: Conversation) {
-        self.courseId = courseId
+    public init(course: Course, conversation: Conversation) {
+        self._course = Published(wrappedValue: .done(response: course))
+        self.courseId = course.id
         self._conversation = Published(wrappedValue: .done(response: conversation))
         self.conversationId = conversation.id
 
@@ -35,11 +37,15 @@ public class ConversationViewModel: BaseViewModel {
         self.courseId = courseId
         self.conversationId = conversationId
         self._conversation = Published(wrappedValue: .loading)
+        self._course = Published(wrappedValue: .loading)
 
         super.init()
 
         Task {
             await loadConversation()
+        }
+        Task {
+            await loadCourse()
         }
     }
 
@@ -223,6 +229,76 @@ public class ConversationViewModel: BaseViewModel {
         }
     }
 
+    func deleteMessage(messageId: Int64?) async -> Bool {
+        guard let messageId else {
+            presentError(userFacingError: UserFacingError(title: R.string.localizable.deletionErrorLabel()))
+            return false
+        }
+
+        let result = await MessagesServiceFactory.shared.deleteMessage(for: courseId, messageId: messageId)
+
+        switch result {
+        case .notStarted, .loading:
+            return false
+        case .success:
+            await loadMessages()
+            return true
+        case .failure(let error):
+            presentError(userFacingError: UserFacingError(title: error.localizedDescription))
+            return false
+        }
+    }
+
+    func deleteAnswerMessage(messageId: Int64?) async -> Bool {
+        guard let messageId else {
+            presentError(userFacingError: UserFacingError(title: R.string.localizable.deletionErrorLabel()))
+            return false
+        }
+
+        let result = await MessagesServiceFactory.shared.deleteAnswerMessage(for: courseId, anserMessageId: messageId)
+
+        switch result {
+        case .notStarted, .loading:
+            return false
+        case .success:
+            await loadMessages()
+            return true
+        case .failure(let error):
+            presentError(userFacingError: UserFacingError(title: error.localizedDescription))
+            return false
+        }
+    }
+
+    func editMessage(message: Message) async -> Bool {
+        let result = await MessagesServiceFactory.shared.editMessage(for: courseId, message: message)
+
+        switch result {
+        case .notStarted, .loading:
+            return false
+        case .success:
+            await loadMessages()
+            return true
+        case .failure(let error):
+            presentError(userFacingError: UserFacingError(title: error.localizedDescription))
+            return false
+        }
+    }
+
+    func editAnswerMessage(answerMessage: AnswerMessage) async -> Bool {
+        let result = await MessagesServiceFactory.shared.editAnswerMessage(for: courseId, answerMessage: answerMessage)
+
+        switch result {
+        case .notStarted, .loading:
+            return false
+        case .success:
+            await loadMessages()
+            return true
+        case .failure(let error):
+            presentError(userFacingError: UserFacingError(title: error.localizedDescription))
+            return false
+        }
+    }
+
     private func loadConversation() async {
         let result = await MessagesServiceFactory.shared.getConversations(for: courseId)
 
@@ -237,6 +313,19 @@ public class ConversationViewModel: BaseViewModel {
                 return
             }
             self.conversation = .done(response: conversation)
+        }
+    }
+
+    private func loadCourse() async {
+        let result = await CourseServiceFactory.shared.getCourse(courseId: courseId)
+
+        switch result {
+        case .loading:
+            course = .loading
+        case .failure(let error):
+            course = .failure(error: error)
+        case .done(let response):
+            course = .done(response: response.course)
         }
     }
 }

@@ -23,6 +23,24 @@ struct MessageActionSheet: View {
     @Binding var message: DataState<BaseMessage>
     let conversationPath: ConversationPath?
 
+    @State private var showDeleteAlert = false
+    @State private var showEditSheet = false
+
+    var isAbleToEditDelete: Bool {
+        guard let message = message.value else { return false }
+
+        if message.isCurrentUserAuthor {
+            return true
+        }
+
+        guard let channel = viewModel.conversation.value?.baseConversation as? Channel else { return false }
+        if channel.hasChannelModerationRights ?? false {
+            return true
+        }
+
+        return false
+    }
+
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: .l) {
@@ -55,18 +73,9 @@ struct MessageActionSheet: View {
                 }, label: {
                     ButtonContent(title: R.string.localizable.copyText(), icon: "clipboard.fill")
                 })
-                Divider()
-                Button(action: {
-                    viewModel.presentError(userFacingError: UserFacingError(title: "TODO"))
-                }, label: {
-                    ButtonContent(title: R.string.localizable.editMessage(), icon: "pencil")
-                })
-                Button(action: {
-                    viewModel.presentError(userFacingError: UserFacingError(title: "TODO"))
-                }, label: {
-                    ButtonContent(title: R.string.localizable.deleteMessage(), icon: "trash.fill")
-                        .foregroundColor(.red)
-                })
+
+                editDeleteSection
+
                 Spacer()
             }
             Spacer()
@@ -74,6 +83,72 @@ struct MessageActionSheet: View {
             .padding(.vertical, .xxl)
             .loadingIndicator(isLoading: $viewModel.isLoading)
             .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
+    }
+
+    var editDeleteSection: some View {
+        Group {
+            if isAbleToEditDelete {
+                Divider()
+
+                Button(action: {
+                    showEditSheet = true
+                }, label: {
+                    ButtonContent(title: R.string.localizable.editMessage(), icon: "pencil")
+                })
+                    .sheet(isPresented: $showEditSheet) {
+                        NavigationView {
+                            Group {
+                                if let message = message.value as? Message {
+                                    SendMessageView(viewModel: viewModel, sendMessageType: .editMessage(message, { self.dismiss() }))
+                                } else if let answerMessage = message.value as? AnswerMessage {
+                                    SendMessageView(viewModel: viewModel, sendMessageType: .editAnswerMessage(answerMessage, { self.dismiss() }))
+                                } else {
+                                    Text(R.string.localizable.loading())
+                                }
+                            }
+                            .navigationTitle(R.string.localizable.editMessage())
+                            .navigationBarTitleDisplayMode(.inline)
+                            .toolbar {
+                                ToolbarItem(placement: .navigationBarLeading) {
+                                    Button(R.string.localizable.cancel()) {
+                                        showEditSheet = false
+                                    }
+                                }
+                            }
+                        }.presentationDetents([.height(200), .medium])
+                    }
+
+                Button(action: {
+                    showDeleteAlert = true
+                }, label: {
+                    ButtonContent(title: R.string.localizable.deleteMessage(), icon: "trash.fill")
+                        .foregroundColor(.red)
+                })
+                    .alert(R.string.localizable.confirmDeletionTitle(), isPresented: $showDeleteAlert) {
+                        Button(R.string.localizable.confirm(), role: .destructive) {
+                            viewModel.isLoading = true
+                            Task(priority: .userInitiated) {
+                                let success: Bool
+                                let tempMessage = message.value
+                                if message.value is AnswerMessage {
+                                    success = await viewModel.deleteAnswerMessage(messageId: message.value?.id)
+                                } else {
+                                    success = await viewModel.deleteMessage(messageId: message.value?.id)
+                                }
+                                viewModel.isLoading = false
+                                if success {
+                                    dismiss()
+                                    // if we deleted a Message and are in the MessageDetailView we pop it
+                                    if navigationController.path.count == 3 && tempMessage is Message {
+                                        navigationController.path.removeLast()
+                                    }
+                                }
+                            }
+                        }
+                        Button(R.string.localizable.cancel(), role: .cancel) { }
+                    }
+            }
+        }
     }
 }
 

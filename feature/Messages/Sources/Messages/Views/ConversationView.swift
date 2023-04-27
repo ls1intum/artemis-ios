@@ -19,8 +19,10 @@ public struct ConversationView: View {
 
     @StateObject private var viewModel: ConversationViewModel
 
-    public init(courseId: Int, conversation: Conversation) {
-        _viewModel = StateObject(wrappedValue: ConversationViewModel(courseId: courseId, conversation: conversation))
+    @State private var showConversationInfoSheet = false
+
+    public init(course: Course, conversation: Conversation) {
+        _viewModel = StateObject(wrappedValue: ConversationViewModel(course: course, conversation: conversation))
     }
 
     public init(courseId: Int, conversationId: Int64) {
@@ -32,6 +34,19 @@ public struct ConversationView: View {
             return ConversationPath(conversation: conversation, coursePath: CoursePath(id: viewModel.courseId))
         }
         return ConversationPath(id: viewModel.conversationId, coursePath: CoursePath(id: viewModel.courseId))
+    }
+
+    private var isAllowedToPost: Bool {
+        guard let channel = viewModel.conversation.value?.baseConversation as? Channel else { return true }
+        // Channel is archived
+        if channel.isArchived ?? false {
+            return false
+        }
+        // Channel is announcement channel and current user is not instructor
+        if channel.isAnnouncementChannel ?? false && !(channel.hasChannelModerationRights ?? false) {
+            return false
+        }
+        return true
     }
 
     public var body: some View {
@@ -71,11 +86,30 @@ public struct ConversationView: View {
                         }
                     }
             }
-            if !((viewModel.conversation.value?.baseConversation as? Channel)?.isArchived ?? false) {
+            if isAllowedToPost {
                 SendMessageView(viewModel: viewModel, sendMessageType: .message)
             }
         }
-            .navigationTitle(viewModel.conversation.value?.baseConversation.conversationName ?? R.string.localizable.loading())
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Button(action: {
+                        showConversationInfoSheet = true
+                    }, label: {
+                        Text(viewModel.conversation.value?.baseConversation.conversationName ?? R.string.localizable.loading())
+                            .foregroundColor(.Artemis.primaryLabel)
+                            .frame(width: UIScreen.main.bounds.size.width * 0.6)
+                    })
+                }
+            }
+            .sheet(isPresented: $showConversationInfoSheet) {
+                if let course = viewModel.course.value {
+                    ConversationInfoSheetView(conversation: $viewModel.conversation,
+                                              course: course,
+                                              conversationId: viewModel.conversationId)
+                } else {
+                    Text(R.string.localizable.loading())
+                }
+            }
             .task {
                 viewModel.shouldScrollToId = "bottom"
                 if viewModel.dailyMessages.value == nil {

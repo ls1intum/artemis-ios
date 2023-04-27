@@ -38,7 +38,13 @@ public struct CourseView: View {
             if viewModel.course.value == nil ||
                 viewModel.course.value?.courseInformationSharingConfiguration == .communicationAndMessaging ||
                 viewModel.course.value?.courseInformationSharingConfiguration == .messagingOnly {
-                MessagesTabView(searchText: $searchText, courseId: courseId)
+                Group {
+                    if let course = viewModel.course.value {
+                        MessagesTabView(searchText: $searchText, course: course)
+                    } else {
+                        Text("Loading...")
+                    }
+                }
                     .tabItem {
                         Label(R.string.localizable.messagesTabLabel(), systemImage: "bubble.right.fill")
                     }
@@ -51,20 +57,5 @@ public struct CourseView: View {
             .onChange(of: navigationController.courseTab) { _ in
                 searchText = ""
             }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    if navigationController.courseTab == .communication {
-                        Button(action: { showNewMessageDialog = true }, label: {
-                            Image(systemName: "square.and.pencil.circle.fill")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: .buttonMinSize)
-                        })
-                    } else {
-                        EmptyView()
-                    }
-                }
-            }
-            .plusActionDialog(isPresented: $showNewMessageDialog)
     }
 }

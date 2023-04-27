@@ -24,9 +24,11 @@ class MessagesTabViewModel: BaseViewModel {
     @Published var oneToOneChats: DataState<[OneToOneChat]> = .loading
 
     let courseId: Int
+    let course: Course
 
-    init(courseId: Int) {
-        self.courseId = courseId
+    init(course: Course) {
+        self.courseId = course.id
+        self.course = course
 
         super.init()
     }

@@ -15,6 +15,15 @@ class CourseViewModel: ObservableObject {
     }
 
     func loadCourse(id: Int) async {
-        self.course = await CourseServiceFactory.shared.getCourse(courseId: id)
+        let result = await CourseServiceFactory.shared.getCourse(courseId: id)
+
+        switch result {
+        case .loading:
+            course = .loading
+        case .failure(let error):
+            course = .failure(error: error)
+        case .done(let response):
+            course = .done(response: response.course)
+        }
     }
 }
