@@ -34,7 +34,7 @@ struct MessageActionSheet: View {
         }
 
         guard let channel = viewModel.conversation.value?.baseConversation as? Channel else { return false }
-        if channel.hasChannelModerationRights ?? false {
+        if channel.hasChannelModerationRights ?? false && message is Message {
             return true
         }
 
