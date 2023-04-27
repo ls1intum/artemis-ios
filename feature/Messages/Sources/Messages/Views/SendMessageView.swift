@@ -149,11 +149,12 @@ struct SendMessageView: View {
                         Image(systemName: "link")
                     })
                     Button(action: {
+                        isFocused = false
                         showExercisePicker = true
                     }, label: {
                         Text(R.string.localizable.exercise())
                     })
-                        .sheet(isPresented: $showExercisePicker) {
+                        .sheet(isPresented: $showExercisePicker, onDismiss: { isFocused = true }) {
                             if let course = viewModel.course.value {
                                 SendMessageExercisePicker(text: $responseText, course: course)
                             } else {
@@ -161,11 +162,12 @@ struct SendMessageView: View {
                             }
                         }
                     Button(action: {
+                        isFocused = false
                         showLecturePicker = true
                     }, label: {
                         Text(R.string.localizable.lecture())
                     })
-                        .sheet(isPresented: $showLecturePicker) {
+                        .sheet(isPresented: $showLecturePicker, onDismiss: { isFocused = true }) {
                             if let course = viewModel.course.value {
                                 SendMessageLecturePicker(text: $responseText, course: course)
                             } else {

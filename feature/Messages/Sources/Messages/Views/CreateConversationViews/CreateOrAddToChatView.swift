@@ -78,6 +78,7 @@ struct CreateOrAddToChatView: View {
                     }
                 }
             }
+                .loadingIndicator(isLoading: $viewModel.isLoading)
                 .padding(.l)
                 .navigationTitle(navigationTitle)
                 .toolbar {
@@ -88,18 +89,19 @@ struct CreateOrAddToChatView: View {
                     }
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button(saveButtonLabel) {
+                            viewModel.isLoading = true
                             Task(priority: .userInitiated) {
                                 switch type {
                                 case .createChat:
                                     let newChatId = await viewModel.createChat()
-
+                                    viewModel.isLoading = false
                                     if let newChatId {
                                         dismiss()
                                         navigationController.goToCourseConversation(courseId: viewModel.courseId, conversationId: newChatId)
                                     }
                                 case .addToChat(let conversation):
                                     let success = await viewModel.addUsersToConversation(conversation)
-
+                                    viewModel.isLoading = false
                                     if success {
                                         dismiss()
                                     }
