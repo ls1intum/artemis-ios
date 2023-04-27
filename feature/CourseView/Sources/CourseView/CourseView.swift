@@ -29,7 +29,7 @@ public struct CourseView: View {
                 }
                 .tag(TabIdentifier.exercise)
 
-            Text("Lectures TODO")
+            LectureListView(viewModel: viewModel, searchText: $searchText)
                 .tabItem {
                     Label(R.string.localizable.lectureTabLabel(), systemImage: "character.book.closed.fill")
                 }
