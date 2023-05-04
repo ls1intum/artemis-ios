@@ -16,9 +16,8 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
-        .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", .upToNextMajor(from: "1.0.0")),
+        .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", .upToNextMajor(from: "1.0.7")),
         .package(path: "../../core/Navigation"),
-        .package(path: "../ArtemisMarkdown"),
         .package(url: "https://github.com/mac-cain13/R.swift.git", from: "7.0.0"),
         .package(url: "https://github.com/Kelvas09/EmojiPicker.git", from: "1.0.0")
     ],
@@ -32,8 +31,8 @@ let package = Package(
                 .product(name: "APIClient", package: "artemis-ios-core-modules"),
                 .product(name: "DesignLibrary", package: "artemis-ios-core-modules"),
                 .product(name: "UserStore", package: "artemis-ios-core-modules"),
+                .product(name: "ArtemisMarkdown", package: "artemis-ios-core-modules"),
                 "Navigation",
-                "ArtemisMarkdown",
                 "EmojiPicker",
                 .product(name: "RswiftLibrary", package: "R.swift")
             ],
