@@ -19,6 +19,7 @@ let package = Package(
         .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", .upToNextMajor(from: "1.0.0")),
         .package(path: "../../core/Navigation"),
         .package(path: "../Messages"),
+        .package(path: "../ArtemisMarkdown"),
         .package(url: "https://github.com/mac-cain13/R.swift.git", from: "7.0.0")
     ],
     targets: [
@@ -32,6 +33,7 @@ let package = Package(
                 .product(name: "UserStore", package: "artemis-ios-core-modules"),
                 "Navigation",
                 "Messages",
+                "ArtemisMarkdown",
                 .product(name: "RswiftLibrary", package: "R.swift")
             ],
             plugins: [.plugin(name: "RswiftGeneratePublicResources", package: "R.swift")]

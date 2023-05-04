@@ -42,11 +42,22 @@ class AccountNavigationBarMenuViewModel: ObservableObject {
                                                                        skippedNotifications: notificationDeviceConfiguration.skippedNotifications)
                 APIClient().perfomLogout()
             case .failure(let error):
-                if let error = error as? APIClientError,
-                   case .networkError = error {
-                    // TODO: schedule task to retry above functionality
-                    APIClient().perfomLogout()
-                }
+                if let error = error as? APIClientError {
+                    switch error {
+                    case .httpURLResponseError(let statusCode, _):
+                        if statusCode == .methodNotAllowed {
+                            // ignore network error and login anyway
+                            // TODO: schedule task to retry above functionality
+                            APIClient().perfomLogout()
+                        }
+                    case .networkError:
+                        // ignore network error and login anyway
+                        // TODO: schedule task to retry above functionality
+                        APIClient().perfomLogout()
+                    default:
+                        // do nothing
+                        break
+                    }                }
                 log.error(error.localizedDescription)
                 self.error = UserFacingError(title: error.localizedDescription)
             default:

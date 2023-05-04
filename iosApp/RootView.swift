@@ -33,6 +33,13 @@ struct RootView: View {
                                     ExerciseDetailView(courseId: exercisePath.coursePath.id, exerciseId: exercisePath.id)
                                 }
                             }
+                            .navigationDestination(for: LecturePath.self) { lecturePath in
+                                if let course = lecturePath.coursePath.course {
+                                    LectureDetailView(course: course, lectureId: lecturePath.id)
+                                } else {
+                                    LectureDetailView(courseId: lecturePath.coursePath.id, lectureId: lecturePath.id)
+                                }
+                            }
                             .navigationDestination(for: MessagePath.self) { messagePath in
                                 if let message = messagePath.message,
                                    let conversationViewModel = messagePath.conversationViewModel as? ConversationViewModel {

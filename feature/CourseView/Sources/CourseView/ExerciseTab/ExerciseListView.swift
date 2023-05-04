@@ -163,10 +163,7 @@ struct ExerciseListCell: View {
         }
             .frame(maxWidth: .infinity)
             .padding(.l)
-            .cardModifier(backgroundColor: Color.Artemis.exerciseCardBackgroundColor,
-                          hasBorder: true,
-                          borderColor: Color.Artemis.artemisBlue,
-                          cornerRadius: 2)
+            .artemisStyleCard()
             .onTapGesture {
                 navigationController.path.append(ExercisePath(exercise: exercise, coursePath: CoursePath(course: course)))
             }
