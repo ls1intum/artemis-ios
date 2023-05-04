@@ -152,8 +152,7 @@ struct LectureListCell: View {
                           borderColor: Color.Artemis.artemisBlue,
                           cornerRadius: 2)
             .onTapGesture {
-//                navigationController.path.append(ExercisePath(exercise: exercise, coursePath: CoursePath(course: course)))
-                print("TODO")
+                navigationController.path.append(LecturePath(lecture: lecture, coursePath: CoursePath(course: course)))
             }
     }
 }
