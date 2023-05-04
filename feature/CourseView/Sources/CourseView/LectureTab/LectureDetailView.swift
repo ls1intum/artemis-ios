@@ -30,6 +30,8 @@ public struct LectureDetailView: View {
                 HStack {
                     VStack(alignment: .leading, spacing: .l) {
                         if let startDate = lecture.startDate {
+                            Text("Date")
+                                .font(.headline)
                             HStack {
                                 Text("\(startDate.shortDateAndTime)")
                                 if let endDate = lecture.endDate {
