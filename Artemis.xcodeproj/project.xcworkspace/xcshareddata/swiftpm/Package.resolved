@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ls1intum/artemis-ios-core-modules",
       "state" : {
-        "revision" : "446dfcd12f255fc02b368c6838ff0dcc513cf8f6",
-        "version" : "1.0.7"
+        "revision" : "e2f185ea3be235394b66cf7657a0de0583abd9b4",
+        "version" : "1.0.8"
       }
     },
     {
@@ -34,6 +34,15 @@
       "state" : {
         "revision" : "d787591e2121b617209172ad6a8ebf2975f605ae",
         "version" : "1.0.1"
+      }
+    },
+    {
+      "identity" : "kingfisher",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/onevcat/Kingfisher.git",
+      "state" : {
+        "revision" : "af4be924ad984cf4d16f4ae4df424e79a443d435",
+        "version" : "7.6.2"
       }
     },
     {
