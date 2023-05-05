@@ -75,7 +75,13 @@ struct MessageCell: View {
             .contentShape(Rectangle())
             .background(isPressed ? Color.Artemis.messsageCellPressed : Color.clear)
             .onTapGesture {
-                print("This somehow fixes scrolling...")
+                if let conversationPath,
+                   let messagePath = MessagePath(message: $message,
+                                                 coursePath: conversationPath.coursePath,
+                                                 conversationPath: conversationPath,
+                                                 conversationViewModel: viewModel) {
+                    navigationController.path.append(messagePath)
+                }
             }
             .onLongPressGesture(minimumDuration: 0.1, maximumDistance: 30, perform: {
                 guard let conversation = viewModel.conversation.value else { return }

@@ -81,23 +81,14 @@ private struct CourseListCell: View {
             Spacer()
             VStack(alignment: .leading, spacing: 0) {
                 HStack(alignment: .center) {
-                    AsyncImage(url: courseForDashboard.course.courseIconURL) { phase in
-                        switch phase {
-                        case .empty:
-                            ProgressView()
-                        case .success(let image):
-                            image
-                                .resizable()
-                                .scaledToFit()
-                        case .failure:
+                    if let url = courseForDashboard.course.courseIconURL {
+                        ArtemisAsyncImage(imageURL: url) {
                             Image("questionmark.square.dashed")
-                        @unknown default:
-                            EmptyView()
                         }
+                            .frame(width: .extraLargeImage, height: .extraLargeImage)
+                            .clipShape(Circle())
+                            .padding(.m)
                     }
-                        .frame(width: .extraLargeImage, height: .extraLargeImage)
-                        .clipShape(Circle())
-                        .padding(.m)
                     VStack(alignment: .leading) {
                         Text(courseForDashboard.course.title ?? R.string.localizable.unknown())
                             .font(.custom("SF Pro", size: 21, relativeTo: .title))
