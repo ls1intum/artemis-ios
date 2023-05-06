@@ -1,15 +1,6 @@
 {
   "pins" : [
     {
-      "identity" : "artemis-ios-core-modules",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/ls1intum/artemis-ios-core-modules",
-      "state" : {
-        "revision" : "e2f185ea3be235394b66cf7657a0de0583abd9b4",
-        "version" : "1.0.8"
-      }
-    },
-    {
       "identity" : "collectionconcurrencykit",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/JohnSundell/CollectionConcurrencyKit.git",
@@ -55,6 +46,15 @@
       }
     },
     {
+      "identity" : "reachability.swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ashleymills/Reachability.swift",
+      "state" : {
+        "revision" : "98e968e7b6c1318fb61df23e347bc319761e8acb",
+        "version" : "5.0.0"
+      }
+    },
+    {
       "identity" : "smile",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/onmyway133/Smile",
@@ -70,6 +70,15 @@
       "state" : {
         "revision" : "b6dc09ee51dfb0c66e042d2328c017483a1a5d56",
         "version" : "0.34.1"
+      }
+    },
+    {
+      "identity" : "starscream",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/daltoniam/Starscream.git",
+      "state" : {
+        "revision" : "df8d82047f6654d8e4b655d1b1525c64e1059d21",
+        "version" : "4.0.4"
       }
     },
     {
@@ -106,6 +115,15 @@
       "state" : {
         "revision" : "eb85125a5f293de3d3248af259980c98bc2b1faa",
         "version" : "0.51.0"
+      }
+    },
+    {
+      "identity" : "swiftstomp",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Romixery/SwiftStomp.git",
+      "state" : {
+        "revision" : "99dcfa7f428485b92de2359c9df9c778fd2d5599",
+        "version" : "1.1.1"
       }
     },
     {
