@@ -13,13 +13,13 @@ import UserStore
 
 class NotificationWebsocketServiceImpl: NotificationWebsocketService {
 
-    let client = APIClient()
+    private let client = APIClient()
 
-    var continuation: AsyncStream<Notification>.Continuation?
-    var stream: AsyncStream<Notification>?
+    private var continuation: AsyncStream<Notification>.Continuation?
+    private var stream: AsyncStream<Notification>?
 
-    var subscribedTopics: [String] = []
-    var tasks: [Task<(), Never>] = []
+    private var subscribedTopics: [String] = []
+    private var tasks: [Task<(), Never>] = []
 
     static let shared = NotificationWebsocketServiceImpl()
 
@@ -37,30 +37,33 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
 
         let stream = AsyncStream<Notification> { continuation in
             continuation.onTermination = { [weak self] _ in
-                self?.continuation = nil
                 self?.tasks.forEach { $0.cancel() }
+                self?.continuation = nil
+                self?.subscribedTopics = []
             }
 
             self.continuation = continuation
-            let subscribeToSingleUserNotificationUpdatesTask = Task {
-                await subscribeToSingleUserNotificationUpdates()
-            }
-            tasks.append(subscribeToSingleUserNotificationUpdatesTask)
-            let subscribeToCourseNotificationUpdatesTask = Task {
-                await subscribeToCourseNotificationUpdates()
-            }
-            tasks.append(subscribeToCourseNotificationUpdatesTask)
-            let subscribeToTutorialGroupNotificationUpdatesTask = Task {
-                await subscribeToTutorialGroupNotificationUpdates()
-            }
-            tasks.append(subscribeToTutorialGroupNotificationUpdatesTask)
-            let subscribeToConversationNotificationUpdatesTask = Task {
-                await subscribeToConversationNotificationUpdates()
-            }
-            tasks.append(subscribeToConversationNotificationUpdatesTask)
         }
 
         self.stream = stream
+
+        let subscribeToSingleUserNotificationUpdatesTask = Task {
+            await subscribeToSingleUserNotificationUpdates()
+        }
+        tasks.append(subscribeToSingleUserNotificationUpdatesTask)
+        let subscribeToCourseNotificationUpdatesTask = Task {
+            await subscribeToCourseNotificationUpdates()
+        }
+        tasks.append(subscribeToCourseNotificationUpdatesTask)
+        let subscribeToTutorialGroupNotificationUpdatesTask = Task {
+            await subscribeToTutorialGroupNotificationUpdates()
+        }
+        tasks.append(subscribeToTutorialGroupNotificationUpdatesTask)
+        let subscribeToConversationNotificationUpdatesTask = Task {
+            await subscribeToConversationNotificationUpdates()
+        }
+        tasks.append(subscribeToConversationNotificationUpdatesTask)
+
         return stream
     }
 
@@ -69,37 +72,41 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
             log.debug("User could not be found. Subscribe to UserNotifications not possible")
             return
         }
+
         let topic = "/topic/user/\(userId)/notifications"
         subscribedTopics.append(topic)
         let stream = ArtemisStompClient.shared.subscribe(to: topic)
 
-        for await message in stream {
-            guard let notification = JSONDecoder.getTypeFromSocketMessage(type: Notification.self, message: message) else { continue }
-            // Do not add notification to observer if it is a one-to-one conversation creation notification
-            // and if the author is the current user
-            // TODO: change title string here
-            if notification.title != "artemisApp.singleUserNotification.title.createOneToOneChat" && userId != notification.author?.id {
-                continuation?.yield(notification)
-            }
-            guard let target = notification.target.toDictionary,
-                  let message = target["message"] as? String else { continue }
-
-            // subscribe to newly created conversation topic
-            if message == "conversation-creation" {
-                if let conversationId = target["conversation"] {
-                    let conversationTopic = "/topic/conversation/\(conversationId)/notifications"
-                    await subscribeToNewlyCreatedConversation(conversationTopic: conversationTopic)
+        let task = Task {
+            for await message in stream {
+                guard let notification = JSONDecoder.getTypeFromSocketMessage(type: Notification.self, message: message) else { continue }
+                // Do not add notification to observer if it is a one-to-one conversation creation notification
+                // and if the author is the current user
+                // TODO: change title string here
+                if notification.title != "artemisApp.singleUserNotification.title.createOneToOneChat" && userId != notification.author?.id {
+                    continuation?.yield(notification)
                 }
-            }
+                guard let target = notification.target.toDictionary,
+                      let message = target["message"] as? String else { continue }
 
-            // unsubscribe from deleted conversation topic
-            if message == "conversation-deletion" {
-                if let conversationId = target["conversation"] {
-                    let conversationTopic = "/topic/conversation/\(conversationId)/notifications"
-                    unsubscribeFromDeletedConversation(conversationTopic: conversationTopic)
+                // subscribe to newly created conversation topic
+                if message == "conversation-creation" {
+                    if let conversationId = target["conversation"] {
+                        let conversationTopic = "/topic/conversation/\(conversationId)/notifications"
+                        await subscribeToNewlyCreatedConversation(conversationTopic: conversationTopic)
+                    }
+                }
+
+                // unsubscribe from deleted conversation topic
+                if message == "conversation-deletion" {
+                    if let conversationId = target["conversation"] {
+                        let conversationTopic = "/topic/conversation/\(conversationId)/notifications"
+                        unsubscribeFromDeletedConversation(conversationTopic: conversationTopic)
+                    }
                 }
             }
         }
+        tasks.append(task)
     }
 
     /**
@@ -109,10 +116,13 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
         subscribedTopics.append(conversationTopic)
         let stream = ArtemisStompClient.shared.subscribe(to: conversationTopic)
 
-        for await message in stream {
-            guard let notification = JSONDecoder.getTypeFromSocketMessage(type: Notification.self, message: message) else { continue }
-            continuation?.yield(notification)
+        let task = Task {
+            for await message in stream {
+                guard let notification = JSONDecoder.getTypeFromSocketMessage(type: Notification.self, message: message) else { continue }
+                continuation?.yield(notification)
+            }
         }
+        tasks.append(task)
     }
 
     /**
@@ -142,16 +152,19 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
             if !subscribedTopics.contains(quizExerciseTopic) {
                 subscribedTopics.append(quizExerciseTopic)
                 let stream = ArtemisStompClient.shared.subscribe(to: quizExerciseTopic)
-                for await message in stream {
-                    guard let quizExercise = JSONDecoder.getTypeFromSocketMessage(type: QuizExercise.self, message: message) else { continue }
-                    if quizExercise.visibleToStudents ?? false,
-                       quizExercise.quizMode == .SYNCHRONIZED,
-                       quizExercise.quizBatches?.first?.started ?? false,
-                       !(quizExercise.isOpenForPractice ?? false) {
-                        let notification = Notification.createNotificationFromStartedQuizExercise(quizExercise: quizExercise)
-                        continuation?.yield(notification)
+                let task = Task {
+                    for await message in stream {
+                        guard let quizExercise = JSONDecoder.getTypeFromSocketMessage(type: QuizExercise.self, message: message) else { continue }
+                        if quizExercise.visibleToStudents ?? false,
+                           quizExercise.quizMode == .SYNCHRONIZED,
+                           quizExercise.quizBatches?.first?.started ?? false,
+                           !(quizExercise.isOpenForPractice ?? false) {
+                            let notification = Notification.createNotificationFromStartedQuizExercise(quizExercise: quizExercise)
+                            continuation?.yield(notification)
+                        }
                     }
                 }
+                tasks.append(task)
             }
         }
     }
@@ -172,10 +185,13 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
             if !subscribedTopics.contains(courseTopic) {
                 subscribedTopics.append(courseTopic)
                 let stream = ArtemisStompClient.shared.subscribe(to: courseTopic)
-                for await message in stream {
-                    guard let notification = JSONDecoder.getTypeFromSocketMessage(type: Notification.self, message: message) else { continue }
-                    continuation?.yield(notification)
+                let task = Task {
+                    for await message in stream {
+                        guard let notification = JSONDecoder.getTypeFromSocketMessage(type: Notification.self, message: message) else { continue }
+                        continuation?.yield(notification)
+                    }
                 }
+                tasks.append(task)
             }
         }
     }
@@ -198,10 +214,13 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
             if !subscribedTopics.contains(tutorialGroupTopic) {
                 subscribedTopics.append(tutorialGroupTopic)
                 let stream = ArtemisStompClient.shared.subscribe(to: tutorialGroupTopic)
-                for await message in stream {
-                    guard let notification = JSONDecoder.getTypeFromSocketMessage(type: Notification.self, message: message) else { continue }
-                    continuation?.yield(notification)
+                let task = Task {
+                    for await message in stream {
+                        guard let notification = JSONDecoder.getTypeFromSocketMessage(type: Notification.self, message: message) else { continue }
+                        continuation?.yield(notification)
+                    }
                 }
+                tasks.append(task)
             }
         }
     }
@@ -214,25 +233,28 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
         case .failure(let error):
             log.error("Could not subscribe to conversations notifications: \(error.localizedDescription)")
         case .done(let conversations):
-            await subscribeToConversationNotificationUpdates(conversations: conversations)
+            subscribeToConversationNotificationUpdates(conversations: conversations)
         }
     }
 
-    private func subscribeToConversationNotificationUpdates(conversations: [Conversation]) async {
+    private func subscribeToConversationNotificationUpdates(conversations: [Conversation]) {
         for conversation in conversations {
             let conversationTopic = "/topic/conversation/\(conversation.id)/notifications"
             if !subscribedTopics.contains(conversationTopic) {
                 subscribedTopics.append(conversationTopic)
                 let stream = ArtemisStompClient.shared.subscribe(to: conversationTopic)
-                for await message in stream {
-                    guard let notification = JSONDecoder.getTypeFromSocketMessage(type: Notification.self, message: message),
-                          let userId = UserSession.shared.user?.id else { continue }
+                let task = Task {
+                    for await message in stream {
+                        guard let notification = JSONDecoder.getTypeFromSocketMessage(type: Notification.self, message: message),
+                              let userId = UserSession.shared.user?.id else { continue }
 
-                    // Only add notification if it is not from the current user
-                    if notification.author?.id != userId {
-                        continuation?.yield(notification)
+                        // Only add notification if it is not from the current user
+                        if notification.author?.id != userId {
+                            continuation?.yield(notification)
+                        }
                     }
                 }
+                tasks.append(task)
             }
         }
     }

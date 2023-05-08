@@ -93,11 +93,8 @@ struct NotificationBell: ViewModifier {
             .sheet(isPresented: $showNotificationSheet) {
                 NotificationView(viewModel: viewModel)
             }
-            .onAppear {
-                viewModel.subscribeToNotificationUpdates()
-            }
-            .onDisappear {
-                viewModel.unsubscribeToNotificationUpdates()
+            .task {
+                await viewModel.subscribeToNotificationUpdates()
             }
     }
 }
