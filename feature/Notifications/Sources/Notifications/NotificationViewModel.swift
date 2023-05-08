@@ -17,6 +17,8 @@ class NotificationViewModel: ObservableObject {
 
     @Published var newNotificationCount = 0
 
+    private var subscriptionTask: Task<(), Never>?
+
     private var lastNotificationSeenDate: Date? {
         didSet {
             UserDefaults.standard.set(lastNotificationSeenDate, forKey: "lastNotificationSeenDate")
@@ -37,13 +39,19 @@ class NotificationViewModel: ObservableObject {
                                                object: nil)
     }
 
-    func subscribeToNotificationUpdates() async {
-        let stream = NotificationWebsocketServiceFactory.shared.subscribeToNotifications()
+    func subscribeToNotificationUpdates() {
+        subscriptionTask = Task(priority: .background) {
+            let stream = NotificationWebsocketServiceFactory.shared.subscribeToNotifications()
 
-        for await notification in stream {
-            notifications.value?.append(notification)
-            newNotificationCount += 1
+            for await notification in stream {
+                notifications.value?.append(notification)
+                newNotificationCount += 1
+            }
         }
+    }
+
+    func unsubscribeToNotificationUpdates() {
+        subscriptionTask?.cancel()
     }
 
     private func updateLastNotificationSeenDate() {
