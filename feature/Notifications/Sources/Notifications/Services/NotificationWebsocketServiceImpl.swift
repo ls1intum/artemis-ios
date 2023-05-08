@@ -74,30 +74,29 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
         let stream = ArtemisStompClient.shared.subscribe(to: topic)
 
         for await notification in stream {
-            guard let notification = Notification.getNotificationFromSocketMessage(message: notification) else { return }
+            guard let notification = Notification.getNotificationFromSocketMessage(message: notification) else { continue }
             // Do not add notification to observer if it is a one-to-one conversation creation notification
             // and if the author is the current user
             // TODO: change title string here
             if notification.title != "artemisApp.singleUserNotification.title.createOneToOneChat" && userId != notification.author?.id {
                 continuation?.yield(notification)
             }
-            if let target = notification.target.toDictionary,
-               let message = target["message"] as? String {
+            guard let target = notification.target.toDictionary,
+                  let message = target["message"] as? String else { continue }
 
-                // subscribe to newly created conversation topic
-                if message == "conversation-creation" {
-                    if let conversationId = target["conversation"] {
-                        let conversationTopic = "/topic/conversation/\(conversationId)/notifications"
-                        await subscribeToNewlyCreatedConversation(conversationTopic: conversationTopic)
-                    }
+            // subscribe to newly created conversation topic
+            if message == "conversation-creation" {
+                if let conversationId = target["conversation"] {
+                    let conversationTopic = "/topic/conversation/\(conversationId)/notifications"
+                    await subscribeToNewlyCreatedConversation(conversationTopic: conversationTopic)
                 }
+            }
 
-                // unsubscribe from deleted conversation topic
-                if message == "conversation-deletion" {
-                    if let conversationId = target["conversation"] {
-                        let conversationTopic = "/topic/conversation/\(conversationId)/notifications"
-                        unsubscribeFromDeletedConversation(conversationTopic: conversationTopic)
-                    }
+            // unsubscribe from deleted conversation topic
+            if message == "conversation-deletion" {
+                if let conversationId = target["conversation"] {
+                    let conversationTopic = "/topic/conversation/\(conversationId)/notifications"
+                    unsubscribeFromDeletedConversation(conversationTopic: conversationTopic)
                 }
             }
         }
@@ -111,7 +110,7 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
         let stream = ArtemisStompClient.shared.subscribe(to: conversationTopic)
 
         for await notification in stream {
-            guard let notification = notification as? Notification else { return }
+            guard let notification = Notification.getNotificationFromSocketMessage(message: notification) else { continue }
             continuation?.yield(notification)
         }
     }
@@ -144,7 +143,8 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
                 subscribedTopics.append(quizExerciseTopic)
                 let stream = ArtemisStompClient.shared.subscribe(to: quizExerciseTopic)
                 for await quizExercise in stream {
-                    guard let quizExercise = quizExercise as? QuizExercise else { return }
+                    // TODO: this cast probably does not work
+                    guard let quizExercise = quizExercise as? QuizExercise else { continue }
                     if quizExercise.visibleToStudents ?? false,
                        quizExercise.quizMode == .SYNCHRONIZED,
                        quizExercise.quizBatches?.first?.started ?? false,
@@ -174,7 +174,7 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
                 subscribedTopics.append(courseTopic)
                 let stream = ArtemisStompClient.shared.subscribe(to: courseTopic)
                 for await notification in stream {
-                    guard let notification = notification as? Notification else { return }
+                    guard let notification = Notification.getNotificationFromSocketMessage(message: notification) else { continue }
                     continuation?.yield(notification)
                 }
             }
@@ -200,7 +200,7 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
                 subscribedTopics.append(tutorialGroupTopic)
                 let stream = ArtemisStompClient.shared.subscribe(to: tutorialGroupTopic)
                 for await notification in stream {
-                    guard let notification = notification as? Notification else { return }
+                    guard let notification = Notification.getNotificationFromSocketMessage(message: notification) else { continue }
                     continuation?.yield(notification)
                 }
             }
@@ -226,8 +226,8 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
                 subscribedTopics.append(conversationTopic)
                 let stream = ArtemisStompClient.shared.subscribe(to: conversationTopic)
                 for await notification in stream {
-                    guard let notification = notification as? Notification,
-                          let userId = UserSession.shared.user?.id else { return }
+                    guard let notification = Notification.getNotificationFromSocketMessage(message: notification),
+                          let userId = UserSession.shared.user?.id else { continue }
 
                     // Only add notification if it is not from the current user
                     if notification.author?.id != userId {
