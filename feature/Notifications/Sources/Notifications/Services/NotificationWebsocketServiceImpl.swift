@@ -73,8 +73,8 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
         subscribedTopics.append(topic)
         let stream = ArtemisStompClient.shared.subscribe(to: topic)
 
-        for await notification in stream {
-            guard let notification = Notification.getNotificationFromSocketMessage(message: notification) else { continue }
+        for await message in stream {
+            guard let notification = JSONDecoder.getTypeFromSocketMessage(type: Notification.self, message: message) else { continue }
             // Do not add notification to observer if it is a one-to-one conversation creation notification
             // and if the author is the current user
             // TODO: change title string here
@@ -109,8 +109,8 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
         subscribedTopics.append(conversationTopic)
         let stream = ArtemisStompClient.shared.subscribe(to: conversationTopic)
 
-        for await notification in stream {
-            guard let notification = Notification.getNotificationFromSocketMessage(message: notification) else { continue }
+        for await message in stream {
+            guard let notification = JSONDecoder.getTypeFromSocketMessage(type: Notification.self, message: message) else { continue }
             continuation?.yield(notification)
         }
     }
@@ -142,9 +142,8 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
             if !subscribedTopics.contains(quizExerciseTopic) {
                 subscribedTopics.append(quizExerciseTopic)
                 let stream = ArtemisStompClient.shared.subscribe(to: quizExerciseTopic)
-                for await quizExercise in stream {
-                    // TODO: this cast probably does not work
-                    guard let quizExercise = quizExercise as? QuizExercise else { continue }
+                for await message in stream {
+                    guard let quizExercise = JSONDecoder.getTypeFromSocketMessage(type: QuizExercise.self, message: message) else { continue }
                     if quizExercise.visibleToStudents ?? false,
                        quizExercise.quizMode == .SYNCHRONIZED,
                        quizExercise.quizBatches?.first?.started ?? false,
@@ -173,8 +172,8 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
             if !subscribedTopics.contains(courseTopic) {
                 subscribedTopics.append(courseTopic)
                 let stream = ArtemisStompClient.shared.subscribe(to: courseTopic)
-                for await notification in stream {
-                    guard let notification = Notification.getNotificationFromSocketMessage(message: notification) else { continue }
+                for await message in stream {
+                    guard let notification = JSONDecoder.getTypeFromSocketMessage(type: Notification.self, message: message) else { continue }
                     continuation?.yield(notification)
                 }
             }
@@ -199,8 +198,8 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
             if !subscribedTopics.contains(tutorialGroupTopic) {
                 subscribedTopics.append(tutorialGroupTopic)
                 let stream = ArtemisStompClient.shared.subscribe(to: tutorialGroupTopic)
-                for await notification in stream {
-                    guard let notification = Notification.getNotificationFromSocketMessage(message: notification) else { continue }
+                for await message in stream {
+                    guard let notification = JSONDecoder.getTypeFromSocketMessage(type: Notification.self, message: message) else { continue }
                     continuation?.yield(notification)
                 }
             }
@@ -225,8 +224,8 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
             if !subscribedTopics.contains(conversationTopic) {
                 subscribedTopics.append(conversationTopic)
                 let stream = ArtemisStompClient.shared.subscribe(to: conversationTopic)
-                for await notification in stream {
-                    guard let notification = Notification.getNotificationFromSocketMessage(message: notification),
+                for await message in stream {
+                    guard let notification = JSONDecoder.getTypeFromSocketMessage(type: Notification.self, message: message),
                           let userId = UserSession.shared.user?.id else { continue }
 
                     // Only add notification if it is not from the current user
@@ -341,22 +340,5 @@ fileprivate extension Notification {
 //                     }),
                      author: nil,
                      notificationType: .group)
-    }
-
-    static func getNotificationFromSocketMessage(message: Any?) -> Notification? {
-        guard let messageString = message as? String,
-              let messsageData = messageString.data(using: .utf8) else {
-            log.error("Could not decode message as Notification")
-            return nil
-        }
-
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .customISO8601
-        do {
-            return try decoder.decode(Notification.self, from: messsageData)
-        } catch {
-            log.error(error)
-            return nil
-        }
     }
 }
