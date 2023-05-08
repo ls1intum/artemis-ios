@@ -28,12 +28,35 @@ class NotificationServiceImpl: NotificationService {
         }
     }
 
-    func loadNotifications(page: Int = 0, size: Int = 50) async -> Common.DataState<[Notification]> {
+    func loadNotifications(page: Int = 0, size: Int = 50) async -> DataState<[Notification]> {
         let result = await client.sendRequest(GetNotificationsRequest(page: page, size: size))
 
         switch result {
         case .success((let response, _)):
             return .done(response: response)
+        case .failure(let error):
+            return .failure(error: UserFacingError(error: error))
+        }
+    }
+
+    struct UpdateUserNotificationDateRequest: APIRequest {
+        typealias Response = RawResponse
+
+        var method: HTTPMethod {
+            return .put
+        }
+
+        var resourceName: String {
+            return "api/users/notification-date"
+        }
+    }
+
+    func updateUserNotificationDate() async -> NetworkResponse {
+        let result = await client.sendRequest(UpdateUserNotificationDateRequest())
+
+        switch result {
+        case .success:
+            return .success
         case .failure(let error):
             return .failure(error: UserFacingError(error: error))
         }

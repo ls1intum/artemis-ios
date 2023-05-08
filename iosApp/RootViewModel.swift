@@ -10,8 +10,12 @@ import Foundation
 import Combine
 import UserStore
 import SwiftUI
+import Account
 
+@MainActor
 class RootViewModel: ObservableObject {
+
+    @Published var isLoading = true
 
     @Published var isLoggedIn = false
     @Published var didSetupNotifications = false
@@ -26,7 +30,17 @@ class RootViewModel: ObservableObject {
             }
         }.store(in: &cancellables)
 
-        isLoggedIn = UserSession.shared.isLoggedIn
-        didSetupNotifications = UserSession.shared.getCurrentNotificationDeviceConfiguration() != nil
+        Task(priority: .high) {
+            let user = await AccountServiceFactory.shared.getAccount()
+
+            switch user {
+            case .loading, .failure:
+                UserSession.shared.setTokenExpired(expired: false)
+            case .done:
+                isLoggedIn = UserSession.shared.isLoggedIn
+                didSetupNotifications = UserSession.shared.getCurrentNotificationDeviceConfiguration() != nil
+            }
+            isLoading = false
+        }
     }
 }

@@ -8,6 +8,7 @@
 import Foundation
 import Common
 import UserNotifications
+import UserStore
 
 @MainActor
 class NotificationViewModel: ObservableObject {
@@ -16,7 +17,7 @@ class NotificationViewModel: ObservableObject {
 
     @Published var newNotificationCount = 0
 
-    var lastNotificationSeenDate: Date? {
+    private var lastNotificationSeenDate: Date? {
         didSet {
             UserDefaults.standard.set(lastNotificationSeenDate, forKey: "lastNotificationSeenDate")
             updateNewNotificationCount()
@@ -24,7 +25,7 @@ class NotificationViewModel: ObservableObject {
     }
 
     init() {
-        lastNotificationSeenDate = UserDefaults.standard.object(forKey: "lastNotificationSeenDate") as? Date
+        updateLastNotificationSeenDate()
 
         Task {
             await loadNotifications()
@@ -42,6 +43,26 @@ class NotificationViewModel: ObservableObject {
         for await notification in stream {
             notifications.value?.append(notification)
             newNotificationCount += 1
+        }
+    }
+
+    private func updateLastNotificationSeenDate() {
+        let userLastNotificationSeen = UserSession.shared.user?.lastNotificationRead
+        let storedLastNotificationSeenDate = UserDefaults.standard.object(forKey: "lastNotificationSeenDate") as? Date
+
+        if let userLastNotificationSeen,
+           storedLastNotificationSeenDate == nil {
+            self.lastNotificationSeenDate = userLastNotificationSeen
+        } else if userLastNotificationSeen == nil,
+                  let storedLastNotificationSeenDate {
+            self.lastNotificationSeenDate = storedLastNotificationSeenDate
+        } else if let userLastNotificationSeen,
+                  let storedLastNotificationSeenDate {
+            if storedLastNotificationSeenDate > userLastNotificationSeen {
+                self.lastNotificationSeenDate = storedLastNotificationSeenDate
+            } else {
+                self.lastNotificationSeenDate = userLastNotificationSeen
+            }
         }
     }
 
@@ -66,6 +87,19 @@ class NotificationViewModel: ObservableObject {
         notifications = await NotificationServiceFactory.shared.loadNotifications(page: 0, size: 25)
 
         updateNewNotificationCount()
+    }
+
+    func updateNotificationSeenDate() async {
+        let result = await NotificationServiceFactory.shared.updateUserNotificationDate()
+
+        switch result {
+        case .notStarted, .loading:
+            return
+        case .success:
+            lastNotificationSeenDate = .now
+        case .failure(let error):
+            log.error(error)
+        }
     }
 
     deinit {
