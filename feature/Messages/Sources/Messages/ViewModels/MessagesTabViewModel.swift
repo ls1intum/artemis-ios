@@ -38,8 +38,9 @@ class MessagesTabViewModel: BaseViewModel {
     }
 
     private func testSubscribe() {
-        guard let userId = UserSession.shared.user?.id,
-              let stream = ArtemisStompClient.shared.subscribe(to: "/user/topic/metis/courses/\(courseId)/conversations/user/\(userId)") else { return }
+        guard let userId = UserSession.shared.user?.id else { return }
+
+        let stream = ArtemisStompClient.shared.subscribe(to: "/user/topic/metis/courses/\(courseId)/conversations/user/\(userId)")
 
         Task {
             for await message in stream {

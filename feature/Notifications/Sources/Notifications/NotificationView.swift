@@ -91,6 +91,9 @@ struct NotificationBell: ViewModifier {
             .sheet(isPresented: $showNotificationSheet) {
                 NotificationView(viewModel: viewModel)
             }
+            .task {
+                await viewModel.subscribeToNotificationUpdates()
+            }
     }
 }
 

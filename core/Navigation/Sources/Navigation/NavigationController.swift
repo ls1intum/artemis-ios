@@ -105,7 +105,6 @@ public struct LecturePath: Hashable {
     }
 }
 
-
 public struct ConversationPath: Hashable {
     public let id: Int64
     public let conversation: Conversation?

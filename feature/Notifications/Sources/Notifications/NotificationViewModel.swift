@@ -36,6 +36,15 @@ class NotificationViewModel: ObservableObject {
                                                object: nil)
     }
 
+    func subscribeToNotificationUpdates() async {
+        let stream = NotificationWebsocketServiceFactory.shared.subscribeToNotifications()
+
+        for await notification in stream {
+            notifications.value?.append(notification)
+            newNotificationCount += 1
+        }
+    }
+
     private func updateNewNotificationCount() {
         if let lastNotificationSeenDate {
             newNotificationCount = notifications.value?.filter {

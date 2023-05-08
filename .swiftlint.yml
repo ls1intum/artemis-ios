@@ -83,6 +83,12 @@ attributes:
 identifier_name:
   excluded:
     - id
+  max_length:
+    warning: 55
+    error: 60
+  min_length:
+    warning: 1
+
 large_tuple: 3
 number_separator:
   minimum_length: 5
