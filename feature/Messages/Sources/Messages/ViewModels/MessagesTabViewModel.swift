@@ -37,6 +37,7 @@ class MessagesTabViewModel: BaseViewModel {
         testSubscribe()
     }
 
+    // TODO: remove once replaced by real implementation
     private func testSubscribe() {
         guard let userId = UserSession.shared.user?.id else { return }
 
