@@ -23,6 +23,8 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
 
     static let shared = NotificationWebsocketServiceImpl()
 
+    let queue = DispatchQueue(label: "thread-safe")
+
     private init() { }
 
     /**
@@ -37,9 +39,12 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
 
         let stream = AsyncStream<Notification> { continuation in
             continuation.onTermination = { [weak self] _ in
-                self?.tasks.forEach { $0.cancel() }
-                self?.continuation = nil
-                self?.subscribedTopics = []
+                self?.queue.async { [weak self] in
+                    self?.tasks.forEach { $0.cancel() }
+                    self?.continuation = nil
+                    self?.subscribedTopics = []
+                    self?.stream = nil
+                }
             }
 
             self.continuation = continuation
@@ -50,19 +55,19 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
         let subscribeToSingleUserNotificationUpdatesTask = Task {
             await subscribeToSingleUserNotificationUpdates()
         }
-        tasks.append(subscribeToSingleUserNotificationUpdatesTask)
+        addTask(subscribeToSingleUserNotificationUpdatesTask)
         let subscribeToCourseNotificationUpdatesTask = Task {
             await subscribeToCourseNotificationUpdates()
         }
-        tasks.append(subscribeToCourseNotificationUpdatesTask)
+        addTask(subscribeToCourseNotificationUpdatesTask)
         let subscribeToTutorialGroupNotificationUpdatesTask = Task {
             await subscribeToTutorialGroupNotificationUpdates()
         }
-        tasks.append(subscribeToTutorialGroupNotificationUpdatesTask)
+        addTask(subscribeToTutorialGroupNotificationUpdatesTask)
         let subscribeToConversationNotificationUpdatesTask = Task {
             await subscribeToConversationNotificationUpdates()
         }
-        tasks.append(subscribeToConversationNotificationUpdatesTask)
+        addTask(subscribeToConversationNotificationUpdatesTask)
 
         return stream
     }
@@ -74,8 +79,7 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
         }
 
         let topic = "/topic/user/\(userId)/notifications"
-        subscribedTopics.append(topic)
-        let stream = ArtemisStompClient.shared.subscribe(to: topic)
+        let stream = subscribe(to: topic)
 
         let task = Task {
             for await message in stream {
@@ -106,15 +110,14 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
                 }
             }
         }
-        tasks.append(task)
+        addTask(task)
     }
 
     /**
      * Subscribe to newly created conversation topic (e.g. when user is added to a new conversation)
      */
     private func subscribeToNewlyCreatedConversation(conversationTopic: String) async {
-        subscribedTopics.append(conversationTopic)
-        let stream = ArtemisStompClient.shared.subscribe(to: conversationTopic)
+        let stream = subscribe(to: conversationTopic)
 
         let task = Task {
             for await message in stream {
@@ -122,15 +125,17 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
                 continuation?.yield(notification)
             }
         }
-        tasks.append(task)
+        addTask(task)
     }
 
     /**
      * Unsubscribe from deleted conversation topic (e.g. when user deletes a conversation or when user is removed from conversation)
      */
     private func unsubscribeFromDeletedConversation(conversationTopic: String) {
-        ArtemisStompClient.shared.unsubscribe(from: conversationTopic)
-        subscribedTopics.removeAll(where: { $0 == conversationTopic })
+        queue.async { [weak self] in
+            ArtemisStompClient.shared.unsubscribe(from: conversationTopic)
+            self?.subscribedTopics.removeAll(where: { $0 == conversationTopic })
+        }
     }
 
     private func subscribeToCourseNotificationUpdates() async {
@@ -150,8 +155,7 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
         for course in courses {
             let quizExerciseTopic = "/topic/courses/\(course.id)/quizExercises"
             if !subscribedTopics.contains(quizExerciseTopic) {
-                subscribedTopics.append(quizExerciseTopic)
-                let stream = ArtemisStompClient.shared.subscribe(to: quizExerciseTopic)
+                let stream = subscribe(to: quizExerciseTopic)
                 let task = Task {
                     for await message in stream {
                         guard let quizExercise = JSONDecoder.getTypeFromSocketMessage(type: QuizExercise.self, message: message) else { continue }
@@ -164,7 +168,7 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
                         }
                     }
                 }
-                tasks.append(task)
+                addTask(task)
             }
         }
     }
@@ -183,15 +187,14 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
             }
 
             if !subscribedTopics.contains(courseTopic) {
-                subscribedTopics.append(courseTopic)
-                let stream = ArtemisStompClient.shared.subscribe(to: courseTopic)
+                let stream = subscribe(to: courseTopic)
                 let task = Task {
                     for await message in stream {
                         guard let notification = JSONDecoder.getTypeFromSocketMessage(type: Notification.self, message: message) else { continue }
                         continuation?.yield(notification)
                     }
                 }
-                tasks.append(task)
+                addTask(task)
             }
         }
     }
@@ -212,15 +215,14 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
         for tutorialGroup in tutorialGroups {
             let tutorialGroupTopic = "/topic/tutorial-group/\(tutorialGroup.id)/notifications"
             if !subscribedTopics.contains(tutorialGroupTopic) {
-                subscribedTopics.append(tutorialGroupTopic)
-                let stream = ArtemisStompClient.shared.subscribe(to: tutorialGroupTopic)
+                let stream = subscribe(to: tutorialGroupTopic)
                 let task = Task {
                     for await message in stream {
                         guard let notification = JSONDecoder.getTypeFromSocketMessage(type: Notification.self, message: message) else { continue }
                         continuation?.yield(notification)
                     }
                 }
-                tasks.append(task)
+                addTask(task)
             }
         }
     }
@@ -241,8 +243,7 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
         for conversation in conversations {
             let conversationTopic = "/topic/conversation/\(conversation.id)/notifications"
             if !subscribedTopics.contains(conversationTopic) {
-                subscribedTopics.append(conversationTopic)
-                let stream = ArtemisStompClient.shared.subscribe(to: conversationTopic)
+                let stream = subscribe(to: conversationTopic)
                 let task = Task {
                     for await message in stream {
                         guard let notification = JSONDecoder.getTypeFromSocketMessage(type: Notification.self, message: message),
@@ -254,8 +255,21 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
                         }
                     }
                 }
-                tasks.append(task)
+                addTask(task)
             }
+        }
+    }
+
+    private func subscribe(to topic: String) -> AsyncStream<Any?> {
+        queue.async { [weak self] in
+            self?.subscribedTopics.append(topic)
+        }
+        return ArtemisStompClient.shared.subscribe(to: topic)
+    }
+
+    private func addTask(_ task: Task<(), Never>) {
+        queue.async { [weak self] in
+            self?.tasks.append(task)
         }
     }
 }
