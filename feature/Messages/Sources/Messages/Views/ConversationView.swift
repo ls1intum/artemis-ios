@@ -116,9 +116,6 @@ public struct ConversationView: View {
                     await viewModel.loadMessages()
                 }
             }
-            .task {
-                await viewModel.subscribeToConversationTopic()
-            }
             .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
     }
 }

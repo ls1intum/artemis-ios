@@ -18,6 +18,7 @@ public class ConversationViewModel: BaseViewModel {
     @Published var course: DataState<Course> = .loading
 
     var shouldScrollToId: String?
+    var websocketSubscriptionTask: Task<(), Never>?
 
     let courseId: Int
     let conversationId: Int64
@@ -31,6 +32,8 @@ public class ConversationViewModel: BaseViewModel {
         self.conversationId = conversation.id
 
         super.init()
+
+        subscribeToConversationTopic()
     }
 
     public init(courseId: Int, conversationId: Int64) {
@@ -47,16 +50,20 @@ public class ConversationViewModel: BaseViewModel {
         Task {
             await loadCourse()
         }
+
+        subscribeToConversationTopic()
     }
 
-    func subscribeToConversationTopic() async {
-        let topic = "/user/topic/metis/courses/\(courseId)/conversations/\(conversationId)"
-        let stream = ArtemisStompClient.shared.subscribe(to: topic)
+    private func subscribeToConversationTopic() {
+        websocketSubscriptionTask = Task {
+            let topic = "/user/topic/metis/courses/\(courseId)/conversations/\(conversationId)"
+            let stream = ArtemisStompClient.shared.subscribe(to: topic)
 
-        for await message in stream {
-            guard let messageWebsocketDTO = JSONDecoder.getTypeFromSocketMessage(type: MessageWebsocketDTO.self, message: message) else { continue }
+            for await message in stream {
+                guard let messageWebsocketDTO = JSONDecoder.getTypeFromSocketMessage(type: MessageWebsocketDTO.self, message: message) else { continue }
 
-            onMessageReceived(messageWebsocketDTO: messageWebsocketDTO)
+                onMessageReceived(messageWebsocketDTO: messageWebsocketDTO)
+            }
         }
     }
 
@@ -338,6 +345,10 @@ public class ConversationViewModel: BaseViewModel {
         case .done(let response):
             course = .done(response: response.course)
         }
+    }
+
+    deinit {
+        websocketSubscriptionTask?.cancel()
     }
 }
 
