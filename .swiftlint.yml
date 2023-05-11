@@ -10,6 +10,7 @@ analyzer_rules:
 
 disabled_rules:
   - multiple_closures_with_trailing_closure
+  - blanket_disable_command
 opt_in_rules:
   - array_init
   - attributes
@@ -80,15 +81,16 @@ opt_in_rules:
 attributes:
   always_on_line_above:
     - "@OptionGroup"
+  always_on_same_line:
+    - "@Environment"
 identifier_name:
-  excluded:
-    - id
   max_length:
     warning: 55
     error: 60
   min_length:
     warning: 1
-
+  excluded:
+    - id
 large_tuple: 3
 number_separator:
   minimum_length: 5
@@ -103,11 +105,14 @@ line_length:
   ignores_interpolated_strings: true
   ignores_urls: true
 
+cyclomatic_complexity:
+  warning: 13
+
 nesting:
   type_level:
     warning: 3
     error: 6
-  statement_level:
+  function_level:
     warning: 5
     error: 10
 
