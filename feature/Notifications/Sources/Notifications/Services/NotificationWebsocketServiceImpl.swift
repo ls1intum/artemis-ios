@@ -23,7 +23,7 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
 
     static let shared = NotificationWebsocketServiceImpl()
 
-    let queue = DispatchQueue(label: "thread-safe")
+    let queue = DispatchQueue(label: "thread-safe-websocket-notification")
 
     private init() { }
 

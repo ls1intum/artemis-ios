@@ -1,6 +1,15 @@
 {
   "pins" : [
     {
+      "identity" : "artemis-ios-core-modules",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ls1intum/artemis-ios-core-modules",
+      "state" : {
+        "revision" : "6d09c52f06213bc6213401de24ea98cdf29e4faa",
+        "version" : "1.1.1"
+      }
+    },
+    {
       "identity" : "collectionconcurrencykit",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/JohnSundell/CollectionConcurrencyKit.git",
@@ -104,8 +113,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-syntax.git",
       "state" : {
-        "revision" : "013a48e2312e57b7b355db25bd3ea75282ebf274",
-        "version" : "0.50900.0-swift-DEVELOPMENT-SNAPSHOT-2023-02-06-a"
+        "revision" : "27cd6190ce0628847a3f8050794d6e627ad79c08",
+        "version" : "509.0.0-swift-DEVELOPMENT-SNAPSHOT-2023-05-02-a"
       }
     },
     {
@@ -113,8 +122,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/realm/SwiftLint.git",
       "state" : {
-        "revision" : "eb85125a5f293de3d3248af259980c98bc2b1faa",
-        "version" : "0.51.0"
+        "revision" : "97259e24d065506f811789b56bb95dc14f2b72f1",
+        "version" : "0.52.0"
       }
     },
     {
@@ -149,8 +158,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/drmohundro/SWXMLHash.git",
       "state" : {
-        "revision" : "4d0f62f561458cbe1f732171e625f03195151b60",
-        "version" : "7.0.1"
+        "revision" : "a853604c9e9a83ad9954c7e3d2a565273982471f",
+        "version" : "7.0.2"
       }
     },
     {
