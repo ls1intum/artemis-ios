@@ -41,7 +41,7 @@ class NotificationViewModel: ObservableObject {
         let stream = NotificationWebsocketServiceFactory.shared.subscribeToNotifications()
 
         for await notification in stream {
-            notifications.value?.append(notification)
+            notifications.value?.insert(notification, at: 0)
             newNotificationCount += 1
         }
     }
