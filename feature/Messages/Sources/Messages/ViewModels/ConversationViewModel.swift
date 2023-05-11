@@ -49,6 +49,17 @@ public class ConversationViewModel: BaseViewModel {
         }
     }
 
+    func subscribeToConversationTopic() async {
+        let topic = "/user/topic/metis/courses/\(courseId)/conversations/\(conversationId)"
+        let stream = ArtemisStompClient.shared.subscribe(to: topic)
+
+        for await message in stream {
+            guard let messageWebsocketDTO = JSONDecoder.getTypeFromSocketMessage(type: MessageWebsocketDTO.self, message: message) else { continue }
+
+            onMessageReceived(messageWebsocketDTO: messageWebsocketDTO)
+        }
+    }
+
     func loadFurtherMessages() async {
         size += 50
         if let dailyMessages = dailyMessages.value,
@@ -327,5 +338,81 @@ public class ConversationViewModel: BaseViewModel {
         case .done(let response):
             course = .done(response: response.course)
         }
+    }
+}
+
+// All functions to handle new conversation received socket
+extension ConversationViewModel {
+
+    private func onMessageReceived(messageWebsocketDTO: MessageWebsocketDTO) {
+        // TODO: maybe following lines needed :(
+//        postDTO.post.creationDate = dayjs(postDTO.post.creationDate);
+//        postDTO.post.answers?.forEach((answer: AnswerPost) => {
+//            answer.creationDate = dayjs(answer.creationDate);
+//        });
+
+        switch messageWebsocketDTO.action {
+        case .create:
+            handleNewMessage(messageWebsocketDTO.post)
+        case .update:
+            handleUpdateMessage(messageWebsocketDTO.post)
+        case .delete:
+            handleDeletedMessage(messageWebsocketDTO.post)
+        default:
+            return
+        }
+    }
+
+    private func handleNewMessage(_ newMessage: Message) {
+        guard var dailyMessages = dailyMessages.value else {
+            // messages not loaded yet
+            return
+        }
+
+        if let date = newMessage.creationDate?.startOfDay {
+            if dailyMessages[date] == nil {
+                dailyMessages[date] = [newMessage]
+            } else {
+                dailyMessages[date]?.append(newMessage)
+                dailyMessages[date] = dailyMessages[date]?.sorted(by: { $0.creationDate! < $1.creationDate! })
+            }
+        }
+
+        self.dailyMessages = .done(response: dailyMessages)
+    }
+
+    // TODO: fix scrolling
+    private func handleUpdateMessage(_ updatedMessage: Message) {
+        guard var dailyMessages = dailyMessages.value else {
+            // messages not loaded yet
+            return
+        }
+
+        guard let date = updatedMessage.creationDate?.startOfDay,
+              let messageIndex = dailyMessages[date]?.firstIndex(where: { $0.id == updatedMessage.id }) else {
+            log.error("Message with id \(updatedMessage.id) could not be updated")
+            return
+        }
+
+        dailyMessages[date]?[messageIndex] = updatedMessage
+
+        self.dailyMessages = .done(response: dailyMessages)
+    }
+
+    // TODO: fix scrolling
+    private func handleDeletedMessage(_ deletedMessage: Message) {
+        guard var dailyMessages = dailyMessages.value else {
+            // messages not loaded yet
+            return
+        }
+
+        guard let date = deletedMessage.creationDate?.startOfDay else {
+            log.error("Message with id \(deletedMessage.id) could not be updated")
+            return
+        }
+
+        dailyMessages[date]?.removeAll(where: { deletedMessage.id == $0.id })
+
+        self.dailyMessages = .done(response: dailyMessages)
     }
 }
