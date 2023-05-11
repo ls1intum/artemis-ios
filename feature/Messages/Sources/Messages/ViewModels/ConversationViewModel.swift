@@ -347,7 +347,6 @@ public class ConversationViewModel: BaseViewModel {
         }
     }
 
-    // TODO: deinit never called
     deinit {
         websocketSubscriptionTask?.cancel()
     }

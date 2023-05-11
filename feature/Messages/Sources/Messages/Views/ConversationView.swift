@@ -17,6 +17,8 @@ private let MAX_MINUTES_FOR_GROUPING_MESSAGES = 5
 
 public struct ConversationView: View {
 
+    @EnvironmentObject var navigationController: NavigationController
+
     @StateObject private var viewModel: ConversationViewModel
 
     @State private var showConversationInfoSheet = false
@@ -114,6 +116,12 @@ public struct ConversationView: View {
                 viewModel.shouldScrollToId = "bottom"
                 if viewModel.dailyMessages.value == nil {
                     await viewModel.loadMessages()
+                }
+            }
+            .onDisappear {
+                if navigationController.path.count < 2 {
+                    // only cancel task if we navigate back
+                    viewModel.websocketSubscriptionTask?.cancel()
                 }
             }
             .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
