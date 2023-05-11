@@ -42,7 +42,9 @@ struct NotificationView: View {
                 }
                 .navigationTitle(R.string.localizable.notifications_title())
                 .onAppear {
-                    viewModel.lastNotificationSeenDate = .now
+                    Task {
+                        await viewModel.updateNotificationSeenDate()
+                    }
                 }
         }
     }
@@ -90,6 +92,9 @@ struct NotificationBell: ViewModifier {
             }
             .sheet(isPresented: $showNotificationSheet) {
                 NotificationView(viewModel: viewModel)
+            }
+            .task {
+                await viewModel.subscribeToNotificationUpdates()
             }
     }
 }

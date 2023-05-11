@@ -9,6 +9,7 @@ import Foundation
 import Common
 import SharedModels
 import APIClient
+import UserStore
 
 @MainActor
 class MessagesTabViewModel: BaseViewModel {
@@ -31,6 +32,23 @@ class MessagesTabViewModel: BaseViewModel {
         self.course = course
 
         super.init()
+
+        ArtemisStompClient.shared.setup()
+        testSubscribe()
+    }
+
+    // TODO: remove once replaced by real implementation
+    private func testSubscribe() {
+        guard let userId = UserSession.shared.user?.id else { return }
+
+        let stream = ArtemisStompClient.shared.subscribe(to: "/user/topic/metis/courses/\(courseId)/conversations/user/\(userId)")
+
+        Task {
+            for await message in stream {
+                log.debug(message)
+                await loadConversations()
+            }
+        }
     }
 
     func loadConversations() async {
