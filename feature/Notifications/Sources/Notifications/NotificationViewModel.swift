@@ -30,11 +30,6 @@ class NotificationViewModel: ObservableObject {
         Task {
             await loadNotifications()
         }
-
-        // add observer to reload once new notification is received
-        NotificationCenter.default.addObserver(self, selector: #selector(reloadNotifications),
-                                               name: UserNotifications.Notification.Name("receivedNewNotification"),
-                                               object: nil)
     }
 
     func subscribeToNotificationUpdates() async {
@@ -100,11 +95,5 @@ class NotificationViewModel: ObservableObject {
         case .failure(let error):
             log.error(error)
         }
-    }
-
-    deinit {
-        NotificationCenter.default.removeObserver(self,
-                                                  name: UserNotifications.Notification.Name("receivedNewNotification"),
-                                                  object: nil)
     }
 }

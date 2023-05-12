@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ls1intum/artemis-ios-core-modules",
       "state" : {
-        "revision" : "b79240b8729684ba7df172dd6f23d051b8d7b1bf",
-        "version" : "1.1.2"
+        "revision" : "4f0a6a7b00abb1fefe1b67a242645de1691dcfe6",
+        "version" : "1.1.3"
       }
     },
     {
@@ -122,8 +122,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/realm/SwiftLint.git",
       "state" : {
-        "revision" : "97259e24d065506f811789b56bb95dc14f2b72f1",
-        "version" : "0.52.0"
+        "revision" : "5616d858bc23a724003e1bc09e1feb7c5fe914c3",
+        "version" : "0.52.1"
       }
     },
     {

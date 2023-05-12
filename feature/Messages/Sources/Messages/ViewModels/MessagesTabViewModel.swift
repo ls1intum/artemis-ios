@@ -14,7 +14,11 @@ import UserStore
 @MainActor
 class MessagesTabViewModel: BaseViewModel {
 
-    @Published var allConversations: DataState<[Conversation]> = .loading
+    @Published var allConversations: DataState<[Conversation]> = .loading {
+        didSet {
+            updateFilteredConversations()
+        }
+    }
 
     @Published var favoriteConversations: DataState<[Conversation]> = .loading
 
@@ -32,59 +36,26 @@ class MessagesTabViewModel: BaseViewModel {
         self.course = course
 
         super.init()
-
-        ArtemisStompClient.shared.setup()
-        testSubscribe()
     }
 
-    // TODO: remove once replaced by real implementation
-    private func testSubscribe() {
-        guard let userId = UserSession.shared.user?.id else { return }
+    func subscribeToConversationMembershipTopic() async {
+        guard let userId = UserSession.shared.user?.id else {
+            log.debug("User could not be found. Subscribe to Conversation not possible")
+            return
+        }
 
-        let stream = ArtemisStompClient.shared.subscribe(to: "/user/topic/metis/courses/\(courseId)/conversations/user/\(userId)")
+        let topic = "/user/topic/metis/courses/\(courseId)/conversations/user/\(userId)"
+        let stream = ArtemisStompClient.shared.subscribe(to: topic)
 
-        Task {
-            for await message in stream {
-                log.debug(message)
-                await loadConversations()
-            }
+        for await message in stream {
+            guard let conversationWebsocketDTO = JSONDecoder.getTypeFromSocketMessage(type: ConversationWebsocketDTO.self, message: message) else { continue }
+            onConversationMembershipMessageReceived(conversationWebsocketDTO: conversationWebsocketDTO)
         }
     }
 
     func loadConversations() async {
         let result = await MessagesServiceFactory.shared.getConversations(for: courseId)
         allConversations = result
-
-        switch result {
-        case .loading:
-            favoriteConversations = .loading
-
-            hiddenConversations = .loading
-
-            channels = .loading
-            groupChats = .loading
-            oneToOneChats = .loading
-        case .failure(let error):
-            favoriteConversations = .failure(error: error)
-
-            hiddenConversations = .failure(error: error)
-
-            channels = .failure(error: error)
-            groupChats = .failure(error: error)
-            oneToOneChats = .failure(error: error)
-        case .done(let response):
-            hiddenConversations = .done(response: response.filter { $0.baseConversation.isHidden ?? false })
-
-            let notHiddenConversations = response.filter { !($0.baseConversation.isHidden ?? false) }
-
-            favoriteConversations = .done(response: notHiddenConversations.filter { $0.baseConversation.isFavorite ?? false })
-
-            let notHiddenNotFavoriteConversations = notHiddenConversations.filter { !($0.baseConversation.isFavorite ?? false) }
-
-            channels = .done(response: notHiddenNotFavoriteConversations.compactMap({ $0.baseConversation as? Channel }))
-            groupChats = .done(response: notHiddenNotFavoriteConversations.compactMap({ $0.baseConversation as? GroupChat }))
-            oneToOneChats = .done(response: notHiddenNotFavoriteConversations.compactMap({ $0.baseConversation as? OneToOneChat }))
-        }
     }
 
     func hideUnhideConversation(conversationId: Int64, isHidden: Bool) async {
@@ -123,5 +94,101 @@ class MessagesTabViewModel: BaseViewModel {
                 presentError(userFacingError: UserFacingError(title: error.localizedDescription))
             }
         }
+    }
+
+    private func updateFilteredConversations() {
+        switch allConversations {
+        case .loading:
+            favoriteConversations = .loading
+
+            hiddenConversations = .loading
+
+            channels = .loading
+            groupChats = .loading
+            oneToOneChats = .loading
+        case .failure(let error):
+            favoriteConversations = .failure(error: error)
+
+            hiddenConversations = .failure(error: error)
+
+            channels = .failure(error: error)
+            groupChats = .failure(error: error)
+            oneToOneChats = .failure(error: error)
+        case .done(let response):
+            hiddenConversations = .done(response: response.filter { $0.baseConversation.isHidden ?? false })
+
+            let notHiddenConversations = response.filter { !($0.baseConversation.isHidden ?? false) }
+
+            favoriteConversations = .done(response: notHiddenConversations.filter { $0.baseConversation.isFavorite ?? false })
+
+            let notHiddenNotFavoriteConversations = notHiddenConversations.filter { !($0.baseConversation.isFavorite ?? false) }
+
+            channels = .done(response: notHiddenNotFavoriteConversations.compactMap({ $0.baseConversation as? Channel }))
+            groupChats = .done(response: notHiddenNotFavoriteConversations.compactMap({ $0.baseConversation as? GroupChat }))
+            oneToOneChats = .done(response: notHiddenNotFavoriteConversations.compactMap({ $0.baseConversation as? OneToOneChat }))
+        }
+    }
+}
+
+// All functions to handle new conversation received socket
+extension MessagesTabViewModel {
+    private func onConversationMembershipMessageReceived(conversationWebsocketDTO: ConversationWebsocketDTO) {
+        switch conversationWebsocketDTO.metisCrudAction {
+        case .create, .update:
+            handleUpdateOrCreate(updatedOrNewConversation: conversationWebsocketDTO.conversation)
+        case .delete:
+            handleDelete(deletedConversation: conversationWebsocketDTO.conversation)
+        case .newMessage:
+            handleNewMessage(conversationWithNewMessage: conversationWebsocketDTO.conversation)
+        }
+    }
+
+    private func handleUpdateOrCreate(updatedOrNewConversation: Conversation) {
+        guard var conversations = allConversations.value else {
+            // conversations not loaded yet
+            return
+        }
+        if let conversationIndex = conversations.firstIndex(where: { $0.id == updatedOrNewConversation.id }) {
+            // conversation is already cached -> update it
+            conversations[conversationIndex] = updatedOrNewConversation
+        } else {
+            // conversation is not yet cached -> add it
+            conversations.append(updatedOrNewConversation)
+        }
+
+        allConversations = .done(response: conversations)
+    }
+
+    private func handleDelete(deletedConversation: Conversation) {
+        guard var conversations = allConversations.value else {
+            // conversations not loaded yet
+            return
+        }
+        conversations.removeAll(where: { $0.id == deletedConversation.id })
+        allConversations = .done(response: conversations)
+    }
+
+    private func handleNewMessage(conversationWithNewMessage: Conversation) {
+        guard var conversations = allConversations.value else {
+            // conversations not loaded yet
+            return
+        }
+        guard let conversationIndex = conversations.firstIndex(where: { $0.id == conversationWithNewMessage.id }) else {
+            return
+        }
+
+        var conversation = conversations[conversationIndex].baseConversation
+
+        conversation.lastMessageDate = conversationWithNewMessage.baseConversation.lastMessageDate
+        conversation.unreadMessagesCount = (conversation.unreadMessagesCount ?? 0) + 1
+
+        guard let updatedConversation = Conversation(conversation: conversation) else {
+            log.error("Error adding new message to conversation")
+            return
+        }
+
+        conversations[conversationIndex] = updatedConversation
+
+        allConversations = .done(response: conversations)
     }
 }

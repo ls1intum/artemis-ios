@@ -80,7 +80,9 @@ public struct MessagesTabView: View {
             }
             .task {
                 await viewModel.loadConversations()
-                // TODO: subscribeToConversationMembershipTopic
+            }
+            .task {
+                await viewModel.subscribeToConversationMembershipTopic()
             }
             .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
             .loadingIndicator(isLoading: $viewModel.isLoading)
