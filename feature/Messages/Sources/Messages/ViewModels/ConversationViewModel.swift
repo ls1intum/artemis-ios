@@ -10,6 +10,7 @@ import Common
 import SharedModels
 import APIClient
 
+// swiftlint:disable file_length
 @MainActor
 public class ConversationViewModel: BaseViewModel {
 
@@ -356,12 +357,6 @@ public class ConversationViewModel: BaseViewModel {
 extension ConversationViewModel {
 
     private func onMessageReceived(messageWebsocketDTO: MessageWebsocketDTO) {
-        // TODO: maybe following lines needed :(
-//        postDTO.post.creationDate = dayjs(postDTO.post.creationDate);
-//        postDTO.post.answers?.forEach((answer: AnswerPost) => {
-//            answer.creationDate = dayjs(answer.creationDate);
-//        });
-
         switch messageWebsocketDTO.action {
         case .create:
             handleNewMessage(messageWebsocketDTO.post)
@@ -392,7 +387,6 @@ extension ConversationViewModel {
         self.dailyMessages = .done(response: dailyMessages)
     }
 
-    // TODO: fix scrolling
     private func handleUpdateMessage(_ updatedMessage: Message) {
         guard var dailyMessages = dailyMessages.value else {
             // messages not loaded yet
@@ -407,10 +401,10 @@ extension ConversationViewModel {
 
         dailyMessages[date]?[messageIndex] = updatedMessage
 
+        shouldScrollToId = nil
         self.dailyMessages = .done(response: dailyMessages)
     }
 
-    // TODO: fix scrolling
     private func handleDeletedMessage(_ deletedMessage: Message) {
         guard var dailyMessages = dailyMessages.value else {
             // messages not loaded yet
@@ -424,6 +418,7 @@ extension ConversationViewModel {
 
         dailyMessages[date]?.removeAll(where: { deletedMessage.id == $0.id })
 
+        shouldScrollToId = nil
         self.dailyMessages = .done(response: dailyMessages)
     }
 }

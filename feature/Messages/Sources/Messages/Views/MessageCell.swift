@@ -10,6 +10,7 @@ import ArtemisMarkdown
 import SharedModels
 import Navigation
 import Common
+import DesignLibrary
 
 struct MessageCell: View {
 
@@ -51,6 +52,13 @@ struct MessageCell: View {
                         if let creationDate {
                             Text(creationDate, formatter: DateFormatter.timeOnly)
                                 .font(.caption)
+                            if let lastReadDate = conversationPath?.conversation?.baseConversation.lastReadDate,
+                               lastReadDate < creationDate {
+                                Chip(text: R.string.localizable.new(),
+                                     backgroundColor: .Artemis.artemisBlue,
+                                     padding: .s)
+                                    .font(.footnote)
+                            }
                         }
                     }
                 }
