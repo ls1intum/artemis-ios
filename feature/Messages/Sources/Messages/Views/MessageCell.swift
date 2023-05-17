@@ -10,6 +10,7 @@ import ArtemisMarkdown
 import SharedModels
 import Navigation
 import Common
+import UserStore
 import DesignLibrary
 
 struct MessageCell: View {
@@ -53,7 +54,8 @@ struct MessageCell: View {
                             Text(creationDate, formatter: DateFormatter.timeOnly)
                                 .font(.caption)
                             if let lastReadDate = conversationPath?.conversation?.baseConversation.lastReadDate,
-                               lastReadDate < creationDate {
+                               lastReadDate < creationDate,
+                               UserSession.shared.user?.id != message.value?.author?.id {
                                 Chip(text: R.string.localizable.new(),
                                      backgroundColor: .Artemis.artemisBlue,
                                      padding: .s)
@@ -76,7 +78,7 @@ struct MessageCell: View {
                         }
                     }
                 }
-            }.id(message.value?.id)
+            }.id(message.value?.id.description)
             Spacer()
         }
             .padding(.horizontal, .l)

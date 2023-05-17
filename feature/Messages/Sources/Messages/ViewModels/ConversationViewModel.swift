@@ -56,8 +56,11 @@ public class ConversationViewModel: BaseViewModel {
     }
 
     private func subscribeToConversationTopic() {
+        let topic = "/user/topic/metis/courses/\(courseId)/conversations/\(conversationId)"
+        if ArtemisStompClient.shared.didSubscribeTopic(topic) {
+            return
+        }
         websocketSubscriptionTask = Task {
-            let topic = "/user/topic/metis/courses/\(courseId)/conversations/\(conversationId)"
             let stream = ArtemisStompClient.shared.subscribe(to: topic)
 
             for await message in stream {
@@ -379,11 +382,13 @@ extension ConversationViewModel {
             if dailyMessages[date] == nil {
                 dailyMessages[date] = [newMessage]
             } else {
+                guard !(dailyMessages[date]?.contains(newMessage) ?? false) else { return }
                 dailyMessages[date]?.append(newMessage)
                 dailyMessages[date] = dailyMessages[date]?.sorted(by: { $0.creationDate! < $1.creationDate! })
             }
         }
 
+        shouldScrollToId = newMessage.id.description
         self.dailyMessages = .done(response: dailyMessages)
     }
 
