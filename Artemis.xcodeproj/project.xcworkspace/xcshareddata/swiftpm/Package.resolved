@@ -1,15 +1,6 @@
 {
   "pins" : [
     {
-      "identity" : "artemis-ios-core-modules",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/ls1intum/artemis-ios-core-modules",
-      "state" : {
-        "revision" : "dbcff5fc5df081b1ae6d1bc798b611b2d2a74f58",
-        "version" : "1.1.6"
-      }
-    },
-    {
       "identity" : "collectionconcurrencykit",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/JohnSundell/CollectionConcurrencyKit.git",

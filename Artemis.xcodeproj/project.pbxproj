@@ -46,6 +46,7 @@
 		7555FF7B242A565900829871 /* Artemis.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Artemis.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D515291329AD2DFB002CAD2F /* Navigation */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Navigation; path = core/Navigation; sourceTree = "<group>"; };
 		D51AD00C299E390700FA5B94 /* Artemis.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Artemis.entitlements; sourceTree = "<group>"; };
+		D51B87B82A14DA9E0034742A /* artemis-ios-core-modules */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "artemis-ios-core-modules"; path = "../helpdir.nosync/artemis-ios-core-modules"; sourceTree = "<group>"; };
 		D52CEEAA29B8FA2D003C7B2E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D54B8BF6297082C400BB1AA3 /* RootViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewModel.swift; sourceTree = "<group>"; };
 		D54F685729C466E000F05A43 /* Notifications */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Notifications; path = feature/Notifications; sourceTree = "<group>"; };
@@ -164,6 +165,7 @@
 		D5ED2D0529AB82C600B5EE69 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				D51B87B82A14DA9E0034742A /* artemis-ios-core-modules */,
 				D515291329AD2DFB002CAD2F /* Navigation */,
 			);
 			name = Core;
