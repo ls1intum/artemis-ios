@@ -10,6 +10,7 @@ import Common
 import SharedModels
 import APIClient
 
+// swiftlint:disable file_length
 @MainActor
 public class ConversationViewModel: BaseViewModel {
 
@@ -55,8 +56,11 @@ public class ConversationViewModel: BaseViewModel {
     }
 
     private func subscribeToConversationTopic() {
+        let topic = "/user/topic/metis/courses/\(courseId)/conversations/\(conversationId)"
+        if ArtemisStompClient.shared.didSubscribeTopic(topic) {
+            return
+        }
         websocketSubscriptionTask = Task {
-            let topic = "/user/topic/metis/courses/\(courseId)/conversations/\(conversationId)"
             let stream = ArtemisStompClient.shared.subscribe(to: topic)
 
             for await message in stream {
@@ -356,12 +360,6 @@ public class ConversationViewModel: BaseViewModel {
 extension ConversationViewModel {
 
     private func onMessageReceived(messageWebsocketDTO: MessageWebsocketDTO) {
-        // TODO: maybe following lines needed :(
-//        postDTO.post.creationDate = dayjs(postDTO.post.creationDate);
-//        postDTO.post.answers?.forEach((answer: AnswerPost) => {
-//            answer.creationDate = dayjs(answer.creationDate);
-//        });
-
         switch messageWebsocketDTO.action {
         case .create:
             handleNewMessage(messageWebsocketDTO.post)
@@ -384,15 +382,16 @@ extension ConversationViewModel {
             if dailyMessages[date] == nil {
                 dailyMessages[date] = [newMessage]
             } else {
+                guard !(dailyMessages[date]?.contains(newMessage) ?? false) else { return }
                 dailyMessages[date]?.append(newMessage)
                 dailyMessages[date] = dailyMessages[date]?.sorted(by: { $0.creationDate! < $1.creationDate! })
             }
         }
 
+        shouldScrollToId = newMessage.id.description
         self.dailyMessages = .done(response: dailyMessages)
     }
 
-    // TODO: fix scrolling
     private func handleUpdateMessage(_ updatedMessage: Message) {
         guard var dailyMessages = dailyMessages.value else {
             // messages not loaded yet
@@ -407,10 +406,10 @@ extension ConversationViewModel {
 
         dailyMessages[date]?[messageIndex] = updatedMessage
 
+        shouldScrollToId = nil
         self.dailyMessages = .done(response: dailyMessages)
     }
 
-    // TODO: fix scrolling
     private func handleDeletedMessage(_ deletedMessage: Message) {
         guard var dailyMessages = dailyMessages.value else {
             // messages not loaded yet
@@ -424,6 +423,7 @@ extension ConversationViewModel {
 
         dailyMessages[date]?.removeAll(where: { deletedMessage.id == $0.id })
 
+        shouldScrollToId = nil
         self.dailyMessages = .done(response: dailyMessages)
     }
 }
