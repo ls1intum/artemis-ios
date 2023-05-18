@@ -39,6 +39,14 @@
 // Badges
 "notReleased" = "Not released";
 
+// MARK: ExerciseDetailView
+"dueDate" = "Due Date: %s";
+"noDueDate" = "No due date";
+"points" = "Points: %d of %d";
+"assessment" = "Assessment: %s";
+"showFeedback" = "Show Feedback";
+
 // MARK: General
 "loading" = "Loading...";
 "close" = "Close";
+"unknown" = "Unknown";
