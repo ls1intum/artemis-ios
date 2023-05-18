@@ -133,6 +133,8 @@ public struct ExerciseDetailView: View {
 
 private struct FeedbackView: View {
 
+    @Environment(\.dismiss) var dismiss
+
     @State private var webViewHeight = CGFloat.s
     @State private var urlRequest: URLRequest
     @State private var isWebViewLoading = true
@@ -143,7 +145,16 @@ private struct FeedbackView: View {
 
     var body: some View {
         // TODO: add close button
-        ArtemisWebView(urlRequest: $urlRequest, isLoading: $isWebViewLoading)
-            .loadingIndicator(isLoading: $isWebViewLoading)
+        NavigationView {
+            ArtemisWebView(urlRequest: $urlRequest, isLoading: $isWebViewLoading)
+                .loadingIndicator(isLoading: $isWebViewLoading)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button(R.string.localizable.close()) {
+                            dismiss()
+                        }
+                    }
+                }
+        }
     }
 }
