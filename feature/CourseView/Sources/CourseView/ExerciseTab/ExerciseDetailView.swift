@@ -28,32 +28,19 @@ public struct ExerciseDetailView: View {
     private var participationId: Int?
 
     public init(course: Course, exercise: Exercise) {
-        let participation = exercise.getSpecificStudentParticipation(testRun: false)
-        // Sort participation results by completionDate desc.
-        // The latest result is the first rated result in the sorted array (=newest)
-        let participationId: String
-        if let participation {
-            participationId = participation.id.description
-            self.participationId = participation.id
-        } else {
-            participationId = ""
-        }
-
-        if let latestResultId = participation?.results?.max(by: { $0.completionDate ?? .distantPast > $1.completionDate ?? .distantPast })?.id {
-            self.latestResultId = latestResultId
-        }
-
         self._exercise = State(wrappedValue: .done(response: exercise))
         self._urlRequest = State(wrappedValue: URLRequest(url: URL(string: "/courses/\(course.id)/exercises/\(exercise.id)/problem-statement/\(participationId)", relativeTo: UserSession.shared.institution?.baseURL)!))
 
         self.exerciseId = exercise.id
         self.courseId = course.id
+
+        setParticipationAndResultId(from: exercise)
     }
 
     public init(courseId: Int, exerciseId: Int) {
         self._exercise = State(wrappedValue: .loading)
-        // TODO: show result in webview after loaded exercise
         self._urlRequest = State(wrappedValue: URLRequest(url: URL(string: "/courses/\(courseId)/exercises/\(exerciseId)", relativeTo: UserSession.shared.institution?.baseURL)!))
+
         self.exerciseId = exerciseId
         self.courseId = courseId
     }
@@ -127,6 +114,26 @@ public struct ExerciseDetailView: View {
     private func loadExercise() async {
         if exercise.value == nil {
             self.exercise = await ExerciseServiceFactory.shared.getExercise(exerciseId: exerciseId)
+            if let exercise = self.exercise.value {
+                setParticipationAndResultId(from: exercise)
+            }
+        }
+    }
+
+    private func setParticipationAndResultId(from exercise: Exercise) {
+        let participation = exercise.getSpecificStudentParticipation(testRun: false)
+        // Sort participation results by completionDate desc.
+        // The latest result is the first rated result in the sorted array (=newest)
+        let participationId: String
+        if let participation {
+            participationId = participation.id.description
+            self.participationId = participation.id
+        } else {
+            participationId = ""
+        }
+
+        if let latestResultId = participation?.results?.max(by: { $0.completionDate ?? .distantPast > $1.completionDate ?? .distantPast })?.id {
+            self.latestResultId = latestResultId
         }
     }
 }
@@ -144,7 +151,6 @@ private struct FeedbackView: View {
     }
 
     var body: some View {
-        // TODO: add close button
         NavigationView {
             ArtemisWebView(urlRequest: $urlRequest, isLoading: $isWebViewLoading)
                 .loadingIndicator(isLoading: $isWebViewLoading)
