@@ -42,7 +42,7 @@
 // MARK: ExerciseDetailView
 "dueDate" = "Due Date: %s";
 "noDueDate" = "No due date";
-"points" = "Points: %d of %d";
+"points" = "Points: %s of %s";
 "assessment" = "Assessment: %s";
 "showFeedback" = "Show Feedback";
 

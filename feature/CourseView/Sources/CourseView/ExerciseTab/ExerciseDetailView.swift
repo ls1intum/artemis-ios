@@ -21,20 +21,18 @@ public struct ExerciseDetailView: View {
 
     @State private var showFeedback = false
 
+    @State private var latestResultId: Int?
+    @State private var participationId: Int?
+
     private let exerciseId: Int
     private let courseId: Int
 
-    private var latestResultId: Int?
-    private var participationId: Int?
-
     public init(course: Course, exercise: Exercise) {
         self._exercise = State(wrappedValue: .done(response: exercise))
-        self._urlRequest = State(wrappedValue: URLRequest(url: URL(string: "/courses/\(course.id)/exercises/\(exercise.id)/problem-statement/\(participationId)", relativeTo: UserSession.shared.institution?.baseURL)!))
+        self._urlRequest = State(wrappedValue: URLRequest(url: URL(string: "/courses/\(course.id)/exercises/\(exercise.id)/problem-statement", relativeTo: UserSession.shared.institution?.baseURL)!))
 
         self.exerciseId = exercise.id
         self.courseId = course.id
-
-        setParticipationAndResultId(from: exercise)
     }
 
     public init(courseId: Int, exerciseId: Int) {
@@ -54,20 +52,22 @@ public struct ExerciseDetailView: View {
                             Chip(text: category.category, backgroundColor: UIColor(hexString: category.colorCode).suColor)
                         }
                         if let dueDate = exercise.baseExercise.dueDate {
-                            Text("Due Date: \(dueDate.relative ?? "?")")
+                            Text(R.string.localizable.dueDate(dueDate.relative ?? "?"))
                         } else {
-                            Text("No due date")
+                            Text(R.string.localizable.noDueDate())
                         }
                         HStack {
-                            Text("Points: \(exercise.baseExercise.studentParticipations?.first?.baseParticipation.submissions?.first?.baseSubmission.results?.first?.score?.clean ?? "0") of \(exercise.baseExercise.maxPoints?.clean ?? "0")")
+                            Text(R.string.localizable.points(
+                                exercise.baseExercise.studentParticipations?.first?.baseParticipation.submissions?.first?.baseSubmission.results?.first?.score?.clean ?? "0",
+                                exercise.baseExercise.maxPoints?.clean ?? "0"))
                             if exercise.baseExercise.includedInOverallScore != .includedCompletly {
                                 Chip(text: exercise.baseExercise.includedInOverallScore.description, backgroundColor: exercise.baseExercise.includedInOverallScore.color)
                             }
-                            Text("Assessment: \(exercise.baseExercise.assessmentType?.description ?? "Unknown")")
+                            Text(R.string.localizable.assessment(exercise.baseExercise.assessmentType?.description ?? R.string.localizable.unknown()))
                         }
                         SubmissionResultStatusView(exercise: exercise)
                         if let latestResultId, let participationId {
-                            Button("Show Feedback") {
+                            Button(R.string.localizable.showFeedback()) {
                                 showFeedback = true
                             }
                             .buttonStyle(ArtemisButton())
@@ -90,7 +90,7 @@ public struct ExerciseDetailView: View {
                     Spacer()
                 }
             }
-            .navigationTitle(exercise.baseExercise.title ?? "Unknown")
+            .navigationTitle(exercise.baseExercise.title ?? R.string.localizable.unknown())
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     HStack(spacing: .l) {
@@ -100,7 +100,7 @@ public struct ExerciseDetailView: View {
                             .scaledToFit()
                             .foregroundColor(Color.Artemis.primaryLabel)
                             .frame(width: .smallImage)
-                        Text(exercise.baseExercise.title ?? "Unknown")
+                        Text(exercise.baseExercise.title ?? R.string.localizable.unknown())
                             .font(.headline)
                     }
                 }
@@ -112,7 +112,9 @@ public struct ExerciseDetailView: View {
     }
 
     private func loadExercise() async {
-        if exercise.value == nil {
+        if let exercise = exercise.value {
+            setParticipationAndResultId(from: exercise)
+        } else {
             self.exercise = await ExerciseServiceFactory.shared.getExercise(exerciseId: exerciseId)
             if let exercise = self.exercise.value {
                 setParticipationAndResultId(from: exercise)
@@ -121,20 +123,18 @@ public struct ExerciseDetailView: View {
     }
 
     private func setParticipationAndResultId(from exercise: Exercise) {
+        isWebViewLoading = true
+
         let participation = exercise.getSpecificStudentParticipation(testRun: false)
+        participationId = participation?.id
+
         // Sort participation results by completionDate desc.
         // The latest result is the first rated result in the sorted array (=newest)
-        let participationId: String
-        if let participation {
-            participationId = participation.id.description
-            self.participationId = participation.id
-        } else {
-            participationId = ""
-        }
-
         if let latestResultId = participation?.results?.max(by: { $0.completionDate ?? .distantPast > $1.completionDate ?? .distantPast })?.id {
             self.latestResultId = latestResultId
         }
+
+        urlRequest = URLRequest(url: URL(string: "/courses/\(courseId)/exercises/\(exercise.id)/problem-statement/\(participationId?.description ?? "")", relativeTo: UserSession.shared.institution?.baseURL)!)
     }
 }
 
