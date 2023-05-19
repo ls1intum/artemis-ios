@@ -131,14 +131,14 @@ struct ExerciseListCell: View {
                     .scaledToFit()
                     .foregroundColor(Color.Artemis.primaryLabel)
                     .frame(width: .smallImage)
-                Text(exercise.baseExercise.title ?? "Unknown")
+                Text(exercise.baseExercise.title ?? R.string.localizable.unknown())
                     .font(.title3)
                 Spacer()
             }
             if let dueDate = exercise.baseExercise.dueDate {
-                Text("Due Date: \(dueDate.relative ?? "?")")
+                Text(R.string.localizable.dueDate(dueDate.relative ?? "?"))
             } else {
-                Text("No due date")
+                Text(R.string.localizable.noDueDate())
             }
             SubmissionResultStatusView(exercise: exercise)
             ScrollView(.horizontal) {
