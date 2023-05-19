@@ -9,6 +9,7 @@ import Foundation
 import Common
 import SharedModels
 import APIClient
+import SharedServices
 
 // swiftlint:disable file_length
 @MainActor

@@ -31,6 +31,7 @@ let package = Package(
                 .product(name: "SharedModels", package: "artemis-ios-core-modules"),
                 .product(name: "UserStore", package: "artemis-ios-core-modules"),
                 .product(name: "ArtemisMarkdown", package: "artemis-ios-core-modules"),
+                .product(name: "SharedServices", package: "artemis-ios-core-modules"),
                 "Navigation",
                 "Messages",
                 .product(name: "RswiftLibrary", package: "R.swift")

@@ -33,6 +33,7 @@ let package = Package(
                 .product(name: "SharedModels", package: "artemis-ios-core-modules"),
                 .product(name: "DesignLibrary", package: "artemis-ios-core-modules"),
                 .product(name: "Account", package: "artemis-ios-core-modules"),
+                .product(name: "SharedServices", package: "artemis-ios-core-modules"),
                 "CourseRegistration",
                 "Navigation",
                 "Notifications",

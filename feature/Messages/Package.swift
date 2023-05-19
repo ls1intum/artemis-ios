@@ -32,6 +32,7 @@ let package = Package(
                 .product(name: "DesignLibrary", package: "artemis-ios-core-modules"),
                 .product(name: "UserStore", package: "artemis-ios-core-modules"),
                 .product(name: "ArtemisMarkdown", package: "artemis-ios-core-modules"),
+                .product(name: "SharedServices", package: "artemis-ios-core-modules"),
                 "Navigation",
                 "EmojiPicker",
                 .product(name: "RswiftLibrary", package: "R.swift")
