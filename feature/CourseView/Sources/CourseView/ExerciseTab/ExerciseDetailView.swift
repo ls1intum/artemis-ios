@@ -10,6 +10,7 @@ import SharedModels
 import UserStore
 import DesignLibrary
 import Common
+import SharedServices
 
 public struct ExerciseDetailView: View {
 

@@ -1,7 +1,7 @@
 import Foundation
 import SharedModels
 import Common
-import APIClient
+import SharedServices
 
 @MainActor
 class CourseViewModel: ObservableObject {

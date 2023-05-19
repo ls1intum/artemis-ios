@@ -8,6 +8,7 @@
 import Foundation
 import Common
 import SharedModels
+import SharedServices
 
 class LectureDetailViewModel: BaseViewModel {
 

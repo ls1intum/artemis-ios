@@ -1,6 +1,6 @@
 import Foundation
 import SharedModels
-import APIClient
+import SharedServices
 import UserStore
 import Common
 
@@ -22,6 +22,6 @@ class CoursesOverviewViewModel: ObservableObject {
     }
 
     func loadCourses() async {
-        coursesForDashboard = await DashboardServiceFactory.shared.loadCourses()
+        coursesForDashboard = await CourseServiceFactory.shared.getCourses()
     }
 }
