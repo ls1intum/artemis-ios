@@ -10,7 +10,7 @@ import Foundation
 import Combine
 import UserStore
 import SwiftUI
-import Account
+import SharedServices
 
 @MainActor
 class RootViewModel: ObservableObject {
