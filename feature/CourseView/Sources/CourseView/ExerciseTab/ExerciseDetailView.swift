@@ -86,7 +86,6 @@ public struct ExerciseDetailView: View {
                                    contentHeight: $webViewHeight,
                                    isLoading: $isWebViewLoading)
                         .frame(height: webViewHeight)
-                        .disabled(true)
                         .loadingIndicator(isLoading: $isWebViewLoading)
                     Spacer()
                 }
