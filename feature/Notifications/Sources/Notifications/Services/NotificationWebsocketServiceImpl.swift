@@ -365,9 +365,8 @@ fileprivate extension Notification {
     static func createNotificationFromStartedQuizExercise(quizExercise: QuizExercise) -> Notification {
         Notification(id: Int.random(in: 0 ... Int.max),
                      title: "artemisApp.groupNotification.title.quizExerciseStarted",
-                     text: "artemisApp.groupNotification.text.quizExerciseStarted",
                      notificationDate: .now,
-                     target: "", // TODO: update target
+                     target: "", // TODO: update target and placeholderValues
 //                     target: JSON.stringify({
 //                         course: quizExercise.course!.id,
 //                         mainPage: 'courses',
@@ -375,6 +374,6 @@ fileprivate extension Notification {
 //                         id: quizExercise.id,
 //                     }),
                      author: nil,
-                     notificationType: .group)
+                     placeholderValues: "")
     }
 }
