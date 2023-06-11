@@ -52,7 +52,6 @@
 		D59E86A229ACB26C0012C378 /* Dashboard */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Dashboard; path = feature/Dashboard; sourceTree = "<group>"; };
 		D5B8C105299E73F100835976 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D5CD8C1F29DACF4200F9F262 /* Messages */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Messages; path = feature/Messages; sourceTree = "<group>"; };
-		D5D807C72A33663F00AB37BC /* artemis-ios-core-modules */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "artemis-ios-core-modules"; path = "../helpdir.nosync/artemis-ios-core-modules"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -165,7 +164,6 @@
 		D5ED2D0529AB82C600B5EE69 /* Core */ = {
 			isa = PBXGroup;
 			children = (
-				D5D807C72A33663F00AB37BC /* artemis-ios-core-modules */,
 				D515291329AD2DFB002CAD2F /* Navigation */,
 			);
 			name = Core;
