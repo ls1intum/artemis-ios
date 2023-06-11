@@ -6,6 +6,7 @@ import Common
 struct Notification: Codable {
     var id: Int
     let title: String
+    let text: String?
     let notificationDate: Date
     let target: String
     let author: NotificationUser?
@@ -67,7 +68,76 @@ extension Notification {
             return .conversationNewMessage
         case "artemisApp.singleUserNotification.title.messageReply":
             return .conversationNewReplyMessage
-        // TODO: add handling for non push notification types
+        case "artemisApp.groupNotification.title.exerciseUpdated":
+            return .exerciseUpdated
+        case "artemisApp.groupNotification.title.courseArchiveStarted":
+            return .courseArchiveStarted
+        case "artemisApp.groupNotification.title.courseArchiveFinished":
+            guard let text else {
+                return .courseArchiveFinished
+            }
+            switch text {
+            case "artemisApp.groupNotification.text.courseArchiveFinishedWithErrors":
+                return .courseArchiveFinishedWithError
+            case "artemisApp.groupNotification.text.courseArchiveFinishedWithoutErrors":
+                return .courseArchiveFinishedWithoutError
+            default:
+                return nil
+            }
+        case "artemisApp.groupNotification.title.courseArchiveFailed":
+            return .courseArchiveFailed
+        case "artemisApp.groupNotification.title.examArchiveStarted":
+            return .examArchiveStarted
+        case "artemisApp.groupNotification.title.examArchiveFinished":
+            guard let text else {
+                return .examArchiveFinished
+            }
+            switch text {
+            case "artemisApp.groupNotification.text.examArchiveFinishedWithErrors":
+                return .examArchiveFinishedWithError
+            case "artemisApp.groupNotification.text.examArchiveFinishedWithoutErrors":
+                return .examArchiveFinishedWithoutError
+            default:
+                return nil
+            }
+        case "artemisApp.groupNotification.title.examArchiveFailed":
+            return .examArchiveFailed
+        case "artemisApp.groupNotification.title.illegalSubmission":
+            return .illegalSubmission
+        case "artemisApp.groupNotification.title.programmingTestCasesChanged":
+            return .programmingTestCasesChanged
+        case "artemisApp.groupNotification.title.newManualFeedbackRequest":
+            return .newManualFeedbackRequest
+        case "artemisApp.singleUserNotification.title.tutorialGroupRegistrationStudent":
+            return .tutorialGroupDegregistrationStudent
+        case "artemisApp.singleUserNotification.title.tutorialGroupDeregistrationStudent":
+            return .tutorialGroupDegregistrationStudent
+        case "artemisApp.singleUserNotification.title.tutorialGroupRegistrationTutor":
+            return .tutorialGroupRegistrationTutor
+        case "artemisApp.singleUserNotification.title.tutorialGroupDeregistrationTutor":
+            return .tutorialGroupDeregistrationTutor
+        case "artemisApp.singleUserNotification.title.tutorialGroupMultipleRegistrationTutor":
+            return .tutorialGroupMultipleRegistrationTutor
+        case "artemisApp.singleUserNotification.title.tutorialGroupAssigned":
+            return .tutorialGroupAssigned
+        case "artemisApp.singleUserNotification.title.tutorialGroupUnassigned":
+            return .tutorialGroupUnassigned
+        case "artemisApp.tutorialGroupNotification.title.tutorialGroupDeleted":
+            return .tutorialGroupDeleted
+        case "artemisApp.tutorialGroupNotification.title.tutorialGroupUpdated":
+            return .tutorialGroupUpdated
+        case "artemisApp.singleUserNotification.title.deleteChannel":
+            return .conversationDeleteChannel
+        case "artemisApp.singleUserNotification.title.removeUserChannel":
+            return .conversationRemoveUserChannel
+        case "artemisApp.singleUserNotification.title.addUserChannel":
+            return .conversationAddUserChannel
+        case "artemisApp.singleUserNotification.title.removeUserGroupChat":
+            return .conversationRemoveUserGroupChat
+        case "artemisApp.singleUserNotification.title.addUserGroupChat":
+            return .conversationAddUserGroupChat
+        case "artemisApp.singleUserNotification.title.createGroupChat":
+            return .conversationCreateGroupChat
         default:
             return nil
         }

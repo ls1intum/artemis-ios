@@ -130,7 +130,6 @@ struct SubmissionResultView: View {
 
 extension ResultTemplateStatus {
 
-    // swiftlint:disable cyclomatic_complexity
     private func getIconName(result: Result?) -> String? {
         switch self {
         case .isBuilding:
