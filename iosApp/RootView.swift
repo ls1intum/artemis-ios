@@ -83,5 +83,15 @@ struct RootView: View {
                 }
             }
         }
+        .alert("Link not supported", isPresented: $navigationController.showDeeplinkNotSupported, actions: {
+            Button("Ok", role: .cancel) {
+                navigationController.showDeeplinkNotSupported = false
+            }
+            if let url = navigationController.notSupportedUrl {
+                Button("Open in Browser") {
+                    UIApplication.shared.open(url)
+                }
+            }
+        })
     }
 }

@@ -11,6 +11,8 @@ import Combine
 import UserStore
 import SwiftUI
 import SharedServices
+import PushNotifications
+import Common
 
 @MainActor
 class RootViewModel: ObservableObject {
@@ -41,6 +43,26 @@ class RootViewModel: ObservableObject {
                 didSetupNotifications = UserSession.shared.getCurrentNotificationDeviceConfiguration() != nil
             }
             isLoading = false
+        }
+
+        updateDeviceToken()
+    }
+
+    private func updateDeviceToken() {
+        if let notificationConfig = UserSession.shared.getCurrentNotificationDeviceConfiguration(),
+           !notificationConfig.skippedNotifications {
+            UserSession.shared.notificationSetupError = nil
+            Task {
+                do {
+                    let granted = try await UNUserNotificationCenter.current().requestAuthorization(options: [.sound, .badge, .alert])
+
+                    guard granted else { return }
+                    // 2. Attempt registration for remote notifications on the main thread
+                    UIApplication.shared.registerForRemoteNotifications()
+                } catch {
+                    log.error("Error registering for remote notification", error.localizedDescription)
+                }
+            }
         }
     }
 }

@@ -86,7 +86,6 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
                 guard let notification = JSONDecoder.getTypeFromSocketMessage(type: Notification.self, message: message) else { continue }
                 // Do not add notification to observer if it is a one-to-one conversation creation notification
                 // and if the author is the current user
-                // TODO: change title string here
                 if notification.title != "artemisApp.singleUserNotification.title.createOneToOneChat" && userId != notification.author?.id {
                     continuation?.yield(notification)
                 }
@@ -365,9 +364,9 @@ fileprivate extension Notification {
     static func createNotificationFromStartedQuizExercise(quizExercise: QuizExercise) -> Notification {
         Notification(id: Int.random(in: 0 ... Int.max),
                      title: "artemisApp.groupNotification.title.quizExerciseStarted",
-                     text: "artemisApp.groupNotification.text.quizExerciseStarted",
+                     text: nil,
                      notificationDate: .now,
-                     target: "", // TODO: update target
+                     target: "", // TODO: update target and placeholderValues
 //                     target: JSON.stringify({
 //                         course: quizExercise.course!.id,
 //                         mainPage: 'courses',
@@ -375,6 +374,6 @@ fileprivate extension Notification {
 //                         id: quizExercise.id,
 //                     }),
                      author: nil,
-                     notificationType: .group)
+                     placeholderValues: "")
     }
 }

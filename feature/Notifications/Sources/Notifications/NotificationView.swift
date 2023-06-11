@@ -8,6 +8,7 @@
 import SwiftUI
 import DesignLibrary
 import Navigation
+import PushNotifications
 
 struct NotificationView: View {
 
@@ -27,9 +28,8 @@ struct NotificationView: View {
                             NotificationCell(notification: notification)
                                 .onTapGesture {
                                     dismiss()
-                                    let decoder = JSONDecoder()
-                                    guard let target = try? decoder.decode(NewExerciseTarget.self, from: Data(notification.target.utf8)) else { return }
-                                    let targetPath = "courses/\(target.course)/exercises/\(target.id)"
+                                    guard let type = notification.pushNotificationType,
+                                          let targetPath = PushNotificationResponseHandler.getTarget(type: type, targetString: notification.target) else { return } // TODO: add alert
                                     DeeplinkHandler.shared.handle(path: targetPath)
                                 }
                         }
@@ -55,22 +55,25 @@ struct NotificationCell: View {
     let notification: Notification
 
     var body: some View {
-        VStack(alignment: .leading, spacing: .m) {
-            Text(notification.title)
-                .font(.title2)
-            if let text = notification.text {
-                Text(text)
-            }
-            HStack {
-                Spacer()
-                Text(R.string.localizable.notification_author_label(notification.notificationDate.shortDateAndTime,
-                                                                    notification.author?.name ?? R.string.localizable.artemis_label()))
+        if let title = notification.encodedTitle,
+           let body = notification.encodedBody {
+            VStack(alignment: .leading, spacing: .m) {
+                Text(title)
+                    .font(.title2)
+                Text(body)
+                HStack {
+                    Spacer()
+                    Text(R.string.localizable.notification_author_label(notification.notificationDate.shortDateAndTime,
+                                                                        notification.author?.name ?? R.string.localizable.artemis_label()))
                     .multilineTextAlignment(.trailing)
                     .foregroundColor(Color.Artemis.secondaryLabel)
+                }
             }
-        }
             .padding(.l)
             .cardModifier(backgroundColor: Color.Artemis.modalCardBackgroundColor)
+        } else {
+            EmptyView()
+        }
     }
 }
 

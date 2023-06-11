@@ -9,6 +9,10 @@ public class NavigationController: ObservableObject {
 
     @Published public var courseTab = TabIdentifier.exercise
 
+    @Published public var showDeeplinkNotSupported = false
+
+    public var notSupportedUrl: URL?
+
     public init() {
         self.path = NavigationPath()
 
@@ -47,6 +51,11 @@ public class NavigationController: ObservableObject {
         goToCourseConversations(courseId: courseId)
         path.append(ConversationPath(id: conversationId,
                                      coursePath: CoursePath(id: courseId)))
+    }
+
+    public func showDeeplinkNotSupported(url: URL) {
+        notSupportedUrl = url
+        showDeeplinkNotSupported = true
     }
 }
 
