@@ -90,7 +90,6 @@ public struct ExerciseDetailView: View {
                     Spacer()
                 }
             }
-            .navigationTitle(exercise.baseExercise.title ?? R.string.localizable.unknown())
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     HStack(spacing: .l) {
