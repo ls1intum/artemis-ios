@@ -38,6 +38,14 @@ public class NavigationController: ObservableObject {
         log.debug("ExercisePath was appended to queue")
     }
 
+    public func goToLecture(courseId: Int, lectureId: Int) {
+        courseTab = .lecture
+        goToCourse(id: courseId)
+        path.append(LecturePath(id: lectureId,
+                                coursePath: CoursePath(id: courseId)))
+        log.debug("LecturePath was appended to queue")
+    }
+
     public func setTab(identifier: TabIdentifier) {
         courseTab = identifier
     }

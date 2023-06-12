@@ -153,7 +153,7 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
     private func subscribeToQuizUpdates(courses: [Course]) async {
         for course in courses {
             let quizExerciseTopic = "/topic/courses/\(course.id)/quizExercises"
-            if !subscribedTopics.contains(quizExerciseTopic) {
+            if !contains(topic: quizExerciseTopic) {
                 let stream = subscribe(to: quizExerciseTopic)
                 let task = Task {
                     for await message in stream {
@@ -185,7 +185,7 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
                 courseTopic.append("STUDENT")
             }
 
-            if !subscribedTopics.contains(courseTopic) {
+            if !contains(topic: courseTopic) {
                 let stream = subscribe(to: courseTopic)
                 let task = Task {
                     for await message in stream {
@@ -213,7 +213,7 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
     private func subscribeToTutorialGroupNotificationUpdates(tutorialGroups: [TutorialGroup]) async {
         for tutorialGroup in tutorialGroups {
             let tutorialGroupTopic = "/topic/tutorial-group/\(tutorialGroup.id)/notifications"
-            if !subscribedTopics.contains(tutorialGroupTopic) {
+            if !contains(topic: tutorialGroupTopic) {
                 let stream = subscribe(to: tutorialGroupTopic)
                 let task = Task {
                     for await message in stream {
@@ -241,7 +241,7 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
     private func subscribeToConversationNotificationUpdates(conversations: [Conversation]) {
         for conversation in conversations {
             let conversationTopic = "/topic/conversation/\(conversation.id)/notifications"
-            if !subscribedTopics.contains(conversationTopic) {
+            if !contains(topic: conversationTopic) {
                 let stream = subscribe(to: conversationTopic)
                 let task = Task {
                     for await message in stream {
@@ -257,6 +257,14 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
                 addTask(task)
             }
         }
+    }
+
+    private func contains(topic: String) -> Bool {
+        var doesContain: Bool?
+        queue.sync { [weak self] in
+            doesContain = self?.subscribedTopics.contains(topic)
+        }
+        return doesContain ?? false
     }
 
     private func subscribe(to topic: String) -> AsyncStream<Any?> {

@@ -18,7 +18,9 @@ struct ExerciseHandler: Deeplink {
               let courseId = Int(url.pathComponents[indexOfCourseId + 1]),
               let indexOfExerciseId = url.pathComponents.firstIndex(where: { $0 == "exercises" }),
               url.pathComponents.count > indexOfExerciseId + 1,
-              let exerciseId = Int(url.pathComponents[indexOfExerciseId + 1]) else { return nil }
+              let exerciseId = Int(url.pathComponents[indexOfExerciseId + 1]),
+              let urlComponent = URLComponents(string: url.absoluteString),
+              !(urlComponent.queryItems?.contains(where: { $0.name == "postId" }) ?? false) else { return nil }
 
         return ExerciseHandler(courseId: courseId, exerciseId: exerciseId)
     }

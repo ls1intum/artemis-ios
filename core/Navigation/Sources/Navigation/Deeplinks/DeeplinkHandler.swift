@@ -42,11 +42,12 @@ public class DeeplinkHandler {
         // warning: the order of the array matters
         let builderFuncs: [(URL) -> Deeplink?] = [
             ExerciseHandler.build,
-            CommunicationHandler.build,
+            LectureHandler.build,
             MessageHandler.build,
             MessagesHandler.build,
             CourseHandler.build,
-            DashboardHandler.build
+            DashboardHandler.build,
+            UnknownLinkHandler.build
         ]
 
         return builderFuncs
