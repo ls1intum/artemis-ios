@@ -2,3 +2,5 @@
 "no_notifications_yet_label" = "No Notifications yet!";
 "notification_author_label" = "%@ by %@";
 "artemis_label" = "Artemis";
+"notification_target_not_found" = "The target of the notification could not be determined.";
+"ok" = "OK";

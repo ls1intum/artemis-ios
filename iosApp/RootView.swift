@@ -84,7 +84,7 @@ struct RootView: View {
             }
         }
         .alert("Link not supported by App", isPresented: $navigationController.showDeeplinkNotSupported, actions: {
-            Button("Ok", role: .cancel) {
+            Button("OK", role: .cancel) {
                 navigationController.showDeeplinkNotSupported = false
             }
             if let url = navigationController.notSupportedUrl {

@@ -162,7 +162,7 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
                            quizExercise.quizMode == .SYNCHRONIZED,
                            quizExercise.quizBatches?.first?.started ?? false,
                            !(quizExercise.isOpenForPractice ?? false) {
-                            let notification = Notification.createNotificationFromStartedQuizExercise(quizExercise: quizExercise)
+                            guard let notification = Notification.createNotificationFromStartedQuizExercise(quizExercise: quizExercise) else { continue }
                             continuation?.yield(notification)
                         }
                     }
@@ -369,19 +369,27 @@ private extension String {
 }
 
 fileprivate extension Notification {
-    static func createNotificationFromStartedQuizExercise(quizExercise: QuizExercise) -> Notification {
-        Notification(id: Int.random(in: 0 ... Int.max),
-                     title: "artemisApp.groupNotification.title.quizExerciseStarted",
-                     text: nil,
-                     notificationDate: .now,
-                     target: "", // TODO: update target and placeholderValues
-//                     target: JSON.stringify({
-//                         course: quizExercise.course!.id,
-//                         mainPage: 'courses',
-//                         entity: 'exercises',
-//                         id: quizExercise.id,
-//                     }),
-                     author: nil,
-                     placeholderValues: "")
+    static func createNotificationFromStartedQuizExercise(quizExercise: QuizExercise) -> Notification? {
+        guard let course = quizExercise.course,
+              let quizTitle = quizExercise.title,
+              let notificationTarget = try? JSONEncoder().encode(QuizExerciseTarget(course: course.id,
+                                                                                    id: quizExercise.id)) else {
+            return nil
+        }
+
+        return Notification(id: Int.random(in: 0 ... Int.max),
+                            title: "artemisApp.groupNotification.title.quizExerciseStarted",
+                            text: nil,
+                            notificationDate: .now,
+                            target: String(decoding: notificationTarget, as: UTF8.self),
+                            author: nil,
+                            placeholderValues: "[\(course.title),\(quizTitle)]")
+    }
+
+    struct QuizExerciseTarget: Codable {
+        let course: Int
+        var mainPage = "courses"
+        var entity = "exercises"
+        let id: Int
     }
 }

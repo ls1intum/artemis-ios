@@ -97,7 +97,7 @@ struct SubmissionResultStatusView: View {
                                  result: result,
                                  missingResultInfo: .noInformation,
                                  isBuilding: false,
-                                 short: true) // TODO: fix once subscription works
+                                 short: true)
         } else {
             VStack(alignment: .leading) {
                 ForEach(text, id: \.self) { text in

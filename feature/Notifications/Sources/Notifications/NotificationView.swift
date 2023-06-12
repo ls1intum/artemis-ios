@@ -16,6 +16,8 @@ struct NotificationView: View {
 
     @Environment(\.dismiss) var dismiss
 
+    @State private var showTargetNotFoundAlert = false
+
     var body: some View {
         NavigationView {
             List {
@@ -29,7 +31,10 @@ struct NotificationView: View {
                                 .onTapGesture {
                                     dismiss()
                                     guard let type = notification.pushNotificationType,
-                                          let targetPath = PushNotificationResponseHandler.getTarget(type: type, targetString: notification.target) else { return } // TODO: add alert
+                                          let targetPath = PushNotificationResponseHandler.getTarget(type: type, targetString: notification.target) else {
+                                        showTargetNotFoundAlert = true
+                                        return
+                                    }
                                     DeeplinkHandler.shared.handle(path: targetPath)
                                 }
                         }
@@ -45,6 +50,9 @@ struct NotificationView: View {
                     Task {
                         await viewModel.updateNotificationSeenDate()
                     }
+                }
+                .alert(R.string.localizable.notification_target_not_found(), isPresented: $showTargetNotFoundAlert) {
+                    Button(R.string.localizable.ok(), role: .cancel) { }
                 }
         }
     }

@@ -83,7 +83,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         // update app badge count
         UIApplication.shared.applicationIconBadgeNumber += 1
 
-        // TODO: maybe add as param above
+        // maybe add as param in handle above
         completionHandler()
     }
 }
