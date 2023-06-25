@@ -44,6 +44,20 @@ public struct ExerciseDetailView: View {
         self.courseId = courseId
     }
 
+    private var score: String {
+        let score = exercise.value?.baseExercise.studentParticipations?
+            .first?
+            .baseParticipation
+            .results?
+            .filter { $0.rated ?? false }
+            .max(by: { ($0.id ?? Int.min) > ($1.id ?? Int.min) })?
+            .score ?? 0
+
+        let maxPoints = exercise.value?.baseExercise.maxPoints ?? 0
+
+        return (score * maxPoints / 100).clean
+    }
+
     public var body: some View {
         DataStateView(data: $exercise, retryHandler: { await loadExercise() }) { exercise in
             ScrollView {
@@ -59,7 +73,7 @@ public struct ExerciseDetailView: View {
                         }
                         HStack {
                             Text(R.string.localizable.points(
-                                exercise.baseExercise.studentParticipations?.first?.baseParticipation.submissions?.first?.baseSubmission.results?.first?.score?.clean ?? "0",
+                                score,
                                 exercise.baseExercise.maxPoints?.clean ?? "0"))
                             if exercise.baseExercise.includedInOverallScore != .includedCompletly {
                                 Chip(text: exercise.baseExercise.includedInOverallScore.description, backgroundColor: exercise.baseExercise.includedInOverallScore.color)
@@ -79,6 +93,8 @@ public struct ExerciseDetailView: View {
                                              resultId: latestResultId)
                             }
                         }
+
+                        ArtemisAlertView(text: R.string.localizable.exerciseParticipationHint(), level: .info)
                     }
                     .padding(.horizontal, .l)
 
