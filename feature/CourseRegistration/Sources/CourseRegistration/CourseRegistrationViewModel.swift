@@ -46,13 +46,14 @@ class CourseRegistrationViewModel: ObservableObject {
         isLoading = false
 
         switch result {
-        case .loading:
-            registrableCourses = .loading
-        case .failure(let error):
-            registrableCourses = .failure(error: error)
-            self.error = error
-        case .done:
+        case .success:
             successCompletion()
+        case .failure(let error):
+            let userFacingError = UserFacingError(title: error.localizedDescription)
+            registrableCourses = .failure(error: userFacingError)
+            self.error = userFacingError
+        default:
+            return
         }
     }
 }

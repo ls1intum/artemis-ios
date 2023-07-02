@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ls1intum/artemis-ios-core-modules",
       "state" : {
-        "revision" : "3ed832c392a68d6b4a51a3f432acf8897fff163e",
-        "version" : "2.3.2"
+        "revision" : "7cd8b61e042c7e4e407582cbc40e53172f17a107",
+        "version" : "2.3.3"
       }
     },
     {

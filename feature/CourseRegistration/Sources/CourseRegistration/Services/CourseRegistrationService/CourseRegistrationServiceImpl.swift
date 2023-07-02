@@ -15,7 +15,7 @@ class CourseRegistrationServiceImpl: CourseRegistrationService {
         }
 
         var resourceName: String {
-            return "api/courses/for-registration"
+            return "api/courses/for-enrollment"
         }
     }
 
@@ -31,7 +31,7 @@ class CourseRegistrationServiceImpl: CourseRegistrationService {
     }
 
     struct RegisterCourseRequest: APIRequest {
-        typealias Response = User
+        typealias Response = RawResponse
 
         var courseId: Int
 
@@ -40,16 +40,16 @@ class CourseRegistrationServiceImpl: CourseRegistrationService {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/register"
+            return "api/courses/\(courseId)/enroll"
         }
     }
 
-    func registerInCourse(courseId: Int) async -> DataState<User> {
+    func registerInCourse(courseId: Int) async -> NetworkResponse {
         let result = await client.sendRequest(RegisterCourseRequest(courseId: courseId))
 
         switch result {
         case .success((let response, _)):
-            return .done(response: response)
+            return .success
         case .failure(let error):
             return .failure(error: UserFacingError(error: error))
         }
