@@ -24,6 +24,9 @@
 "hide" = "Hide";
 "show" = "Show";
 "channels" = "Channels";
+"exercises" = "Exercises";
+"lectures" = "Lectures";
+"exams" = "Exams";
 "groupChats" = "Group Chats";
 "directMessages" = "Direct Messages";
 

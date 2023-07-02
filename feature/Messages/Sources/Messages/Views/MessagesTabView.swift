@@ -58,6 +58,21 @@ public struct MessagesTabView: View {
                                    sectionTitle: R.string.localizable.channels(),
                                    conversationType: .channel)
                     MessageSection(viewModel: viewModel,
+                                   conversations: $viewModel.exercises,
+                                   sectionTitle: R.string.localizable.exercises(),
+                                   conversationType: .channel,
+                                   isExpanded: false)
+                    MessageSection(viewModel: viewModel,
+                                   conversations: $viewModel.lectures,
+                                   sectionTitle: R.string.localizable.lectures(),
+                                   conversationType: .channel,
+                                   isExpanded: false)
+                    MessageSection(viewModel: viewModel,
+                                   conversations: $viewModel.exams,
+                                   sectionTitle: R.string.localizable.exams(),
+                                   conversationType: .channel,
+                                   isExpanded: false)
+                    MessageSection(viewModel: viewModel,
                                    conversations: $viewModel.groupChats,
                                    sectionTitle: R.string.localizable.groupChats(),
                                    conversationType: .groupChat)
@@ -220,6 +235,18 @@ private struct MessageSection<T: BaseConversation>: View {
 
     var sectionUnreadCount: Int {
         (conversations.value ?? []).reduce(0, { $0 + ($1.unreadMessagesCount ?? 0) })
+    }
+
+    init(viewModel: MessagesTabViewModel,
+         conversations: Binding<DataState<[T]>>,
+         sectionTitle: String,
+         conversationType: ConversationType,
+         isExpanded: Bool = true) {
+        self.viewModel = viewModel
+        self._conversations = conversations
+        self.sectionTitle = sectionTitle
+        self.conversationType = conversationType
+        self._isExpanded = State(wrappedValue: isExpanded)
     }
 
     var body: some View {

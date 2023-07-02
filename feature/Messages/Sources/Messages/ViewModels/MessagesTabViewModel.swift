@@ -25,6 +25,9 @@ class MessagesTabViewModel: BaseViewModel {
     @Published var hiddenConversations: DataState<[Conversation]> = .loading
 
     @Published var channels: DataState<[Channel]> = .loading
+    @Published var exercises: DataState<[Channel]> = .loading
+    @Published var lectures: DataState<[Channel]> = .loading
+    @Published var exams: DataState<[Channel]> = .loading
     @Published var groupChats: DataState<[GroupChat]> = .loading
     @Published var oneToOneChats: DataState<[OneToOneChat]> = .loading
 
@@ -104,6 +107,9 @@ class MessagesTabViewModel: BaseViewModel {
             hiddenConversations = .loading
 
             channels = .loading
+            exercises = .loading
+            lectures = .loading
+            exams = .loading
             groupChats = .loading
             oneToOneChats = .loading
         case .failure(let error):
@@ -112,6 +118,9 @@ class MessagesTabViewModel: BaseViewModel {
             hiddenConversations = .failure(error: error)
 
             channels = .failure(error: error)
+            exercises = .failure(error: error)
+            lectures = .failure(error: error)
+            exams = .failure(error: error)
             groupChats = .failure(error: error)
             oneToOneChats = .failure(error: error)
         case .done(let response):
@@ -123,7 +132,10 @@ class MessagesTabViewModel: BaseViewModel {
 
             let notHiddenNotFavoriteConversations = notHiddenConversations.filter { !($0.baseConversation.isFavorite ?? false) }
 
-            channels = .done(response: notHiddenNotFavoriteConversations.compactMap({ $0.baseConversation as? Channel }))
+            channels = .done(response: notHiddenNotFavoriteConversations.compactMap({ $0.baseConversation as? Channel }).filter({ ($0.subType ?? .general) == .general }))
+            exercises = .done(response: notHiddenNotFavoriteConversations.compactMap({ $0.baseConversation as? Channel }).filter({ ($0.subType ?? .general) == .exercise }))
+            lectures = .done(response: notHiddenNotFavoriteConversations.compactMap({ $0.baseConversation as? Channel }).filter({ ($0.subType ?? .general) == .lecture }))
+            exams = .done(response: notHiddenNotFavoriteConversations.compactMap({ $0.baseConversation as? Channel }).filter({ ($0.subType ?? .general) == .exam }))
             groupChats = .done(response: notHiddenNotFavoriteConversations.compactMap({ $0.baseConversation as? GroupChat }))
             oneToOneChats = .done(response: notHiddenNotFavoriteConversations.compactMap({ $0.baseConversation as? OneToOneChat }))
         }
