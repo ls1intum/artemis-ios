@@ -65,6 +65,13 @@ struct MessageCell: View {
                     }
                 }
                 ArtemisMarkdownView(string: content)
+
+                if message.value?.updatedDate != nil {
+                    Text(R.string.localizable.edited())
+                        .foregroundColor(.Artemis.secondaryLabel)
+                        .font(.footnote)
+                }
+
                 ReactionsView(viewModel: viewModel, message: $message, showEmojiAddButton: false)
                 if let message = message.value as? Message,
                    let answerCount = message.answers?.count,

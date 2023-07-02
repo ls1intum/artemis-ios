@@ -78,6 +78,12 @@ public struct MessageDetailView: View {
 
                             ArtemisMarkdownView(string: message.content ?? "")
 
+                            if let updatedDate = message.updatedDate {
+                                Text("\(R.string.localizable.edited()) (\(updatedDate.shortDateAndTime))")
+                                    .foregroundColor(.Artemis.secondaryLabel)
+                                    .font(.footnote)
+                            }
+
                             ReactionsView(viewModel: viewModel, message: $message)
                         }
                         .padding(.horizontal, .l)

@@ -28,6 +28,7 @@
 "directMessages" = "Direct Messages";
 
 // MARK: MessageDetailView
+"edited" = "Edited";
 "messageCouldNotBeLoadedError" = "Message could not be loaded.";
 "thread" = "Thread";
 

@@ -93,8 +93,7 @@ public struct ExerciseDetailView: View {
                                              resultId: latestResultId)
                             }
                         }
-
-                        ArtemisAlertView(text: R.string.localizable.exerciseParticipationHint(), level: .info)
+                        ArtemisHintBox(text: R.string.localizable.exerciseParticipationHint(), hintType: .info)
                     }
                     .padding(.horizontal, .l)
 
