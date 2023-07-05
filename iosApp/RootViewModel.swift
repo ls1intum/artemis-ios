@@ -27,6 +27,9 @@ class RootViewModel: ObservableObject {
     init() {
         UserSession.shared.objectWillChange.sink {
             DispatchQueue.main.async { [weak self] in
+                if !(self?.isLoggedIn ?? false) && UserSession.shared.isLoggedIn {
+                    self?.updateDeviceToken()
+                }
                 self?.isLoggedIn = UserSession.shared.isLoggedIn
                 self?.didSetupNotifications = UserSession.shared.getCurrentNotificationDeviceConfiguration() != nil
             }
