@@ -14,7 +14,11 @@ More information on the iOS core module (`ios-core-module`) can be found [here](
 The *Course Overview* subsystem serves as the app's home screen and thus encompasses all other subsystems.
 Consequently, it has a dependency on the *Account*, *Course Registration*, *Notifications*, and *Course View* subsystems.
 
-The *Course View* includes all details about a specific course and therefore uses the *Exercises*, *Lectures*, and *Messages* subsystems. The *Exercises* subsystem is responsible for displaying all exercises as well as showing detailed information for a specific exercise. It should also make exercise participation possible. The *Lectures* subsystem lists all available lectures of the course, as well as all the respective lecture units and their attachments. The *Messages* subsystem handles the interaction with the conversations and their messages.
+The *Course View* includes all details about a specific course and therefore uses the *Exercises*, *Lectures*, and *Messages* subsystems.
+The *Exercises* subsystem is responsible for displaying all exercises as well as showing detailed information for a specific exercise.
+It should also make exercise participation possible.
+The *Lectures* subsystem lists all available lectures of the course, as well as all the respective lecture units and their attachments.
+The *Messages* subsystem handles the interaction with the conversations and their messages.
 
 The *Notification* subsystem displays the in-app notification center where the user can see past and current notifications with detailed information.
 
