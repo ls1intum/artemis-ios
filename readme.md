@@ -24,7 +24,8 @@ The *Notification* subsystem displays the in-app notification center where the u
 
 All subsystems where network communication is necessary use the *API Client*, although we do not depict this relationship in the diagram.
 
-The *Login*, and *Account* subsystems manage the user authentication handling. The *Push Notification* subsystem handles the registration, notification settings handling, decryption, and displaying of push notifications.
+The *Login*, and *Account* subsystems manage the user authentication handling.
+The *Push Notification* subsystem handles the registration, notification settings handling, decryption, and displaying of push notifications.
 
 ![Subsystem decomposition of the App](docu/APP-subsystem.png)
 
