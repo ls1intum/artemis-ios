@@ -4,7 +4,12 @@ The Artemis iOS application aims to replace the current Artemis web platform for
 
 ## Architecture
 
-This section examines the subsystem decomposition of the `App`, as depicted in the referenced figure (`app-subsystem`). The primary focus is identifying all `App` subsystems and their usage of the [Core Module](https://github.com/ls1intum/artemis-ios-core-modules/blob/main/README.md). Subsystems part of the `Core Module` are highlighted in green, and arrows illustrate relationships between subsystems. For the sake of simplicity, we do not show all `Core Module` subsystems. Therefore the *User Session Store*, *Common Utility*, *Artemis Profile Info*, *API Client*, *Shared Models*, *Design Library*, *Shared Services*, and *Artemis Markdown* subsystems are not shown in the figure. More information on the iOS core module (`ios-core-module`) can be found [here](https://github.com/ls1intum/artemis-ios-core-modules/blob/main/README.md)
+This section examines the subsystem decomposition of the `App`, as depicted in the referenced figure (`app-subsystem`).
+The primary focus is identifying all `App` subsystems and their usage of the [Core Module](https://github.com/ls1intum/artemis-ios-core-modules/blob/main/README.md).
+Subsystems part of the `Core Module` are highlighted in green, and arrows illustrate relationships between subsystems.
+For the sake of simplicity, we do not show all `Core Module` subsystems.
+Therefore the *User Session Store*, *Common Utility*, *Artemis Profile Info*, *API Client*, *Shared Models*, *Design Library*, *Shared Services*, and *Artemis Markdown* subsystems are not shown in the figure.
+More information on the iOS core module (`ios-core-module`) can be found [here](https://github.com/ls1intum/artemis-ios-core-modules/blob/main/README.md).
 
 The *Course Overview* subsystem serves as the app's home screen and thus encompasses all other subsystems. Consequently, it has a dependency on the *Account*, *Course Registration*, *Notifications*, and *Course View* subsystems.
 
