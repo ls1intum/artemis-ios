@@ -1,6 +1,7 @@
 # Artemis iOS
 
-The Artemis iOS application aims to replace the current Artemis web platform for iPhone users, providing a more user-friendly interface. The application includes features such as course details, the respective lecture and exercise overview, exercise participation, and instant messaging. 
+The Artemis iOS application aims to replace the current Artemis web platform for iPhone users, providing a more user-friendly interface.
+The application includes features such as course details, the respective lecture and exercise overview, exercise participation, and instant messaging. 
 
 ## Architecture
 
