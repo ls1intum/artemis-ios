@@ -59,17 +59,19 @@ private struct CourseRegistrationListCell: View {
     let course: Course
 
     var body: some View {
-        VStack(spacing: .m) {
-            VStack(alignment: .leading) {
-                Text(course.title ?? R.string.localizable.unknown())
-                    .font(.title2)
-                Text(course.description ?? R.string.localizable.unknown())
-                    .font(.caption)
+        if let title = course.title,
+           let description = course.description {
+            VStack(spacing: .m) {
+                VStack(alignment: .leading) {
+                    Text(title)
+                        .font(.title2)
+                    Text(description)
+                        .font(.caption)
+                }
+                Button(R.string.localizable.course_registration_register_button()) {
+                    showSignUpAlert = true
+                }.buttonStyle(ArtemisButton())
             }
-            Button(R.string.localizable.course_registration_register_button()) {
-                showSignUpAlert = true
-            }.buttonStyle(ArtemisButton())
-        }
             .padding(.m)
             .frame(maxWidth: .infinity)
             .cardModifier()
@@ -84,5 +86,8 @@ private struct CourseRegistrationListCell: View {
                     showSignUpAlert = false
                 }
             })
+        } else {
+            EmptyView()
+        }
     }
 }

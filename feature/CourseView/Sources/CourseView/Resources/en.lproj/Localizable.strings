@@ -47,7 +47,20 @@
 "showFeedback" = "Show Feedback";
 "exerciseParticipationHint" = "Participating in exercises is currently not possible in the mobile app";
 
+// MARK: LectureDetailView
+"attachmentCouldNotBeOpened" = "Attachment could not be opened!";
+"description" = "Description";
+"openLink" = "Open Link";
+"linkCouldNotBeLoaded" = "Link can not be loaded";
+"openVideo" = "Open Video";
+"videoCanNotBeLoaded" = "Video url can not be loaded";
+"notReleased" = "Not released";
+"exercisecouldNotBeLoaded" = "Exercise could not be loaded";
+"version" = "Version";
+"date" = "Date";
+"lectureUnits" = "Lecture Units";
+"attachments" = "Attachments";
+
 // MARK: General
 "loading" = "Loading...";
 "close" = "Close";
-"unknown" = "Unknown";

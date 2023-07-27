@@ -235,9 +235,11 @@ private struct SendMessageExercisePicker: View {
 
     var body: some View {
         List(course.exercises ?? []) { exercise in
-            Button(exercise.baseExercise.title ?? R.string.localizable.unknown()) {
-                appendMarkdown(for: exercise)
-                dismiss()
+            if let title = exercise.baseExercise.title {
+                Button(title) {
+                    appendMarkdown(for: exercise)
+                    dismiss()
+                }
             }
         }
     }
@@ -259,9 +261,10 @@ private struct SendMessageExercisePicker: View {
             type = nil
         }
 
-        guard let type else { return }
+        guard let type,
+              let title = exercise.baseExercise.title else { return }
 
-        text.append("[\(type)]\(exercise.baseExercise.title ?? R.string.localizable.unknown())(/courses/\(course.id)/exercises/\(exercise.id))[/\(type)]")
+        text.append("[\(type)]\(title)(/courses/\(course.id)/exercises/\(exercise.id))[/\(type)]")
     }
 }
 
@@ -275,9 +278,11 @@ private struct SendMessageLecturePicker: View {
 
     var body: some View {
         List(course.lectures ?? [], id: \.id) { lecture in
-            Button(lecture.title ?? R.string.localizable.unknown()) {
-                text.append("[lecture]\(lecture.title ?? R.string.localizable.unknown())(/courses/\(course.id)/lectures/\(lecture.id))[/lecture]")
-                dismiss()
+            if let title = lecture.title {
+                Button(title) {
+                    text.append("[lecture]\(title)(/courses/\(course.id)/lectures/\(lecture.id))[/lecture]")
+                    dismiss()
+                }
             }
         }
     }

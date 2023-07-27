@@ -131,7 +131,7 @@ struct ExerciseListCell: View {
                     .scaledToFit()
                     .foregroundColor(Color.Artemis.primaryLabel)
                     .frame(width: .smallImage)
-                Text(exercise.baseExercise.title ?? R.string.localizable.unknown())
+                Text(exercise.baseExercise.title ?? "")
                     .font(.title3)
                 Spacer()
             }

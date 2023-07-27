@@ -30,7 +30,7 @@ public struct LectureDetailView: View {
                 HStack {
                     VStack(alignment: .leading, spacing: .l) {
                         if let startDate = lecture.startDate {
-                            Text("Date")
+                            Text(R.string.localizable.date())
                                 .font(.headline)
                             HStack {
                                 Text("\(startDate.shortDateAndTime)")
@@ -40,19 +40,19 @@ public struct LectureDetailView: View {
                             }
                         }
                         if let description = lecture.description {
-                            Text("Description")
+                            Text(R.string.localizable.description())
                                 .font(.headline)
                             ArtemisMarkdownView(string: description)
                         }
                         if let lectureUnits = lecture.lectureUnits {
-                            Text("Lecture Units")
+                            Text(R.string.localizable.lectureUnits())
                                 .font(.headline)
                             ForEach(lectureUnits, id: \.id) { lectureUnit in
                                 LectureUnitCell(viewModel: viewModel, lectureUnit: lectureUnit)
                             }
                         }
                         if let attachments = lecture.attachments {
-                            Text("Attachments")
+                            Text(R.string.localizable.attachments())
                                 .font(.headline)
                             ForEach(attachments, id: \.id) { attachment in
                                 AttachmentCell(attachment: attachment)
@@ -64,7 +64,7 @@ public struct LectureDetailView: View {
                 }.padding(.l)
             }
         }
-            .navigationTitle(viewModel.lecture.value?.title ?? "Loading...")
+            .navigationTitle(viewModel.lecture.value?.title ?? R.string.localizable.loading())
             .navigationBarTitleDisplayMode(.inline)
             .task {
                 await viewModel.loadLecture()
@@ -91,7 +91,9 @@ private struct AttachmentCell: View {
         }, label: {
             VStack(alignment: .leading) {
                 HStack {
-                    Text(attachment.baseAttachment.name ?? "Unknown")
+                    if let name = attachment.baseAttachment.name {
+                        Text(name)
+                    }
                     if let pathExtension {
                         Chip(text: pathExtension, backgroundColor: .Artemis.artemisBlue)
                     }
@@ -100,10 +102,10 @@ private struct AttachmentCell: View {
                     HStack(spacing: 0) {
                         Text("(")
                         if let version = fileAttachment.version {
-                            Text("Version: \(version) -")
+                            Text("\(R.string.localizable.version()): \(version) -")
                         }
                         if let uploadDate = fileAttachment.uploadDate {
-                            Text("Date: \(uploadDate.shortDateAndTime)")
+                            Text("\(R.string.localizable.date()): \(uploadDate.shortDateAndTime)")
                         }
                         Text(")")
                     }
@@ -132,12 +134,11 @@ private struct LectureUnitCell: View {
                    let course = viewModel.course.value {
                     ExerciseListCell(course: course, exercise: exercise)
                 } else {
-                    Text("Exercise could not be loaded")
+                    Text(R.string.localizable.exercisecouldNotBeLoaded())
                         .artemisStyleCard()
                 }
             case .unknown:
-                Text("Unknown Lecutre Unit Type")
-                    .artemisStyleCard()
+                EmptyView()
             default:
                 BaseLectureUnitCell(viewModel: viewModel, lectureUnit: lectureUnit)
             }
@@ -181,13 +182,13 @@ struct BaseLectureUnitCell: View {
                 .foregroundColor(Color.Artemis.primaryLabel)
                 .frame(width: .smallImage)
 
-            Text(lectureUnit.baseUnit.name ?? "Unknown")
+            Text(lectureUnit.baseUnit.name ?? "")
                 .font(.title3)
 
             Spacer()
 
             if !(lectureUnit.baseUnit.visibleToStudents ?? false) {
-                Chip(text: "Not released", backgroundColor: .Artemis.badgeWarningColor)
+                Chip(text: R.string.localizable.notReleased(), backgroundColor: .Artemis.badgeWarningColor)
             } else {
                 if isLoading {
                     ProgressView()
@@ -215,14 +216,14 @@ struct BaseLectureUnitCell: View {
                         case .online(let lectureUnit):
                             OnlineUnitSheetContent(onlineUnit: lectureUnit)
                         case .unknown, .exercise:
-                            Text("Unknown Lecture Unit Type")
+                            EmptyView()
                         }
                     }
-                        .navigationTitle(lectureUnit.baseUnit.name ?? "Unknown")
+                        .navigationTitle(lectureUnit.baseUnit.name ?? "")
                         .navigationBarTitleDisplayMode(.inline)
                         .toolbar {
                             ToolbarItem(placement: .cancellationAction) {
-                                Button("Close") {
+                                Button(R.string.localizable.close()) {
                                     showDetails = false
                                 }
                             }
@@ -255,43 +256,11 @@ struct AttachmentUnitSheetContent: View {
     @State private var showAttachment = false
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading) {
-                HStack {
-                    VStack(alignment: .leading) {
-                        if let description = attachmentUnit.description {
-                            Text("Description")
-                                .font(.headline)
-                            Text(description)
-                            Spacer()
-                        }
-                        if let fileAttachment = attachmentUnit.attachment?.baseAttachment as? FileAttachment {
-                            if let uploadDate = fileAttachment.uploadDate?.shortDateAndTime {
-                                Text("Upload Date: \(uploadDate)")
-                            }
-                            if let version = fileAttachment.version {
-                                Text("Version: \(version)")
-                            }
-                            if let name = fileAttachment.name {
-                                Text("Filename: \(name)")
-                            }
-                        }
-                    }
-                    Spacer()
-                }
-                if attachmentUnit.attachment != nil {
-                    Button("Open File") {
-                        showAttachment = true
-                    }
-                        .buttonStyle(ArtemisButton())
-                } else {
-                    Text("Attachment can not be loaded")
-                }
-            }.padding(.l)
-        }.sheet(isPresented: $showAttachment) {
-            if let attachment = attachmentUnit.attachment {
-                LectureAttachmentSheet(attachment: attachment)
-            }
+        if let attachment = attachmentUnit.attachment {
+            LectureAttachmentSheet(attachment: attachment)
+        } else {
+            Text(R.string.localizable.attachmentCouldNotBeOpened())
+                .foregroundColor(.red)
         }
     }
 }
@@ -306,7 +275,7 @@ struct OnlineUnitSheetContent: View {
                 if let description = onlineUnit.description {
                     HStack {
                         VStack(alignment: .leading) {
-                            Text("Description")
+                            Text(R.string.localizable.description())
                                 .font(.headline)
                             Text(description)
                         }
@@ -315,10 +284,11 @@ struct OnlineUnitSheetContent: View {
                 }
                 if let source = onlineUnit.source,
                    let url = URL(string: source) {
-                    Link("Open Link", destination: url)
+                    Link(R.string.localizable.openLink(), destination: url)
                         .buttonStyle(ArtemisButton())
                 } else {
-                    Text("Link can not be loaded")
+                    Text(R.string.localizable.linkCouldNotBeLoaded())
+                        .foregroundColor(.red)
                 }
             }.padding(.l)
         }
@@ -335,7 +305,7 @@ struct VideoUnitSheetContent: View {
                 if let description = videoUnit.description {
                     HStack {
                         VStack(alignment: .leading) {
-                            Text("Description")
+                            Text(R.string.localizable.description())
                                 .font(.headline)
                             Text(description)
                         }
@@ -344,10 +314,11 @@ struct VideoUnitSheetContent: View {
                 }
                 if let source = videoUnit.source,
                    let url = URL(string: source) {
-                    Link("Open Video", destination: url)
+                    Link(R.string.localizable.openVideo(), destination: url)
                         .buttonStyle(ArtemisButton())
                 } else {
-                    Text("Video url can not be loaded")
+                    Text(R.string.localizable.videoCanNotBeLoaded())
+                        .foregroundColor(.red)
                 }
             }.padding(.l)
         }
