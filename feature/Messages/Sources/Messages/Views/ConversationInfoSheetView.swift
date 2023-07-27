@@ -176,13 +176,14 @@ struct ConversationInfoSheetView: View {
                     DataStateView(data: $viewModel.members,
                                   retryHandler: { await viewModel.loadMembers(for: course.id, conversationId: conversation.id) }) { members in
                         ForEach(members, id: \.id) { member in
-                            HStack {
-                                Text(member.name ?? R.string.localizable.unknown())
-                                Spacer()
-                                if UserSession.shared.user?.login == member.login {
-                                    Chip(text: R.string.localizable.youLabel(), backgroundColor: .Artemis.artemisBlue)
+                            if let name = member.name {
+                                HStack {
+                                    Text(name)
+                                    Spacer()
+                                    if UserSession.shared.user?.login == member.login {
+                                        Chip(text: R.string.localizable.youLabel(), backgroundColor: .Artemis.artemisBlue)
+                                    }
                                 }
-                            }
                                 .contextMenu {
                                     if UserSession.shared.user?.login != member.login,
                                        canRemoveUsers {
@@ -204,6 +205,7 @@ struct ConversationInfoSheetView: View {
                                         }
                                     }
                                 }
+                            }
                         }
                     }
                 }, header: {
@@ -266,38 +268,47 @@ private struct InfoSection: View {
 
     var body: some View {
         if let conversation = conversation.value {
-            channelSections
-            if let groupChat = conversation.baseConversation as? GroupChat {
-                Section(R.string.localizable.nameLabel()) {
-                    HStack {
-                        Text(groupChat.name ?? R.string.localizable.noNameSet())
-                        if groupChat.isMember ?? false {
-                            Spacer()
-                            Button(action: { showChangeNameAlert = true }, label: {
-                                Image(systemName: "pencil")
-                            })
+            Group {
+                channelSections
+                if let groupChat = conversation.baseConversation as? GroupChat {
+                    Section(R.string.localizable.nameLabel()) {
+                        HStack {
+                            Text(groupChat.name ?? R.string.localizable.noNameSet())
+                            if groupChat.isMember ?? false {
+                                Spacer()
+                                Button(action: { showChangeNameAlert = true }, label: {
+                                    Image(systemName: "pencil")
+                                })
+                            }
                         }
                     }
                 }
-            }
-            Section(R.string.localizable.moreInfoLabel()) {
-                Text(R.string.localizable.createdByLabel(conversation.baseConversation.creator?.name ?? R.string.localizable.unknown()))
-                Text(R.string.localizable.createdOnLabel(conversation.baseConversation.creationDate?.mediumDateShortTime ?? R.string.localizable.unknown()))
-            }
-                .onAppear {
-                    newName = conversation.baseConversation.conversationName
-                }
-                .alert(R.string.localizable.editNameTitle(), isPresented: $showChangeNameAlert) {
-                    TextField(R.string.localizable.newNameLabel(), text: $newName)
-                    Button(R.string.localizable.ok()) {
-                        viewModel.isLoading = true
-                        Task(priority: .userInitiated) {
-                            self.conversation = await viewModel.editName(for: course.id, conversation: conversation, newName: newName)
+                if conversation.baseConversation.creator?.name != nil || conversation.baseConversation.creationDate != nil {
+                    Section(R.string.localizable.moreInfoLabel()) {
+                        if let creator = conversation.baseConversation.creator?.name {
+                            Text(R.string.localizable.createdByLabel(creator))
                         }
+                        if let creationDate = conversation.baseConversation.creationDate {
+                            Text(R.string.localizable.createdOnLabel(creationDate.mediumDateShortTime))
+                        }
+
                     }
-                    Button(R.string.localizable.cancel(), role: .cancel) { }
                 }
-                .textCase(nil)
+            }
+            .onAppear {
+                newName = conversation.baseConversation.conversationName
+            }
+            .alert(R.string.localizable.editNameTitle(), isPresented: $showChangeNameAlert) {
+                TextField(R.string.localizable.newNameLabel(), text: $newName)
+                Button(R.string.localizable.ok()) {
+                    viewModel.isLoading = true
+                    Task(priority: .userInitiated) {
+                        self.conversation = await viewModel.editName(for: course.id, conversation: conversation, newName: newName)
+                    }
+                }
+                Button(R.string.localizable.cancel(), role: .cancel) { }
+            }
+            .textCase(nil)
         }
     }
 

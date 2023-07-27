@@ -58,6 +58,15 @@ public struct ExerciseDetailView: View {
         return (score * maxPoints / 100).clean
     }
 
+    private var showFeedbackButton: Bool {
+        switch exercise.value {
+        case .fileUpload, .modeling, .programming, .text:
+            return true
+        default:
+            return false
+        }
+    }
+
     public var body: some View {
         DataStateView(data: $exercise, retryHandler: { await loadExercise() }) { exercise in
             ScrollView {
@@ -78,10 +87,14 @@ public struct ExerciseDetailView: View {
                             if exercise.baseExercise.includedInOverallScore != .includedCompletly {
                                 Chip(text: exercise.baseExercise.includedInOverallScore.description, backgroundColor: exercise.baseExercise.includedInOverallScore.color)
                             }
-                            Text(R.string.localizable.assessment(exercise.baseExercise.assessmentType?.description ?? R.string.localizable.unknown()))
+                            if let assessmentType = exercise.baseExercise.assessmentType?.description {
+                                Text(R.string.localizable.assessment(assessmentType))
+                            }
                         }
                         SubmissionResultStatusView(exercise: exercise)
-                        if let latestResultId, let participationId {
+                        if let latestResultId,
+                           let participationId,
+                           showFeedbackButton {
                             Button(R.string.localizable.showFeedback()) {
                                 showFeedback = true
                             }
@@ -114,7 +127,7 @@ public struct ExerciseDetailView: View {
                             .scaledToFit()
                             .foregroundColor(Color.Artemis.primaryLabel)
                             .frame(width: .smallImage)
-                        Text(exercise.baseExercise.title ?? R.string.localizable.unknown())
+                        Text(exercise.baseExercise.title ?? "")
                             .font(.headline)
                     }
                 }
