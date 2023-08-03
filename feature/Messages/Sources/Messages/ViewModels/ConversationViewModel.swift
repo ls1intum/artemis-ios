@@ -61,13 +61,13 @@ public class ConversationViewModel: BaseViewModel {
         if ArtemisStompClient.shared.didSubscribeTopic(topic) {
             return
         }
-        websocketSubscriptionTask = Task {
+        websocketSubscriptionTask = Task { [weak self] in
             let stream = ArtemisStompClient.shared.subscribe(to: topic)
 
             for await message in stream {
                 guard let messageWebsocketDTO = JSONDecoder.getTypeFromSocketMessage(type: MessageWebsocketDTO.self, message: message) else { continue }
 
-                onMessageReceived(messageWebsocketDTO: messageWebsocketDTO)
+                self?.onMessageReceived(messageWebsocketDTO: messageWebsocketDTO)
             }
         }
     }
