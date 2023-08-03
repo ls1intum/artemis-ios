@@ -199,64 +199,44 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
     }
 
     private func subscribeToTutorialGroupNotificationUpdates() async {
-        let tutorialGroups = await getTutorialGroupsForNotifications()
-        switch tutorialGroups {
-        case .loading:
+        guard let userId = UserSession.shared.user?.id else {
+            log.debug("User could not be found. Subscribe to UserNotifications not possible")
             return
-        case .failure(let error):
-            log.error("Could not subscribe to tutorial group notifications: \(error.localizedDescription)")
-        case .done(let tutorialGroups):
-            await subscribeToTutorialGroupNotificationUpdates(tutorialGroups: tutorialGroups)
         }
-    }
 
-    private func subscribeToTutorialGroupNotificationUpdates(tutorialGroups: [TutorialGroup]) async {
-        for tutorialGroup in tutorialGroups {
-            let tutorialGroupTopic = "/topic/tutorial-group/\(tutorialGroup.id)/notifications"
-            if !contains(topic: tutorialGroupTopic) {
-                let stream = subscribe(to: tutorialGroupTopic)
-                let task = Task {
-                    for await message in stream {
-                        guard let notification = JSONDecoder.getTypeFromSocketMessage(type: Notification.self, message: message) else { continue }
-                        continuation?.yield(notification)
-                    }
-                }
-                addTask(task)
+        let topic = "/topic/user/\(userId)/notifications/tutorial-groups"
+        let stream = subscribe(to: topic)
+        
+        let task = Task {
+            for await message in stream {
+                guard let notification = JSONDecoder.getTypeFromSocketMessage(type: Notification.self, message: message) else { continue }
+                continuation?.yield(notification)
             }
         }
+        addTask(task)
     }
 
     private func subscribeToConversationNotificationUpdates() async {
-        let conversations = await getConversationsForNotifications()
-        switch conversations {
-        case .loading:
+        guard let userId = UserSession.shared.user?.id else {
+            log.debug("User could not be found. Subscribe to UserNotifications not possible")
             return
-        case .failure(let error):
-            log.error("Could not subscribe to conversations notifications: \(error.localizedDescription)")
-        case .done(let conversations):
-            subscribeToConversationNotificationUpdates(conversations: conversations)
         }
-    }
 
-    private func subscribeToConversationNotificationUpdates(conversations: [Conversation]) {
-        for conversation in conversations {
-            let conversationTopic = "/topic/conversation/\(conversation.id)/notifications"
-            if !contains(topic: conversationTopic) {
-                let stream = subscribe(to: conversationTopic)
-                let task = Task {
-                    for await message in stream {
-                        guard let notification = JSONDecoder.getTypeFromSocketMessage(type: Notification.self, message: message),
-                              let userId = UserSession.shared.user?.id else { continue }
+        let topic = "/topic/user/\(userId)/notifications/conversations"
+        let stream = subscribe(to: topic)
+        
+        let task = Task {
+            for await message in stream {
+                guard let notification = JSONDecoder.getTypeFromSocketMessage(type: Notification.self, message: message),
+                      let userId = UserSession.shared.user?.id else { continue }
 
-                        // Only add notification if it is not from the current user
-                        if notification.author?.id != userId {
-                            continuation?.yield(notification)
-                        }
-                    }
+                // Only add notification if it is not from the current user
+                if notification.author?.id != userId {
+                    continuation?.yield(notification)
                 }
-                addTask(task)
             }
         }
+        addTask(task)
     }
 
     private func contains(topic: String) -> Bool {
@@ -297,52 +277,6 @@ extension NotificationWebsocketServiceImpl {
 
     internal func getCoursesForNotifications() async -> DataState<[Course]> {
         let result = await client.sendRequest(GetCoursesForNotificationsRequest())
-
-        switch result {
-        case .success((let response, _)):
-            return .done(response: response)
-        case .failure(let error):
-            return .failure(error: UserFacingError(error: error))
-        }
-    }
-
-    struct GetTutorialGroupsForNotificationsRequest: APIRequest {
-        typealias Response = [TutorialGroup]
-
-        var method: HTTPMethod {
-            return .get
-        }
-
-        var resourceName: String {
-            return "api/tutorial-groups/for-notifications"
-        }
-    }
-
-    internal func getTutorialGroupsForNotifications() async -> DataState<[TutorialGroup]> {
-        let result = await client.sendRequest(GetTutorialGroupsForNotificationsRequest())
-
-        switch result {
-        case .success((let response, _)):
-            return .done(response: response)
-        case .failure(let error):
-            return .failure(error: UserFacingError(error: error))
-        }
-    }
-
-    struct GetConversationsForNotificationsRequest: APIRequest {
-        typealias Response = [Conversation]
-
-        var method: HTTPMethod {
-            return .get
-        }
-
-        var resourceName: String {
-            return "api/courses/conversations-for-notifications"
-        }
-    }
-
-    internal func getConversationsForNotifications() async -> DataState<[Conversation]> {
-        let result = await client.sendRequest(GetConversationsForNotificationsRequest())
 
         switch result {
         case .success((let response, _)):
