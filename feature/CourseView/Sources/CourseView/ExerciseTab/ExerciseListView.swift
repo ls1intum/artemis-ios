@@ -143,6 +143,11 @@ struct ExerciseListCell: View {
             SubmissionResultStatusView(exercise: exercise)
             ScrollView(.horizontal) {
                 LazyHGrid(rows: rows, spacing: .s) {
+                    Button {
+                        //
+                    } label: {
+                        Chip(text: "Start", backgroundColor: Color.Artemis.primaryButtonColor)
+                    }
                     if let releaseDate = exercise.baseExercise.releaseDate,
                        releaseDate > .now {
                         Chip(text: R.string.localizable.notReleased(),
@@ -150,10 +155,6 @@ struct ExerciseListCell: View {
                     }
                     ForEach(exercise.baseExercise.categories ?? [], id: \.category) { category in
                         Chip(text: category.category, backgroundColor: UIColor(hexString: category.colorCode).suColor)
-                    }
-                    // TODO: maybe add isActiveQuiz in presentationMode badge
-                    if let difficulty = exercise.baseExercise.difficulty {
-                        Chip(text: difficulty.description, backgroundColor: difficulty.color)
                     }
                     if exercise.baseExercise.includedInOverallScore != .includedCompletly {
                         Chip(text: exercise.baseExercise.includedInOverallScore.description, backgroundColor: exercise.baseExercise.includedInOverallScore.color)
@@ -206,4 +207,29 @@ private struct WeeklyExerciseId: Identifiable, Hashable {
 private struct WeeklyExercise: Identifiable, Hashable {
     let id: WeeklyExerciseId
     var exercises: [Exercise]
+}
+
+struct MyPreviewProvider_Previews: PreviewProvider {
+    static var previews: some View {
+        List {
+            ExerciseListSection(
+                course: .init(
+                    id: 0,
+                    courseInformationSharingConfiguration: .communicationAndMessaging),
+                weeklyExercise: .init(
+                    id: .init(week: 2, year: 2023),
+                    exercises: [
+                        {
+                            var e = TextExercise(id: 1)
+                            e.title = "Hello, world!"
+                            
+                            e.categories = []
+                            e.difficulty = .EASY
+                            e.includedInOverallScore = .includedAsBonus
+                            return .text(exercise: e)
+                        }()
+                    ]))
+        }
+        .listStyle(.plain)
+    }
 }

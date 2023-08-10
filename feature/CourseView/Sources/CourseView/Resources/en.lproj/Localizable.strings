@@ -6,6 +6,7 @@
 // MARK: SubmissionResultStatusView
 "userNotAssignedToTeam" = "You have not been assigned to a team yet.";
 "userNotStartedExercise" = "You have not started this exercise yet.";
+"userNotStartedExerciseShort" = "Not yet started.";
 "exerciseMissedDeadline" = "You have missed the deadline.";
 "exerciseNotSubmitted" = "No Submission";
 "userSubmitted" = "You have already submitted.";

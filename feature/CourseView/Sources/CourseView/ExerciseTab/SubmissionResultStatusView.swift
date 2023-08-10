@@ -59,7 +59,7 @@ struct SubmissionResultStatusView: View {
             result.append(R.string.localizable.userNotAssignedToTeam())
         }
         if isUninitialized {
-            result.append(R.string.localizable.userNotStartedExercise())
+            result.append(R.string.localizable.userNotStartedExerciseShort())
         }
         if exerciseMissedDeadline {
             result.append(R.string.localizable.exerciseMissedDeadline())

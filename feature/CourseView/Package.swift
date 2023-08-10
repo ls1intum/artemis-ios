@@ -28,10 +28,11 @@ let package = Package(
             name: "CourseView",
             dependencies: [
                 .product(name: "APIClient", package: "artemis-ios-core-modules"),
-                .product(name: "SharedModels", package: "artemis-ios-core-modules"),
-                .product(name: "UserStore", package: "artemis-ios-core-modules"),
                 .product(name: "ArtemisMarkdown", package: "artemis-ios-core-modules"),
+                .product(name: "Common", package: "artemis-ios-core-modules"),
+                .product(name: "SharedModels", package: "artemis-ios-core-modules"),
                 .product(name: "SharedServices", package: "artemis-ios-core-modules"),
+                .product(name: "UserStore", package: "artemis-ios-core-modules"),
                 "Navigation",
                 "Messages",
                 .product(name: "RswiftLibrary", package: "R.swift")
