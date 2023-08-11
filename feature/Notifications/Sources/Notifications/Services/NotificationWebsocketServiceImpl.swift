@@ -200,7 +200,7 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
 
     private func subscribeToTutorialGroupNotificationUpdates() async {
         guard let userId = UserSession.shared.user?.id else {
-            log.debug("User could not be found. Subscribe to UserNotifications not possible")
+            log.debug("User could not be found. Subscription to UserNotifications is not possible")
             return
         }
 
@@ -218,7 +218,7 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
 
     private func subscribeToConversationNotificationUpdates() async {
         guard let userId = UserSession.shared.user?.id else {
-            log.debug("User could not be found. Subscribe to UserNotifications not possible")
+log.debug("User could not be found. Subscription to UserNotifications is not possible")
             return
         }
 
