@@ -1,15 +1,6 @@
 {
   "pins" : [
     {
-      "identity" : "artemis-ios-core-modules",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/ls1intum/artemis-ios-core-modules",
-      "state" : {
-        "revision" : "aa5eacbcfcb432f4fffd616d129aed6d8e984cf3",
-        "version" : "2.3.8"
-      }
-    },
-    {
       "identity" : "collectionconcurrencykit",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/JohnSundell/CollectionConcurrencyKit.git",
@@ -41,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/onevcat/Kingfisher.git",
       "state" : {
-        "revision" : "c1f60c63f356d364f4284ba82961acbe7de79bcc",
-        "version" : "7.8.1"
+        "revision" : "c75584ac759cbb16b204d0a7de3ebf53ea6b304d",
+        "version" : "7.9.0"
       }
     },
     {
