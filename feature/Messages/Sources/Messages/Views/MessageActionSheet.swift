@@ -73,14 +73,6 @@ struct MessageActionSheet: View {
                 }, label: {
                     ButtonContent(title: R.string.localizable.copyText(), icon: "clipboard.fill")
                 })
-                Divider()
-                Button {
-                    //
-                } label: {
-                    ButtonContent(title: "Report Post", icon: "exclamationmark.bubble.fill")
-                        .foregroundColor(.red)
-                }
-
 
                 editDeleteSection
 
@@ -288,20 +280,5 @@ private struct EmojiPickerButton: View {
                     }
                 }
             }
-    }
-}
-
-struct MessageActionSheet_Previews: PreviewProvider {
-    static var previews: some View {
-//        MessageActionSheet(
-//            viewModel: .init(
-//                course: .init(
-//                    id: 1,
-//                    courseInformationSharingConfiguration: .communicationAndMessaging),
-//                conversation: .unknown(
-//                    conversation: .init(from: <#T##Decoder#>))),
-//            message: .constant(.loading),
-//            conversationPath: ConversationPath?.none)
-        Text("Hello, world!")
     }
 }
