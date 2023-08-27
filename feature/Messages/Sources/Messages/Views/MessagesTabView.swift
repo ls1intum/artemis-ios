@@ -10,19 +10,12 @@ import DesignLibrary
 import Common
 import SharedModels
 import Navigation
-import MarkdownUI
 
 public struct MessagesTabView: View {
 
     @StateObject private var viewModel: MessagesTabViewModel
 
     @Binding private var searchText: String
-    
-    @State
-    private var codeOfConduct: String = ""
-    
-    @Binding
-    private var isAccepted: Bool
 
     private var searchResults: [Conversation] {
         if searchText.isEmpty {
@@ -31,34 +24,12 @@ public struct MessagesTabView: View {
         return (viewModel.allConversations.value ?? []).filter { $0.baseConversation.conversationName.lowercased().contains(searchText.lowercased()) }
     }
 
-    public init(searchText: Binding<String>, course: Course, isAccepted: Binding<Bool>) {
+    public init(searchText: Binding<String>, course: Course) {
         self._searchText = searchText
         self._viewModel = StateObject(wrappedValue: MessagesTabViewModel(course: course))
-        self._isAccepted = isAccepted
     }
 
     public var body: some View {
-        if !isAccepted {
-            ScrollView {
-                Markdown(codeOfConduct)
-                    .task {
-                        do {
-                            let data = try await URLSession.shared.data(
-                                from: URL(string: "https://raw.githubusercontent.com/ls1intum/Artemis/develop/CODE_OF_CONDUCT.md")!)
-                            codeOfConduct = .init(data: data.0, encoding: .utf8) ?? "Error"
-                        } catch {
-                            print(error.localizedDescription)
-                        }
-                    }
-            }
-            .padding()
-        } else {
-            list
-        }
-    }
-    
-    @ViewBuilder
-    private var list: some View {
         List {
             if !searchText.isEmpty {
                 if searchResults.isEmpty {
@@ -362,43 +333,5 @@ private struct Badge: View {
         } else {
             EmptyView()
         }
-    }
-}
-
-struct CodeOfConductView_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack {
-            List {
-                Text("Channel")
-            }
-            Button {
-                //
-            } label: {
-                HStack {
-                    Image(systemName: "info.circle")
-                    Text("Code of Conduct")
-                }
-            }
-        }
-        Text("Hello, world!")
-            .popover(isPresented: .constant(true)) {
-                NavigationStack {
-                        Text("""
-                    Lore ipsum…
-                    
-                    [Contact](mailto:contact@example.com)
-                    """)
-                        .toolbar {
-                            ToolbarItem(placement: .confirmationAction) {
-                                Button {
-                                    //
-                                } label: {
-                                    Text("Done")
-                                }
-                            }
-                        }
-                        .navigationTitle("Code of Conduct")
-                }
-            }
     }
 }
