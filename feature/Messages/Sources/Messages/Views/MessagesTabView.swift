@@ -10,12 +10,22 @@ import DesignLibrary
 import Common
 import SharedModels
 import Navigation
+import MarkdownUI
 
 public struct MessagesTabView: View {
 
     @StateObject private var viewModel: MessagesTabViewModel
 
     @Binding private var searchText: String
+    
+    @State
+    private var codeOfConduct: String = ""
+    
+    @State
+    private var isAccepted: Bool = false
+
+    @State
+    private var isPresented: Bool = false
 
     private var searchResults: [Conversation] {
         if searchText.isEmpty {
@@ -30,6 +40,57 @@ public struct MessagesTabView: View {
     }
 
     public var body: some View {
+        if !isAccepted {
+            ScrollView {
+                Markdown(codeOfConduct)
+                    .task {
+                        do {
+                            let data = try await URLSession.shared.data(
+                                from: URL(string: "https://raw.githubusercontent.com/ls1intum/Artemis/develop/CODE_OF_CONDUCT.md")!)
+                            codeOfConduct = .init(data: data.0, encoding: .utf8) ?? "Error"
+                        } catch {
+                            print(error.localizedDescription)
+                        }
+                    }
+                Button("Accept") {
+                    isAccepted = true
+                }
+                .buttonStyle(.borderedProminent)
+            }
+            .padding()
+        } else {
+            list
+                .sheet(isPresented: $isPresented) {
+                    NavigationStack {
+                        ScrollView {
+                            Markdown(codeOfConduct)
+                                .task {
+                                    do {
+                                        let data = try await URLSession.shared.data(
+                                            from: URL(string: "https://raw.githubusercontent.com/ls1intum/Artemis/develop/CODE_OF_CONDUCT.md")!)
+                                        codeOfConduct = .init(data: data.0, encoding: .utf8) ?? "Error"
+                                    } catch {
+                                        print(error.localizedDescription)
+                                    }
+                                }
+                        }
+                        .padding()
+                        .toolbar {
+                            ToolbarItem(placement: .confirmationAction) {
+                                Button {
+                                    isPresented = false
+                                } label: {
+                                    Text("Done")
+                                }
+                            }
+                        }
+                    }
+                }
+        }
+    }
+    
+    @ViewBuilder
+    private var list: some View {
         List {
             if !searchText.isEmpty {
                 if searchResults.isEmpty {
@@ -84,6 +145,18 @@ public struct MessagesTabView: View {
                                         conversations: $viewModel.hiddenConversations,
                                         sectionTitle: R.string.localizable.hiddenSection(),
                                         isExpanded: false)
+                    HStack {
+                        Spacer()
+                        Button {
+                            isPresented = true
+                        } label: {
+                            HStack {
+                                Image(systemName: "info.circle")
+                                Text("Code of Conduct")
+                            }
+                        }
+                        Spacer()
+                    }
                 }
                     .listRowSeparator(.visible, edges: .top)
                     .listRowInsets(EdgeInsets(top: .s, leading: .l, bottom: .s, trailing: .l))

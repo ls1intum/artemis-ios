@@ -53,9 +53,23 @@ public struct CourseView: View {
         }
             .navigationTitle(viewModel.course.value?.title ?? R.string.localizable.loading())
             .navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $searchText)
+            .modifier(SearchableIf(condition: navigationController.courseTab != .communication, text: $searchText))
             .onChange(of: navigationController.courseTab) { _ in
                 searchText = ""
             }
+    }
+}
+
+struct SearchableIf: ViewModifier {
+    let condition: Bool
+    let text: Binding<String>
+
+    func body(content: Content) -> some View {
+        if condition {
+            content
+                .searchable(text: text)
+        } else {
+            content
+        }
     }
 }
