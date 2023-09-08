@@ -97,6 +97,44 @@ class MessagesServiceImpl: MessagesService {
         }
     }
 
+    struct GetIsCodeOfConductAcceptedRequest: APIRequest {
+        typealias Response = Bool
+
+        let courseId: Int
+
+        var method: HTTPMethod { .get }
+        var resourceName: String { "api/courses/\(courseId)/code-of-conduct"}
+    }
+
+    func getIsCodeOfConductAccepted(for courseId: Int) async -> DataState<Bool> {
+        let result = await client.sendRequest(GetIsCodeOfConductAcceptedRequest(courseId: courseId))
+        switch result {
+        case let .success((value, _)):
+            return .done(response: value)
+        case let .failure(error):
+            return .init(error: error)
+        }
+    }
+
+    struct AcceptCodeOfConductRequest: APIRequest {
+        typealias Response = RawResponse
+
+        let courseId: Int
+
+        var method: HTTPMethod { .post }
+        var resourceName: String { "api/courses/\(courseId)/code-of-conduct"}
+    }
+
+    func acceptCodeOfConduct(for courseId: Int) async -> NetworkResponse {
+        let result = await client.sendRequest(AcceptCodeOfConductRequest(courseId: courseId))
+        switch result {
+        case .success:
+            return .success
+        case let .failure(error):
+            return .failure(error: error)
+        }
+    }
+
     struct GetMessagesRequest: APIRequest {
         typealias Response = [Message]
 

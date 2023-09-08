@@ -17,15 +17,8 @@ public struct MessagesTabView: View {
     @StateObject private var viewModel: MessagesTabViewModel
 
     @Binding private var searchText: String
-    
-    @State
-    private var codeOfConduct: String = ""
-    
-    @State
-    private var isAccepted: Bool = false
 
-    @State
-    private var isPresented: Bool = false
+    @State private var isCodeOfConductPresented: Bool = false
 
     private var searchResults: [Conversation] {
         if searchText.isEmpty {
@@ -40,52 +33,41 @@ public struct MessagesTabView: View {
     }
 
     public var body: some View {
-        if !isAccepted {
-            ScrollView {
-                Markdown(codeOfConduct)
-                    .task {
-                        do {
-                            let data = try await URLSession.shared.data(
-                                from: URL(string: "https://raw.githubusercontent.com/ls1intum/Artemis/develop/CODE_OF_CONDUCT.md")!)
-                            codeOfConduct = .init(data: data.0, encoding: .utf8) ?? "Error"
-                        } catch {
-                            print(error.localizedDescription)
+        Group {
+            if !(viewModel.isCodeOfConductAccepted.value ?? false) {
+                ScrollView {
+                    Markdown(viewModel.course.courseInformationSharingMessagingCodeOfConduct ?? "")
+                    Button(R.string.localizable.acceptCodeOfConductButtonLabel()) {
+                        Task {
+                            await viewModel.acceptCodeOfConduct()
                         }
                     }
-                Button("Accept") {
-                    isAccepted = true
+                    .buttonStyle(ArtemisButton())
                 }
-                .buttonStyle(.borderedProminent)
-            }
-            .padding()
-        } else {
-            list
-                .sheet(isPresented: $isPresented) {
-                    NavigationStack {
-                        ScrollView {
-                            Markdown(codeOfConduct)
-                                .task {
-                                    do {
-                                        let data = try await URLSession.shared.data(
-                                            from: URL(string: "https://raw.githubusercontent.com/ls1intum/Artemis/develop/CODE_OF_CONDUCT.md")!)
-                                        codeOfConduct = .init(data: data.0, encoding: .utf8) ?? "Error"
-                                    } catch {
-                                        print(error.localizedDescription)
+                .padding()
+            } else {
+                list
+                    .sheet(isPresented: $isCodeOfConductPresented) {
+                        NavigationStack {
+                            ScrollView {
+                                Markdown(viewModel.course.courseInformationSharingMessagingCodeOfConduct ?? "")
+                            }
+                            .padding()
+                            .toolbar {
+                                ToolbarItem(placement: .confirmationAction) {
+                                    Button {
+                                        isCodeOfConductPresented = false
+                                    } label: {
+                                        Text(R.string.localizable.done())
                                     }
-                                }
-                        }
-                        .padding()
-                        .toolbar {
-                            ToolbarItem(placement: .confirmationAction) {
-                                Button {
-                                    isPresented = false
-                                } label: {
-                                    Text("Done")
                                 }
                             }
                         }
                     }
-                }
+            }
+        }
+        .task {
+            await viewModel.isCodeOfConductAccepted()
         }
     }
     
@@ -148,11 +130,11 @@ public struct MessagesTabView: View {
                     HStack {
                         Spacer()
                         Button {
-                            isPresented = true
+                            isCodeOfConductPresented = true
                         } label: {
                             HStack {
                                 Image(systemName: "info.circle")
-                                Text("Code of Conduct")
+                                Text(R.string.localizable.codeOfConduct())
                             }
                         }
                         Spacer()

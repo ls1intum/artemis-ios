@@ -24,6 +24,8 @@ class MessagesTabViewModel: BaseViewModel {
 
     @Published var hiddenConversations: DataState<[Conversation]> = .loading
 
+    @Published var isCodeOfConductAccepted: DataState<Bool> = .loading
+
     @Published var channels: DataState<[Channel]> = .loading
     @Published var exercises: DataState<[Channel]> = .loading
     @Published var lectures: DataState<[Channel]> = .loading
@@ -88,6 +90,31 @@ class MessagesTabViewModel: BaseViewModel {
             isLoading = false
         case .success:
             await loadConversations()
+            isLoading = false
+        case .failure(let error):
+            isLoading = false
+            if let apiClientError = error as? APIClientError {
+                presentError(userFacingError: UserFacingError(error: apiClientError))
+            } else {
+                presentError(userFacingError: UserFacingError(title: error.localizedDescription))
+            }
+        }
+    }
+
+    func isCodeOfConductAccepted() async {
+        isLoading = true
+        isCodeOfConductAccepted = await MessagesServiceFactory.shared.getIsCodeOfConductAccepted(for: courseId)
+        isLoading = false
+    }
+
+    func acceptCodeOfConduct() async {
+        isLoading = true
+        let result = await MessagesServiceFactory.shared.acceptCodeOfConduct(for: courseId)
+        switch result {
+        case .notStarted, .loading:
+            isLoading = false
+        case .success:
+            isCodeOfConductAccepted = .done(response: true)
             isLoading = false
         case .failure(let error):
             isLoading = false
