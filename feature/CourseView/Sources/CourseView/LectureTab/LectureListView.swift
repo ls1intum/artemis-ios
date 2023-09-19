@@ -72,7 +72,7 @@ struct LectureListView: View {
                 }
             }
                 .listStyle(PlainListStyle())
-                .onChange(of: weeklyLectures) { newValue in
+                .onChange(of: weeklyLectures) { _, newValue in
                     withAnimation {
                         if let id = newValue.first(where: { $0.lectures.first?.startDate ?? .tomorrow > .now })?.id {
                             value.scrollTo(id, anchor: .top)

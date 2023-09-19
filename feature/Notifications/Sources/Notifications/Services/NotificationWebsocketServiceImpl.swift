@@ -206,7 +206,7 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
 
         let topic = "/topic/user/\(userId)/notifications/tutorial-groups"
         let stream = subscribe(to: topic)
-        
+
         let task = Task {
             for await message in stream {
                 guard let notification = JSONDecoder.getTypeFromSocketMessage(type: Notification.self, message: message) else { continue }
@@ -224,7 +224,7 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
 
         let topic = "/topic/user/\(userId)/notifications/conversations"
         let stream = subscribe(to: topic)
-        
+
         let task = Task {
             for await message in stream {
                 guard let notification = JSONDecoder.getTypeFromSocketMessage(type: Notification.self, message: message),

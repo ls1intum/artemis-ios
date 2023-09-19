@@ -291,7 +291,6 @@ private struct InfoSection: View {
                         if let creationDate = conversation.baseConversation.creationDate {
                             Text(R.string.localizable.createdOnLabel(creationDate.mediumDateShortTime))
                         }
-
                     }
                 }
             }

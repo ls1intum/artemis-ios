@@ -111,7 +111,7 @@ public struct MessageDetailView: View {
                                     .onAppear {
                                         value.scrollTo("bottom", anchor: .bottom)
                                     }
-                                    .onChange(of: message.answers) { _ in
+                                    .onChange(of: message.answers) {
                                         withAnimation {
                                             if let id = viewModel.shouldScrollToId {
                                                 value.scrollTo(id, anchor: .bottom)

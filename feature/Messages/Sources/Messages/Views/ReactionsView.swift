@@ -146,7 +146,7 @@ private struct EmojiPickerButton: View {
                         .navigationBarTitleDisplayMode(.inline)
                 }
             }
-            .onChange(of: selectedEmoji) { newEmoji in
+            .onChange(of: selectedEmoji) { _, newEmoji in
                 if let newEmoji,
                    let emojiId = Smile.alias(emoji: newEmoji.value) {
                     Task {
