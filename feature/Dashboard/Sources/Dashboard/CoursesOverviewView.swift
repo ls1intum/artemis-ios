@@ -13,12 +13,18 @@ import Notifications
  */
 public struct CoursesOverviewView: View {
 
-    @StateObject private var viewModel = CoursesOverviewViewModel()
+    @StateObject private var viewModel: CoursesOverviewViewModel
 
     @State private var showCourseRegistrationSheet = false
     @State private var showNotificationSheet = false
 
-    public init() { }
+    public init() { 
+        _viewModel = .init(wrappedValue: CoursesOverviewViewModel())
+    }
+
+    init(viewModel: CoursesOverviewViewModel) {
+        _viewModel = .init(wrappedValue: viewModel)
+    }
 
     public var body: some View {
         VStack(alignment: .center) {
@@ -27,7 +33,8 @@ public struct CoursesOverviewView: View {
                 List {
                     Group {
                         ForEach(coursesForDashboard) { courseForDashboard in
-                            CourseListCell(courseForDashboard: courseForDashboard)
+                            CourseListCell(courseForDashboard: courseForDashboard,
+                                           courseIconURLForCourse: viewModel.courseIconURL(for:))
                         }
                         Button(R.string.localizable.dasboard_register_for_course()) {
                             showCourseRegistrationSheet = true
@@ -68,6 +75,8 @@ private struct CourseListCell: View {
 
     let courseForDashboard: CourseForDashboard
 
+    let courseIconURLForCourse: (Course) -> URL?
+
     var nextExercise: Exercise? {
         // filters out every already successful (100%) exercise, only exercises left that still need work
         let exercisesWithOpenTasks = courseForDashboard.course.upcomingExercises.filter { exercise in
@@ -82,7 +91,7 @@ private struct CourseListCell: View {
                 Spacer()
                 VStack(alignment: .leading, spacing: 0) {
                     HStack(alignment: .center) {
-                        if let url = courseForDashboard.course.courseIconURL {
+                        if let url = courseIconURLForCourse(courseForDashboard.course) {
                             ArtemisAsyncImage(imageURL: url) {
                                 Image("questionmark.square.dashed")
                             }

@@ -5,9 +5,11 @@
 //  Created by TUM School on 24.09.23.
 //
 
-import Foundation
-
+import Common
+import Dependencies
+import SharedModels
 import SharedServices
+import SwiftUI
 
 struct CoursesOverviewView_Previews: PreviewProvider {
 
@@ -23,7 +25,7 @@ struct CoursesOverviewView_Previews: PreviewProvider {
                         .programming(exercise: {
                             var exercise = ProgrammingExercise(id: 1)
                             exercise.title = "Basic Operators"
-                            exercise.dueDate = .now.advanced(by: 1)
+                            exercise.dueDate = .now.advanced(by: 42)
                             return exercise
                         }()),
                         .text(exercise: {
