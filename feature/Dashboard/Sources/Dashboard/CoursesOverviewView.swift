@@ -8,25 +8,17 @@ import CourseView
 import Account
 import Notifications
 
-import Dependencies
-
 /**
  * Display the course overview with the course list.
  */
 public struct CoursesOverviewView: View {
 
-    @StateObject private var viewModel: CoursesOverviewViewModel
+    @StateObject private var viewModel = CoursesOverviewViewModel()
 
     @State private var showCourseRegistrationSheet = false
     @State private var showNotificationSheet = false
 
-    public init() { 
-        _viewModel = .init(wrappedValue: CoursesOverviewViewModel())
-    }
-
-    init(viewModel: CoursesOverviewViewModel) {
-        _viewModel = .init(wrappedValue: viewModel)
-    }
+    public init() { }
 
     public var body: some View {
         VStack(alignment: .center) {
@@ -35,8 +27,7 @@ public struct CoursesOverviewView: View {
                 List {
                     Group {
                         ForEach(coursesForDashboard) { courseForDashboard in
-                            CourseListCell(courseForDashboard: courseForDashboard,
-                                           courseIconURLForCourse: viewModel.courseIconURL(for:))
+                            CourseListCell(courseForDashboard: courseForDashboard)
                         }
                         Button(R.string.localizable.dasboard_register_for_course()) {
                             showCourseRegistrationSheet = true
@@ -77,8 +68,6 @@ private struct CourseListCell: View {
 
     let courseForDashboard: CourseForDashboard
 
-    let courseIconURLForCourse: (Course) -> URL?
-
     var nextExercise: Exercise? {
         // filters out every already successful (100%) exercise, only exercises left that still need work
         let exercisesWithOpenTasks = courseForDashboard.course.upcomingExercises.filter { exercise in
@@ -93,7 +82,7 @@ private struct CourseListCell: View {
                 Spacer()
                 VStack(alignment: .leading, spacing: 0) {
                     HStack(alignment: .center) {
-                        if let url = courseIconURLForCourse(courseForDashboard.course) {
+                        if let url = courseForDashboard.course.courseIconURL {
                             ArtemisAsyncImage(imageURL: url) {
                                 Image("questionmark.square.dashed")
                             }
@@ -162,102 +151,6 @@ private struct CourseListCell: View {
             }
         } else {
             EmptyView()
-        }
-    }
-}
-
-import SharedServices
-
-struct CoursesOverviewView_Previews: PreviewProvider {
-
-    struct CourseServiceStub: CourseService {
-
-        private let course = {
-            var course = CourseForDashboard(
-                course: .init(
-                    id: 1,
-                    title: "The Swift Programming Language",
-                    courseIcon: "stub",
-                    exercises: [
-                        .programming(exercise: {
-                            var exercise = ProgrammingExercise(id: 1)
-                            exercise.title = "Basic Operators"
-                            exercise.dueDate = .now.advanced(by: 1)
-                            return exercise
-                        }()),
-                        .text(exercise: {
-                            TextExercise(id: 1)
-                        }()),
-                    ],
-                    courseInformationSharingConfiguration: .communicationAndMessaging),
-                totalScores: .init(
-                    maxPoints: 0,
-                    reachablePoints: 5, // denominator
-                    studentScores: .init(
-                        absoluteScore: 3, // numerator
-                        relativeScore: 0,
-                        currentRelativeScore: 0,
-                        presentationScore: 0)))
-            course.course.lectures = [
-                .init(
-                    id: 1,
-                    title: nil,
-                    description: nil,
-                    startDate: nil,
-                    endDate: nil,
-                    attachments: nil,
-                    lectureUnits: nil
-                ),
-                .init(
-                    id: 2,
-                    title: nil,
-                    description: nil,
-                    startDate: nil,
-                    endDate: nil,
-                    attachments: nil,
-                    lectureUnits: nil
-                ),
-                .init(
-                    id: 3,
-                    title: nil,
-                    description: nil,
-                    startDate: nil,
-                    endDate: nil,
-                    attachments: nil,
-                    lectureUnits: nil
-                ),
-            ]
-            return course
-        }()
-
-        func getCourses() async -> Common.DataState<[SharedModels.CourseForDashboard]> {
-            .done(response: [course])
-        }
-
-        func getCourse(courseId: Int) async -> Common.DataState<SharedModels.CourseForDashboard> {
-            .done(response: course)
-        }
-
-        func getCourseForAssessment(courseId: Int) async -> Common.DataState<SharedModels.Course> {
-            .done(response: course.course)
-        }
-
-        func courseIconURL(for course: Course) -> URL? {
-            URL(string: "https://raw.githubusercontent.com/ls1intum/Artemis/develop/src/main/resources/public/images/logo.png")
-        }
-    }
-
-    static var previews: some View {
-        NavigationStack {
-            withDependencies { values in
-                values.courseService = CourseServiceStub()
-            } operation: {
-                CoursesOverviewView(viewModel: withDependencies({ values in
-                    values.courseService = CourseServiceStub()
-                }, operation: {
-                    CoursesOverviewViewModel()
-                }))
-            }
         }
     }
 }

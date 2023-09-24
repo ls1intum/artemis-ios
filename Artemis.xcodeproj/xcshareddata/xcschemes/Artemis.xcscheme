@@ -28,28 +28,6 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "A1EB4A5C2AB252BA00456043"
-               BuildableName = "ArtemisUITests.xctest"
-               BlueprintName = "ArtemisUITests"
-               ReferencedContainer = "container:Artemis.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "A1EB4A6E2AB254F700456043"
-               BuildableName = "ArtemisTests.xctest"
-               BlueprintName = "ArtemisTests"
-               ReferencedContainer = "container:Artemis.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
