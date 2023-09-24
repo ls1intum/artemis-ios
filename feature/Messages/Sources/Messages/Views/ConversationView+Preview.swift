@@ -7,6 +7,7 @@
 
 import Common
 import Dependencies
+import Navigation
 import SharedModels
 import SharedServices
 import SwiftUI
@@ -174,6 +175,7 @@ struct ConversationView_Previews: PreviewProvider {
             }))
             .navigationTitle("Basic Operators")
             .navigationBarTitleDisplayMode(.inline)
+            .environmentObject(NavigationController())
         }
     }
 }
