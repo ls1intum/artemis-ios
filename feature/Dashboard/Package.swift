@@ -23,6 +23,9 @@ let package = Package(
         .package(path: "../CourseView"),
         .package(url: "https://github.com/mac-cain13/R.swift.git", from: "7.0.0"),
         .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.0.0"),
+        .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.0.0"),
+        // Fix error in SwiftStomp
+        .package(url: "https://github.com/daltoniam/Starscream.git", exact: "4.0.4"),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -41,6 +44,7 @@ let package = Package(
                 "CourseView",
                 .product(name: "RswiftLibrary", package: "R.swift"),
                 .product(name: "Dependencies", package: "swift-dependencies"),
+                .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
             ],
             plugins: [.plugin(name: "RswiftGeneratePublicResources", package: "R.swift")]
         ),
