@@ -31,6 +31,10 @@ public struct ConversationView: View {
         _viewModel = StateObject(wrappedValue: ConversationViewModel(courseId: courseId, conversationId: conversationId))
     }
 
+    init(viewModel: ConversationViewModel) {
+        _viewModel = .init(wrappedValue: viewModel)
+    }
+
     private var conversationPath: ConversationPath {
         if let conversation = viewModel.conversation.value {
             return ConversationPath(conversation: conversation, coursePath: CoursePath(id: viewModel.courseId))

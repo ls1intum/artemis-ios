@@ -10,10 +10,13 @@ import Common
 import SharedModels
 import APIClient
 import SharedServices
+import Dependencies
 
 // swiftlint:disable file_length
 @MainActor
 public class ConversationViewModel: BaseViewModel {
+
+    @Dependency(\.messagesService) private var messagesService
 
     @Published var dailyMessages: DataState<[Date: [Message]]> = .loading
     @Published var conversation: DataState<Conversation> = .loading
@@ -84,7 +87,7 @@ public class ConversationViewModel: BaseViewModel {
     }
 
     func loadMessages() async {
-        let result = await MessagesServiceFactory.shared.getMessages(for: courseId, and: conversationId, size: size)
+        let result = await messagesService.getMessages(for: courseId, and: conversationId, size: size)
 
         switch result {
         case .loading:
@@ -111,7 +114,7 @@ public class ConversationViewModel: BaseViewModel {
 
     func loadMessage(messageId: Int64) async -> DataState<Message> {
         // TODO: add API to only load one single message
-        let result = await MessagesServiceFactory.shared.getMessages(for: courseId, and: conversationId, size: size)
+        let result = await messagesService.getMessages(for: courseId, and: conversationId, size: size)
 
         switch result {
         case .loading:
@@ -128,7 +131,7 @@ public class ConversationViewModel: BaseViewModel {
 
     func loadAnswerMessage(answerMessageId: Int64) async -> DataState<AnswerMessage> {
         // TODO: add API to only load one single answer message
-        let result = await MessagesServiceFactory.shared.getMessages(for: courseId, and: conversationId, size: size)
+        let result = await messagesService.getMessages(for: courseId, and: conversationId, size: size)
 
         switch result {
         case .loading:
@@ -151,7 +154,7 @@ public class ConversationViewModel: BaseViewModel {
             return .failure(error: error)
         }
         isLoading = true
-        let result = await MessagesServiceFactory.shared.sendMessage(for: courseId, conversation: conversation, content: text)
+        let result = await messagesService.sendMessage(for: courseId, conversation: conversation, content: text)
         switch result {
         case .notStarted, .loading:
             isLoading = false
@@ -172,7 +175,7 @@ public class ConversationViewModel: BaseViewModel {
 
     func sendAnswerMessage(text: String, for message: Message, completion: () async -> Void) async -> NetworkResponse {
         isLoading = true
-        let result = await MessagesServiceFactory.shared.sendAnswerMessage(for: courseId, message: message, content: text)
+        let result = await messagesService.sendAnswerMessage(for: courseId, message: message, content: text)
         switch result {
         case .notStarted, .loading:
             isLoading = false
@@ -194,9 +197,9 @@ public class ConversationViewModel: BaseViewModel {
         isLoading = true
         let result: NetworkResponse
         if let reaction = message.getReactionFromMe(emojiId: emojiId) {
-            result = await MessagesServiceFactory.shared.removeReactionFromMessage(for: courseId, reaction: reaction)
+            result = await messagesService.removeReactionFromMessage(for: courseId, reaction: reaction)
         } else {
-            result = await MessagesServiceFactory.shared.addReactionToMessage(for: courseId, message: message, emojiId: emojiId)
+            result = await messagesService.addReactionToMessage(for: courseId, message: message, emojiId: emojiId)
         }
         switch result {
         case .notStarted, .loading:
@@ -225,9 +228,9 @@ public class ConversationViewModel: BaseViewModel {
         isLoading = true
         let result: NetworkResponse
         if let reaction = message.getReactionFromMe(emojiId: emojiId) {
-            result = await MessagesServiceFactory.shared.removeReactionFromMessage(for: courseId, reaction: reaction)
+            result = await messagesService.removeReactionFromMessage(for: courseId, reaction: reaction)
         } else {
-            result = await MessagesServiceFactory.shared.addReactionToAnswerMessage(for: courseId, answerMessage: message, emojiId: emojiId)
+            result = await messagesService.addReactionToAnswerMessage(for: courseId, answerMessage: message, emojiId: emojiId)
         }
         switch result {
         case .notStarted, .loading:
@@ -258,7 +261,7 @@ public class ConversationViewModel: BaseViewModel {
             return false
         }
 
-        let result = await MessagesServiceFactory.shared.deleteMessage(for: courseId, messageId: messageId)
+        let result = await messagesService.deleteMessage(for: courseId, messageId: messageId)
 
         switch result {
         case .notStarted, .loading:
@@ -278,7 +281,7 @@ public class ConversationViewModel: BaseViewModel {
             return false
         }
 
-        let result = await MessagesServiceFactory.shared.deleteAnswerMessage(for: courseId, anserMessageId: messageId)
+        let result = await messagesService.deleteAnswerMessage(for: courseId, anserMessageId: messageId)
 
         switch result {
         case .notStarted, .loading:
@@ -293,7 +296,7 @@ public class ConversationViewModel: BaseViewModel {
     }
 
     func editMessage(message: Message) async -> Bool {
-        let result = await MessagesServiceFactory.shared.editMessage(for: courseId, message: message)
+        let result = await messagesService.editMessage(for: courseId, message: message)
 
         switch result {
         case .notStarted, .loading:
@@ -308,7 +311,7 @@ public class ConversationViewModel: BaseViewModel {
     }
 
     func editAnswerMessage(answerMessage: AnswerMessage) async -> Bool {
-        let result = await MessagesServiceFactory.shared.editAnswerMessage(for: courseId, answerMessage: answerMessage)
+        let result = await messagesService.editAnswerMessage(for: courseId, answerMessage: answerMessage)
 
         switch result {
         case .notStarted, .loading:
@@ -323,7 +326,7 @@ public class ConversationViewModel: BaseViewModel {
     }
 
     private func loadConversation() async {
-        let result = await MessagesServiceFactory.shared.getConversations(for: courseId)
+        let result = await messagesService.getConversations(for: courseId)
 
         switch result {
         case .loading:
@@ -426,5 +429,26 @@ extension ConversationViewModel {
 
         shouldScrollToId = nil
         self.dailyMessages = .done(response: dailyMessages)
+    }
+}
+
+// MARK: - MessagesService
+
+enum MessagesServiceKey: DependencyKey {
+    typealias Value = MessagesService
+
+    static var liveValue: Value {
+        MessagesServiceFactory.shared
+    }
+}
+
+extension DependencyValues {
+    var messagesService: MessagesService {
+        get {
+            self[MessagesServiceKey.self]
+        }
+        set {
+            self[MessagesServiceKey.self] = newValue
+        }
     }
 }
