@@ -140,7 +140,7 @@ struct ExerciseListCell: View {
             } else {
                 Text(R.string.localizable.noDueDate())
             }
-            SubmissionResultStatusView(exercise: exercise)
+            SubmissionResultStatusView(exercise: exercise) // a
             ScrollView(.horizontal) {
                 LazyHGrid(rows: rows, spacing: .s) {
                     if let releaseDate = exercise.baseExercise.releaseDate,

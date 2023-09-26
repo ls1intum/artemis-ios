@@ -10,7 +10,7 @@ class CourseViewModel: ObservableObject {
 
     init(courseId: Int) {
         Task {
-            await loadCourse(id: courseId)
+//            await loadCourse(id: courseId)
         }
     }
 

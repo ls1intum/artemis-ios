@@ -92,13 +92,15 @@ struct SubmissionResultStatusView: View {
     var body: some View {
         if let studentParticipation,
            !(studentParticipation.results ?? []).isEmpty {
-            SubmissionResultView(exercise: exercise,
+            Color.green
+            SubmissionResultView(exercise: exercise, // b
                                  participation: studentParticipation,
                                  result: result,
                                  missingResultInfo: .noInformation,
                                  isBuilding: false,
                                  short: true)
         } else {
+            Color.red
             VStack(alignment: .leading) {
                 ForEach(text, id: \.self) { text in
                     Text(text)

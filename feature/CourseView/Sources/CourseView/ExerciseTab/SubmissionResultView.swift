@@ -123,7 +123,7 @@ struct SubmissionResultView: View {
                     .scaledToFit()
                     .frame(width: .extraSmallImage)
             }
-            Text(text)
+            Text(text) // c
         }.foregroundColor(templateStatus.getColor(for: result))
     }
 }
