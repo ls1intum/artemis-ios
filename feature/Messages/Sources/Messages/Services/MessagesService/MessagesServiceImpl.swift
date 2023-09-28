@@ -136,7 +136,7 @@ class MessagesServiceImpl: MessagesService {
     }
 
     struct GetCodeOfConductResponsibleUsersRequest: APIRequest {
-        typealias Response = [User]
+        typealias Response = [ResponsibleUserDTO]
 
         let courseId: Int
 
@@ -144,7 +144,7 @@ class MessagesServiceImpl: MessagesService {
         var resourceName: String { "api/courses/\(courseId)/code-of-conduct/responsible-users" }
     }
 
-    func getCodeOfConductResponsibleUsers(for courseId: Int) async -> DataState<[User]> {
+    func getCodeOfConductResponsibleUsers(for courseId: Int) async -> DataState<[ResponsibleUserDTO]> {
         let result = await client.sendRequest(GetCodeOfConductResponsibleUsersRequest(courseId: courseId))
         switch result {
         case .success(let (users, _)):

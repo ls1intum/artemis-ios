@@ -41,7 +41,7 @@ protocol MessagesService {
     /**
      * Perform a get request for
      */
-    func getCodeOfConductResponsibleUsers(for courseId: Int) async -> DataState<[User]>
+    func getCodeOfConductResponsibleUsers(for courseId: Int) async -> DataState<[ResponsibleUserDTO]>
 
     /**
      * Perform a get request for Messages of a specific conversation in a specific course to the server.
