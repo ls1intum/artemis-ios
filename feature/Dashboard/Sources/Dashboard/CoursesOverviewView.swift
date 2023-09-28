@@ -29,10 +29,14 @@ public struct CoursesOverviewView: View {
                         ForEach(coursesForDashboard) { courseForDashboard in
                             CourseListCell(courseForDashboard: courseForDashboard)
                         }
-                        Button(R.string.localizable.dasboard_register_for_course()) {
-                            showCourseRegistrationSheet = true
-                        }
+                        HStack {
+                            Spacer()
+                            Button(R.string.localizable.dasboard_register_for_course()) {
+                                showCourseRegistrationSheet = true
+                            }
                             .buttonStyle(ArtemisButton())
+                            Spacer()
+                        }
                     }
                     .listRowSeparator(.hidden)
                 }
