@@ -43,9 +43,17 @@ struct LectureListView: View {
             }
         }
 
-        return groupedDates.map { week in
-            WeeklyLecture(id: week.key, lectures: week.value.sorted(by: { $0.title?.lowercased() ?? "" < $1.title?.lowercased() ?? "" }))
-        }.sorted(by: { $0.id.startOfWeek ?? .distantFuture < $1.id.startOfWeek ?? .distantFuture })
+        let weeklyLectures = groupedDates
+            .map { week in
+                let lectures = week.value.sorted(by: {
+                    $0.title?.lowercased() ?? "" < $1.title?.lowercased() ?? ""
+                })
+                return WeeklyLecture(id: week.key, lectures: lectures)
+            }
+            .sorted(by: {
+                $0.id.startOfWeek ?? .distantFuture < $1.id.startOfWeek ?? .distantFuture
+            })
+        return weeklyLectures
     }
 
     var body: some View {
