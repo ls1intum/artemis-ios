@@ -103,7 +103,7 @@ class MessagesTabViewModel: BaseViewModel {
 
     func isCodeOfConductAccepted() async {
         isLoading = true
-        isCodeOfConductAccepted = await MessagesServiceFactory.shared.getIsCodeOfConductAccepted(for: courseId)
+        isCodeOfConductAccepted = await MessagesServiceFactory.shared.getCodeOfConductAgreement(for: courseId)
         isLoading = false
     }
 

@@ -31,12 +31,17 @@ protocol MessagesService {
     /**
      * Perform a get request to check if the code of conduct is accepted.
      */
-    func getIsCodeOfConductAccepted(for courseId: Int) async -> DataState<Bool>
+    func getCodeOfConductAgreement(for courseId: Int) async -> DataState<Bool>
 
     /**
-     * Perform a post request to accept the code of conduct.
+     * Perform a path request to accept the code of conduct.
      */
     func acceptCodeOfConduct(for courseId: Int) async -> NetworkResponse
+
+    /**
+     * Perform a get request for
+     */
+    func getCodeOfConductResponsibleUsers(for courseId: Int) async -> DataState<[User]>
 
     /**
      * Perform a get request for Messages of a specific conversation in a specific course to the server.

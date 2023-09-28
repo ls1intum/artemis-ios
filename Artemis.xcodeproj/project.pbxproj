@@ -505,8 +505,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/ls1intum/artemis-ios-core-modules";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 3.5.0;
+				branch = "bugfix/general/http-request-methods";
+				kind = branch;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

@@ -97,21 +97,21 @@ class MessagesServiceImpl: MessagesService {
         }
     }
 
-    struct GetIsCodeOfConductAcceptedRequest: APIRequest {
+    struct GetCodeOfConductAgreementRequest: APIRequest {
         typealias Response = Bool
 
         let courseId: Int
 
         var method: HTTPMethod { .get }
-        var resourceName: String { "api/courses/\(courseId)/code-of-conduct"}
+        var resourceName: String { "api/courses/\(courseId)/code-of-conduct/agreement"}
     }
 
-    func getIsCodeOfConductAccepted(for courseId: Int) async -> DataState<Bool> {
-        let result = await client.sendRequest(GetIsCodeOfConductAcceptedRequest(courseId: courseId))
+    func getCodeOfConductAgreement(for courseId: Int) async -> DataState<Bool> {
+        let result = await client.sendRequest(GetCodeOfConductAgreementRequest(courseId: courseId))
         switch result {
-        case let .success((value, _)):
+        case .success(let (value, _)):
             return .done(response: value)
-        case let .failure(error):
+        case .failure(let error):
             return .init(error: error)
         }
     }
@@ -121,8 +121,8 @@ class MessagesServiceImpl: MessagesService {
 
         let courseId: Int
 
-        var method: HTTPMethod { .post }
-        var resourceName: String { "api/courses/\(courseId)/code-of-conduct"}
+        var method: HTTPMethod { .patch }
+        var resourceName: String { "api/courses/\(courseId)/code-of-conduct/agreement"}
     }
 
     func acceptCodeOfConduct(for courseId: Int) async -> NetworkResponse {
@@ -130,8 +130,27 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case let .failure(error):
+        case .failure(let error):
             return .failure(error: error)
+        }
+    }
+
+    struct GetCodeOfConductResponsibleUsersRequest: APIRequest {
+        typealias Response = [User]
+
+        let courseId: Int
+
+        var method: HTTPMethod { .get }
+        var resourceName: String { "api/courses/\(courseId)/code-of-conduct/responsible-users" }
+    }
+
+    func getCodeOfConductResponsibleUsers(for courseId: Int) async -> DataState<[User]> {
+        let result = await client.sendRequest(GetCodeOfConductResponsibleUsersRequest(courseId: courseId))
+        switch result {
+        case .success(let (users, _)):
+            return .done(response: users)
+        case .failure(let error):
+            return .init(error: error)
         }
     }
 
