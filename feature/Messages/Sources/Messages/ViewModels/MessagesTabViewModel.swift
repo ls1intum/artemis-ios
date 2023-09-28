@@ -24,7 +24,8 @@ class MessagesTabViewModel: BaseViewModel {
 
     @Published var hiddenConversations: DataState<[Conversation]> = .loading
 
-    @Published var isCodeOfConductAccepted: DataState<Bool> = .loading
+    @Published var codeOfConductAgreement: DataState<Bool> = .loading
+    @Published var codeOfConductResonsibleUsers: DataState<[ResponsibleUserDTO]> = .loading
 
     @Published var channels: DataState<[Channel]> = .loading
     @Published var exercises: DataState<[Channel]> = .loading
@@ -103,7 +104,10 @@ class MessagesTabViewModel: BaseViewModel {
 
     func isCodeOfConductAccepted() async {
         isLoading = true
-        isCodeOfConductAccepted = await MessagesServiceFactory.shared.getCodeOfConductAgreement(for: courseId)
+        async let agreement = MessagesServiceFactory.shared.getCodeOfConductAgreement(for: courseId)
+        async let responsibleUsers = MessagesServiceFactory.shared.getCodeOfConductResponsibleUsers(for: courseId)
+        codeOfConductAgreement = await agreement
+        codeOfConductResonsibleUsers = await responsibleUsers
         isLoading = false
     }
 
@@ -114,7 +118,7 @@ class MessagesTabViewModel: BaseViewModel {
         case .notStarted, .loading:
             isLoading = false
         case .success:
-            isCodeOfConductAccepted = .done(response: true)
+            codeOfConductAgreement = .done(response: true)
             isLoading = false
         case .failure(let error):
             isLoading = false

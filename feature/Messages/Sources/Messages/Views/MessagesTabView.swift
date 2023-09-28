@@ -18,7 +18,7 @@ public struct MessagesTabView: View {
 
     @Binding private var searchText: String
 
-    @State private var isCodeOfConductPresented: Bool = false
+    @State private var isCodeOfConductPresented = false
 
     private var searchResults: [Conversation] {
         if searchText.isEmpty {
@@ -34,25 +34,17 @@ public struct MessagesTabView: View {
 
     public var body: some View {
         Group {
-            if !(viewModel.isCodeOfConductAccepted.value ?? false) {
-                ScrollView {
-                    Markdown(viewModel.course.courseInformationSharingMessagingCodeOfConduct ?? "")
-                    Button(R.string.localizable.acceptCodeOfConductButtonLabel()) {
-                        Task {
-                            await viewModel.acceptCodeOfConduct()
-                        }
-                    }
-                    .buttonStyle(ArtemisButton())
-                }
-                .padding()
+            if !(viewModel.codeOfConductAgreement.value ?? false) {
+                CodeOfConductView(codeOfConduct: viewModel.course.courseInformationSharingMessagingCodeOfConduct ?? "",
+                                  responsibleUsers: viewModel.codeOfConductResonsibleUsers.value ?? [],
+                                  acceptAction: viewModel.acceptCodeOfConduct)
             } else {
                 list
                     .sheet(isPresented: $isCodeOfConductPresented) {
                         NavigationStack {
-                            ScrollView {
-                                Markdown(viewModel.course.courseInformationSharingMessagingCodeOfConduct ?? "")
-                            }
-                            .padding()
+                            CodeOfConductView(codeOfConduct: viewModel.course.courseInformationSharingMessagingCodeOfConduct ?? "",
+                                              responsibleUsers: viewModel.codeOfConductResonsibleUsers.value ?? [],
+                                              acceptAction: nil)
                             .toolbar {
                                 ToolbarItem(placement: .confirmationAction) {
                                     Button {
@@ -156,6 +148,43 @@ public struct MessagesTabView: View {
             }
             .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
             .loadingIndicator(isLoading: $viewModel.isLoading)
+    }
+}
+
+private struct CodeOfConductView: View {
+    let codeOfConduct: String
+    let responsibleUsers: [ResponsibleUserDTO]
+    let acceptAction: (() async -> Void)?
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading) {
+                Markdown(codeOfConduct + responsibleUserMarkdown())
+                if let acceptAction {
+                    HStack {
+                        Spacer()
+                        Button {
+                            Task {
+                                await acceptAction()
+                            }
+                        } label: {
+                            Text(R.string.localizable.acceptCodeOfConductButtonLabel())
+                        }
+                        .buttonStyle(ArtemisButton())
+                        Spacer()
+                    }
+                }
+            }
+        }
+        .padding()
+    }
+
+    private func responsibleUserMarkdown() -> String {
+        responsibleUsers
+            .map { user in
+                "- \(user.name) [\(user.email)](mailto:\(user.email))"
+            }
+            .joined(separator: "\n")
     }
 }
 
