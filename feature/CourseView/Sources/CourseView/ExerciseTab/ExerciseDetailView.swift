@@ -66,6 +66,15 @@ public struct ExerciseDetailView: View {
             return false
         }
     }
+    
+    private var canStartExercise: Bool {
+        switch exercise.value {
+        case .modeling:
+            return true
+        default:
+            return false
+        }
+    }
 
     public var body: some View {
         DataStateView(data: $exercise, retryHandler: { await loadExercise() }) { exercise in
@@ -106,7 +115,14 @@ public struct ExerciseDetailView: View {
                                              resultId: latestResultId)
                             }
                         }
-                        ArtemisHintBox(text: R.string.localizable.exerciseParticipationHint(), hintType: .info)
+                        if canStartExercise {
+                            Button(R.string.localizable.startExercise()) {
+                                
+                            }
+                            .buttonStyle(ArtemisButton())
+                        } else {
+                            ArtemisHintBox(text: R.string.localizable.exerciseParticipationHint(), hintType: .info)
+                        }
                     }
                     .padding(.horizontal, .l)
 
