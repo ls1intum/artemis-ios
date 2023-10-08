@@ -104,6 +104,24 @@ public struct ExercisePath: Hashable {
     }
 }
 
+//public struct ModelingExercisePath: Hashable {
+//    public let id: Int
+//    public let participation: Participation?
+//    public let coursePath: CoursePath
+//
+//    init(id: Int, coursePath: CoursePath) {
+//        self.id = id
+//        self.participation = nil
+//        self.coursePath = coursePath
+//    }
+//
+//    public init(participation: Participation, coursePath: CoursePath) {
+//        self.id = participation.id
+//        self.participation = participation
+//        self.coursePath = coursePath
+//    }
+//}
+
 public struct LecturePath: Hashable {
     public let id: Int
     public let lecture: Lecture?
