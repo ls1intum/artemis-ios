@@ -12,10 +12,7 @@ struct ModelingExerciseView: View {
     }
     
     var body: some View {
-        VStack {
-            if let modelType = modelingVM.umlModel?.type?.rawValue {
-                Text(modelType)
-            }
+        ZStack {
             if let model = modelingVM.umlModel, let type = model.type {
                 ApollonEdit(umlModel: model, diagramType: type, fontSize: 14.0, diagramOffset: CGPoint(x: 0, y: 0), isGridBackground: true)
             }

@@ -1,16 +1,12 @@
 import Foundation
-import SwiftUI
-import Combine
 import SharedModels
 import Common
-import APIClient
 import ApollonShared
 
 class ModelingViewModel: ObservableObject {
     @Published var submission: BaseSubmission?
     @Published var umlModel: UMLModel?
     @Published var loading = false
-    @Published var error: Error?
     
     var exercise: Exercise
     var participationId: Int
@@ -28,7 +24,6 @@ class ModelingViewModel: ObservableObject {
         }
         
         loading = true
-        
         defer {
             loading = false
         }
@@ -39,7 +34,6 @@ class ModelingViewModel: ObservableObject {
             let response = try await exerciseService.getLatestSubmission(participationId: participationId)
             self.submission = response.baseSubmission
         } catch {
-            self.error = error
             log.error(String(describing: error))
         }
     }

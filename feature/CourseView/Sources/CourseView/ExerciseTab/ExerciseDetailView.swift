@@ -108,14 +108,8 @@ public struct ExerciseDetailView: View {
                                              resultId: latestResultId)
                             }
                         }
-                        if let modelingExercise = exercise.baseExercise as? ModelingExercise {
-                            if let participationIdUnwrapped = self.participationId {
-                                NavigationLink(destination: ModelingExerciseView(exercise: exercise, participationId: participationIdUnwrapped)) {
-                                    Text(R.string.localizable.startExercise())
-                                }.buttonStyle(ArtemisButton())
-                            }
-                        } else {
-                            ArtemisHintBox(text: R.string.localizable.exerciseParticipationHint(), hintType: .info)
+                        if let participationId {
+                            StartExerciseParticipationButton(exercise: exercise, participationId: participationId)
                         }
                     }
                     .padding(.horizontal, .l)
@@ -198,6 +192,27 @@ private struct FeedbackView: View {
                         }
                     }
                 }
+        }
+    }
+}
+
+private struct StartExerciseParticipationButton: View {
+    private var exercise: Exercise
+    private var participationId: Int
+    
+    init(exercise: Exercise, participationId: Int) {
+        self.exercise = exercise
+        self.participationId = participationId
+    }
+    
+    var body: some View {
+        switch exercise {
+        case .modeling:
+            NavigationLink(destination: ModelingExerciseView(exercise: exercise, participationId: participationId)) {
+                Text(R.string.localizable.openModelingEditor())
+            }.buttonStyle(ArtemisButton())
+        default:
+            ArtemisHintBox(text: R.string.localizable.exerciseParticipationHint(), hintType: .info)
         }
     }
 }

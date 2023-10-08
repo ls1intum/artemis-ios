@@ -46,6 +46,7 @@
 "assessment" = "Assessment: %s";
 "showFeedback" = "Show Feedback";
 "startExercise" = "Start Exercise";
+"openModelingEditor" = "Open modeling editor";
 "exerciseParticipationHint" = "Participating in exercises is currently not possible in the mobile app";
 
 // MARK: LectureDetailView
