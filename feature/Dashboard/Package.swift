@@ -45,6 +45,9 @@ let package = Package(
                 .product(name: "RswiftLibrary", package: "R.swift"),
                 .product(name: "Dependencies", package: "swift-dependencies"),
             ],
+            resources: [
+                .copy("Media"),
+            ],
             plugins: [.plugin(name: "RswiftGeneratePublicResources", package: "R.swift")]
         ),
         .testTarget(
