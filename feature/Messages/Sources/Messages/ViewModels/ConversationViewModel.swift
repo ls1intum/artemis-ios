@@ -49,17 +49,17 @@ public class ConversationViewModel: BaseViewModel {
 
         super.init()
 
-//        Task {
-//            await loadConversation()
-//        }
-//        Task {
-//            await loadCourse()
-//        }
+        Task {
+            await loadConversation()
+        }
+        Task {
+            await loadCourse()
+        }
 
         subscribeToConversationTopic()
     }
 
-    #error("Work in progress")
+    #warning("Work around")
     func start() async {
         await loadConversation()
         await loadCourse()
