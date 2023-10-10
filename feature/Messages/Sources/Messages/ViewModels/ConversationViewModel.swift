@@ -5,12 +5,12 @@
 //  Created by Sven Andabaka on 06.04.23.
 //
 
-import Foundation
-import Common
-import SharedModels
 import APIClient
-import SharedServices
 import Dependencies
+import Common
+import Foundation
+import SharedModels
+import SharedServices
 
 // swiftlint:disable file_length
 @MainActor
@@ -436,26 +436,5 @@ extension ConversationViewModel {
 
         shouldScrollToId = nil
         self.dailyMessages = .done(response: dailyMessages)
-    }
-}
-
-// MARK: - MessagesService
-
-enum MessagesServiceKey: DependencyKey {
-    typealias Value = MessagesService
-
-    static var liveValue: Value {
-        MessagesServiceFactory.shared
-    }
-}
-
-extension DependencyValues {
-    var messagesService: MessagesService {
-        get {
-            self[MessagesServiceKey.self]
-        }
-        set {
-            self[MessagesServiceKey.self] = newValue
-        }
     }
 }

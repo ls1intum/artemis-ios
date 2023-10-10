@@ -13,33 +13,68 @@ import UserStore
 
 struct MessagesServiceStub: MessagesService {
 
-    private static let alice = ConversationUser(
+    private static let me = ConversationUser(
         id: 1,
-        name: "Alice",
+        name: "Me")
+
+    private static let ethan = ConversationUser(
+        id: 2,
+        name: "Ethan Martin",
         isRequestingUser: false)
 
-    private static let bob = ConversationUser(
-        id: 2,
-        name: "Bob")
+    private static let sophia = ConversationUser(
+        id: 3,
+        name: "Sophia Davis",
+        isRequestingUser: false)
 
-    private static let conversation = Conversation(
+    private static let channel1 = Conversation(
+        conversation: Channel(
+            type: .channel,
+            id: 2,
+            unreadMessagesCount: 8,
+            name: "General Course Questions"))!
+
+    private static let channel2 = Conversation(
+        conversation: Channel(
+            type: .channel,
+            id: 3,
+            unreadMessagesCount: 17,
+            name: "Designing a rocket engine - Q&A"))!
+
+    private static let groupChat = Conversation(
+        conversation: GroupChat(
+            type: .groupChat,
+            id: 4,
+            name: "Team Rocket Students"))!
+
+    private static let oneToOneChat1 = Conversation(
         conversation: OneToOneChat(
             type: .oneToOneChat,
             id: 1,
             members: [
-                alice,
-                bob
+                ethan,
+                me,
             ]))!
 
-    static let messages = [
+    private static let oneToOneChat2 = Conversation(
+        conversation: OneToOneChat(
+            type: .oneToOneChat, 
+            id: 5,
+            unreadMessagesCount: 3,
+            members: [
+                sophia,
+                me,
+            ]))!
+
+    private static let messages = [
         Message(
             id: 1,
-            author: alice,
+            author: me,
             creationDate: .now,
             content: "Do you know the difference between `&` and `&&`?"),
         Message(
             id: 2,
-            author: bob,
+            author: ethan,
             creationDate: .now.advanced(by: 1),
             updatedDate: .now.advanced(by: 2),
             // swiftlint:disable:next line_length
@@ -54,7 +89,7 @@ struct MessagesServiceStub: MessagesService {
             ]),
         Message(
             id: 3,
-            author: alice,
+            author: me,
             creationDate: .now.advanced(by: 4),
             content: "Thanks!",
             reactions: [
@@ -65,7 +100,7 @@ struct MessagesServiceStub: MessagesService {
     ]
 
     func getConversations(for courseId: Int) async -> Common.DataState<[SharedModels.Conversation]> {
-        .done(response: [Self.conversation])
+        .done(response: [Self.channel1, Self.channel2, Self.groupChat, Self.oneToOneChat1, Self.oneToOneChat2])
     }
 
     func hideUnhideConversation(for courseId: Int, and conversationId: Int64, isHidden: Bool) async -> Common.NetworkResponse {

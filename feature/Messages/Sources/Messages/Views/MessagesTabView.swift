@@ -29,6 +29,11 @@ public struct MessagesTabView: View {
         self._viewModel = StateObject(wrappedValue: MessagesTabViewModel(course: course))
     }
 
+    init(viewModel: MessagesTabViewModel, searchText: Binding<String>) {
+        self._searchText = searchText
+        self._viewModel = StateObject(wrappedValue: viewModel)
+    }
+
     public var body: some View {
         List {
             if !searchText.isEmpty {

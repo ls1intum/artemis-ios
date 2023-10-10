@@ -5,14 +5,17 @@
 //  Created by Sven Andabaka on 03.04.23.
 //
 
-import Foundation
-import Common
-import SharedModels
 import APIClient
+import Common
+import Dependencies
+import Foundation
+import SharedModels
 import UserStore
 
 @MainActor
 class MessagesTabViewModel: BaseViewModel {
+
+    @Dependency(\.messagesService) private var messagesService
 
     @Published var allConversations: DataState<[Conversation]> = .loading {
         didSet {
@@ -57,13 +60,13 @@ class MessagesTabViewModel: BaseViewModel {
     }
 
     func loadConversations() async {
-        let result = await MessagesServiceFactory.shared.getConversations(for: courseId)
+        let result = await messagesService.getConversations(for: courseId)
         allConversations = result
     }
 
     func hideUnhideConversation(conversationId: Int64, isHidden: Bool) async {
         isLoading = true
-        let result = await MessagesServiceFactory.shared.hideUnhideConversation(for: courseId, and: conversationId, isHidden: isHidden)
+        let result = await messagesService.hideUnhideConversation(for: courseId, and: conversationId, isHidden: isHidden)
         switch result {
         case .notStarted, .loading:
             isLoading = false
@@ -82,7 +85,7 @@ class MessagesTabViewModel: BaseViewModel {
 
     func setIsFavoriteConversation(conversationId: Int64, isFavorite: Bool) async {
         isLoading = true
-        let result = await MessagesServiceFactory.shared.setIsFavoriteConversation(for: courseId, and: conversationId, isFavorite: isFavorite)
+        let result = await messagesService.setIsFavoriteConversation(for: courseId, and: conversationId, isFavorite: isFavorite)
         switch result {
         case .notStarted, .loading:
             isLoading = false

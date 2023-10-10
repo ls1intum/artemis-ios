@@ -5,9 +5,10 @@
 //  Created by Sven Andabaka on 03.04.23.
 //
 
-import Foundation
-import Common
 import APIClient
+import Common
+import Dependencies
+import Foundation
 import SharedModels
 import UserStore
 
@@ -170,4 +171,25 @@ extension MessagesService {
 
 enum MessagesServiceFactory {
     static let shared: MessagesService = MessagesServiceImpl()
+}
+
+// MARK: - MessagesService
+
+enum MessagesServiceKey: DependencyKey {
+    typealias Value = MessagesService
+
+    static var liveValue: Value {
+        MessagesServiceFactory.shared
+    }
+}
+
+extension DependencyValues {
+    var messagesService: MessagesService {
+        get {
+            self[MessagesServiceKey.self]
+        }
+        set {
+            self[MessagesServiceKey.self] = newValue
+        }
+    }
 }
