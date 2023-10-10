@@ -5,12 +5,16 @@
 //  Created by Sven Andabaka on 02.05.23.
 //
 
-import Foundation
 import Common
+import Dependencies
+import Foundation
 import SharedModels
 import SharedServices
 
 class LectureDetailViewModel: BaseViewModel {
+
+    @Dependency(\.courseService) private var courseService
+    @Dependency(\.lectureService) private var lectureService
 
     @Published var lecture: DataState<Lecture> = .loading
     @Published var course: DataState<Course> = .loading
@@ -39,11 +43,11 @@ class LectureDetailViewModel: BaseViewModel {
     }
 
     func loadLecture() async {
-        lecture = await LectureServiceFactory.shared.getLectureDetails(lectureId: lectureId)
+        lecture = await lectureService.getLectureDetails(lectureId: lectureId)
     }
 
     func loadCourse() async {
-        let result = await CourseServiceFactory.shared.getCourse(courseId: courseId)
+        let result = await courseService.getCourse(courseId: courseId)
 
         switch result {
         case .loading:
@@ -56,9 +60,9 @@ class LectureDetailViewModel: BaseViewModel {
     }
 
     func updateLectureUnitCompletion(lectureUnit: LectureUnit, completed: Bool) async -> LectureUnit {
-        let result = await LectureServiceFactory.shared.updateLectureUnitCompletion(lectureId: lectureId,
-                                                                                    lectureUnitId: lectureUnit.id,
-                                                                                    completed: completed)
+        let result = await lectureService.updateLectureUnitCompletion(lectureId: lectureId,
+                                                                      lectureUnitId: lectureUnit.id,
+                                                                      completed: completed)
 
         switch result {
         case .failure(let error):

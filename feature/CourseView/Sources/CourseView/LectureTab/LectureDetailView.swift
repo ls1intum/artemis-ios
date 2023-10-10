@@ -23,6 +23,10 @@ public struct LectureDetailView: View {
         self._viewModel = StateObject(wrappedValue: LectureDetailViewModel(courseId: courseId, lectureId: lectureId))
     }
 
+    init(viewModel: LectureDetailViewModel) {
+        self._viewModel = StateObject(wrappedValue: viewModel)
+    }
+
     public var body: some View {
         DataStateView(data: $viewModel.lecture,
                       retryHandler: { await viewModel.loadLecture() }) { lecture in

@@ -7,6 +7,7 @@
 
 import Foundation
 import Common
+import Dependencies
 import SharedModels
 
 protocol LectureService {
@@ -17,4 +18,25 @@ protocol LectureService {
 
 enum LectureServiceFactory {
     static let shared: LectureService = LectureServiceImpl()
+}
+
+// MARK: - CourseService
+
+enum LectureServiceKey: DependencyKey {
+    typealias Value = LectureService
+
+    static var liveValue: Value {
+        LectureServiceFactory.shared
+    }
+}
+
+extension DependencyValues {
+    var lectureService: LectureService {
+        get {
+            self[LectureServiceKey.self]
+        }
+        set {
+            self[LectureServiceKey.self] = newValue
+        }
+    }
 }
