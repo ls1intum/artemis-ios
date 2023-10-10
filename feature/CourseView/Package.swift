@@ -21,6 +21,8 @@ let package = Package(
         .package(path: "../../core/Navigation"),
         .package(path: "../Messages"),
         .package(url: "https://github.com/mac-cain13/R.swift.git", from: "7.0.0"),
+        .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.0.0"),
+        .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.0.0"),
         // Fix error in SwiftStomp
         .package(url: "https://github.com/daltoniam/Starscream.git", exact: "4.0.4"),
     ],
@@ -37,12 +39,16 @@ let package = Package(
                 .product(name: "SharedServices", package: "artemis-ios-core-modules"),
                 "Navigation",
                 "Messages",
-                .product(name: "RswiftLibrary", package: "R.swift")
+                .product(name: "RswiftLibrary", package: "R.swift"),
+                .product(name: "Dependencies", package: "swift-dependencies"),
             ],
             plugins: [.plugin(name: "RswiftGeneratePublicResources", package: "R.swift")]
         ),
         .testTarget(
             name: "CourseViewTests",
-            dependencies: ["CourseView"])
+            dependencies: [
+                "CourseView",
+                .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
+            ])
     ]
 )

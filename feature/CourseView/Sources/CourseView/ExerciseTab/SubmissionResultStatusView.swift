@@ -100,7 +100,6 @@ struct SubmissionResultStatusView: View {
                                  isBuilding: false,
                                  short: true)
         } else {
-            Color.red
             VStack(alignment: .leading) {
                 ForEach(text, id: \.self) { text in
                     Text(text)
