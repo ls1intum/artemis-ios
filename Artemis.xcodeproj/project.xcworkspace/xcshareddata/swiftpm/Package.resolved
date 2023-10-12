@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ls1intum/artemis-ios-core-modules",
       "state" : {
-        "branch" : "ios17",
-        "revision" : "9b277be435c6c8ed7ac8d657c8bfeb6d103884fc"
+        "revision" : "0ee18cf4fd8b9a716026f32b266a1ca95720774e",
+        "version" : "6.0.0"
       }
     },
     {
@@ -176,8 +176,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/tomlokhorst/XcodeEdit",
       "state" : {
-        "revision" : "221f451cb7432263d3713c877bea10f288b97e78",
-        "version" : "2.9.1"
+        "revision" : "b6b67389a0f1a6fdd9c6457a8ab5b02eaab13c5c",
+        "version" : "2.9.2"
       }
     },
     {
