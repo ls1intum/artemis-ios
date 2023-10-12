@@ -92,7 +92,6 @@ struct SubmissionResultStatusView: View {
     var body: some View {
         if let studentParticipation,
            !(studentParticipation.results ?? []).isEmpty {
-            Color.green
             SubmissionResultView(exercise: exercise,
                                  participation: studentParticipation,
                                  result: result,
