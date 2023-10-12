@@ -30,24 +30,3 @@ class CourseViewModel: ObservableObject {
         }
     }
 }
-
-// MARK: - CourseService
-
-enum CourseServiceKey: DependencyKey {
-    typealias Value = CourseService
-
-    static var liveValue: Value {
-        CourseServiceFactory.shared
-    }
-}
-
-extension DependencyValues {
-    var courseService: CourseService {
-        get {
-            self[CourseServiceKey.self]
-        }
-        set {
-            self[CourseServiceKey.self] = newValue
-        }
-    }
-}

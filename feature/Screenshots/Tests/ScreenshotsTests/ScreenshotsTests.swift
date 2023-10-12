@@ -12,12 +12,41 @@ import XCTest
 final class ScreenshotsTests: XCTestCase {
     let record = true
 
-    func testCourseViewSnapshot() {
+    let configurations: [(name: String, layout: SwiftUISnapshotLayout)] = [
+        ("iPhone13ProMax", .device(config: .iPhone13ProMax)),
+        ("iPhone15ProMax", {
+            var config = ViewImageConfig.iPhone13ProMax
+            config.size = .init(width: 430, height: 932)
+            return .device(config: config)
+        }()),
+        ("iPadPro12_9_portrait", .device(config: .iPadPro12_9(.portrait))),
+    ]
+
+    func testCoursesOverviewViewSnapshot() {
         let viewModel = withDependencies { values in
-//            values.courseService = CourseServiceStub()
+            values.courseService = CourseServiceStub()
+        } operation: {
+            CoursesOverviewViewModel()
+        }
+        let view = NavigationStack {
+            CoursesOverviewView(viewModel: viewModel)
+        }
+            .modifier(AppStorePreview(title: "Manage all of your courses in one app"))
+        for configuration in configurations {
+            assertSnapshot(of: view,
+                           as: .wait(for: 4, on: .image(layout: configuration.layout)),
+                           named: configuration.name,
+                           record: record)
+        }
+    }
+
+    func testExerciseListViewSnapshot() async {
+        let viewModel = withDependencies { values in
+            values.courseService = CourseServiceStub()
         } operation: {
             CourseViewModel(courseId: 1)
         }
+        await viewModel.loadCourse(id: 1)
         let view = NavigationStack {
             CourseView(viewModel: viewModel, courseId: 1)
                 .environmentObject({ () -> NavigationController in
@@ -25,47 +54,40 @@ final class ScreenshotsTests: XCTestCase {
                     navigationController.courseTab = .exercise
                     return navigationController
                 }())
-                .tint(.blue)
         }
-        assertSnapshot(of: view,
-                       as: .wait(for: 1, on: .image(layout: .device(config: .iPhone13ProMax))),
-                       record: record)
+            .modifier(AppStorePreview(title: "Always have an overview of your exercises at hand"))
+        for configuration in configurations {
+            assertSnapshot(of: view,
+                           as: .wait(for: 1, on: .image(layout: configuration.layout)),
+                           named: configuration.name,
+                           record: record)
+        }
     }
 
-    func testExerciseListViewSnapshot() async {
+    func testMessagesTabViewSnapshot() async {
         let viewModel = withDependencies { values in
-//            values.courseService = CourseServiceStub()
+            values.messagesService = MessagesServiceStub()
         } operation: {
-            CourseViewModel(courseId: 1)
+            MessagesTabViewModel(course: .init(
+                id: 1,
+                courseInformationSharingConfiguration: .messagingOnly))
         }
-        await viewModel.loadCourse(id: 1)
+        await viewModel.loadConversations()
         let view = NavigationStack {
-            ExerciseListView(viewModel: viewModel, searchText: .constant(""))
-//                .navigationTitle(viewModel.course.value?.title ?? R.string.localizable.loading())
+            MessagesTabView(viewModel: viewModel, searchText: .constant(""))
+                .navigationTitle("Advanced Aerospace Engineering 🚀")
                 .navigationBarTitleDisplayMode(.inline)
-                .searchable(text: .constant(""))
         }
-        assertSnapshot(of: view,
-                       as: .wait(for: 1, on: .image(layout: .device(config: .iPhone13ProMax))),
-                       record: record)
+            .modifier(AppStorePreview(title: "Communicate with students and instructors"))
+        for configuration in configurations {
+            assertSnapshot(of: view,
+                           as: .wait(for: 1, on: .image(layout: configuration.layout)),
+                           named: configuration.name,
+                           record: record)
+        }
     }
 
-    func testDashboardSnapshot() {
-        let viewModel = withDependencies { values in
-            #warning("courseService")
-//            values.courseService = CourseServiceStub()
-        } operation: {
-            CoursesOverviewViewModel()
-        }
-        let view = NavigationStack {
-            CoursesOverviewView(viewModel: viewModel)
-        }
-        assertSnapshot(of: view,
-                       as: .wait(for: 10, on: .image(layout: .device(config: .iPhone13ProMax))),
-                       record: record)
-    }
-
-    func testMessagesSnapshot() async throws {
+    func testConversationViewSnapshot() async {
         let viewModel = withDependencies { values in
             values.messagesService = MessagesServiceStub()
         } operation: {
@@ -80,12 +102,36 @@ final class ScreenshotsTests: XCTestCase {
         await viewModel.start()
         let view = NavigationStack {
             ConversationView(viewModel: viewModel)
-                .navigationTitle("Basic Operators")
                 .navigationBarTitleDisplayMode(.inline)
                 .environmentObject(NavigationController())
         }
-        assertSnapshot(of: view,
-                       as: .image(layout: .device(config: .iPhone13ProMax)),
-                       record: record)
+            .modifier(AppStorePreview(title: "Send and receive messages from the app"))
+        for configuration in configurations {
+            assertSnapshot(of: view,
+                           as: .wait(for: 1, on: .image(layout: configuration.layout)),
+                           named: configuration.name,
+                           record: record)
+        }
+    }
+
+    func testLectureDetailViewSnapshot() async {
+        let viewModel = withDependencies { values in
+            values.courseService = CourseServiceStub()
+            values.lectureService = LectureServiceStub()
+        } operation: {
+            LectureDetailViewModel(courseId: 1, lectureId: 1)
+        }
+        await viewModel.loadLecture()
+        await viewModel.loadCourse()
+        let view = NavigationStack {
+            LectureDetailView(viewModel: viewModel)
+        }
+            .modifier(AppStorePreview(title: "Directly interact with your lectures within the app"))
+        for configuration in configurations {
+            assertSnapshot(of: view,
+                           as: .wait(for: 1, on: .image(layout: configuration.layout)),
+                           named: configuration.name,
+                           record: record)
+        }
     }
 }

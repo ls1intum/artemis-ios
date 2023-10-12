@@ -20,7 +20,7 @@ enum LectureServiceFactory {
     static let shared: LectureService = LectureServiceImpl()
 }
 
-// MARK: - CourseService
+// MARK: - LectureService
 
 enum LectureServiceKey: DependencyKey {
     typealias Value = LectureService
