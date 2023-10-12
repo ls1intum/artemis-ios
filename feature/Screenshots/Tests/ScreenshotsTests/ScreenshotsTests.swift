@@ -1,12 +1,91 @@
+import Dependencies
+import Navigation
+import SnapshotTesting
+import SwiftUI
 import XCTest
+@testable import CourseView
+@testable import Dashboard
+@testable import Messages
 @testable import Screenshots
 
+@MainActor
 final class ScreenshotsTests: XCTestCase {
-    func testExample() throws {
-        // XCTest Documentation
-        // https://developer.apple.com/documentation/xctest
+    let record = true
 
-        // Defining Test Cases and Test Methods
-        // https://developer.apple.com/documentation/xctest/defining_test_cases_and_test_methods
+    func testCourseViewSnapshot() {
+        let viewModel = withDependencies { values in
+//            values.courseService = CourseServiceStub()
+        } operation: {
+            CourseViewModel(courseId: 1)
+        }
+        let view = NavigationStack {
+            CourseView(viewModel: viewModel, courseId: 1)
+                .environmentObject({ () -> NavigationController in
+                    let navigationController = NavigationController()
+                    navigationController.courseTab = .exercise
+                    return navigationController
+                }())
+                .tint(.blue)
+        }
+        assertSnapshot(of: view,
+                       as: .wait(for: 1, on: .image(layout: .device(config: .iPhone13ProMax))),
+                       record: record)
+    }
+
+    func testExerciseListViewSnapshot() async {
+        let viewModel = withDependencies { values in
+//            values.courseService = CourseServiceStub()
+        } operation: {
+            CourseViewModel(courseId: 1)
+        }
+        await viewModel.loadCourse(id: 1)
+        let view = NavigationStack {
+            ExerciseListView(viewModel: viewModel, searchText: .constant(""))
+//                .navigationTitle(viewModel.course.value?.title ?? R.string.localizable.loading())
+                .navigationBarTitleDisplayMode(.inline)
+                .searchable(text: .constant(""))
+        }
+        assertSnapshot(of: view,
+                       as: .wait(for: 1, on: .image(layout: .device(config: .iPhone13ProMax))),
+                       record: record)
+    }
+
+    func testDashboardSnapshot() {
+        let viewModel = withDependencies { values in
+            #warning("courseService")
+//            values.courseService = CourseServiceStub()
+        } operation: {
+            CoursesOverviewViewModel()
+        }
+        let view = NavigationStack {
+            CoursesOverviewView(viewModel: viewModel)
+        }
+        assertSnapshot(of: view,
+                       as: .wait(for: 10, on: .image(layout: .device(config: .iPhone13ProMax))),
+                       record: record)
+    }
+
+    func testMessagesSnapshot() async throws {
+        let viewModel = withDependencies { values in
+            values.messagesService = MessagesServiceStub()
+        } operation: {
+            ConversationViewModel(
+                course: .init(
+                    id: 1,
+                    courseInformationSharingConfiguration: .communicationAndMessaging),
+                conversation: .oneToOneChat(conversation: .init(
+                    type: .oneToOneChat,
+                    id: 1)))
+        }
+        await viewModel.start()
+        let view = NavigationStack {
+            ConversationView(viewModel: viewModel)
+                .navigationTitle("Basic Operators")
+                .navigationBarTitleDisplayMode(.inline)
+                .environmentObject(NavigationController())
+        }
+        assertSnapshot(of: view,
+                       as: .image(layout: .device(config: .iPhone13ProMax)),
+                       record: record)
     }
 }
