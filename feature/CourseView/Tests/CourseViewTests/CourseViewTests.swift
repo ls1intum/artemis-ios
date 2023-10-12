@@ -24,8 +24,26 @@ final class CourseViewTests: XCTestCase {
                 }())
                 .tint(.blue)
         }
-        assertSnapshot(of: view, 
-                       as: .wait(for: 10, on: .image(layout: .device(config: .iPhone13ProMax))),
+        assertSnapshot(of: view,
+                       as: .wait(for: 1, on: .image(layout: .device(config: .iPhone13ProMax))),
+                       record: record)
+    }
+
+    func testExerciseListViewSnapshot() async {
+        let viewModel = withDependencies { values in
+            values.courseService = CourseServiceStub()
+        } operation: {
+            CourseViewModel(courseId: 1)
+        }
+        await viewModel.loadCourse(id: 1)
+        let view = NavigationStack {
+            ExerciseListView(viewModel: viewModel, searchText: .constant(""))
+                .navigationTitle(viewModel.course.value?.title ?? R.string.localizable.loading())
+                .navigationBarTitleDisplayMode(.inline)
+                .searchable(text: .constant(""))
+        }
+        assertSnapshot(of: view,
+                       as: .wait(for: 1, on: .image(layout: .device(config: .iPhone13ProMax))),
                        record: record)
     }
 }
