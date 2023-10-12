@@ -2,7 +2,7 @@
 //  File.swift
 //  
 //
-//  Created by TUM School on 12.10.23.
+//  Created by Nityananda Zbil on 12.10.23.
 //
 
 import SwiftUI
