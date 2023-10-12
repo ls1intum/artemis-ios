@@ -23,26 +23,15 @@ import SwiftUI
             .navigationBarTitleDisplayMode(.inline)
         }
 
-
-        GeometryReader { proxy in
-            Image("uhr", bundle: .module)
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(alignment: .center)
-                .clipped()
-                .clipped()
-                .mask(            
-                    LinearGradient(
-                        colors: [
-                            Color.clear,
-                            Color.clear,
-                            Color.clear,
-                            Color.black,
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom)
-                )
-        }
+        LinearGradient(
+            colors: [
+                Color.clear,
+                Color.clear,
+                Color.clear,
+                Color.white,
+            ],
+            startPoint: .top,
+            endPoint: .bottom)
         .ignoresSafeArea()
 
         VStack {
