@@ -7,6 +7,7 @@
 
 import Dependencies
 import SwiftUI
+@testable import CourseView
 
 #Preview {
     NavigationStack {

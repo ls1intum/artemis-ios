@@ -10,6 +10,7 @@ import Common
 import APIClient
 import SharedModels
 import UserStore
+@testable import Messages
 
 struct MessagesServiceStub: MessagesService {
 

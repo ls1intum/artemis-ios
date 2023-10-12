@@ -8,6 +8,7 @@
 import Dependencies
 import SharedModels
 import SwiftUI
+@testable import Messages
 
 #Preview {
     ZStack {

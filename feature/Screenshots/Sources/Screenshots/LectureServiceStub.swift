@@ -9,6 +9,7 @@ import Common
 import Dependencies
 import Foundation
 import SharedModels
+@testable import CourseView
 
 struct LectureServiceStub: LectureService {
 

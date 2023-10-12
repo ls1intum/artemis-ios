@@ -11,6 +11,7 @@ import Navigation
 import SharedModels
 import SharedServices
 import SwiftUI
+@testable import Messages
 
 struct ConversationView_Previews: PreviewProvider {
 

@@ -10,6 +10,7 @@ import Dependencies
 import SharedModels
 import SharedServices
 import SwiftUI
+@testable import Dashboard
 
 struct CoursesOverviewView_Previews: PreviewProvider {
 

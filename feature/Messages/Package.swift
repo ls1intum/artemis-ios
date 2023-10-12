@@ -16,14 +16,11 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
-        .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", branch: "feature/development/screenshots"),
+        .package(path: "../../../artemis-ios-core-modules"),
         .package(path: "../../core/Navigation"),
         .package(url: "https://github.com/mac-cain13/R.swift.git", from: "7.0.0"),
         .package(url: "https://github.com/Kelvas09/EmojiPicker.git", from: "1.0.0"),
         .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.0.0"),
-        .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.0.0"),
-        // Fix error in SwiftStomp
-        .package(url: "https://github.com/daltoniam/Starscream.git", exact: "4.0.4"),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -46,9 +43,6 @@ let package = Package(
         ),
         .testTarget(
             name: "MessagesTests",
-            dependencies: [
-                "Messages",
-                .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
-            ])
+            dependencies: ["Messages"])
     ]
 )
