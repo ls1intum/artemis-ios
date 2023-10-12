@@ -18,4 +18,5 @@ import SwiftUI
             LectureDetailViewModel(courseId: 1, lectureId: 1)
         }))
     }
+    .modifier(AppStorePreview(title: "Directly interact with your lectures within the app"))
 }
