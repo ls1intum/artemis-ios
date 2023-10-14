@@ -62,8 +62,7 @@ public struct MessagesTabView: View {
             await viewModel.isCodeOfConductAccepted()
         }
     }
-    
-    @ViewBuilder
+
     private var list: some View {
         List {
             if !searchText.isEmpty {
