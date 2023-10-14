@@ -4,7 +4,8 @@ import Navigation
 @main
 struct ArtemisApp: App {
 
-    @UIApplicationDelegateAdaptor(AppDelegate.self) private var delegate
+    @UIApplicationDelegateAdaptor(AppDelegate.self)
+    private var delegate: AppDelegate
 
     @Environment(\.scenePhase) private var scenePhase
 
