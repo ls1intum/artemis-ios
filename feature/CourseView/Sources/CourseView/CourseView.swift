@@ -13,6 +13,7 @@ public struct CourseView: View {
 
     @State private var showNewMessageDialog = false
     @State private var searchText = ""
+    @State private var isMessagesSearchable = true
 
     private let courseId: Int
 
@@ -35,32 +36,30 @@ public struct CourseView: View {
                 }
                 .tag(TabIdentifier.lecture)
 
-            if viewModel.course.value == nil ||
-                viewModel.course.value?.courseInformationSharingConfiguration == .communicationAndMessaging ||
-                viewModel.course.value?.courseInformationSharingConfiguration == .messagingOnly {
+            if viewModel.isMessagesVisible {
                 Group {
                     if let course = viewModel.course.value {
-                        MessagesTabView(searchText: $searchText, course: course)
+                        MessagesTabView(course: course, searchText: $searchText, isSearchable: $isMessagesSearchable)
                     } else {
                         Text("Loading...")
                     }
                 }
-                    .tabItem {
-                        Label(R.string.localizable.messagesTabLabel(), systemImage: "bubble.right.fill")
-                    }
-                    .tag(TabIdentifier.communication)
+                .tabItem {
+                    Label(R.string.localizable.messagesTabLabel(), systemImage: "bubble.right.fill")
+                }
+                .tag(TabIdentifier.communication)
             }
         }
-            .navigationTitle(viewModel.course.value?.title ?? R.string.localizable.loading())
-            .navigationBarTitleDisplayMode(.inline)
-            .modifier(SearchableIf(condition: navigationController.courseTab != .communication, text: $searchText))
-            .onChange(of: navigationController.courseTab) {
-                searchText = ""
-            }
+        .navigationTitle(viewModel.course.value?.title ?? R.string.localizable.loading())
+        .navigationBarTitleDisplayMode(.inline)
+        .modifier(SearchableIf(condition: navigationController.courseTab != .communication || isMessagesSearchable, text: $searchText))
+        .onChange(of: navigationController.courseTab) {
+            searchText = ""
+        }
     }
 }
 
-struct SearchableIf: ViewModifier {
+private struct SearchableIf: ViewModifier {
     let condition: Bool
     let text: Binding<String>
 

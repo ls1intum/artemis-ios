@@ -16,6 +16,7 @@ public struct MessagesTabView: View {
     @StateObject private var viewModel: MessagesTabViewModel
 
     @Binding private var searchText: String
+    @Binding private var isSearchable: Bool
 
     @State private var isCodeOfConductPresented = false
 
@@ -26,9 +27,10 @@ public struct MessagesTabView: View {
         return (viewModel.allConversations.value ?? []).filter { $0.baseConversation.conversationName.lowercased().contains(searchText.lowercased()) }
     }
 
-    public init(searchText: Binding<String>, course: Course) {
-        self._searchText = searchText
+    public init(course: Course, searchText: Binding<String>, isSearchable: Binding<Bool>) {
         self._viewModel = StateObject(wrappedValue: MessagesTabViewModel(course: course))
+        self._searchText = searchText
+        self._isSearchable = isSearchable
     }
 
     public var body: some View {
@@ -67,6 +69,9 @@ public struct MessagesTabView: View {
         }
         .task {
             await viewModel.isCodeOfConductAccepted()
+        }
+        .onChange(of: viewModel.codeOfConductAgreement.value) {
+            isSearchable = viewModel.codeOfConductAgreement.value ?? false
         }
     }
 
