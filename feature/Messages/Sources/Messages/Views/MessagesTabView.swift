@@ -34,28 +34,36 @@ public struct MessagesTabView: View {
 
     public var body: some View {
         Group {
-            if !(viewModel.codeOfConductAgreement.value ?? false) {
-                CodeOfConductView(codeOfConduct: viewModel.course.courseInformationSharingMessagingCodeOfConduct ?? "",
-                                  responsibleUsers: viewModel.codeOfConductResonsibleUsers.value ?? [],
-                                  acceptAction: viewModel.acceptCodeOfConduct)
-            } else {
-                list
-                    .sheet(isPresented: $isCodeOfConductPresented) {
-                        NavigationStack {
-                            CodeOfConductView(codeOfConduct: viewModel.course.courseInformationSharingMessagingCodeOfConduct ?? "",
-                                              responsibleUsers: viewModel.codeOfConductResonsibleUsers.value ?? [],
-                                              acceptAction: nil)
-                            .toolbar {
-                                ToolbarItem(placement: .confirmationAction) {
-                                    Button {
-                                        isCodeOfConductPresented = false
-                                    } label: {
-                                        Text(R.string.localizable.done())
+            if let codeOfConduct = viewModel.course.courseInformationSharingMessagingCodeOfConduct,
+               !codeOfConduct.isEmpty {
+                if !(viewModel.codeOfConductAgreement.value ?? false) {
+                    CodeOfConductView(codeOfConduct: codeOfConduct,
+                                      responsibleUsers: viewModel.codeOfConductResonsibleUsers.value ?? [],
+                                      acceptAction: viewModel.acceptCodeOfConduct)
+                } else {
+                    list
+                        .sheet(isPresented: $isCodeOfConductPresented) {
+                            NavigationStack {
+                                CodeOfConductView(codeOfConduct: codeOfConduct,
+                                                  responsibleUsers: viewModel.codeOfConductResonsibleUsers.value ?? [],
+                                                  acceptAction: nil)
+                                .toolbar {
+                                    ToolbarItem(placement: .confirmationAction) {
+                                        Button {
+                                            isCodeOfConductPresented = false
+                                        } label: {
+                                            Text(R.string.localizable.done())
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
+                }
+            } else {
+                ContentUnavailableView(R.string.localizable.codeOfConductUnavailableTitle(),
+                                       systemImage: "exclamationmark.bubble",
+                                       description: Text(R.string.localizable.codeOfConductUnavailabeDescription()))
+                    .symbolVariant(.slash)
             }
         }
         .task {
