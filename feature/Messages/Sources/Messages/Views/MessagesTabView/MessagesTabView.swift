@@ -5,12 +5,11 @@
 //  Created by Sven Andabaka on 03.04.23.
 //
 
-import SwiftUI
-import DesignLibrary
 import Common
-import SharedModels
+import DesignLibrary
 import Navigation
-import MarkdownUI
+import SharedModels
+import SwiftUI
 
 public struct MessagesTabView: View {
 
@@ -155,43 +154,6 @@ public struct MessagesTabView: View {
             }
             .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
             .loadingIndicator(isLoading: $viewModel.isLoading)
-    }
-}
-
-private struct CodeOfConductView: View {
-    let codeOfConduct: String
-    let responsibleUsers: [ResponsibleUserDTO]
-    let acceptAction: (() async -> Void)?
-
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading) {
-                Markdown(codeOfConduct + responsibleUserMarkdown())
-                if let acceptAction {
-                    HStack {
-                        Spacer()
-                        Button {
-                            Task {
-                                await acceptAction()
-                            }
-                        } label: {
-                            Text(R.string.localizable.acceptCodeOfConductButtonLabel())
-                        }
-                        .buttonStyle(ArtemisButton())
-                        Spacer()
-                    }
-                }
-            }
-        }
-        .padding()
-    }
-
-    private func responsibleUserMarkdown() -> String {
-        responsibleUsers
-            .map { user in
-                "- \(user.name) [\(user.email)](mailto:\(user.email))"
-            }
-            .joined(separator: "\n")
     }
 }
 
