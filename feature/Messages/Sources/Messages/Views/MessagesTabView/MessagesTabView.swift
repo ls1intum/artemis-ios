@@ -27,6 +27,16 @@ public struct MessagesTabView: View {
         return (viewModel.allConversations.value ?? []).filter { $0.baseConversation.conversationName.lowercased().contains(searchText.lowercased()) }
     }
 
+    private var codeOfConduct: String? {
+        viewModel.course.courseInformationSharingMessagingCodeOfConduct?
+            .split(separator: "\n")
+            .filter { line in
+                let isComment = line.hasPrefix("<!--") && line.hasSuffix("-->")
+                return !isComment
+            }
+            .joined(separator: "\n")
+    }
+
     public init(course: Course, searchText: Binding<String>, isSearchable: Binding<Bool>) {
         self._viewModel = StateObject(wrappedValue: MessagesTabViewModel(course: course))
         self._searchText = searchText
@@ -35,8 +45,7 @@ public struct MessagesTabView: View {
 
     public var body: some View {
         Group {
-            if let codeOfConduct = viewModel.course.courseInformationSharingMessagingCodeOfConduct,
-               !codeOfConduct.isEmpty {
+            if let codeOfConduct, !codeOfConduct.isEmpty {
                 if !(viewModel.codeOfConductAgreement.value ?? false) {
                     CodeOfConductView(codeOfConduct: codeOfConduct,
                                       responsibleUsers: viewModel.codeOfConductResonsibleUsers.value ?? [],
