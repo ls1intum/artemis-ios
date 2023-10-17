@@ -173,7 +173,22 @@ class MessagesTabViewModel: BaseViewModel {
     }
 }
 
-// All functions to handle new conversation received socket
+// MARK: Code of Conduct
+extension MessagesTabViewModel {
+
+    /// `codeOfConduct` filters HTML comments from a course's `courseInformationSharingMessagingCodeOfConduct`.
+    var codeOfConduct: String? {
+        course.courseInformationSharingMessagingCodeOfConduct?
+            .split(separator: "\n")
+            .filter { line in
+                let isComment = line.hasPrefix("<!--") && line.hasSuffix("-->")
+                return !isComment
+            }
+            .joined(separator: "\n")
+    }
+}
+
+// MARK: Functions to handle new conversation received socket
 extension MessagesTabViewModel {
     private func onConversationMembershipMessageReceived(conversationWebsocketDTO: ConversationWebsocketDTO) {
         switch conversationWebsocketDTO.metisCrudAction {

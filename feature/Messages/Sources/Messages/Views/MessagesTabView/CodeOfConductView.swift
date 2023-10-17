@@ -17,7 +17,7 @@ struct CodeOfConductView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading) {
-                Markdown(codeOfConduct + responsibleUserMarkdown())
+                Markdown(codeOfConduct + "\n" + responsibleUserMarkdown())
                 if let acceptAction {
                     HStack {
                         Spacer()
@@ -40,7 +40,7 @@ struct CodeOfConductView: View {
     private func responsibleUserMarkdown() -> String {
         responsibleUsers
             .map { user in
-                "- \(user.name) [\(user.email)](mailto:\(user.email))"
+                "- \(user.name) ([\(user.email)](mailto:\(user.email)))"
             }
             .joined(separator: "\n")
     }

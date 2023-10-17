@@ -13,10 +13,11 @@ import SwiftUI
 
 public struct MessagesTabView: View {
 
+    @EnvironmentObject private var messagesPreferences: MessagesPreferences
+
     @StateObject private var viewModel: MessagesTabViewModel
 
     @Binding private var searchText: String
-    @Binding private var isSearchable: Bool
 
     @State private var isCodeOfConductPresented = false
 
@@ -27,25 +28,14 @@ public struct MessagesTabView: View {
         return (viewModel.allConversations.value ?? []).filter { $0.baseConversation.conversationName.lowercased().contains(searchText.lowercased()) }
     }
 
-    private var codeOfConduct: String? {
-        viewModel.course.courseInformationSharingMessagingCodeOfConduct?
-            .split(separator: "\n")
-            .filter { line in
-                let isComment = line.hasPrefix("<!--") && line.hasSuffix("-->")
-                return !isComment
-            }
-            .joined(separator: "\n")
-    }
-
-    public init(course: Course, searchText: Binding<String>, isSearchable: Binding<Bool>) {
+    public init(course: Course, searchText: Binding<String>) {
         self._viewModel = StateObject(wrappedValue: MessagesTabViewModel(course: course))
         self._searchText = searchText
-        self._isSearchable = isSearchable
     }
 
     public var body: some View {
         Group {
-            if let codeOfConduct, !codeOfConduct.isEmpty {
+            if let codeOfConduct = viewModel.codeOfConduct, !codeOfConduct.isEmpty {
                 if !(viewModel.codeOfConductAgreement.value ?? false) {
                     CodeOfConductView(codeOfConduct: codeOfConduct,
                                       responsibleUsers: viewModel.codeOfConductResonsibleUsers.value ?? [],
@@ -80,7 +70,12 @@ public struct MessagesTabView: View {
             await viewModel.isCodeOfConductAccepted()
         }
         .onChange(of: viewModel.codeOfConductAgreement.value) {
-            isSearchable = viewModel.codeOfConductAgreement.value ?? false
+            if let codeOfConduct = viewModel.codeOfConduct, !codeOfConduct.isEmpty,
+               let agreement = viewModel.codeOfConductAgreement.value, agreement {
+                messagesPreferences.isSearchable = true
+            } else {
+                messagesPreferences.isSearchable = false
+            }
         }
     }
 

@@ -7,13 +7,13 @@ import DesignLibrary
 
 public struct CourseView: View {
 
-    @StateObject var viewModel: CourseViewModel
+    @StateObject private var viewModel: CourseViewModel
+    @StateObject private var messagesPreferences = MessagesPreferences()
 
     @EnvironmentObject private var navigationController: NavigationController
 
     @State private var showNewMessageDialog = false
     @State private var searchText = ""
-    @State private var isMessagesSearchable = true
 
     private let courseId: Int
 
@@ -39,7 +39,8 @@ public struct CourseView: View {
             if viewModel.isMessagesVisible {
                 Group {
                     if let course = viewModel.course.value {
-                        MessagesTabView(course: course, searchText: $searchText, isSearchable: $isMessagesSearchable)
+                        MessagesTabView(course: course, searchText: $searchText)
+                            .environmentObject(messagesPreferences)
                     } else {
                         Text("Loading...")
                     }
@@ -52,7 +53,8 @@ public struct CourseView: View {
         }
         .navigationTitle(viewModel.course.value?.title ?? R.string.localizable.loading())
         .navigationBarTitleDisplayMode(.inline)
-        .modifier(SearchableIf(condition: navigationController.courseTab != .communication || isMessagesSearchable, text: $searchText))
+        .modifier(SearchableIf(condition: navigationController.courseTab != .communication || messagesPreferences.isSearchable, 
+                               text: $searchText))
         .onChange(of: navigationController.courseTab) {
             searchText = ""
         }
