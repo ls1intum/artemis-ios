@@ -17,7 +17,7 @@ struct CodeOfConductView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading) {
-                Markdown(codeOfConduct + "\n" + responsibleUserMarkdown())
+                Markdown(codeOfConductSanitized() + "\n" + responsibleUserMarkdown())
                 if let acceptAction {
                     HStack {
                         Spacer()
@@ -36,8 +36,22 @@ struct CodeOfConductView: View {
         }
         .padding()
     }
+}
 
-    private func responsibleUserMarkdown() -> String {
+private extension CodeOfConductView {
+    /// `codeOfConductSanitized` filters HTML comments.
+    func codeOfConductSanitized() -> String {
+        codeOfConduct
+            .split(separator: "\n")
+            .filter { line in
+                let isComment = line.hasPrefix("<!--") && line.hasSuffix("-->")
+                return !isComment
+            }
+            .joined(separator: "\n")
+    }
+
+    /// `responsibleUserMarkdown` creates a Markdown string from the responsible users array.
+    func responsibleUserMarkdown() -> String {
         responsibleUsers
             .map { user in
                 "- \(user.name) ([\(user.email)](mailto:\(user.email)))"

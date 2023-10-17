@@ -53,7 +53,7 @@ public struct CourseView: View {
         }
         .navigationTitle(viewModel.course.value?.title ?? R.string.localizable.loading())
         .navigationBarTitleDisplayMode(.inline)
-        .modifier(SearchableIf(condition: navigationController.courseTab != .communication || messagesPreferences.isSearchable, 
+        .modifier(SearchableIf(condition: navigationController.courseTab != .communication || messagesPreferences.isSearchable,
                                text: $searchText))
         .onChange(of: navigationController.courseTab) {
             searchText = ""
@@ -61,6 +61,9 @@ public struct CourseView: View {
     }
 }
 
+/// `SearchableIf` modifies a view to be searchable if the condition is true.
+///
+/// It appears, the `.searchable` modifier cannot be deeper in the hierarchy, i.e., further from the enclosing `NavigationStack`.
 private struct SearchableIf: ViewModifier {
     let condition: Bool
     let text: Binding<String>

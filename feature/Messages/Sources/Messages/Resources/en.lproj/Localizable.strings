@@ -4,7 +4,7 @@
 "archived" = "(Archived)";
 "codeOfConduct" = "Code of Conduct";
 "codeOfConductUnavailableTitle" = "No Code of Conduct";
-"codeOfConductUnavailabeDescription" = "Messages are only available if a code of conduct is setup.";
+"codeOfConductUnavailabeDescription" = "Messages are only available if a code of conduct is set up.";
 "acceptCodeOfConductButtonLabel" = "Accept";
 
 // MARK: SendMessageView

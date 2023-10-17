@@ -1,6 +1,6 @@
 //
 //  MessagesTabView.swift
-//  
+//
 //
 //  Created by Sven Andabaka on 03.04.23.
 //
@@ -35,7 +35,7 @@ public struct MessagesTabView: View {
 
     public var body: some View {
         Group {
-            if let codeOfConduct = viewModel.codeOfConduct, !codeOfConduct.isEmpty {
+            if let codeOfConduct = viewModel.course.courseInformationSharingMessagingCodeOfConduct, !codeOfConduct.isEmpty {
                 if !(viewModel.codeOfConductAgreement.value ?? false) {
                     CodeOfConductView(codeOfConduct: codeOfConduct,
                                       responsibleUsers: viewModel.codeOfConductResonsibleUsers.value ?? [],
@@ -47,6 +47,8 @@ public struct MessagesTabView: View {
                                 CodeOfConductView(codeOfConduct: codeOfConduct,
                                                   responsibleUsers: viewModel.codeOfConductResonsibleUsers.value ?? [],
                                                   acceptAction: nil)
+                                .navigationTitle(R.string.localizable.codeOfConduct())
+                                .navigationBarTitleDisplayMode(.inline)
                                 .toolbar {
                                     ToolbarItem(placement: .confirmationAction) {
                                         Button {
@@ -63,14 +65,13 @@ public struct MessagesTabView: View {
                 ContentUnavailableView(R.string.localizable.codeOfConductUnavailableTitle(),
                                        systemImage: "exclamationmark.bubble",
                                        description: Text(R.string.localizable.codeOfConductUnavailabeDescription()))
-                    .symbolVariant(.slash)
             }
         }
         .task {
             await viewModel.isCodeOfConductAccepted()
         }
         .onChange(of: viewModel.codeOfConductAgreement.value) {
-            if let codeOfConduct = viewModel.codeOfConduct, !codeOfConduct.isEmpty,
+            if let codeOfConduct = viewModel.course.courseInformationSharingMessagingCodeOfConduct, !codeOfConduct.isEmpty,
                let agreement = viewModel.codeOfConductAgreement.value, agreement {
                 messagesPreferences.isSearchable = true
             } else {
@@ -147,22 +148,22 @@ public struct MessagesTabView: View {
                         Spacer()
                     }
                 }
-                    .listRowSeparator(.visible, edges: .top)
-                    .listRowInsets(EdgeInsets(top: .s, leading: .l, bottom: .s, trailing: .l))
+                .listRowSeparator(.visible, edges: .top)
+                .listRowInsets(EdgeInsets(top: .s, leading: .l, bottom: .s, trailing: .l))
             }
         }
-            .listStyle(PlainListStyle())
-            .refreshable {
-                await viewModel.loadConversations()
-            }
-            .task {
-                await viewModel.loadConversations()
-            }
-            .task {
-                await viewModel.subscribeToConversationMembershipTopic()
-            }
-            .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
-            .loadingIndicator(isLoading: $viewModel.isLoading)
+        .listStyle(PlainListStyle())
+        .refreshable {
+            await viewModel.loadConversations()
+        }
+        .task {
+            await viewModel.loadConversations()
+        }
+        .task {
+            await viewModel.subscribeToConversationMembershipTopic()
+        }
+        .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
+        .loadingIndicator(isLoading: $viewModel.isLoading)
     }
 }
 
@@ -256,31 +257,31 @@ private struct SectionDisclosureLabel: View {
                 Badge(unreadCount: sectionUnreadCount)
             }
         }
-            .sheet(isPresented: $showNewConversationSheet) {
-                CreateOrAddToChatView(courseId: viewModel.courseId)
+        .sheet(isPresented: $showNewConversationSheet) {
+            CreateOrAddToChatView(courseId: viewModel.courseId)
+        }
+        .sheet(isPresented: $showCreateChannel, onDismiss: {
+            Task {
+                await viewModel.loadConversations()
             }
-            .sheet(isPresented: $showCreateChannel, onDismiss: {
-                Task {
-                    await viewModel.loadConversations()
-                }
-            }) {
-                CreateChannelView(courseId: viewModel.courseId)
+        }) {
+            CreateChannelView(courseId: viewModel.courseId)
+        }
+        .sheet(isPresented: $showBrowseChannels, onDismiss: {
+            Task {
+                await viewModel.loadConversations()
             }
-            .sheet(isPresented: $showBrowseChannels, onDismiss: {
-                Task {
-                    await viewModel.loadConversations()
-                }
-            }) {
-                BrowseChannelsView(courseId: viewModel.courseId)
+        }) {
+            BrowseChannelsView(courseId: viewModel.courseId)
+        }
+        .confirmationDialog("", isPresented: $showNewConversationActionDialog, titleVisibility: .hidden, actions: {
+            Button(R.string.localizable.browseChannels()) {
+                showBrowseChannels = true
             }
-            .confirmationDialog("", isPresented: $showNewConversationActionDialog, titleVisibility: .hidden, actions: {
-                Button(R.string.localizable.browseChannels()) {
-                    showBrowseChannels = true
-                }
-                Button(R.string.localizable.createChannel()) {
-                    showCreateChannel = true
-                }
-            })
+            Button(R.string.localizable.createChannel()) {
+                showCreateChannel = true
+            }
+        })
     }
 }
 
@@ -357,12 +358,12 @@ private struct ConversationRow<T: BaseConversation>: View {
                     Badge(unreadCount: unreadCount)
                 }
             }
-                .opacity((conversation.unreadMessagesCount ?? 0) > 0 ? 1 : 0.7)
-                .contextMenu {
-                    contextMenuItems
-                }
+            .opacity((conversation.unreadMessagesCount ?? 0) > 0 ? 1 : 0.7)
+            .contextMenu {
+                contextMenuItems
+            }
         })
-            .listRowSeparator(.hidden)
+        .listRowSeparator(.hidden)
     }
 
     var contextMenuItems: some View {

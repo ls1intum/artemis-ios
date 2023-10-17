@@ -104,10 +104,8 @@ class MessagesTabViewModel: BaseViewModel {
 
     func isCodeOfConductAccepted() async {
         isLoading = true
-        async let agreement = MessagesServiceFactory.shared.getCodeOfConductAgreement(for: courseId)
-        async let responsibleUsers = MessagesServiceFactory.shared.getCodeOfConductResponsibleUsers(for: courseId)
-        codeOfConductAgreement = await agreement
-        codeOfConductResonsibleUsers = await responsibleUsers
+        codeOfConductResonsibleUsers = await MessagesServiceFactory.shared.getCodeOfConductResponsibleUsers(for: courseId)
+        codeOfConductAgreement = await MessagesServiceFactory.shared.getCodeOfConductAgreement(for: courseId)
         isLoading = false
     }
 
@@ -170,21 +168,6 @@ class MessagesTabViewModel: BaseViewModel {
             groupChats = .done(response: notHiddenNotFavoriteConversations.compactMap({ $0.baseConversation as? GroupChat }))
             oneToOneChats = .done(response: notHiddenNotFavoriteConversations.compactMap({ $0.baseConversation as? OneToOneChat }))
         }
-    }
-}
-
-// MARK: Code of Conduct
-extension MessagesTabViewModel {
-
-    /// `codeOfConduct` filters HTML comments from a course's `courseInformationSharingMessagingCodeOfConduct`.
-    var codeOfConduct: String? {
-        course.courseInformationSharingMessagingCodeOfConduct?
-            .split(separator: "\n")
-            .filter { line in
-                let isComment = line.hasPrefix("<!--") && line.hasSuffix("-->")
-                return !isComment
-            }
-            .joined(separator: "\n")
     }
 }
 
