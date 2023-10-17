@@ -188,14 +188,14 @@ private struct MixedMessageSection: View {
     }
 
     var sectionUnreadCount: Int {
-        (conversations.value ?? []).reduce(0, { $0 + ($1.baseConversation.unreadMessagesCount ?? 0) })
+        (conversations.value ?? []).reduce(0) { $0 + ($1.baseConversation.unreadMessagesCount ?? 0) }
     }
 
     var body: some View {
         DataStateView(data: $conversations,
                       retryHandler: { await viewModel.loadConversations() }) { conversations in
             if !conversations.isEmpty {
-                DisclosureGroup(isExpanded: $isExpanded, content: {
+                DisclosureGroup(isExpanded: $isExpanded) {
                     ForEach(conversations) { conversation in
                         if let channel = conversation.baseConversation as? Channel {
                             ConversationRow(viewModel: viewModel, conversation: channel)
@@ -207,13 +207,13 @@ private struct MixedMessageSection: View {
                             ConversationRow(viewModel: viewModel, conversation: oneToOneChat)
                         }
                     }
-                }, label: {
+                } label: {
                     SectionDisclosureLabel(viewModel: viewModel,
                                            sectionTitle: sectionTitle,
                                            sectionUnreadCount: sectionUnreadCount,
                                            showUnreadCount: !isExpanded,
                                            conversationType: nil)
-                })
+                }
             }
         }
     }
@@ -260,28 +260,28 @@ private struct SectionDisclosureLabel: View {
         .sheet(isPresented: $showNewConversationSheet) {
             CreateOrAddToChatView(courseId: viewModel.courseId)
         }
-        .sheet(isPresented: $showCreateChannel, onDismiss: {
+        .sheet(isPresented: $showCreateChannel) {
             Task {
                 await viewModel.loadConversations()
             }
-        }) {
+        } content: {
             CreateChannelView(courseId: viewModel.courseId)
         }
-        .sheet(isPresented: $showBrowseChannels, onDismiss: {
+        .sheet(isPresented: $showBrowseChannels) {
             Task {
                 await viewModel.loadConversations()
             }
-        }) {
+        } content: {
             BrowseChannelsView(courseId: viewModel.courseId)
         }
-        .confirmationDialog("", isPresented: $showNewConversationActionDialog, titleVisibility: .hidden, actions: {
+        .confirmationDialog("", isPresented: $showNewConversationActionDialog, titleVisibility: .hidden) {
             Button(R.string.localizable.browseChannels()) {
                 showBrowseChannels = true
             }
             Button(R.string.localizable.createChannel()) {
                 showCreateChannel = true
             }
-        })
+        }
     }
 }
 
@@ -297,7 +297,7 @@ private struct MessageSection<T: BaseConversation>: View {
     var conversationType: ConversationType
 
     var sectionUnreadCount: Int {
-        (conversations.value ?? []).reduce(0, { $0 + ($1.unreadMessagesCount ?? 0) })
+        (conversations.value ?? []).reduce(0) { $0 + ($1.unreadMessagesCount ?? 0) }
     }
 
     init(viewModel: MessagesTabViewModel,
@@ -313,20 +313,20 @@ private struct MessageSection<T: BaseConversation>: View {
     }
 
     var body: some View {
-        DisclosureGroup(isExpanded: $isExpanded, content: {
+        DisclosureGroup(isExpanded: $isExpanded) {
             DataStateView(data: $conversations,
                           retryHandler: { await viewModel.loadConversations() }) { conversations in
                 ForEach(conversations, id: \.id) { conversation in
                     ConversationRow(viewModel: viewModel, conversation: conversation)
                 }
             }
-        }, label: {
+        } label: {
             SectionDisclosureLabel(viewModel: viewModel,
                                    sectionTitle: sectionTitle,
                                    sectionUnreadCount: sectionUnreadCount,
                                    showUnreadCount: !isExpanded,
                                    conversationType: conversationType)
-        })
+        }
     }
 }
 
@@ -339,12 +339,12 @@ private struct ConversationRow<T: BaseConversation>: View {
     let conversation: T
 
     var body: some View {
-        Button(action: {
+        Button {
             // should always be non-optional
             if let conversation = Conversation(conversation: conversation) {
                 navigationController.path.append(ConversationPath(conversation: conversation, coursePath: CoursePath(course: viewModel.course)))
             }
-        }, label: {
+        } label: {
             HStack {
                 if let icon = conversation.icon {
                     icon
@@ -362,7 +362,7 @@ private struct ConversationRow<T: BaseConversation>: View {
             .contextMenu {
                 contextMenuItems
             }
-        })
+        }
         .listRowSeparator(.hidden)
     }
 
