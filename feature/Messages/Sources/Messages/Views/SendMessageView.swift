@@ -234,13 +234,17 @@ private struct SendMessageExercisePicker: View {
     let course: Course
 
     var body: some View {
-        List(course.exercises ?? []) { exercise in
-            if let title = exercise.baseExercise.title {
-                Button(title) {
-                    appendMarkdown(for: exercise)
-                    dismiss()
+        if let exercises = course.exercises, !exercises.isEmpty {
+            List(exercises) { exercise in
+                if let title = exercise.baseExercise.title {
+                    Button(title) {
+                        appendMarkdown(for: exercise)
+                        dismiss()
+                    }
                 }
             }
+        } else {
+            ContentUnavailableView(R.string.localizable.exercisesUnavailable(), systemImage: "magnifyingglass")
         }
     }
 
@@ -277,13 +281,30 @@ private struct SendMessageLecturePicker: View {
     let course: Course
 
     var body: some View {
-        List(course.lectures ?? [], id: \.id) { lecture in
-            if let title = lecture.title {
-                Button(title) {
-                    text.append("[lecture]\(title)(/courses/\(course.id)/lectures/\(lecture.id))[/lecture]")
-                    dismiss()
+        if let lectures = course.lectures, !lectures.isEmpty {
+            List(lectures) { lecture in
+                if let title = lecture.title {
+                    Button(title) {
+                        text.append("[lecture]\(title)(/courses/\(course.id)/lectures/\(lecture.id))[/lecture]")
+                        dismiss()
+                    }
                 }
             }
+        } else {
+            ContentUnavailableView(R.string.localizable.lecturesUnavailable(), systemImage: "magnifyingglass")
         }
+    }
+}
+
+private struct SendMessageUserPicker: View {
+
+    @Environment(\.dismiss) var dismiss
+
+    @Binding var text: String
+
+    let course: Course
+
+    var body: some View {
+        EmptyView()
     }
 }

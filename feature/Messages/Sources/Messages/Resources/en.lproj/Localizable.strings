@@ -5,7 +5,9 @@
 
 // MARK: SendMessageView
 "exercise" = "Exercise";
+"exercisesUnavailable" = "No Exercises";
 "lecture" = "Lecture";
+"lecturesUnavailable" = "No Lectures";
 "messageAction" = "Message %@";
 
 // MARK: ReactionsView
