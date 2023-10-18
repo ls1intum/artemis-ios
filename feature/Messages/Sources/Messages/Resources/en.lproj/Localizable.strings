@@ -8,6 +8,7 @@
 "exercisesUnavailable" = "No Exercises";
 "lecture" = "Lecture";
 "lecturesUnavailable" = "No Lectures";
+"membersUnavailable" = "No Members";
 "messageAction" = "Message %@";
 
 // MARK: ReactionsView

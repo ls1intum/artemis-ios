@@ -21,6 +21,7 @@ struct SendMessageView: View {
     @State private var responseText = ""
     @State private var showExercisePicker = false
     @State private var showLecturePicker = false
+    @State private var showMemberPicker = false
 
     @FocusState private var isFocused: Bool
 
@@ -148,6 +149,21 @@ struct SendMessageView: View {
                     }, label: {
                         Image(systemName: "link")
                     })
+                    Button {
+                        isFocused = false
+                        showMemberPicker = true
+                    } label: {
+                        Image(systemName: "at")
+                    }
+                    .sheet(isPresented: $showMemberPicker) {
+                        isFocused = true
+                    } content: {
+                        if let course = viewModel.course.value {
+                            SendMessageMemberPicker(text: $responseText, course: course)
+                        } else {
+                            Text(R.string.localizable.loading())
+                        }
+                    }
                     Button(action: {
                         isFocused = false
                         showExercisePicker = true
@@ -296,7 +312,7 @@ private struct SendMessageLecturePicker: View {
     }
 }
 
-private struct SendMessageUserPicker: View {
+private struct SendMessageMemberPicker: View {
 
     @Environment(\.dismiss) var dismiss
 
@@ -305,6 +321,17 @@ private struct SendMessageUserPicker: View {
     let course: Course
 
     var body: some View {
-        EmptyView()
+        if let members = Optional.some([ConversationUser]()), !members.isEmpty {
+            List(members) { member in
+                if let login = member.login, let name = member.name {
+                    Button(name) {
+                        text.append("[user]\(name)(\(login))[/user]")
+                        dismiss()
+                    }
+                }
+            }
+        } else {
+            ContentUnavailableView(R.string.localizable.membersUnavailable(), systemImage: "magnifyingglass")
+        }
     }
 }
