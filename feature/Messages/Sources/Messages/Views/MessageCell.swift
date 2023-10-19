@@ -64,6 +64,7 @@ struct MessageCell: View {
                         }
                     }
                 }
+
                 ArtemisMarkdownView(string: content)
 
                 if message.value?.updatedDate != nil {

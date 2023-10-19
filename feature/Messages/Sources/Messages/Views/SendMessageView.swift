@@ -11,7 +11,10 @@ import Common
 import SharedModels
 
 enum SendMessageType {
-    case message, answerMessage(Message, () async -> Void), editMessage(Message, () -> Void), editAnswerMessage(AnswerMessage, () -> Void)
+    case message
+    case answerMessage(Message, () async -> Void)
+    case editMessage(Message, () -> Void)
+    case editAnswerMessage(AnswerMessage, () -> Void)
 }
 
 struct SendMessageView: View {
