@@ -68,7 +68,7 @@ struct ExerciseListView: View {
                 }
             }
                 .listStyle(PlainListStyle())
-                .onChange(of: weeklyExercises) { newValue in
+                .onChange(of: weeklyExercises) { _, newValue in
                     withAnimation {
                         if let id = newValue.first(where: { $0.exercises.first?.baseExercise.dueDate ?? .tomorrow > .now })?.id {
                             value.scrollTo(id, anchor: .top)

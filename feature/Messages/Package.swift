@@ -1,4 +1,4 @@
-// swift-tools-version: 5.7
+// swift-tools-version: 5.9
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "Messages",
     defaultLocalization: "en",
-    platforms: [.iOS(.v16)],
+    platforms: [.iOS(.v17)],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
@@ -16,7 +16,11 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
+<<<<<<< HEAD
         .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", .upToNextMajor(from: "3.4.0")),
+=======
+        .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", .upToNextMajor(from: "6.0.0")),
+>>>>>>> develop
         .package(path: "../../core/Navigation"),
         .package(url: "https://github.com/mac-cain13/R.swift.git", from: "7.0.0"),
         .package(url: "https://github.com/Kelvas09/EmojiPicker.git", from: "1.0.0")
