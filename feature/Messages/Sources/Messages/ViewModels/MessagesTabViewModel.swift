@@ -105,13 +105,22 @@ class MessagesTabViewModel: BaseViewModel {
     func isCodeOfConductAccepted() async {
         isLoading = true
         codeOfConductResonsibleUsers = await MessagesServiceFactory.shared.getCodeOfConductResponsibleUsers(for: courseId)
-        codeOfConductAgreement = await MessagesServiceFactory.shared.getCodeOfConductAgreement(for: courseId)
+        if course.courseInformationSharingMessagingCodeOfConduct?.isEmpty ?? true {
+            codeOfConductAgreement = await _ServiceFactory.shared.getCodeOfConductAgreement(for: course)
+        } else {
+            codeOfConductAgreement = await MessagesServiceFactory.shared.getCodeOfConductAgreement(for: courseId)
+        }
         isLoading = false
     }
 
     func acceptCodeOfConduct() async {
         isLoading = true
-        let result = await MessagesServiceFactory.shared.acceptCodeOfConduct(for: courseId)
+        let result: NetworkResponse
+        if course.courseInformationSharingMessagingCodeOfConduct?.isEmpty ?? true {
+            result = await _ServiceFactory.shared.acceptCodeOfConduct(for: course)
+        } else {
+            result = await MessagesServiceFactory.shared.acceptCodeOfConduct(for: courseId)
+        }
         switch result {
         case .notStarted, .loading:
             isLoading = false
