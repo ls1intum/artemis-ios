@@ -8,8 +8,16 @@
 import Common
 
 protocol CodeOfConductStorageService {
+
+    /**
+     * Accept the content of the code of conduct locally.
+     */
+    func acceptCodeOfConduct(for courseId: Int, codeOfConduct: String) async -> NetworkResponse
+
+    /**
+     * Get the agreement for the content of the code of conduct locally.
+     */
     func getAgreement(for courseId: Int, codeOfConduct: String) async -> DataState<Bool>
-    func accept(for courseId: Int, codeOfConduct: String) async -> NetworkResponse
 }
 
 enum CodeOfConductStorageServiceFactory {

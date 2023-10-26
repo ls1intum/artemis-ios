@@ -12,45 +12,6 @@ class CodeOfConductServiceImpl: CodeOfConductService {
 
     private let client = APIClient()
 
-    struct GetCodeOfConductTemplateRequest: APIRequest {
-        typealias Response = RawResponse
-
-        var method: HTTPMethod { .get }
-
-        var resourceName: String {
-            "api/files/templates/code-of-conduct"
-        }
-    }
-
-    func getCodeOfConductTemplate() async -> DataState<String> {
-        let result = await client.sendRequest(GetCodeOfConductTemplateRequest())
-        switch result {
-        case .success((let rawResponse, _)):
-            return .done(response: rawResponse.rawData)
-        case .failure(let error):
-            return .failure(error: .init(error: error))
-        }
-    }
-
-    struct GetCodeOfConductAgreementRequest: APIRequest {
-        typealias Response = Bool
-
-        let courseId: Int
-
-        var method: HTTPMethod { .get }
-        var resourceName: String { "api/courses/\(courseId)/code-of-conduct/agreement"}
-    }
-
-    func getCodeOfConductAgreement(for courseId: Int) async -> DataState<Bool> {
-        let result = await client.sendRequest(GetCodeOfConductAgreementRequest(courseId: courseId))
-        switch result {
-        case .success(let (value, _)):
-            return .done(response: value)
-        case .failure(let error):
-            return .init(error: error)
-        }
-    }
-
     struct AcceptCodeOfConductRequest: APIRequest {
         typealias Response = RawResponse
 
@@ -70,7 +31,46 @@ class CodeOfConductServiceImpl: CodeOfConductService {
         }
     }
 
-    struct GetCodeOfConductResponsibleUsersRequest: APIRequest {
+    struct GetTemplateRequest: APIRequest {
+        typealias Response = RawResponse
+
+        var method: HTTPMethod { .get }
+
+        var resourceName: String {
+            "api/files/templates/code-of-conduct"
+        }
+    }
+
+    func getTemplate() async -> DataState<String> {
+        let result = await client.sendRequest(GetTemplateRequest())
+        switch result {
+        case .success((let rawResponse, _)):
+            return .done(response: rawResponse.rawData)
+        case .failure(let error):
+            return .failure(error: .init(error: error))
+        }
+    }
+
+    struct GetAgreementRequest: APIRequest {
+        typealias Response = Bool
+
+        let courseId: Int
+
+        var method: HTTPMethod { .get }
+        var resourceName: String { "api/courses/\(courseId)/code-of-conduct/agreement"}
+    }
+
+    func getAgreement(for courseId: Int) async -> DataState<Bool> {
+        let result = await client.sendRequest(GetAgreementRequest(courseId: courseId))
+        switch result {
+        case .success(let (value, _)):
+            return .done(response: value)
+        case .failure(let error):
+            return .init(error: error)
+        }
+    }
+
+    struct GetResponsibleUsersRequest: APIRequest {
         typealias Response = [ResponsibleUserDTO]
 
         let courseId: Int
@@ -79,8 +79,8 @@ class CodeOfConductServiceImpl: CodeOfConductService {
         var resourceName: String { "api/courses/\(courseId)/code-of-conduct/responsible-users" }
     }
 
-    func getCodeOfConductResponsibleUsers(for courseId: Int) async -> DataState<[ResponsibleUserDTO]> {
-        let result = await client.sendRequest(GetCodeOfConductResponsibleUsersRequest(courseId: courseId))
+    func getResponsibleUsers(for courseId: Int) async -> DataState<[ResponsibleUserDTO]> {
+        let result = await client.sendRequest(GetResponsibleUsersRequest(courseId: courseId))
         switch result {
         case .success(let (users, _)):
             return .done(response: users)

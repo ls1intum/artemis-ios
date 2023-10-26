@@ -41,9 +41,9 @@ class MessagesTabViewModel: BaseViewModel {
         // Get code of conduct and agreement
         if let remoteCodeOfConduct = course.courseInformationSharingMessagingCodeOfConduct, !remoteCodeOfConduct.isEmpty {
             codeOfConduct = .done(response: remoteCodeOfConduct)
-            codeOfConductAgreement = await CodeOfConductServiceFactory.shared.getCodeOfConductAgreement(for: courseId)
+            codeOfConductAgreement = await CodeOfConductServiceFactory.shared.getAgreement(for: courseId)
         } else {
-            codeOfConduct = await CodeOfConductServiceFactory.shared.getCodeOfConductTemplate()
+            codeOfConduct = await CodeOfConductServiceFactory.shared.getTemplate()
             switch codeOfConduct {
             case .loading:
                 codeOfConductAgreement = .loading
@@ -54,7 +54,7 @@ class MessagesTabViewModel: BaseViewModel {
             }
         }
         // Get code of conduct agreement
-        codeOfConductResonsibleUsers = await CodeOfConductServiceFactory.shared.getCodeOfConductResponsibleUsers(for: courseId)
+        codeOfConductResonsibleUsers = await CodeOfConductServiceFactory.shared.getResponsibleUsers(for: courseId)
         isLoading = false
     }
 
@@ -68,7 +68,7 @@ class MessagesTabViewModel: BaseViewModel {
             case .failure(let error):
                 result = .failure(error: error)
             case .done(let response):
-                result = await CodeOfConductStorageServiceFactory.shared.accept(for: courseId, codeOfConduct: response)
+                result = await CodeOfConductStorageServiceFactory.shared.acceptCodeOfConduct(for: courseId, codeOfConduct: response)
             }
         } else {
             result = await CodeOfConductServiceFactory.shared.acceptCodeOfConduct(for: courseId)
