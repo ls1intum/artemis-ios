@@ -1,6 +1,6 @@
 //
-//  MessagesAvailableViewModel.swift
-//  
+//  MessagesTabViewModel.swift
+//
 //
 //  Created by Sven Andabaka on 03.04.23.
 //
@@ -91,41 +91,6 @@ class MessagesAvailableViewModel: BaseViewModel {
             isLoading = false
         case .success:
             await loadConversations()
-            isLoading = false
-        case .failure(let error):
-            isLoading = false
-            if let apiClientError = error as? APIClientError {
-                presentError(userFacingError: UserFacingError(error: apiClientError))
-            } else {
-                presentError(userFacingError: UserFacingError(title: error.localizedDescription))
-            }
-        }
-    }
-
-    func isCodeOfConductAccepted() async {
-        isLoading = true
-        codeOfConductResonsibleUsers = await MessagesServiceFactory.shared.getCodeOfConductResponsibleUsers(for: courseId)
-        if course.courseInformationSharingMessagingCodeOfConduct?.isEmpty ?? true {
-            codeOfConductAgreement = await _ServiceFactory.shared.getCodeOfConductAgreement(for: course)
-        } else {
-            codeOfConductAgreement = await MessagesServiceFactory.shared.getCodeOfConductAgreement(for: courseId)
-        }
-        isLoading = false
-    }
-
-    func acceptCodeOfConduct() async {
-        isLoading = true
-        let result: NetworkResponse
-        if course.courseInformationSharingMessagingCodeOfConduct?.isEmpty ?? true {
-            result = await _ServiceFactory.shared.acceptCodeOfConduct(for: course)
-        } else {
-            result = await MessagesServiceFactory.shared.acceptCodeOfConduct(for: courseId)
-        }
-        switch result {
-        case .notStarted, .loading:
-            isLoading = false
-        case .success:
-            codeOfConductAgreement = .done(response: true)
             isLoading = false
         case .failure(let error):
             isLoading = false
