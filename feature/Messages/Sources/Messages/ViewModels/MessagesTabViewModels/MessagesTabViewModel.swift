@@ -43,7 +43,7 @@ class MessagesTabViewModel: BaseViewModel {
             self.codeOfConduct = .done(response: codeOfConduct)
             self.codeOfConductAgreement = await MessagesServiceFactory.shared.getCodeOfConductAgreement(for: courseId)
         } else {
-            self.codeOfConduct = await _ServiceFactory.shared.getCodeOfConductTemplate()
+            self.codeOfConduct = await MessagesServiceFactory.shared.getCodeOfConductTemplate()
             self.codeOfConductAgreement = await _ServiceFactory.shared.getCodeOfConductAgreement(for: course)
         }
         // Get code of conduct agreement

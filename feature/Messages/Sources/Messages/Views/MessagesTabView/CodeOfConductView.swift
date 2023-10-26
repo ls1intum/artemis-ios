@@ -1,6 +1,6 @@
 //
-//  File.swift
-//  
+//  CodeOfConductView.swift
+//
 //
 //  Created by Nityananda Zbil on 15.10.23.
 //
