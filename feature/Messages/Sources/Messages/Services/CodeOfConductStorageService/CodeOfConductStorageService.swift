@@ -6,11 +6,10 @@
 //
 
 import Common
-import SharedModels
 
 protocol CodeOfConductStorageService {
-    func getCodeOfConductAgreement(for course: Course) async -> DataState<Bool>
-    func acceptCodeOfConduct(for course: Course) async -> NetworkResponse
+    func getAgreement(for courseId: Int, codeOfConduct: String) async -> DataState<Bool>
+    func accept(for courseId: Int, codeOfConduct: String) async -> NetworkResponse
 }
 
 enum CodeOfConductStorageServiceFactory {

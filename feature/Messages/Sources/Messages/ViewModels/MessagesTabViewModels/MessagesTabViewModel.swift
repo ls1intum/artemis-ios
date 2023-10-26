@@ -39,15 +39,22 @@ class MessagesTabViewModel: BaseViewModel {
     func task() async {
         isLoading = true
         // Get code of conduct and agreement
-        if let codeOfConduct = course.courseInformationSharingMessagingCodeOfConduct, !codeOfConduct.isEmpty {
-            self.codeOfConduct = .done(response: codeOfConduct)
-            self.codeOfConductAgreement = await CodeOfConductServiceFactory.shared.getCodeOfConductAgreement(for: courseId)
+        if let remoteCodeOfConduct = course.courseInformationSharingMessagingCodeOfConduct, !remoteCodeOfConduct.isEmpty {
+            codeOfConduct = .done(response: remoteCodeOfConduct)
+            codeOfConductAgreement = await CodeOfConductServiceFactory.shared.getCodeOfConductAgreement(for: courseId)
         } else {
-            self.codeOfConduct = await CodeOfConductServiceFactory.shared.getCodeOfConductTemplate()
-            self.codeOfConductAgreement = await CodeOfConductStorageServiceFactory.shared.getCodeOfConductAgreement(for: course)
+            codeOfConduct = await CodeOfConductServiceFactory.shared.getCodeOfConductTemplate()
+            switch codeOfConduct {
+            case .loading:
+                codeOfConductAgreement = .loading
+            case .failure(let error):
+                codeOfConductAgreement = .failure(error: error)
+            case .done(let response):
+                codeOfConductAgreement = await CodeOfConductStorageServiceFactory.shared.getAgreement(for: courseId, codeOfConduct: response)
+            }
         }
         // Get code of conduct agreement
-        self.codeOfConductResonsibleUsers = await CodeOfConductServiceFactory.shared.getCodeOfConductResponsibleUsers(for: courseId)
+        codeOfConductResonsibleUsers = await CodeOfConductServiceFactory.shared.getCodeOfConductResponsibleUsers(for: courseId)
         isLoading = false
     }
 
@@ -55,7 +62,14 @@ class MessagesTabViewModel: BaseViewModel {
         isLoading = true
         let result: NetworkResponse
         if course.courseInformationSharingMessagingCodeOfConduct?.isEmpty ?? true {
-            result = await CodeOfConductStorageServiceFactory.shared.acceptCodeOfConduct(for: course)
+            switch codeOfConduct {
+            case .loading:
+                result = .loading
+            case .failure(let error):
+                result = .failure(error: error)
+            case .done(let response):
+                result = await CodeOfConductStorageServiceFactory.shared.accept(for: courseId, codeOfConduct: response)
+            }
         } else {
             result = await CodeOfConductServiceFactory.shared.acceptCodeOfConduct(for: courseId)
         }

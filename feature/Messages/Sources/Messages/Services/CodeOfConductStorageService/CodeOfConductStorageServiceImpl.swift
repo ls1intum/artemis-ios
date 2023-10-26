@@ -11,21 +11,19 @@ import SharedModels
 import UserStore
 
 struct CodeOfConductStorageServiceImpl: CodeOfConductStorageService {
-    func getCodeOfConductAgreement(for course: Course) async -> DataState<Bool> {
+    func getAgreement(for courseId: Int, codeOfConduct: String) async -> DataState<Bool> {
         guard let serverHost = UserSession.shared.institution?.baseURL?.absoluteString else {
-            return .failure(error: .init(title: "No base URL"))
+            return .failure(error: .init(error: .invalidURL))
         }
-        let hashValue = course.courseInformationSharingMessagingCodeOfConduct?.hashValue
-        let expected = UserDefaults.standard.integer(forKey: "\(serverHost)|\(course.id)")
-        return .done(response: hashValue == expected)
+        let expected = UserDefaults.standard.integer(forKey: "\(serverHost)|\(courseId)")
+        return .done(response: codeOfConduct.hashValue == expected)
     }
 
-    func acceptCodeOfConduct(for course: Course) async -> NetworkResponse {
+    func accept(for courseId: Int, codeOfConduct: String) async -> NetworkResponse {
         guard let serverHost = UserSession.shared.institution?.baseURL?.absoluteString else {
             return .init(error: .invalidURL)
         }
-        let hashValue = course.courseInformationSharingMessagingCodeOfConduct?.hashValue
-        UserDefaults.standard.set(hashValue, forKey: "\(serverHost)|\(course.id)")
+        UserDefaults.standard.set(codeOfConduct.hashValue, forKey: "\(serverHost)|\(courseId)")
         return .success
     }
 }
