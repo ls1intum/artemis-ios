@@ -36,7 +36,7 @@ class MessagesTabViewModel: BaseViewModel {
         super.init()
     }
 
-    func task() async {
+    func getCodeOfConductInformation() async {
         isLoading = true
         // Get code of conduct and agreement
         if let remoteCodeOfConduct = course.courseInformationSharingMessagingCodeOfConduct, !remoteCodeOfConduct.isEmpty {

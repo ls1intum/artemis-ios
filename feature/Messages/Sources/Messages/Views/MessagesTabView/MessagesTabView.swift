@@ -26,7 +26,7 @@ public struct MessagesTabView: View {
 
     public var body: some View {
         DataStateView(data: $viewModel.codeOfConduct) {
-            await viewModel.task()
+            await viewModel.getCodeOfConductInformation()
         } content: { codeOfConduct in
             if viewModel.codeOfConductAgreement.value ?? false {
                 MessagesAvailableView(course: viewModel.course, searchText: _searchText)
@@ -38,7 +38,7 @@ public struct MessagesTabView: View {
             }
         }
         .task {
-            await viewModel.task()
+            await viewModel.getCodeOfConductInformation()
         }
         .onChange(of: viewModel.codeOfConductAgreement.value) {
             messagesPreferences.isSearchable = viewModel.isSearchable
