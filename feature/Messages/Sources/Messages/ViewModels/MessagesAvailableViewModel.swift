@@ -1,5 +1,5 @@
 //
-//  MessagesTabViewModel.swift
+//  MessagesAvailableViewModel.swift
 //  
 //
 //  Created by Sven Andabaka on 03.04.23.
@@ -12,7 +12,7 @@ import APIClient
 import UserStore
 
 @MainActor
-class MessagesTabViewModel: BaseViewModel {
+class MessagesAvailableViewModel: BaseViewModel {
 
     @Published var allConversations: DataState<[Conversation]> = .loading {
         didSet {
@@ -181,7 +181,7 @@ class MessagesTabViewModel: BaseViewModel {
 }
 
 // MARK: Functions to handle new conversation received socket
-extension MessagesTabViewModel {
+extension MessagesAvailableViewModel {
     private func onConversationMembershipMessageReceived(conversationWebsocketDTO: ConversationWebsocketDTO) {
         switch conversationWebsocketDTO.metisCrudAction {
         case .create, .update:
