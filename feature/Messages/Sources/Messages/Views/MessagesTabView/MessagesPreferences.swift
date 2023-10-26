@@ -1,6 +1,6 @@
 //
-//  File.swift
-//  
+//  MessagesPreferences.swift
+//
 //
 //  Created by Nityananda Zbil on 17.10.23.
 //

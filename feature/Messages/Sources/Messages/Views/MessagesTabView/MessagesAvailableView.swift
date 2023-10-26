@@ -32,30 +32,6 @@ public struct MessagesAvailableView: View {
     }
 
     public var body: some View {
-        Group {
-            list
-                .sheet(isPresented: $isCodeOfConductPresented) {
-                    NavigationStack {
-                        CodeOfConductView(codeOfConduct: "codeOfConduct",
-                                          responsibleUsers: viewModel.codeOfConductResonsibleUsers.value ?? [],
-                                          acceptAction: nil)
-                        .navigationTitle(R.string.localizable.codeOfConduct())
-                        .navigationBarTitleDisplayMode(.inline)
-                        .toolbar {
-                            ToolbarItem(placement: .confirmationAction) {
-                                Button {
-                                    isCodeOfConductPresented = false
-                                } label: {
-                                    Text(R.string.localizable.done())
-                                }
-                            }
-                        }
-                    }
-                }
-        }
-    }
-
-    private var list: some View {
         List {
             if !searchText.isEmpty {
                 if searchResults.isEmpty {
@@ -139,9 +115,26 @@ public struct MessagesAvailableView: View {
         }
         .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
         .loadingIndicator(isLoading: $viewModel.isLoading)
+        .sheet(isPresented: $isCodeOfConductPresented) {
+            NavigationStack {
+                CodeOfConductView(codeOfConduct: "codeOfConduct",
+                                  responsibleUsers: [],
+                                  acceptAction: nil)
+                .navigationTitle(R.string.localizable.codeOfConduct())
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button {
+                            isCodeOfConductPresented = false
+                        } label: {
+                            Text(R.string.localizable.done())
+                        }
+                    }
+                }
+            }
+        }
     }
 }
-
 
 private struct MixedMessageSection: View {
 
