@@ -50,10 +50,10 @@ class MessagesTabViewModel: BaseViewModel {
             case .failure(let error):
                 codeOfConductAgreement = .failure(error: error)
             case .done(let response):
-                codeOfConductAgreement = await CodeOfConductStorageServiceFactory.shared.getAgreement(for: courseId, codeOfConduct: response)
+                codeOfConductAgreement = .done(response: CodeOfConductStorageServiceFactory.shared.getAgreement(for: courseId, codeOfConduct: response))
             }
         }
-        // Get code of conduct agreement
+        // Get code of conduct responsible users
         codeOfConductResonsibleUsers = await CodeOfConductServiceFactory.shared.getResponsibleUsers(for: courseId)
         isLoading = false
     }
@@ -68,7 +68,8 @@ class MessagesTabViewModel: BaseViewModel {
             case .failure(let error):
                 result = .failure(error: error)
             case .done(let response):
-                result = await CodeOfConductStorageServiceFactory.shared.acceptCodeOfConduct(for: courseId, codeOfConduct: response)
+                CodeOfConductStorageServiceFactory.shared.acceptCodeOfConduct(for: courseId, codeOfConduct: response)
+                result = .success
             }
         } else {
             result = await CodeOfConductServiceFactory.shared.acceptCodeOfConduct(for: courseId)

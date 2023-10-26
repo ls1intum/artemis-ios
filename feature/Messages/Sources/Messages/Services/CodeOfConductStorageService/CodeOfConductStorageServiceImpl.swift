@@ -2,29 +2,25 @@
 //  CodeOfConductStorageServiceImpl.swift
 //  
 //
-//  Created by TUM School on 26.10.23.
+//  Created by Nityananda Zbil on 26.10.23.
 //
 
-import Common
 import Foundation
-import SharedModels
 import UserStore
 
 struct CodeOfConductStorageServiceImpl: CodeOfConductStorageService {
 
-    func acceptCodeOfConduct(for courseId: Int, codeOfConduct: String) async -> NetworkResponse {
+    func acceptCodeOfConduct(for courseId: Int, codeOfConduct: String) {
         guard let serverHost = UserSession.shared.institution?.baseURL?.absoluteString else {
-            return .init(error: .invalidURL)
+            return
         }
         UserDefaults.standard.set(codeOfConduct.hashValue, forKey: "\(serverHost)|\(courseId)")
-        return .success
     }
 
-    func getAgreement(for courseId: Int, codeOfConduct: String) async -> DataState<Bool> {
+    func getAgreement(for courseId: Int, codeOfConduct: String) -> Bool {
         guard let serverHost = UserSession.shared.institution?.baseURL?.absoluteString else {
-            return .failure(error: .init(error: .invalidURL))
+            return false
         }
-        let expected = UserDefaults.standard.integer(forKey: "\(serverHost)|\(courseId)")
-        return .done(response: codeOfConduct.hashValue == expected)
+        return codeOfConduct.hashValue == UserDefaults.standard.integer(forKey: "\(serverHost)|\(courseId)")
     }
 }

@@ -12,12 +12,12 @@ protocol CodeOfConductStorageService {
     /**
      * Accept the content of the code of conduct locally.
      */
-    func acceptCodeOfConduct(for courseId: Int, codeOfConduct: String) async -> NetworkResponse
+    func acceptCodeOfConduct(for courseId: Int, codeOfConduct: String)
 
     /**
      * Get the agreement for the content of the code of conduct locally.
      */
-    func getAgreement(for courseId: Int, codeOfConduct: String) async -> DataState<Bool>
+    func getAgreement(for courseId: Int, codeOfConduct: String) -> Bool
 }
 
 enum CodeOfConductStorageServiceFactory {
