@@ -44,7 +44,7 @@ class MessagesTabViewModel: BaseViewModel {
             self.codeOfConductAgreement = await CodeOfConductServiceFactory.shared.getCodeOfConductAgreement(for: courseId)
         } else {
             self.codeOfConduct = await CodeOfConductServiceFactory.shared.getCodeOfConductTemplate()
-            self.codeOfConductAgreement = await _ServiceFactory.shared.getCodeOfConductAgreement(for: course)
+            self.codeOfConductAgreement = await CodeOfConductStorageServiceFactory.shared.getCodeOfConductAgreement(for: course)
         }
         // Get code of conduct agreement
         self.codeOfConductResonsibleUsers = await CodeOfConductServiceFactory.shared.getCodeOfConductResponsibleUsers(for: courseId)
@@ -55,7 +55,7 @@ class MessagesTabViewModel: BaseViewModel {
         isLoading = true
         let result: NetworkResponse
         if course.courseInformationSharingMessagingCodeOfConduct?.isEmpty ?? true {
-            result = await _ServiceFactory.shared.acceptCodeOfConduct(for: course)
+            result = await CodeOfConductStorageServiceFactory.shared.acceptCodeOfConduct(for: course)
         } else {
             result = await CodeOfConductServiceFactory.shared.acceptCodeOfConduct(for: courseId)
         }

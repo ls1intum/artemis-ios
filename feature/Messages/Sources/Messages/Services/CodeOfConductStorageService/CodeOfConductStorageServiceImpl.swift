@@ -1,29 +1,16 @@
 //
-//  _Service.swift
+//  CodeOfConductStorageServiceImpl.swift
+//  
 //
-//
-//  Created by Nityananda Zbil on 24.10.23.
+//  Created by TUM School on 26.10.23.
 //
 
-import APIClient
 import Common
 import Foundation
 import SharedModels
 import UserStore
 
-// swiftlint:disable:next type_name
-protocol _Service {
-    func getCodeOfConductAgreement(for course: Course) async -> DataState<Bool>
-    func acceptCodeOfConduct(for course: Course) async -> NetworkResponse
-}
-
-// swiftlint:disable:next type_name
-enum _ServiceFactory {
-    static let shared: _Service = _ServiceImpl()
-}
-
-// swiftlint:disable:next type_name
-struct _ServiceImpl: _Service {
+struct CodeOfConductStorageServiceImpl: CodeOfConductStorageService {
     func getCodeOfConductAgreement(for course: Course) async -> DataState<Bool> {
         guard let serverHost = UserSession.shared.institution?.baseURL?.absoluteString else {
             return .failure(error: .init(title: "No base URL"))
