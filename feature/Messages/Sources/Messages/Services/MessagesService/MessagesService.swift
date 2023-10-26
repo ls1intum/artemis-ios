@@ -29,26 +29,6 @@ protocol MessagesService {
     func setIsFavoriteConversation(for courseId: Int, and conversationId: Int64, isFavorite: Bool) async -> NetworkResponse
 
     /**
-     * Perform a get request for the code of conduct template.
-     */
-    func getCodeOfConductTemplate() async -> DataState<String>
-
-    /**
-     * Perform a get request to check if the code of conduct is accepted.
-     */
-    func getCodeOfConductAgreement(for courseId: Int) async -> DataState<Bool>
-
-    /**
-     * Perform a path request to accept the code of conduct.
-     */
-    func acceptCodeOfConduct(for courseId: Int) async -> NetworkResponse
-
-    /**
-     * Perform a get request for the responsible users.
-     */
-    func getCodeOfConductResponsibleUsers(for courseId: Int) async -> DataState<[ResponsibleUserDTO]>
-
-    /**
      * Perform a get request for Messages of a specific conversation in a specific course to the server.
      */
     func getMessages(for courseId: Int, and conversationId: Int64, size: Int) async -> DataState<[Message]>
