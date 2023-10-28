@@ -44,11 +44,18 @@ class MessagesTabViewModel: BaseViewModel {
         } else {
             codeOfConduct = await CodeOfConductServiceFactory.shared.getTemplate()
             codeOfConduct.value.map { codeOfConduct in
-                codeOfConductAgreement = .done(
-                    response: CodeOfConductStorageServiceFactory.shared.getAgreement(for: courseId, codeOfConduct: codeOfConduct))
+                let agreement = CodeOfConductStorageServiceFactory.shared.getAgreement(for: courseId, codeOfConduct: codeOfConduct)
+                codeOfConductAgreement = .done(response: agreement)
             }
         }
         isLoading = false
+        // Handle error
+        switch (codeOfConduct, codeOfConductAgreement) {
+        case let (.failure(error), _), let (_, .failure(error)):
+            presentError(userFacingError: error)
+        default:
+            break
+        }
     }
 
     func acceptCodeOfConduct() async {
@@ -63,6 +70,7 @@ class MessagesTabViewModel: BaseViewModel {
         } else {
             result = await CodeOfConductServiceFactory.shared.acceptCodeOfConduct(for: courseId)
         }
+        // Handle error
         switch result {
         case .notStarted, .loading:
             isLoading = false

@@ -25,10 +25,10 @@ public struct MessagesTabView: View {
     }
 
     public var body: some View {
-        DataStateView(data: $viewModel.codeOfConduct) {
+        DataStateView(data: $viewModel.codeOfConductAgreement) {
             await viewModel.getCodeOfConductInformation()
-        } content: { codeOfConduct in
-            if viewModel.codeOfConductAgreement.value ?? false {
+        } content: { agreement in
+            if agreement {
                 MessagesAvailableView(course: viewModel.course, searchText: _searchText)
             } else {
                 ScrollView {

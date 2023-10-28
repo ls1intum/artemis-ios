@@ -27,13 +27,20 @@ class CodeOfConductViewModel: BaseViewModel {
     func getCodeOfConductInformation() async {
         isLoading = true
         // Get code of conduct
-        if let remoteCodeOfConduct = course.courseInformationSharingMessagingCodeOfConduct, !remoteCodeOfConduct.isEmpty {
-            codeOfConduct = .done(response: remoteCodeOfConduct)
+        if let courseCodeOfConduct = course.courseInformationSharingMessagingCodeOfConduct, !courseCodeOfConduct.isEmpty {
+            codeOfConduct = .done(response: courseCodeOfConduct)
         } else {
             codeOfConduct = await CodeOfConductServiceFactory.shared.getTemplate()
         }
-        // Get code of conduct responsible users
+        // Get responsible users
         responsibleUsers = await CodeOfConductServiceFactory.shared.getResponsibleUsers(for: courseId)
         isLoading = false
+        // Handle error
+        switch (codeOfConduct, responsibleUsers) {
+        case let (.failure(error), _), let (_, .failure(error)):
+            presentError(userFacingError: error)
+        default:
+            break
+        }
     }
 }
