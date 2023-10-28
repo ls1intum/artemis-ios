@@ -68,7 +68,7 @@ struct RootView: View {
                                     }
                                 }
                         }
-                        .onChange(of: navigationController.path) { _ in
+                        .onChange(of: navigationController.path) {
                             log.debug("NavigationController count: \(navigationController.path.count)")
                         }
                         .environmentObject(navigationController)
