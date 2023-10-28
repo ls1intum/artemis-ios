@@ -8,6 +8,14 @@ class CourseViewModel: ObservableObject {
 
     @Published var course: DataState<Course> = DataState.loading
 
+    var isMessagesVisible: Bool {
+        if let configuration = course.value?.courseInformationSharingConfiguration {
+            return configuration == .communicationAndMessaging || configuration == .messagingOnly
+        } else {
+            return true
+        }
+    }
+
     init(courseId: Int) {
         Task {
             await loadCourse(id: courseId)
