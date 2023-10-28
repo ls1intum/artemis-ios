@@ -2,6 +2,8 @@
 
 // MARK: MessagesTabView
 "archived" = "(Archived)";
+"codeOfConduct" = "Code of Conduct";
+"acceptCodeOfConductButtonLabel" = "Accept";
 
 // MARK: SendMessageView
 "exercise" = "Exercise";
@@ -115,3 +117,4 @@
 "previous" = "Previous";
 "next" = "Next";
 "confirm" = "Confirm";
+"done" = "Done";
