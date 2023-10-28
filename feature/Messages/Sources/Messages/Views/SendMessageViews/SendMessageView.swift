@@ -76,17 +76,15 @@ struct SendMessageView: View {
                     responseText = answerMessage.content ?? ""
                 }
             }
-            .overlay(
-                Group {
-                    if isEditMode {
-                        EmptyView()
-                    } else {
-                        RoundedRectangle(cornerRadius: 20)
-                            .trim(from: isFocused ? 0.52 : 0.51, to: isFocused ? 0.98 : 0.99)
-                            .stroke(Color.Artemis.artemisBlue, lineWidth: 2)
-                    }
+            .overlay {
+                if isEditMode {
+                    EmptyView()
+                } else {
+                    RoundedRectangle(cornerRadius: 20)
+                        .trim(from: isFocused ? 0.52 : 0.51, to: isFocused ? 0.98 : 0.99)
+                        .stroke(Color.Artemis.artemisBlue, lineWidth: 2)
                 }
-            )
+            }
             .gesture(
                 DragGesture(minimumDistance: 30, coordinateSpace: .local)
                     .onEnded({ value in
