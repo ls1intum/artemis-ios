@@ -161,8 +161,8 @@ struct SendMessageView: View {
                     .sheet(isPresented: $showMemberPicker) {
                         isFocused = true
                     } content: {
-                        if let course = viewModel.course.value {
-                            SendMessageMemberPicker(text: $responseText, course: course)
+                        if let course = viewModel.course.value, let conversation = viewModel.conversation.value {
+                            SendMessageMemberPicker(course: course, conversation: conversation, text: $responseText)
                         } else {
                             Text(R.string.localizable.loading())
                         }
@@ -311,30 +311,6 @@ private struct SendMessageLecturePicker: View {
             }
         } else {
             ContentUnavailableView(R.string.localizable.lecturesUnavailable(), systemImage: "magnifyingglass")
-        }
-    }
-}
-
-private struct SendMessageMemberPicker: View {
-
-    @Environment(\.dismiss) var dismiss
-
-    @Binding var text: String
-
-    let course: Course
-
-    var body: some View {
-        if let members = Optional.some([ConversationUser]()), !members.isEmpty {
-            List(members) { member in
-                if let login = member.login, let name = member.name {
-                    Button(name) {
-                        text.append("[user]\(name)(\(login))[/user]")
-                        dismiss()
-                    }
-                }
-            }
-        } else {
-            ContentUnavailableView(R.string.localizable.membersUnavailable(), systemImage: "magnifyingglass")
         }
     }
 }
