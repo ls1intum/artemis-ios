@@ -120,6 +120,10 @@ public struct MessagesAvailableView: View {
                 ScrollView {
                     VStack(alignment: .leading) {
                         CodeOfConductView(course: viewModel.course)
+                        // Take all available horizontal space
+                        HStack {
+                            Spacer()
+                        }
                     }
                 }
                 .padding()
