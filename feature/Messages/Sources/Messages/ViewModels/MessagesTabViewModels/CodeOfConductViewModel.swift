@@ -21,15 +21,17 @@ class CodeOfConductViewModel: BaseViewModel {
         self.course = course
         self.courseId = course.id
 
+        if let courseCodeOfConduct = course.courseInformationSharingMessagingCodeOfConduct, !courseCodeOfConduct.isEmpty {
+            codeOfConduct = .done(response: courseCodeOfConduct)
+        }
+
         super.init()
     }
 
     func getCodeOfConductInformation() async {
         isLoading = true
-        // Get code of conduct
-        if let courseCodeOfConduct = course.courseInformationSharingMessagingCodeOfConduct, !courseCodeOfConduct.isEmpty {
-            codeOfConduct = .done(response: courseCodeOfConduct)
-        } else {
+        // Get code of conduct if not done
+        if case .loading = codeOfConduct {
             codeOfConduct = await CodeOfConductServiceFactory.shared.getTemplate()
         }
         // Get responsible users
