@@ -7,7 +7,8 @@ import DesignLibrary
 
 public struct CourseView: View {
 
-    @StateObject var viewModel: CourseViewModel
+    @StateObject private var viewModel: CourseViewModel
+    @StateObject private var messagesPreferences = MessagesPreferences()
 
     @EnvironmentObject private var navigationController: NavigationController
 
@@ -35,27 +36,44 @@ public struct CourseView: View {
                 }
                 .tag(TabIdentifier.lecture)
 
-            if viewModel.course.value == nil ||
-                viewModel.course.value?.courseInformationSharingConfiguration == .communicationAndMessaging ||
-                viewModel.course.value?.courseInformationSharingConfiguration == .messagingOnly {
+            if viewModel.isMessagesVisible {
                 Group {
                     if let course = viewModel.course.value {
-                        MessagesTabView(searchText: $searchText, course: course)
+                        MessagesTabView(course: course, searchText: $searchText)
+                            .environmentObject(messagesPreferences)
                     } else {
                         Text("Loading...")
                     }
                 }
-                    .tabItem {
-                        Label(R.string.localizable.messagesTabLabel(), systemImage: "bubble.right.fill")
-                    }
-                    .tag(TabIdentifier.communication)
+                .tabItem {
+                    Label(R.string.localizable.messagesTabLabel(), systemImage: "bubble.right.fill")
+                }
+                .tag(TabIdentifier.communication)
             }
         }
-            .navigationTitle(viewModel.course.value?.title ?? R.string.localizable.loading())
-            .navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $searchText)
-            .onChange(of: navigationController.courseTab) { _ in
-                searchText = ""
-            }
+        .navigationTitle(viewModel.course.value?.title ?? R.string.localizable.loading())
+        .navigationBarTitleDisplayMode(.inline)
+        .modifier(SearchableIf(condition: navigationController.courseTab != .communication || messagesPreferences.isSearchable,
+                               text: $searchText))
+        .onChange(of: navigationController.courseTab) {
+            searchText = ""
+        }
+    }
+}
+
+/// `SearchableIf` modifies a view to be searchable if the condition is true.
+///
+/// It appears, the `.searchable` modifier cannot be deeper in the hierarchy, i.e., further from the enclosing `NavigationStack`.
+private struct SearchableIf: ViewModifier {
+    let condition: Bool
+    let text: Binding<String>
+
+    func body(content: Content) -> some View {
+        if condition {
+            content
+                .searchable(text: text)
+        } else {
+            content
+        }
     }
 }
