@@ -10,12 +10,12 @@ import Common
 protocol CodeOfConductStorageService {
 
     /**
-     * Accept the content of the code of conduct locally.
+     * Accept the code of conduct's contents locally.
      */
     func acceptCodeOfConduct(for courseId: Int, codeOfConduct: String)
 
     /**
-     * Get the agreement for the content of the code of conduct locally.
+     * Get the agreement for the code of conduct's contents locally.
      */
     func getAgreement(for courseId: Int, codeOfConduct: String) -> Bool
 }

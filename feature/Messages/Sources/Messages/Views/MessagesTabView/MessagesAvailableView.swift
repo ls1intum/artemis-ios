@@ -103,7 +103,7 @@ public struct MessagesAvailableView: View {
                 .listRowInsets(EdgeInsets(top: .s, leading: .l, bottom: .s, trailing: .l))
             }
         }
-        .listStyle(PlainListStyle())
+        .listStyle(.plain)
         .refreshable {
             await viewModel.loadConversations()
         }

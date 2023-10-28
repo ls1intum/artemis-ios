@@ -10,7 +10,7 @@ import Common
 protocol CodeOfConductService {
 
     /**
-     * Perform a path request to accept the code of conduct.
+     * Perform a patch request to accept the code of conduct.
      */
     func acceptCodeOfConduct(for courseId: Int) async -> NetworkResponse
 
