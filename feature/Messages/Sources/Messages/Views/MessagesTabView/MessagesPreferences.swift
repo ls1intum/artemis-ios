@@ -12,7 +12,7 @@ import SwiftUI
 /// Unfortunately, the `.preference(key:value:)` modifier did not update the value correctly at the container view.
 public class MessagesPreferences: ObservableObject {
     /// `isSearchable` signals if the `MessagesTabView` is searchable.
-    @Published public internal(set) var isSearchable = true
+    @Published public internal(set) var isSearchable = false
 
     public init() {}
 }
