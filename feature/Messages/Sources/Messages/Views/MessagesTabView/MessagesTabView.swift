@@ -32,20 +32,18 @@ public struct MessagesTabView: View {
                 MessagesAvailableView(course: viewModel.course, searchText: _searchText)
             } else {
                 ScrollView {
-                    VStack(alignment: .leading) {
-                        CodeOfConductView(course: viewModel.course)
-                        HStack {
-                            Spacer()
-                            Button {
-                                Task {
-                                    await viewModel.acceptCodeOfConduct()
-                                }
-                            } label: {
-                                Text(R.string.localizable.acceptCodeOfConductButtonLabel())
+                    CodeOfConductView(course: viewModel.course)
+                    HStack {
+                        Spacer()
+                        Button {
+                            Task {
+                                await viewModel.acceptCodeOfConduct()
                             }
-                            .buttonStyle(ArtemisButton())
-                            Spacer()
+                        } label: {
+                            Text(R.string.localizable.acceptCodeOfConductButtonLabel())
                         }
+                        .buttonStyle(ArtemisButton())
+                        Spacer()
                     }
                 }
                 .padding()

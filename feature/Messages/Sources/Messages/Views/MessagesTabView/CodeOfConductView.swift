@@ -22,7 +22,13 @@ struct CodeOfConductView: View {
         DataStateView(data: $viewModel.codeOfConduct) {
             await viewModel.getCodeOfConductInformation()
         } content: { _ in
-            Markdown(codeOfConductSanitized() + "\n" + responsibleUserMarkdown())
+            VStack(alignment: .leading) {
+                Markdown(codeOfConductSanitized() + "\n" + responsibleUserMarkdown())
+                // Take all available horizontal space
+                HStack {
+                    Spacer()
+                }
+            }
         }
         .task {
             await viewModel.getCodeOfConductInformation()

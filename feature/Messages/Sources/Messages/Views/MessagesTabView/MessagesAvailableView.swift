@@ -118,13 +118,7 @@ public struct MessagesAvailableView: View {
         .sheet(isPresented: $isCodeOfConductPresented) {
             NavigationStack {
                 ScrollView {
-                    VStack(alignment: .leading) {
-                        CodeOfConductView(course: viewModel.course)
-                        // Take all available horizontal space
-                        HStack {
-                            Spacer()
-                        }
-                    }
+                    CodeOfConductView(course: viewModel.course)
                 }
                 .padding()
                 .navigationTitle(R.string.localizable.codeOfConduct())
