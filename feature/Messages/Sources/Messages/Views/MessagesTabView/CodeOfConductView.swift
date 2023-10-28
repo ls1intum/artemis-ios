@@ -7,41 +7,33 @@
 
 import DesignLibrary
 import MarkdownUI
+import SharedModels
 import SwiftUI
 
 struct CodeOfConductView: View {
-    let codeOfConduct: String
-    let responsibleUsers: [ResponsibleUserDTO]
-    let acceptAction: (() async -> Void)?
+
+    @StateObject private var viewModel: CodeOfConductViewModel
+
+    init(course: Course) {
+        self._viewModel = StateObject(wrappedValue: CodeOfConductViewModel(course: course))
+    }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading) {
-                Markdown(codeOfConductSanitized() + "\n" + responsibleUserMarkdown())
-                if let acceptAction {
-                    HStack {
-                        Spacer()
-                        Button {
-                            Task {
-                                await acceptAction()
-                            }
-                        } label: {
-                            Text(R.string.localizable.acceptCodeOfConductButtonLabel())
-                        }
-                        .buttonStyle(ArtemisButton())
-                        Spacer()
-                    }
-                }
-            }
+        DataStateView(data: $viewModel.codeOfConduct) {
+            await viewModel.getCodeOfConductInformation()
+        } content: { _ in
+            Markdown(codeOfConductSanitized() + "\n" + responsibleUserMarkdown())
         }
-        .padding()
+        .task {
+            await viewModel.getCodeOfConductInformation()
+        }
     }
 }
 
 private extension CodeOfConductView {
     /// `codeOfConductSanitized` filters HTML comments.
     func codeOfConductSanitized() -> String {
-        codeOfConduct
+        (viewModel.codeOfConduct.value ?? "")
             .split(separator: "\n")
             .filter { line in
                 let isComment = line.hasPrefix("<!--") && line.hasSuffix("-->")
@@ -52,7 +44,7 @@ private extension CodeOfConductView {
 
     /// `responsibleUserMarkdown` creates a Markdown string from the responsible users array.
     func responsibleUserMarkdown() -> String {
-        responsibleUsers
+        (viewModel.responsibleUsers.value ?? [])
             .map { user in
                 "- \(user.name) ([\(user.email)](mailto:\(user.email)))"
             }

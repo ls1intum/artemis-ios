@@ -24,9 +24,6 @@ class MessagesAvailableViewModel: BaseViewModel {
 
     @Published var hiddenConversations: DataState<[Conversation]> = .loading
 
-    @Published var codeOfConductAgreement: DataState<Bool> = .loading
-    @Published var codeOfConductResonsibleUsers: DataState<[ResponsibleUserDTO]> = .loading
-
     @Published var channels: DataState<[Channel]> = .loading
     @Published var exercises: DataState<[Channel]> = .loading
     @Published var lectures: DataState<[Channel]> = .loading
@@ -34,12 +31,12 @@ class MessagesAvailableViewModel: BaseViewModel {
     @Published var groupChats: DataState<[GroupChat]> = .loading
     @Published var oneToOneChats: DataState<[OneToOneChat]> = .loading
 
-    let courseId: Int
     let course: Course
+    let courseId: Int
 
     init(course: Course) {
-        self.courseId = course.id
         self.course = course
+        self.courseId = course.id
 
         super.init()
     }

@@ -31,10 +31,24 @@ public struct MessagesTabView: View {
             if viewModel.codeOfConductAgreement.value ?? false {
                 MessagesAvailableView(course: viewModel.course, searchText: _searchText)
             } else {
-                CodeOfConductView(codeOfConduct: codeOfConduct,
-                                  responsibleUsers: viewModel.codeOfConductResonsibleUsers.value ?? []) {
-                    await viewModel.acceptCodeOfConduct()
+                ScrollView {
+                    VStack(alignment: .leading) {
+                        CodeOfConductView(course: viewModel.course)
+                        HStack {
+                            Spacer()
+                            Button {
+                                Task {
+                                    await viewModel.acceptCodeOfConduct()
+                                }
+                            } label: {
+                                Text(R.string.localizable.acceptCodeOfConductButtonLabel())
+                            }
+                            .buttonStyle(ArtemisButton())
+                            Spacer()
+                        }
+                    }
                 }
+                .padding()
             }
         }
         .task {

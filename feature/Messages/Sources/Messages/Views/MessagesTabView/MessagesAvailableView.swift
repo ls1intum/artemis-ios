@@ -117,9 +117,12 @@ public struct MessagesAvailableView: View {
         .loadingIndicator(isLoading: $viewModel.isLoading)
         .sheet(isPresented: $isCodeOfConductPresented) {
             NavigationStack {
-                CodeOfConductView(codeOfConduct: "codeOfConduct",
-                                  responsibleUsers: [],
-                                  acceptAction: nil)
+                ScrollView {
+                    VStack(alignment: .leading) {
+                        CodeOfConductView(course: viewModel.course)
+                    }
+                }
+                .padding()
                 .navigationTitle(R.string.localizable.codeOfConduct())
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
