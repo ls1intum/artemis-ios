@@ -9,7 +9,7 @@ import Common
 import SharedModels
 import SwiftUI
 
-class SendMessageMemberPickerModel: ObservableObject {
+class SendMessageMemberPickerModel: BaseViewModel {
 
     #warning("Leaky abstraction")
     static let paginationSize = 20
@@ -34,6 +34,7 @@ class SendMessageMemberPickerModel: ObservableObject {
     }
 
     func loadMoreItems() async {
+        isLoading = true
         paginationState = await MessagesServiceFactory.shared.getMembersOfConversation(
             for: course.id, conversationId: conversation.id, page: page)
         paginationState.value.map { more in
@@ -41,5 +42,6 @@ class SendMessageMemberPickerModel: ObservableObject {
             page += 1
         }
         paginationState = .loading
+        isLoading = false
     }
 }
