@@ -19,7 +19,7 @@ class SendMessageMemberPickerModel: BaseViewModel {
 
     var page = 0
 
-    @Published var members: [ConversationUser] = []
+    @Published var conversationMembers: [ConversationUser] = []
     @Published var paginationState: DataState<[ConversationUser]> = .loading
 
     var isMoreDataAvailable: Bool {
@@ -38,7 +38,7 @@ class SendMessageMemberPickerModel: BaseViewModel {
         paginationState = await MessagesServiceFactory.shared.getMembersOfConversation(
             for: course.id, conversationId: conversation.id, page: page)
         paginationState.value.map { more in
-            members += more
+            conversationMembers += more
             page += 1
         }
         paginationState = .loading
