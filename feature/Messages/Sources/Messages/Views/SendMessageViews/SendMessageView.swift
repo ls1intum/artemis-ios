@@ -26,16 +26,7 @@ struct SendMessageView: View {
     @State private var showLecturePicker = false
 
     private var isMemberPickerPresented: Bool {
-        guard responseText.contains("@") else {
-            return false
-        }
-        if let candidate = responseText.split(separator: "@").last {
-            let beforeAtSymbol = responseText.hasPrefix(candidate)
-            let stopUserMention = candidate.contains(" ")
-            return !beforeAtSymbol && !stopUserMention
-        } else {
-            return true
-        }
+        SendMessageMemberPicker.SearchAndReplaceCandidate.search(text: responseText) != nil
     }
 
     @FocusState private var isFocused: Bool

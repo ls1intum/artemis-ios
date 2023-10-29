@@ -10,6 +10,25 @@ import SwiftUI
 
 struct SendMessageMemberPicker: View {
 
+    enum SearchAndReplaceCandidate {
+        static let regex = #/(?<prefix>.*)@(?<candidate>.*?)/#
+
+        static func search(text: String) -> Substring? {
+            let match = text.wholeMatch(of: regex)
+            let candidate = match?.candidate
+            return candidate
+        }
+
+        static func replace(text: inout String, member: ConversationUser) {
+            guard let name = member.name, let login = member.login else {
+                return
+            }
+            text.replace(regex) { match in
+                match.0 + "[user]\(name)(\(login))[/user]"
+            }
+        }
+    }
+
     @Environment(\.dismiss) var dismiss
 
     @StateObject private var viewModel: SendMessageMemberPickerModel
@@ -22,32 +41,40 @@ struct SendMessageMemberPicker: View {
     }
 
     var body: some View {
-        Group {
-            if !viewModel.members.isEmpty {
-                List {
-                    ForEach(viewModel.members) { member in
-                        if let login = member.login, let name = member.name {
-                            Button(name) {
-                                text.append("[user]\(name)(\(login))[/user]")
-                                dismiss()
-                            }
-                        }
-                    }
-                    if viewModel.isMoreDataAvailable {
-                        lastRowView
+        if !viewModel.conversationMembers.isEmpty || viewModel.page == 0 {
+            List {
+                ForEach(viewModel.conversationMembers.filter(isMatchingCandidate(member:))) { member in
+                    Button(member.name ?? "") {
+                        SearchAndReplaceCandidate.replace(text: &text, member: member)
                     }
                 }
-            } else {
-                ContentUnavailableView(R.string.localizable.membersUnavailable(), systemImage: "magnifyingglass")
+                if viewModel.isMoreDataAvailable {
+                    lastRowView
+                }
             }
+        } else {
+            ContentUnavailableView(R.string.localizable.membersUnavailable(), systemImage: "magnifyingglass")
         }
-        .task {
-            await viewModel.loadMoreItems()
+    }
+}
+
+private extension SendMessageMemberPicker {
+    func isMatchingCandidate(member: ConversationUser) -> Bool {
+        guard let candidate = SearchAndReplaceCandidate.search(text: text) else {
+            return true
         }
+        if let name = member.name, name.lowercased().contains(candidate.lowercased()) {
+            return true
+        }
+        if let login = member.login, login.lowercased().contains(candidate.lowercased()) {
+            return true
+        }
+        return false
     }
 
     var lastRowView: some View {
         ZStack(alignment: .center) {
+            Spacer()
             switch viewModel.paginationState {
             case .loading:
                 ProgressView()
@@ -56,8 +83,8 @@ struct SendMessageMemberPicker: View {
             case .failure(let error):
                 Text(error.title)
             }
+            Spacer()
         }
-        .frame(height: 50)
         .task {
             await viewModel.loadMoreItems()
         }
