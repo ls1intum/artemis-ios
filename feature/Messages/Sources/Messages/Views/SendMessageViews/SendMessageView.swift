@@ -5,10 +5,10 @@
 //  Created by Sven Andabaka on 08.04.23.
 //
 
-import SwiftUI
-import DesignLibrary
 import Common
+import DesignLibrary
 import SharedModels
+import SwiftUI
 
 enum SendMessageType {
     case message
@@ -239,76 +239,5 @@ struct SendMessageView: View {
             .padding(.leading, .l)
             .disabled(responseText.isEmpty)
             .loadingIndicator(isLoading: $viewModel.isLoading)
-    }
-}
-
-private struct SendMessageExercisePicker: View {
-
-    @Environment(\.dismiss) var dismiss
-
-    @Binding var text: String
-
-    let course: Course
-
-    var body: some View {
-        if let exercises = course.exercises, !exercises.isEmpty {
-            List(exercises) { exercise in
-                if let title = exercise.baseExercise.title {
-                    Button(title) {
-                        appendMarkdown(for: exercise)
-                        dismiss()
-                    }
-                }
-            }
-        } else {
-            ContentUnavailableView(R.string.localizable.exercisesUnavailable(), systemImage: "magnifyingglass")
-        }
-    }
-
-    func appendMarkdown(for exercise: Exercise) {
-        let type: String?
-        switch exercise {
-        case .fileUpload:
-            type = "file-upload"
-        case .modeling:
-            type = "modeling"
-        case .programming:
-            type = "programming"
-        case .quiz:
-            type = "quiz"
-        case .text:
-            type = "text"
-        case .unknown:
-            type = nil
-        }
-
-        guard let type,
-              let title = exercise.baseExercise.title else { return }
-
-        text.append("[\(type)]\(title)(/courses/\(course.id)/exercises/\(exercise.id))[/\(type)]")
-    }
-}
-
-private struct SendMessageLecturePicker: View {
-
-    @Environment(\.dismiss) var dismiss
-
-    @Binding var text: String
-
-    let course: Course
-
-    var body: some View {
-        if let lectures = course.lectures, !lectures.isEmpty {
-            List(lectures) { lecture in
-                if let title = lecture.title {
-                    Button(title) {
-                        text.append("[lecture]\(title)(/courses/\(course.id)/lectures/\(lecture.id))[/lecture]")
-                        dismiss()
-                    }
-                }
-            }
-        } else {
-            ContentUnavailableView(R.string.localizable.lecturesUnavailable(), systemImage: "magnifyingglass")
-        }
     }
 }
