@@ -1,6 +1,6 @@
 //
 //  SendMessageView.swift
-//  
+//
 //
 //  Created by Sven Andabaka on 08.04.23.
 //
@@ -24,50 +24,70 @@ struct SendMessageView: View {
     @State private var responseText = ""
     @State private var showExercisePicker = false
     @State private var showLecturePicker = false
-    @State private var showMemberPicker = false
+
+    private var isMemberPickerPresented: Bool {
+        guard responseText.contains("@") else {
+            return false
+        }
+        if let candidate = responseText.split(separator: "@").last {
+            let beforeAtSymbol = responseText.hasPrefix(candidate)
+            let stopUserMention = candidate.contains(" ")
+            return !beforeAtSymbol && !stopUserMention
+        } else {
+            return true
+        }
+    }
 
     @FocusState private var isFocused: Bool
 
     let sendMessageType: SendMessageType
 
-    var isEditMode: Bool {
+    private var isEditMode: Bool {
         switch sendMessageType {
-        case .message:
+        case .message, .answerMessage:
             return false
-        case .answerMessage:
-            return false
-        case .editMessage:
-            return true
-        case .editAnswerMessage:
+        case .editMessage, .editAnswerMessage:
             return true
         }
     }
 
     var body: some View {
         VStack {
-            if isFocused && !isEditMode {
-                Capsule()
-                    .fill(Color.secondary)
-                    .frame(width: 50, height: 3)
-                    .padding(.top, .m)
-            }
-            HStack(alignment: .bottom) {
-                textField
-                    .lineLimit(10)
-                    .focused($isFocused)
-                    .toolbar {
-                        ToolbarItem(placement: .keyboard) {
-                            keyboardToolbarContent
-                        }
+            if isMemberPickerPresented, let course = viewModel.course.value, let conversation = viewModel.conversation.value {
+                SendMessageMemberPicker(course: course, conversation: conversation, text: $responseText)
+                    .listStyle(.plain)
+                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(Color.Artemis.artemisBlue, lineWidth: 2)
                     }
-                if !isFocused {
-                    sendButton
-                }
+                    .frame(height: 44 * 4)
+                    .padding(.bottom, .m)
             }
+            VStack {
+                if isFocused && !isEditMode {
+                    Capsule()
+                        .fill(Color.secondary)
+                        .frame(width: 50, height: 3)
+                        .padding(.top, .m)
+                }
+                HStack(alignment: .bottom) {
+                    textField
+                        .lineLimit(10)
+                        .focused($isFocused)
+                        .toolbar {
+                            ToolbarItem(placement: .keyboard) {
+                                keyboardToolbarContent
+                            }
+                        }
+                    if !isFocused {
+                        sendButton
+                    }
+                }
                 .padding(.horizontal, .l)
                 .padding(.bottom, .l)
                 .padding(.top, isFocused ? .m : .l)
-        }
+            }
             .onAppear {
                 if case .editMessage(let message, _) = sendMessageType {
                     responseText = message.content ?? ""
@@ -87,27 +107,28 @@ struct SendMessageView: View {
             }
             .gesture(
                 DragGesture(minimumDistance: 30, coordinateSpace: .local)
-                    .onEnded({ value in
+                    .onEnded { value in
                         if value.translation.height > 0 {
                             // down
                             isFocused = false
                             let impactMed = UIImpactFeedbackGenerator(style: .medium)
                             impactMed.impactOccurred()
                         }
-                    })
+                    }
             )
+        }
     }
+}
 
-    var textField: some View {
-        Group {
-            if isEditMode {
-                TextField(R.string.localizable.messageAction(viewModel.conversation.value?.baseConversation.conversationName ?? ""),
-                          text: $responseText, axis: .vertical)
-                    .textFieldStyle(ArtemisTextField())
-            } else {
-                TextField(R.string.localizable.messageAction(viewModel.conversation.value?.baseConversation.conversationName ?? ""),
-                          text: $responseText, axis: .vertical)
-            }
+private extension SendMessageView {
+    @ViewBuilder var textField: some View {
+        if isEditMode {
+            TextField(R.string.localizable.messageAction(viewModel.conversation.value?.baseConversation.conversationName ?? ""),
+                      text: $responseText, axis: .vertical)
+            .textFieldStyle(ArtemisTextField())
+        } else {
+            TextField(R.string.localizable.messageAction(viewModel.conversation.value?.baseConversation.conversationName ?? ""),
+                      text: $responseText, axis: .vertical)
         }
     }
 
@@ -115,82 +136,76 @@ struct SendMessageView: View {
         HStack {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
-                    Button(action: {
-                        responseText.append("****")
-                    }, label: {
-                        Image(systemName: "bold")
-                    })
-                    Button(action: {
-                        responseText.append("**")
-                    }, label: {
-                        Image(systemName: "italic")
-                    })
-                    Button(action: {
-                        responseText.append("<ins></ins>")
-                    }, label: {
-                        Image(systemName: "underline")
-                    })
-                    Button(action: {
-                        responseText.append("> Reference")
-                    }, label: {
-                        Image(systemName: "quote.opening")
-                    })
-                    Button(action: {
-                        responseText.append("``")
-                    }, label: {
-                        Image(systemName: "curlybraces")
-                    })
-                    Button(action: {
-                        responseText.append("```java\nSource Code\n```")
-                    }, label: {
-                        Image(systemName: "curlybraces.square.fill")
-                    })
-                    Button(action: {
-                        responseText.append("[](http://)")
-                    }, label: {
-                        Image(systemName: "link")
-                    })
                     Button {
-                        isFocused = false
-                        showMemberPicker = true
+                        responseText.append("****")
+                    } label: {
+                        Image(systemName: "bold")
+                    }
+                    Button {
+                        responseText.append("**")
+                    } label: {
+                        Image(systemName: "italic")
+                    }
+                    Button {
+                        responseText.append("<ins></ins>")
+                    } label: {
+                        Image(systemName: "underline")
+                    }
+                    Button {
+                        responseText.append("> Reference")
+                    } label: {
+                        Image(systemName: "quote.opening")
+                    }
+                    Button {
+                        responseText.append("``")
+                    } label: {
+                        Image(systemName: "curlybraces")
+                    }
+                    Button {
+                        responseText.append("```java\nSource Code\n```")
+                    } label: {
+                        Image(systemName: "curlybraces.square.fill")
+                    }
+                    Button {
+                        responseText.append("[](http://)")
+                    } label: {
+                        Image(systemName: "link")
+                    }
+                    Button {
+                        responseText += "@"
                     } label: {
                         Image(systemName: "at")
                     }
-                    .sheet(isPresented: $showMemberPicker) {
+                    Button {
+                        isFocused = false
+                        showExercisePicker = true
+                    } label: {
+                        Text(R.string.localizable.exercise())
+                    }
+                    .sheet(isPresented: $showExercisePicker) {
                         isFocused = true
                     } content: {
-                        if let course = viewModel.course.value, let conversation = viewModel.conversation.value {
-                            SendMessageMemberPicker(course: course, conversation: conversation, text: $responseText)
+                        if let course = viewModel.course.value {
+                            SendMessageExercisePicker(text: $responseText, course: course)
                         } else {
                             Text(R.string.localizable.loading())
                         }
                     }
-                    Button(action: {
-                        isFocused = false
-                        showExercisePicker = true
-                    }, label: {
-                        Text(R.string.localizable.exercise())
-                    })
-                        .sheet(isPresented: $showExercisePicker, onDismiss: { isFocused = true }) {
-                            if let course = viewModel.course.value {
-                                SendMessageExercisePicker(text: $responseText, course: course)
-                            } else {
-                                Text(R.string.localizable.loading())
-                            }
-                        }
-                    Button(action: {
+                    Button {
                         isFocused = false
                         showLecturePicker = true
-                    }, label: {
+                    } label: {
                         Text(R.string.localizable.lecture())
-                    })
-                        .sheet(isPresented: $showLecturePicker, onDismiss: { isFocused = true }) {
-                            if let course = viewModel.course.value {
-                                SendMessageLecturePicker(text: $responseText, course: course)
-                            } else {
-                                Text(R.string.localizable.loading())
-                            }
+                    }
+                    .sheet(isPresented: $showExercisePicker) {
+                        isFocused = true
+                    } content: {
+                        if let course = viewModel.course.value {
+                            SendMessageLecturePicker(text: $responseText, course: course)
+                        } else {
+                            Text(R.string.localizable.loading())
                         }
+                    }
                 }
             }
             Spacer()
@@ -199,7 +214,7 @@ struct SendMessageView: View {
     }
 
     var sendButton: some View {
-        Button(action: {
+        Button {
             viewModel.isLoading = true
             Task {
                 var result: NetworkResponse?
@@ -232,12 +247,12 @@ struct SendMessageView: View {
                     return
                 }
             }
-        }, label: {
+        } label: {
             Image(systemName: "paperplane.fill")
                 .imageScale(.large)
-        })
-            .padding(.leading, .l)
-            .disabled(responseText.isEmpty)
-            .loadingIndicator(isLoading: $viewModel.isLoading)
+        }
+        .padding(.leading, .l)
+        .disabled(responseText.isEmpty)
+        .loadingIndicator(isLoading: $viewModel.isLoading)
     }
 }
