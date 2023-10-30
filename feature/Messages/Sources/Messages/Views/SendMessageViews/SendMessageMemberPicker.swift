@@ -74,16 +74,18 @@ private extension SendMessageMemberPicker {
 
     var lastRowView: some View {
         ZStack(alignment: .center) {
-            Spacer()
-            switch viewModel.paginationState {
-            case .loading:
-                ProgressView()
-            case .done:
-                EmptyView()
-            case .failure(let error):
-                Text(error.title)
+            HStack {
+                Spacer()
+                switch viewModel.paginationState {
+                case .loading:
+                    ProgressView()
+                case .done:
+                    EmptyView()
+                case .failure(let error):
+                    Text(error.title)
+                }
+                Spacer()
             }
-            Spacer()
         }
         .task {
             await viewModel.loadMoreItems()
