@@ -11,7 +11,7 @@ import SwiftUI
 struct SendMessageMemberPicker: View {
 
     enum SearchAndReplaceCandidate {
-        static let regex = #/(?<prefix>.*)@(?<candidate>.*?)/#
+        static let regex = #/(?<prefix>.*)@(?<candidate>.*)/#
 
         static func search(text: String) -> Substring? {
             let match = text.wholeMatch(of: regex)
@@ -24,12 +24,10 @@ struct SendMessageMemberPicker: View {
                 return
             }
             text.replace(regex) { match in
-                match.0 + "[user]\(name)(\(login))[/user]"
+                match.prefix + "[user]\(name)(\(login))[/user]"
             }
         }
     }
-
-    @Environment(\.dismiss) var dismiss
 
     @StateObject private var viewModel: SendMessageMemberPickerModel
 
