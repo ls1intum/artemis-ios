@@ -10,7 +10,10 @@ import SharedModels
 import SwiftUI
 
 enum SendMessageMemberCandidate {
-    private static let regex = #/(?<prefix>.*)@(?<candidate>.*)/#
+
+    /// `regex` matches a prefix and the last at symbol followed by a candidate. The candidate is a possible user name
+    /// or login.
+    private static let regex = #/(?<prefix>[^@]*)@(?<candidate>.*)/#
 
     static func search(text: String) -> Substring? {
         text.wholeMatch(of: regex)?.candidate
