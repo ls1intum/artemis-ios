@@ -7,41 +7,24 @@
 
 import Common
 import SharedModels
+import SharedServices
 import SwiftUI
 
 class SendMessageMemberPickerModel: BaseViewModel {
 
-    #warning("Leaky abstraction")
-    static let paginationSize = 20
-
     let course: Course
     let conversation: Conversation
 
-    var page = 0
-
-    @Published var conversationMembers: [ConversationUser] = []
-    @Published var paginationState: DataState<[ConversationUser]> = .loading
-
-    var isMoreDataAvailable: Bool {
-        let numberOfMembers = (conversation.baseConversation.numberOfMembers ?? 0)
-        let isMoreDataAvailable = numberOfMembers > page * Self.paginationSize
-        return isMoreDataAvailable
-    }
+    @Published var members: DataState<[UserNameAndLoginDTO]> = .loading
 
     init(course: Course, conversation: Conversation) {
         self.course = course
         self.conversation = conversation
     }
 
-    func loadMoreItems() async {
+    func search(loginOrName: String) async {
         isLoading = true
-        paginationState = await MessagesServiceFactory.shared.getMembersOfConversation(
-            for: course.id, conversationId: conversation.id, page: page)
-        paginationState.value.map { more in
-            conversationMembers += more
-            page += 1
-        }
-        paginationState = .loading
+        members = await CourseServiceFactory.shared.getCourseMembers(courseId: course.id, searchLoginOrName: loginOrName)
         isLoading = false
     }
 }

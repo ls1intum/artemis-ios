@@ -28,7 +28,7 @@ struct SendMessageView: View {
     @State private var suppressMemberPicker = false
 
     private var isMemberPickerPresented: Bool {
-        SendMessageMemberPicker.SearchAndReplaceCandidate.search(text: responseText) != nil && !suppressMemberPicker
+        SendMessageMemberCandidate.search(text: responseText) != nil && !suppressMemberPicker
     }
 
     @FocusState private var isFocused: Bool

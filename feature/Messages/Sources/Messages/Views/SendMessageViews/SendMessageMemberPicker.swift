@@ -5,29 +5,28 @@
 //  Created by Nityananda Zbil on 28.10.23.
 //
 
+import DesignLibrary
 import SharedModels
 import SwiftUI
 
-struct SendMessageMemberPicker: View {
+enum SendMessageMemberCandidate {
+    private static let regex = #/(?<prefix>.*)@(?<candidate>.*)/#
 
-    enum SearchAndReplaceCandidate {
-        static let regex = #/(?<prefix>.*)@(?<candidate>.*)/#
+    static func search(text: String) -> Substring? {
+        text.wholeMatch(of: regex)?.candidate
+    }
 
-        static func search(text: String) -> Substring? {
-            let match = text.wholeMatch(of: regex)
-            let candidate = match?.candidate
-            return candidate
+    static func replace(text: inout String, member: UserNameAndLoginDTO) {
+        guard let name = member.name, let login = member.login else {
+            return
         }
-
-        static func replace(text: inout String, member: ConversationUser) {
-            guard let name = member.name, let login = member.login else {
-                return
-            }
-            text.replace(regex) { match in
-                match.prefix + "[user]\(name)(\(login))[/user]"
-            }
+        text.replace(regex) { match in
+            match.prefix + "[user]\(name)(\(login))[/user]"
         }
     }
+}
+
+struct SendMessageMemberPicker: View {
 
     @StateObject private var viewModel: SendMessageMemberPickerModel
 
@@ -39,54 +38,38 @@ struct SendMessageMemberPicker: View {
     }
 
     var body: some View {
-        if !viewModel.conversationMembers.isEmpty || viewModel.page == 0 {
-            List {
-                ForEach(viewModel.conversationMembers.filter(isMatchingCandidate(member:))) { member in
-                    Button(member.name ?? "") {
-                        SearchAndReplaceCandidate.replace(text: &text, member: member)
-                    }
+        HStack {
+            Spacer()
+            DataStateView(data: $viewModel.members) {
+                if let candidate = SendMessageMemberCandidate.search(text: text).map(String.init) {
+                    await viewModel.search(loginOrName: candidate)
                 }
-                if viewModel.isMoreDataAvailable {
-                    lastRowView
+            } content: { members in
+                if !members.isEmpty {
+                    List {
+                        ForEach(members, id: \.login) { member in
+                            Button(member.name ?? "") {
+                                SendMessageMemberCandidate.replace(text: &text, member: member)
+                            }
+                        }
+                    }
+                } else {
+                    ContentUnavailableView(R.string.localizable.membersUnavailable(), systemImage: "magnifyingglass")
                 }
             }
-        } else {
-            ContentUnavailableView(R.string.localizable.membersUnavailable(), systemImage: "magnifyingglass")
+            .onAppear(perform: search)
+            .onChange(of: text, search)
+            Spacer()
         }
     }
 }
 
 private extension SendMessageMemberPicker {
-    func isMatchingCandidate(member: ConversationUser) -> Bool {
-        guard let candidate = SearchAndReplaceCandidate.search(text: text) else {
-            return true
-        }
-        if let name = member.name, name.lowercased().contains(candidate.lowercased()) {
-            return true
-        }
-        if let login = member.login, login.lowercased().contains(candidate.lowercased()) {
-            return true
-        }
-        return false
-    }
-
-    var lastRowView: some View {
-        ZStack(alignment: .center) {
-            HStack {
-                Spacer()
-                switch viewModel.paginationState {
-                case .loading:
-                    ProgressView()
-                case .done:
-                    EmptyView()
-                case .failure(let error):
-                    Text(error.title)
-                }
-                Spacer()
+    func search() {
+        if let candidate = SendMessageMemberCandidate.search(text: text).map(String.init) {
+            Task {
+                await viewModel.search(loginOrName: candidate)
             }
-        }
-        .task {
-            await viewModel.loadMoreItems()
         }
     }
 }
