@@ -52,7 +52,6 @@ struct SendMessageView: View {
                         RoundedRectangle(cornerRadius: 20)
                             .stroke(Color.Artemis.artemisBlue, lineWidth: 2)
                     }
-                    .frame(height: 44 * 4)
                     .padding(.bottom, .m)
             }
             VStack {
