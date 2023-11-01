@@ -508,8 +508,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/ls1intum/artemis-ios-core-modules";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 6.0.0;
+				branch = "bugfix/development/decoding-error-profileinfo";
+				kind = branch;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
