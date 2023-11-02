@@ -7,7 +7,7 @@
 	<key>com.apple.developer.associated-domains</key>
 	<array>
 		<string>applinks:artemis.cit.tum.de</string>
-		<string>applinks:artemis-staging.artemis.cit.tum.de/</string>
+		<string>applinks:artemis-staging.artemis.cit.tum.de</string>
 		<string>applinks:artemis-test1.artemis.cit.tum.de</string>
 		<string>applinks:artemis-test2.artemis.cit.tum.de</string>
 		<string>applinks:artemis-test3.artemis.cit.tum.de</string>
@@ -16,7 +16,7 @@
 		<string>applinks:artemis-test6.artemis.cit.tum.de</string>
 		<string>applinks:artemis-test9.artemis.cit.tum.de</string>
 		<string>webcredentials:artemis.cit.tum.de</string>
-		<string>webcredentials:artemis-staging.artemis.cit.tum.de/</string>
+		<string>webcredentials:artemis-staging.artemis.cit.tum.de</string>
 		<string>webcredentials:artemis-test1.artemis.cit.tum.de</string>
 		<string>webcredentials:artemis-test2.artemis.cit.tum.de</string>
 		<string>webcredentials:artemis-test3.artemis.cit.tum.de</string>
