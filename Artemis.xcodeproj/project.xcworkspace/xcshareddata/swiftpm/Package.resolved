@@ -6,7 +6,7 @@
       "location" : "https://github.com/ls1intum/artemis-ios-core-modules",
       "state" : {
         "branch" : "feature/communication/user-mentions",
-        "revision" : "cb7ebe4fee1aa62c6faa08e1dcd1645d10e6b7ed"
+        "revision" : "54f37acfa93201e96b407f609ca4414ed6444ffa"
       }
     },
     {
@@ -46,12 +46,12 @@
       }
     },
     {
-      "identity" : "networkimage",
+      "identity" : "markdownosaur",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/gonzalezreal/NetworkImage",
+      "location" : "https://github.com/christianselig/Markdownosaur.git",
       "state" : {
-        "revision" : "7aff8d1b31148d32c5933d75557d42f6323ee3d1",
-        "version" : "6.0.0"
+        "branch" : "main",
+        "revision" : "25c32718674f47dded5d3be5d8d9a40e5ce8058c"
       }
     },
     {
@@ -109,12 +109,21 @@
       }
     },
     {
-      "identity" : "swift-markdown-ui",
+      "identity" : "swift-cmark",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/gonzalezreal/swift-markdown-ui",
+      "location" : "https://github.com/apple/swift-cmark.git",
       "state" : {
-        "revision" : "5df8a4adedd6ae4eb2455ef60ff75183984daeb8",
-        "version" : "2.2.0"
+        "branch" : "gfm",
+        "revision" : "3bc2f3e25df0cecc5dc269f7ccae65d0f386f06a"
+      }
+    },
+    {
+      "identity" : "swift-markdown",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-markdown.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "c211079c200ce2c5f68160bf75ded005b1c945f1"
       }
     },
     {

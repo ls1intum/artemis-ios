@@ -125,6 +125,57 @@ public struct ConversationView: View {
                 }
             }
             .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
+            .task {
+                for await notification in NotificationCenter.default.notifications(named: .ArtemisMarkdownViewDidTapURL) {
+                    artemisMarkdownViewDidTapURL(notification: notification)
+                }
+            }
+    }
+}
+
+private extension ConversationView {
+    func artemisMarkdownViewDidTapURL(notification: Notification) {
+        guard let url = notification.object as? URL else {
+            return
+        }
+
+        if url.scheme == "artemis" {
+            switch url.host {
+            case "channel":
+                do {
+                    let id = try Int(url.pathComponents[1], format: .number)
+                    navigationController.goToCourseConversation(courseId: viewModel.courseId, conversationId: Int64(id))
+                } catch {
+                    log.error(error)
+                }
+            case "exercise":
+                do {
+                    let id = try Int(url.pathComponents[1], format: .number)
+                    navigationController.goToExercise(courseId: viewModel.courseId, exerciseId: id)
+                } catch {
+                    log.error(error)
+                }
+            case "lecture":
+                do {
+                    let id = try Int(url.pathComponents[1], format: .number)
+                    navigationController.goToLecture(courseId: viewModel.courseId, lectureId: id)
+                } catch {
+                    log.error(error)
+                }
+            case "user":
+                do {
+                    let id = url.pathComponents[1]
+                    // todo: user login to conversation id
+                    // navigationController.goToCourseConversation(courseId: viewModel.courseId, conversationId: id)
+                } catch {
+                    log.error(error)
+                }
+            default:
+                break
+            }
+        } else {
+            UIApplication.shared.open(url)
+        }
     }
 }
 
