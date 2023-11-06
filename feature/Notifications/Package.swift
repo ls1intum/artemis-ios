@@ -15,7 +15,7 @@ let package = Package(
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
-        .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", .upToNextMajor(from: "6.0.0")),
+        .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", .upToNextMajor(from: "7.0.0")),
         .package(path: "../../core/Navigation"),
         .package(url: "https://github.com/mac-cain13/R.swift.git", from: "7.0.0")
     ],
