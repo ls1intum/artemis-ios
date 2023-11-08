@@ -1,6 +1,6 @@
 //
 //  ExerciseDetailView.swift
-//  
+//
 //
 //  Created by Sven Andabaka on 23.03.23.
 //
@@ -55,7 +55,7 @@ public struct ExerciseDetailView: View {
 
         let maxPoints = exercise.value?.baseExercise.maxPoints ?? 0
 
-        return (score * maxPoints / 100).clean
+        return (score * maxPoints / 100).rounded().clean
     }
 
     private var showFeedbackButton: Bool {
@@ -70,31 +70,12 @@ public struct ExerciseDetailView: View {
     public var body: some View {
         DataStateView(data: $exercise, retryHandler: { await loadExercise() }) { exercise in
             ScrollView {
-                VStack(alignment: .leading, spacing: .m) {
-                    VStack(alignment: .leading, spacing: .m) {
-                        ForEach(exercise.baseExercise.categories ?? [], id: \.category) { category in
-                            Chip(text: category.category, backgroundColor: UIColor(hexString: category.colorCode).suColor)
-                        }
-                        if let dueDate = exercise.baseExercise.dueDate {
-                            Text(R.string.localizable.dueDate(dueDate.relative ?? "?"))
-                        } else {
-                            Text(R.string.localizable.noDueDate())
-                        }
-                        HStack {
-                            Text(R.string.localizable.points(
-                                score,
-                                exercise.baseExercise.maxPoints?.clean ?? "0"))
-                            if exercise.baseExercise.includedInOverallScore != .includedCompletly {
-                                Chip(text: exercise.baseExercise.includedInOverallScore.description, backgroundColor: exercise.baseExercise.includedInOverallScore.color)
-                            }
-                            if let assessmentType = exercise.baseExercise.assessmentType?.description {
-                                Text(R.string.localizable.assessment(assessmentType))
-                            }
-                        }
-                        SubmissionResultStatusView(exercise: exercise)
-                        if let latestResultId,
-                           let participationId,
-                           showFeedbackButton {
+                VStack(alignment: .leading, spacing: .l) {
+                    // HStack for all buttons regarding viewing feedback and for the future, starting an exercise
+                    if let latestResultId,
+                       let participationId,
+                       showFeedbackButton {
+                        HStack(spacing: .l) {
                             Button(R.string.localizable.showFeedback()) {
                                 showFeedback = true
                             }
@@ -105,17 +86,98 @@ public struct ExerciseDetailView: View {
                                              participationId: participationId,
                                              resultId: latestResultId)
                             }
-                        }
-                        ArtemisHintBox(text: R.string.localizable.exerciseParticipationHint(), hintType: .info)
+                        }.padding(.m)
                     }
-                    .padding(.horizontal, .l)
+
+                    ArtemisHintBox(text: R.string.localizable.exerciseParticipationHint(), hintType: .info)
+                        .padding(.horizontal, .m)
+
+                    // HStack to display all score related information
+                    HStack {
+                        Text(R.string.localizable.points(
+                            score,
+                            exercise.baseExercise.maxPoints?.clean ?? "0"))
+                        .bold()
+                        Spacer()
+                        SubmissionResultStatusView(exercise: exercise)
+                    }.padding(.m)
+
+                    VStack(alignment: .leading, spacing: .xxs) {
+                        ForEach(exercise.baseExercise.categories ?? [], id: \.category) { category in
+                            Chip(text: category.category, backgroundColor: UIColor(hexString: category.colorCode).suColor)
+                        }
+
+                        // Exercise Details Title Text
+                        Text(R.string.localizable.exerciseDetails)
+                            .bold()
+                            .padding(.m)
+
+                        Divider()
+                            .frame(height: 1.0)
+                            .overlay(Color.Artemis.artemisBlue)
+
+                        // Release Date
+                        if let releaseDate = exercise.baseExercise.releaseDate {
+                            ExerciseDetailCell(descriptionText: R.string.localizable.releaseDate()) {
+                                Text(releaseDate.mediumDateShortTime)
+                            }
+                        }
+
+                        // Due Date
+                        if let submissionDate = exercise.baseExercise.dueDate {
+                            ExerciseDetailCell(descriptionText: R.string.localizable.submissionDate()) {
+                                Text(submissionDate.mediumDateShortTime)
+                            }
+                        } else {
+                            ExerciseDetailCell(descriptionText: R.string.localizable.submissionDate()) {
+                                Text(R.string.localizable.noDueDate())
+                            }
+                        }
+
+                        // Assessment Due Date
+                        if let assessmentDate = exercise.baseExercise.assessmentDueDate {
+                            ExerciseDetailCell(descriptionText: R.string.localizable.assessmentDate()) {
+                                Text(assessmentDate.mediumDateShortTime)
+                            }
+                        }
+
+                        // Complaints Possible
+                        if let complaintPossible = exercise.baseExercise.allowComplaintsForAutomaticAssessments {
+                            ExerciseDetailCell(descriptionText: R.string.localizable.complaintPossible()) {
+                                Text(complaintPossible ? "Yes" : "No")
+                            }
+                        }
+
+                        // Assessment Type
+                        if let assessmentType = exercise.baseExercise.assessmentType {
+                            ExerciseDetailCell(descriptionText: R.string.localizable.assessmentType()) {
+                                Text(assessmentType.description)
+                            }
+                        }
+
+                        // Exercise Type
+                        if exercise.baseExercise.includedInOverallScore != .includedCompletly {
+                            ExerciseDetailCell(descriptionText: R.string.localizable.exerciseType()) {
+                                Chip(text: exercise.baseExercise.includedInOverallScore.description, backgroundColor: exercise.baseExercise.includedInOverallScore.color)
+                            }
+                        }
+
+                        // Difficulty
+                        if let difficulty = exercise.baseExercise.difficulty {
+                            ExerciseDetailCell(descriptionText: R.string.localizable.difficulty()) {
+                                Chip(text: difficulty.description, backgroundColor: difficulty.color)
+                            }
+                        }
+                    }.background {
+                        RoundedRectangle(cornerRadius: 3.0)
+                            .stroke(Color.Artemis.artemisBlue, lineWidth: 1.0)
+                    }.padding(.horizontal, .m)
 
                     ArtemisWebView(urlRequest: $urlRequest,
                                    contentHeight: $webViewHeight,
                                    isLoading: $isWebViewLoading)
-                        .frame(height: webViewHeight)
-                        .loadingIndicator(isLoading: $isWebViewLoading)
-                    Spacer()
+                    .frame(height: webViewHeight)
+                    .loadingIndicator(isLoading: $isWebViewLoading)
                 }
             }
             .toolbar {
@@ -133,9 +195,9 @@ public struct ExerciseDetailView: View {
                 }
             }
         }
-            .task {
-                await loadExercise()
-            }
+        .task {
+            await loadExercise()
+        }
     }
 
     private func loadExercise() async {
@@ -154,7 +216,6 @@ public struct ExerciseDetailView: View {
 
         let participation = exercise.getSpecificStudentParticipation(testRun: false)
         participationId = participation?.id
-
         // Sort participation results by completionDate desc.
         // The latest result is the first rated result in the sorted array (=newest)
         if let latestResultId = participation?.results?.max(by: { $0.completionDate ?? .distantPast > $1.completionDate ?? .distantPast })?.id {
@@ -162,6 +223,19 @@ public struct ExerciseDetailView: View {
         }
 
         urlRequest = URLRequest(url: URL(string: "/courses/\(courseId)/exercises/\(exercise.id)/problem-statement/\(participationId?.description ?? "")", relativeTo: UserSession.shared.institution?.baseURL)!)
+    }
+}
+
+private struct ExerciseDetailCell<Content: View>: View {
+    let descriptionText: String
+    @ViewBuilder let content: Content
+
+    var body: some View {
+        HStack {
+            Text(descriptionText)
+            Spacer()
+            content
+        }.padding(.m)
     }
 }
 
