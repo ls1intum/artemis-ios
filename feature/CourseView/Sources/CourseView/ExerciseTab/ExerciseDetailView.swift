@@ -72,9 +72,7 @@ public struct ExerciseDetailView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: .l) {
                     // HStack for all buttons regarding viewing feedback and for the future, starting an exercise
-                    if let latestResultId,
-                       let participationId,
-                       showFeedbackButton {
+                    if let latestResultId, let participationId, showFeedbackButton {
                         HStack(spacing: .l) {
                             Button(R.string.localizable.showFeedback()) {
                                 showFeedback = true
@@ -86,31 +84,31 @@ public struct ExerciseDetailView: View {
                                              participationId: participationId,
                                              resultId: latestResultId)
                             }
-                        }.padding(.m)
+                        }
+                        .padding(.m)
                     }
 
                     ArtemisHintBox(text: R.string.localizable.exerciseParticipationHint(), hintType: .info)
                         .padding(.horizontal, .m)
 
                     // HStack to display all score related information
-                    HStack {
+                    VStack(alignment: .leading, spacing: .xs) {
                         Text(R.string.localizable.points(
                             score,
                             exercise.baseExercise.maxPoints?.clean ?? "0"))
                         .bold()
-                        Spacer()
+
                         SubmissionResultStatusView(exercise: exercise)
-                    }.padding(.m)
+                    }
+                    .padding(.m)
 
-                    VStack(alignment: .leading, spacing: .xxs) {
-                        ForEach(exercise.baseExercise.categories ?? [], id: \.category) { category in
-                            Chip(text: category.category, backgroundColor: UIColor(hexString: category.colorCode).suColor)
-                        }
-
-                        // Exercise Details Title Text
+                    // Exercise Details
+                    VStack(alignment: .leading, spacing: 0) {
+                        // Exercise Details title text
                         Text(R.string.localizable.exerciseDetails)
                             .bold()
-                            .padding(.m)
+                            .frame(height: 25, alignment: .center)
+                            .padding(.s)
 
                         Divider()
                             .frame(height: 1.0)
@@ -158,20 +156,31 @@ public struct ExerciseDetailView: View {
                         // Exercise Type
                         if exercise.baseExercise.includedInOverallScore != .includedCompletly {
                             ExerciseDetailCell(descriptionText: R.string.localizable.exerciseType()) {
-                                Chip(text: exercise.baseExercise.includedInOverallScore.description, backgroundColor: exercise.baseExercise.includedInOverallScore.color)
+                                Chip(text: exercise.baseExercise.includedInOverallScore.description, backgroundColor: exercise.baseExercise.includedInOverallScore.color, padding: .s)
                             }
                         }
 
                         // Difficulty
                         if let difficulty = exercise.baseExercise.difficulty {
                             ExerciseDetailCell(descriptionText: R.string.localizable.difficulty()) {
-                                Chip(text: difficulty.description, backgroundColor: difficulty.color)
+                                Chip(text: difficulty.description, backgroundColor: difficulty.color, padding: .s)
                             }
                         }
-                    }.background {
+
+                        // Categories
+                        if let categories = exercise.baseExercise.categories {
+                            ExerciseDetailCell(descriptionText: R.string.localizable.categories()) {
+                                ForEach(categories, id: \.category) { category in
+                                    Chip(text: category.category, backgroundColor: UIColor(hexString: category.colorCode).suColor, padding: .s)
+                                }
+                            }
+                        }
+                    }
+                    .background {
                         RoundedRectangle(cornerRadius: 3.0)
                             .stroke(Color.Artemis.artemisBlue, lineWidth: 1.0)
-                    }.padding(.horizontal, .m)
+                    }
+                    .padding(.horizontal, .m)
 
                     ArtemisWebView(urlRequest: $urlRequest,
                                    contentHeight: $webViewHeight,
@@ -235,7 +244,9 @@ private struct ExerciseDetailCell<Content: View>: View {
             Text(descriptionText)
             Spacer()
             content
-        }.padding(.m)
+        }
+        .frame(height: 25, alignment: .center)
+        .padding(.s)
     }
 }
 

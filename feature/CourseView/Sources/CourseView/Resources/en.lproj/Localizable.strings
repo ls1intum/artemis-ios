@@ -54,7 +54,7 @@
 "assessmentType" = "Assessment type:";
 "exerciseType" = "Exercise type:";
 "difficulty" = "Difficulty:";
-
+"categories" = "Categories:";
 
 // MARK: LectureDetailView
 "attachmentCouldNotBeOpened" = "Attachment could not be opened!";
