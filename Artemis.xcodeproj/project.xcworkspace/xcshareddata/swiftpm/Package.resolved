@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ls1intum/artemis-ios-core-modules",
       "state" : {
-        "revision" : "2e50da01c0818bb2889a25f1ffde6375be7cbdf1",
-        "version" : "7.0.0"
+        "branch" : "feature/notifications/mute-conversations",
+        "revision" : "361d8127c0b652a5c0412c05853e17f56d14934a"
       }
     },
     {
