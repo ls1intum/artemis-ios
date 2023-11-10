@@ -29,6 +29,11 @@ protocol MessagesService {
     func setIsFavoriteConversation(for courseId: Int, and conversationId: Int64, isFavorite: Bool) async -> NetworkResponse
 
     /**
+     Perform a set muted post request for a course's conversation to the server.
+     */
+    func setMutedConversation(for courseId: Int, and conversationId: Int64, muted: Muted) async -> NetworkResponse
+
+    /**
      * Perform a get request for Messages of a specific conversation in a specific course to the server.
      */
     func getMessages(for courseId: Int, and conversationId: Int64, size: Int) async -> DataState<[Message]>

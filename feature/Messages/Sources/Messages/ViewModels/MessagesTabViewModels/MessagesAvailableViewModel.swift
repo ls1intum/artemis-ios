@@ -99,6 +99,25 @@ class MessagesAvailableViewModel: BaseViewModel {
         }
     }
 
+    func setMutedConversation(conversationId: Int64, muted: Muted) async {
+        isLoading = true
+        let result = await MessagesServiceFactory.shared.setMutedConversation(for: courseId, and: conversationId, muted: muted)
+        switch result {
+        case .notStarted, .loading:
+            isLoading = false
+        case .success:
+            await loadConversations()
+            isLoading = false
+        case .failure(let error):
+            isLoading = false
+            if let error = error as? APIClientError {
+                presentError(userFacingError: UserFacingError(error: error))
+            } else {
+                presentError(userFacingError: UserFacingError(title: error.localizedDescription))
+            }
+        }
+    }
+
     private func updateFilteredConversations() {
         switch allConversations {
         case .loading:

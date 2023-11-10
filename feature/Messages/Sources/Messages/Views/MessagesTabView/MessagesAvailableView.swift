@@ -333,6 +333,7 @@ private struct ConversationRow<T: BaseConversation>: View {
                 contextMenuItems
             }
         }
+        .foregroundStyle(foregroundStyle)
         .listRowSeparator(.hidden)
     }
 
@@ -348,6 +349,38 @@ private struct ConversationRow<T: BaseConversation>: View {
                     await viewModel.setIsFavoriteConversation(conversationId: conversation.id, isFavorite: !(conversation.isFavorite ?? false))
                 }
             }
+            Button(muteButtonLabel) {
+                Task(priority: .userInitiated) {
+                    switch conversation.muted {
+                    case .muted:
+                        await viewModel.setMutedConversation(conversationId: conversation.id, muted: .unmuted)
+                    case .unmuted:
+                        await viewModel.setMutedConversation(conversationId: conversation.id, muted: .muted)
+                    case nil:
+                        await viewModel.setMutedConversation(conversationId: conversation.id, muted: .muted)
+                    }
+                }
+            }
+        }
+    }
+}
+
+private extension ConversationRow {
+    var muteButtonLabel: String {
+        switch (conversation.muted ?? .unmuted) {
+        case .muted:
+            "Unmute"
+        case .unmuted:
+            "Mute"
+        }
+    }
+
+    var foregroundStyle: Color {
+        switch (conversation.muted ?? .unmuted) {
+        case .muted:
+            Color.gray
+        case .unmuted:
+            Color.black
         }
     }
 }
