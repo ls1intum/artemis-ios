@@ -7,13 +7,15 @@ class ModelingViewModel: ObservableObject {
     @Published var submission: BaseSubmission?
     @Published var umlModel: UMLModel?
     @Published var loading = false
-    
+    @Published var problemStatementURL: URLRequest
+
     var exercise: Exercise
     var participationId: Int
-    
-    init(exercise: Exercise, participationId: Int) {
+
+    init(exercise: Exercise, participationId: Int, problemStatementURL: URLRequest) {
         self.exercise = exercise
         self.participationId = participationId
+        self.problemStatementURL = problemStatementURL
     }
     
     

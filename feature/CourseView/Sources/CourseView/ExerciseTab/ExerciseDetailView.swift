@@ -108,8 +108,14 @@ public struct ExerciseDetailView: View {
                                              resultId: latestResultId)
                             }
                         }
-                        if let participationId {
-                            StartExerciseParticipationButton(exercise: exercise, participationId: participationId)
+                        if let dueDate = exercise.baseExercise.dueDate {
+                            if dueDate > Date() {
+                                if let participationId {
+                                    StartExerciseParticipationButton(exercise: exercise, participationId: participationId, problemStatementURL: urlRequest)
+                                } else {
+                                    StartExerciseParticipationButton(exercise: exercise, participationId: 3, problemStatementURL: urlRequest)
+                                }
+                            }
                         }
                     }
                     .padding(.horizontal, .l)
@@ -199,16 +205,18 @@ private struct FeedbackView: View {
 private struct StartExerciseParticipationButton: View {
     private var exercise: Exercise
     private var participationId: Int
-    
-    init(exercise: Exercise, participationId: Int) {
+    private var problemStatementURL: URLRequest
+
+    init(exercise: Exercise, participationId: Int, problemStatementURL: URLRequest) {
         self.exercise = exercise
         self.participationId = participationId
+        self.problemStatementURL = problemStatementURL
     }
     
     var body: some View {
         switch exercise {
         case .modeling:
-            NavigationLink(destination: ModelingExerciseView(exercise: exercise, participationId: participationId)) {
+            NavigationLink(destination: ModelingExerciseView(exercise: exercise, participationId: participationId, problemStatementURL: problemStatementURL)) {
                 Text(R.string.localizable.openModelingEditor())
             }.buttonStyle(ArtemisButton())
         default:
