@@ -40,12 +40,21 @@
 "notReleased" = "Not released";
 
 // MARK: ExerciseDetailView
+"exerciseDetails" = "Exercise details";
 "dueDate" = "Due Date: %s";
 "noDueDate" = "No due date";
 "points" = "Points: %s of %s";
 "assessment" = "Assessment: %s";
 "showFeedback" = "Show Feedback";
 "exerciseParticipationHint" = "Participating in exercises is currently not possible in the mobile app";
+"releaseDate" = "Release date:";
+"submissionDate" = "Submission due:";
+"assessmentDate" = "Assessment due:";
+"complaintPossible" = "Complaint possible:";
+"assessmentType" = "Assessment type:";
+"exerciseType" = "Exercise type:";
+"difficulty" = "Difficulty:";
+"categories" = "Categories:";
 
 // MARK: LectureDetailView
 "attachmentCouldNotBeOpened" = "Attachment could not be opened!";
