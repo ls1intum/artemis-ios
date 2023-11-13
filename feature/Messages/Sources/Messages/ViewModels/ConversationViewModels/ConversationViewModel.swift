@@ -57,7 +57,12 @@ public class ConversationViewModel: BaseViewModel {
     }
 
     private func subscribeToConversationTopic() {
-        let topic = "/user/topic/metis/courses/\(courseId)/conversations/\(conversationId)"
+        let topic: String
+        if conversation.value?.baseConversation.type == .channel {
+            topic = "/user/topic/metis/courses/\(courseId)"
+        } else {
+            topic = "/user/topic/metis/courses/\(courseId)/conversations/\(conversationId)"
+        }
         if ArtemisStompClient.shared.didSubscribeTopic(topic) {
             return
         }
