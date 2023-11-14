@@ -26,6 +26,17 @@ let package = Package(
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
+            name: "CourseRegistration",
+            dependencies: [
+                .product(name: "APIClient", package: "artemis-ios-core-modules"),
+                .product(name: "DesignLibrary", package: "artemis-ios-core-modules"),
+                .product(name: "SharedModels", package: "artemis-ios-core-modules"),
+                .product(name: "RswiftLibrary", package: "R.swift"),
+            ],
+            plugins: [
+                .plugin(name: "RswiftGeneratePublicResources", package: "R.swift"),
+            ]),
+        .target(
             name: "Messages",
             dependencies: [
                 "EmojiPicker",
