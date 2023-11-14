@@ -53,6 +53,23 @@ let package = Package(
                 .plugin(name: "RswiftGeneratePublicResources", package: "R.swift"),
             ]),
         .target(
+            name: "Dashboard",
+            dependencies: [
+                "CourseRegistration",
+                "CourseView",
+                "Navigation",
+                "Notifications",
+                .product(name: "Account", package: "artemis-ios-core-modules"),
+                .product(name: "APIClient", package: "artemis-ios-core-modules"),
+                .product(name: "DesignLibrary", package: "artemis-ios-core-modules"),
+                .product(name: "SharedModels", package: "artemis-ios-core-modules"),
+                .product(name: "SharedServices", package: "artemis-ios-core-modules"),
+                .product(name: "RswiftLibrary", package: "R.swift"),
+            ],
+            plugins: [
+                .plugin(name: "RswiftGeneratePublicResources", package: "R.swift"),
+            ]),
+        .target(
             name: "Messages",
             dependencies: [
                 "EmojiPicker",
