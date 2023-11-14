@@ -5,6 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "ArtemisKit",
+    defaultLocalization: "en_US",
     platforms: [
         .iOS(.v17),
     ],
@@ -17,7 +18,9 @@ let package = Package(
             ]),
     ],
     dependencies: [
+        .package(url: "https://github.com/Kelvas09/EmojiPicker.git", from: "1.0.0"),
         .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", .upToNextMajor(from: "7.0.0")),
+        .package(url: "https://github.com/mac-cain13/R.swift.git", from: "7.0.0"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -28,6 +31,22 @@ let package = Package(
                 .product(name: "Common", package: "artemis-ios-core-modules"),
                 .product(name: "SharedModels", package: "artemis-ios-core-modules"),
                 .product(name: "UserStore", package: "artemis-ios-core-modules"),
+            ]),
+        .target(
+            name: "Messages",
+            dependencies: [
+                "EmojiPicker",
+                "Navigation",
+                .product(name: "APIClient", package: "artemis-ios-core-modules"),
+                .product(name: "ArtemisMarkdown", package: "artemis-ios-core-modules"),
+                .product(name: "DesignLibrary", package: "artemis-ios-core-modules"),
+                .product(name: "SharedModels", package: "artemis-ios-core-modules"),
+                .product(name: "SharedServices", package: "artemis-ios-core-modules"),
+                .product(name: "UserStore", package: "artemis-ios-core-modules"),
+                .product(name: "RswiftLibrary", package: "R.swift"),
+            ],
+            plugins: [
+                .plugin(name: "RswiftGeneratePublicResources", package: "R.swift"),
             ]),
         .testTarget(
             name: "ArtemisKitTests",
