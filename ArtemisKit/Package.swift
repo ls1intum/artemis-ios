@@ -14,7 +14,12 @@ let package = Package(
         .library(
             name: "ArtemisKit",
             targets: [
+                "CourseRegistration",
+                "CourseView",
+                "Dashboard",
+                "Messages",
                 "Navigation",
+                "Notifications",
             ]),
     ],
     dependencies: [
