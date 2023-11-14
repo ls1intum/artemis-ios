@@ -12,12 +12,6 @@
 		2152FB042600AC8F00CF470E /* ArtemisApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2152FB032600AC8F00CF470E /* ArtemisApp.swift */; };
 		A1440CE02AB9A4FC00315873 /* Starscream in Frameworks */ = {isa = PBXBuildFile; productRef = A1440CDF2AB9A4FC00315873 /* Starscream */; };
 		A166A2592B0381F000AB6119 /* ArtemisKit in Frameworks */ = {isa = PBXBuildFile; productRef = A166A2582B0381F000AB6119 /* ArtemisKit */; };
-		A166A2682B03893900AB6119 /* Gemfile in Resources */ = {isa = PBXBuildFile; fileRef = A166A2622B03893900AB6119 /* Gemfile */; };
-		A166A2692B03893900AB6119 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = A166A2632B03893900AB6119 /* README.md */; };
-		A166A26A2B03893900AB6119 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = A166A2642B03893900AB6119 /* LICENSE */; };
-		A166A26B2B03893900AB6119 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = A166A2652B03893900AB6119 /* .gitignore */; };
-		A166A26C2B03893900AB6119 /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = A166A2662B03893900AB6119 /* .swiftlint.yml */; };
-		A166A26D2B03893900AB6119 /* Gemfile.lock in Resources */ = {isa = PBXBuildFile; fileRef = A166A2672B03893900AB6119 /* Gemfile.lock */; };
 		D5DC36632A0434BB00DA32AF /* APIClient in Frameworks */ = {isa = PBXBuildFile; productRef = D5DC36622A0434BB00DA32AF /* APIClient */; };
 		D5DC36652A0434BB00DA32AF /* Account in Frameworks */ = {isa = PBXBuildFile; productRef = D5DC36642A0434BB00DA32AF /* Account */; };
 		D5DC36672A0434BB00DA32AF /* ArtemisMarkdown in Frameworks */ = {isa = PBXBuildFile; productRef = D5DC36662A0434BB00DA32AF /* ArtemisMarkdown */; };
@@ -208,14 +202,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A166A2682B03893900AB6119 /* Gemfile in Resources */,
 				058557D9273AAEEB004C7B11 /* Preview Assets.xcassets in Resources */,
-				A166A2692B03893900AB6119 /* README.md in Resources */,
-				A166A26C2B03893900AB6119 /* .swiftlint.yml in Resources */,
-				A166A26D2B03893900AB6119 /* Gemfile.lock in Resources */,
 				058557BB273AAA24004C7B11 /* Assets.xcassets in Resources */,
-				A166A26B2B03893900AB6119 /* .gitignore in Resources */,
-				A166A26A2B03893900AB6119 /* LICENSE in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
