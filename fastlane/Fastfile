@@ -57,7 +57,7 @@ platform :ios do
       )
     end
 
-    info_plist_path = "iosApp/Supporting/Info.plist"
+    info_plist_path = "Artemis/Supporting/Info.plist"
 
     set_info_plist_value(
       path: info_plist_path,

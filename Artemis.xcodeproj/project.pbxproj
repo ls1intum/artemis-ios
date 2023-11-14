@@ -12,6 +12,12 @@
 		2152FB042600AC8F00CF470E /* ArtemisApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2152FB032600AC8F00CF470E /* ArtemisApp.swift */; };
 		A1440CE02AB9A4FC00315873 /* Starscream in Frameworks */ = {isa = PBXBuildFile; productRef = A1440CDF2AB9A4FC00315873 /* Starscream */; };
 		A166A2592B0381F000AB6119 /* ArtemisKit in Frameworks */ = {isa = PBXBuildFile; productRef = A166A2582B0381F000AB6119 /* ArtemisKit */; };
+		A166A2682B03893900AB6119 /* Gemfile in Resources */ = {isa = PBXBuildFile; fileRef = A166A2622B03893900AB6119 /* Gemfile */; };
+		A166A2692B03893900AB6119 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = A166A2632B03893900AB6119 /* README.md */; };
+		A166A26A2B03893900AB6119 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = A166A2642B03893900AB6119 /* LICENSE */; };
+		A166A26B2B03893900AB6119 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = A166A2652B03893900AB6119 /* .gitignore */; };
+		A166A26C2B03893900AB6119 /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = A166A2662B03893900AB6119 /* .swiftlint.yml */; };
+		A166A26D2B03893900AB6119 /* Gemfile.lock in Resources */ = {isa = PBXBuildFile; fileRef = A166A2672B03893900AB6119 /* Gemfile.lock */; };
 		D5DC36632A0434BB00DA32AF /* APIClient in Frameworks */ = {isa = PBXBuildFile; productRef = D5DC36622A0434BB00DA32AF /* APIClient */; };
 		D5DC36652A0434BB00DA32AF /* Account in Frameworks */ = {isa = PBXBuildFile; productRef = D5DC36642A0434BB00DA32AF /* Account */; };
 		D5DC36672A0434BB00DA32AF /* ArtemisMarkdown in Frameworks */ = {isa = PBXBuildFile; productRef = D5DC36662A0434BB00DA32AF /* ArtemisMarkdown */; };
@@ -29,6 +35,13 @@
 		058557D8273AAEEB004C7B11 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		2152FB032600AC8F00CF470E /* ArtemisApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtemisApp.swift; sourceTree = "<group>"; };
 		7555FF7B242A565900829871 /* Artemis.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Artemis.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A166A2622B03893900AB6119 /* Gemfile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Gemfile; sourceTree = SOURCE_ROOT; };
+		A166A2632B03893900AB6119 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
+		A166A2642B03893900AB6119 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = SOURCE_ROOT; };
+		A166A2652B03893900AB6119 /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = SOURCE_ROOT; };
+		A166A2662B03893900AB6119 /* .swiftlint.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = SOURCE_ROOT; };
+		A166A2672B03893900AB6119 /* Gemfile.lock */ = {isa = PBXFileReference; lastKnownFileType = file; path = Gemfile.lock; sourceTree = SOURCE_ROOT; };
+		A166A26E2B03899A00AB6119 /* fastlane */ = {isa = PBXFileReference; lastKnownFileType = text; path = fastlane; sourceTree = SOURCE_ROOT; };
 		A1C7E0A92B03754200804542 /* ArtemisKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = ArtemisKit; sourceTree = "<group>"; };
 		D51AD00C299E390700FA5B94 /* Artemis.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Artemis.entitlements; sourceTree = "<group>"; };
 		D52CEEAA29B8FA2D003C7B2E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -94,6 +107,13 @@
 		7555FF7D242A565900829871 /* Artemis */ = {
 			isa = PBXGroup;
 			children = (
+				A166A26E2B03899A00AB6119 /* fastlane */,
+				A166A2652B03893900AB6119 /* .gitignore */,
+				A166A2662B03893900AB6119 /* .swiftlint.yml */,
+				A166A2622B03893900AB6119 /* Gemfile */,
+				A166A2672B03893900AB6119 /* Gemfile.lock */,
+				A166A2642B03893900AB6119 /* LICENSE */,
+				A166A2632B03893900AB6119 /* README.md */,
 				2152FB032600AC8F00CF470E /* ArtemisApp.swift */,
 				058557BA273AAA24004C7B11 /* Assets.xcassets */,
 				058557D7273AAEEB004C7B11 /* Preview Content */,
@@ -188,8 +208,14 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A166A2682B03893900AB6119 /* Gemfile in Resources */,
 				058557D9273AAEEB004C7B11 /* Preview Assets.xcassets in Resources */,
+				A166A2692B03893900AB6119 /* README.md in Resources */,
+				A166A26C2B03893900AB6119 /* .swiftlint.yml in Resources */,
+				A166A26D2B03893900AB6119 /* Gemfile.lock in Resources */,
 				058557BB273AAA24004C7B11 /* Assets.xcassets in Resources */,
+				A166A26B2B03893900AB6119 /* .gitignore in Resources */,
+				A166A26A2B03893900AB6119 /* LICENSE in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
