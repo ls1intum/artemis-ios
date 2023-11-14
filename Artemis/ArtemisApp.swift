@@ -1,5 +1,5 @@
+import ArtemisKit
 import SwiftUI
-import Navigation
 
 @main
 struct ArtemisApp: App {
