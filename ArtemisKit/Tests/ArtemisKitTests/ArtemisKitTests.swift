@@ -1,5 +1,4 @@
 import XCTest
-@testable import ArtemisKit
 
 final class ArtemisKitTests: XCTestCase {
     func testExample() throws {
