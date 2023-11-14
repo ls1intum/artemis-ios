@@ -1,8 +1,0 @@
-"course_registration_title" = "Course Enrollment";
-"course_registration_register_button" = "Enroll";
-"course_registration_sign_up_dialog_message" = "Are you sure you want to enroll?";
-"course_registration_no_course_available" = "There is no course available for enrollment!";
-
-// MARK: General
-"confirm" = "Confirm";
-"cancel" = "Cancel";
