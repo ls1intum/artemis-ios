@@ -14,12 +14,7 @@ let package = Package(
         .library(
             name: "ArtemisKit",
             targets: [
-                "CourseRegistration",
-                "CourseView",
-                "Dashboard",
-                "Messages",
-                "Navigation",
-                "Notifications",
+                "ArtemisKit",
             ]),
     ],
     dependencies: [
@@ -30,6 +25,16 @@ let package = Package(
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
+        .target(
+            name: "ArtemisKit",
+            dependencies: [
+                "CourseRegistration",
+                "CourseView",
+                "Dashboard",
+                "Messages",
+                "Navigation",
+                "Notifications",
+            ]),
         .target(
             name: "CourseRegistration",
             dependencies: [

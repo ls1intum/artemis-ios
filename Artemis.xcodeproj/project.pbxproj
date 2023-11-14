@@ -9,13 +9,9 @@
 /* Begin PBXBuildFile section */
 		058557BB273AAA24004C7B11 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 058557BA273AAA24004C7B11 /* Assets.xcassets */; };
 		058557D9273AAEEB004C7B11 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 058557D8273AAEEB004C7B11 /* Preview Assets.xcassets */; };
-		2152FB042600AC8F00CF470E /* iOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2152FB032600AC8F00CF470E /* iOSApp.swift */; };
-		220409A728D4EF1A00204B1C /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220409A628D4EF1A00204B1C /* RootView.swift */; };
-		22B12972290048A800C4910E /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 22B12971290048A800C4910E /* Localizable.strings */; };
+		2152FB042600AC8F00CF470E /* ArtemisApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2152FB032600AC8F00CF470E /* ArtemisApp.swift */; };
 		A1440CE02AB9A4FC00315873 /* Starscream in Frameworks */ = {isa = PBXBuildFile; productRef = A1440CDF2AB9A4FC00315873 /* Starscream */; };
 		A166A2592B0381F000AB6119 /* ArtemisKit in Frameworks */ = {isa = PBXBuildFile; productRef = A166A2582B0381F000AB6119 /* ArtemisKit */; };
-		D54B8BF7297082C400BB1AA3 /* RootViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54B8BF6297082C400BB1AA3 /* RootViewModel.swift */; };
-		D5B8C106299E73F100835976 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B8C105299E73F100835976 /* AppDelegate.swift */; };
 		D5DC36632A0434BB00DA32AF /* APIClient in Frameworks */ = {isa = PBXBuildFile; productRef = D5DC36622A0434BB00DA32AF /* APIClient */; };
 		D5DC36652A0434BB00DA32AF /* Account in Frameworks */ = {isa = PBXBuildFile; productRef = D5DC36642A0434BB00DA32AF /* Account */; };
 		D5DC36672A0434BB00DA32AF /* ArtemisMarkdown in Frameworks */ = {isa = PBXBuildFile; productRef = D5DC36662A0434BB00DA32AF /* ArtemisMarkdown */; };
@@ -31,17 +27,11 @@
 /* Begin PBXFileReference section */
 		058557BA273AAA24004C7B11 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		058557D8273AAEEB004C7B11 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		1C098681E5B54683749B1859 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = file.gitignore; path = .gitignore; sourceTree = "<group>"; };
-		1C098BE94B1D25D8F4F19DAD /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		2152FB032600AC8F00CF470E /* iOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp.swift; sourceTree = "<group>"; };
-		220409A628D4EF1A00204B1C /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
-		22B12971290048A800C4910E /* Localizable.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
+		2152FB032600AC8F00CF470E /* ArtemisApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtemisApp.swift; sourceTree = "<group>"; };
 		7555FF7B242A565900829871 /* Artemis.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Artemis.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1C7E0A92B03754200804542 /* ArtemisKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = ArtemisKit; sourceTree = "<group>"; };
 		D51AD00C299E390700FA5B94 /* Artemis.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Artemis.entitlements; sourceTree = "<group>"; };
 		D52CEEAA29B8FA2D003C7B2E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		D54B8BF6297082C400BB1AA3 /* RootViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewModel.swift; sourceTree = "<group>"; };
-		D5B8C105299E73F100835976 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -87,10 +77,8 @@
 			children = (
 				D51AD00C299E390700FA5B94 /* Artemis.entitlements */,
 				A1C7E0A92B03754200804542 /* ArtemisKit */,
-				7555FF7D242A565900829871 /* iosApp */,
+				7555FF7D242A565900829871 /* Artemis */,
 				7555FF7C242A565900829871 /* Products */,
-				1C098BE94B1D25D8F4F19DAD /* README.md */,
-				1C098681E5B54683749B1859 /* .gitignore */,
 				22B6A91C292D785600F08C7E /* Frameworks */,
 			);
 			sourceTree = "<group>";
@@ -103,19 +91,15 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		7555FF7D242A565900829871 /* iosApp */ = {
+		7555FF7D242A565900829871 /* Artemis */ = {
 			isa = PBXGroup;
 			children = (
-				D52CEEA929B8F9FB003C7B2E /* Supporting */,
-				220409A628D4EF1A00204B1C /* RootView.swift */,
-				D54B8BF6297082C400BB1AA3 /* RootViewModel.swift */,
+				2152FB032600AC8F00CF470E /* ArtemisApp.swift */,
 				058557BA273AAA24004C7B11 /* Assets.xcassets */,
-				2152FB032600AC8F00CF470E /* iOSApp.swift */,
-				D5B8C105299E73F100835976 /* AppDelegate.swift */,
 				058557D7273AAEEB004C7B11 /* Preview Content */,
-				22B12971290048A800C4910E /* Localizable.strings */,
+				D52CEEA929B8F9FB003C7B2E /* Supporting */,
 			);
-			path = iosApp;
+			path = Artemis;
 			sourceTree = "<group>";
 		};
 		D52CEEA929B8F9FB003C7B2E /* Supporting */ = {
@@ -205,7 +189,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				058557D9273AAEEB004C7B11 /* Preview Assets.xcassets in Resources */,
-				22B12972290048A800C4910E /* Localizable.strings in Resources */,
 				058557BB273AAA24004C7B11 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -237,10 +220,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2152FB042600AC8F00CF470E /* iOSApp.swift in Sources */,
-				220409A728D4EF1A00204B1C /* RootView.swift in Sources */,
-				D54B8BF7297082C400BB1AA3 /* RootViewModel.swift in Sources */,
-				D5B8C106299E73F100835976 /* AppDelegate.swift in Sources */,
+				2152FB042600AC8F00CF470E /* ArtemisApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -378,12 +358,12 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Artemis.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_ASSET_PATHS = "\"iosApp/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"Artemis/Preview Content\"";
 				DEVELOPMENT_TEAM = 2J3C6P6X3N;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_TESTING_SEARCH_PATHS = YES;
 				FRAMEWORK_SEARCH_PATHS = "";
-				INFOPLIST_FILE = iosApp/Supporting/Info.plist;
+				INFOPLIST_FILE = Artemis/Supporting/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -404,12 +384,12 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Artemis.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_ASSET_PATHS = "\"iosApp/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"Artemis/Preview Content\"";
 				DEVELOPMENT_TEAM = 2J3C6P6X3N;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_TESTING_SEARCH_PATHS = YES;
 				FRAMEWORK_SEARCH_PATHS = "";
-				INFOPLIST_FILE = iosApp/Supporting/Info.plist;
+				INFOPLIST_FILE = Artemis/Supporting/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

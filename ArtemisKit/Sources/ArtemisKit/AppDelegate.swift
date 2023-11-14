@@ -14,14 +14,14 @@ import PushNotifications
 import Navigation
 import Common
 
-class AppDelegate: UIResponder, UIApplicationDelegate {
+public class AppDelegate: UIResponder, UIApplicationDelegate {
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    public func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         registerForPushNotifications()
         return true
     }
 
-    func applicationDidEnterBackground(_ application: UIApplication) {
+    public func applicationDidEnterBackground(_ application: UIApplication) {
         UIApplication.shared.applicationIconBadgeNumber = 0
     }
 
@@ -32,20 +32,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 // MARK: Extension for Push Notifications
 extension AppDelegate: UNUserNotificationCenterDelegate {
-    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+    public func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         Task {
             await PushNotificationServiceFactory.shared.register(deviceToken: String(deviceToken: deviceToken))
         }
         log.info("Device Token: \(String(deviceToken: deviceToken))")
     }
 
-    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+    public func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
         UserSession.shared.saveNotificationDeviceConfiguration(token: nil, encryptionKey: nil, skippedNotifications: true)
         log.error("Did Fail To Register For Remote Notifications With Error: \(error)")
     }
 
     // important to set the 'content_available' field, otherwise the method wont be called in the background
-    func application(_ application: UIApplication,
+    public func application(_ application: UIApplication,
                      didReceiveRemoteNotification payload: [AnyHashable: Any],
                      fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
         log.debug(payload)
@@ -62,13 +62,13 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         PushNotificationHandler.handle(payload: payloadString, iv: initVector)
     }
 
-    func userNotificationCenter(_ center: UNUserNotificationCenter,
+    public func userNotificationCenter(_ center: UNUserNotificationCenter,
                                 willPresent notification: UNNotification,
                                 withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         completionHandler([.banner, .badge, .sound])
     }
 
-    func userNotificationCenter(_ center: UNUserNotificationCenter,
+    public func userNotificationCenter(_ center: UNUserNotificationCenter,
                                 didReceive response: UNNotificationResponse,
                                 withCompletionHandler completionHandler: @escaping () -> Void) {
         let userInfo = response.notification.request.content.userInfo

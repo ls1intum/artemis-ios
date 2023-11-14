@@ -8,13 +8,15 @@ import PushNotifications
 import Common
 import Messages
 
-struct RootView: View {
+public struct RootView: View {
 
     @StateObject private var viewModel = RootViewModel()
 
     @StateObject private var navigationController = NavigationController()
 
-    var body: some View {
+    public init() {}
+
+    public var body: some View {
         Group {
             if viewModel.isLoading {
                 Image("Artemis-Logo")
