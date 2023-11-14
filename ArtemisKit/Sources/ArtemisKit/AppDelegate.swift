@@ -16,13 +16,16 @@ import Common
 
 public class AppDelegate: UIResponder, UIApplicationDelegate {
 
-    public func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    public func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+    ) -> Bool {
         registerForPushNotifications()
         return true
     }
 
     public func applicationDidEnterBackground(_ application: UIApplication) {
-        UIApplication.shared.applicationIconBadgeNumber = 0
+        UNUserNotificationCenter.current().setBadgeCount(0)
     }
 
     private func registerForPushNotifications() {
@@ -32,7 +35,10 @@ public class AppDelegate: UIResponder, UIApplicationDelegate {
 
 // MARK: Extension for Push Notifications
 extension AppDelegate: UNUserNotificationCenterDelegate {
-    public func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+    public func application(
+        _ application: UIApplication,
+        didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
+    ) {
         Task {
             await PushNotificationServiceFactory.shared.register(deviceToken: String(deviceToken: deviceToken))
         }
@@ -45,9 +51,11 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     }
 
     // important to set the 'content_available' field, otherwise the method wont be called in the background
-    public func application(_ application: UIApplication,
-                     didReceiveRemoteNotification payload: [AnyHashable: Any],
-                     fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+    public func application(
+        _ application: UIApplication,
+        didReceiveRemoteNotification payload: [AnyHashable: Any],
+        fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
+    ) {
         log.debug(payload)
 
         defer {
@@ -62,15 +70,19 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         PushNotificationHandler.handle(payload: payloadString, iv: initVector)
     }
 
-    public func userNotificationCenter(_ center: UNUserNotificationCenter,
-                                willPresent notification: UNNotification,
-                                withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+    public func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
         completionHandler([.banner, .badge, .sound])
     }
 
-    public func userNotificationCenter(_ center: UNUserNotificationCenter,
-                                didReceive response: UNNotificationResponse,
-                                withCompletionHandler completionHandler: @escaping () -> Void) {
+    public func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
         let userInfo = response.notification.request.content.userInfo
         guard let targetURL = PushNotificationResponseHandler.getTarget(userInfo: userInfo) else {
             log.error("Could not handle click on push notification!")
@@ -81,7 +93,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         DeeplinkHandler.shared.handle(path: targetURL)
 
         // update app badge count
-        UIApplication.shared.applicationIconBadgeNumber += 1
+        UNUserNotificationCenter.current().setBadgeCount(UIApplication.shared.applicationIconBadgeNumber + 1)
 
         // maybe add as param in handle above
         completionHandler()
