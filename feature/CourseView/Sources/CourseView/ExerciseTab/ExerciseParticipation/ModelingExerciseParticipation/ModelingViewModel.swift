@@ -18,20 +18,16 @@ class ModelingViewModel: ObservableObject {
         self.problemStatementURL = problemStatementURL
     }
     
-    
     @MainActor
     func initSubmission() async {
         guard submission == nil else {
             return
         }
-        
         loading = true
         defer {
             loading = false
         }
-        
         let exerciseService = ExerciseSubmissionServiceFactory.service(for: exercise)
-
         do {
             let response = try await exerciseService.getLatestSubmission(participationId: participationId)
             self.submission = response.baseSubmission
@@ -39,15 +35,38 @@ class ModelingViewModel: ObservableObject {
             log.error(String(describing: error))
         }
     }
-    
+
+    @MainActor
+    func submitSubmission() async {
+        guard var submitSubmission = submission as? ModelingSubmission, let umlModel else {
+            return
+        }
+
+        let exerciseService = ExerciseSubmissionServiceFactory.service(for: exercise)
+
+        do {
+            let jsonData = try JSONEncoder().encode(umlModel)
+            if let jsonString = String(data: jsonData, encoding: .utf8) {
+                submitSubmission.model = jsonString
+            }
+            try await exerciseService.putSubmission(exerciseId: exercise.id, data: submitSubmission)
+        } catch {
+            log.error(String(describing: error))
+        }
+    }
+
     @MainActor
     func setup() {
-        guard let modelingSubmission = self.submission as? ModelingSubmission,
-              let modelData = modelingSubmission.model?.data(using: .utf8) else {
+        guard let modelingSubmission = self.submission as? ModelingSubmission else {
             return
         }
         do {
-            umlModel = try JSONDecoder().decode(UMLModel.self, from: modelData)
+            if let modelData = modelingSubmission.model?.data(using: .utf8) {
+                umlModel = try JSONDecoder().decode(UMLModel.self, from: modelData)
+            } else {
+                //TODO: Initialize a empty UMLModel
+                //umlModel = UMLModel()
+            }
         } catch {
             log.error("Could not parse UML string: \(error)")
         }

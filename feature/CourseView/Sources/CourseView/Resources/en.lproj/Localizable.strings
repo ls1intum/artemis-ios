@@ -46,7 +46,7 @@
 "points" = "Points: %s of %s";
 "assessment" = "Assessment: %s";
 "showFeedback" = "Show Feedback";
-"startExercise" = "Start Exercise";
+"startExercise" = "Start exercise";
 "openModelingEditor" = "Open modeling editor";
 "exerciseParticipationHint" = "Participating in exercises is currently not possible in the mobile app";
 "releaseDate" = "Release date:";

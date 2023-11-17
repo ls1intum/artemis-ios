@@ -20,7 +20,7 @@ struct ModelingExerciseView: View {
                         ToolbarItemGroup(placement: .topBarTrailing) {
                             HStack {
                                 ProblemStatementButton(modelingVM: modelingVM)
-                                SubmitButton()
+                                SubmitButton(modelingVM: modelingVM)
                             }
                         }
                     }
@@ -35,11 +35,15 @@ struct ModelingExerciseView: View {
 }
 
 struct SubmitButton: View {
+    @StateObject var modelingVM: ModelingViewModel
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
 
     var body: some View {
         Button("Submit") {
-            presentationMode.wrappedValue.dismiss()
+            Task {
+               await modelingVM.submitSubmission()
+            }
+            //presentationMode.wrappedValue.dismiss()
         }.buttonStyle(ArtemisButton())
     }
 }

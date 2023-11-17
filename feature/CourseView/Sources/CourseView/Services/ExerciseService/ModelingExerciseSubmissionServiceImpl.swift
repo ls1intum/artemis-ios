@@ -3,10 +3,28 @@ import UserStore
 import Common
 import SharedModels
 import APIClient
-import ApollonShared
 
 class ModelingExerciseSubmissionServiceImpl: ExerciseSubmissionService {
     let client = APIClient()
+
+    // Start participation
+    struct StartParticipationRequest: APIRequest {
+        typealias Response = Participation
+
+        let exerciseId: Int
+
+        var method: HTTPMethod {
+            return .post
+        }
+
+        var resourceName: String {
+            "api/exercises/\(exerciseId)/participations"
+        }
+    }
+
+    func startParticipation(exerciseId: Int) async throws -> Participation {
+        try await client.sendRequest(StartParticipationRequest(exerciseId: exerciseId)).get().0
+    }
 
     // Get latest modeling submission
     struct GetLatestModelingSubmissionRequest: APIRequest {
@@ -32,7 +50,7 @@ class ModelingExerciseSubmissionServiceImpl: ExerciseSubmissionService {
         typealias Response = Submission
 
         let exerciseId: Int
-        let modelingDTO: UMLModel
+        let modelingDTO: ModelingSubmission
 
         var method: HTTPMethod {
             return .post
@@ -47,7 +65,8 @@ class ModelingExerciseSubmissionServiceImpl: ExerciseSubmissionService {
         }
     }
     
-    func postNewSubmission(exerciseId: Int, modelingDTO: UMLModel) async throws {
+    func postNewSubmission(exerciseId: Int, data: BaseSubmission) async throws {
+        guard let modelingDTO = data as? ModelingSubmission else { return }
         _ = try await client.sendRequest(PostNewModelingSubmissionRequest(exerciseId: exerciseId, modelingDTO: modelingDTO)).get()
     }
 
@@ -56,7 +75,7 @@ class ModelingExerciseSubmissionServiceImpl: ExerciseSubmissionService {
         typealias Response = Submission
 
         let exerciseId: Int
-        let modelingDTO: UMLModel
+        let modelingDTO: ModelingSubmission
 
         var method: HTTPMethod {
             return .put
@@ -71,8 +90,8 @@ class ModelingExerciseSubmissionServiceImpl: ExerciseSubmissionService {
         }
     }
 
-    func putSubmission(exerciseId: Int, modelingDTO: UMLModel) async throws {
+    func putSubmission(exerciseId: Int, data: BaseSubmission) async throws {
+        guard let modelingDTO = data as? ModelingSubmission else { return }
        _ = try await client.sendRequest(PutModelingSubmissionRequest(exerciseId: exerciseId, modelingDTO: modelingDTO)).get()
     }
-
 }

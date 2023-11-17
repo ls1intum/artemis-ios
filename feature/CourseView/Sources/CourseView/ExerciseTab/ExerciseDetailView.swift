@@ -15,37 +15,37 @@ import Navigation
 
 public struct ExerciseDetailView: View {
     @EnvironmentObject var navigationController: NavigationController
-    
+
     @State private var webViewHeight = CGFloat.s
     @State private var urlRequest: URLRequest
     @State private var isWebViewLoading = true
-    
+
     @State private var exercise: DataState<Exercise>
-    
+
     @State private var showFeedback = false
-    
+
     @State private var latestResultId: Int?
     @State private var participationId: Int?
-    
+
     private let exerciseId: Int
     private let courseId: Int
-    
+
     public init(course: Course, exercise: Exercise) {
         self._exercise = State(wrappedValue: .done(response: exercise))
         self._urlRequest = State(wrappedValue: URLRequest(url: URL(string: "/courses/\(course.id)/exercises/\(exercise.id)/problem-statement", relativeTo: UserSession.shared.institution?.baseURL)!))
-        
+
         self.exerciseId = exercise.id
         self.courseId = course.id
     }
-    
+
     public init(courseId: Int, exerciseId: Int) {
         self._exercise = State(wrappedValue: .loading)
         self._urlRequest = State(wrappedValue: URLRequest(url: URL(string: "/courses/\(courseId)/exercises/\(exerciseId)", relativeTo: UserSession.shared.institution?.baseURL)!))
-        
+
         self.exerciseId = exerciseId
         self.courseId = courseId
     }
-    
+
     private var score: String {
         let score = exercise.value?.baseExercise.studentParticipations?
             .first?
@@ -54,12 +54,12 @@ public struct ExerciseDetailView: View {
             .filter { $0.rated ?? false }
             .max(by: { ($0.id ?? Int.min) > ($1.id ?? Int.min) })?
             .score ?? 0
-        
+
         let maxPoints = exercise.value?.baseExercise.maxPoints ?? 0
 
         return (score * maxPoints / 100).rounded().clean
     }
-    
+
     private var showFeedbackButton: Bool {
         switch exercise.value {
         case .fileUpload, .modeling, .programming, .text:
@@ -68,14 +68,23 @@ public struct ExerciseDetailView: View {
             return false
         }
     }
-    
+
+    private var isExerciseParticipatable: Bool {
+        switch exercise.value {
+        case .modeling:
+            return true
+        default:
+            return false
+        }
+    }
+
     public var body: some View {
         DataStateView(data: $exercise, retryHandler: { await loadExercise() }) { exercise in
             ScrollView {
                 VStack(alignment: .leading, spacing: .l) {
-                    // HStack for all buttons regarding viewing feedback and for the future, starting an exercise
-                    if let latestResultId, let participationId, showFeedbackButton {
-                        HStack(spacing: .l) {
+                    // All buttons regarding viewing feedback and for the future, starting an exercise
+                    HStack(spacing: .l) {
+                        if let latestResultId, let participationId, showFeedbackButton {
                             Button(R.string.localizable.showFeedback()) {
                                 showFeedback = true
                             }
@@ -87,25 +96,20 @@ public struct ExerciseDetailView: View {
                                              resultId: latestResultId)
                             }
                         }
-                        if let dueDate = exercise.baseExercise.dueDate {
-                            if dueDate > Date() {
-                                if let participationId {
-                                    StartExerciseParticipationButton(exercise: exercise, participationId: participationId, problemStatementURL: urlRequest)
-                                } else {
-                                    StartExerciseParticipationButton(exercise: exercise, participationId: 3, problemStatementURL: urlRequest)
-                                }
-                            }
+                        if let participationId {
+                            OpenExerciseButton(exercise: exercise, participationId: participationId, problemStatementURL: urlRequest)
+                        } else {
+                            StartExerciseButton(exercise: exercise, participationId: $participationId)
                         }
                     }
-                    .padding(.horizontal, .l)
-                    
-                        .padding(.m)
+                    .padding(.horizontal, .m)
+
+                    if !isExerciseParticipatable {
+                        ArtemisHintBox(text: R.string.localizable.exerciseParticipationHint(), hintType: .info)
+                            .padding(.horizontal, .m)
                     }
 
-                    ArtemisHintBox(text: R.string.localizable.exerciseParticipationHint(), hintType: .info)
-                        .padding(.horizontal, .m)
-
-                    // HStack to display all score related information
+                    // All score related information
                     VStack(alignment: .leading, spacing: .xs) {
                         Text(R.string.localizable.points(
                             score,
@@ -114,7 +118,7 @@ public struct ExerciseDetailView: View {
 
                         SubmissionResultStatusView(exercise: exercise)
                     }
-                    .padding(.m)
+                    .padding(.horizontal, .m)
 
                     // Exercise Details
                     VStack(alignment: .leading, spacing: 0) {
@@ -222,7 +226,7 @@ public struct ExerciseDetailView: View {
             await loadExercise()
         }
     }
-    
+
     private func loadExercise() async {
         if let exercise = exercise.value {
             setParticipationAndResultId(from: exercise)
@@ -233,10 +237,10 @@ public struct ExerciseDetailView: View {
             }
         }
     }
-    
+
     private func setParticipationAndResultId(from exercise: Exercise) {
         isWebViewLoading = true
-        
+
         let participation = exercise.getSpecificStudentParticipation(testRun: false)
         participationId = participation?.id
         // Sort participation results by completionDate desc.
@@ -244,7 +248,7 @@ public struct ExerciseDetailView: View {
         if let latestResultId = participation?.results?.max(by: { $0.completionDate ?? .distantPast > $1.completionDate ?? .distantPast })?.id {
             self.latestResultId = latestResultId
         }
-        
+
         urlRequest = URLRequest(url: URL(string: "/courses/\(courseId)/exercises/\(exercise.id)/problem-statement/\(participationId?.description ?? "")", relativeTo: UserSession.shared.institution?.baseURL)!)
     }
 }
@@ -265,17 +269,17 @@ private struct ExerciseDetailCell<Content: View>: View {
 }
 
 private struct FeedbackView: View {
-    
+
     @Environment(\.dismiss) var dismiss
-    
+
     @State private var webViewHeight = CGFloat.s
     @State private var urlRequest: URLRequest
     @State private var isWebViewLoading = true
-    
+
     init(courseId: Int, exerciseId: Int, participationId: Int, resultId: Int) {
         self._urlRequest = State(wrappedValue: URLRequest(url: URL(string: "/courses/\(courseId)/exercises/\(exerciseId)/participations/\(participationId)/results/\(resultId)/feedback/", relativeTo: UserSession.shared.institution?.baseURL)!))
     }
-    
+
     var body: some View {
         NavigationView {
             ArtemisWebView(urlRequest: $urlRequest, isLoading: $isWebViewLoading)
@@ -291,7 +295,7 @@ private struct FeedbackView: View {
     }
 }
 
-private struct StartExerciseParticipationButton: View {
+private struct OpenExerciseButton: View {
     private var exercise: Exercise
     private var participationId: Int
     private var problemStatementURL: URLRequest
@@ -301,7 +305,7 @@ private struct StartExerciseParticipationButton: View {
         self.participationId = participationId
         self.problemStatementURL = problemStatementURL
     }
-    
+
     var body: some View {
         switch exercise {
         case .modeling:
@@ -311,5 +315,24 @@ private struct StartExerciseParticipationButton: View {
         default:
             ArtemisHintBox(text: R.string.localizable.exerciseParticipationHint(), hintType: .info)
         }
+    }
+}
+
+private struct StartExerciseButton: View {
+    var exercise: Exercise
+    @Binding var participationId: Int?
+
+    var body: some View {
+        Button(R.string.localizable.startExercise()) {
+            Task {
+                let exerciseService = ExerciseSubmissionServiceFactory.service(for: exercise)
+                do {
+                    let response = try await exerciseService.startParticipation(exerciseId: exercise.id)
+                    participationId = response.baseParticipation.id
+                } catch {
+                    log.error(String(describing: error))
+                }
+            }
+        }.buttonStyle(ArtemisButton())
     }
 }
