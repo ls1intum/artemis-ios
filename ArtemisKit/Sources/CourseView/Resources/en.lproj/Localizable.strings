@@ -1,0 +1,75 @@
+// MARK: CourseView
+"exercisesTabLabel" = "Exercises";
+"lectureTabLabel" = "Lectures";
+"messagesTabLabel" = "Messages";
+
+// MARK: SubmissionResultStatusView
+"userNotAssignedToTeam" = "You have not been assigned to a team yet.";
+"userNotStartedExercise" = "You have not started this exercise yet.";
+"exerciseMissedDeadline" = "You have missed the deadline.";
+"exerciseNotSubmitted" = "No Submission";
+"userSubmitted" = "You have already submitted.";
+"userParticipating" = "You are currently participating in this quiz.";
+"quizNotStarted" = "The quiz is not active.";
+
+// MARK: SubmissionResultView
+
+"noResult" = "No result";
+"noGradedResult" = "No graded result";
+"building" = "Building and testing...";
+"exerciseLateFeedback" = "Late submission with feedback.";
+"exerciseSubmitted" = "Submitted, you can still submit updates.";
+"exerciseSubmittedWaitingForGrading" = "Submitted, waiting for grading.";
+"exerciseLateSubmission" = "Late submission, waiting for feedback.";
+"programmingFailedSubmissionMesage" = "No corresponding result available.";
+//"programmingFailedSubmissionTooltipOfflineIde" = "No result was found / could be generated in time for your most recent submission. Please check your code manually in your IDE, e.g. check that your code compiles locally and works correctly.";
+//"programmingFailedSubmissionTooltipOnlineIde" = "No result was found / could be generated in time for your most recent submission. Please check your code manually as far as possible.";
+
+// Score
+"nonProgramming" = "%s%%, %s points";
+"programming" = "%s%%, %s, %s points";
+"buildFailed" = "Build failed";
+"buildSuccessfulNoTests" = "Build successful, no tests executed";
+"buildSuccessfulTests" = "%s of %s passed";
+"programmingCodeIssues" = "%s%%, %s, %s issues, %s points";
+"preliminary" = "preliminary";
+"short" = "%s%%";
+"programmingShort" = "%s%%, %s";
+
+// Badges
+"notReleased" = "Not released";
+
+// MARK: ExerciseDetailView
+"exerciseDetails" = "Exercise details";
+"dueDate" = "Due Date: %s";
+"noDueDate" = "No due date";
+"points" = "Points: %s of %s";
+"assessment" = "Assessment: %s";
+"showFeedback" = "Show Feedback";
+"exerciseParticipationHint" = "Participating in exercises is currently not possible in the mobile app";
+"releaseDate" = "Release date:";
+"submissionDate" = "Submission due:";
+"assessmentDate" = "Assessment due:";
+"complaintPossible" = "Complaint possible:";
+"assessmentType" = "Assessment type:";
+"exerciseType" = "Exercise type:";
+"difficulty" = "Difficulty:";
+"categories" = "Categories:";
+
+// MARK: LectureDetailView
+"attachmentCouldNotBeOpened" = "Attachment could not be opened!";
+"description" = "Description";
+"openLink" = "Open Link";
+"linkCouldNotBeLoaded" = "Link can not be loaded";
+"openVideo" = "Open Video";
+"videoCanNotBeLoaded" = "Video url can not be loaded";
+"notReleased" = "Not released";
+"exercisecouldNotBeLoaded" = "Exercise could not be loaded";
+"version" = "Version";
+"date" = "Date";
+"lectureUnits" = "Lecture Units";
+"attachments" = "Attachments";
+
+// MARK: General
+"loading" = "Loading...";
+"close" = "Close";
