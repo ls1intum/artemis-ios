@@ -55,14 +55,9 @@
 				D5DC36752A0434BC00DA32AF /* UserStore in Frameworks */,
 				D5DC36632A0434BB00DA32AF /* APIClient in Frameworks */,
 				D5DC366D2A0434BB00DA32AF /* Login in Frameworks */,
-				F7B19AF22AFE7272003349C0 /* ApollonShared in Frameworks */,
 				D5DC366F2A0434BB00DA32AF /* ProfileInfo in Frameworks */,
 				D5DC36692A0434BB00DA32AF /* Common in Frameworks */,
-				F7B19AF02AFE7272003349C0 /* ApollonEdit in Frameworks */,
 				D5DC36732A0434BC00DA32AF /* SharedModels in Frameworks */,
-				F7B19AF42AFE7272003349C0 /* ApollonView in Frameworks */,
-				D515291529AD2E83002CAD2F /* Navigation in Frameworks */,
-				22B6A924292D815A00F08C7E /* CourseView in Frameworks */,
 				D5DC36672A0434BB00DA32AF /* ArtemisMarkdown in Frameworks */,
 				F7185D832B0C9F5F00E0E757 /* ApollonEdit in Frameworks */,
 				F7185D872B0C9F5F00E0E757 /* ApollonView in Frameworks */,
@@ -164,9 +159,6 @@
 				D5DC36722A0434BC00DA32AF /* SharedModels */,
 				D5DC36742A0434BC00DA32AF /* UserStore */,
 				A1440CDF2AB9A4FC00315873 /* Starscream */,
-				F7B19AEF2AFE7272003349C0 /* ApollonEdit */,
-				F7B19AF12AFE7272003349C0 /* ApollonShared */,
-				F7B19AF32AFE7272003349C0 /* ApollonView */,
 				A166A2582B0381F000AB6119 /* ArtemisKit */,
 				F7185D822B0C9F5F00E0E757 /* ApollonEdit */,
 				F7185D842B0C9F5F00E0E757 /* ApollonShared */,
@@ -475,20 +467,12 @@
 				kind = branch;
 			};
 		};
-		F77D905D2AF9662C0031078A /* XCRemoteSwiftPackageReference "apollon-ios-module" */ = {
+		F7185D812B0C9F5F00E0E757 /* XCRemoteSwiftPackageReference "apollon-ios-module" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/ls1intum/apollon-ios-module";
 			requirement = {
 				kind = revision;
 				revision = d74feafc9b1cf82f4daaa4d550d4b3093e5cbe09;
-			};
-		};
-		F7185D812B0C9F5F00E0E757 /* XCRemoteSwiftPackageReference "apollon-ios-module" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/ls1intum/apollon-ios-module";
-			requirement = {
-				branch = main;
-				kind = branch;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

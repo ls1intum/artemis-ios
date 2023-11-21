@@ -97,7 +97,7 @@ public struct ExerciseDetailView: View {
                             }
                         }
                         if let participationId {
-                            OpenExerciseButton(exercise: exercise, participationId: participationId, problemStatementURL: urlRequest)
+                            OpenExerciseButton(exercise: exercise, exerciseId: exerciseId, courseId: courseId, participationId: participationId, problemStatementURL: urlRequest)
                         } else {
                             StartExerciseButton(exercise: exercise, participationId: $participationId)
                         }
@@ -295,29 +295,6 @@ private struct FeedbackView: View {
     }
 }
 
-private struct OpenExerciseButton: View {
-    private var exercise: Exercise
-    private var participationId: Int
-    private var problemStatementURL: URLRequest
-
-    init(exercise: Exercise, participationId: Int, problemStatementURL: URLRequest) {
-        self.exercise = exercise
-        self.participationId = participationId
-        self.problemStatementURL = problemStatementURL
-    }
-
-    var body: some View {
-        switch exercise {
-        case .modeling:
-            NavigationLink(destination: ModelingExerciseView(exercise: exercise, participationId: participationId, problemStatementURL: problemStatementURL)) {
-                Text(R.string.localizable.openModelingEditor())
-            }.buttonStyle(ArtemisButton())
-        default:
-            ArtemisHintBox(text: R.string.localizable.exerciseParticipationHint(), hintType: .info)
-        }
-    }
-}
-
 private struct StartExerciseButton: View {
     var exercise: Exercise
     @Binding var participationId: Int?
@@ -327,12 +304,37 @@ private struct StartExerciseButton: View {
             Task {
                 let exerciseService = ExerciseSubmissionServiceFactory.service(for: exercise)
                 do {
-                    let response = try await exerciseService.startParticipation(exerciseId: exercise.id)
+                    let response = try await exerciseService.initializeParticipation(exerciseId: exercise.id)
                     participationId = response.baseParticipation.id
                 } catch {
                     log.error(String(describing: error))
                 }
             }
         }.buttonStyle(ArtemisButton())
+    }
+}
+
+private struct OpenExerciseButton: View {
+    private var exercise: Exercise
+    private var participationId: Int
+    private var problemStatementURL: URLRequest
+
+    init(exercise: Exercise, exerciseId: Int, courseId: Int, participationId: Int, problemStatementURL: URLRequest) {
+        self.exercise = exercise
+        self.participationId = participationId
+        self.problemStatementURL = problemStatementURL
+    }
+
+    var body: some View {
+        switch exercise {
+        case .modeling:
+            NavigationLink(destination: ModelingExerciseView(exercise: exercise,
+                                                             participationId: participationId,
+                                                             problemStatementURL: problemStatementURL)) {
+                Text(R.string.localizable.openModelingEditor())
+            }.buttonStyle(ArtemisButton())
+        default:
+            ArtemisHintBox(text: R.string.localizable.exerciseParticipationHint(), hintType: .info)
+        }
     }
 }

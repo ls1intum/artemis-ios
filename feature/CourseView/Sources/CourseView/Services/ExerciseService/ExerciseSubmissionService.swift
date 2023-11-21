@@ -11,7 +11,7 @@ protocol ExerciseSubmissionService {
 }
 
 enum ExerciseSubmissionServiceFactory {
-    static func service(for exercise: Exercise) -> any ExerciseSubmissionService {
+    static func service(for exercise: Exercise) -> ExerciseSubmissionService {
         switch exercise {
         case .modeling:
             return ModelingExerciseSubmissionServiceImpl()

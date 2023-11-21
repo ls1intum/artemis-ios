@@ -1,6 +1,6 @@
 //
 //  ModelingExerciseView.swift
-//  
+//
 //
 //  Created by Alexander Görtzen on 21.11.23.
 //
@@ -11,12 +11,15 @@ import ApollonEdit
 import SharedModels
 import DesignLibrary
 import Common
+import Navigation
 
 struct ModelingExerciseView: View {
     @StateObject var modelingVM: ModelingExerciseViewModel
 
     init(exercise: Exercise, participationId: Int, problemStatementURL: URLRequest) {
-        self._modelingVM = StateObject(wrappedValue: ModelingExerciseViewModel(exercise: exercise, participationId: participationId, problemStatementURL: problemStatementURL))
+        self._modelingVM = StateObject(wrappedValue: ModelingExerciseViewModel(exercise: exercise,
+                                                                               participationId: participationId,
+                                                                               problemStatementURL: problemStatementURL))
     }
 
     var body: some View {
@@ -43,14 +46,16 @@ struct ModelingExerciseView: View {
 
 struct SubmitButton: View {
     @StateObject var modelingVM: ModelingExerciseViewModel
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var navigationController: NavigationController
 
     var body: some View {
         Button("Submit") {
             Task {
-               await modelingVM.submitSubmission()
+                await modelingVM.submitSubmission()
             }
-            presentationMode.wrappedValue.dismiss()
+            //dismiss()
+            navigationController.popToRoot()
         }.buttonStyle(ArtemisButton())
     }
 }
