@@ -47,7 +47,7 @@ platform :ios do
       password: ENV['bamboo_KeyChainPassword'],
     )
 
-    xcode_select "/Applications/Xcode.app"
+    xcode_select "/Applications/Xcode8.app"
 
     # If the build number was specified by the CI environment,
     # use it to specify the build number for this build
