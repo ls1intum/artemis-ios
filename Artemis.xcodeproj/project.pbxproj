@@ -22,9 +22,9 @@
 		D5DC36712A0434BB00DA32AF /* PushNotifications in Frameworks */ = {isa = PBXBuildFile; productRef = D5DC36702A0434BB00DA32AF /* PushNotifications */; };
 		D5DC36732A0434BC00DA32AF /* SharedModels in Frameworks */ = {isa = PBXBuildFile; productRef = D5DC36722A0434BC00DA32AF /* SharedModels */; };
 		D5DC36752A0434BC00DA32AF /* UserStore in Frameworks */ = {isa = PBXBuildFile; productRef = D5DC36742A0434BC00DA32AF /* UserStore */; };
-		F7B19AF02AFE7272003349C0 /* ApollonEdit in Frameworks */ = {isa = PBXBuildFile; productRef = F7B19AEF2AFE7272003349C0 /* ApollonEdit */; };
-		F7B19AF22AFE7272003349C0 /* ApollonShared in Frameworks */ = {isa = PBXBuildFile; productRef = F7B19AF12AFE7272003349C0 /* ApollonShared */; };
-		F7B19AF42AFE7272003349C0 /* ApollonView in Frameworks */ = {isa = PBXBuildFile; productRef = F7B19AF32AFE7272003349C0 /* ApollonView */; };
+		F7185D832B0C9F5F00E0E757 /* ApollonEdit in Frameworks */ = {isa = PBXBuildFile; productRef = F7185D822B0C9F5F00E0E757 /* ApollonEdit */; };
+		F7185D852B0C9F5F00E0E757 /* ApollonShared in Frameworks */ = {isa = PBXBuildFile; productRef = F7185D842B0C9F5F00E0E757 /* ApollonShared */; };
+		F7185D872B0C9F5F00E0E757 /* ApollonView in Frameworks */ = {isa = PBXBuildFile; productRef = F7185D862B0C9F5F00E0E757 /* ApollonView */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -37,7 +37,7 @@
 		A166A2642B03893900AB6119 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = SOURCE_ROOT; };
 		A166A2652B03893900AB6119 /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = SOURCE_ROOT; };
 		A166A2662B03893900AB6119 /* .swiftlint.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = SOURCE_ROOT; };
-		A166A2672B03893900AB6119 /* Gemfile.lock */ = {isa = PBXFileReference; lastKnownFileType = file; path = Gemfile.lock; sourceTree = SOURCE_ROOT; };
+		A166A2672B03893900AB6119 /* Gemfile.lock */ = {isa = PBXFileReference; lastKnownFileType = text; path = Gemfile.lock; sourceTree = SOURCE_ROOT; };
 		A166A26E2B03899A00AB6119 /* fastlane */ = {isa = PBXFileReference; lastKnownFileType = text; path = fastlane; sourceTree = SOURCE_ROOT; };
 		A1C7E0A92B03754200804542 /* ArtemisKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = ArtemisKit; sourceTree = "<group>"; };
 		D51AD00C299E390700FA5B94 /* Artemis.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Artemis.entitlements; sourceTree = "<group>"; };
@@ -50,6 +50,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D5DC36712A0434BB00DA32AF /* PushNotifications in Frameworks */,
+				F7185D852B0C9F5F00E0E757 /* ApollonShared in Frameworks */,
 				A166A2592B0381F000AB6119 /* ArtemisKit in Frameworks */,
 				D5DC36752A0434BC00DA32AF /* UserStore in Frameworks */,
 				D5DC36632A0434BB00DA32AF /* APIClient in Frameworks */,
@@ -63,6 +64,8 @@
 				D515291529AD2E83002CAD2F /* Navigation in Frameworks */,
 				22B6A924292D815A00F08C7E /* CourseView in Frameworks */,
 				D5DC36672A0434BB00DA32AF /* ArtemisMarkdown in Frameworks */,
+				F7185D832B0C9F5F00E0E757 /* ApollonEdit in Frameworks */,
+				F7185D872B0C9F5F00E0E757 /* ApollonView in Frameworks */,
 				D5DC366B2A0434BB00DA32AF /* DesignLibrary in Frameworks */,
 				D5DC36652A0434BB00DA32AF /* Account in Frameworks */,
 				A1440CE02AB9A4FC00315873 /* Starscream in Frameworks */,
@@ -165,6 +168,9 @@
 				F7B19AF12AFE7272003349C0 /* ApollonShared */,
 				F7B19AF32AFE7272003349C0 /* ApollonView */,
 				A166A2582B0381F000AB6119 /* ArtemisKit */,
+				F7185D822B0C9F5F00E0E757 /* ApollonEdit */,
+				F7185D842B0C9F5F00E0E757 /* ApollonShared */,
+				F7185D862B0C9F5F00E0E757 /* ApollonView */,
 			);
 			productName = iosApp;
 			productReference = 7555FF7B242A565900829871 /* Artemis.app */;
@@ -198,7 +204,7 @@
 			packageReferences = (
 				D5DC36612A0434BB00DA32AF /* XCRemoteSwiftPackageReference "artemis-ios-core-modules" */,
 				A1440CDE2AB9A4FC00315873 /* XCRemoteSwiftPackageReference "Starscream" */,
-				F77D905D2AF9662C0031078A /* XCRemoteSwiftPackageReference "apollon-ios-module" */,
+				F7185D812B0C9F5F00E0E757 /* XCRemoteSwiftPackageReference "apollon-ios-module" */,
 			);
 			productRefGroup = 7555FF7C242A565900829871 /* Products */;
 			projectDirPath = "";
@@ -477,6 +483,14 @@
 				revision = d74feafc9b1cf82f4daaa4d550d4b3093e5cbe09;
 			};
 		};
+		F7185D812B0C9F5F00E0E757 /* XCRemoteSwiftPackageReference "apollon-ios-module" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ls1intum/apollon-ios-module";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -539,19 +553,19 @@
 			package = D5DC36612A0434BB00DA32AF /* XCRemoteSwiftPackageReference "artemis-ios-core-modules" */;
 			productName = UserStore;
 		};
-		F7B19AEF2AFE7272003349C0 /* ApollonEdit */ = {
+		F7185D822B0C9F5F00E0E757 /* ApollonEdit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = F77D905D2AF9662C0031078A /* XCRemoteSwiftPackageReference "apollon-ios-module" */;
+			package = F7185D812B0C9F5F00E0E757 /* XCRemoteSwiftPackageReference "apollon-ios-module" */;
 			productName = ApollonEdit;
 		};
-		F7B19AF12AFE7272003349C0 /* ApollonShared */ = {
+		F7185D842B0C9F5F00E0E757 /* ApollonShared */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = F77D905D2AF9662C0031078A /* XCRemoteSwiftPackageReference "apollon-ios-module" */;
+			package = F7185D812B0C9F5F00E0E757 /* XCRemoteSwiftPackageReference "apollon-ios-module" */;
 			productName = ApollonShared;
 		};
-		F7B19AF32AFE7272003349C0 /* ApollonView */ = {
+		F7185D862B0C9F5F00E0E757 /* ApollonView */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = F77D905D2AF9662C0031078A /* XCRemoteSwiftPackageReference "apollon-ios-module" */;
+			package = F7185D812B0C9F5F00E0E757 /* XCRemoteSwiftPackageReference "apollon-ios-module" */;
 			productName = ApollonView;
 		};
 /* End XCSwiftPackageProductDependency section */
