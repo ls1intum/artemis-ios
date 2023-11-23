@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "ArtemisKit",
-    defaultLocalization: "en_US",
+    defaultLocalization: "en",
     platforms: [
         .iOS(.v17)
     ],
