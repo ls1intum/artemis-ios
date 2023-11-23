@@ -9,7 +9,7 @@ import Navigation
 import SharedModels
 import SwiftUI
 
-private struct ConversationRow<T: BaseConversation>: View {
+struct ConversationRow<T: BaseConversation>: View {
 
     @EnvironmentObject var navigationController: NavigationController
 
