@@ -41,35 +41,7 @@ class MessagesServiceImpl: MessagesService {
         }
     }
 
-    struct HideUnhideConversationRequest: APIRequest {
-        typealias Response = RawResponse
-
-        let courseId: Int
-        let conversationId: Int64
-        let isHidden: Bool
-
-        var method: HTTPMethod {
-            return .post
-        }
-
-        var resourceName: String {
-            return "api/courses/\(courseId)/conversations/\(conversationId)/hidden?isHidden=\(isHidden)"
-        }
-    }
-
-    func hideUnhideConversation(for courseId: Int, and conversationId: Int64, isHidden: Bool) async -> NetworkResponse {
-        let result = await client.sendRequest(HideUnhideConversationRequest(courseId: courseId,
-                                                                            conversationId: conversationId,
-                                                                            isHidden: isHidden))
-        switch result {
-        case .success:
-            return .success
-        case .failure(let error):
-            return .failure(error: error)
-        }
-    }
-
-    struct SetIsFavoriteConversationRequest: APIRequest {
+    struct UpdateIsConversationFavoriteRequest: APIRequest {
         typealias Response = RawResponse
 
         let courseId: Int
@@ -85,10 +57,10 @@ class MessagesServiceImpl: MessagesService {
         }
     }
 
-    func setIsFavoriteConversation(for courseId: Int, and conversationId: Int64, isFavorite: Bool) async -> NetworkResponse {
-        let result = await client.sendRequest(SetIsFavoriteConversationRequest(courseId: courseId,
-                                                                               conversationId: conversationId,
-                                                                               isFavorite: isFavorite))
+    func updateIsConversationFavorite(for courseId: Int, and conversationId: Int64, isFavorite: Bool) async -> NetworkResponse {
+        let result = await client.sendRequest(UpdateIsConversationFavoriteRequest(courseId: courseId,
+                                                                                  conversationId: conversationId,
+                                                                                  isFavorite: isFavorite))
         switch result {
         case .success:
             return .success
@@ -97,25 +69,53 @@ class MessagesServiceImpl: MessagesService {
         }
     }
 
-    struct SetMutedConversationRequest: APIRequest {
+    struct UpdateIsConversationMutedRequest: APIRequest {
         typealias Response = RawResponse
 
         let courseId: Int
         let conversationId: Int64
-        let muted: Muted
+        let isMuted: Bool
 
         var method: HTTPMethod { .post }
-        var resourceName: String { "api/courses/\(courseId)/conversations/\(conversationId)/muted?mutedStatus=\(muted)" }
+        var resourceName: String { "api/courses/\(courseId)/conversations/\(conversationId)/muted?isMuted=\(isMuted)" }
     }
 
-    func setMutedConversation(for courseId: Int, and conversationId: Int64, muted: Muted) async -> NetworkResponse {
-        let result = await client.sendRequest(SetMutedConversationRequest(courseId: courseId,
-                                                                          conversationId: conversationId,
-                                                                          muted: muted))
+    func updateIsConversationMuted(for courseId: Int, and conversationId: Int64, isMuted: Bool) async -> NetworkResponse {
+        let result = await client.sendRequest(UpdateIsConversationMutedRequest(courseId: courseId,
+                                                                               conversationId: conversationId,
+                                                                               isMuted: isMuted))
         switch result {
         case .success:
             return .success
         case let .failure(error):
+            return .failure(error: error)
+        }
+    }
+
+    struct UpdateIsConversationHiddenRequest: APIRequest {
+        typealias Response = RawResponse
+
+        let courseId: Int
+        let conversationId: Int64
+        let isHidden: Bool
+
+        var method: HTTPMethod {
+            return .post
+        }
+
+        var resourceName: String {
+            return "api/courses/\(courseId)/conversations/\(conversationId)/hidden?isHidden=\(isHidden)"
+        }
+    }
+
+    func updateIsConversationHidden(for courseId: Int, and conversationId: Int64, isHidden: Bool) async -> NetworkResponse {
+        let result = await client.sendRequest(UpdateIsConversationHiddenRequest(courseId: courseId,
+                                                                                conversationId: conversationId,
+                                                                                isHidden: isHidden))
+        switch result {
+        case .success:
+            return .success
+        case .failure(let error):
             return .failure(error: error)
         }
     }

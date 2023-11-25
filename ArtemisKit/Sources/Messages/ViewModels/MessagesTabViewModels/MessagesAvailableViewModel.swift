@@ -61,9 +61,9 @@ class MessagesAvailableViewModel: BaseViewModel {
         allConversations = result
     }
 
-    func hideUnhideConversation(conversationId: Int64, isHidden: Bool) async {
+    func setIsConversationFavorite(conversationId: Int64, isFavorite: Bool) async {
         isLoading = true
-        let result = await MessagesServiceFactory.shared.hideUnhideConversation(for: courseId, and: conversationId, isHidden: isHidden)
+        let result = await MessagesServiceFactory.shared.updateIsConversationFavorite(for: courseId, and: conversationId, isFavorite: isFavorite)
         switch result {
         case .notStarted, .loading:
             isLoading = false
@@ -80,28 +80,9 @@ class MessagesAvailableViewModel: BaseViewModel {
         }
     }
 
-    func setIsFavoriteConversation(conversationId: Int64, isFavorite: Bool) async {
+    func setIsConversationMuted(conversationId: Int64, isMuted: Bool) async {
         isLoading = true
-        let result = await MessagesServiceFactory.shared.setIsFavoriteConversation(for: courseId, and: conversationId, isFavorite: isFavorite)
-        switch result {
-        case .notStarted, .loading:
-            isLoading = false
-        case .success:
-            await loadConversations()
-            isLoading = false
-        case .failure(let error):
-            isLoading = false
-            if let apiClientError = error as? APIClientError {
-                presentError(userFacingError: UserFacingError(error: apiClientError))
-            } else {
-                presentError(userFacingError: UserFacingError(title: error.localizedDescription))
-            }
-        }
-    }
-
-    func setMutedConversation(conversationId: Int64, muted: Muted) async {
-        isLoading = true
-        let result = await MessagesServiceFactory.shared.setMutedConversation(for: courseId, and: conversationId, muted: muted)
+        let result = await MessagesServiceFactory.shared.updateIsConversationMuted(for: courseId, and: conversationId, isMuted: isMuted)
         switch result {
         case .notStarted, .loading:
             isLoading = false
@@ -112,6 +93,25 @@ class MessagesAvailableViewModel: BaseViewModel {
             isLoading = false
             if let error = error as? APIClientError {
                 presentError(userFacingError: UserFacingError(error: error))
+            } else {
+                presentError(userFacingError: UserFacingError(title: error.localizedDescription))
+            }
+        }
+    }
+
+    func setConversationIsHidden(conversationId: Int64, isHidden: Bool) async {
+        isLoading = true
+        let result = await MessagesServiceFactory.shared.updateIsConversationHidden(for: courseId, and: conversationId, isHidden: isHidden)
+        switch result {
+        case .notStarted, .loading:
+            isLoading = false
+        case .success:
+            await loadConversations()
+            isLoading = false
+        case .failure(let error):
+            isLoading = false
+            if let apiClientError = error as? APIClientError {
+                presentError(userFacingError: UserFacingError(error: apiClientError))
             } else {
                 presentError(userFacingError: UserFacingError(title: error.localizedDescription))
             }
@@ -162,8 +162,9 @@ class MessagesAvailableViewModel: BaseViewModel {
 }
 
 // MARK: Functions to handle new conversation received socket
-extension MessagesAvailableViewModel {
-    private func onConversationMembershipMessageReceived(conversationWebsocketDTO: ConversationWebsocketDTO) {
+
+private extension MessagesAvailableViewModel {
+    func onConversationMembershipMessageReceived(conversationWebsocketDTO: ConversationWebsocketDTO) {
         switch conversationWebsocketDTO.metisCrudAction {
         case .create, .update:
             handleUpdateOrCreate(updatedOrNewConversation: conversationWebsocketDTO.conversation)
@@ -174,7 +175,7 @@ extension MessagesAvailableViewModel {
         }
     }
 
-    private func handleUpdateOrCreate(updatedOrNewConversation: Conversation) {
+    func handleUpdateOrCreate(updatedOrNewConversation: Conversation) {
         guard var conversations = allConversations.value else {
             // conversations not loaded yet
             return
@@ -190,7 +191,7 @@ extension MessagesAvailableViewModel {
         allConversations = .done(response: conversations)
     }
 
-    private func handleDelete(deletedConversation: Conversation) {
+    func handleDelete(deletedConversation: Conversation) {
         guard var conversations = allConversations.value else {
             // conversations not loaded yet
             return
@@ -199,7 +200,7 @@ extension MessagesAvailableViewModel {
         allConversations = .done(response: conversations)
     }
 
-    private func handleNewMessage(conversationWithNewMessage: Conversation) {
+    func handleNewMessage(conversationWithNewMessage: Conversation) {
         guard var conversations = allConversations.value else {
             // conversations not loaded yet
             return

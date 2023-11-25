@@ -14,24 +14,24 @@ import UserStore
 protocol MessagesService {
 
     /**
-     * Perform a get request for all Conversations of a course to the server.
+     * Perform a get request for all conversations of a course to the server.
      */
     func getConversations(for courseId: Int) async -> DataState<[Conversation]>
 
     /**
-     * Perform a hide/show post request for a specific Conversations of a specific course to the server.
+     * Perform an update favorite post request for a specific conversation of a specific course to the server.
      */
-    func hideUnhideConversation(for courseId: Int, and conversationId: Int64, isHidden: Bool) async -> NetworkResponse
+    func updateIsConversationFavorite(for courseId: Int, and conversationId: Int64, isFavorite: Bool) async -> NetworkResponse
 
     /**
-     * Perform a set favorite post request for a specific Conversations of a specific course to the server.
+     * Perform an update muted post request for a specific conversation of a specific course to the server.
      */
-    func setIsFavoriteConversation(for courseId: Int, and conversationId: Int64, isFavorite: Bool) async -> NetworkResponse
+    func updateIsConversationMuted(for courseId: Int, and conversationId: Int64, isMuted: Bool) async -> NetworkResponse
 
     /**
-     Perform a set muted post request for a course's conversation to the server.
+     * Perform an update hide/show post request for a specific conversation of a specific course to the server.
      */
-    func setMutedConversation(for courseId: Int, and conversationId: Int64, muted: Muted) async -> NetworkResponse
+    func updateIsConversationHidden(for courseId: Int, and conversationId: Int64, isHidden: Bool) async -> NetworkResponse
 
     /**
      * Perform a get request for Messages of a specific conversation in a specific course to the server.

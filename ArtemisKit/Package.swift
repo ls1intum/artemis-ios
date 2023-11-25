@@ -19,7 +19,8 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/Kelvas09/EmojiPicker.git", from: "1.0.0"),
-        .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", .upToNextMajor(from: "7.0.0")),
+        .package(url: "https://github.com/ls1intum/artemis-ios-core-modules",
+                 branch: "feature/notifications/mute-conversations"),
         .package(url: "https://github.com/mac-cain13/R.swift.git", from: "7.0.0")
     ],
     targets: [

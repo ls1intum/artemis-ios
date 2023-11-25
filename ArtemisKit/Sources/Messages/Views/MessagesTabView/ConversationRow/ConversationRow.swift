@@ -42,54 +42,27 @@ struct ConversationRow<T: BaseConversation>: View {
                 contextMenuItems
             }
         }
-        .foregroundStyle(foregroundStyle)
+        .foregroundStyle((conversation.isMuted ?? false) ? Color.gray : Color.black)
         .listRowSeparator(.hidden)
-    }
-
-    var contextMenuItems: some View {
-        Group {
-            Button((conversation.isHidden ?? false) ? R.string.localizable.show() : R.string.localizable.hide()) {
-                Task(priority: .userInitiated) {
-                    await viewModel.hideUnhideConversation(conversationId: conversation.id, isHidden: !(conversation.isHidden ?? false))
-                }
-            }
-            Button((conversation.isFavorite ?? false) ? R.string.localizable.unfavorite() : R.string.localizable.favorite()) {
-                Task(priority: .userInitiated) {
-                    await viewModel.setIsFavoriteConversation(conversationId: conversation.id, isFavorite: !(conversation.isFavorite ?? false))
-                }
-            }
-            Button(muteButtonLabel) {
-                Task(priority: .userInitiated) {
-                    switch conversation.muted {
-                    case .muted:
-                        await viewModel.setMutedConversation(conversationId: conversation.id, muted: .unmuted)
-                    case .unmuted:
-                        await viewModel.setMutedConversation(conversationId: conversation.id, muted: .muted)
-                    case nil:
-                        await viewModel.setMutedConversation(conversationId: conversation.id, muted: .muted)
-                    }
-                }
-            }
-        }
     }
 }
 
 private extension ConversationRow {
-    var muteButtonLabel: String {
-        switch conversation.muted ?? .unmuted {
-        case .muted:
-            "Unmute"
-        case .unmuted:
-            "Mute"
+    @ViewBuilder var contextMenuItems: some View {
+        Button((conversation.isFavorite ?? false) ? R.string.localizable.unfavorite() : R.string.localizable.favorite()) {
+            Task(priority: .userInitiated) {
+                await viewModel.setIsConversationFavorite(conversationId: conversation.id, isFavorite: !(conversation.isFavorite ?? false))
+            }
         }
-    }
-
-    var foregroundStyle: Color {
-        switch conversation.muted ?? .unmuted {
-        case .muted:
-            Color.gray
-        case .unmuted:
-            Color.black
+        Button((conversation.isMuted ?? false) ? R.string.localizable.unmute() : R.string.localizable.mute()) {
+            Task(priority: .userInitiated) {
+                await viewModel.setIsConversationMuted(conversationId: conversation.id, isMuted: !(conversation.isMuted ?? false))
+            }
+        }
+        Button((conversation.isHidden ?? false) ? R.string.localizable.show() : R.string.localizable.hide()) {
+            Task(priority: .userInitiated) {
+                await viewModel.setConversationIsHidden(conversationId: conversation.id, isHidden: !(conversation.isHidden ?? false))
+            }
         }
     }
 }
