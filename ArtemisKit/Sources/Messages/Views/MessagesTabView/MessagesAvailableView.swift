@@ -368,3 +368,21 @@ private struct Badge: View {
         }
     }
 }
+
+#Preview {
+    Badge(unreadCount: 100)
+}
+
+#Preview {
+    Text("1")
+        .border(.purple)
+        .foregroundStyle(.white)
+        .frame(minWidth: 14 + 4)
+        .border(.red)
+        .padding(.all, 2)
+        .border(.yellow)
+        .aspectRatio(1, contentMode: .fill)
+        .background {
+            Capsule()
+        }
+}
