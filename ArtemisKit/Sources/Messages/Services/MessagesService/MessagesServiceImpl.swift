@@ -34,9 +34,9 @@ class MessagesServiceImpl: MessagesService {
         let result = await client.sendRequest(GetConversationsRequest(courseId: courseId))
 
         switch result {
-        case .success((let conversations, _)):
+        case let .success((conversations, _)):
             return .done(response: conversations)
-        case .failure(let error):
+        case let .failure(error):
             return DataState(error: error)
         }
     }
@@ -64,7 +64,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -76,8 +76,13 @@ class MessagesServiceImpl: MessagesService {
         let conversationId: Int64
         let isMuted: Bool
 
-        var method: HTTPMethod { .post }
-        var resourceName: String { "api/courses/\(courseId)/conversations/\(conversationId)/muted?isMuted=\(isMuted)" }
+        var method: HTTPMethod {
+            return .post
+        }
+
+        var resourceName: String {
+            return "api/courses/\(courseId)/conversations/\(conversationId)/muted?isMuted=\(isMuted)"
+        }
     }
 
     func updateIsConversationMuted(for courseId: Int, and conversationId: Int64, isMuted: Bool) async -> NetworkResponse {
@@ -115,7 +120,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -140,9 +145,9 @@ class MessagesServiceImpl: MessagesService {
         let result = await client.sendRequest(GetMessagesRequest(courseId: courseId, conversationId: conversationId, size: size))
 
         switch result {
-        case .success((let messages, _)):
+        case let .success((messages, _)):
             return .done(response: messages)
-        case .failure(let error):
+        case let .failure(error):
             return DataState(error: error)
         }
     }
@@ -175,7 +180,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -206,7 +211,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -232,7 +237,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -258,7 +263,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -288,7 +293,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -318,7 +323,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -347,7 +352,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -376,7 +381,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -402,7 +407,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -425,9 +430,9 @@ class MessagesServiceImpl: MessagesService {
         let result = await client.sendRequest(GetChannelsOverviewRequest(courseId: courseId))
 
         switch result {
-        case .success((let channels, _)):
+        case let .success((channels, _)):
             return .done(response: channels)
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: UserFacingError(error: error))
         }
     }
@@ -458,7 +463,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -489,7 +494,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -520,7 +525,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -551,7 +556,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -583,9 +588,9 @@ class MessagesServiceImpl: MessagesService {
                                                                    isAnnouncementChannel: isAnnouncement))
 
         switch result {
-        case .success((let channel, _)):
+        case let .success((channel, _)):
             return .done(response: channel)
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: UserFacingError(error: error))
         }
     }
@@ -609,9 +614,9 @@ class MessagesServiceImpl: MessagesService {
         let result = await client.sendRequest(SearchForUsersRequest(courseId: courseId, searchText: searchText))
 
         switch result {
-        case .success((let users, _)):
+        case let .success((users, _)):
             return .done(response: users)
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: UserFacingError(error: error))
         }
     }
@@ -639,9 +644,9 @@ class MessagesServiceImpl: MessagesService {
         let result = await client.sendRequest(CreateGroupChatRequest(courseId: courseId, usernames: usernames))
 
         switch result {
-        case .success((let groupChat, _)):
+        case let .success((groupChat, _)):
             return .done(response: groupChat)
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: UserFacingError(error: error))
         }
     }
@@ -669,9 +674,9 @@ class MessagesServiceImpl: MessagesService {
         let result = await client.sendRequest(CreateOneToOneChatRequest(courseId: courseId, usernames: usernames))
 
         switch result {
-        case .success((let oneToOneChat, _)):
+        case let .success((oneToOneChat, _)):
             return .done(response: oneToOneChat)
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: UserFacingError(error: error))
         }
     }
@@ -700,9 +705,9 @@ class MessagesServiceImpl: MessagesService {
                                                                               page: page))
 
         switch result {
-        case .success((let users, _)):
+        case let .success((users, _)):
             return .done(response: users)
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: UserFacingError(error: error))
         }
     }
@@ -728,7 +733,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -754,7 +759,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -792,9 +797,9 @@ class MessagesServiceImpl: MessagesService {
                                                                         description: newDescription))
 
         switch result {
-        case .success((let conversation, _)):
+        case let .success((conversation, _)):
             return .done(response: conversation)
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: UserFacingError(error: error))
         }
     }
