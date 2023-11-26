@@ -166,7 +166,18 @@ private struct MixedMessageSection: View {
                       retryHandler: { await viewModel.loadConversations() }) { conversations in
             if !conversations.isEmpty {
                 DisclosureGroup(isExpanded: $isExpanded) {
-                    ForEach(conversations) { conversation in
+                    ForEach(conversations.filter({ !($0.baseConversation.isMuted ?? false) })) { conversation in
+                        if let channel = conversation.baseConversation as? Channel {
+                            ConversationRow(viewModel: viewModel, conversation: channel)
+                        }
+                        if let groupChat = conversation.baseConversation as? GroupChat {
+                            ConversationRow(viewModel: viewModel, conversation: groupChat)
+                        }
+                        if let oneToOneChat = conversation.baseConversation as? OneToOneChat {
+                            ConversationRow(viewModel: viewModel, conversation: oneToOneChat)
+                        }
+                    }
+                    ForEach(conversations.filter({ $0.baseConversation.isMuted ?? false })) { conversation in
                         if let channel = conversation.baseConversation as? Channel {
                             ConversationRow(viewModel: viewModel, conversation: channel)
                         }
@@ -286,7 +297,10 @@ private struct MessageSection<T: BaseConversation>: View {
         DisclosureGroup(isExpanded: $isExpanded) {
             DataStateView(data: $conversations,
                           retryHandler: { await viewModel.loadConversations() }) { conversations in
-                ForEach(conversations, id: \.id) { conversation in
+                ForEach(conversations.filter({ !($0.isMuted ?? false) }), id: \.id) { conversation in
+                    ConversationRow(viewModel: viewModel, conversation: conversation)
+                }
+                ForEach(conversations.filter({ $0.isMuted ?? false }), id: \.id) { conversation in
                     ConversationRow(viewModel: viewModel, conversation: conversation)
                 }
             }

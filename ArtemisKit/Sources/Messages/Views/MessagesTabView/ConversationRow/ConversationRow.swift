@@ -42,7 +42,7 @@ struct ConversationRow<T: BaseConversation>: View {
                 contextMenuItems
             }
         }
-        .foregroundStyle((conversation.isMuted ?? false) ? Color.gray : Color.black)
+        .foregroundStyle((conversation.isMuted ?? false) ? .secondary : .primary)
         .listRowSeparator(.hidden)
     }
 }
