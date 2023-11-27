@@ -174,6 +174,11 @@ private extension SendMessageView {
                         Image(systemName: "at")
                     }
                     Button {
+                        responseText += "#"
+                    } label: {
+                        Image(systemName: "number")
+                    }
+                    Button {
                         isFocused = false
                         showExercisePicker = true
                     } label: {
