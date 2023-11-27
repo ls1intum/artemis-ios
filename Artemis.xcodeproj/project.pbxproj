@@ -480,8 +480,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/ls1intum/apollon-ios-module";
 			requirement = {
-				kind = revision;
-				revision = d74feafc9b1cf82f4daaa4d550d4b3093e5cbe09;
+				branch = main;
+				kind = branch;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

@@ -25,15 +25,21 @@ struct ModelingExerciseView: View {
     var body: some View {
         ZStack {
             if let model = modelingVM.umlModel, let type = model.type {
-                ApollonEdit(umlModel: model, diagramType: type, fontSize: 14.0, diagramOffset: CGPoint(x: 0, y: 0), isGridBackground: true)
-                    .toolbar {
-                        ToolbarItemGroup(placement: .topBarTrailing) {
-                            HStack {
-                                ProblemStatementButton(modelingVM: modelingVM)
-                                SubmitButton(modelingVM: modelingVM)
-                            }
+                ApollonEdit(umlModel: Binding(
+                    get: { modelingVM.umlModel ?? UMLModel() },
+                    set: { modelingVM.umlModel = $0 }),
+                            diagramType: type,
+                            fontSize: 14.0,
+                            diagramOffset: CGPoint(x: 0, y: 0),
+                            isGridBackground: true)
+                .toolbar {
+                    ToolbarItemGroup(placement: .topBarTrailing) {
+                        HStack {
+                            ProblemStatementButton(modelingVM: modelingVM)
+                            SubmitButton(modelingVM: modelingVM)
                         }
                     }
+                }
             }
         }.task {
             await modelingVM.initSubmission()
