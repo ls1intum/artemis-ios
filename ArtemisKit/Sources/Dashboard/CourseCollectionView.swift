@@ -26,7 +26,7 @@ struct CourseCollectionView: View {
                     spacing: .l
                 ) {
                     ForEach(coursesForDashboard[..<10]) { courseForDashboard in
-                        CourseListCell(courseForDashboard: courseForDashboard)
+                        CourseCollectionContentView(courseForDashboard: courseForDashboard)
                     }
                 }
                 .padding(.horizontal, 20)
@@ -59,7 +59,7 @@ struct CourseCollectionView: View {
     }
 }
 
-private struct CourseListCell: View {
+private struct CourseCollectionContentView: View {
 
     @EnvironmentObject var navigationController: NavigationController
 
@@ -79,76 +79,94 @@ private struct CourseListCell: View {
     }
 
     var body: some View {
-        if let title = courseForDashboard.course.title {
-            VStack(alignment: .leading, spacing: 0) {
-                HStack(alignment: .center) {
-                    if let url = courseForDashboard.course.courseIconURL {
-                        ArtemisAsyncImage(imageURL: url) {
-                            Image("questionmark.square.dashed")
-                        }
-                        .frame(width: .extraLargeImage, height: .extraLargeImage)
-                        .clipShape(Circle())
-                        .padding(.m)
-                    }
-                    VStack(alignment: .leading) {
-                        Text(title)
-                            .font(.custom("SF Pro", size: 21, relativeTo: .title))
-                            .lineLimit(2)
-                        Text(R.string.localizable.dashboard_exercises_label(courseForDashboard.course.exercises?.count ?? 0))
-                        Text(R.string.localizable.dashboard_lectures_label(courseForDashboard.course.lectures?.count ?? 0))
-                    }
-                    .foregroundColor(.white)
-                    .padding(.m)
-                    Spacer()
-                }
-                .frame(maxWidth: .infinity)
-                .background(courseForDashboard.course.courseColor)
-                HStack {
-                    Spacer()
-                    Group {
-                        if let totalScore = courseForDashboard.totalScores {
-                            ProgressBar(value: Int(totalScore.studentScores.absoluteScore),
-                                        total: Int(totalScore.reachablePoints))
-                            .frame(height: 120)
-                            .padding(.vertical, .l)
-                        } else {
-                            Text("No statistics available")
-                        }
-                    }
-                    Spacer()
-                }.padding(.vertical, .m)
-                HStack {
-                    if let nextExercise,
-                       let nextExerciseTitle = nextExercise.baseExercise.title {
-                        HStack {
-                            Text(R.string.localizable.dashboard_next_exercise_label())
-                                .padding(.trailing, .m)
-                            nextExercise.image
-                                .renderingMode(.template)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: .extraSmallImage)
-                            Text(nextExerciseTitle)
-                                .bold()
-                                .lineLimit(1)
-                        }.padding(.l)
-                    } else {
-                        Text(R.string.localizable.dashboard_no_exercise_planned_label())
-                            .padding(.l)
-                    }
-                    Spacer()
-                }
-                .frame(maxWidth: .infinity)
-                .background(Color.Artemis.dashboardCardBackgroundColor)
-                .foregroundColor(Color.Artemis.secondaryLabel)
-            }
-            .cardModifier(backgroundColor: .clear, hasBorder: true)
-            .onTapGesture {
-                navigationController.path.append(CoursePath(course: courseForDashboard.course))
-            }
-            .frame(maxWidth: 720)
-        } else {
-            EmptyView()
+        VStack(alignment: .leading, spacing: 0) {
+            header
+            statistics
+            footer
         }
+        .cardModifier(backgroundColor: .clear, hasBorder: true)
+        .onTapGesture {
+            navigationController.path.append(CoursePath(course: courseForDashboard.course))
+        }
+    }
+}
+
+private extension CourseCollectionContentView {
+    var header: some View {
+        HStack(alignment: .center) {
+            AsyncImage(url: courseForDashboard.course.courseIconURL) { phase in
+                switch phase {
+                case let .success(image):
+                    image
+                        .resizable()
+                        .clipShape(.circle)
+                case .failure:
+                    Image(systemName: "questionmark.square.dashed")
+                        .resizable()
+                case .empty:
+                    EmptyView()
+                @unknown default:
+                    EmptyView()
+                }
+            }
+            .frame(width: .extraLargeImage, height: .extraLargeImage)
+            .padding(.m)
+            VStack(alignment: .leading) {
+                Text(courseForDashboard.course.title ?? "")
+                    .font(.custom("SF Pro", size: 21, relativeTo: .title))
+                    .lineLimit(2)
+                Text(R.string.localizable.dashboard_exercises_label(courseForDashboard.course.exercises?.count ?? 0))
+                Text(R.string.localizable.dashboard_lectures_label(courseForDashboard.course.lectures?.count ?? 0))
+            }
+            .foregroundColor(.white)
+            .padding(.m)
+            Spacer()
+        }
+        .frame(maxWidth: .infinity)
+        .background(courseForDashboard.course.courseColor)
+    }
+
+    var statistics: some View {
+        HStack {
+            Spacer()
+            if let totalScore = courseForDashboard.totalScores {
+                ProgressBar(value: Int(totalScore.studentScores.absoluteScore),
+                            total: Int(totalScore.reachablePoints))
+                .frame(height: 120)
+                .padding(.vertical, .l)
+            } else {
+                Text("No statistics available")
+            }
+            Spacer()
+        }
+        .padding(.vertical, .m)
+    }
+
+    var footer: some View {
+        HStack {
+            if let nextExercise,
+               let nextExerciseTitle = nextExercise.baseExercise.title {
+                HStack {
+                    Text(R.string.localizable.dashboard_next_exercise_label())
+                        .padding(.trailing, .m)
+                    nextExercise.image
+                        .renderingMode(.template)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: .extraSmallImage)
+                    Text(nextExerciseTitle)
+                        .bold()
+                        .lineLimit(1)
+                }
+                .padding(.l)
+            } else {
+                Text(R.string.localizable.dashboard_no_exercise_planned_label())
+                    .padding(.l)
+            }
+            Spacer()
+        }
+        .frame(maxWidth: .infinity)
+        .background(Color.Artemis.dashboardCardBackgroundColor)
+        .foregroundColor(Color.Artemis.secondaryLabel)
     }
 }
