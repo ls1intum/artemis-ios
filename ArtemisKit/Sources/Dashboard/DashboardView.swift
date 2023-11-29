@@ -1,22 +1,21 @@
-import SwiftUI
+import Account
 import Common
-import SharedModels
 import CourseRegistration
+import CourseView
 import DesignLibrary
 import Navigation
-import CourseView
-import Account
 import Notifications
+import SharedModels
+import SwiftUI
 
 /**
  * Display the course overview with the course list.
  */
-public struct CoursesOverviewView: View {
+public struct DashboardView: View {
 
-    @StateObject private var viewModel = CoursesOverviewViewModel()
+    @StateObject private var viewModel = DashboardViewModel()
 
-    @State private var showCourseRegistrationSheet = false
-    @State private var showNotificationSheet = false
+    @State private var isCourseRegistrationPresented = false
 
     public init() { }
 
@@ -36,7 +35,7 @@ public struct CoursesOverviewView: View {
                 HStack {
                     Spacer()
                     Button(R.string.localizable.dasboard_register_for_course()) {
-                        showCourseRegistrationSheet = true
+                        isCourseRegistrationPresented = true
                     }
                     .buttonStyle(ArtemisButton())
                     Spacer()
@@ -50,9 +49,9 @@ public struct CoursesOverviewView: View {
         .accountMenu(error: $viewModel.error)
         .notificationToolBar()
         .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
-        .sheet(isPresented: $showCourseRegistrationSheet) {
+        .sheet(isPresented: $isCourseRegistrationPresented) {
             CourseRegistrationView(successCompletion: {
-                showCourseRegistrationSheet = false
+                isCourseRegistrationPresented = false
                 viewModel.coursesForDashboard = .loading
                 Task {
                     await viewModel.loadCourses()

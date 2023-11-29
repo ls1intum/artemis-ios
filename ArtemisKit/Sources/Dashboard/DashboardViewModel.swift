@@ -1,11 +1,11 @@
+import Common
 import Foundation
 import SharedModels
 import SharedServices
 import UserStore
-import Common
 
 @MainActor
-class CoursesOverviewViewModel: ObservableObject {
+class DashboardViewModel: ObservableObject {
 
     @Published var coursesForDashboard: DataState<[CourseForDashboard]> = DataState.loading
     @Published var error: UserFacingError? {
