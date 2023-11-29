@@ -83,7 +83,31 @@ public struct ExerciseDetailView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: .l) {
                     // All buttons regarding viewing feedback and for the future, starting an exercise
-                    HStack(spacing: .l) {
+                    HStack(spacing: .m) {
+                        if isExerciseParticipatable {
+                            if let dueDate = exercise.baseExercise.dueDate {
+                                if dueDate > Date() {
+                                    if let participationId {
+                                        OpenExerciseButton(exercise: exercise, participationId: participationId, problemStatementURL: urlRequest)
+                                    } else {
+                                        StartExerciseButton(exercise: exercise, participationId: $participationId)
+                                    }
+                                } else {
+                                    if let participationId, latestResultId == nil {
+                                        ViewExerciseSubmissionButton(exercise: exercise, participationId: participationId)
+                                    }
+                                    if let participationId, let latestResultId {
+                                        ViewExerciseResultButton(exercise: exercise, participationId: participationId, resultId: latestResultId)
+                                    }
+                                }
+                            } else {
+                                if let participationId {
+                                    OpenExerciseButton(exercise: exercise, participationId: participationId, problemStatementURL: urlRequest)
+                                } else {
+                                    StartExerciseButton(exercise: exercise, participationId: $participationId)
+                                }
+                            }
+                        }
                         if let latestResultId, let participationId, showFeedbackButton {
                             Button(R.string.localizable.showFeedback()) {
                                 showFeedback = true
@@ -95,11 +119,6 @@ public struct ExerciseDetailView: View {
                                              participationId: participationId,
                                              resultId: latestResultId)
                             }
-                        }
-                        if let participationId {
-                            OpenExerciseButton(exercise: exercise, exerciseId: exerciseId, courseId: courseId, participationId: participationId, problemStatementURL: urlRequest)
-                        } else {
-                            StartExerciseButton(exercise: exercise, participationId: $participationId)
                         }
                     }
                     .padding(.horizontal, .m)
@@ -161,13 +180,6 @@ public struct ExerciseDetailView: View {
                         if let complaintPossible = exercise.baseExercise.allowComplaintsForAutomaticAssessments {
                             ExerciseDetailCell(descriptionText: R.string.localizable.complaintPossible()) {
                                 Text(complaintPossible ? "Yes" : "No")
-                            }
-                        }
-
-                        // Assessment Type
-                        if let assessmentType = exercise.baseExercise.assessmentType {
-                            ExerciseDetailCell(descriptionText: R.string.localizable.assessmentType()) {
-                                Text(assessmentType.description)
                             }
                         }
 
@@ -268,33 +280,6 @@ private struct ExerciseDetailCell<Content: View>: View {
     }
 }
 
-private struct FeedbackView: View {
-
-    @Environment(\.dismiss) var dismiss
-
-    @State private var webViewHeight = CGFloat.s
-    @State private var urlRequest: URLRequest
-    @State private var isWebViewLoading = true
-
-    init(courseId: Int, exerciseId: Int, participationId: Int, resultId: Int) {
-        self._urlRequest = State(wrappedValue: URLRequest(url: URL(string: "/courses/\(courseId)/exercises/\(exerciseId)/participations/\(participationId)/results/\(resultId)/feedback/", relativeTo: UserSession.shared.institution?.baseURL)!))
-    }
-
-    var body: some View {
-        NavigationView {
-            ArtemisWebView(urlRequest: $urlRequest, isLoading: $isWebViewLoading)
-                .loadingIndicator(isLoading: $isWebViewLoading)
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button(R.string.localizable.close()) {
-                            dismiss()
-                        }
-                    }
-                }
-        }
-    }
-}
-
 private struct StartExerciseButton: View {
     var exercise: Exercise
     @Binding var participationId: Int?
@@ -315,26 +300,80 @@ private struct StartExerciseButton: View {
 }
 
 private struct OpenExerciseButton: View {
-    private var exercise: Exercise
-    private var participationId: Int
-    private var problemStatementURL: URLRequest
-
-    init(exercise: Exercise, exerciseId: Int, courseId: Int, participationId: Int, problemStatementURL: URLRequest) {
-        self.exercise = exercise
-        self.participationId = participationId
-        self.problemStatementURL = problemStatementURL
-    }
+    var exercise: Exercise
+    var participationId: Int
+    var problemStatementURL: URLRequest
 
     var body: some View {
         switch exercise {
         case .modeling:
-            NavigationLink(destination: ModelingExerciseView(exercise: exercise,
-                                                             participationId: participationId,
-                                                             problemStatementURL: problemStatementURL)) {
+            NavigationLink(destination: EditModelingExerciseView(exercise: exercise,
+                                                                 participationId: participationId,
+                                                                 problemStatementURL: problemStatementURL)) {
                 Text(R.string.localizable.openModelingEditor())
             }.buttonStyle(ArtemisButton())
         default:
             ArtemisHintBox(text: R.string.localizable.exerciseParticipationHint(), hintType: .info)
+        }
+    }
+}
+
+private struct ViewExerciseSubmissionButton: View {
+    var exercise: Exercise
+    var participationId: Int
+
+    var body: some View {
+        switch exercise {
+        case .modeling:
+            NavigationLink(destination: ViewModelingExerciseView(exercise: exercise, participationId: participationId)) {
+                Text(R.string.localizable.viewSubmission())
+            }.buttonStyle(ArtemisButton())
+        default:
+            ArtemisHintBox(text: R.string.localizable.exerciseParticipationHint(), hintType: .info)
+        }
+    }
+}
+
+private struct ViewExerciseResultButton: View {
+    var exercise: Exercise
+    var participationId: Int
+    var resultId: Int
+
+    var body: some View {
+        switch exercise {
+        case .modeling:
+            NavigationLink(destination: ViewModelingExerciseResultView(exercise: exercise,
+                                                                       participationId: participationId,
+                                                                       resultId: resultId)) {
+                Text(R.string.localizable.viewResult())
+            }.buttonStyle(ArtemisButton())
+        default:
+            ArtemisHintBox(text: R.string.localizable.exerciseParticipationHint(), hintType: .info)
+        }
+    }
+}
+
+private struct FeedbackView: View {
+    @Environment(\.dismiss) var dismiss
+    @State private var webViewHeight = CGFloat.s
+    @State private var urlRequest: URLRequest
+    @State private var isWebViewLoading = true
+
+    init(courseId: Int, exerciseId: Int, participationId: Int, resultId: Int) {
+        self._urlRequest = State(wrappedValue: URLRequest(url: URL(string: "/courses/\(courseId)/exercises/\(exerciseId)/participations/\(participationId)/results/\(resultId)/feedback/", relativeTo: UserSession.shared.institution?.baseURL)!))
+    }
+
+    var body: some View {
+        NavigationView {
+            ArtemisWebView(urlRequest: $urlRequest, isLoading: $isWebViewLoading)
+                .loadingIndicator(isLoading: $isWebViewLoading)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button(R.string.localizable.close()) {
+                            dismiss()
+                        }
+                    }
+                }
         }
     }
 }
