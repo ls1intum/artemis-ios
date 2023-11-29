@@ -25,7 +25,7 @@ struct CourseCollectionView: View {
                     columns: [GridItem(.adaptive(minimum: 400, maximum: .infinity), spacing: .l, alignment: .center)],
                     spacing: .l
                 ) {
-                    ForEach(coursesForDashboard[..<10]) { courseForDashboard in
+                    ForEach(coursesForDashboard) { courseForDashboard in
                         CourseCollectionContentView(courseForDashboard: courseForDashboard)
                     }
                 }
