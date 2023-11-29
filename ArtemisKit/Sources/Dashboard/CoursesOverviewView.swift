@@ -21,31 +21,31 @@ public struct CoursesOverviewView: View {
     public init() { }
 
     public var body: some View {
-        VStack(alignment: .center) {
-            DataStateView(data: $viewModel.coursesForDashboard,
-                          retryHandler: { await viewModel.loadCourses() }) { coursesForDashboard in
-                List {
-                    Group {
-                        ForEach(coursesForDashboard) { courseForDashboard in
-                            CourseListCell(courseForDashboard: courseForDashboard)
-                        }
-                        HStack {
-                            Spacer()
-                            Button(R.string.localizable.dasboard_register_for_course()) {
-                                showCourseRegistrationSheet = true
-                            }
-                            .buttonStyle(ArtemisButton())
-                            Spacer()
-                        }
+        DataStateView(data: $viewModel.coursesForDashboard, retryHandler: {
+            await viewModel.loadCourses()
+        }, content: { coursesForDashboard in
+            ScrollView {
+                LazyVGrid(columns: [
+                    GridItem(.adaptive(minimum: 400, maximum: .infinity), spacing: .l, alignment: .center)
+                ], spacing: .l, content: {
+                    ForEach(coursesForDashboard[..<10]) { courseForDashboard in
+                        CourseListCell(courseForDashboard: courseForDashboard)
                     }
-                    .listRowSeparator(.hidden)
-                }
-                .listStyle(PlainListStyle())
-                .refreshable {
-                    await viewModel.loadCourses()
+                })
+                .padding(.horizontal, 20)
+                HStack {
+                    Spacer()
+                    Button(R.string.localizable.dasboard_register_for_course()) {
+                        showCourseRegistrationSheet = true
+                    }
+                    .buttonStyle(ArtemisButton())
+                    Spacer()
                 }
             }
-        }
+            .refreshable {
+                await viewModel.loadCourses()
+            }
+        })
         .navigationTitle(Text(R.string.localizable.dashboard_title()))
         .accountMenu(error: $viewModel.error)
         .notificationToolBar()
@@ -87,77 +87,73 @@ private struct CourseListCell: View {
 
     var body: some View {
         if let title = courseForDashboard.course.title {
-            HStack {
-                Spacer()
-                VStack(alignment: .leading, spacing: 0) {
-                    HStack(alignment: .center) {
-                        if let url = courseForDashboard.course.courseIconURL {
-                            ArtemisAsyncImage(imageURL: url) {
-                                Image("questionmark.square.dashed")
-                            }
-                            .frame(width: .extraLargeImage, height: .extraLargeImage)
-                            .clipShape(Circle())
-                            .padding(.m)
+            VStack(alignment: .leading, spacing: 0) {
+                HStack(alignment: .center) {
+                    if let url = courseForDashboard.course.courseIconURL {
+                        ArtemisAsyncImage(imageURL: url) {
+                            Image("questionmark.square.dashed")
                         }
-                        VStack(alignment: .leading) {
-                            Text(title)
-                                .font(.custom("SF Pro", size: 21, relativeTo: .title))
-                                .lineLimit(2)
-                            Text(R.string.localizable.dashboard_exercises_label(courseForDashboard.course.exercises?.count ?? 0))
-                            Text(R.string.localizable.dashboard_lectures_label(courseForDashboard.course.lectures?.count ?? 0))
-                        }
-                        .foregroundColor(.white)
+                        .frame(width: .extraLargeImage, height: .extraLargeImage)
+                        .clipShape(Circle())
                         .padding(.m)
-                        Spacer()
                     }
-                    .frame(maxWidth: .infinity)
-                    .background(courseForDashboard.course.courseColor)
-                    HStack {
-                        Spacer()
-                        Group {
-                            if let totalScore = courseForDashboard.totalScores {
-                                ProgressBar(value: Int(totalScore.studentScores.absoluteScore),
-                                            total: Int(totalScore.reachablePoints))
-                                .frame(height: 120)
-                                .padding(.vertical, .l)
-                            } else {
-                                Text("No statistics available")
-                            }
-                        }
-                        Spacer()
-                    }.padding(.vertical, .m)
-                    HStack {
-                        if let nextExercise,
-                           let nextExerciseTitle = nextExercise.baseExercise.title {
-                            HStack {
-                                Text(R.string.localizable.dashboard_next_exercise_label())
-                                    .padding(.trailing, .m)
-                                nextExercise.image
-                                    .renderingMode(.template)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: .extraSmallImage)
-                                Text(nextExerciseTitle)
-                                    .bold()
-                                    .lineLimit(1)
-                            }.padding(.l)
+                    VStack(alignment: .leading) {
+                        Text(title)
+                            .font(.custom("SF Pro", size: 21, relativeTo: .title))
+                            .lineLimit(2)
+                        Text(R.string.localizable.dashboard_exercises_label(courseForDashboard.course.exercises?.count ?? 0))
+                        Text(R.string.localizable.dashboard_lectures_label(courseForDashboard.course.lectures?.count ?? 0))
+                    }
+                    .foregroundColor(.white)
+                    .padding(.m)
+                    Spacer()
+                }
+                .frame(maxWidth: .infinity)
+                .background(courseForDashboard.course.courseColor)
+                HStack {
+                    Spacer()
+                    Group {
+                        if let totalScore = courseForDashboard.totalScores {
+                            ProgressBar(value: Int(totalScore.studentScores.absoluteScore),
+                                        total: Int(totalScore.reachablePoints))
+                            .frame(height: 120)
+                            .padding(.vertical, .l)
                         } else {
-                            Text(R.string.localizable.dashboard_no_exercise_planned_label())
-                                .padding(.l)
+                            Text("No statistics available")
                         }
-                        Spacer()
                     }
-                    .frame(maxWidth: .infinity)
-                    .background(Color.Artemis.dashboardCardBackgroundColor)
-                    .foregroundColor(Color.Artemis.secondaryLabel)
+                    Spacer()
+                }.padding(.vertical, .m)
+                HStack {
+                    if let nextExercise,
+                       let nextExerciseTitle = nextExercise.baseExercise.title {
+                        HStack {
+                            Text(R.string.localizable.dashboard_next_exercise_label())
+                                .padding(.trailing, .m)
+                            nextExercise.image
+                                .renderingMode(.template)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: .extraSmallImage)
+                            Text(nextExerciseTitle)
+                                .bold()
+                                .lineLimit(1)
+                        }.padding(.l)
+                    } else {
+                        Text(R.string.localizable.dashboard_no_exercise_planned_label())
+                            .padding(.l)
+                    }
+                    Spacer()
                 }
-                .cardModifier(backgroundColor: .clear, hasBorder: true)
-                .onTapGesture {
-                    navigationController.path.append(CoursePath(course: courseForDashboard.course))
-                }
-                .frame(maxWidth: 720)
-                Spacer()
+                .frame(maxWidth: .infinity)
+                .background(Color.Artemis.dashboardCardBackgroundColor)
+                .foregroundColor(Color.Artemis.secondaryLabel)
             }
+            .cardModifier(backgroundColor: .clear, hasBorder: true)
+            .onTapGesture {
+                navigationController.path.append(CoursePath(course: courseForDashboard.course))
+            }
+            .frame(maxWidth: 720)
         } else {
             EmptyView()
         }
