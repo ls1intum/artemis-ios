@@ -22,11 +22,11 @@ class MessagesServiceImpl: MessagesService {
         let courseId: Int
 
         var method: HTTPMethod {
-            return .get
+            .get
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/conversations"
+            "api/courses/\(courseId)/conversations"
         }
     }
 
@@ -34,9 +34,9 @@ class MessagesServiceImpl: MessagesService {
         let result = await client.sendRequest(GetConversationsRequest(courseId: courseId))
 
         switch result {
-        case .success((let conversations, _)):
+        case let .success((conversations, _)):
             return .done(response: conversations)
-        case .failure(let error):
+        case let .failure(error):
             return DataState(error: error)
         }
     }
@@ -49,11 +49,11 @@ class MessagesServiceImpl: MessagesService {
         let isHidden: Bool
 
         var method: HTTPMethod {
-            return .post
+            .post
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/conversations/\(conversationId)/hidden?isHidden=\(isHidden)"
+            "api/courses/\(courseId)/conversations/\(conversationId)/hidden?isHidden=\(isHidden)"
         }
     }
 
@@ -64,7 +64,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -77,11 +77,11 @@ class MessagesServiceImpl: MessagesService {
         let isFavorite: Bool
 
         var method: HTTPMethod {
-            return .post
+            .post
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/conversations/\(conversationId)/favorite?isFavorite=\(isFavorite)"
+            "api/courses/\(courseId)/conversations/\(conversationId)/favorite?isFavorite=\(isFavorite)"
         }
     }
 
@@ -92,7 +92,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -105,11 +105,11 @@ class MessagesServiceImpl: MessagesService {
         let size: Int
 
         var method: HTTPMethod {
-            return .get
+            .get
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/messages?postSortCriterion=CREATION_DATE&sortingOrder=ASCENDING&conversationId=\(conversationId)&pagingEnabled=true&page=0&size=\(size)"
+            "api/courses/\(courseId)/messages?postSortCriterion=CREATION_DATE&sortingOrder=ASCENDING&conversationId=\(conversationId)&pagingEnabled=true&page=0&size=\(size)"
         }
     }
 
@@ -117,9 +117,9 @@ class MessagesServiceImpl: MessagesService {
         let result = await client.sendRequest(GetMessagesRequest(courseId: courseId, conversationId: conversationId, size: size))
 
         switch result {
-        case .success((let messages, _)):
+        case let .success((messages, _)):
             return .done(response: messages)
-        case .failure(let error):
+        case let .failure(error):
             return DataState(error: error)
         }
     }
@@ -134,11 +134,11 @@ class MessagesServiceImpl: MessagesService {
         let content: String
 
         var method: HTTPMethod {
-            return .post
+            .post
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/messages"
+            "api/courses/\(courseId)/messages"
         }
     }
 
@@ -152,7 +152,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -166,11 +166,11 @@ class MessagesServiceImpl: MessagesService {
         let courseId: Int
 
         var method: HTTPMethod {
-            return .post
+            .post
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/answer-messages"
+            "api/courses/\(courseId)/answer-messages"
         }
     }
 
@@ -183,7 +183,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -195,11 +195,11 @@ class MessagesServiceImpl: MessagesService {
         let courseId: Int
 
         var method: HTTPMethod {
-            return .delete
+            .delete
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/messages/\(messageId)"
+            "api/courses/\(courseId)/messages/\(messageId)"
         }
     }
 
@@ -209,7 +209,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -221,11 +221,11 @@ class MessagesServiceImpl: MessagesService {
         let courseId: Int
 
         var method: HTTPMethod {
-            return .delete
+            .delete
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/answer-messages/\(messageId)"
+            "api/courses/\(courseId)/answer-messages/\(messageId)"
         }
     }
 
@@ -235,7 +235,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -247,11 +247,11 @@ class MessagesServiceImpl: MessagesService {
         let courseId: Int
 
         var method: HTTPMethod {
-            return .put
+            .put
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/messages/\(message.id)"
+            "api/courses/\(courseId)/messages/\(message.id)"
         }
 
         func encode(to encoder: Encoder) throws {
@@ -265,7 +265,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -277,11 +277,11 @@ class MessagesServiceImpl: MessagesService {
         let courseId: Int
 
         var method: HTTPMethod {
-            return .put
+            .put
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/answer-messages/\(answerMessage.id)"
+            "api/courses/\(courseId)/answer-messages/\(answerMessage.id)"
         }
 
         func encode(to encoder: Encoder) throws {
@@ -295,7 +295,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -308,11 +308,11 @@ class MessagesServiceImpl: MessagesService {
         let courseId: Int
 
         var method: HTTPMethod {
-            return .post
+            .post
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/postings/reactions"
+            "api/courses/\(courseId)/postings/reactions"
         }
     }
 
@@ -324,7 +324,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -337,11 +337,11 @@ class MessagesServiceImpl: MessagesService {
         let courseId: Int
 
         var method: HTTPMethod {
-            return .post
+            .post
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/postings/reactions"
+            "api/courses/\(courseId)/postings/reactions"
         }
     }
 
@@ -353,7 +353,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -365,11 +365,11 @@ class MessagesServiceImpl: MessagesService {
         let reactionId: Int64
 
         var method: HTTPMethod {
-            return .delete
+            .delete
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/postings/reactions/\(reactionId)"
+            "api/courses/\(courseId)/postings/reactions/\(reactionId)"
         }
     }
 
@@ -379,7 +379,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -390,11 +390,11 @@ class MessagesServiceImpl: MessagesService {
         let courseId: Int
 
         var method: HTTPMethod {
-            return .get
+            .get
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/channels/overview"
+            "api/courses/\(courseId)/channels/overview"
         }
     }
 
@@ -402,9 +402,9 @@ class MessagesServiceImpl: MessagesService {
         let result = await client.sendRequest(GetChannelsOverviewRequest(courseId: courseId))
 
         switch result {
-        case .success((let channels, _)):
+        case let .success((channels, _)):
             return .done(response: channels)
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: UserFacingError(error: error))
         }
     }
@@ -417,11 +417,11 @@ class MessagesServiceImpl: MessagesService {
         let usernames: [String]
 
         var method: HTTPMethod {
-            return .post
+            .post
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/channels/\(channelId)/register"
+            "api/courses/\(courseId)/channels/\(channelId)/register"
         }
 
         func encode(to encoder: Encoder) throws {
@@ -435,7 +435,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -448,11 +448,11 @@ class MessagesServiceImpl: MessagesService {
         let usernames: [String]
 
         var method: HTTPMethod {
-            return .post
+            .post
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/channels/\(channelId)/deregister"
+            "api/courses/\(courseId)/channels/\(channelId)/deregister"
         }
 
         func encode(to encoder: Encoder) throws {
@@ -466,7 +466,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -479,11 +479,11 @@ class MessagesServiceImpl: MessagesService {
         let usernames: [String]
 
         var method: HTTPMethod {
-            return .post
+            .post
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/group-chats/\(groupChatId)/register"
+            "api/courses/\(courseId)/group-chats/\(groupChatId)/register"
         }
 
         func encode(to encoder: Encoder) throws {
@@ -497,7 +497,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -510,11 +510,11 @@ class MessagesServiceImpl: MessagesService {
         let usernames: [String]
 
         var method: HTTPMethod {
-            return .post
+            .post
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/group-chats/\(groupChatId)/deregister"
+            "api/courses/\(courseId)/group-chats/\(groupChatId)/deregister"
         }
 
         func encode(to encoder: Encoder) throws {
@@ -528,7 +528,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -544,11 +544,11 @@ class MessagesServiceImpl: MessagesService {
         let isAnnouncementChannel: Bool
 
         var method: HTTPMethod {
-            return .post
+            .post
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/channels"
+            "api/courses/\(courseId)/channels"
         }
     }
 
@@ -560,9 +560,9 @@ class MessagesServiceImpl: MessagesService {
                                                                    isAnnouncementChannel: isAnnouncement))
 
         switch result {
-        case .success((let channel, _)):
+        case let .success((channel, _)):
             return .done(response: channel)
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: UserFacingError(error: error))
         }
     }
@@ -574,11 +574,11 @@ class MessagesServiceImpl: MessagesService {
         let searchText: String
 
         var method: HTTPMethod {
-            return .get
+            .get
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/users/search?loginOrName=\(searchText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&roles=students,tutors,instructors"
+            "api/courses/\(courseId)/users/search?loginOrName=\(searchText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&roles=students,tutors,instructors"
         }
     }
 
@@ -586,9 +586,9 @@ class MessagesServiceImpl: MessagesService {
         let result = await client.sendRequest(SearchForUsersRequest(courseId: courseId, searchText: searchText))
 
         switch result {
-        case .success((let users, _)):
+        case let .success((users, _)):
             return .done(response: users)
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: UserFacingError(error: error))
         }
     }
@@ -600,11 +600,11 @@ class MessagesServiceImpl: MessagesService {
         let usernames: [String]
 
         var method: HTTPMethod {
-            return .post
+            .post
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/group-chats"
+            "api/courses/\(courseId)/group-chats"
         }
 
         func encode(to encoder: Encoder) throws {
@@ -616,9 +616,9 @@ class MessagesServiceImpl: MessagesService {
         let result = await client.sendRequest(CreateGroupChatRequest(courseId: courseId, usernames: usernames))
 
         switch result {
-        case .success((let groupChat, _)):
+        case let .success((groupChat, _)):
             return .done(response: groupChat)
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: UserFacingError(error: error))
         }
     }
@@ -630,11 +630,11 @@ class MessagesServiceImpl: MessagesService {
         let usernames: [String]
 
         var method: HTTPMethod {
-            return .post
+            .post
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/one-to-one-chats"
+            "api/courses/\(courseId)/one-to-one-chats"
         }
 
         func encode(to encoder: Encoder) throws {
@@ -646,9 +646,9 @@ class MessagesServiceImpl: MessagesService {
         let result = await client.sendRequest(CreateOneToOneChatRequest(courseId: courseId, usernames: usernames))
 
         switch result {
-        case .success((let oneToOneChat, _)):
+        case let .success((oneToOneChat, _)):
             return .done(response: oneToOneChat)
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: UserFacingError(error: error))
         }
     }
@@ -662,11 +662,11 @@ class MessagesServiceImpl: MessagesService {
         let page: Int
 
         var method: HTTPMethod {
-            return .get
+            .get
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/conversations/\(conversationId)/members/search?loginOrName=\(searchText ?? "")&sort=firstName,asc&sort=lastName,asc&page=\(page)&size=20"
+            "api/courses/\(courseId)/conversations/\(conversationId)/members/search?loginOrName=\(searchText ?? "")&sort=firstName,asc&sort=lastName,asc&page=\(page)&size=20"
         }
     }
 
@@ -677,9 +677,9 @@ class MessagesServiceImpl: MessagesService {
                                                                               page: page))
 
         switch result {
-        case .success((let users, _)):
+        case let .success((users, _)):
             return .done(response: users)
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: UserFacingError(error: error))
         }
     }
@@ -691,11 +691,11 @@ class MessagesServiceImpl: MessagesService {
         let channelId: Int64
 
         var method: HTTPMethod {
-            return .post
+            .post
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/channels/\(channelId)/archive"
+            "api/courses/\(courseId)/channels/\(channelId)/archive"
         }
     }
 
@@ -705,7 +705,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -717,11 +717,11 @@ class MessagesServiceImpl: MessagesService {
         let channelId: Int64
 
         var method: HTTPMethod {
-            return .post
+            .post
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/channels/\(channelId)/unarchive"
+            "api/courses/\(courseId)/channels/\(channelId)/unarchive"
         }
     }
 
@@ -731,7 +731,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -749,11 +749,11 @@ class MessagesServiceImpl: MessagesService {
         let description: String?
 
         var method: HTTPMethod {
-            return .put
+            .put
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/\(typePath)/\(conversationId)"
+            "api/courses/\(courseId)/\(typePath)/\(conversationId)"
         }
     }
 
@@ -769,9 +769,9 @@ class MessagesServiceImpl: MessagesService {
                                                                         description: newDescription))
 
         switch result {
-        case .success((let conversation, _)):
+        case let .success((conversation, _)):
             return .done(response: conversation)
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: UserFacingError(error: error))
         }
     }
