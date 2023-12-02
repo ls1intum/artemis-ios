@@ -47,7 +47,7 @@ struct ModelingExerciseView: View {
             }
         }
         .task {
-            await modelingViewModel.initSubmission()
+            await modelingViewModel.onAppear()
             modelingViewModel.setup()
         }
         .navigationBarTitleDisplayMode(.inline)

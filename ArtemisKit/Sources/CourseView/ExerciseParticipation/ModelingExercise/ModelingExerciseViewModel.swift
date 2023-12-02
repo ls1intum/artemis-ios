@@ -25,13 +25,12 @@ class ModelingExerciseViewModel: BaseViewModel {
         self.problemStatementURL = problemStatementURL
     }
 
-    func initSubmission() async {
+    func onAppear() async {
         guard submission == nil else {
             return
         }
 
         isLoading = true
-
         defer {
             isLoading = false
         }
