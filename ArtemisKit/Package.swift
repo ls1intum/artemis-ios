@@ -19,6 +19,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/Kelvas09/EmojiPicker.git", from: "1.0.0"),
+        .package(url: "https://github.com/ls1intum/apollon-ios-module", branch: "main"),
         .package(
             url: "https://github.com/ls1intum/artemis-ios-core-modules",
             branch: "feature/communication/user-mentions"),
@@ -53,6 +54,7 @@ let package = Package(
             dependencies: [
                 "Messages",
                 "Navigation",
+                .product(name: "ApollonEdit", package: "apollon-ios-module"),
                 .product(name: "APIClient", package: "artemis-ios-core-modules"),
                 .product(name: "ArtemisMarkdown", package: "artemis-ios-core-modules"),
                 .product(name: "Common", package: "artemis-ios-core-modules"),
