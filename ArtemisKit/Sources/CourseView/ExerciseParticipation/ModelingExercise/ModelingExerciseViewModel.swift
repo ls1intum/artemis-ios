@@ -5,12 +5,12 @@
 //  Created by Alexander Görtzen on 21.11.23.
 //
 
+import ApollonShared
+import Common
 import Foundation
 import SharedModels
-import Common
-import ApollonShared
 
-class ModelingExerciseViewModel: ObservableObject {
+class ModelingExerciseViewModel: BaseViewModel {
     @Published var submission: BaseSubmission?
     @Published var umlModel: UMLModel?
     @Published var loading = false
@@ -25,7 +25,6 @@ class ModelingExerciseViewModel: ObservableObject {
         self.problemStatementURL = problemStatementURL
     }
 
-    @MainActor
     func initSubmission() async {
         guard submission == nil else {
             return
@@ -40,14 +39,13 @@ class ModelingExerciseViewModel: ObservableObject {
         let exerciseService = ExerciseSubmissionServiceFactory.service(for: exercise)
 
         do {
-            let response = try await exerciseService.getLatestSubmission(participationId: participationId)
+            let response = try await exerciseService.readLatestSubmission(participationId: participationId)
             self.submission = response.baseSubmission
         } catch {
             log.error(String(describing: error))
         }
     }
 
-    @MainActor
     func setup() {
         guard let modelingSubmission = self.submission as? ModelingSubmission else {
             return
@@ -64,7 +62,6 @@ class ModelingExerciseViewModel: ObservableObject {
         }
     }
 
-    @MainActor
     func submitSubmission() async {
         guard var submitSubmission = submission as? ModelingSubmission, let umlModel else {
             return
@@ -74,12 +71,10 @@ class ModelingExerciseViewModel: ObservableObject {
 
         do {
             let jsonData = try JSONEncoder().encode(umlModel)
-
             if let jsonString = String(data: jsonData, encoding: .utf8) {
                 submitSubmission.model = jsonString
             }
-            
-            try await exerciseService.putSubmission(exerciseId: exercise.id, data: submitSubmission)
+            try await exerciseService.updateSubmission(exerciseId: exercise.id, submission: submitSubmission)
         } catch {
             log.error(String(describing: error))
         }
