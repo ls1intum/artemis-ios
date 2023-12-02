@@ -25,10 +25,15 @@ struct SendMessageView: View {
     @State private var showExercisePicker = false
     @State private var showLecturePicker = false
 
-    @State private var suppressMemberPicker = false
+    @State private var isMemberPickerSuppressed = false
+    @State private var isChannelPickerSuppressed = false
 
     private var isMemberPickerPresented: Bool {
-        SendMessageMemberCandidate.search(text: responseText) != nil && !suppressMemberPicker
+        SendMessageMemberCandidate.search(text: responseText) != nil && !isMemberPickerSuppressed
+    }
+
+    private var isChannelPickerPresented: Bool {
+        SendMessageChannelCandidate.search(text: responseText) != nil && !isChannelPickerSuppressed
     }
 
     @FocusState private var isFocused: Bool
@@ -46,7 +51,9 @@ struct SendMessageView: View {
 
     var body: some View {
         VStack {
-            if isMemberPickerPresented, let course = viewModel.course.value, let conversation = viewModel.conversation.value {
+            if isMemberPickerPresented,
+                let course = viewModel.course.value,
+                let conversation = viewModel.conversation.value {
                 SendMessageMemberPicker(course: course, conversation: conversation, text: $responseText)
                     .listStyle(.plain)
                     .clipShape(RoundedRectangle(cornerRadius: 20))
@@ -55,6 +62,17 @@ struct SendMessageView: View {
                             .stroke(Color.Artemis.artemisBlue, lineWidth: 2)
                     }
                     .padding(.bottom, .m)
+            }
+            if isChannelPickerPresented,
+                let course = viewModel.course.value,
+                let conversation = viewModel.conversation.value {
+                SendMessageChannelPicker(course: course, conversation: conversation, text: $responseText)
+                    .listStyle(.plain)
+                    .clipShape(.rect(cornerRadius: 20))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(Color.Artemis.artemisBlue, lineWidth: 2)
+                    }
             }
             VStack {
                 if isFocused && !isEditMode {
@@ -165,16 +183,21 @@ private extension SendMessageView {
                     }
                     Button {
                         if isMemberPickerPresented {
-                            suppressMemberPicker = true
+                            isMemberPickerSuppressed = true
                         } else {
-                            suppressMemberPicker = false
+                            isMemberPickerSuppressed = false
                             responseText += "@"
                         }
                     } label: {
                         Image(systemName: "at")
                     }
                     Button {
-                        responseText += "#"
+                        if isChannelPickerPresented {
+                            isChannelPickerSuppressed = true
+                        } else {
+                            isChannelPickerSuppressed = false
+                            responseText += "#"
+                        }
                     } label: {
                         Image(systemName: "number")
                     }
@@ -226,17 +249,17 @@ private extension SendMessageView {
                 case let .answerMessage(message, completion):
                     result = await viewModel.sendAnswerMessage(text: responseText, for: message, completion: completion)
                 case let .editMessage(message, completion):
-                    var newmessage = message
-                    newmessage.content = responseText
-                    let success = await viewModel.editMessage(message: newmessage)
+                    var newMessage = message
+                    newMessage.content = responseText
+                    let success = await viewModel.editMessage(message: newMessage)
                     viewModel.isLoading = false
                     if success {
                         completion()
                     }
                 case let .editAnswerMessage(message, completion):
-                    var newmessage = message
-                    newmessage.content = responseText
-                    let success = await viewModel.editAnswerMessage(answerMessage: newmessage)
+                    var newMessage = message
+                    newMessage.content = responseText
+                    let success = await viewModel.editAnswerMessage(answerMessage: newMessage)
                     viewModel.isLoading = false
                     if success {
                         completion()
