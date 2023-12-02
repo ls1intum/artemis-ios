@@ -409,6 +409,31 @@ class MessagesServiceImpl: MessagesService {
         }
     }
 
+    struct GetChannelsPublicOverviewRequest: APIRequest {
+        typealias Response = [ChannelIdAndNameDTO]
+
+        let courseId: Int
+
+        var method: HTTPMethod {
+            .get
+        }
+
+        var resourceName: String {
+            "api/courses/\(courseId)/channels/public-overview"
+        }
+    }
+
+    func getChannelsPublicOverview(for courseId: Int) async -> DataState<[ChannelIdAndNameDTO]> {
+        let result = await client.sendRequest(GetChannelsPublicOverviewRequest(courseId: courseId))
+
+        switch result {
+        case let .success((channels, _)):
+            return .done(response: channels)
+        case let .failure(error):
+            return .failure(error: UserFacingError(error: error))
+        }
+    }
+
     struct AddMembersToChannelRequest: APIRequest {
         typealias Response = RawResponse
 
