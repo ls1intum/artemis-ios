@@ -6,14 +6,17 @@
 //
 
 import ApollonEdit
-import ApollonShared
-import Common
 import DesignLibrary
 import SharedModels
 import SwiftUI
 
 struct ModelingExerciseView: View {
+    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+
     @StateObject var modelingViewModel: ModelingExerciseViewModel
+
+    @State private var isProblemStatementPresented = false
+    @State private var isWebViewLoading = false
 
     init(exercise: Exercise, participationId: Int, problemStatementURL: URLRequest) {
         self._modelingViewModel = StateObject(wrappedValue: ModelingExerciseViewModel(
@@ -36,8 +39,8 @@ struct ModelingExerciseView: View {
                 .toolbar {
                     ToolbarItemGroup(placement: .topBarTrailing) {
                         HStack {
-                            ProblemStatementButton(modelingViewModel: modelingViewModel)
-                            SubmitButton(modelingViewModel: modelingViewModel)
+                            problemStatementButton
+                            submitButton
                         }
                     }
                 }
@@ -52,11 +55,8 @@ struct ModelingExerciseView: View {
     }
 }
 
-struct SubmitButton: View {
-    @StateObject var modelingViewModel: ModelingExerciseViewModel
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
-
-    var body: some View {
+private extension ModelingExerciseView {
+    var submitButton: some View {
         Button("Submit") {
             Task {
                 await modelingViewModel.submitSubmission()
@@ -65,14 +65,8 @@ struct SubmitButton: View {
         }
         .buttonStyle(ArtemisButton())
     }
-}
 
-struct ProblemStatementButton: View {
-    @StateObject var modelingViewModel: ModelingExerciseViewModel
-    @State private var isProblemStatementPresented = false
-    @State private var isWebViewLoading = true
-
-    var body: some View {
+    var problemStatementButton: some View {
         Button {
             isProblemStatementPresented.toggle()
         } label: {
