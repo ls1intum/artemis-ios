@@ -39,7 +39,7 @@ class ModelingExerciseViewModel: BaseViewModel {
         let exerciseService = ExerciseSubmissionServiceFactory.service(for: exercise)
 
         do {
-            let response = try await exerciseService.readLatestSubmission(participationId: participationId)
+            let response = try await exerciseService.getLatestSubmission(participationId: participationId)
             self.submission = response.baseSubmission
         } catch {
             log.error(String(describing: error))

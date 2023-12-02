@@ -12,7 +12,7 @@ import Common
 class UnknownExerciseSubmissionServiceImpl: ExerciseSubmissionService {
     typealias SubmissionType = UnknownSubmission
 
-    func initializeParticipation(exerciseId: Int) async throws -> Participation {
+    func startParticipation(exerciseId: Int) async throws -> Participation {
         throw UserFacingError(title: "Not supported")
     }
 
@@ -20,11 +20,11 @@ class UnknownExerciseSubmissionServiceImpl: ExerciseSubmissionService {
         throw UserFacingError(title: "Not supported")
     }
 
-    func postNewSubmission(exerciseId: Int, data: BaseSubmission) async throws {
+    func createSubmission(exerciseId: Int, submission: BaseSubmission) async throws {
         throw UserFacingError(title: "Not supported")
     }
 
-    func putSubmission(exerciseId: Int, data: BaseSubmission) async throws {
+    func updateSubmission(exerciseId: Int, submission: BaseSubmission) async throws {
         throw UserFacingError(title: "Not supported")
     }
 }
