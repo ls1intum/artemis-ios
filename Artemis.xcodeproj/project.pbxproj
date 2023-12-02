@@ -34,7 +34,7 @@
 		A166A2642B03893900AB6119 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = SOURCE_ROOT; };
 		A166A2652B03893900AB6119 /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = SOURCE_ROOT; };
 		A166A2662B03893900AB6119 /* .swiftlint.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = SOURCE_ROOT; };
-		A166A2672B03893900AB6119 /* Gemfile.lock */ = {isa = PBXFileReference; lastKnownFileType = file; path = Gemfile.lock; sourceTree = SOURCE_ROOT; };
+		A166A2672B03893900AB6119 /* Gemfile.lock */ = {isa = PBXFileReference; lastKnownFileType = text; path = Gemfile.lock; sourceTree = SOURCE_ROOT; };
 		A166A26E2B03899A00AB6119 /* fastlane */ = {isa = PBXFileReference; lastKnownFileType = text; path = fastlane; sourceTree = SOURCE_ROOT; };
 		A1C7E0A92B03754200804542 /* ArtemisKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = ArtemisKit; sourceTree = "<group>"; };
 		D51AD00C299E390700FA5B94 /* Artemis.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Artemis.entitlements; sourceTree = "<group>"; };
@@ -187,6 +187,7 @@
 			packageReferences = (
 				D5DC36612A0434BB00DA32AF /* XCRemoteSwiftPackageReference "artemis-ios-core-modules" */,
 				A1440CDE2AB9A4FC00315873 /* XCRemoteSwiftPackageReference "Starscream" */,
+				F716AA402B14D2E900728E50 /* XCRemoteSwiftPackageReference "SwiftLint" */,
 			);
 			productRefGroup = 7555FF7C242A565900829871 /* Products */;
 			projectDirPath = "";
@@ -455,6 +456,14 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 7.0.0;
+			};
+		};
+		F716AA402B14D2E900728E50 /* XCRemoteSwiftPackageReference "SwiftLint" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/realm/SwiftLint.git";
+			requirement = {
+				kind = exactVersion;
+				version = 0.53.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
