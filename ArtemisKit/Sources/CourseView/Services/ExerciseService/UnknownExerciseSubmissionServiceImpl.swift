@@ -5,9 +5,8 @@
 //  Created by Alexander Görtzen on 21.11.23.
 //
 
-import Foundation
-import SharedModels
 import Common
+import SharedModels
 
 class UnknownExerciseSubmissionServiceImpl: ExerciseSubmissionService {
     typealias SubmissionType = UnknownSubmission

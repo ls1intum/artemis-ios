@@ -11,13 +11,13 @@ import Foundation
 import SharedModels
 
 class ModelingExerciseViewModel: BaseViewModel {
+
+    @Published var problemStatementURL: URLRequest
     @Published var submission: BaseSubmission?
     @Published var umlModel: UMLModel?
-    @Published var loading = false
-    @Published var problemStatementURL: URLRequest
 
-    var exercise: Exercise
-    var participationId: Int
+    let exercise: Exercise
+    let participationId: Int
 
     init(exercise: Exercise, participationId: Int, problemStatementURL: URLRequest) {
         self.exercise = exercise
@@ -30,10 +30,10 @@ class ModelingExerciseViewModel: BaseViewModel {
             return
         }
 
-        loading = true
+        isLoading = true
 
         defer {
-            loading = false
+            isLoading = false
         }
 
         let exerciseService = ExerciseSubmissionServiceFactory.service(for: exercise)
