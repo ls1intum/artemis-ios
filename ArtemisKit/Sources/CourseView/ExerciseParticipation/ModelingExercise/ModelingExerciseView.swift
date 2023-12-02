@@ -30,7 +30,7 @@ struct ModelingExerciseView: View {
         Group {
             if let model = modelingViewModel.umlModel, let type = model.type {
                 ApollonEdit(
-                    umlModel: model,
+                    umlModel: .constant(model),
                     diagramType: type,
                     fontSize: 14.0,
                     diagramOffset: CGPoint(x: 0, y: 0),
