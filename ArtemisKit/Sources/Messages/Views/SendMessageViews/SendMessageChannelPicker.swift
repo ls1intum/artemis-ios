@@ -11,48 +11,45 @@ import SwiftUI
 
 enum SendMessageChannelCandidate {
 
-    /// `regex` matches a prefix and the last at symbol followed by a candidate. The candidate is a possible user name
-    /// or login.
-    private static let regex = #/(?<prefix>[^@]*)@(?<candidate>.*)/#
+    /// `regex` matches a prefix and the last number symbol followed by a candidate. The candidate is a possible channel
+    /// name.
+    private static let regex = #/(?<prefix>[^#]*)#(?<candidate>.*)/#
 
     static func search(text: String) -> Substring? {
         text.wholeMatch(of: regex)?.candidate
     }
 
-    static func replace(text: inout String, member: UserNameAndLoginDTO) {
-        guard let name = member.name, let login = member.login else {
-            return
-        }
+    static func replace(text: inout String, channel: ChannelIdAndNameDTO) {
         text.replace(regex) { match in
-            match.prefix + "[user]\(name)(\(login))[/user]"
+            match.prefix + "[channel]\(channel.name)(\(channel.id))[/channel]"
         }
     }
 }
 
 struct SendMessageChannelPicker: View {
 
-    @StateObject private var viewModel: SendMessageMemberPickerModel
+    @StateObject private var viewModel: SendMessageChannelPickerModel
 
     @Binding var text: String
 
     init(course: Course, conversation: Conversation, text: Binding<String>) {
-        self._viewModel = StateObject(wrappedValue: SendMessageMemberPickerModel(course: course, conversation: conversation))
+        self._viewModel = StateObject(wrappedValue: SendMessageChannelPickerModel(course: course, conversation: conversation))
         self._text = text
     }
 
     var body: some View {
         HStack {
             Spacer()
-            DataStateView(data: $viewModel.members) {
+            DataStateView(data: $viewModel.channels) {
                 if let candidate = SendMessageMemberCandidate.search(text: text).map(String.init) {
-                    await viewModel.search(loginOrName: candidate)
+                    await viewModel.search(idOrName: candidate)
                 }
-            } content: { members in
-                if !members.isEmpty {
+            } content: { channels in
+                if !channels.isEmpty {
                     List {
-                        ForEach(members, id: \.login) { member in
-                            Button(member.name ?? "") {
-                                SendMessageMemberCandidate.replace(text: &text, member: member)
+                        ForEach(channels) { channel in
+                            Button(channel.name) {
+                                SendMessageChannelCandidate.replace(text: &text, channel: channel)
                             }
                         }
                     }
@@ -71,7 +68,7 @@ private extension SendMessageChannelPicker {
     func search() {
         if let candidate = SendMessageMemberCandidate.search(text: text).map(String.init) {
             Task {
-                await viewModel.search(loginOrName: candidate)
+                await viewModel.search(idOrName: candidate)
             }
         }
     }
