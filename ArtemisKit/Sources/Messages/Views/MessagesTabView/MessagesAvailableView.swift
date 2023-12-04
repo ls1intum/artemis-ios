@@ -209,6 +209,9 @@ private struct SectionDisclosureLabel: View {
             Text(sectionTitle)
                 .font(.headline)
             Spacer()
+            if showUnreadCount {
+                Badge(unreadCount: sectionUnreadCount)
+            }
             if let conversationType {
                 Image(systemName: "plus.bubble")
                     .onTapGesture {
@@ -222,9 +225,6 @@ private struct SectionDisclosureLabel: View {
                             showNewConversationSheet = true
                         }
                     }
-            }
-            if showUnreadCount {
-                Badge(unreadCount: sectionUnreadCount)
             }
         }
         .sheet(isPresented: $showNewConversationSheet) {
@@ -357,12 +357,16 @@ private struct Badge: View {
 
     var body: some View {
         if unreadCount > 0 {
+            let shape = Capsule()
+
             Text("\(unreadCount)")
+                .font(.body.bold().monospacedDigit())
                 .foregroundColor(.white)
-                .font(.headline)
-                .padding(.m)
-                .background(.red)
-                .clipShape(Circle())
+                .padding(.vertical, 2)
+                .padding(.horizontal, 8)
+                .background {
+                    shape.fill(.pink)
+                }
         } else {
             EmptyView()
         }
@@ -370,19 +374,5 @@ private struct Badge: View {
 }
 
 #Preview {
-    Badge(unreadCount: 100)
-}
-
-#Preview {
-    Text("1")
-        .border(.purple)
-        .foregroundStyle(.white)
-        .frame(minWidth: 14 + 4)
-        .border(.red)
-        .padding(.all, 2)
-        .border(.yellow)
-        .aspectRatio(1, contentMode: .fill)
-        .background {
-            Capsule()
-        }
+    Badge(unreadCount: 50)
 }
