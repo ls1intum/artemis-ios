@@ -41,7 +41,7 @@ struct SendMessageChannelPicker: View {
         HStack {
             Spacer()
             DataStateView(data: $viewModel.channels) {
-                if let candidate = SendMessageMemberCandidate.search(text: text).map(String.init) {
+                if let candidate = SendMessageChannelCandidate.search(text: text).map(String.init) {
                     await viewModel.search(idOrName: candidate)
                 }
             } content: { channels in
