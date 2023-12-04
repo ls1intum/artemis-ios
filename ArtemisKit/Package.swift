@@ -33,7 +33,8 @@ let package = Package(
                 "Dashboard",
                 "Messages",
                 "Navigation",
-                "Notifications"
+                "Notifications",
+                .product(name: "Login", package: "artemis-ios-core-modules")
             ]),
         .target(
             name: "CourseRegistration",
