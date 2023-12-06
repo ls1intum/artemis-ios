@@ -24,7 +24,7 @@ struct NotificationView: View {
                 DataStateView(data: $viewModel.notifications,
                               retryHandler: { await viewModel.loadNotifications() }) { notifications in
                     if notifications.isEmpty {
-                        Text(R.string.localizable.no_notifications_yet_label())
+                        ContentUnavailableView("No notifications", systemImage: "bell")
                     } else {
                         ForEach(notifications) { notification in
                             NotificationCell(notification: notification)
