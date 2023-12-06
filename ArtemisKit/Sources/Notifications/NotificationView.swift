@@ -20,12 +20,13 @@ struct NotificationView: View {
 
     var body: some View {
         NavigationView {
-            List {
-                DataStateView(data: $viewModel.notifications,
-                              retryHandler: { await viewModel.loadNotifications() }) { notifications in
-                    if notifications.isEmpty {
-                        ContentUnavailableView("No notifications", systemImage: "bell")
-                    } else {
+            DataStateView(data: $viewModel.notifications,
+                          retryHandler: { await viewModel.loadNotifications() }
+            ) { notifications in
+                if notifications.isEmpty {
+                    ContentUnavailableView("No notifications", systemImage: "bell")
+                } else {
+                    List {
                         ForEach(notifications) { notification in
                             NotificationCell(notification: notification)
                                 .onTapGesture {
@@ -38,22 +39,23 @@ struct NotificationView: View {
                                     DeeplinkHandler.shared.handle(path: targetPath)
                                 }
                         }
+                        .listRowSeparator(.hidden)
                     }
-                }.listRowSeparator(.hidden)
+                }
             }
-                .listStyle(PlainListStyle())
-                .refreshable {
-                    await viewModel.loadNotifications()
+            .listStyle(PlainListStyle())
+            .refreshable {
+                await viewModel.loadNotifications()
+            }
+            .navigationTitle(R.string.localizable.notifications_title())
+            .onAppear {
+                Task {
+                    await viewModel.updateNotificationSeenDate()
                 }
-                .navigationTitle(R.string.localizable.notifications_title())
-                .onAppear {
-                    Task {
-                        await viewModel.updateNotificationSeenDate()
-                    }
-                }
-                .alert(R.string.localizable.notification_target_not_found(), isPresented: $showTargetNotFoundAlert) {
-                    Button(R.string.localizable.ok(), role: .cancel) { }
-                }
+            }
+            .alert(R.string.localizable.notification_target_not_found(), isPresented: $showTargetNotFoundAlert) {
+                Button(R.string.localizable.ok(), role: .cancel) { }
+            }
         }
     }
 }
