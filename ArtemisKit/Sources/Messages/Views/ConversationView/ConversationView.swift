@@ -62,9 +62,10 @@ public struct ConversationView: View {
                         DataStateView(data: $viewModel.dailyMessages,
                                       retryHandler: { await viewModel.loadMessages() }) { dailyMessages in
                             if dailyMessages.isEmpty {
-                                Text(R.string.localizable.noMessagesYet())
-                                    .padding(.vertical, .xl)
-                                    .padding(.horizontal, .l)
+                                ContentUnavailableView(
+                                    "No messages",
+                                    systemImage: "message",
+                                    description: Text("Write the first message to kickstart this conversation."))
                             } else {
                                 ForEach(dailyMessages.sorted(by: { $0.key < $1.key }), id: \.key) { dailyMessage in
                                     ConversationDaySection(viewModel: viewModel,
