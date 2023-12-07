@@ -19,12 +19,12 @@ struct ViewModelingExerciseView: View {
                                 diagramType: type,
                                 fontSize: 14.0,
                                 diagramOffset: CGPoint(x: 0, y: 0),
-                                isGridBackground: true)
+                                isGridBackground: true) { }
                 }
             } else {
-               ArtemisHintBox(text: R.string.localizable.diagramTypeNotSupported(), hintType: .warning)
-                   .padding(.horizontal, .l)
-           }
+                ArtemisHintBox(text: R.string.localizable.diagramTypeNotSupported(), hintType: .warning)
+                    .padding(.horizontal, .l)
+            }
         }
         .task {
             await modelingVM.initSubmission()

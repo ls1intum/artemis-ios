@@ -12,7 +12,7 @@ struct EditModelingExerciseView: View {
                                                                                participationId: participationId,
                                                                                problemStatementURL: problemStatementURL))
     }
-
+    
     var body: some View {
         ZStack {
             if !modelingVM.diagramTypeUnsupported {
@@ -67,9 +67,9 @@ struct ProblemStatementButton: View {
     @State private var isWebViewLoading = true
 
     var body: some View {
-        Button(action: {
+        Button {
             isShowingProblemStatement.toggle()
-        }) {
+        } label: {
             Image(systemName: "newspaper")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
