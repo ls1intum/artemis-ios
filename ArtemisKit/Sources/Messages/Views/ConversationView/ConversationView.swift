@@ -53,20 +53,20 @@ public struct ConversationView: View {
 
     public var body: some View {
         VStack {
-            ScrollViewReader { value in
-                ScrollView {
-                    PullToRefresh(coordinateSpaceName: "pullToRefresh") {
-                        await viewModel.loadFurtherMessages()
-                    }
-                    VStack(alignment: .leading) {
-                        DataStateView(data: $viewModel.dailyMessages,
-                                      retryHandler: { await viewModel.loadMessages() }) { dailyMessages in
-                            if dailyMessages.isEmpty {
-                                ContentUnavailableView(
-                                    "No messages",
-                                    systemImage: "message",
-                                    description: Text("Write the first message to kickstart this conversation."))
-                            } else {
+            DataStateView(data: $viewModel.dailyMessages,
+                          retryHandler: { await viewModel.loadMessages() }) { dailyMessages in
+                if dailyMessages.isEmpty {
+                    ContentUnavailableView(
+                        "No Messages",
+                        systemImage: "bubble.right",
+                        description: Text("Write the first message to kickstart this conversation."))
+                } else {
+                    ScrollViewReader { value in
+                        ScrollView {
+                            PullToRefresh(coordinateSpaceName: "pullToRefresh") {
+                                await viewModel.loadFurtherMessages()
+                            }
+                            VStack(alignment: .leading) {
                                 ForEach(dailyMessages.sorted(by: { $0.key < $1.key }), id: \.key) { dailyMessage in
                                     ConversationDaySection(viewModel: viewModel,
                                                            day: dailyMessage.key,
@@ -77,17 +77,17 @@ public struct ConversationView: View {
                                     .id("bottom")
                             }
                         }
-                    }
-                }
-                    .coordinateSpace(name: "pullToRefresh")
-                    .onChange(of: viewModel.dailyMessages.value) {
-                        // TODO: does not work correctly when loadFurtherMessages is called -> is called to early -> investigate
-                        if let id = viewModel.shouldScrollToId {
-                            withAnimation {
-                                value.scrollTo(id, anchor: .bottom)
+                        .coordinateSpace(name: "pullToRefresh")
+                        .onChange(of: viewModel.dailyMessages.value) {
+                            // TODO: does not work correctly when loadFurtherMessages is called -> is called to early -> investigate
+                            if let id = viewModel.shouldScrollToId {
+                                withAnimation {
+                                    value.scrollTo(id, anchor: .bottom)
+                                }
                             }
                         }
                     }
+                }
             }
             if isAllowedToPost {
                 SendMessageView(viewModel: viewModel, sendMessageType: .message)
