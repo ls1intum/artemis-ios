@@ -5,14 +5,17 @@
 //  Created by Sven Andabaka on 23.03.23.
 //
 
-import SwiftUI
-import SharedModels
-import UserStore
-import DesignLibrary
 import Common
+import DesignLibrary
+import Navigation
+import SharedModels
 import SharedServices
+import SwiftUI
+import UserStore
 
 public struct ExerciseDetailView: View {
+
+    @EnvironmentObject private var navigationController: NavigationController
 
     @State private var webViewHeight = CGFloat.s
     @State private var urlRequest: URLRequest
@@ -200,6 +203,11 @@ public struct ExerciseDetailView: View {
                             .frame(width: .smallImage)
                         Text(exercise.baseExercise.title ?? "")
                             .font(.headline)
+                    }
+                }
+                ToolbarItem(placement: .primaryAction) {
+                    Button("Start") {
+                        navigationController.startExercise(id: exerciseId)
                     }
                 }
             }

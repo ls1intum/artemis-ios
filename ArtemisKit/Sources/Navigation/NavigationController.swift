@@ -23,6 +23,10 @@ public class NavigationController: ObservableObject {
         path = NavigationPath()
     }
 
+    public func startExercise(id: Int) {
+        path.append(ExerciseParticipationPath(id: id))
+    }
+
     public func goToCourse(id: Int) {
         popToRoot()
 
@@ -102,6 +106,10 @@ public struct ExercisePath: Hashable {
         self.exercise = exercise
         self.coursePath = coursePath
     }
+}
+
+public struct ExerciseParticipationPath: Hashable {
+    public let id: Int
 }
 
 public struct LecturePath: Hashable {
