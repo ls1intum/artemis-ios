@@ -5,7 +5,6 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ls1intum/apollon-ios-module",
       "state" : {
-        "branch" : "main",
         "revision" : "9c6d15e75ba7068ffc957f2b91df0cd572c9de1a"
       }
     },
