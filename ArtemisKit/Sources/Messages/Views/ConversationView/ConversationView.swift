@@ -5,12 +5,12 @@
 //  Created by Sven Andabaka on 05.04.23.
 //
 
-import SwiftUI
-import SharedModels
+import ArtemisMarkdown
+import Common
 import DesignLibrary
 import Navigation
-import Common
-import ArtemisMarkdown
+import SharedModels
+import SwiftUI
 
 // swiftlint:disable:next identifier_name
 private let MAX_MINUTES_FOR_GROUPING_MESSAGES = 5
@@ -21,7 +21,7 @@ public struct ConversationView: View {
 
     @StateObject private var viewModel: ConversationViewModel
 
-    @State private var showConversationInfoSheet = false
+    @State private var isConversationInfoSheetPresented = false
 
     public init(course: Course, conversation: Conversation) {
         _viewModel = StateObject(wrappedValue: ConversationViewModel(course: course, conversation: conversation))
@@ -53,8 +53,9 @@ public struct ConversationView: View {
 
     public var body: some View {
         VStack {
-            DataStateView(data: $viewModel.dailyMessages,
-                          retryHandler: { await viewModel.loadMessages() }) { dailyMessages in
+            DataStateView(data: $viewModel.dailyMessages) {
+                await viewModel.loadMessages()
+            } content: { dailyMessages in
                 if dailyMessages.isEmpty {
                     ContentUnavailableView(
                         R.string.localizable.noMessages(),
@@ -68,10 +69,11 @@ public struct ConversationView: View {
                             }
                             VStack(alignment: .leading) {
                                 ForEach(dailyMessages.sorted(by: { $0.key < $1.key }), id: \.key) { dailyMessage in
-                                    ConversationDaySection(viewModel: viewModel,
-                                                           day: dailyMessage.key,
-                                                           messages: dailyMessage.value,
-                                                           conversationPath: conversationPath)
+                                    ConversationDaySection(
+                                        viewModel: viewModel,
+                                        day: dailyMessage.key,
+                                        messages: dailyMessage.value,
+                                        conversationPath: conversationPath)
                                 }
                                 Spacer()
                                     .id("bottom")
@@ -93,39 +95,40 @@ public struct ConversationView: View {
                 SendMessageView(viewModel: viewModel, sendMessageType: .message)
             }
         }
-            .toolbar {
-                ToolbarItem(placement: .principal) {
-                    Button(action: {
-                        showConversationInfoSheet = true
-                    }, label: {
-                        Text(viewModel.conversation.value?.baseConversation.conversationName ?? R.string.localizable.loading())
-                            .foregroundColor(.Artemis.primaryLabel)
-                            .frame(width: UIScreen.main.bounds.size.width * 0.6)
-                    })
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Button {
+                    isConversationInfoSheetPresented = true
+                } label: {
+                    Text(viewModel.conversation.value?.baseConversation.conversationName ?? R.string.localizable.loading())
+                        .foregroundColor(.Artemis.primaryLabel)
+                        .frame(width: UIScreen.main.bounds.size.width * 0.6)
                 }
             }
-            .sheet(isPresented: $showConversationInfoSheet) {
-                if let course = viewModel.course.value {
-                    ConversationInfoSheetView(conversation: $viewModel.conversation,
-                                              course: course,
-                                              conversationId: viewModel.conversationId)
-                } else {
-                    Text(R.string.localizable.loading())
-                }
+        }
+        .sheet(isPresented: $isConversationInfoSheetPresented) {
+            if let course = viewModel.course.value {
+                ConversationInfoSheetView(
+                    conversation: $viewModel.conversation,
+                    course: course,
+                    conversationId: viewModel.conversationId)
+            } else {
+                Text(R.string.localizable.loading())
             }
-            .task {
-                viewModel.shouldScrollToId = "bottom"
-                if viewModel.dailyMessages.value == nil {
-                    await viewModel.loadMessages()
-                }
+        }
+        .task {
+            viewModel.shouldScrollToId = "bottom"
+            if viewModel.dailyMessages.value == nil {
+                await viewModel.loadMessages()
             }
-            .onDisappear {
-                if navigationController.path.count < 2 {
-                    // only cancel task if we navigate back
-                    viewModel.websocketSubscriptionTask?.cancel()
-                }
+        }
+        .onDisappear {
+            if navigationController.path.count < 2 {
+                // only cancel task if we navigate back
+                viewModel.websocketSubscriptionTask?.cancel()
             }
-            .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
+        }
+        .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
     }
 }
 
@@ -146,17 +149,18 @@ private struct ConversationDaySection: View {
             Divider()
                 .padding(.horizontal, .l)
             ForEach(Array(messages.enumerated()), id: \.1.id) { index, message in
-                MessageCellWrapper(viewModel: viewModel,
-                                   day: day,
-                                   message: message,
-                                   conversationPath: conversationPath,
-                                   showHeader: (index == 0 ? true : shouldShowHeader(message: message, previousMessage: messages[index - 1])))
+                MessageCellWrapper(
+                    viewModel: viewModel,
+                    day: day,
+                    message: message,
+                    conversationPath: conversationPath,
+                    showHeader: (index == 0 ? true : showHeader(message: message, previousMessage: messages[index - 1])))
             }
         }
     }
 
     // header is not shown if same person messages multiple times within 5 minutes
-    private func shouldShowHeader(message: Message, previousMessage: Message) -> Bool {
+    private func showHeader(message: Message, previousMessage: Message) -> Bool {
         !(message.author == previousMessage.author &&
           message.creationDate ?? .now < (previousMessage.creationDate ?? .yesterday).addingTimeInterval(TimeInterval(MAX_MINUTES_FOR_GROUPING_MESSAGES * 60)))
     }
@@ -186,10 +190,11 @@ private struct MessageCellWrapper: View {
     }
 
     var body: some View {
-        MessageCell(viewModel: viewModel,
-                    message: messageBinding,
-                    conversationPath: conversationPath,
-                    showHeader: showHeader)
+        MessageCell(
+            viewModel: viewModel,
+            message: messageBinding,
+            conversationPath: conversationPath,
+            showHeader: showHeader)
     }
 }
 
@@ -227,6 +232,7 @@ private struct PullToRefresh: View {
                 }
                 Spacer()
             }
-        }.padding(.top, -50)
+        }
+        .padding(.top, -50)
     }
 }
