@@ -206,8 +206,8 @@ public struct ExerciseDetailView: View {
                     }
                 }
                 ToolbarItem(placement: .primaryAction) {
-                    Button("Start") {
-                        navigationController.startExercise(id: exerciseId)
+                    Button("Open exercise") {
+                        navigationController.openExercise(id: exerciseId)
                     }
                 }
             }

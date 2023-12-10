@@ -23,7 +23,7 @@ public class NavigationController: ObservableObject {
         path = NavigationPath()
     }
 
-    public func startExercise(id: Int) {
+    public func openExercise(id: Int) {
         path.append(ExerciseParticipationPath(id: id))
     }
 

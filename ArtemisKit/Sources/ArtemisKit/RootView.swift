@@ -34,9 +34,7 @@ public struct RootView: View {
                                 }
                             // Sadly the following navigationDestination have to be here since SwiftUI is ...
                                 .navigationDestination(for: ExerciseParticipationPath.self) { exerciseParticipationPath in
-                                    ContentUnavailableView(
-                                        "Exercise: \(exerciseParticipationPath.id)",
-                                        systemImage: "list.bullet.clipboard")
+                                    ExerciseParticipationView()
                                 }
                                 .navigationDestination(for: ExercisePath.self) { exercisePath in
                                     if let course = exercisePath.coursePath.course,
