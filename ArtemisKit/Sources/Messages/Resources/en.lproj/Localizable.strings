@@ -46,7 +46,8 @@
 "deletionErrorLabel" = "Could not delete message. Try again later.";
 
 // MARK: ConversationView
-"noMessagesYet" = "There are no messages yet! Write the first message to kickstart this conversation.";
+"noMessages" = "No Messages";
+"noMessagesDescription" = "Write the first message to kickstart this conversation.";
 "replyAction" = "%d reply";
 "new" = "New";
 

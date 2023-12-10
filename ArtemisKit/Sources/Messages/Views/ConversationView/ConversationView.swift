@@ -57,9 +57,9 @@ public struct ConversationView: View {
                           retryHandler: { await viewModel.loadMessages() }) { dailyMessages in
                 if dailyMessages.isEmpty {
                     ContentUnavailableView(
-                        "No Messages",
+                        R.string.localizable.noMessages(),
                         systemImage: "bubble.right",
-                        description: Text("Write the first message to kickstart this conversation."))
+                        description: Text(R.string.localizable.noMessagesDescription()))
                 } else {
                     ScrollViewReader { value in
                         ScrollView {
