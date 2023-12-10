@@ -277,17 +277,13 @@ private struct SendMessageLecturePicker: View {
     let course: Course
 
     var body: some View {
-        if let lectures = course.lectures, !lectures.isEmpty {
-            List(course.lectures ?? [], id: \.id) { lecture in
-                if let title = lecture.title {
-                    Button(title) {
-                        text.append("[lecture]\(title)(/courses/\(course.id)/lectures/\(lecture.id))[/lecture]")
-                        dismiss()
-                    }
+        List(course.lectures ?? [], id: \.id) { lecture in
+            if let title = lecture.title {
+                Button(title) {
+                    text.append("[lecture]\(title)(/courses/\(course.id)/lectures/\(lecture.id))[/lecture]")
+                    dismiss()
                 }
             }
-        } else {
-            ContentUnavailableView("No lectures", systemImage: "character.book.closed")
         }
     }
 }
