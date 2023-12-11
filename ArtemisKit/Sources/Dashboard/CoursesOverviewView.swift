@@ -44,7 +44,7 @@ public struct CoursesOverviewView: View {
         }
         .navigationTitle(Text(R.string.localizable.dashboard_title()))
         .accountMenu(error: $viewModel.error)
-        .notificationToolBar()
+        .notificationToolbar()
         .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
         .sheet(isPresented: $showCourseRegistrationSheet) {
             CourseRegistrationView(successCompletion: {
