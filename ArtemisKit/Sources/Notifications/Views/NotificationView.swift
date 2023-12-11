@@ -19,7 +19,7 @@ struct NotificationView: View {
     @State private var isTargetNotFoundAlertPresented = false
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             DataStateView(data: $viewModel.notifications) {
                 await viewModel.loadNotifications()
             } content: { notifications in
