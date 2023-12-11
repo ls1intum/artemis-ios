@@ -195,7 +195,7 @@ private struct MixedMessageSection: View {
                         viewModel: viewModel,
                         sectionTitle: sectionTitle,
                         sectionUnreadCount: sectionUnreadCount,
-                        showUnreadCount: !isExpanded,
+                        isUnreadCountVisible: !isExpanded,
                         conversationType: nil)
                 }
             }
@@ -214,7 +214,7 @@ private struct SectionDisclosureLabel: View {
 
     let sectionTitle: String
     let sectionUnreadCount: Int
-    let showUnreadCount: Bool
+    let isUnreadCountVisible: Bool
 
     let conversationType: ConversationType?
 
@@ -223,7 +223,7 @@ private struct SectionDisclosureLabel: View {
             Text(sectionTitle)
                 .font(.headline)
             Spacer()
-            if showUnreadCount {
+            if isUnreadCountVisible {
                 Badge(unreadCount: sectionUnreadCount)
             }
             if let conversationType {
@@ -312,7 +312,7 @@ private struct MessageSection<T: BaseConversation>: View {
                 viewModel: viewModel,
                 sectionTitle: sectionTitle,
                 sectionUnreadCount: sectionUnreadCount,
-                showUnreadCount: !isExpanded,
+                isUnreadCountVisible: !isExpanded,
                 conversationType: conversationType)
         }
     }
