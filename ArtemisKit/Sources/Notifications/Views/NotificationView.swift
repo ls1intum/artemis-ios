@@ -28,7 +28,7 @@ struct NotificationView: View {
                 } else {
                     List {
                         ForEach(notifications) { notification in
-                            NotificationListContent(notification: notification)
+                            NotificationListContentView(notification: notification)
                                 .onTapGesture {
                                     dismiss()
                                     guard let type = notification.pushNotificationType,
@@ -61,7 +61,7 @@ struct NotificationView: View {
     }
 }
 
-private struct NotificationListContent: View {
+private struct NotificationListContentView: View {
 
     let notification: Notification
 
