@@ -48,6 +48,7 @@ struct NotificationView: View {
                 await viewModel.loadNotifications()
             }
             .navigationTitle(R.string.localizable.notificationsTitle())
+            .navigationBarTitleDisplayMode(.inline)
             .onAppear {
                 Task {
                     await viewModel.updateNotificationSeenDate()
