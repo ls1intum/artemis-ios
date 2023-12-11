@@ -8,9 +8,7 @@ import Notifications
 import SharedModels
 import SwiftUI
 
-/**
- * Display the course overview with the course list.
- */
+/// Display the course grid.
 public struct DashboardView: View {
 
     @StateObject private var viewModel = DashboardViewModel()

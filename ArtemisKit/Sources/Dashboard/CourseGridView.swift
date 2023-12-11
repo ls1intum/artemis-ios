@@ -44,13 +44,13 @@ struct CourseGridView: View {
             }
         }
         .sheet(isPresented: $isCourseRegistrationPresented) {
-            CourseRegistrationView(successCompletion: {
+            CourseRegistrationView {
                 isCourseRegistrationPresented = false
                 viewModel.coursesForDashboard = .loading
                 Task {
                     await viewModel.loadCourses()
                 }
-            })
+            }
         }
         .task {
             await viewModel.loadCourses()
@@ -60,7 +60,7 @@ struct CourseGridView: View {
 
 private struct CourseGridContentView: View {
 
-    @EnvironmentObject var navigationController: NavigationController
+    @EnvironmentObject private var navigationController: NavigationController
 
     let courseForDashboard: CourseForDashboard
 
