@@ -1,5 +1,5 @@
 //
-//  CourseCollectionView.swift
+//  CourseGridView.swift
 //
 //
 //  Created by Nityananda Zbil on 29.11.23.
@@ -11,7 +11,9 @@ import Navigation
 import SharedModels
 import SwiftUI
 
-struct CourseCollectionView: View {
+struct CourseGridView: View {
+
+    private static let layout = [GridItem(.adaptive(minimum: 400, maximum: .infinity), spacing: .l, alignment: .center)]
 
     @ObservedObject var viewModel: DashboardViewModel
     @State private var isCourseRegistrationPresented = false
@@ -21,19 +23,16 @@ struct CourseCollectionView: View {
             await viewModel.loadCourses()
         } content: { coursesForDashboard in
             ScrollView {
-                LazyVGrid(
-                    columns: [GridItem(.adaptive(minimum: 400, maximum: .infinity), spacing: .l, alignment: .center)],
-                    spacing: .l
-                ) {
+                LazyVGrid(columns: Self.layout,spacing: .l) {
                     ForEach(coursesForDashboard) { courseForDashboard in
-                        CourseCollectionContentView(courseForDashboard: courseForDashboard)
+                        CourseGridContentView(courseForDashboard: courseForDashboard)
                     }
                 }
                 .padding(.horizontal, 20)
 
                 HStack {
                     Spacer()
-                    Button(R.string.localizable.dasboard_register_for_course()) {
+                    Button(R.string.localizable.dashboardRegisterForCourseButton()) {
                         isCourseRegistrationPresented = true
                     }
                     .buttonStyle(ArtemisButton())
@@ -59,7 +58,7 @@ struct CourseCollectionView: View {
     }
 }
 
-private struct CourseCollectionContentView: View {
+private struct CourseGridContentView: View {
 
     @EnvironmentObject var navigationController: NavigationController
 
@@ -91,7 +90,7 @@ private struct CourseCollectionContentView: View {
     }
 }
 
-private extension CourseCollectionContentView {
+private extension CourseGridContentView {
     var header: some View {
         HStack(alignment: .center) {
             AsyncImage(url: courseForDashboard.course.courseIconURL) { phase in
@@ -115,8 +114,8 @@ private extension CourseCollectionContentView {
                 Text(courseForDashboard.course.title ?? "")
                     .font(.custom("SF Pro", size: 21, relativeTo: .title))
                     .lineLimit(2)
-                Text(R.string.localizable.dashboard_exercises_label(courseForDashboard.course.exercises?.count ?? 0))
-                Text(R.string.localizable.dashboard_lectures_label(courseForDashboard.course.lectures?.count ?? 0))
+                Text(R.string.localizable.dashboardExercisesLabel(courseForDashboard.course.exercises?.count ?? 0))
+                Text(R.string.localizable.dashboardLecturesLabel(courseForDashboard.course.lectures?.count ?? 0))
             }
             .foregroundColor(.white)
             .padding(.m)
@@ -147,7 +146,7 @@ private extension CourseCollectionContentView {
             if let nextExercise,
                let nextExerciseTitle = nextExercise.baseExercise.title {
                 HStack {
-                    Text(R.string.localizable.dashboard_next_exercise_label())
+                    Text(R.string.localizable.dashboardNextExerciseLabel())
                         .padding(.trailing, .m)
                     nextExercise.image
                         .renderingMode(.template)
@@ -160,7 +159,7 @@ private extension CourseCollectionContentView {
                 }
                 .padding(.l)
             } else {
-                Text(R.string.localizable.dashboard_no_exercise_planned_label())
+                Text(R.string.localizable.dashboardNoExercisePlannedLabel())
                     .padding(.l)
             }
             Spacer()
