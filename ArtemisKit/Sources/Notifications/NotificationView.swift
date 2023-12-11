@@ -5,10 +5,10 @@
 //  Created by Sven Andabaka on 17.03.23.
 //
 
-import SwiftUI
 import DesignLibrary
 import Navigation
 import PushNotifications
+import SwiftUI
 
 struct NotificationView: View {
 
@@ -16,15 +16,15 @@ struct NotificationView: View {
 
     @Environment(\.dismiss) var dismiss
 
-    @State private var showTargetNotFoundAlert = false
+    @State private var isTargetNotFoundAlertPresented = false
 
     var body: some View {
         NavigationView {
-            DataStateView(data: $viewModel.notifications,
-                          retryHandler: { await viewModel.loadNotifications() }
-            ) { notifications in
+            DataStateView(data: $viewModel.notifications) {
+                await viewModel.loadNotifications()
+            } content: { notifications in
                 if notifications.isEmpty {
-                    ContentUnavailableView("No notifications", systemImage: "bell")
+                    ContentUnavailableView(R.string.localizable.noNotifications(), systemImage: "bell")
                 } else {
                     List {
                         ForEach(notifications) { notification in
@@ -33,7 +33,7 @@ struct NotificationView: View {
                                     dismiss()
                                     guard let type = notification.pushNotificationType,
                                           let targetPath = PushNotificationResponseHandler.getTarget(type: type, targetString: notification.target) else {
-                                        showTargetNotFoundAlert = true
+                                        isTargetNotFoundAlertPresented = true
                                         return
                                     }
                                     DeeplinkHandler.shared.handle(path: targetPath)
@@ -43,17 +43,17 @@ struct NotificationView: View {
                     }
                 }
             }
-            .listStyle(PlainListStyle())
+            .listStyle(.plain)
             .refreshable {
                 await viewModel.loadNotifications()
             }
-            .navigationTitle(R.string.localizable.notifications_title())
+            .navigationTitle(R.string.localizable.notificationsTitle())
             .onAppear {
                 Task {
                     await viewModel.updateNotificationSeenDate()
                 }
             }
-            .alert(R.string.localizable.notification_target_not_found(), isPresented: $showTargetNotFoundAlert) {
+            .alert(R.string.localizable.notificationTargetNotFound(), isPresented: $isTargetNotFoundAlertPresented) {
                 Button(R.string.localizable.ok(), role: .cancel) { }
             }
         }
@@ -73,8 +73,9 @@ struct NotificationCell: View {
                 Text(body)
                 HStack {
                     Spacer()
-                    Text(R.string.localizable.notification_author_label(notification.notificationDate.shortDateAndTime,
-                                                                        notification.author?.name ?? R.string.localizable.artemis_label()))
+                    Text(R.string.localizable.notificationAuthorLabel(
+                        notification.notificationDate.shortDateAndTime,
+                        notification.author?.name ?? R.string.localizable.artemisLabel()))
                     .multilineTextAlignment(.trailing)
                     .foregroundColor(Color.Artemis.secondaryLabel)
                 }
@@ -91,19 +92,21 @@ struct NotificationBell: ViewModifier {
 
     @StateObject private var viewModel = NotificationViewModel()
 
-    @State private var showNotificationSheet = false
+    @State private var isNotificationSheetPresented = false
 
     func body(content: Content) -> some View {
         content
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: { showNotificationSheet = true }, label: {
+                    Button {
+                        isNotificationSheetPresented = true
+                    } label: {
                         Image(systemName: "bell.fill")
                             .overlay(Badge(count: viewModel.newNotificationCount))
-                    })
+                    }
                 }
             }
-            .sheet(isPresented: $showNotificationSheet) {
+            .sheet(isPresented: $isNotificationSheetPresented) {
                 NotificationView(viewModel: viewModel)
             }
             .task {
@@ -139,9 +142,4 @@ struct Badge: View {
             EmptyView()
         }
     }
-}
-
-private struct NewExerciseTarget: Codable {
-    var id: Int
-    var course: Int
 }
