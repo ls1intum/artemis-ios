@@ -21,8 +21,9 @@ struct ViewModelingExerciseResultView: View {
                     ApollonView(umlModel: model,
                                 diagramType: type,
                                 fontSize: 14.0,
+                                themeColor: Color.Artemis.artemisBlue,
                                 diagramOffset: CGPoint(x: 0, y: 0),
-                                isGridBackground: true)
+                                isGridBackground: true) {}
                 }
             } else {
                 ArtemisHintBox(text: R.string.localizable.diagramTypeNotSupported(), hintType: .warning)
@@ -30,7 +31,7 @@ struct ViewModelingExerciseResultView: View {
             }
         }
         .task {
-            await modelingVM.initSubmission()
+            await modelingVM.onAppear()
             modelingVM.setup()
         }
         .navigationBarTitleDisplayMode(.inline)

@@ -22,6 +22,7 @@ struct EditModelingExerciseView: View {
                         set: { modelingVM.umlModel = $0 }),
                                 diagramType: type,
                                 fontSize: 14.0,
+                                themeColor: Color.Artemis.artemisBlue,
                                 diagramOffset: CGPoint(x: 0, y: 0),
                                 isGridBackground: true)
                 }
@@ -31,7 +32,7 @@ struct EditModelingExerciseView: View {
             }
         }
         .task {
-            await modelingVM.initSubmission()
+            await modelingVM.onAppear()
             modelingVM.setup()
         }
         .toolbar {

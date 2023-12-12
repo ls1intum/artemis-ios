@@ -289,7 +289,7 @@ private struct StartExerciseButton: View {
             Task {
                 let exerciseService = ExerciseSubmissionServiceFactory.service(for: exercise)
                 do {
-                    let response = try await exerciseService.initializeParticipation(exerciseId: exercise.id)
+                    let response = try await exerciseService.startParticipation(exerciseId: exercise.id)
                     participationId = response.baseParticipation.id
                 } catch {
                     log.error(String(describing: error))

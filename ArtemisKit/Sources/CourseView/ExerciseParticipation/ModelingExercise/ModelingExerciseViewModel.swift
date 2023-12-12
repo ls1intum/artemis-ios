@@ -13,8 +13,6 @@ import SharedModels
 import Common
 
 class ModelingExerciseViewModel: BaseViewModel {
-
-    @Published var problemStatementURL: URLRequest
     @Published var submission: BaseSubmission?
     @Published var umlModel: UMLModel?
     @Published var loading = false
