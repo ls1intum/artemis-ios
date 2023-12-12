@@ -224,7 +224,7 @@ private struct SectionDisclosureLabel: View {
                 .font(.headline)
             Spacer()
             if isUnreadCountVisible {
-                Badge(unreadCount: sectionUnreadCount)
+                Badge(count: sectionUnreadCount)
             }
             if let conversationType {
                 Image(systemName: "plus.bubble")
@@ -343,7 +343,7 @@ private struct ConversationRow<T: BaseConversation>: View {
                 Text(conversation.conversationName)
                 Spacer()
                 if let unreadCount = conversation.unreadMessagesCount {
-                    Badge(unreadCount: unreadCount)
+                    Badge(count: unreadCount)
                 }
             }
             .opacity((conversation.unreadMessagesCount ?? 0) > 0 ? 1 : 0.7)
@@ -371,22 +371,20 @@ private struct ConversationRow<T: BaseConversation>: View {
 }
 
 private struct Badge: View {
-    let unreadCount: Int
+    let count: Int
 
     var body: some View {
-        if unreadCount > 0 {
-            let shape = Capsule()
-
-            Text("\(unreadCount)")
+        // swiftlint:disable:next empty_count
+        if count > 0 {
+            Text("\(count)")
                 .font(.body.bold().monospacedDigit())
                 .foregroundColor(.white)
                 .padding(.vertical, 2)
                 .padding(.horizontal, 8)
                 .background {
-                    shape.fill(.red)
+                    Capsule()
+                        .fill(.red)
                 }
-        } else {
-            EmptyView()
         }
     }
 }
