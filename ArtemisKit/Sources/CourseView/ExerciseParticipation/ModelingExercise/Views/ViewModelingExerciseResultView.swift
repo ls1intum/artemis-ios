@@ -40,7 +40,7 @@ struct ViewModelingExerciseResultView: View {
             }
         }
         .task {
-            await modelingVM.initSubmission()
+            await modelingVM.onAppear()
             modelingVM.setup()
         }
         .toolbar {
