@@ -7,13 +7,13 @@ import DesignLibrary
 struct ViewModelingExerciseResultView: View {
     @StateObject var modelingVM: ModelingExerciseViewModel
     @State var isStatusViewClicked = false
-
+    
     init(exercise: Exercise, participationId: Int, resultId: Int) {
         self._modelingVM = StateObject(wrappedValue: ModelingExerciseViewModel(exercise: exercise,
                                                                                participationId: participationId,
                                                                                resultId: resultId))
     }
-
+    
     var body: some View {
         ZStack {
             if !modelingVM.diagramTypeUnsupported {
@@ -21,6 +21,7 @@ struct ViewModelingExerciseResultView: View {
                     ApollonView(umlModel: model,
                                 diagramType: type,
                                 fontSize: 14.0,
+                                themeColor: Color.Artemis.artemisBlue,
                                 diagramOffset: modelingVM.diagramOffset,
                                 isGridBackground: true) {
                         Canvas(rendersAsynchronously: true) { context, size in
@@ -61,7 +62,7 @@ struct ViewModelingExerciseResultView: View {
 struct FeedbackViewPopOver: View {
     @ObservedObject var modelingVM: ModelingExerciseViewModel
     @Binding var showFeedback: Bool
-
+    
     var body: some View {
         if showFeedback,
            modelingVM.selectedItem != nil,
@@ -103,7 +104,7 @@ struct FeedbackViewPopOver: View {
 struct UnreferencedFeedbackView: View {
     @ObservedObject var modelingVM: ModelingExerciseViewModel
     @Binding var isStatusViewClicked: Bool
-
+    
     var body: some View {
         Button {
             self.isStatusViewClicked = true

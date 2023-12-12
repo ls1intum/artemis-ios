@@ -39,7 +39,6 @@
 		A1C7E0A92B03754200804542 /* ArtemisKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = ArtemisKit; sourceTree = "<group>"; };
 		D51AD00C299E390700FA5B94 /* Artemis.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Artemis.entitlements; sourceTree = "<group>"; };
 		D52CEEAA29B8FA2D003C7B2E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		F77704882B19E78E00295B2B /* apollon-ios-module */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "apollon-ios-module"; path = "../apollon-ios-module"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -83,7 +82,6 @@
 		7555FF72242A565900829871 = {
 			isa = PBXGroup;
 			children = (
-				F77704882B19E78E00295B2B /* apollon-ios-module */,
 				D51AD00C299E390700FA5B94 /* Artemis.entitlements */,
 				A1C7E0A92B03754200804542 /* ArtemisKit */,
 				7555FF7D242A565900829871 /* Artemis */,

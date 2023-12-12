@@ -1,6 +1,14 @@
 {
   "pins" : [
     {
+      "identity" : "apollon-ios-module",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ls1intum/apollon-ios-module",
+      "state" : {
+        "revision" : "aaa2cb6d012457ae4ea763ea30fe82a892ad6c3d"
+      }
+    },
+    {
       "identity" : "artemis-ios-core-modules",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ls1intum/artemis-ios-core-modules",
