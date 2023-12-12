@@ -1,9 +1,20 @@
+//
+//  ModelingExerciseViewModel.swift
+//  
+//
+//  Created by Alexander Görtzen on 21.11.23.
+//
+
+import ApollonShared
+import Common
 import Foundation
 import ApollonShared
 import SharedModels
 import Common
 
-class ModelingExerciseViewModel: ObservableObject {
+class ModelingExerciseViewModel: BaseViewModel {
+
+    @Published var problemStatementURL: URLRequest
     @Published var submission: BaseSubmission?
     @Published var umlModel: UMLModel?
     @Published var loading = false
@@ -21,16 +32,14 @@ class ModelingExerciseViewModel: ObservableObject {
         self.problemStatementURL = problemStatementURL
     }
 
-    @MainActor
-    func initSubmission() async {
+    func onAppear() async {
         guard submission == nil else {
             return
         }
 
-        loading = true
-
+        isLoading = true
         defer {
-            loading = false
+            isLoading = false
         }
 
         let exerciseService = ExerciseSubmissionServiceFactory.service(for: exercise)
@@ -43,7 +52,6 @@ class ModelingExerciseViewModel: ObservableObject {
         }
     }
 
-    @MainActor
     func setup() {
         guard let modelingSubmission = self.submission as? ModelingSubmission else {
             log.error("Could not get modeling submission")
@@ -74,7 +82,6 @@ class ModelingExerciseViewModel: ObservableObject {
         }
     }
 
-    @MainActor
     func submitSubmission() async {
         guard var submitSubmission = submission as? ModelingSubmission, let umlModel else {
             return
@@ -84,12 +91,10 @@ class ModelingExerciseViewModel: ObservableObject {
 
         do {
             let jsonData = try JSONEncoder().encode(umlModel)
-
             if let jsonString = String(data: jsonData, encoding: .utf8) {
                 submitSubmission.model = jsonString
             }
-
-            try await exerciseService.putSubmission(exerciseId: exercise.id, data: submitSubmission)
+            try await exerciseService.updateSubmission(exerciseId: exercise.id, submission: submitSubmission)
         } catch {
             log.error(String(describing: error))
         }

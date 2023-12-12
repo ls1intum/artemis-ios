@@ -5,15 +5,17 @@
 //  Created by Alexander Görtzen on 21.11.23.
 //
 
-import Foundation
-import Common
 import SharedModels
 
 protocol ExerciseSubmissionService {
-    func initializeParticipation(exerciseId: Int) async throws -> Participation
+
+    func startParticipation(exerciseId: Int) async throws -> Participation
+
     func getLatestSubmission(participationId: Int) async throws -> Submission
-    func postNewSubmission(exerciseId: Int, data: BaseSubmission) async throws
-    func putSubmission(exerciseId: Int, data: BaseSubmission) async throws
+
+    func createSubmission(exerciseId: Int, submission: BaseSubmission) async throws
+
+    func updateSubmission(exerciseId: Int, submission: BaseSubmission) async throws
 }
 
 // TODO: Add ExerciseSubmission for all other exercise types
