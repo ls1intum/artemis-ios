@@ -23,7 +23,7 @@ struct CourseGridView: View {
             await viewModel.loadCourses()
         } content: { coursesForDashboard in
             ScrollView {
-                LazyVGrid(columns: Self.layout,spacing: .l) {
+                LazyVGrid(columns: Self.layout, spacing: .l) {
                     ForEach(coursesForDashboard) { courseForDashboard in
                         CourseGridContentView(courseForDashboard: courseForDashboard)
                     }
@@ -99,17 +99,20 @@ private extension CourseGridContentView {
                     image
                         .resizable()
                         .clipShape(.circle)
+                        .frame(width: .extraLargeImage)
+                        .padding(.m)
                 case .failure:
                     Image(systemName: "questionmark.square.dashed")
                         .resizable()
+                        .frame(width: .extraLargeImage)
+                        .padding(.m)
                 case .empty:
                     EmptyView()
                 @unknown default:
                     EmptyView()
                 }
             }
-            .frame(width: .extraLargeImage, height: .extraLargeImage)
-            .padding(.m)
+            .frame(height: .extraLargeImage)
             VStack(alignment: .leading) {
                 Text(courseForDashboard.course.title ?? "")
                     .font(.custom("SF Pro", size: 21, relativeTo: .title))
@@ -129,12 +132,13 @@ private extension CourseGridContentView {
         HStack {
             Spacer()
             if let totalScore = courseForDashboard.totalScores {
-                ProgressBar(value: Int(totalScore.studentScores.absoluteScore),
-                            total: Int(totalScore.reachablePoints))
+                ProgressBar(
+                    value: Int(totalScore.studentScores.absoluteScore),
+                    total: Int(totalScore.reachablePoints))
                 .frame(height: 120)
                 .padding(.vertical, .l)
             } else {
-                Text("No statistics available")
+                Text(R.string.localizable.dashboardNoStatisticsAvailable())
             }
             Spacer()
         }
