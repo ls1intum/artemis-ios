@@ -27,7 +27,7 @@ public struct RootView: View {
                 if viewModel.isLoggedIn {
                     if viewModel.didSetupNotifications {
                         NavigationStack(path: $navigationController.path) {
-                            CoursesOverviewView()
+                            DashboardView()
                                 .navigationDestination(for: CoursePath.self) { coursePath in
                                     CourseView(courseId: coursePath.id)
                                         .id(coursePath.id)
