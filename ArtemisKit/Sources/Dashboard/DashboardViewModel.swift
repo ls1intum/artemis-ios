@@ -1,21 +1,15 @@
+import Common
 import Foundation
 import SharedModels
 import SharedServices
-import UserStore
-import Common
 
-@MainActor
-class CoursesOverviewViewModel: ObservableObject {
+class DashboardViewModel: BaseViewModel {
 
     @Published var coursesForDashboard: DataState<[CourseForDashboard]> = DataState.loading
-    @Published var error: UserFacingError? {
-        didSet {
-            showError = error != nil
-        }
-    }
-    @Published var showError = false
 
-    init() {
+    override init() {
+        super.init()
+
         Task {
             await loadCourses()
         }
