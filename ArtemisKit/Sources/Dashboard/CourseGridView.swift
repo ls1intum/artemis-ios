@@ -28,7 +28,7 @@ struct CourseGridView: View {
                         CourseGridContentView(courseForDashboard: courseForDashboard)
                     }
                 }
-                .padding(.horizontal, 20)
+                .padding(.horizontal, .l)
 
                 HStack {
                     Spacer()
@@ -100,27 +100,22 @@ private extension CourseGridContentView {
                         .resizable()
                         .clipShape(.circle)
                         .frame(width: .extraLargeImage)
-                        .padding(.m)
-                case .failure:
-                    Image(systemName: "questionmark.square.dashed")
-                        .resizable()
-                        .frame(width: .extraLargeImage)
-                        .padding(.m)
-                case .empty:
+                case .failure, .empty:
                     EmptyView()
                 @unknown default:
                     EmptyView()
                 }
             }
             .frame(height: .extraLargeImage)
-            VStack(alignment: .leading) {
+            .padding([.leading, .vertical], .m)
+            VStack(alignment: .leading, spacing: 0) {
                 Text(courseForDashboard.course.title ?? "")
                     .font(.custom("SF Pro", size: 21, relativeTo: .title))
                     .lineLimit(2)
                 Text(R.string.localizable.dashboardExercisesLabel(courseForDashboard.course.exercises?.count ?? 0))
                 Text(R.string.localizable.dashboardLecturesLabel(courseForDashboard.course.lectures?.count ?? 0))
             }
-            .foregroundColor(.white)
+            .foregroundStyle(.white)
             .padding(.m)
             Spacer()
         }
