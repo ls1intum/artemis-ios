@@ -24,9 +24,7 @@ struct CourseGridView: View {
         } content: { coursesForDashboard in
             ScrollView {
                 LazyVGrid(columns: Self.layout, spacing: .l) {
-                    ForEach(coursesForDashboard) { courseForDashboard in
-                        CourseGridContentView(courseForDashboard: courseForDashboard)
-                    }
+                    ForEach(coursesForDashboard, content: CourseGridCellView.init(courseForDashboard:))
                 }
                 .padding(.horizontal, .l)
 
@@ -58,7 +56,7 @@ struct CourseGridView: View {
     }
 }
 
-private struct CourseGridContentView: View {
+private struct CourseGridCellView: View {
 
     @EnvironmentObject private var navigationController: NavigationController
 
@@ -90,7 +88,7 @@ private struct CourseGridContentView: View {
     }
 }
 
-private extension CourseGridContentView {
+private extension CourseGridCellView {
     var header: some View {
         HStack(alignment: .center) {
             AsyncImage(url: courseForDashboard.course.courseIconURL) { phase in
