@@ -28,7 +28,7 @@ struct NotificationView: View {
                 } else {
                     List {
                         ForEach(notifications) { notification in
-                            NotificationListContentView(notification: notification)
+                            NotificationListRowView(notification: notification)
                                 .onTapGesture {
                                     dismiss()
                                     guard let type = notification.pushNotificationType,
@@ -61,7 +61,7 @@ struct NotificationView: View {
     }
 }
 
-private struct NotificationListContentView: View {
+private struct NotificationListRowView: View {
 
     let notification: Notification
 
@@ -83,8 +83,6 @@ private struct NotificationListContentView: View {
             }
             .padding(.l)
             .cardModifier(backgroundColor: Color.Artemis.modalCardBackgroundColor)
-        } else {
-            EmptyView()
         }
     }
 }
