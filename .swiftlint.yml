@@ -1,7 +1,6 @@
 included:
-  - iosApp
-  - core
-  - feature
+  - Artemis
+  - ArtemisKit
 excluded:
   - Tests/SwiftLintFrameworkTests/Resources
 analyzer_rules:
