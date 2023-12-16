@@ -7,73 +7,72 @@
 
 import SwiftUI
 
-// swiftlint:disable line_length
-private let problem = """
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
-"""
-// swiftlint:enable line_length
+enum ExerciseParticipationViewTab: String, CaseIterable, Identifiable {
+    case submission
+    case problemStatement
+
+    var id: Self {
+        self
+    }
+}
+
+@Observable
+final class ExerciseParticipationViewModel {
+    private let exerciseSubmissionService = TextExerciseSubmissionService()
+
+    var tab: ExerciseParticipationViewTab = .submission
+    var text: String = ""
+    var isSubmitted = false
+}
 
 public struct ExerciseParticipationView: View {
 
-    enum Tab: String, CaseIterable, Identifiable {
-        case submission
-        case problemStatement
-
-        var id: Self {
-            self
-        }
-    }
-
-    @State var selection = Tab.submission
-    @State var text = "" {
-        didSet {
-            didSubmit = false
-        }
-    }
-    @State var didSubmit = true
+    @State var viewModel: ExerciseParticipationViewModel = .init()
 
     public init() {}
 
     public var body: some View {
         VStack(alignment: .leading) {
-            Picker("Tab", selection: $selection) {
-                ForEach(Tab.allCases) { tab in
+            Picker("Tab", selection: $viewModel.tab) {
+                ForEach(ExerciseParticipationViewTab.allCases) { tab in
                     Text(String(describing: tab))
                 }
             }
             .pickerStyle(.segmented)
-            switch selection {
+            switch viewModel.tab {
             case .submission:
-                TextEditor(text: $text)
+                TextEditor(text: $viewModel.text)
                     .overlay {
                         // Corner radius of segmented picker.
                         RoundedRectangle(cornerRadius: 9)
                             .stroke(Color.Artemis.artemisBlue)
                     }
             case .problemStatement:
-                Text(problem)
+                Text("problem")
                 Spacer()
             }
         }
         .padding([.horizontal, .bottom])
-        .onChange(of: text) {
-            didSubmit = false
+        .onChange(of: viewModel.text) {
+            viewModel.isSubmitted = false
         }
         .navigationTitle("Exercise")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem {
                 Button("Submit") {
-                    didSubmit = true
+                    viewModel.isSubmitted = true
                 }
                 .buttonStyle(.bordered)
-                .disabled(didSubmit)
+                .disabled(viewModel.isSubmitted)
             }
         }
     }
 }
 
-extension ExerciseParticipationView.Tab: CustomStringConvertible {
+// MARK: ExerciseParticipationViewTab+CustomStringConvertible
+
+extension ExerciseParticipationViewTab: CustomStringConvertible {
     var description: String {
         switch self {
         case .submission:
@@ -83,6 +82,8 @@ extension ExerciseParticipationView.Tab: CustomStringConvertible {
         }
     }
 }
+
+// MARK: - Preview
 
 #Preview {
     NavigationStack {
