@@ -9,9 +9,7 @@ import ApollonShared
 import Common
 import Foundation
 import SwiftUI
-import ApollonShared
 import SharedModels
-import Common
 
 class ModelingExerciseViewModel: BaseViewModel {
     @Published var submission: BaseSubmission?
@@ -129,6 +127,23 @@ class ModelingExerciseViewModel: BaseViewModel {
             return element.value
         }
         return nil
+    }
+
+    func getRelationshipById(relationshipId: String) -> UMLRelationship? {
+        if let relationship = umlModel?.relationships?.first(where: { $0.value.id == relationshipId }) {
+            return relationship.value
+        }
+        return nil
+    }
+
+    func getItemNameById(itemId: String) -> String? {
+        if let element = getElementById(elementId: itemId) {
+            return element.name
+        } else if let relationship = getRelationshipById(relationshipId: itemId) {
+            return relationship.name
+        } else {
+            return nil
+        }
     }
 }
 
@@ -268,7 +283,7 @@ extension ModelingExerciseViewModel {
                 return .red
             }
         }
-        return .gray
+        return .primary
     }
 
     @ViewBuilder

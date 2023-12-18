@@ -7,13 +7,13 @@ import DesignLibrary
 struct ViewModelingExerciseResultView: View {
     @StateObject var modelingVM: ModelingExerciseViewModel
     @State var isStatusViewClicked = false
-    
+
     init(exercise: Exercise, participationId: Int, resultId: Int) {
         self._modelingVM = StateObject(wrappedValue: ModelingExerciseViewModel(exercise: exercise,
                                                                                participationId: participationId,
                                                                                resultId: resultId))
     }
-    
+
     var body: some View {
         ZStack {
             if !modelingVM.diagramTypeUnsupported {
@@ -49,9 +49,7 @@ struct ViewModelingExerciseResultView: View {
                 SubmissionResultStatusView(exercise: modelingVM.exercise)
             }
             ToolbarItemGroup(placement: .navigationBarTrailing) {
-                if !modelingVM.unreferencedFeedbacks.isEmpty {
-                    UnreferencedFeedbackView(modelingVM: modelingVM, isStatusViewClicked: $isStatusViewClicked)
-                }
+                AssessmentView(modelingVM: modelingVM, isStatusViewClicked: $isStatusViewClicked)
             }
         }
         .navigationBarTitleDisplayMode(.inline)
@@ -62,7 +60,7 @@ struct ViewModelingExerciseResultView: View {
 struct FeedbackViewPopOver: View {
     @ObservedObject var modelingVM: ModelingExerciseViewModel
     @Binding var showFeedback: Bool
-    
+
     var body: some View {
         if showFeedback,
            modelingVM.selectedItem != nil,
@@ -70,41 +68,55 @@ struct FeedbackViewPopOver: View {
            let feedback = modelingVM.getFeedback(byId: feedbackId) {
             VStack {
                 Spacer()
-                HStack {
-                    VStack {
+                VStack(alignment: .leading) {
+                    HStack {
+                        Text("Element")
+                            .bold()
+                        Spacer()
+                        Text("Points")
+                            .bold()
+                    }
+                    Divider()
+                    HStack {
                         if let reference = feedback.reference {
                             Text(reference.components(separatedBy: ":")[0])
-                                .foregroundColor(.white)
-                                .bold()
+                            if let name = modelingVM.getItemNameById(itemId: reference.components(separatedBy: ":")[1]) {
+                                Text(name)
+                                    .foregroundColor(Color.Artemis.artemisLightBlue)
+                            }
                         }
-                        if let text = feedback.text {
-                            Text("Feedback: \(text)")
-                                .foregroundColor(.white)
-                                .multilineTextAlignment(.center)
-                        }
+                        Spacer()
                         if let points = feedback.credits {
-                            Text("Points: \(String(points))")
-                                .foregroundColor(.white)
+                            Text(String(points))
                         }
+                    }
+                    if let text = feedback.text {
+                        HStack(alignment: .top) {
+                            Text("Feedback:")
+                                .bold()
+                            Text(text)
+                                .multilineTextAlignment(.leading)
+                        }
+                        .foregroundColor(modelingVM.getBackgroundColor(feedback: feedback))
                     }
                 }
                 .padding(.m)
                 .frame(maxWidth: .infinity, alignment: .center)
                 .background {
                     RoundedRectangle(cornerRadius: 5)
-                        .foregroundColor(modelingVM.getBackgroundColor(feedback: feedback))
+                        .foregroundColor(Color.Artemis.modalCardBackgroundColor)
                 }
-                .animation(.easeInOut(duration: 0.5), value: showFeedback)
             }
-            .padding([.leading, .bottom, .trailing], 20)
+            .padding(.horizontal, 10)
+            .padding(.bottom, 15)
         }
     }
 }
 
-struct UnreferencedFeedbackView: View {
+struct AssessmentView: View {
     @ObservedObject var modelingVM: ModelingExerciseViewModel
     @Binding var isStatusViewClicked: Bool
-    
+
     var body: some View {
         Button {
             self.isStatusViewClicked = true
@@ -122,43 +134,96 @@ struct UnreferencedFeedbackView: View {
                 }
         }
         .sheet(isPresented: $isStatusViewClicked) {
-            VStack(alignment: .leading) {
-                Button(R.string.localizable.close()) {
-                    isStatusViewClicked = false
-                }
-                .padding([.leading, .top], .l)
-                Text("\(Image(systemName: "ellipsis.message")) Additional feedback:")
-                    .bold()
-                    .padding(.m)
-                List {
-                    ForEach(modelingVM.unreferencedFeedbacks) { feedback in
-                        let color = modelingVM.getBackgroundColor(feedback: feedback)
-                        HStack(spacing: 3) {
+            ScrollView(.vertical) {
+                VStack(alignment: .leading, spacing: .s) {
+                    Button(R.string.localizable.close()) {
+                        isStatusViewClicked = false
+                    }
+                    .padding(.top, .l)
+
+                    Text("Assessment")
+                        .font(.title)
+                        .bold()
+                        .padding(.vertical, .l)
+
+                    HStack {
+                        Text("Element")
+                            .bold()
+                        Spacer()
+                        Text("Points")
+                            .bold()
+                    }
+
+                    Divider()
+
+                    ForEach(modelingVM.referencedFeedbacks) { feedback in
+                        HStack {
+                            if let reference = feedback.reference {
+                                Text(reference.components(separatedBy: ":")[0])
+                                if let name = modelingVM.getItemNameById(itemId: reference.components(separatedBy: ":")[1]) {
+                                    Text(name)
+                                        .foregroundColor(Color.Artemis.artemisLightBlue)
+                                }
+                            }
+                            Spacer()
                             if let points = feedback.credits {
-                                Text("\(String(points)) Points:")
+                                Text(String(points))
+                            }
+                        }
+                        if let text = feedback.text {
+                            HStack(alignment: .top) {
+                                Text("Feedback:")
                                     .bold()
-                                    .foregroundColor(color)
-                            }
-                            if let text = feedback.detailText {
                                 Text(text)
-                                    .foregroundColor(color)
+                                    .multilineTextAlignment(.leading)
+                            }
+                            .foregroundColor(modelingVM.getBackgroundColor(feedback: feedback))
+                        }
+                        Divider()
+                    }
+
+                    if !modelingVM.unreferencedFeedbacks.isEmpty {
+                        VStack(alignment: .leading) {
+                            Text("\(Image(systemName: "ellipsis.message")) Additional feedback:")
+                                .font(.headline)
+                                .bold()
+                                .padding(.m)
+
+                            ForEach(modelingVM.unreferencedFeedbacks) { feedback in
+                                let color = modelingVM.getBackgroundColor(feedback: feedback)
+                                HStack(alignment: .top) {
+                                    if let points = feedback.credits {
+                                        Text("\(String(points)) Points:")
+                                            .bold()
+                                            .foregroundColor(color)
+                                    }
+                                    if let text = feedback.detailText {
+                                        Text(text)
+                                            .multilineTextAlignment(.leading)
+                                            .foregroundColor(color)
+                                    }
+                                }
+                                .padding(.m)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background {
+                                    RoundedRectangle(cornerRadius: 5)
+                                        .stroke(color, lineWidth: 1)
+                                }
+                                .background {
+                                    RoundedRectangle(cornerRadius: 5)
+                                        .foregroundColor(color.opacity(0.1))
+                                }
+                                .padding(.m)
                             }
                         }
-                        .listRowSeparator(.hidden)
-                        .padding(.m)
-                        .frame(maxWidth: .infinity)
                         .background {
                             RoundedRectangle(cornerRadius: 5)
-                                .stroke(color, lineWidth: 1)
+                                .foregroundColor(Color.Artemis.modalCardBackgroundColor)
                         }
-                        .background {
-                            RoundedRectangle(cornerRadius: 5)
-                                .foregroundColor(color.opacity(0.1))
-                        }
+                        .padding(.vertical, .l)
                     }
                 }
-                .listStyle(PlainListStyle())
-                .presentationDetents([.medium])
+                .padding(.horizontal, .m)
             }
         }
     }
