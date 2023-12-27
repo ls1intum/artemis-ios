@@ -14,7 +14,7 @@ struct ViewModelingExerciseResultView: View {
     }
 
     var body: some View {
-        // TODO: Add Badges to indicate what was right and wrong.
+        // TODO: Add Badges to indicate what was right and wrong. IS ADDED IN THE FOLLOWING PR.
         ZStack {
             if !modelingVM.diagramTypeUnsupported {
                 if let model = modelingVM.umlModel, let type = model.type {

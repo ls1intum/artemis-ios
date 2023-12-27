@@ -13,8 +13,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ls1intum/artemis-ios-core-modules",
       "state" : {
-        "branch" : "feature/submissions/update-for-encoding-submissions",
-        "revision" : "297ada54acc0bb3a372d16ce5e7c221065fffc3c"
+        "revision" : "8434b215960b32881167274491f0b648a167ad32",
+        "version" : "7.2.0"
       }
     },
     {
