@@ -5,7 +5,7 @@ import SharedServices
 
 class DashboardViewModel: BaseViewModel {
 
-    @Published var coursesForDashboard: DataState<[CourseForDashboard]> = DataState.loading
+    @Published var coursesForDashboard: DataState<CoursesForDashboard> = DataState.loading
 
     override init() {
         super.init()
