@@ -60,7 +60,7 @@ private struct CourseGridCellView: View {
 
     @EnvironmentObject private var navigationController: NavigationController
 
-    let courseForDashboard: CourseForDashboard
+    let courseForDashboard: CourseForDashboardDTO
 
     var nextExercise: Exercise? {
         // filters out every already successful (100%) exercise, only exercises left that still need work
