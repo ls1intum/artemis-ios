@@ -24,7 +24,7 @@ struct CourseGridView: View {
         } content: { coursesForDashboard in
             ScrollView {
                 LazyVGrid(columns: Self.layout, spacing: .l) {
-                    ForEach(coursesForDashboard, content: CourseGridCellView.init(courseForDashboard:))
+                    ForEach(coursesForDashboard.courses ?? [], content: CourseGridCellView.init(courseForDashboard:))
                 }
                 .padding(.horizontal, .l)
 
@@ -60,7 +60,7 @@ private struct CourseGridCellView: View {
 
     @EnvironmentObject private var navigationController: NavigationController
 
-    let courseForDashboard: CourseForDashboard
+    let courseForDashboard: CourseForDashboardDTO
 
     var nextExercise: Exercise? {
         // filters out every already successful (100%) exercise, only exercises left that still need work
