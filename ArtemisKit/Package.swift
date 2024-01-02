@@ -18,6 +18,7 @@ let package = Package(
             ])
     ],
     dependencies: [
+        .package(url: "https://github.com/daltoniam/Starscream.git", exact: "4.0.4"),
         .package(url: "https://github.com/Kelvas09/EmojiPicker.git", from: "1.0.0"),
         .package(url: "https://github.com/ls1intum/apollon-ios-module", revision: "9c6d15e75ba7068ffc957f2b91df0cd572c9de1a"),
         .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", .upToNextMajor(from: "8.0.0")),
