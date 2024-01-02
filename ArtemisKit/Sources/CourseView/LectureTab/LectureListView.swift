@@ -5,10 +5,10 @@
 //  Created by Sven Andabaka on 27.04.23.
 //
 
-import SwiftUI
-import SharedModels
-import Navigation
 import DesignLibrary
+import Navigation
+import SharedModels
+import SwiftUI
 
 struct LectureListView: View {
 
@@ -20,7 +20,9 @@ struct LectureListView: View {
         if searchText.isEmpty {
             return []
         }
-        return (viewModel.course.value?.lectures ?? []).filter { ($0.title ?? "").lowercased().contains(searchText.lowercased()) }
+        return (viewModel.course.value?.lectures ?? []).filter {
+            ($0.title ?? "").lowercased().contains(searchText.lowercased())
+        }
     }
 
     private var weeklyLectures: [WeeklyLecture] {
@@ -45,14 +47,14 @@ struct LectureListView: View {
 
         let weeklyLectures = groupedDates
             .map { week in
-                let lectures = week.value.sorted(by: {
+                let lectures = week.value.sorted {
                     $0.title?.lowercased() ?? "" < $1.title?.lowercased() ?? ""
-                })
+                }
                 return WeeklyLecture(id: week.key, lectures: lectures)
             }
-            .sorted(by: {
+            .sorted {
                 $0.id.startOfWeek ?? .distantFuture < $1.id.startOfWeek ?? .distantFuture
-            })
+            }
         return weeklyLectures
     }
 
@@ -79,14 +81,17 @@ struct LectureListView: View {
                     }
                 }
             }
-                .listStyle(PlainListStyle())
-                .onChange(of: weeklyLectures) { _, newValue in
-                    withAnimation {
-                        if let id = newValue.first(where: { $0.lectures.first?.startDate ?? .tomorrow > .now })?.id {
-                            value.scrollTo(id, anchor: .top)
-                        }
+            .listStyle(PlainListStyle())
+            .onChange(of: weeklyLectures) { _, newValue in
+                withAnimation {
+                    let lecture = newValue.first {
+                        $0.lectures.first?.startDate ?? .tomorrow > .now
+                    }
+                    if let id = lecture?.id {
+                        value.scrollTo(id, anchor: .top)
                     }
                 }
+            }
         }
     }
 }
@@ -110,16 +115,19 @@ struct LectureListSection: View {
     }
 
     var body: some View {
-        DisclosureGroup("\(weeklyLecture.id.description) (Exercises: \(weeklyLecture.lectures.count))",
-                        isExpanded: $isExpanded) {
+        DisclosureGroup(
+            "\(weeklyLecture.id.description) (Exercises: \(weeklyLecture.lectures.count))",
+            isExpanded: $isExpanded
+        ) {
             LazyVStack(spacing: .m) {
                 ForEach(weeklyLecture.lectures, id: \.id) { lecture in
                     LectureListCell(course: course, lecture: lecture)
                 }
-            }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: .l))
+            }
+            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: .l))
         }
-            .listRowSeparator(.hidden)
-            .listRowInsets(EdgeInsets(top: .m, leading: .l, bottom: .m, trailing: .l))
+        .listRowSeparator(.hidden)
+        .listRowInsets(EdgeInsets(top: .m, leading: .l, bottom: .m, trailing: .l))
     }
 }
 
@@ -153,15 +161,17 @@ struct LectureListCell: View {
                 Text("No due date")
             }
         }
-            .frame(maxWidth: .infinity)
-            .padding(.l)
-            .cardModifier(backgroundColor: Color.Artemis.exerciseCardBackgroundColor,
-                          hasBorder: true,
-                          borderColor: Color.Artemis.artemisBlue,
-                          cornerRadius: 2)
-            .onTapGesture {
-                navigationController.path.append(LecturePath(lecture: lecture, coursePath: CoursePath(course: course)))
-            }
+        .frame(maxWidth: .infinity)
+        .padding(.l)
+        .cardModifier(
+            backgroundColor: Color.Artemis.exerciseCardBackgroundColor,
+            hasBorder: true,
+            borderColor: Color.Artemis.artemisBlue,
+            cornerRadius: 2
+        )
+        .onTapGesture {
+            navigationController.path.append(LecturePath(lecture: lecture, coursePath: CoursePath(course: course)))
+        }
     }
 }
 
@@ -183,7 +193,9 @@ private struct WeeklyLectureId: Identifiable, Hashable {
     }
 
     var startOfWeek: Date? {
-        guard let week, let year else { return nil }
+        guard let week, let year else {
+            return nil
+        }
 
         var dateComponents = DateComponents()
         dateComponents.yearForWeekOfYear = year
@@ -193,7 +205,9 @@ private struct WeeklyLectureId: Identifiable, Hashable {
     }
 
     var endOfWeek: Date? {
-        guard let startOfWeek else { return nil }
+        guard let startOfWeek else {
+            return nil
+        }
         return Calendar.current.date(byAdding: .day, value: 6, to: startOfWeek)
     }
 }
