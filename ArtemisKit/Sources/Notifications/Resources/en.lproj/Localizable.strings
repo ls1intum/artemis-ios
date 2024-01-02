@@ -1,0 +1,7 @@
+"artemisLabel" = "Artemis";
+"ok" = "OK";
+
+"notificationsTitle" = "Notifications";
+"notificationAuthorLabel" = "%@ by %@";
+"notificationTargetNotFound" = "The target of the notification could not be determined.";
+"noNotifications" = "No Notifications";
