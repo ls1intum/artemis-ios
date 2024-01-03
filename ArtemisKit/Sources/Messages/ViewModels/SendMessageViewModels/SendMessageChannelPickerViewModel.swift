@@ -1,5 +1,5 @@
 //
-//  SendMessageChannelPickerModel.swift
+//  SendMessageChannelPickerViewModel.swift
 //
 //
 //  Created by Nityananda Zbil on 02.12.23.
@@ -10,18 +10,18 @@ import SharedModels
 import SharedServices
 import SwiftUI
 
-class SendMessageChannelPickerModel: BaseViewModel {
+@Observable
+class SendMessageChannelPickerViewModel {
 
     let course: Course
 
-    @Published var channels: DataState<[ChannelIdAndNameDTO]> = .loading
+    var channels: DataState<[ChannelIdAndNameDTO]> = .loading
 
     init(course: Course, conversation: Conversation) {
         self.course = course
     }
 
     func search(idOrName: String) async {
-        isLoading = true
         let channels = await MessagesServiceFactory.shared.getChannelsPublicOverview(for: course.id)
         if case let .done(channels) = channels {
             let filtered = channels.filter { channel in
@@ -31,6 +31,5 @@ class SendMessageChannelPickerModel: BaseViewModel {
         } else {
             self.channels = channels
         }
-        isLoading = false
     }
 }

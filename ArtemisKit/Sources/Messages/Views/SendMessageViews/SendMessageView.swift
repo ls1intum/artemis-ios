@@ -66,7 +66,7 @@ struct SendMessageView: View {
             if isChannelPickerPresented,
                 let course = viewModel.course.value,
                 let conversation = viewModel.conversation.value {
-                SendMessageChannelPicker(course: course, conversation: conversation, text: $responseText)
+                SendMessageChannelPickerView(course: course, conversation: conversation, text: $responseText)
                     .listStyle(.plain)
                     .clipShape(.rect(cornerRadius: 20))
                     .overlay {

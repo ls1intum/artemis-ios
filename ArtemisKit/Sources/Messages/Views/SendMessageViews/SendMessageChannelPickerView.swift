@@ -1,5 +1,5 @@
 //
-//  SendMessageChannelPicker.swift
+//  SendMessageChannelPickerView.swift
 //
 //
 //  Created by Nityananda Zbil on 02.12.23.
@@ -36,14 +36,14 @@ enum SendMessageChannelCandidate {
     }
 }
 
-struct SendMessageChannelPicker: View {
+struct SendMessageChannelPickerView: View {
 
-    @StateObject private var viewModel: SendMessageChannelPickerModel
+    @State private var viewModel: SendMessageChannelPickerViewModel
 
     @Binding var text: String
 
     init(course: Course, conversation: Conversation, text: Binding<String>) {
-        self._viewModel = StateObject(wrappedValue: SendMessageChannelPickerModel(course: course, conversation: conversation))
+        self.viewModel = SendMessageChannelPickerViewModel(course: course, conversation: conversation)
         self._text = text
     }
 
@@ -74,7 +74,7 @@ struct SendMessageChannelPicker: View {
     }
 }
 
-private extension SendMessageChannelPicker {
+private extension SendMessageChannelPickerView {
     func search() {
         if let candidate = SendMessageChannelCandidate.search(text: text).map(String.init) {
             Task {
