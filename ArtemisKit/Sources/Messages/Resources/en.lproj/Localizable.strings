@@ -9,6 +9,7 @@
 "exercise" = "Exercise";
 "exercisesUnavailable" = "No Exercises";
 "lecture" = "Lecture";
+"channelsUnavailable" = "No Channels";
 "lecturesUnavailable" = "No Lectures";
 "membersUnavailable" = "No Members";
 "messageAction" = "Message %@";

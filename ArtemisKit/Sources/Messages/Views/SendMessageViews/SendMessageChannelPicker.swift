@@ -54,7 +54,7 @@ struct SendMessageChannelPicker: View {
                         }
                     }
                 } else {
-                    ContentUnavailableView(R.string.localizable.membersUnavailable(), systemImage: "magnifyingglass")
+                    ContentUnavailableView(R.string.localizable.channelsUnavailable(), systemImage: "magnifyingglass")
                 }
             }
             .onAppear(perform: search)
@@ -66,7 +66,7 @@ struct SendMessageChannelPicker: View {
 
 private extension SendMessageChannelPicker {
     func search() {
-        if let candidate = SendMessageMemberCandidate.search(text: text).map(String.init) {
+        if let candidate = SendMessageChannelCandidate.search(text: text).map(String.init) {
             Task {
                 await viewModel.search(idOrName: candidate)
             }
