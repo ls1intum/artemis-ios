@@ -55,7 +55,7 @@ struct LectureListView: View {
                 if searchText.isEmpty {
                     ForEach(weeklyLectures) { weeklyLecture in
                         if let course = viewModel.course.value {
-                            LectureListSection(course: course, weeklyLecture: weeklyLecture)
+                            LectureListSectionView(course: course, weeklyLecture: weeklyLecture)
                         }
                     }
                 } else {
@@ -66,7 +66,7 @@ struct LectureListView: View {
                     } else {
                         ForEach(searchResults) { lecture in
                             if let course = viewModel.course.value {
-                                LectureListCell(course: course, lecture: lecture)
+                                LectureListCellView(course: course, lecture: lecture)
                             }
                         }
                     }
@@ -87,14 +87,14 @@ struct LectureListView: View {
     }
 }
 
-struct LectureListSection: View {
+private struct LectureListSectionView: View {
 
     private let course: Course
     private let weeklyLecture: WeeklyLecture
 
     @State private var isExpanded: Bool
 
-    fileprivate init(course: Course, weeklyLecture: WeeklyLecture) {
+    init(course: Course, weeklyLecture: WeeklyLecture) {
         self.course = course
         self.weeklyLecture = weeklyLecture
 
@@ -112,7 +112,7 @@ struct LectureListSection: View {
         ) {
             LazyVStack(spacing: .m) {
                 ForEach(weeklyLecture.lectures, id: \.id) { lecture in
-                    LectureListCell(course: course, lecture: lecture)
+                    LectureListCellView(course: course, lecture: lecture)
                 }
             }
             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: .l))
@@ -122,7 +122,7 @@ struct LectureListSection: View {
     }
 }
 
-struct LectureListCell: View {
+private struct LectureListCellView: View {
 
     @EnvironmentObject var navigationController: NavigationController
 
@@ -166,7 +166,14 @@ struct LectureListCell: View {
     }
 }
 
-private struct WeeklyLectureId: Identifiable, Hashable {
+// MARK: - WeeklyLecture
+
+private struct WeeklyLecture: Identifiable, Hashable {
+    let id: WeeklyLectureId
+    var lectures: [Lecture]
+}
+
+private struct WeeklyLectureId: Hashable, Identifiable {
     let week: Int?
     let year: Int?
 
@@ -203,9 +210,4 @@ private struct WeeklyLectureId: Identifiable, Hashable {
         }
         return Calendar.current.date(byAdding: .day, value: 6, to: startOfWeek)
     }
-}
-
-private struct WeeklyLecture: Identifiable, Hashable {
-    let id: WeeklyLectureId
-    var lectures: [Lecture]
 }

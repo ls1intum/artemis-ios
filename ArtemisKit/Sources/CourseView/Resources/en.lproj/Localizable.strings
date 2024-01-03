@@ -1,4 +1,8 @@
-// MARK: CourseView
+// MARK: - General
+"loading" = "Loading...";
+"close" = "Close";
+
+// MARK: - CourseView
 "exercisesTabLabel" = "Exercises";
 "lectureTabLabel" = "Lectures";
 "messagesTabLabel" = "Messages";
@@ -13,7 +17,6 @@
 "quizNotStarted" = "The quiz is not active.";
 
 // MARK: SubmissionResultView
-
 "noResult" = "No result";
 "noGradedResult" = "No graded result";
 "building" = "Building and testing...";
@@ -39,7 +42,7 @@
 // Badges
 "notReleased" = "Not released";
 
-// MARK: ExerciseDetailView
+// MARK: - ExerciseDetailView
 "exerciseDetails" = "Exercise details";
 "dueDate" = "Due Date: %s";
 "noDueDate" = "No due date";
@@ -56,7 +59,7 @@
 "difficulty" = "Difficulty:";
 "categories" = "Categories:";
 
-// MARK: LectureDetailView
+// MARK: - LectureDetailView
 "attachmentCouldNotBeOpened" = "Attachment could not be opened!";
 "description" = "Description";
 "openLink" = "Open Link";
@@ -69,7 +72,3 @@
 "date" = "Date";
 "lectureUnits" = "Lecture Units";
 "attachments" = "Attachments";
-
-// MARK: General
-"loading" = "Loading...";
-"close" = "Close";
