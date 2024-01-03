@@ -26,29 +26,20 @@ struct LectureListView: View {
     }
 
     private var weeklyLectures: [WeeklyLecture] {
-        var groupedDates = [WeeklyLectureId: [Lecture]]()
-
-        viewModel.course.value?.lectures?.forEach { lecture in
+        let groupedDates = Dictionary(grouping: viewModel.course.value?.lectures ?? []) { lecture in
             var week: Int?
             var year: Int?
             if let dueDate = lecture.startDate {
                 week = Calendar.current.component(.weekOfYear, from: dueDate)
                 year = Calendar.current.component(.year, from: dueDate)
             }
-
-            let weeklyLectureId = WeeklyLectureId(week: week, year: year)
-
-            if groupedDates[weeklyLectureId] == nil {
-                groupedDates[weeklyLectureId] = [lecture]
-            } else {
-                groupedDates[weeklyLectureId]?.append(lecture)
-            }
+            return WeeklyLectureId(week: week, year: year)
         }
 
         let weeklyLectures = groupedDates
             .map { week in
                 let lectures = week.value.sorted {
-                    $0.title?.lowercased() ?? "" < $1.title?.lowercased() ?? ""
+                    $0.startDate ?? .now < $1.startDate ?? .now
                 }
                 return WeeklyLecture(id: week.key, lectures: lectures)
             }
@@ -81,7 +72,7 @@ struct LectureListView: View {
                     }
                 }
             }
-            .listStyle(PlainListStyle())
+            .listStyle(.plain)
             .onChange(of: weeklyLectures) { _, newValue in
                 withAnimation {
                     let lecture = newValue.first {
@@ -188,7 +179,9 @@ private struct WeeklyLectureId: Identifiable, Hashable {
     }
 
     var description: String {
-        guard let startOfWeek, let endOfWeek else { return "No date associated" }
+        guard let startOfWeek, let endOfWeek else {
+            return "No date associated"
+        }
         return "\(startOfWeek.dateOnly) - \(endOfWeek.dateOnly)"
     }
 
