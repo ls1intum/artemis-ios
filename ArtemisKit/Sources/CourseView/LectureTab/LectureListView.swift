@@ -5,10 +5,10 @@
 //  Created by Sven Andabaka on 27.04.23.
 //
 
-import SwiftUI
-import SharedModels
-import Navigation
 import DesignLibrary
+import Navigation
+import SharedModels
+import SwiftUI
 
 struct LectureListView: View {
 
@@ -20,32 +20,33 @@ struct LectureListView: View {
         if searchText.isEmpty {
             return []
         }
-        return (viewModel.course.value?.lectures ?? []).filter { ($0.title ?? "").lowercased().contains(searchText.lowercased()) }
+        return (viewModel.course.value?.lectures ?? []).filter {
+            ($0.title ?? "").lowercased().contains(searchText.lowercased())
+        }
     }
 
     private var weeklyLectures: [WeeklyLecture] {
-        var groupedDates = [WeeklyLectureId: [Lecture]]()
-
-        viewModel.course.value?.lectures?.forEach { lecture in
+        let groupedDates = Dictionary(grouping: viewModel.course.value?.lectures ?? []) { lecture in
             var week: Int?
             var year: Int?
             if let dueDate = lecture.startDate {
                 week = Calendar.current.component(.weekOfYear, from: dueDate)
                 year = Calendar.current.component(.year, from: dueDate)
             }
-
-            let weeklyLectureId = WeeklyLectureId(week: week, year: year)
-
-            if groupedDates[weeklyLectureId] == nil {
-                groupedDates[weeklyLectureId] = [lecture]
-            } else {
-                groupedDates[weeklyLectureId]?.append(lecture)
-            }
+            return WeeklyLectureId(week: week, year: year)
         }
 
-        return groupedDates.map { week in
-            WeeklyLecture(id: week.key, lectures: week.value.sorted(by: { $0.title?.lowercased() ?? "" < $1.title?.lowercased() ?? "" }))
-        }.sorted(by: { $0.id.startOfWeek ?? .distantFuture < $1.id.startOfWeek ?? .distantFuture })
+        let weeklyLectures = groupedDates
+            .map { week in
+                let lectures = week.value.sorted {
+                    $0.startDate ?? .now < $1.startDate ?? .now
+                }
+                return WeeklyLecture(id: week.key, lectures: lectures)
+            }
+            .sorted {
+                $0.id.startOfWeek ?? .distantFuture < $1.id.startOfWeek ?? .distantFuture
+            }
+        return weeklyLectures
     }
 
     var body: some View {
@@ -54,43 +55,45 @@ struct LectureListView: View {
                 if searchText.isEmpty {
                     ForEach(weeklyLectures) { weeklyLecture in
                         if let course = viewModel.course.value {
-                            LectureListSection(course: course, weeklyLecture: weeklyLecture)
+                            LectureListSectionView(course: course, weeklyLecture: weeklyLecture)
                         }
                     }
                 } else {
                     if searchResults.isEmpty {
-                        Text("There is no result for your search.")
-                            .padding(.l)
+                        ContentUnavailableView.search(text: searchText)
                             .listRowSeparator(.hidden)
                     } else {
                         ForEach(searchResults) { lecture in
                             if let course = viewModel.course.value {
-                                LectureListCell(course: course, lecture: lecture)
+                                LectureListCellView(course: course, lecture: lecture)
                             }
                         }
                     }
                 }
             }
-                .listStyle(PlainListStyle())
-                .onChange(of: weeklyLectures) { _, newValue in
-                    withAnimation {
-                        if let id = newValue.first(where: { $0.lectures.first?.startDate ?? .tomorrow > .now })?.id {
-                            value.scrollTo(id, anchor: .top)
-                        }
+            .listStyle(.plain)
+            .onChange(of: weeklyLectures) { _, newValue in
+                withAnimation {
+                    let lecture = newValue.first {
+                        $0.lectures.first?.startDate ?? .tomorrow > .now
+                    }
+                    if let id = lecture?.id {
+                        value.scrollTo(id, anchor: .top)
                     }
                 }
+            }
         }
     }
 }
 
-struct LectureListSection: View {
+private struct LectureListSectionView: View {
 
     private let course: Course
     private let weeklyLecture: WeeklyLecture
 
     @State private var isExpanded: Bool
 
-    fileprivate init(course: Course, weeklyLecture: WeeklyLecture) {
+    init(course: Course, weeklyLecture: WeeklyLecture) {
         self.course = course
         self.weeklyLecture = weeklyLecture
 
@@ -102,20 +105,23 @@ struct LectureListSection: View {
     }
 
     var body: some View {
-        DisclosureGroup("\(weeklyLecture.id.description) (Exercises: \(weeklyLecture.lectures.count))",
-                        isExpanded: $isExpanded) {
+        DisclosureGroup(
+            R.string.localizable.lecturesGroupTitle(weeklyLecture.id.description, weeklyLecture.lectures.count),
+            isExpanded: $isExpanded
+        ) {
             LazyVStack(spacing: .m) {
                 ForEach(weeklyLecture.lectures, id: \.id) { lecture in
-                    LectureListCell(course: course, lecture: lecture)
+                    LectureListCellView(course: course, lecture: lecture)
                 }
-            }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: .l))
+            }
+            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: .l))
         }
-            .listRowSeparator(.hidden)
-            .listRowInsets(EdgeInsets(top: .m, leading: .l, bottom: .m, trailing: .l))
+        .listRowSeparator(.hidden)
+        .listRowInsets(EdgeInsets(top: .m, leading: .l, bottom: .m, trailing: .l))
     }
 }
 
-struct LectureListCell: View {
+private struct LectureListCellView: View {
 
     @EnvironmentObject var navigationController: NavigationController
 
@@ -142,22 +148,31 @@ struct LectureListCell: View {
             if let startDate = lecture.startDate {
                 Text("\(startDate.dateOnly) (\(startDate.relative ?? "?"))")
             } else {
-                Text("No due date")
+                Text(R.string.localizable.noDueDate())
             }
         }
-            .frame(maxWidth: .infinity)
-            .padding(.l)
-            .cardModifier(backgroundColor: Color.Artemis.exerciseCardBackgroundColor,
-                          hasBorder: true,
-                          borderColor: Color.Artemis.artemisBlue,
-                          cornerRadius: 2)
-            .onTapGesture {
-                navigationController.path.append(LecturePath(lecture: lecture, coursePath: CoursePath(course: course)))
-            }
+        .frame(maxWidth: .infinity)
+        .padding(.l)
+        .cardModifier(
+            backgroundColor: Color.Artemis.exerciseCardBackgroundColor,
+            hasBorder: true,
+            borderColor: Color.Artemis.artemisBlue,
+            cornerRadius: 2
+        )
+        .onTapGesture {
+            navigationController.path.append(LecturePath(lecture: lecture, coursePath: CoursePath(course: course)))
+        }
     }
 }
 
-private struct WeeklyLectureId: Identifiable, Hashable {
+// MARK: - WeeklyLecture
+
+private struct WeeklyLecture: Identifiable, Hashable {
+    let id: WeeklyLectureId
+    var lectures: [Lecture]
+}
+
+private struct WeeklyLectureId: Hashable, Identifiable {
     let week: Int?
     let year: Int?
 
@@ -170,12 +185,16 @@ private struct WeeklyLectureId: Identifiable, Hashable {
     }
 
     var description: String {
-        guard let startOfWeek, let endOfWeek else { return "No date associated" }
+        guard let startOfWeek, let endOfWeek else {
+            return R.string.localizable.noDateAssociated()
+        }
         return "\(startOfWeek.dateOnly) - \(endOfWeek.dateOnly)"
     }
 
     var startOfWeek: Date? {
-        guard let week, let year else { return nil }
+        guard let week, let year else {
+            return nil
+        }
 
         var dateComponents = DateComponents()
         dateComponents.yearForWeekOfYear = year
@@ -185,12 +204,9 @@ private struct WeeklyLectureId: Identifiable, Hashable {
     }
 
     var endOfWeek: Date? {
-        guard let startOfWeek else { return nil }
+        guard let startOfWeek else {
+            return nil
+        }
         return Calendar.current.date(byAdding: .day, value: 6, to: startOfWeek)
     }
-}
-
-private struct WeeklyLecture: Identifiable, Hashable {
-    let id: WeeklyLectureId
-    var lectures: [Lecture]
 }
