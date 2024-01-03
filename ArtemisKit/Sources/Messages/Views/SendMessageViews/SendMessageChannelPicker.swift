@@ -5,24 +5,34 @@
 //  Created by Nityananda Zbil on 02.12.23.
 //
 
+import Common
 import DesignLibrary
 import SharedModels
 import SwiftUI
 
 enum SendMessageChannelCandidate {
 
-    /// `regex` matches a prefix and the last number symbol followed by a candidate. The candidate is a possible channel
-    /// name.
-    private static let regex = #/(?<prefix>[^#]*)#(?<candidate>.*)/#
+    /// `regex` matches the last number symbol followed by a candidate. The candidate is a possible channel name.
+    private static let regex = #/#(?<candidate>.*)/#
 
     static func search(text: String) -> Substring? {
-        text.wholeMatch(of: regex)?.candidate
+        #warning("Shorten")
+        let matches = text.matches(of: #/#(?<candidate>.*)/#)
+        matches.forEach { m in
+            log.info(m.candidate)
+        }
+        guard let match = matches.last, text.hasSuffix(match.0) else {
+            return nil
+        }
+        return match.candidate
     }
 
     static func replace(text: inout String, channel: ChannelIdAndNameDTO) {
-        text.replace(regex) { match in
-            match.prefix + "[channel]\(channel.name)(\(channel.id))[/channel]"
+        guard let search = search(text: text) else {
+            return
         }
+        #warning("#")
+        text.replace("#" + search, with: "[channel]\(channel.name)(\(channel.id))[/channel]")
     }
 }
 
