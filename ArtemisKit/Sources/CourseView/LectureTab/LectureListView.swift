@@ -60,8 +60,7 @@ struct LectureListView: View {
                     }
                 } else {
                     if searchResults.isEmpty {
-                        Text("There is no result for your search.")
-                            .padding(.l)
+                        ContentUnavailableView.search(text: searchText)
                             .listRowSeparator(.hidden)
                     } else {
                         ForEach(searchResults) { lecture in
@@ -107,7 +106,7 @@ private struct LectureListSectionView: View {
 
     var body: some View {
         DisclosureGroup(
-            "\(weeklyLecture.id.description) (Exercises: \(weeklyLecture.lectures.count))",
+            R.string.localizable.lecturesGroupTitle(weeklyLecture.id.description, weeklyLecture.lectures.count),
             isExpanded: $isExpanded
         ) {
             LazyVStack(spacing: .m) {
@@ -149,7 +148,7 @@ private struct LectureListCellView: View {
             if let startDate = lecture.startDate {
                 Text("\(startDate.dateOnly) (\(startDate.relative ?? "?"))")
             } else {
-                Text("No due date")
+                Text(R.string.localizable.noDueDate())
             }
         }
         .frame(maxWidth: .infinity)
@@ -187,7 +186,7 @@ private struct WeeklyLectureId: Hashable, Identifiable {
 
     var description: String {
         guard let startOfWeek, let endOfWeek else {
-            return "No date associated"
+            return R.string.localizable.noDateAssociated()
         }
         return "\(startOfWeek.dateOnly) - \(endOfWeek.dateOnly)"
     }

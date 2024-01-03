@@ -134,7 +134,7 @@ private struct LectureUnitCell: View {
                    let course = viewModel.course.value {
                     ExerciseListCell(course: course, exercise: exercise)
                 } else {
-                    Text(R.string.localizable.exercisecouldNotBeLoaded())
+                    Text(R.string.localizable.exerciseCouldNotBeLoaded())
                         .artemisStyleCard()
                 }
             case .unknown:
@@ -317,7 +317,7 @@ struct VideoUnitSheetContent: View {
                     Link(R.string.localizable.openVideo(), destination: url)
                         .buttonStyle(ArtemisButton())
                 } else {
-                    Text(R.string.localizable.videoCanNotBeLoaded())
+                    Text(R.string.localizable.videoCouldNotBeLoaded())
                         .foregroundColor(.red)
                 }
             }.padding(.l)

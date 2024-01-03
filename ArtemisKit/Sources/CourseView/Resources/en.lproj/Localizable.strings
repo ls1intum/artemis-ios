@@ -65,10 +65,12 @@
 "openLink" = "Open Link";
 "linkCouldNotBeLoaded" = "Link can not be loaded";
 "openVideo" = "Open Video";
-"videoCanNotBeLoaded" = "Video url can not be loaded";
+"videoCouldNotBeLoaded" = "Video url can not be loaded";
 "notReleased" = "Not released";
-"exercisecouldNotBeLoaded" = "Exercise could not be loaded";
+"exerciseCouldNotBeLoaded" = "Exercise could not be loaded";
 "version" = "Version";
 "date" = "Date";
+"noDateAssociated" = "No date associated";
 "lectureUnits" = "Lecture Units";
+"lecturesGroupTitle" = "%s (Exercises: %i)";
 "attachments" = "Attachments";
