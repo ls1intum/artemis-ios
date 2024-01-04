@@ -8,9 +8,7 @@
 import ApollonShared
 import Common
 import Foundation
-import ApollonShared
 import SharedModels
-import Common
 
 class ModelingExerciseViewModel: BaseViewModel {
     @Published var submission: BaseSubmission?

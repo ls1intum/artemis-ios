@@ -1,3 +1,10 @@
+//
+//  ModelingExerciseViewModel.swift
+//
+//
+//  Created by Alexander Görtzen on 21.11.23.
+//
+
 import SwiftUI
 import ApollonShared
 import ApollonEdit
