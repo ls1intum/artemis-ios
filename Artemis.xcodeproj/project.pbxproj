@@ -10,18 +10,7 @@
 		058557BB273AAA24004C7B11 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 058557BA273AAA24004C7B11 /* Assets.xcassets */; };
 		058557D9273AAEEB004C7B11 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 058557D8273AAEEB004C7B11 /* Preview Assets.xcassets */; };
 		2152FB042600AC8F00CF470E /* ArtemisApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2152FB032600AC8F00CF470E /* ArtemisApp.swift */; };
-		A1440CE02AB9A4FC00315873 /* Starscream in Frameworks */ = {isa = PBXBuildFile; productRef = A1440CDF2AB9A4FC00315873 /* Starscream */; };
 		A166A2592B0381F000AB6119 /* ArtemisKit in Frameworks */ = {isa = PBXBuildFile; productRef = A166A2582B0381F000AB6119 /* ArtemisKit */; };
-		D5DC36632A0434BB00DA32AF /* APIClient in Frameworks */ = {isa = PBXBuildFile; productRef = D5DC36622A0434BB00DA32AF /* APIClient */; };
-		D5DC36652A0434BB00DA32AF /* Account in Frameworks */ = {isa = PBXBuildFile; productRef = D5DC36642A0434BB00DA32AF /* Account */; };
-		D5DC36672A0434BB00DA32AF /* ArtemisMarkdown in Frameworks */ = {isa = PBXBuildFile; productRef = D5DC36662A0434BB00DA32AF /* ArtemisMarkdown */; };
-		D5DC36692A0434BB00DA32AF /* Common in Frameworks */ = {isa = PBXBuildFile; productRef = D5DC36682A0434BB00DA32AF /* Common */; };
-		D5DC366B2A0434BB00DA32AF /* DesignLibrary in Frameworks */ = {isa = PBXBuildFile; productRef = D5DC366A2A0434BB00DA32AF /* DesignLibrary */; };
-		D5DC366D2A0434BB00DA32AF /* Login in Frameworks */ = {isa = PBXBuildFile; productRef = D5DC366C2A0434BB00DA32AF /* Login */; };
-		D5DC366F2A0434BB00DA32AF /* ProfileInfo in Frameworks */ = {isa = PBXBuildFile; productRef = D5DC366E2A0434BB00DA32AF /* ProfileInfo */; };
-		D5DC36712A0434BB00DA32AF /* PushNotifications in Frameworks */ = {isa = PBXBuildFile; productRef = D5DC36702A0434BB00DA32AF /* PushNotifications */; };
-		D5DC36732A0434BC00DA32AF /* SharedModels in Frameworks */ = {isa = PBXBuildFile; productRef = D5DC36722A0434BC00DA32AF /* SharedModels */; };
-		D5DC36752A0434BC00DA32AF /* UserStore in Frameworks */ = {isa = PBXBuildFile; productRef = D5DC36742A0434BC00DA32AF /* UserStore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -46,18 +35,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D5DC36712A0434BB00DA32AF /* PushNotifications in Frameworks */,
 				A166A2592B0381F000AB6119 /* ArtemisKit in Frameworks */,
-				D5DC36752A0434BC00DA32AF /* UserStore in Frameworks */,
-				D5DC36632A0434BB00DA32AF /* APIClient in Frameworks */,
-				D5DC366D2A0434BB00DA32AF /* Login in Frameworks */,
-				D5DC366F2A0434BB00DA32AF /* ProfileInfo in Frameworks */,
-				D5DC36692A0434BB00DA32AF /* Common in Frameworks */,
-				D5DC36732A0434BC00DA32AF /* SharedModels in Frameworks */,
-				D5DC36672A0434BB00DA32AF /* ArtemisMarkdown in Frameworks */,
-				D5DC366B2A0434BB00DA32AF /* DesignLibrary in Frameworks */,
-				D5DC36652A0434BB00DA32AF /* Account in Frameworks */,
-				A1440CE02AB9A4FC00315873 /* Starscream in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -142,17 +120,6 @@
 			);
 			name = Artemis;
 			packageProductDependencies = (
-				D5DC36622A0434BB00DA32AF /* APIClient */,
-				D5DC36642A0434BB00DA32AF /* Account */,
-				D5DC36662A0434BB00DA32AF /* ArtemisMarkdown */,
-				D5DC36682A0434BB00DA32AF /* Common */,
-				D5DC366A2A0434BB00DA32AF /* DesignLibrary */,
-				D5DC366C2A0434BB00DA32AF /* Login */,
-				D5DC366E2A0434BB00DA32AF /* ProfileInfo */,
-				D5DC36702A0434BB00DA32AF /* PushNotifications */,
-				D5DC36722A0434BC00DA32AF /* SharedModels */,
-				D5DC36742A0434BC00DA32AF /* UserStore */,
-				A1440CDF2AB9A4FC00315873 /* Starscream */,
 				A166A2582B0381F000AB6119 /* ArtemisKit */,
 			);
 			productName = iosApp;
@@ -185,8 +152,6 @@
 			);
 			mainGroup = 7555FF72242A565900829871;
 			packageReferences = (
-				D5DC36612A0434BB00DA32AF /* XCRemoteSwiftPackageReference "artemis-ios-core-modules" */,
-				A1440CDE2AB9A4FC00315873 /* XCRemoteSwiftPackageReference "Starscream" */,
 			);
 			productRefGroup = 7555FF7C242A565900829871 /* Products */;
 			projectDirPath = "";
@@ -440,84 +405,10 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCRemoteSwiftPackageReference section */
-		A1440CDE2AB9A4FC00315873 /* XCRemoteSwiftPackageReference "Starscream" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/daltoniam/Starscream";
-			requirement = {
-				kind = exactVersion;
-				version = 4.0.4;
-			};
-		};
-		D5DC36612A0434BB00DA32AF /* XCRemoteSwiftPackageReference "artemis-ios-core-modules" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/ls1intum/artemis-ios-core-modules";
-			requirement = {
-				branch = "feature/submissions/update-for-encoding-submissions";
-				kind = branch;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
 /* Begin XCSwiftPackageProductDependency section */
-		A1440CDF2AB9A4FC00315873 /* Starscream */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = A1440CDE2AB9A4FC00315873 /* XCRemoteSwiftPackageReference "Starscream" */;
-			productName = Starscream;
-		};
 		A166A2582B0381F000AB6119 /* ArtemisKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = ArtemisKit;
-		};
-		D5DC36622A0434BB00DA32AF /* APIClient */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D5DC36612A0434BB00DA32AF /* XCRemoteSwiftPackageReference "artemis-ios-core-modules" */;
-			productName = APIClient;
-		};
-		D5DC36642A0434BB00DA32AF /* Account */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D5DC36612A0434BB00DA32AF /* XCRemoteSwiftPackageReference "artemis-ios-core-modules" */;
-			productName = Account;
-		};
-		D5DC36662A0434BB00DA32AF /* ArtemisMarkdown */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D5DC36612A0434BB00DA32AF /* XCRemoteSwiftPackageReference "artemis-ios-core-modules" */;
-			productName = ArtemisMarkdown;
-		};
-		D5DC36682A0434BB00DA32AF /* Common */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D5DC36612A0434BB00DA32AF /* XCRemoteSwiftPackageReference "artemis-ios-core-modules" */;
-			productName = Common;
-		};
-		D5DC366A2A0434BB00DA32AF /* DesignLibrary */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D5DC36612A0434BB00DA32AF /* XCRemoteSwiftPackageReference "artemis-ios-core-modules" */;
-			productName = DesignLibrary;
-		};
-		D5DC366C2A0434BB00DA32AF /* Login */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D5DC36612A0434BB00DA32AF /* XCRemoteSwiftPackageReference "artemis-ios-core-modules" */;
-			productName = Login;
-		};
-		D5DC366E2A0434BB00DA32AF /* ProfileInfo */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D5DC36612A0434BB00DA32AF /* XCRemoteSwiftPackageReference "artemis-ios-core-modules" */;
-			productName = ProfileInfo;
-		};
-		D5DC36702A0434BB00DA32AF /* PushNotifications */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D5DC36612A0434BB00DA32AF /* XCRemoteSwiftPackageReference "artemis-ios-core-modules" */;
-			productName = PushNotifications;
-		};
-		D5DC36722A0434BC00DA32AF /* SharedModels */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D5DC36612A0434BB00DA32AF /* XCRemoteSwiftPackageReference "artemis-ios-core-modules" */;
-			productName = SharedModels;
-		};
-		D5DC36742A0434BC00DA32AF /* UserStore */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D5DC36612A0434BB00DA32AF /* XCRemoteSwiftPackageReference "artemis-ios-core-modules" */;
-			productName = UserStore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
