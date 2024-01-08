@@ -4,8 +4,11 @@ import Common
 
 @MainActor
 public class NavigationController: ObservableObject {
+
     @Published public var path: NavigationPath
+
     @Published public var courseTab = TabIdentifier.exercise
+    
     @Published public var showDeeplinkNotSupported = false
 
     public var notSupportedUrl: URL?
