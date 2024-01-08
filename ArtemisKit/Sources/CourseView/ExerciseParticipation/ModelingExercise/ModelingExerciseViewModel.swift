@@ -18,17 +18,15 @@ class ModelingExerciseViewModel: BaseViewModel {
 
     var exercise: Exercise
     var participationId: Int
-    var resultId: Int?
     var problemStatementURL: URLRequest?
 
-    init(exercise: Exercise, participationId: Int, resultId: Int? = nil, problemStatementURL: URLRequest? = nil) {
+    init(exercise: Exercise, participationId: Int, problemStatementURL: URLRequest? = nil) {
         self.exercise = exercise
         self.participationId = participationId
-        self.resultId = resultId
         self.problemStatementURL = problemStatementURL
     }
 
-    func onAppear() async {
+    func fetchSubmission() async {
         guard submission == nil else {
             return
         }
@@ -48,7 +46,7 @@ class ModelingExerciseViewModel: BaseViewModel {
         }
     }
 
-    func setup() {
+    func setupUMLModel() {
         guard let modelingSubmission = self.submission as? ModelingSubmission else {
             log.error("Could not get modeling submission")
             return

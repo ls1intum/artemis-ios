@@ -69,7 +69,7 @@ public struct ExerciseDetailView: View {
         }
     }
 
-    private var isExerciseParticipatable: Bool {
+    private var isExerciseParticipationAvailable: Bool {
         switch exercise.value {
         case .modeling:
             return true
@@ -84,7 +84,7 @@ public struct ExerciseDetailView: View {
                 VStack(alignment: .leading, spacing: .l) {
                     // All buttons regarding viewing feedback and for the future, starting an exercise
                     HStack(spacing: .m) {
-                        if isExerciseParticipatable {
+                        if isExerciseParticipationAvailable {
                             if let dueDate = exercise.baseExercise.dueDate {
                                 if dueDate > Date() {
                                     if let participationId {
@@ -93,11 +93,12 @@ public struct ExerciseDetailView: View {
                                         StartExerciseButton(exercise: exercise, participationId: $participationId)
                                     }
                                 } else {
-                                    if let participationId, latestResultId == nil {
-                                        ViewExerciseSubmissionButton(exercise: exercise, participationId: participationId)
-                                    }
-                                    if let participationId, let latestResultId {
-                                        ViewExerciseResultButton(exercise: exercise, participationId: participationId, resultId: latestResultId)
+                                    if let participationId {
+                                        if  latestResultId == nil {
+                                            ViewExerciseSubmissionButton(exercise: exercise, participationId: participationId)
+                                        } else {
+                                            ViewExerciseResultButton(exercise: exercise, participationId: participationId)
+                                        }
                                     }
                                 }
                             } else {
@@ -109,8 +110,10 @@ public struct ExerciseDetailView: View {
                             }
                         }
                         if let latestResultId, let participationId, showFeedbackButton {
-                            Button(R.string.localizable.showFeedback()) {
+                            Button {
                                 showFeedback = true
+                            } label: {
+                                Text(R.string.localizable.showFeedback())
                             }
                             .buttonStyle(ArtemisButton())
                             .sheet(isPresented: $showFeedback) {
@@ -123,7 +126,7 @@ public struct ExerciseDetailView: View {
                     }
                     .padding(.horizontal, .m)
 
-                    if !isExerciseParticipatable {
+                    if !isExerciseParticipationAvailable {
                         ArtemisHintBox(text: R.string.localizable.exerciseParticipationHint(), hintType: .info)
                             .padding(.horizontal, .m)
                     }
@@ -285,7 +288,7 @@ private struct StartExerciseButton: View {
     @Binding var participationId: Int?
 
     var body: some View {
-        Button(R.string.localizable.startExercise()) {
+        Button {
             Task {
                 let exerciseService = ExerciseSubmissionServiceFactory.service(for: exercise)
                 do {
@@ -295,7 +298,10 @@ private struct StartExerciseButton: View {
                     log.error(String(describing: error))
                 }
             }
-        }.buttonStyle(ArtemisButton())
+        } label: {
+            Text(R.string.localizable.startExercise())
+        }
+        .buttonStyle(ArtemisButton())
     }
 }
 
@@ -325,7 +331,8 @@ private struct ViewExerciseSubmissionButton: View {
     var body: some View {
         switch exercise {
         case .modeling:
-            NavigationLink(destination: ViewModelingExerciseView(exercise: exercise, participationId: participationId)) {
+            NavigationLink(destination: ViewModelingExerciseView(exercise: exercise,
+                                                                 participationId: participationId)) {
                 Text(R.string.localizable.viewSubmission())
             }.buttonStyle(ArtemisButton())
         default:
@@ -337,14 +344,12 @@ private struct ViewExerciseSubmissionButton: View {
 private struct ViewExerciseResultButton: View {
     var exercise: Exercise
     var participationId: Int
-    var resultId: Int
 
     var body: some View {
         switch exercise {
         case .modeling:
             NavigationLink(destination: ViewModelingExerciseResultView(exercise: exercise,
-                                                                       participationId: participationId,
-                                                                       resultId: resultId)) {
+                                                                       participationId: participationId)) {
                 Text(R.string.localizable.viewResult())
             }.buttonStyle(ArtemisButton())
         default:
