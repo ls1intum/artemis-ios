@@ -349,9 +349,10 @@ private extension ConversationViewModel {
         let topic: String
         if conversation.value?.baseConversation.type == .channel {
             topic = "/topic/metis/courses/\(courseId)"
+        } else if let id = UserSession.shared.user?.id {
+            topic = "/topic/user/\(id)/notifications/conversations"
         } else {
-            let id = UserSession.shared.user?.id
-            topic = "/topic/user/\(id!)/notifications/conversations"
+            return
         }
         if ArtemisStompClient.shared.didSubscribeTopic(topic) {
             return
@@ -360,7 +361,6 @@ private extension ConversationViewModel {
             let stream = ArtemisStompClient.shared.subscribe(to: topic)
 
             for await message in stream {
-                log.info("websocketSubscriptionTask")
                 guard let messageWebsocketDTO = JSONDecoder.getTypeFromSocketMessage(type: MessageWebsocketDTO.self, message: message) else {
                     continue
                 }
