@@ -5,11 +5,12 @@
 //  Created by Sven Andabaka on 06.04.23.
 //
 
+import APIClient
 import Foundation
 import Common
 import SharedModels
-import APIClient
 import SharedServices
+import UserStore
 
 // swiftlint:disable file_length
 @MainActor
@@ -59,9 +60,10 @@ public class ConversationViewModel: BaseViewModel {
     private func subscribeToConversationTopic() {
         let topic: String
         if conversation.value?.baseConversation.type == .channel {
-            topic = "/user/topic/metis/courses/\(courseId)"
+            topic = "/topic/metis/courses/\(courseId)"
         } else {
-            topic = "/user/topic/metis/courses/\(courseId)/conversations/\(conversationId)"
+            let id = UserSession.shared.user?.id
+            topic = "/topic/user/\(id!)/notifications/conversations"
         }
         if ArtemisStompClient.shared.didSubscribeTopic(topic) {
             return
@@ -70,7 +72,10 @@ public class ConversationViewModel: BaseViewModel {
             let stream = ArtemisStompClient.shared.subscribe(to: topic)
 
             for await message in stream {
-                guard let messageWebsocketDTO = JSONDecoder.getTypeFromSocketMessage(type: MessageWebsocketDTO.self, message: message) else { continue }
+                log.info("websocketSubscriptionTask")
+                guard let messageWebsocketDTO = JSONDecoder.getTypeFromSocketMessage(type: MessageWebsocketDTO.self, message: message) else {
+                    continue
+                }
 
                 self?.onMessageReceived(messageWebsocketDTO: messageWebsocketDTO)
             }
