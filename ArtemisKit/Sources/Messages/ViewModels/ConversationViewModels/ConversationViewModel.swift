@@ -57,29 +57,8 @@ public class ConversationViewModel: BaseViewModel {
         subscribeToConversationTopic()
     }
 
-    private func subscribeToConversationTopic() {
-        let topic: String
-        if conversation.value?.baseConversation.type == .channel {
-            topic = "/topic/metis/courses/\(courseId)"
-        } else {
-            let id = UserSession.shared.user?.id
-            topic = "/topic/user/\(id!)/notifications/conversations"
-        }
-        if ArtemisStompClient.shared.didSubscribeTopic(topic) {
-            return
-        }
-        websocketSubscriptionTask = Task { [weak self] in
-            let stream = ArtemisStompClient.shared.subscribe(to: topic)
-
-            for await message in stream {
-                log.info("websocketSubscriptionTask")
-                guard let messageWebsocketDTO = JSONDecoder.getTypeFromSocketMessage(type: MessageWebsocketDTO.self, message: message) else {
-                    continue
-                }
-
-                self?.onMessageReceived(messageWebsocketDTO: messageWebsocketDTO)
-            }
-        }
+    deinit {
+        websocketSubscriptionTask?.cancel()
     }
 
     func loadFurtherMessages() async {
@@ -331,8 +310,12 @@ public class ConversationViewModel: BaseViewModel {
             return false
         }
     }
+}
 
-    private func loadConversation() async {
+// MARK: Start (initializer)
+
+private extension ConversationViewModel {
+    func loadConversation() async {
         let result = await MessagesServiceFactory.shared.getConversations(for: courseId)
 
         switch result {
@@ -349,7 +332,7 @@ public class ConversationViewModel: BaseViewModel {
         }
     }
 
-    private func loadCourse() async {
+    func loadCourse() async {
         let result = await CourseServiceFactory.shared.getCourse(courseId: courseId)
 
         switch result {
@@ -362,15 +345,40 @@ public class ConversationViewModel: BaseViewModel {
         }
     }
 
-    deinit {
-        websocketSubscriptionTask?.cancel()
+    func subscribeToConversationTopic() {
+        let topic: String
+        if conversation.value?.baseConversation.type == .channel {
+            topic = "/topic/metis/courses/\(courseId)"
+        } else {
+            let id = UserSession.shared.user?.id
+            topic = "/topic/user/\(id!)/notifications/conversations"
+        }
+        if ArtemisStompClient.shared.didSubscribeTopic(topic) {
+            return
+        }
+        websocketSubscriptionTask = Task { [weak self] in
+            let stream = ArtemisStompClient.shared.subscribe(to: topic)
+
+            for await message in stream {
+                log.info("websocketSubscriptionTask")
+                guard let messageWebsocketDTO = JSONDecoder.getTypeFromSocketMessage(type: MessageWebsocketDTO.self, message: message) else {
+                    continue
+                }
+
+                self?.onMessageReceived(messageWebsocketDTO: messageWebsocketDTO)
+            }
+        }
     }
 }
 
-// All functions to handle new conversation received socket
-extension ConversationViewModel {
+// MARK: Receive message
 
-    private func onMessageReceived(messageWebsocketDTO: MessageWebsocketDTO) {
+private extension ConversationViewModel {
+    func onMessageReceived(messageWebsocketDTO: MessageWebsocketDTO) {
+        // Guard message corresponds to conversation
+        guard messageWebsocketDTO.post.conversation?.id == conversation.value?.id else {
+            return
+        }
         switch messageWebsocketDTO.action {
         case .create:
             handleNewMessage(messageWebsocketDTO.post)
@@ -383,7 +391,7 @@ extension ConversationViewModel {
         }
     }
 
-    private func handleNewMessage(_ newMessage: Message) {
+    func handleNewMessage(_ newMessage: Message) {
         guard var dailyMessages = dailyMessages.value else {
             // messages not loaded yet
             return
@@ -403,7 +411,7 @@ extension ConversationViewModel {
         self.dailyMessages = .done(response: dailyMessages)
     }
 
-    private func handleUpdateMessage(_ updatedMessage: Message) {
+    func handleUpdateMessage(_ updatedMessage: Message) {
         guard var dailyMessages = dailyMessages.value else {
             // messages not loaded yet
             return
@@ -421,7 +429,7 @@ extension ConversationViewModel {
         self.dailyMessages = .done(response: dailyMessages)
     }
 
-    private func handleDeletedMessage(_ deletedMessage: Message) {
+    func handleDeletedMessage(_ deletedMessage: Message) {
         guard var dailyMessages = dailyMessages.value else {
             // messages not loaded yet
             return
