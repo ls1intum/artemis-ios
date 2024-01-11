@@ -39,7 +39,7 @@ class ModelingExerciseViewModel: BaseViewModel {
         self.problemStatementURL = problemStatementURL
     }
 
-    func onAppear() async {
+    func fetchSubmission() async {
         guard submission == nil else {
             return
         }
@@ -62,7 +62,7 @@ class ModelingExerciseViewModel: BaseViewModel {
         }
     }
 
-    func setup() {
+    func setupUMLModel() {
         guard let modelingSubmission = self.submission as? ModelingSubmission else {
             log.error("Could not get modeling submission")
             return

@@ -1,3 +1,10 @@
+//
+//  ModelingExerciseViewModel.swift
+//
+//
+//  Created by Alexander Görtzen on 21.11.23.
+//
+
 import SwiftUI
 import ApollonShared
 import ApollonEdit
@@ -5,21 +12,21 @@ import SharedModels
 import DesignLibrary
 
 struct EditModelingExerciseView: View {
-    @StateObject var modelingVM: ModelingExerciseViewModel
+    @StateObject var modelingViewModel: ModelingExerciseViewModel
 
     init(exercise: Exercise, participationId: Int, problemStatementURL: URLRequest) {
-        self._modelingVM = StateObject(wrappedValue: ModelingExerciseViewModel(exercise: exercise,
-                                                                               participationId: participationId,
-                                                                               problemStatementURL: problemStatementURL))
+        self._modelingViewModel = StateObject(wrappedValue: ModelingExerciseViewModel(exercise: exercise,
+                                                                                      participationId: participationId,
+                                                                                      problemStatementURL: problemStatementURL))
     }
-    
+
     var body: some View {
         ZStack {
-            if !modelingVM.diagramTypeUnsupported {
-                if let model = modelingVM.umlModel, let type = model.type {
+            if !modelingViewModel.diagramTypeUnsupported {
+                if let model = modelingViewModel.umlModel, let type = model.type {
                     ApollonEdit(umlModel: Binding(
-                        get: { modelingVM.umlModel ?? UMLModel() },
-                        set: { modelingVM.umlModel = $0 }),
+                        get: { modelingViewModel.umlModel ?? UMLModel() },
+                        set: { modelingViewModel.umlModel = $0 }),
                                 diagramType: type,
                                 fontSize: 14.0,
                                 themeColor: Color.Artemis.artemisBlue,
@@ -32,15 +39,15 @@ struct EditModelingExerciseView: View {
             }
         }
         .task {
-            await modelingVM.onAppear()
-            modelingVM.setup()
+            await modelingViewModel.fetchSubmission()
+            modelingViewModel.setupUMLModel()
         }
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
-                if !modelingVM.diagramTypeUnsupported {
+                if !modelingViewModel.diagramTypeUnsupported {
                     HStack {
-                        ProblemStatementButton(modelingVM: modelingVM)
-                        SubmitButton(modelingVM: modelingVM)
+                        ProblemStatementButton(modelingViewModel: modelingViewModel)
+                        SubmitButton(modelingViewModel: modelingViewModel)
                     }
                 }
             }
@@ -51,25 +58,27 @@ struct EditModelingExerciseView: View {
 }
 
 struct SubmitButton: View {
-    @ObservedObject var modelingVM: ModelingExerciseViewModel
+    @ObservedObject var modelingViewModel: ModelingExerciseViewModel
 
     var body: some View {
-        Button("Submit") {
+        Button {
             Task {
-                await modelingVM.submitSubmission()
+                await modelingViewModel.submitSubmission()
             }
+        } label: {
+            Text(R.string.localizable.submitSubmission())
         }.buttonStyle(ArtemisButton())
     }
 }
 
 struct ProblemStatementButton: View {
-    @ObservedObject var modelingVM: ModelingExerciseViewModel
+    @ObservedObject var modelingViewModel: ModelingExerciseViewModel
     @State private var isShowingProblemStatement = false
     @State private var isWebViewLoading = true
 
     var body: some View {
         Button {
-            isShowingProblemStatement.toggle()
+            isShowingProblemStatement = true
         } label: {
             Image(systemName: "newspaper")
                 .resizable()
@@ -85,13 +94,22 @@ struct ProblemStatementButton: View {
         }
         .sheet(isPresented: $isShowingProblemStatement) {
             NavigationView {
-                VStack(alignment: .center) {
-                    if let problemStatementURL = modelingVM.problemStatementURL {
+                VStack(alignment: .leading) {
+                    if modelingViewModel.problemStatementURL != nil {
                         ArtemisWebView(urlRequest: Binding(
-                            get: { modelingVM.problemStatementURL ?? URLRequest(url: URL(string: "")!) },
-                            set: { modelingVM.problemStatementURL = $0 }),
+                            get: { modelingViewModel.problemStatementURL ?? URLRequest(url: URL(string: "")!) },
+                            set: { modelingViewModel.problemStatementURL = $0 }),
                                        isLoading: $isWebViewLoading)
                         .loadingIndicator(isLoading: $isWebViewLoading)
+                        .toolbar {
+                            ToolbarItem(placement: .cancellationAction) {
+                                Button {
+                                    isShowingProblemStatement = false
+                                } label: {
+                                    Text(R.string.localizable.close())
+                                }
+                            }
+                        }
                     }
                 }
                 .padding(.m)
