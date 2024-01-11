@@ -21,7 +21,7 @@ let package = Package(
         // Starscream 4.0.6 does not build
         .package(url: "https://github.com/daltoniam/Starscream.git", exact: "4.0.4"),
         .package(url: "https://github.com/Kelvas09/EmojiPicker.git", from: "1.0.0"),
-        .package(url: "https://github.com/ls1intum/apollon-ios-module", revision: "9c6d15e75ba7068ffc957f2b91df0cd572c9de1a"),
+        .package(url: "https://github.com/ls1intum/apollon-ios-module", revision: "bb62ab5a14e093a934c0b043ad643a043e33ef53"),
         .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", .upToNextMajor(from: "8.0.0")),
         .package(url: "https://github.com/mac-cain13/R.swift.git", from: "7.0.0")
     ],
@@ -56,6 +56,8 @@ let package = Package(
                 "Messages",
                 "Navigation",
                 .product(name: "ApollonEdit", package: "apollon-ios-module"),
+                .product(name: "ApollonView", package: "apollon-ios-module"),
+                .product(name: "ApollonShared", package: "apollon-ios-module"),
                 .product(name: "APIClient", package: "artemis-ios-core-modules"),
                 .product(name: "ArtemisMarkdown", package: "artemis-ios-core-modules"),
                 .product(name: "Common", package: "artemis-ios-core-modules"),
