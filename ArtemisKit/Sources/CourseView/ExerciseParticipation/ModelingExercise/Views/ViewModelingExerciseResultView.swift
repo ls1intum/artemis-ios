@@ -21,7 +21,6 @@ struct ViewModelingExerciseResultView: View {
     }
 
     var body: some View {
-        // TODO: Add Badges to indicate what was right and wrong. IS ADDED IN THE FOLLOWING PR.
         ZStack {
             if !modelingViewModel.diagramTypeUnsupported {
                 if let model = modelingViewModel.umlModel, let type = model.type {
@@ -29,34 +28,34 @@ struct ViewModelingExerciseResultView: View {
                                 diagramType: type,
                                 fontSize: 14.0,
                                 themeColor: Color.Artemis.artemisBlue,
-                                diagramOffset: modelingVM.diagramOffset,
+                                diagramOffset: modelingViewModel.diagramOffset,
                                 isGridBackground: true) {
                         Canvas(rendersAsynchronously: true) { context, size in
-                            modelingVM.renderHighlights(&context, size: size)
+                            modelingViewModel.renderHighlights(&context, size: size)
                         } symbols: {
-                            modelingVM.generatePossibleSymbols()
+                            modelingViewModel.generatePossibleSymbols()
                         }
                         .onTapGesture { tapLocation in
-                            modelingVM.selectItem(at: tapLocation)
+                            modelingViewModel.selectItem(at: tapLocation)
                         }
                     }
                 }
-                FeedbackViewPopOver(modelingVM: modelingVM, showFeedback: $modelingVM.showFeedback)
+                FeedbackViewPopOver(modelingViewModel: modelingViewModel, showFeedback: $modelingViewModel.showFeedback)
             } else {
                 ArtemisHintBox(text: R.string.localizable.diagramTypeNotSupported(), hintType: .warning)
                     .padding(.horizontal, .l)
             }
         }
         .task {
-            await modelingVM.onAppear()
-            modelingVM.setup()
+            await modelingViewModel.fetchSubmission()
+            modelingViewModel.setupUMLModel()
         }
         .toolbar {
             ToolbarItemGroup(placement: .principal) {
-                SubmissionResultStatusView(exercise: modelingVM.exercise)
+                SubmissionResultStatusView(exercise: modelingViewModel.exercise)
             }
             ToolbarItemGroup(placement: .navigationBarTrailing) {
-                AssessmentView(modelingVM: modelingVM, isStatusViewClicked: $isStatusViewClicked)
+                AssessmentView(modelingViewModel: modelingViewModel, isStatusViewClicked: $isStatusViewClicked)
             }
         }
         .navigationBarTitleDisplayMode(.inline)
@@ -65,29 +64,29 @@ struct ViewModelingExerciseResultView: View {
 }
 
 struct FeedbackViewPopOver: View {
-    @ObservedObject var modelingVM: ModelingExerciseViewModel
+    @ObservedObject var modelingViewModel: ModelingExerciseViewModel
     @Binding var showFeedback: Bool
 
     var body: some View {
         if showFeedback,
-           modelingVM.selectedItem != nil,
-           let feedbackId = modelingVM.selectedFeedbackId,
-           let feedback = modelingVM.getFeedback(byId: feedbackId) {
+           modelingViewModel.selectedItem != nil,
+           let feedbackId = modelingViewModel.selectedFeedbackId,
+           let feedback = modelingViewModel.getFeedback(byId: feedbackId) {
             VStack {
                 Spacer()
                 VStack(alignment: .leading) {
                     HStack {
-                        Text("Element")
+                        Text(R.string.localizable.modelingFeedbackElement())
                             .bold()
                         Spacer()
-                        Text("Points")
+                        Text(R.string.localizable.modelingFeedbackPoints())
                             .bold()
                     }
                     Divider()
                     HStack {
                         if let reference = feedback.reference {
                             Text(reference.components(separatedBy: ":")[0])
-                            if let name = modelingVM.getItemNameById(itemId: reference.components(separatedBy: ":")[1]) {
+                            if let name = modelingViewModel.getItemNameById(itemId: reference.components(separatedBy: ":")[1]) {
                                 Text(name)
                                     .foregroundColor(Color.Artemis.artemisLightBlue)
                             }
@@ -99,12 +98,12 @@ struct FeedbackViewPopOver: View {
                     }
                     if let text = feedback.text {
                         HStack(alignment: .top) {
-                            Text("Feedback:")
+                            Text(R.string.localizable.modelingFeedback())
                                 .bold()
                             Text(text)
                                 .multilineTextAlignment(.leading)
                         }
-                        .foregroundColor(modelingVM.getBackgroundColor(feedback: feedback))
+                        .foregroundColor(modelingViewModel.getBackgroundColor(feedback: feedback))
                     }
                 }
                 .padding(.m)
@@ -121,7 +120,7 @@ struct FeedbackViewPopOver: View {
 }
 
 struct AssessmentView: View {
-    @ObservedObject var modelingVM: ModelingExerciseViewModel
+    @ObservedObject var modelingViewModel: ModelingExerciseViewModel
     @Binding var isStatusViewClicked: Bool
 
     var body: some View {
@@ -148,26 +147,26 @@ struct AssessmentView: View {
                     }
                     .padding(.top, .l)
 
-                    Text("Assessment")
+                    Text(R.string.localizable.modelingAssessment())
                         .font(.title)
                         .bold()
                         .padding(.vertical, .l)
 
                     HStack {
-                        Text("Element")
+                        Text(R.string.localizable.modelingFeedbackElement())
                             .bold()
                         Spacer()
-                        Text("Points")
+                        Text(R.string.localizable.modelingFeedbackPoints())
                             .bold()
                     }
 
                     Divider()
 
-                    ForEach(modelingVM.referencedFeedbacks) { feedback in
+                    ForEach(modelingViewModel.referencedFeedbacks) { feedback in
                         HStack {
                             if let reference = feedback.reference {
                                 Text(reference.components(separatedBy: ":")[0])
-                                if let name = modelingVM.getItemNameById(itemId: reference.components(separatedBy: ":")[1]) {
+                                if let name = modelingViewModel.getItemNameById(itemId: reference.components(separatedBy: ":")[1]) {
                                     Text(name)
                                         .foregroundColor(Color.Artemis.artemisLightBlue)
                                 }
@@ -179,28 +178,28 @@ struct AssessmentView: View {
                         }
                         if let text = feedback.text {
                             HStack(alignment: .top) {
-                                Text("Feedback:")
+                                Text(R.string.localizable.modelingFeedback())
                                     .bold()
                                 Text(text)
                                     .multilineTextAlignment(.leading)
                             }
-                            .foregroundColor(modelingVM.getBackgroundColor(feedback: feedback))
+                            .foregroundColor(modelingViewModel.getBackgroundColor(feedback: feedback))
                         }
                         Divider()
                     }
 
-                    if !modelingVM.unreferencedFeedbacks.isEmpty {
+                    if !modelingViewModel.unreferencedFeedbacks.isEmpty {
                         VStack(alignment: .leading) {
-                            Text("\(Image(systemName: "ellipsis.message")) Additional feedback:")
+                            Text("\(Image(systemName: "ellipsis.message")) \(R.string.localizable.modelingAdditionalFeedback())")
                                 .font(.headline)
                                 .bold()
                                 .padding(.m)
 
-                            ForEach(modelingVM.unreferencedFeedbacks) { feedback in
-                                let color = modelingVM.getBackgroundColor(feedback: feedback)
+                            ForEach(modelingViewModel.unreferencedFeedbacks) { feedback in
+                                let color = modelingViewModel.getBackgroundColor(feedback: feedback)
                                 HStack(alignment: .top) {
                                     if let points = feedback.credits {
-                                        Text("\(String(points)) Points:")
+                                        Text("\(String(points)) \(R.string.localizable.modelingFeedbackPoints())")
                                             .bold()
                                             .foregroundColor(color)
                                     }

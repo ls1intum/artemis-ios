@@ -237,11 +237,11 @@ extension ModelingExerciseViewModel {
         let point = CGPoint(x: point.x - diagramOffset.x,
                             y: point.y - diagramOffset.y)
 
-        /// Check for UMLRelationship
+        // Check for UMLRelationship
         if let relationship = umlModel?.relationships?.first(where: { $0.value.boundsContains(point: point) }) {
             return relationship.value
         }
-        /// Check for UMLElement
+        // Check for UMLElement
         if let element = umlModel?.elements?.first(where: { $0.value.boundsContains(point: point) }) {
             if let children = element.value.children {
                 for child in children where child.boundsContains(point: point) {
@@ -252,7 +252,7 @@ extension ModelingExerciseViewModel {
                 return element.value
             }
         }
-        /// Return nil if nothing found
+        // Return nil if nothing found
         return nil
     }
 
@@ -286,8 +286,8 @@ extension ModelingExerciseViewModel {
         return .primary
     }
 
+    // Generates all possible symbol views that can be drawn on the canvas used for rendering highlights
     @ViewBuilder
-    /// Generates all possible symbol views that can be drawn on the canvas used for rendering highlights
     func generatePossibleSymbols() -> some View {
         // Positive referenced feedback
         Image(UMLBadgeSymbol.checkmark.imageName, bundle: .module)

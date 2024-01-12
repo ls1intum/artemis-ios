@@ -66,6 +66,13 @@
 "difficulty" = "Difficulty:";
 "categories" = "Categories:";
 
+// Modeling Feedback
+"modelingFeedbackElement" = "Element";
+"modelingFeedbackPoints" = "Points";
+"modelingFeedback" = "Feedback:";
+"modelingAdditionalFeedback" = "Additional feedback:";
+"modelingAssessment" = "Assessment";
+
 // MARK: - LectureDetailView
 "attachmentCouldNotBeOpened" = "Attachment could not be opened!";
 "description" = "Description";
