@@ -167,7 +167,7 @@ public struct MessagePath: Hashable {
     public static func == (lhs: MessagePath, rhs: MessagePath) -> Bool {
         lhs.id == rhs.id && lhs.coursePath == rhs.coursePath && lhs.conversationPath == rhs.conversationPath
     }
-    
+
     public func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
