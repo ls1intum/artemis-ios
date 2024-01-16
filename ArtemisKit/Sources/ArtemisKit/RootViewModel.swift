@@ -6,25 +6,39 @@
 //  Copyright © 2023 orgName. All rights reserved.
 //
 
-import Foundation
 import Combine
-import UserStore
+import Common
+import Foundation
+import PushNotifications
 import SwiftUI
 import SharedServices
-import PushNotifications
-import Common
+import UserStore
 
 @MainActor
 class RootViewModel: ObservableObject {
 
     @Published var isLoading = true
-
     @Published var isLoggedIn = false
     @Published var didSetupNotifications = false
 
-    private var cancellables: Set<AnyCancellable> = Set()
+    private let userSession: UserSession
+    private let accountService: AccountService
 
-    init() {
+    private var cancellable: Set<AnyCancellable> = Set()
+
+    init(
+        userSession: UserSession = .shared,
+        accountService: AccountService = AccountServiceFactory.shared
+    ) {
+        self.userSession = userSession
+        self.accountService = accountService
+
+        start()
+    }
+}
+
+private extension RootViewModel {
+    func start() {
         UserSession.shared.objectWillChange.sink {
             DispatchQueue.main.async { [weak self] in
                 if !(self?.isLoggedIn ?? false) && UserSession.shared.isLoggedIn {
@@ -33,7 +47,8 @@ class RootViewModel: ObservableObject {
                 self?.isLoggedIn = UserSession.shared.isLoggedIn
                 self?.didSetupNotifications = UserSession.shared.getCurrentNotificationDeviceConfiguration() != nil
             }
-        }.store(in: &cancellables)
+        }
+        .store(in: &cancellable)
 
         Task(priority: .high) {
             let user = await AccountServiceFactory.shared.getAccount()
@@ -51,7 +66,7 @@ class RootViewModel: ObservableObject {
         updateDeviceToken()
     }
 
-    private func updateDeviceToken() {
+    func updateDeviceToken() {
         if let notificationConfig = UserSession.shared.getCurrentNotificationDeviceConfiguration(),
            !notificationConfig.skippedNotifications {
             UserSession.shared.notificationSetupError = nil
