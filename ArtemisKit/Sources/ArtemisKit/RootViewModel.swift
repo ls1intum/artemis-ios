@@ -14,18 +14,17 @@ import SwiftUI
 import SharedServices
 import UserStore
 
-@Observable
 @MainActor
-class RootViewModel {
+class RootViewModel: ObservableObject {
 
-    var isLoading = true
-    var isLoggedIn = false
-    var didSetupNotifications = false
+    @Published var isLoading = true
+    @Published var isLoggedIn = false
+    @Published var didSetupNotifications = false
 
     private let userSession: UserSession
     private let accountService: AccountService
 
-    @ObservationIgnored private var cancellable = Set<AnyCancellable>()
+    private var cancellable: Set<AnyCancellable> = Set()
 
     init(
         userSession: UserSession = .shared,

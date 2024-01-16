@@ -10,7 +10,7 @@ import Messages
 
 public struct RootView: View {
 
-    @State private var viewModel = RootViewModel()
+    @StateObject private var viewModel = RootViewModel()
 
     @StateObject private var navigationController = NavigationController()
 
