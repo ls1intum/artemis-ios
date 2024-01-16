@@ -45,7 +45,7 @@ private extension RootViewModel {
                     return
                 }
 
-                if !self.isLoggedIn && UserSession.shared.isLoggedIn {
+                if !self.isLoggedIn && self.userSession.isLoggedIn {
                     self.updateDeviceToken()
                 }
                 self.isLoggedIn = self.userSession.isLoggedIn
