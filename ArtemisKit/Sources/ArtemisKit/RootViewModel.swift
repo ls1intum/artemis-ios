@@ -39,26 +39,30 @@ class RootViewModel: ObservableObject {
 
 private extension RootViewModel {
     func start() {
-        UserSession.shared.objectWillChange.sink {
+        userSession.objectWillChange.sink {
             DispatchQueue.main.async { [weak self] in
-                if !(self?.isLoggedIn ?? false) && UserSession.shared.isLoggedIn {
-                    self?.updateDeviceToken()
+                guard let self else {
+                    return
                 }
-                self?.isLoggedIn = UserSession.shared.isLoggedIn
-                self?.didSetupNotifications = UserSession.shared.getCurrentNotificationDeviceConfiguration() != nil
+
+                if !self.isLoggedIn && UserSession.shared.isLoggedIn {
+                    self.updateDeviceToken()
+                }
+                self.isLoggedIn = self.userSession.isLoggedIn
+                self.didSetupNotifications = self.userSession.getCurrentNotificationDeviceConfiguration() != nil
             }
         }
         .store(in: &cancellable)
 
         Task(priority: .high) {
-            let user = await AccountServiceFactory.shared.getAccount()
+            let user = await accountService.getAccount()
 
             switch user {
             case .loading, .failure:
-                UserSession.shared.setTokenExpired(expired: false)
+                userSession.setTokenExpired(expired: false)
             case .done:
-                isLoggedIn = UserSession.shared.isLoggedIn
-                didSetupNotifications = UserSession.shared.getCurrentNotificationDeviceConfiguration() != nil
+                isLoggedIn = userSession.isLoggedIn
+                didSetupNotifications = userSession.getCurrentNotificationDeviceConfiguration() != nil
             }
             isLoading = false
         }
@@ -67,9 +71,11 @@ private extension RootViewModel {
     }
 
     func updateDeviceToken() {
-        if let notificationConfig = UserSession.shared.getCurrentNotificationDeviceConfiguration(),
+        if let notificationConfig = userSession.getCurrentNotificationDeviceConfiguration(),
            !notificationConfig.skippedNotifications {
-            UserSession.shared.notificationSetupError = nil
+
+            userSession.notificationSetupError = nil
+
             Task {
                 do {
                     let granted = try await UNUserNotificationCenter.current().requestAuthorization(options: [.sound, .badge, .alert])
