@@ -19,7 +19,7 @@ public struct RootView: View {
     public var body: some View {
         Group {
             if viewModel.isLoading {
-                Image("Artemis-Logo")
+                Image("Artemis-Logo", bundle: .module)
                     .resizable()
                     .scaledToFit()
                     .frame(width: .extraLargeImage)
