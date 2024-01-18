@@ -142,8 +142,10 @@ struct AssessmentView: View {
         .sheet(isPresented: $isStatusViewClicked) {
             ScrollView(.vertical) {
                 VStack(alignment: .leading, spacing: .s) {
-                    Button(R.string.localizable.close()) {
+                    Button {
                         isStatusViewClicked = false
+                    } label: {
+                        Text(R.string.localizable.close())
                     }
                     .padding(.top, .l)
 

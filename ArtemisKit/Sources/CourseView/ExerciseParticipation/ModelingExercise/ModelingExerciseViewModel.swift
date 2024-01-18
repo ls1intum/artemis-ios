@@ -120,6 +120,16 @@ class ModelingExerciseViewModel: BaseViewModel {
         }
     }
 
+    func getItemNameById(itemId: String) -> String? {
+        if let element = getElementById(elementId: itemId) {
+            return element.name
+        } else if let relationship = getRelationshipById(relationshipId: itemId) {
+            return relationship.name
+        } else {
+            return nil
+        }
+    }
+
     func getElementById(elementId: String) -> UMLElement? {
         if let element = umlModel?.elements?.first(where: { $0.value.id == elementId }) {
             return element.value
@@ -132,16 +142,6 @@ class ModelingExerciseViewModel: BaseViewModel {
             return relationship.value
         }
         return nil
-    }
-
-    func getItemNameById(itemId: String) -> String? {
-        if let element = getElementById(elementId: itemId) {
-            return element.name
-        } else if let relationship = getRelationshipById(relationshipId: itemId) {
-            return relationship.name
-        } else {
-            return nil
-        }
     }
 }
 
@@ -192,7 +192,6 @@ extension ModelingExerciseViewModel {
         for highlight in highlights {
             let badgeSymbol = highlight.symbol
             let badgeCircleSideLength = symbolSize
-
             let badgeCircleX: CGFloat
             let badgeCircleY: CGFloat
 
