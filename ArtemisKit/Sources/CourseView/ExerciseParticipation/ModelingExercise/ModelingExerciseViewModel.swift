@@ -52,8 +52,8 @@ class ModelingExerciseViewModel: BaseViewModel {
         do {
             let response = try await exerciseService.getLatestSubmission(participationId: participationId)
             self.submission = response.baseSubmission
-            if let results = response.baseSubmission.results?.first, let results {
-                self.result = results
+            if let result = response.baseSubmission.results?.first, let result {
+                self.result = result
             }
         } catch {
             log.error(String(describing: error))
@@ -148,7 +148,7 @@ class ModelingExerciseViewModel: BaseViewModel {
 extension ModelingExerciseViewModel {
     func setupHighlights(basedOn feedbacks: [Feedback]) {
         guard umlModel?.elements != nil else {
-            log.error("Could not find elements in the model when attempting to setup highlights")
+            log.error("Could not find elements in the model when attempting to set up highlights")
             return
         }
 
