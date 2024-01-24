@@ -130,3 +130,32 @@ struct MessageCell: View {
         }
     }
 }
+
+#Preview {
+    ForEach([
+        "Hi - new",
+        """
+        Hello, world!
+        
+        Bye…
+        """,
+    ], id: \.self) { content in
+        MessageCell(
+            viewModel: ConversationViewModel.init(courseId: 0, conversationId: 0),
+            message: Binding.constant(DataState<BaseMessage>.done(response: {
+                var author = ConversationUser.init(id: 0)
+                author.name = "Alice"
+
+                var message = Message(id: 1)
+                message.author = author
+                message.content = content
+                message.creationDate = Date.now
+
+                return message
+            }())),
+            conversationPath: ConversationPath?.none,
+            showHeader: true
+        )
+        .environmentObject(NavigationController())
+    }
+}
