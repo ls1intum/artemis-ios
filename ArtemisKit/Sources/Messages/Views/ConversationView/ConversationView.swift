@@ -236,3 +236,16 @@ private struct PullToRefresh: View {
         .padding(.top, -50)
     }
 }
+
+#Preview {
+    ConversationDaySection(
+        viewModel: ConversationViewModel.init(
+            courseId: 0,
+            conversationId: 0),
+        day: Date.now,
+        messages: [Message].init(),
+        conversationPath: ConversationPath.init(
+            id: 0, 
+            coursePath: CoursePath.init(
+                id: 0)))
+}
