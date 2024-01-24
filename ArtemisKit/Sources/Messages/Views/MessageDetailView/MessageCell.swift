@@ -38,34 +38,38 @@ struct MessageCell: View {
     let showHeader: Bool
 
     var body: some View {
-        HStack(alignment: .top, spacing: .l) {
+        HStack(alignment: .top, spacing: .m) {
             Image(systemName: "person")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 30, height: 30)
+                .frame(width: 40, height: 40)
                 .padding(.top, .s)
                 .opacity(showHeader ? 1 : 0)
-            VStack(alignment: .leading, spacing: .m) {
+            VStack(alignment: .leading, spacing: .xs) {
                 if showHeader {
-                    HStack(alignment: .bottom, spacing: .m) {
+                    HStack(alignment: .firstTextBaseline, spacing: .m) {
                         Text(author)
                             .bold()
                         if let creationDate {
                             Text(creationDate, formatter: DateFormatter.timeOnly)
                                 .font(.caption)
-                            if let lastReadDate = conversationPath?.conversation?.baseConversation.lastReadDate,
-                               lastReadDate < creationDate,
-                               UserSession.shared.user?.id != message.value?.author?.id {
+                            if content.contains("new")
+//                                let lastReadDate = conversationPath?.conversation?.baseConversation.lastReadDate,
+//                                lastReadDate < creationDate,
+//                                UserSession.shared.user?.id != message.value?.author?.id
+                            {
                                 Chip(
                                     text: R.string.localizable.new(),
                                     backgroundColor: .Artemis.artemisBlue,
                                     padding: .s
                                 )
                                 .font(.footnote)
+                                .opacity(0)
                             }
                         }
                     }
                 }
+
                 ArtemisMarkdownView(string: content)
 
                 if message.value?.updatedDate != nil {
