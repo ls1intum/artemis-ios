@@ -147,21 +147,25 @@ public struct MessagePath: Hashable {
     public let conversationPath: ConversationPath
     public let conversationViewModel: Any?
 
-    init(id: Int64, coursePath: CoursePath, conversationPath: ConversationPath) {
-        self.id = id
-        self.message = nil
-        self.coursePath = coursePath
-        self.conversationPath = conversationPath
-        self.conversationViewModel = nil
-    }
+    #warning("Unnused")
+//    init(id: Int64, coursePath: CoursePath, conversationPath: ConversationPath) {
+//        self.id = id
+//        self.message = nil
+//        self.coursePath = coursePath
+//        self.conversationPath = conversationPath
+//        self.conversationViewModel = nil
+//    }
 
     public init?(message: Binding<DataState<BaseMessage>>, coursePath: CoursePath, conversationPath: ConversationPath, conversationViewModel: Any) {
-        guard let id = message.wrappedValue.value?.id else { return nil }
+        guard let id = message.wrappedValue.value?.id else {
+            return nil
+        }
+
         self.id = id
         self.message = message
         self.coursePath = coursePath
         self.conversationPath = conversationPath
-        self.conversationViewModel = conversationViewModel
+        self.conversationViewModel = conversationViewModel // Thread
     }
 
     public static func == (lhs: MessagePath, rhs: MessagePath) -> Bool {
