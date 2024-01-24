@@ -28,7 +28,17 @@ public class ConversationViewModel: BaseViewModel {
 
     private var size = 50
 
-    public init(course: Course, conversation: Conversation) {
+    private let artemisStompClient = ArtemisStompClient.shared
+    private let courseService: CourseService = CourseServiceFactory.shared
+    private let messagesService: MessagesService = MessagesServiceFactory.shared
+    private let userSession = UserSession.shared
+
+    public init(
+        course: Course,
+        conversation: Conversation
+//        courseService: CourseService = CourseServiceFactory.shared,
+//        messagesService: MessagesService = MessagesServiceFactory.shared
+    ) {
         self._course = Published(wrappedValue: .done(response: course))
         self.courseId = course.id
         self._conversation = Published(wrappedValue: .done(response: conversation))
@@ -73,7 +83,7 @@ public class ConversationViewModel: BaseViewModel {
     }
 
     func loadMessages() async {
-        let result = await MessagesServiceFactory.shared.getMessages(for: courseId, and: conversationId, size: size)
+        let result = await messagesService.getMessages(for: courseId, and: conversationId, size: size)
 
         switch result {
         case .loading:
@@ -100,7 +110,7 @@ public class ConversationViewModel: BaseViewModel {
 
     func loadMessage(messageId: Int64) async -> DataState<Message> {
         // TODO: add API to only load one single message
-        let result = await MessagesServiceFactory.shared.getMessages(for: courseId, and: conversationId, size: size)
+        let result = await messagesService.getMessages(for: courseId, and: conversationId, size: size)
 
         switch result {
         case .loading:
@@ -117,7 +127,7 @@ public class ConversationViewModel: BaseViewModel {
 
     func loadAnswerMessage(answerMessageId: Int64) async -> DataState<AnswerMessage> {
         // TODO: add API to only load one single answer message
-        let result = await MessagesServiceFactory.shared.getMessages(for: courseId, and: conversationId, size: size)
+        let result = await messagesService.getMessages(for: courseId, and: conversationId, size: size)
 
         switch result {
         case .loading:
@@ -140,7 +150,7 @@ public class ConversationViewModel: BaseViewModel {
             return .failure(error: error)
         }
         isLoading = true
-        let result = await MessagesServiceFactory.shared.sendMessage(for: courseId, conversation: conversation, content: text)
+        let result = await messagesService.sendMessage(for: courseId, conversation: conversation, content: text)
         switch result {
         case .notStarted, .loading:
             isLoading = false
@@ -161,7 +171,7 @@ public class ConversationViewModel: BaseViewModel {
 
     func sendAnswerMessage(text: String, for message: Message, completion: () async -> Void) async -> NetworkResponse {
         isLoading = true
-        let result = await MessagesServiceFactory.shared.sendAnswerMessage(for: courseId, message: message, content: text)
+        let result = await messagesService.sendAnswerMessage(for: courseId, message: message, content: text)
         switch result {
         case .notStarted, .loading:
             isLoading = false
@@ -183,9 +193,9 @@ public class ConversationViewModel: BaseViewModel {
         isLoading = true
         let result: NetworkResponse
         if let reaction = message.getReactionFromMe(emojiId: emojiId) {
-            result = await MessagesServiceFactory.shared.removeReactionFromMessage(for: courseId, reaction: reaction)
+            result = await messagesService.removeReactionFromMessage(for: courseId, reaction: reaction)
         } else {
-            result = await MessagesServiceFactory.shared.addReactionToMessage(for: courseId, message: message, emojiId: emojiId)
+            result = await messagesService.addReactionToMessage(for: courseId, message: message, emojiId: emojiId)
         }
         switch result {
         case .notStarted, .loading:
@@ -214,9 +224,9 @@ public class ConversationViewModel: BaseViewModel {
         isLoading = true
         let result: NetworkResponse
         if let reaction = message.getReactionFromMe(emojiId: emojiId) {
-            result = await MessagesServiceFactory.shared.removeReactionFromMessage(for: courseId, reaction: reaction)
+            result = await messagesService.removeReactionFromMessage(for: courseId, reaction: reaction)
         } else {
-            result = await MessagesServiceFactory.shared.addReactionToAnswerMessage(for: courseId, answerMessage: message, emojiId: emojiId)
+            result = await messagesService.addReactionToAnswerMessage(for: courseId, answerMessage: message, emojiId: emojiId)
         }
         switch result {
         case .notStarted, .loading:
@@ -247,7 +257,7 @@ public class ConversationViewModel: BaseViewModel {
             return false
         }
 
-        let result = await MessagesServiceFactory.shared.deleteMessage(for: courseId, messageId: messageId)
+        let result = await messagesService.deleteMessage(for: courseId, messageId: messageId)
 
         switch result {
         case .notStarted, .loading:
@@ -267,7 +277,7 @@ public class ConversationViewModel: BaseViewModel {
             return false
         }
 
-        let result = await MessagesServiceFactory.shared.deleteAnswerMessage(for: courseId, anserMessageId: messageId)
+        let result = await messagesService.deleteAnswerMessage(for: courseId, anserMessageId: messageId)
 
         switch result {
         case .notStarted, .loading:
@@ -282,7 +292,7 @@ public class ConversationViewModel: BaseViewModel {
     }
 
     func editMessage(message: Message) async -> Bool {
-        let result = await MessagesServiceFactory.shared.editMessage(for: courseId, message: message)
+        let result = await messagesService.editMessage(for: courseId, message: message)
 
         switch result {
         case .notStarted, .loading:
@@ -297,7 +307,7 @@ public class ConversationViewModel: BaseViewModel {
     }
 
     func editAnswerMessage(answerMessage: AnswerMessage) async -> Bool {
-        let result = await MessagesServiceFactory.shared.editAnswerMessage(for: courseId, answerMessage: answerMessage)
+        let result = await messagesService.editAnswerMessage(for: courseId, answerMessage: answerMessage)
 
         switch result {
         case .notStarted, .loading:
@@ -316,7 +326,7 @@ public class ConversationViewModel: BaseViewModel {
 
 private extension ConversationViewModel {
     func loadConversation() async {
-        let result = await MessagesServiceFactory.shared.getConversations(for: courseId)
+        let result = await messagesService.getConversations(for: courseId)
 
         switch result {
         case .loading:
@@ -333,7 +343,7 @@ private extension ConversationViewModel {
     }
 
     func loadCourse() async {
-        let result = await CourseServiceFactory.shared.getCourse(courseId: courseId)
+        let result = await courseService.getCourse(courseId: courseId)
 
         switch result {
         case .loading:
@@ -349,16 +359,16 @@ private extension ConversationViewModel {
         let topic: String
         if conversation.value?.baseConversation.type == .channel {
             topic = "/topic/metis/courses/\(courseId)"
-        } else if let id = UserSession.shared.user?.id {
+        } else if let id = userSession.user?.id {
             topic = "/topic/user/\(id)/notifications/conversations"
         } else {
             return
         }
-        if ArtemisStompClient.shared.didSubscribeTopic(topic) {
+        if artemisStompClient.didSubscribeTopic(topic) {
             return
         }
         websocketSubscriptionTask = Task { [weak self] in
-            let stream = ArtemisStompClient.shared.subscribe(to: topic)
+            let stream = artemisStompClient.subscribe(to: topic)
 
             for await message in stream {
                 guard let messageWebsocketDTO = JSONDecoder.getTypeFromSocketMessage(type: MessageWebsocketDTO.self, message: message) else {
