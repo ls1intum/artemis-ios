@@ -1,4 +1,8 @@
-// MARK: CourseView
+// MARK: - General
+"loading" = "Loading...";
+"close" = "Close";
+
+// MARK: - CourseView
 "exercisesTabLabel" = "Exercises";
 "lectureTabLabel" = "Lectures";
 "messagesTabLabel" = "Messages";
@@ -13,7 +17,6 @@
 "quizNotStarted" = "The quiz is not active.";
 
 // MARK: SubmissionResultView
-
 "noResult" = "No result";
 "noGradedResult" = "No graded result";
 "building" = "Building and testing...";
@@ -39,37 +42,49 @@
 // Badges
 "notReleased" = "Not released";
 
-// MARK: ExerciseDetailView
+// MARK: - ExerciseDetailView
 "exerciseDetails" = "Exercise details";
 "dueDate" = "Due Date: %s";
 "noDueDate" = "No due date";
 "points" = "Points: %s of %s";
 "assessment" = "Assessment: %s";
-"showFeedback" = "Show Feedback";
+"showFeedback" = "Show feedback";
+"startExercise" = "Start exercise";
+"openModelingEditor" = "Open modeling editor";
+"submitSubmission" = "Submit";
+"viewSubmission" = "View submission";
+"viewSubmissionTitle" = "Submission";
+"viewResult" = "View result";
+"viewResultTitle" = "Result";
 "exerciseParticipationHint" = "Participating in exercises is currently not possible in the mobile app";
+"diagramTypeNotSupported" = "This diagram type is not yet supported in the mobile app";
 "releaseDate" = "Release date:";
 "submissionDate" = "Submission due:";
 "assessmentDate" = "Assessment due:";
 "complaintPossible" = "Complaint possible:";
-"assessmentType" = "Assessment type:";
 "exerciseType" = "Exercise type:";
 "difficulty" = "Difficulty:";
 "categories" = "Categories:";
 
-// MARK: LectureDetailView
+// Modeling Feedback
+"modelingFeedbackElement" = "Element";
+"modelingFeedbackPoints" = "Points";
+"modelingFeedback" = "Feedback:";
+"modelingAdditionalFeedback" = "Additional feedback:";
+"modelingAssessment" = "Assessment";
+
+// MARK: - LectureDetailView
 "attachmentCouldNotBeOpened" = "Attachment could not be opened!";
 "description" = "Description";
 "openLink" = "Open Link";
 "linkCouldNotBeLoaded" = "Link can not be loaded";
 "openVideo" = "Open Video";
-"videoCanNotBeLoaded" = "Video url can not be loaded";
+"videoCouldNotBeLoaded" = "Video url can not be loaded";
 "notReleased" = "Not released";
-"exercisecouldNotBeLoaded" = "Exercise could not be loaded";
+"exerciseCouldNotBeLoaded" = "Exercise could not be loaded";
 "version" = "Version";
 "date" = "Date";
+"noDateAssociated" = "No date associated";
 "lectureUnits" = "Lecture Units";
+"lecturesGroupTitle" = "%s (Exercises: %i)";
 "attachments" = "Attachments";
-
-// MARK: General
-"loading" = "Loading...";
-"close" = "Close";

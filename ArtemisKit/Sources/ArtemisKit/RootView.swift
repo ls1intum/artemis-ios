@@ -19,7 +19,7 @@ public struct RootView: View {
     public var body: some View {
         Group {
             if viewModel.isLoading {
-                Image("Artemis-Logo")
+                Image("Artemis-Logo", bundle: .module)
                     .resizable()
                     .scaledToFit()
                     .frame(width: .extraLargeImage)
@@ -27,7 +27,7 @@ public struct RootView: View {
                 if viewModel.isLoggedIn {
                     if viewModel.didSetupNotifications {
                         NavigationStack(path: $navigationController.path) {
-                            CoursesOverviewView()
+                            DashboardView()
                                 .navigationDestination(for: CoursePath.self) { coursePath in
                                     CourseView(courseId: coursePath.id)
                                         .id(coursePath.id)

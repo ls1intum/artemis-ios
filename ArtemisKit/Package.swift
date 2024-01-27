@@ -18,11 +18,11 @@ let package = Package(
             ])
     ],
     dependencies: [
+        // Starscream 4.0.6 does not build
+        .package(url: "https://github.com/daltoniam/Starscream.git", exact: "4.0.4"),
         .package(url: "https://github.com/Kelvas09/EmojiPicker.git", from: "1.0.0"),
-        .package(url: "https://github.com/ls1intum/apollon-ios-module", branch: "main"),
-        .package(
-            url: "https://github.com/ls1intum/artemis-ios-core-modules",
-            branch: "feature/notifications/mute-conversations"),
+        .package(url: "https://github.com/ls1intum/apollon-ios-module", .upToNextMajor(from: "1.0.2")),
+        .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", branch: "feature/notifications/mute-conversations"),
         .package(url: "https://github.com/mac-cain13/R.swift.git", from: "7.0.0")
     ],
     targets: [
@@ -36,7 +36,8 @@ let package = Package(
                 "Dashboard",
                 "Messages",
                 "Navigation",
-                "Notifications"
+                "Notifications",
+                .product(name: "Login", package: "artemis-ios-core-modules")
             ]),
         .target(
             name: "CourseRegistration",
@@ -55,6 +56,8 @@ let package = Package(
                 "Messages",
                 "Navigation",
                 .product(name: "ApollonEdit", package: "apollon-ios-module"),
+                .product(name: "ApollonView", package: "apollon-ios-module"),
+                .product(name: "ApollonShared", package: "apollon-ios-module"),
                 .product(name: "APIClient", package: "artemis-ios-core-modules"),
                 .product(name: "ArtemisMarkdown", package: "artemis-ios-core-modules"),
                 .product(name: "Common", package: "artemis-ios-core-modules"),
