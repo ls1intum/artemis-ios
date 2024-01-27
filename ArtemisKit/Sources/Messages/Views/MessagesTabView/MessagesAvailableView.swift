@@ -235,7 +235,7 @@ private struct SectionDisclosureLabel: View {
                 .font(.headline)
             Spacer()
             if isUnreadCountVisible {
-                Badge(count: sectionUnreadCount)
+                Badge(unreadCount: sectionUnreadCount)
             }
             if let conversationType {
                 Image(systemName: "plus.bubble")
