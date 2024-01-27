@@ -34,7 +34,7 @@ struct ConversationRow<T: BaseConversation>: View {
                 Text(conversation.conversationName)
                 Spacer()
                 if let unreadCount = conversation.unreadMessagesCount {
-                    Badge(unreadCount: unreadCount)
+                    Badge(count: unreadCount)
                 }
             }
             .opacity((conversation.unreadMessagesCount ?? 0) > 0 ? 1 : 0.7)

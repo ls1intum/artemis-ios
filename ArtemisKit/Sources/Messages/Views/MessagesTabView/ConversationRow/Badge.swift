@@ -5,21 +5,24 @@
 //  Created by Nityananda Zbil on 10.11.23.
 //
 
+import DesignLibrary
 import SwiftUI
 
 struct Badge: View {
-    let unreadCount: Int
+    let count: Int
 
     var body: some View {
-        if unreadCount > 0 {
-            Text("\(unreadCount)")
+        // swiftlint:disable:next empty_count
+        if count > 0 {
+            Text("\(count)")
+                .font(.body.bold().monospacedDigit())
                 .foregroundColor(.white)
-                .font(.headline)
-                .padding(.m)
-                .background(.red)
-                .clipShape(Circle())
-        } else {
-            EmptyView()
+                .padding(.vertical, .xs)
+                .padding(.horizontal, .m)
+                .background {
+                    Capsule()
+                        .fill(.red)
+                }
         }
     }
 }
