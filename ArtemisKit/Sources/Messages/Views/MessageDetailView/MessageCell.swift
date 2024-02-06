@@ -37,6 +37,8 @@ struct MessageCell: View {
     let conversationPath: ConversationPath?
     let showHeader: Bool
 
+    let user: () -> User? = { UserSession.shared.user }
+
     var body: some View {
         HStack(alignment: .top, spacing: .m) {
             Image(systemName: "person")
@@ -53,19 +55,19 @@ struct MessageCell: View {
                         if let creationDate {
                             Text(creationDate, formatter: DateFormatter.timeOnly)
                                 .font(.caption)
-                            if content.contains("new")
-//                                let lastReadDate = conversationPath?.conversation?.baseConversation.lastReadDate,
-//                                lastReadDate < creationDate,
-//                                UserSession.shared.user?.id != message.value?.author?.id
-                            {
-                                Chip(
-                                    text: R.string.localizable.new(),
-                                    backgroundColor: .Artemis.artemisBlue,
-                                    padding: .s
-                                )
-                                .font(.footnote)
-                                .opacity(0)
-                            }
+
+                            let chipIsVisible = conversationPath?.conversation?.baseConversation
+                                .lastReadDate.map { lastReadDate in
+                                    lastReadDate < creationDate && user()?.id != message.value?.author?.id
+                                } ?? false
+
+                            Chip(
+                                text: R.string.localizable.new(),
+                                backgroundColor: .Artemis.artemisBlue,
+                                padding: .s
+                            )
+                            .font(.footnote)
+                            .opacity(chipIsVisible ? 1 : 0)
                         }
                     }
                 }
@@ -97,7 +99,8 @@ struct MessageCell: View {
                         }
                     }
                 }
-            }.id(message.value?.id.description)
+            }
+            .id(message.value?.id.description)
             Spacer()
         }
         .padding(.horizontal, .l)
@@ -142,24 +145,37 @@ struct MessageCell: View {
         Hello, world!
         
         Bye…
-        """,
+        """
     ], id: \.self) { content in
-        MessageCell(
-            viewModel: ConversationViewModel.init(courseId: 0, conversationId: 0),
-            message: Binding.constant(DataState<BaseMessage>.done(response: {
-                var author = ConversationUser.init(id: 0)
-                author.name = "Alice"
+        {
+            let now = Date.now
 
-                var message = Message(id: 1)
-                message.author = author
-                message.content = content
-                message.creationDate = Date.now
+            let course = Course(
+                id: 1,
+                courseInformationSharingConfiguration: .communicationAndMessaging)
 
-                return message
-            }())),
-            conversationPath: ConversationPath?.none,
-            showHeader: true
-        )
-        .environmentObject(NavigationController())
+            var oneToOneChat = OneToOneChat(id: 1)
+            oneToOneChat.lastReadDate = now
+            let conversation = Conversation.oneToOneChat(conversation: oneToOneChat)
+
+            var author = ConversationUser(id: 0)
+            author.name = "Alice"
+
+            var message = Message(id: 1)
+            message.author = author
+            message.content = content
+            message.creationDate = Calendar.current.date(byAdding: .minute, value: 1, to: now)
+            message.updatedDate = Calendar.current.date(byAdding: .minute, value: 2, to: now)
+
+            return MessageCell(
+                viewModel: ConversationViewModel(
+                    course: course,
+                    conversation: conversation),
+                message: Binding.constant(DataState<BaseMessage>.done(response: message)),
+                conversationPath: ConversationPath(conversation: conversation, coursePath: CoursePath(id: course.id)),
+                showHeader: true
+            )
+            .environmentObject(NavigationController())
+        }()
     }
 }
