@@ -21,7 +21,7 @@ struct MessageCell: View {
 
     @Binding var message: DataState<BaseMessage>
 
-    @State private var showMessageActionSheet = false
+    @State private var isActionSheetPresented = false
     @State private var isPressed = false
 
     var author: String {
@@ -35,7 +35,7 @@ struct MessageCell: View {
     }
 
     let conversationPath: ConversationPath?
-    let showHeader: Bool
+    let isHeaderVisible: Bool
 
     let user: () -> User? = { UserSession.shared.user }
 
@@ -46,9 +46,9 @@ struct MessageCell: View {
                 .scaledToFit()
                 .frame(width: 40, height: 40)
                 .padding(.top, .s)
-                .opacity(showHeader ? 1 : 0)
+                .opacity(isHeaderVisible ? 1 : 0)
             VStack(alignment: .leading, spacing: .xs) {
-                if showHeader {
+                if isHeaderVisible {
                     HStack(alignment: .firstTextBaseline, spacing: .m) {
                         Text(author)
                             .bold()
@@ -106,35 +106,41 @@ struct MessageCell: View {
         .padding(.horizontal, .l)
         .contentShape(Rectangle())
         .background(isPressed ? Color.Artemis.messsageCellPressed : Color.clear)
-        .onTapGesture {
-            if let conversationPath, let messagePath = MessagePath(
-                message: $message,
-                coursePath: conversationPath.coursePath,
-                conversationPath: conversationPath,
-                conversationViewModel: viewModel
-            ) {
-                navigationController.path.append(messagePath)
-            }
-        }
-        .onLongPressGesture(minimumDuration: 0.1, maximumDistance: 30) {
-            guard let conversation = viewModel.conversation.value else {
-                return
-            }
-            if let channel = conversation.baseConversation as? Channel, channel.isArchived ?? false {
-                return
-            }
-
-            let impactMed = UIImpactFeedbackGenerator(style: .heavy)
-            impactMed.impactOccurred()
-            showMessageActionSheet = true
-            isPressed = false
-        } onPressingChanged: { pressed in
+        .onTapGesture(perform: onTapPresentMessage)
+        .onLongPressGesture(minimumDuration: 0.1, maximumDistance: 30, perform: onLongPressPresentActionSheet) { pressed in
             isPressed = pressed
         }
-        .sheet(isPresented: $showMessageActionSheet) {
+        .sheet(isPresented: $isActionSheetPresented) {
             MessageActionSheet(viewModel: viewModel, message: $message, conversationPath: conversationPath)
                 .presentationDetents([.height(350), .large])
         }
+    }
+}
+
+private extension MessageCell {
+    func onTapPresentMessage() {
+        if let conversationPath, let messagePath = MessagePath(
+            message: $message,
+            coursePath: conversationPath.coursePath,
+            conversationPath: conversationPath,
+            conversationViewModel: viewModel
+        ) {
+            navigationController.path.append(messagePath)
+        }
+    }
+
+    func onLongPressPresentActionSheet() {
+        guard let conversation = viewModel.conversation.value else {
+            return
+        }
+        if let channel = conversation.baseConversation as? Channel, channel.isArchived ?? false {
+            return
+        }
+
+        let impactMed = UIImpactFeedbackGenerator(style: .heavy)
+        impactMed.impactOccurred()
+        isActionSheetPresented = true
+        isPressed = false
     }
 }
 
@@ -173,7 +179,7 @@ struct MessageCell: View {
                     conversation: conversation),
                 message: Binding.constant(DataState<BaseMessage>.done(response: message)),
                 conversationPath: ConversationPath(conversation: conversation, coursePath: CoursePath(id: course.id)),
-                showHeader: true
+                isHeaderVisible: true
             )
             .environmentObject(NavigationController())
         }()

@@ -149,12 +149,13 @@ private struct ConversationDaySection: View {
             Divider()
                 .padding(.horizontal, .l)
             ForEach(Array(messages.enumerated()), id: \.1.id) { index, message in
+                #warning("De-duplicate")
                 MessageCellWrapper(
                     viewModel: viewModel,
                     day: day,
                     message: message,
                     conversationPath: conversationPath,
-                    showHeader: (index == 0 ? true : showHeader(message: message, previousMessage: messages[index - 1])))
+                    isHeaderVisible: (index == 0 ? true : showHeader(message: message, previousMessage: messages[index - 1])))
             }
         }
     }
@@ -172,7 +173,7 @@ private struct MessageCellWrapper: View {
     let day: Date
     let message: Message
     let conversationPath: ConversationPath
-    let showHeader: Bool
+    let isHeaderVisible: Bool
 
     private var messageBinding: Binding<DataState<BaseMessage>> {
         Binding(get: {
@@ -194,7 +195,7 @@ private struct MessageCellWrapper: View {
             viewModel: viewModel,
             message: messageBinding,
             conversationPath: conversationPath,
-            showHeader: showHeader)
+            isHeaderVisible: isHeaderVisible)
     }
 }
 

@@ -65,7 +65,9 @@ public struct MessageDetailView: View {
                 Spacer()
                 if !((viewModel.conversation.value?.baseConversation as? Channel)?.isArchived ?? false),
                    let message = message as? Message {
-                    SendMessageView(viewModel: viewModel, sendMessageType: .answerMessage(message, { await reloadMessage() }))
+                    SendMessageView(
+                        viewModel: viewModel,
+                        sendMessageType: .answerMessage(message, { await reloadMessage() }))
                 }
             }
         }
@@ -127,12 +129,15 @@ private extension MessageDetailView {
         if let message = message as? Message {
             Divider()
             VStack {
-                let sortedArray = (message.answers ?? []).sorted(by: { $0.creationDate ?? .tomorrow < $1.creationDate ?? .yesterday })
+                let sortedArray = (message.answers ?? []).sorted {
+                    $0.creationDate ?? .tomorrow < $1.creationDate ?? .yesterday
+                }
                 ForEach(Array(sortedArray.enumerated()), id: \.1) { index, answerMessage in
+                    let showHeader = index == 0 || shouldShowHeader(message: answerMessage, previousMessage: sortedArray[index - 1])
                     MessageCellWrapper(
                         viewModel: viewModel,
                         answerMessage: answerMessage,
-                        showHeader: (index == 0 ? true : shouldShowHeader(message: answerMessage, previousMessage: sortedArray[index - 1])))
+                        isHeaderVisible: showHeader)
                 }
                 Spacer()
                     .id("bottom")
@@ -166,7 +171,7 @@ private extension MessageDetailView {
         }
     }
 
-    // header is not shown if same person messages multiple times within 5 minutes
+    // The header is not visible if the same person messages multiple times within 5 minutes.
     func shouldShowHeader(message: AnswerMessage, previousMessage: AnswerMessage) -> Bool {
         !(message.author == previousMessage.author &&
           message.creationDate ?? .now < (previousMessage.creationDate ?? .yesterday).addingTimeInterval(TimeInterval(MAX_MINUTES_FOR_GROUPING_MESSAGES * 60)))
@@ -178,31 +183,51 @@ private struct MessageCellWrapper: View {
     @ObservedObject var viewModel: ConversationViewModel
 
     let answerMessage: AnswerMessage
-    let showHeader: Bool
+    let isHeaderVisible: Bool
 
     private var answerMessageBinding: Binding<DataState<BaseMessage>> {
-        Binding(get: {
-            if let keys = viewModel.dailyMessages.value?.keys {
-                let answerMessage: AnswerMessage? = keys.compactMap { key in
-                    if let messageIndex = viewModel.dailyMessages.value?[key]?.firstIndex(where: { $0.answers?.contains(where: { $0.id == self.answerMessage.id }) ?? false }),
-                       let answerMessage = viewModel.dailyMessages.value?[key]?[messageIndex].answers?.first(where: { $0.id == self.answerMessage.id }) {
+
+        let messageContainsAnswer = { (message: Message) -> Bool in
+            message.answers?.contains {
+                $0.id == self.answerMessage.id
+            } ?? false
+        }
+        let isAnswerMessage = { (answer: AnswerMessage) -> Bool in
+            answer.id == self.answerMessage.id
+        }
+
+        #warning("Constant")
+        return Binding.constant(.done(response: answerMessage))
+
+        return Binding(get: {
+            if let dailyMessages = viewModel.dailyMessages.value {
+                let answerMessages: [AnswerMessage] = dailyMessages.keys.compactMap { key in
+
+                    if let messages = dailyMessages[key],
+                       let messageIndex = messages.firstIndex(where: messageContainsAnswer),
+                       let answerMessage = messages[messageIndex].answers?.first(where: isAnswerMessage) {
                         return answerMessage
                     }
                     return nil
-                }.first
-                if let answerMessage {
+                }
+
+                if let answerMessage = answerMessages.first {
                     return .done(response: answerMessage)
                 }
             }
             return .loading
         }, set: { newValue in
-            if let keys = viewModel.dailyMessages.value?.keys {
-                keys.forEach { key in
-                    if let messageIndex = viewModel.dailyMessages.value?[key]?.firstIndex(where: { $0.answers?.contains(where: { $0.id == answerMessage.id }) ?? false }),
-                       let answerMessageIndex = viewModel.dailyMessages.value?[key]?[messageIndex].answers?.firstIndex(where: { $0.id == answerMessage.id }),
-                       let newAnswerMessage = newValue.value as? AnswerMessage {
+            if let newAnswerMessage = newValue.value as? AnswerMessage,
+               let dailyMessages = viewModel.dailyMessages.value {
+
+                for key in dailyMessages.keys {
+
+                    if let messages = dailyMessages[key],
+                       let messageIndex = messages.firstIndex(where: messageContainsAnswer),
+                       let answerMessageIndex = messages[messageIndex].answers?.firstIndex(where: isAnswerMessage) {
+
                         viewModel.dailyMessages.value?[key]?[messageIndex].answers?[answerMessageIndex] = newAnswerMessage
-                        return
+                        break
                     }
                 }
             }
@@ -210,25 +235,39 @@ private struct MessageCellWrapper: View {
     }
 
     var body: some View {
-        MessageCell(viewModel: viewModel,
-                    message: answerMessageBinding,
-                    conversationPath: nil,
-                    showHeader: showHeader)
+        MessageCell(
+            viewModel: viewModel,
+            message: answerMessageBinding,
+            conversationPath: nil,
+            isHeaderVisible: isHeaderVisible)
     }
 }
 
 #Preview {
     MessageDetailView(
-        viewModel: ConversationViewModel.init(
+        viewModel: ConversationViewModel(
             courseId: 1,
             conversationId: 1),
         message: Binding<DataState<BaseMessage>>.constant(
             DataState<BaseMessage>.done(response: {
+                let now = Date.now
+
                 var author = ConversationUser(id: 1)
                 author.name = "Alice"
                 var message = Message(id: 1)
                 message.author = author
+                message.creationDate = now
                 message.content = "Hi, Bob!"
+                message.answers = [
+                    {
+                        var author = ConversationUser(id: 2)
+                        author.name = "Bob"
+                        var answer = AnswerMessage(id: 2)
+                        answer.author = author
+                        answer.content = "How are you?"
+                        return answer
+                    }()
+                ]
                 return message
             }())))
 }
