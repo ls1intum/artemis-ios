@@ -178,17 +178,12 @@ private struct MessageCellWrapper: View {
 
     private var answerMessageBinding: Binding<DataState<BaseMessage>> {
 
-        let messageContainsAnswer = { (message: Message) -> Bool in
-            message.answers?.contains {
-                $0.id == self.answerMessage.id
-            } ?? false
-        }
         let isAnswerMessage = { (answer: AnswerMessage) -> Bool in
             answer.id == self.answerMessage.id
         }
-
-        #warning("Constant")
-        return Binding.constant(.done(response: answerMessage))
+        let messageContainsAnswer = { (message: Message) -> Bool in
+            message.answers?.contains(where: isAnswerMessage) ?? false
+        }
 
         return Binding(get: {
             if let dailyMessages = viewModel.dailyMessages.value {
@@ -235,31 +230,148 @@ private struct MessageCellWrapper: View {
 }
 
 #Preview {
-    MessageDetailView(
-        viewModel: ConversationViewModel(
-            courseId: 1,
-            conversationId: 1),
-        message: Binding<DataState<BaseMessage>>.constant(
-            DataState<BaseMessage>.done(response: {
-                let now = Date.now
+    {
+        let now = Date.now
 
-                var author = ConversationUser(id: 1)
-                author.name = "Alice"
-                var message = Message(id: 1)
-                message.author = author
-                message.creationDate = now
-                message.content = "Hi, Bob!"
-                message.answers = [
-                    {
-                        var author = ConversationUser(id: 2)
-                        author.name = "Bob"
-                        var answer = AnswerMessage(id: 2)
-                        answer.author = author
-                        answer.creationDate = Calendar.current.date(byAdding: .minute, value: 1, to: now)
-                        answer.content = "How are you?"
-                        return answer
-                    }()
-                ]
-                return message
-            }())))
+        let answer: AnswerMessage = {
+            var author = ConversationUser(id: 2)
+            author.name = "Bob"
+            var answer = AnswerMessage(id: 2)
+            answer.author = author
+            answer.creationDate = Calendar.current.date(byAdding: .minute, value: 1, to: now)
+            answer.content = "How are you?"
+            return answer
+        }()
+
+        let message: Message = {
+            var author = ConversationUser(id: 1)
+            author.name = "Alice"
+            var message = Message(id: 1)
+            message.author = author
+            message.creationDate = now
+            message.content = "Hi, Bob!"
+            message.answers = [answer]
+            return message
+        }()
+
+        let messagesService = MockMessagesService(messages: [message])
+        let viewModel: ConversationViewModel = {
+            let viewModel = ConversationViewModel(
+                courseId: 1,
+                conversationId: 1,
+                messagesService: messagesService)
+            #warning("Help")
+            viewModel.dailyMessages = .done(response: [.now: [message]])
+            return viewModel
+        }()
+
+        return MessageDetailView(
+            viewModel: viewModel,
+            message: Binding<DataState<BaseMessage>>.constant(
+                DataState<BaseMessage>.done(response: message)))
+    }()
+}
+
+private struct MockMessagesService: MessagesService {
+    let messages: [Message]
+
+    func getConversations(for courseId: Int) async -> Common.DataState<[SharedModels.Conversation]> {
+        .loading
+    }
+
+    func hideUnhideConversation(for courseId: Int, and conversationId: Int64, isHidden: Bool) async -> Common.NetworkResponse {
+        .loading
+    }
+
+    func setIsFavoriteConversation(for courseId: Int, and conversationId: Int64, isFavorite: Bool) async -> Common.NetworkResponse {
+        .loading
+    }
+
+    func getMessages(for courseId: Int, and conversationId: Int64, size: Int) async -> Common.DataState<[SharedModels.Message]> {
+        .done(response: messages)
+    }
+
+    func sendMessage(for courseId: Int, conversation: SharedModels.Conversation, content: String) async -> Common.NetworkResponse {
+        .loading
+    }
+
+    func sendAnswerMessage(for courseId: Int, message: SharedModels.Message, content: String) async -> Common.NetworkResponse {
+        .loading
+    }
+
+    func deleteMessage(for courseId: Int, messageId: Int64) async -> Common.NetworkResponse {
+        .loading
+    }
+
+    func deleteAnswerMessage(for courseId: Int, anserMessageId: Int64) async -> Common.NetworkResponse {
+        .loading
+    }
+
+    func editMessage(for courseId: Int, message: SharedModels.Message) async -> Common.NetworkResponse {
+        .loading
+    }
+
+    func editAnswerMessage(for courseId: Int, answerMessage: SharedModels.AnswerMessage) async -> Common.NetworkResponse {
+        .loading
+    }
+
+    func addReactionToAnswerMessage(for courseId: Int, answerMessage: SharedModels.AnswerMessage, emojiId: String) async -> Common.NetworkResponse {
+        .loading
+    }
+
+    func addReactionToMessage(for courseId: Int, message: SharedModels.Message, emojiId: String) async -> Common.NetworkResponse {
+        .loading
+    }
+
+    func removeReactionFromMessage(for courseId: Int, reaction: SharedModels.Reaction) async -> Common.NetworkResponse {
+        .loading
+    }
+
+    func getChannelsOverview(for courseId: Int) async -> Common.DataState<[SharedModels.Channel]> {
+        .loading
+    }
+
+    func addMembersToChannel(for courseId: Int, channelId: Int64, usernames: [String]) async -> Common.NetworkResponse {
+        .loading
+    }
+
+    func removeMembersFromChannel(for courseId: Int, channelId: Int64, usernames: [String]) async -> Common.NetworkResponse {
+        .loading
+    }
+
+    func addMembersToGroupChat(for courseId: Int, groupChatId: Int64, usernames: [String]) async -> Common.NetworkResponse {
+        .loading
+    }
+
+    func removeMembersFromGroupChat(for courseId: Int, groupChatId: Int64, usernames: [String]) async -> Common.NetworkResponse {
+        .loading
+    }
+
+    func createChannel(for courseId: Int, name: String, description: String?, isPrivate: Bool, isAnnouncement: Bool) async -> Common.DataState<SharedModels.Channel> {
+        .loading
+    }
+
+    func searchForUsers(for courseId: Int, searchText: String) async -> Common.DataState<[SharedModels.ConversationUser]> {
+        .loading
+    }
+
+    func createGroupChat(for courseId: Int, usernames: [String]) async -> Common.DataState<SharedModels.GroupChat> {
+        .loading
+    }
+
+    func createOneToOneChat(for courseId: Int, usernames: [String]) async -> Common.DataState<SharedModels.OneToOneChat> {
+        .loading
+    }
+
+    func getMembersOfConversation(for courseId: Int, conversationId: Int64, page: Int) async -> Common.DataState<[SharedModels.ConversationUser]> {
+        .loading
+    }
+
+    func archiveChannel(for courseId: Int, channelId: Int64) async -> Common.NetworkResponse {
+        .loading
+    }
+
+    func unarchiveChannel(for courseId: Int, channelId: Int64) async -> Common.NetworkResponse {
+        .loading
+    }
 }
