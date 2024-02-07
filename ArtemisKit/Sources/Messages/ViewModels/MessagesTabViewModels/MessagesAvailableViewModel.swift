@@ -51,7 +51,9 @@ class MessagesAvailableViewModel: BaseViewModel {
         let stream = ArtemisStompClient.shared.subscribe(to: topic)
 
         for await message in stream {
-            guard let conversationWebsocketDTO = JSONDecoder.getTypeFromSocketMessage(type: ConversationWebsocketDTO.self, message: message) else { continue }
+            guard let conversationWebsocketDTO = JSONDecoder.getTypeFromSocketMessage(type: ConversationWebsocketDTO.self, message: message) else {
+                continue
+            }
             onConversationMembershipMessageReceived(conversationWebsocketDTO: conversationWebsocketDTO)
         }
     }
