@@ -12,9 +12,6 @@ import Navigation
 import SharedModels
 import SwiftUI
 
-// swiftlint:disable:next identifier_name
-private let MAX_MINUTES_FOR_GROUPING_MESSAGES = 5
-
 public struct MessageDetailView: View {
 
     @ObservedObject var viewModel: ConversationViewModel
@@ -133,7 +130,7 @@ private extension MessageDetailView {
                     $0.creationDate ?? .tomorrow < $1.creationDate ?? .yesterday
                 }
                 ForEach(Array(sortedArray.enumerated()), id: \.1) { index, answerMessage in
-                    let showHeader = index == 0 || shouldShowHeader(message: answerMessage, previousMessage: sortedArray[index - 1])
+                    let showHeader = index == 0 || !answerMessage.isContinuation(of: sortedArray[index - 1])
                     MessageCellWrapper(
                         viewModel: viewModel,
                         answerMessage: answerMessage,
@@ -169,12 +166,6 @@ private extension MessageDetailView {
             message = .done(response: response)
             viewRerenderWorkaround.toggle()
         }
-    }
-
-    // The header is not visible if the same person messages multiple times within 5 minutes.
-    func shouldShowHeader(message: AnswerMessage, previousMessage: AnswerMessage) -> Bool {
-        !(message.author == previousMessage.author &&
-          message.creationDate ?? .now < (previousMessage.creationDate ?? .yesterday).addingTimeInterval(TimeInterval(MAX_MINUTES_FOR_GROUPING_MESSAGES * 60)))
     }
 }
 
