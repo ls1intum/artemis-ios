@@ -47,7 +47,7 @@ class MessagesAvailableViewModel: BaseViewModel {
             return
         }
 
-        let topic = "/user/topic/metis/courses/\(courseId)/conversations/user/\(userId)"
+        let topic = "/topic/metis/courses/\(courseId)/conversations/user/\(userId)"
         let stream = ArtemisStompClient.shared.subscribe(to: topic)
 
         for await message in stream {
@@ -145,7 +145,7 @@ class MessagesAvailableViewModel: BaseViewModel {
 // MARK: Functions to handle new conversation received socket
 extension MessagesAvailableViewModel {
     private func onConversationMembershipMessageReceived(conversationWebsocketDTO: ConversationWebsocketDTO) {
-        switch conversationWebsocketDTO.metisCrudAction {
+        switch conversationWebsocketDTO.action {
         case .create, .update:
             handleUpdateOrCreate(updatedOrNewConversation: conversationWebsocketDTO.conversation)
         case .delete:

@@ -17,5 +17,5 @@ enum MetisPostAction: String, RawRepresentable, Codable {
 
 struct ConversationWebsocketDTO: Codable {
     let conversation: Conversation
-    let metisCrudAction: MetisPostAction
+    let action: MetisPostAction
 }
