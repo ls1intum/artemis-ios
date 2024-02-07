@@ -14,7 +14,7 @@ import UserStore
 
 // swiftlint:disable file_length
 @MainActor
-public class ConversationViewModel: BaseViewModel {
+class ConversationViewModel: BaseViewModel {
 
     @Published var dailyMessages: DataState<[Date: [Message]]> = .loading
     @Published var conversation: DataState<Conversation> = .loading
@@ -29,31 +29,42 @@ public class ConversationViewModel: BaseViewModel {
     private var size = 50
 
     private let artemisStompClient = ArtemisStompClient.shared
-    private let courseService: CourseService = CourseServiceFactory.shared
-    private let messagesService: MessagesService = MessagesServiceFactory.shared
+    private let courseService: CourseService
+    private let messagesService: MessagesService
     private let userSession = UserSession.shared
 
-    public init(
+    init(
         course: Course,
-        conversation: Conversation
-//        courseService: CourseService = CourseServiceFactory.shared,
-//        messagesService: MessagesService = MessagesServiceFactory.shared
+        conversation: Conversation,
+        courseService: CourseService = CourseServiceFactory.shared,
+        messagesService: MessagesService = MessagesServiceFactory.shared
     ) {
         self._course = Published(wrappedValue: .done(response: course))
         self.courseId = course.id
         self._conversation = Published(wrappedValue: .done(response: conversation))
         self.conversationId = conversation.id
 
+        self.courseService = courseService
+        self.messagesService = messagesService
+
         super.init()
 
         subscribeToConversationTopic()
     }
 
-    public init(courseId: Int, conversationId: Int64) {
+    init(
+        courseId: Int,
+        conversationId: Int64,
+        courseService: CourseService = CourseServiceFactory.shared,
+        messagesService: MessagesService = MessagesServiceFactory.shared
+    ) {
         self.courseId = courseId
         self.conversationId = conversationId
         self._conversation = Published(wrappedValue: .loading)
         self._course = Published(wrappedValue: .loading)
+
+        self.courseService = courseService
+        self.messagesService = messagesService
 
         super.init()
 
@@ -93,13 +104,15 @@ public class ConversationViewModel: BaseViewModel {
         case .done(let response):
             var dailyMessages: [Date: [Message]] = [:]
 
-            response.forEach { message in
+            for message in response {
                 if let date = message.creationDate?.startOfDay {
                     if dailyMessages[date] == nil {
                         dailyMessages[date] = [message]
                     } else {
                         dailyMessages[date]?.append(message)
-                        dailyMessages[date] = dailyMessages[date]?.sorted(by: { $0.creationDate! < $1.creationDate! })
+                        dailyMessages[date] = dailyMessages[date]?.sorted {
+                            $0.creationDate! < $1.creationDate!
+                        }
                     }
                 }
             }

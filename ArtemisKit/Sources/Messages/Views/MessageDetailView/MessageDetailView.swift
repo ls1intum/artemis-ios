@@ -12,7 +12,7 @@ import Navigation
 import SharedModels
 import SwiftUI
 
-public struct MessageDetailView: View {
+struct MessageDetailView: View {
 
     @ObservedObject var viewModel: ConversationViewModel
     @Binding private var message: DataState<BaseMessage>
@@ -24,13 +24,13 @@ public struct MessageDetailView: View {
 
     @State private var internalMessage: BaseMessage?
 
-    public init(viewModel: ConversationViewModel, message: Binding<DataState<BaseMessage>>) {
+    init(viewModel: ConversationViewModel, message: Binding<DataState<BaseMessage>>) {
         self.viewModel = viewModel
         self.messageId = message.wrappedValue.value?.id
         self._message = message
     }
 
-    public init(viewModel: ConversationViewModel, messageId: Int64) {
+    init(viewModel: ConversationViewModel, messageId: Int64) {
         self.viewModel = viewModel
         self.messageId = messageId
         self._message = Binding(get: { .loading }, set: { _ in return })
@@ -48,7 +48,7 @@ public struct MessageDetailView: View {
         })
     }
 
-    public var body: some View {
+    var body: some View {
         DataStateView(data: $message) {
             await reloadMessage()
         } content: { message in
@@ -255,6 +255,7 @@ private struct MessageCellWrapper: View {
                         author.name = "Bob"
                         var answer = AnswerMessage(id: 2)
                         answer.author = author
+                        answer.creationDate = Calendar.current.date(byAdding: .minute, value: 1, to: now)
                         answer.content = "How are you?"
                         return answer
                     }()
