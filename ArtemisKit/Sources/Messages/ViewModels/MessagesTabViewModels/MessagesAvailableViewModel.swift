@@ -47,7 +47,7 @@ class MessagesAvailableViewModel: BaseViewModel {
             return
         }
 
-        let topic = "/topic/metis/courses/\(courseId)/conversations/user/\(userId)"
+        let topic = "/user/topic/metis/courses/\(courseId)/conversations/user/\(userId)"
         let stream = ArtemisStompClient.shared.subscribe(to: topic)
 
         for await message in stream {
