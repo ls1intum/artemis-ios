@@ -348,9 +348,11 @@ private extension ConversationViewModel {
     func subscribeToConversationTopic() {
         let topic: String
         if conversation.value?.baseConversation.type == .channel {
-            topic = "/topic/metis/courses/\(courseId)"
+            // Writing in #random
+            topic = "/topic/metis/courses/\(courseId)" // not /user
         } else if let id = UserSession.shared.user?.id {
-            topic = "/topic/user/\(id)/notifications/conversations"
+            // Writing in group chat
+            topic = "/topic/user/\(id)/notifications/conversations" // not /user, but .notification?
         } else {
             return
         }
