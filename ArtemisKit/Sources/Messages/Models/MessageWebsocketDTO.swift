@@ -13,6 +13,5 @@ struct MessageWebsocketDTO: Codable {
     let notification: Notification?
 }
 
-struct Notification: Codable {
-    let id: Int
-}
+// Used in the web client's notification service.
+struct Notification: Codable {}

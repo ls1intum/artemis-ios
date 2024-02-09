@@ -6,14 +6,14 @@
 //
 
 enum WebSocketTopic {
-    /// `makeChannelNotifications` makes a topic for notifications through course-wide channels.
+    /// Makes a topic for notifications through course-wide channels.
     ///
     /// E.g., notifications for writing in a channel.
     static func makeChannelNotifications(courseId: Int) -> String {
         "/topic/metis/courses/\(courseId)"
     }
 
-    /// `makeConversationNotifications` makes a topic for conversation notifications of a user.
+    /// Makes a topic for conversation notifications of a user.
     ///
     /// E.g., notifications for writing in a group chat.
     static func makeConversationNotifications(userId: Int64) -> String {
@@ -22,7 +22,7 @@ enum WebSocketTopic {
 
     // MARK: - User space
 
-    /// `makeConversationMembershipNotifications` makes a topic for membership notifications of a user in a course.
+    /// Makes a topic for membership notifications of a user in a course.
     ///
     /// E.g., notifications for starting a group chat.
     static func makeConversationMembershipNotifications(courseId: Int, userId: Int64) -> String {
