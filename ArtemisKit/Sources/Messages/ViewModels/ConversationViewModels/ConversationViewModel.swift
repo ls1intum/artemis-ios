@@ -371,9 +371,9 @@ private extension ConversationViewModel {
     func subscribeToConversationTopic() {
         let topic: String
         if conversation.value?.baseConversation.type == .channel {
-            topic = "/topic/metis/courses/\(courseId)"
-        } else if let id = userSession.user?.id {
-            topic = "/topic/user/\(id)/notifications/conversations"
+            topic = WebSocketTopic.makeChannelNotifications(courseId: courseId)
+        } else if let id = UserSession.shared.user?.id {
+            topic = WebSocketTopic.makeConversationNotifications(userId: id)
         } else {
             return
         }
