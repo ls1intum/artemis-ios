@@ -68,8 +68,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/mac-cain13/R.swift.git",
       "state" : {
-        "revision" : "a76220f2c4b73bdda670f4a318c6ec983399ac6d",
-        "version" : "7.4.0"
+        "revision" : "384eab88d1a0b98ac96f4819e50a4308ecd5359f",
+        "version" : "7.5.0"
       }
     },
     {
