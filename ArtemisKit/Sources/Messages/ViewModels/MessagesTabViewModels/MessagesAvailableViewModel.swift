@@ -22,8 +22,6 @@ class MessagesAvailableViewModel: BaseViewModel {
 
     @Published var favoriteConversations: DataState<[Conversation]> = .loading
 
-    @Published var hiddenConversations: DataState<[Conversation]> = .loading
-
     @Published var channels: DataState<[Channel]> = .loading
     @Published var exercises: DataState<[Channel]> = .loading
     @Published var lectures: DataState<[Channel]> = .loading
@@ -31,24 +29,39 @@ class MessagesAvailableViewModel: BaseViewModel {
     @Published var groupChats: DataState<[GroupChat]> = .loading
     @Published var oneToOneChats: DataState<[OneToOneChat]> = .loading
 
+    @Published var hiddenConversations: DataState<[Conversation]> = .loading
+
     let course: Course
     let courseId: Int
 
-    init(course: Course) {
+    private let messagesService: MessagesService
+    private let stompClient: ArtemisStompClient
+    private let userSession: UserSession
+
+    init(
+        course: Course,
+        messagesService: MessagesService = MessagesServiceFactory.shared,
+        stompClient: ArtemisStompClient = ArtemisStompClient.shared,
+        userSession: UserSession = UserSession.shared
+    ) {
         self.course = course
         self.courseId = course.id
+
+        self.messagesService = messagesService
+        self.stompClient = stompClient
+        self.userSession = userSession
 
         super.init()
     }
 
     func subscribeToConversationMembershipTopic() async {
-        guard let userId = UserSession.shared.user?.id else {
+        guard let userId = userSession.user?.id else {
             log.debug("User could not be found. Subscribe to Conversation not possible")
             return
         }
 
         let topic = WebSocketTopic.makeConversationMembershipNotifications(courseId: courseId, userId: userId)
-        let stream = ArtemisStompClient.shared.subscribe(to: topic)
+        let stream = stompClient.subscribe(to: topic)
 
         for await message in stream {
             guard let conversationWebsocketDTO = JSONDecoder.getTypeFromSocketMessage(type: ConversationWebsocketDTO.self, message: message) else {
@@ -59,13 +72,13 @@ class MessagesAvailableViewModel: BaseViewModel {
     }
 
     func loadConversations() async {
-        let result = await MessagesServiceFactory.shared.getConversations(for: courseId)
+        let result = await messagesService.getConversations(for: courseId)
         allConversations = result
     }
 
     func setIsConversationFavorite(conversationId: Int64, isFavorite: Bool) async {
         isLoading = true
-        let result = await MessagesServiceFactory.shared.updateIsConversationFavorite(for: courseId, and: conversationId, isFavorite: isFavorite)
+        let result = await messagesService.updateIsConversationFavorite(for: courseId, and: conversationId, isFavorite: isFavorite)
         switch result {
         case .notStarted, .loading:
             isLoading = false
@@ -84,7 +97,7 @@ class MessagesAvailableViewModel: BaseViewModel {
 
     func setIsConversationMuted(conversationId: Int64, isMuted: Bool) async {
         isLoading = true
-        let result = await MessagesServiceFactory.shared.updateIsConversationMuted(for: courseId, and: conversationId, isMuted: isMuted)
+        let result = await messagesService.updateIsConversationMuted(for: courseId, and: conversationId, isMuted: isMuted)
         switch result {
         case .notStarted, .loading:
             isLoading = false
@@ -103,7 +116,7 @@ class MessagesAvailableViewModel: BaseViewModel {
 
     func setConversationIsHidden(conversationId: Int64, isHidden: Bool) async {
         isLoading = true
-        let result = await MessagesServiceFactory.shared.updateIsConversationHidden(for: courseId, and: conversationId, isHidden: isHidden)
+        let result = await messagesService.updateIsConversationHidden(for: courseId, and: conversationId, isHidden: isHidden)
         switch result {
         case .notStarted, .loading:
             isLoading = false
@@ -145,20 +158,43 @@ class MessagesAvailableViewModel: BaseViewModel {
             groupChats = .failure(error: error)
             oneToOneChats = .failure(error: error)
         case .done(let response):
-            hiddenConversations = .done(response: response.filter { $0.baseConversation.isHidden ?? false })
+            let notHiddenConversations = response.filter {
+                !($0.baseConversation.isHidden ?? false)
+            }
 
-            let notHiddenConversations = response.filter { !($0.baseConversation.isHidden ?? false) }
+            favoriteConversations = .done(response: notHiddenConversations
+                .filter { $0.baseConversation.isFavorite ?? false }
+            )
 
-            favoriteConversations = .done(response: notHiddenConversations.filter { $0.baseConversation.isFavorite ?? false })
+            let notHiddenNotFavoriteConversations = notHiddenConversations.filter {
+                !($0.baseConversation.isFavorite ?? false)
+            }
 
-            let notHiddenNotFavoriteConversations = notHiddenConversations.filter { !($0.baseConversation.isFavorite ?? false) }
-
-            channels = .done(response: notHiddenNotFavoriteConversations.compactMap({ $0.baseConversation as? Channel }).filter({ ($0.subType ?? .general) == .general }))
-            exercises = .done(response: notHiddenNotFavoriteConversations.compactMap({ $0.baseConversation as? Channel }).filter({ ($0.subType ?? .general) == .exercise }))
-            lectures = .done(response: notHiddenNotFavoriteConversations.compactMap({ $0.baseConversation as? Channel }).filter({ ($0.subType ?? .general) == .lecture }))
-            exams = .done(response: notHiddenNotFavoriteConversations.compactMap({ $0.baseConversation as? Channel }).filter({ ($0.subType ?? .general) == .exam }))
-            groupChats = .done(response: notHiddenNotFavoriteConversations.compactMap({ $0.baseConversation as? GroupChat }))
-            oneToOneChats = .done(response: notHiddenNotFavoriteConversations.compactMap({ $0.baseConversation as? OneToOneChat }))
+            channels = .done(response: notHiddenNotFavoriteConversations
+                .compactMap { $0.baseConversation as? Channel }
+                .filter { ($0.subType ?? .general) == .general }
+            )
+            exercises = .done(response: notHiddenNotFavoriteConversations
+                .compactMap { $0.baseConversation as? Channel }
+                .filter { ($0.subType ?? .general) == .exercise }
+            )
+            lectures = .done(response: notHiddenNotFavoriteConversations
+                .compactMap { $0.baseConversation as? Channel }
+                .filter { ($0.subType ?? .general) == .lecture }
+            )
+            exams = .done(response: notHiddenNotFavoriteConversations
+                .compactMap { $0.baseConversation as? Channel }
+                .filter { ($0.subType ?? .general) == .exam }
+            )
+            groupChats = .done(response: notHiddenNotFavoriteConversations
+                .compactMap { $0.baseConversation as? GroupChat }
+            )
+            oneToOneChats = .done(response: notHiddenNotFavoriteConversations
+                .compactMap { $0.baseConversation as? OneToOneChat }
+            )
+            hiddenConversations = .done(response: response
+                .filter { $0.baseConversation.isHidden ?? false }
+            )
         }
     }
 }
