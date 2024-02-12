@@ -183,8 +183,8 @@ private struct MixedMessageSection: View {
         } content: { conversations in
             if !conversations.isEmpty {
                 DisclosureGroup(isExpanded: $isExpanded) {
-                    ForEach(conversations
-                        .filter { !($0.baseConversation.isMuted ?? false) }
+                    ForEach(
+                        conversations.filter { !($0.baseConversation.isMuted ?? false) }
                     ) { conversation in
                         if let channel = conversation.baseConversation as? Channel {
                             ConversationRow(viewModel: viewModel, conversation: channel)
@@ -322,10 +322,16 @@ private struct MessageSection<T: BaseConversation>: View {
             DataStateView(data: $conversations) {
                 await viewModel.loadConversations()
             } content: { conversations in
-                ForEach(conversations.filter({ !($0.isMuted ?? false) }), id: \.id) { conversation in
+                ForEach(
+                    conversations.filter { !($0.isMuted ?? false) },
+                    id: \.id
+                ) { conversation in
                     ConversationRow(viewModel: viewModel, conversation: conversation)
                 }
-                ForEach(conversations.filter({ $0.isMuted ?? false }), id: \.id) { conversation in
+                ForEach(
+                    conversations.filter { $0.isMuted ?? false },
+                    id: \.id
+                ) { conversation in
                     ConversationRow(viewModel: viewModel, conversation: conversation)
                 }
             }
