@@ -34,42 +34,14 @@ class MessagesServiceImpl: MessagesService {
         let result = await client.sendRequest(GetConversationsRequest(courseId: courseId))
 
         switch result {
-        case .success((let conversations, _)):
+        case let .success((conversations, _)):
             return .done(response: conversations)
-        case .failure(let error):
+        case let .failure(error):
             return DataState(error: error)
         }
     }
 
-    struct HideUnhideConversationRequest: APIRequest {
-        typealias Response = RawResponse
-
-        let courseId: Int
-        let conversationId: Int64
-        let isHidden: Bool
-
-        var method: HTTPMethod {
-            return .post
-        }
-
-        var resourceName: String {
-            return "api/courses/\(courseId)/conversations/\(conversationId)/hidden?isHidden=\(isHidden)"
-        }
-    }
-
-    func hideUnhideConversation(for courseId: Int, and conversationId: Int64, isHidden: Bool) async -> NetworkResponse {
-        let result = await client.sendRequest(HideUnhideConversationRequest(courseId: courseId,
-                                                                            conversationId: conversationId,
-                                                                            isHidden: isHidden))
-        switch result {
-        case .success:
-            return .success
-        case .failure(let error):
-            return .failure(error: error)
-        }
-    }
-
-    struct SetIsFavoriteConversationRequest: APIRequest {
+    struct UpdateIsConversationFavoriteRequest: APIRequest {
         typealias Response = RawResponse
 
         let courseId: Int
@@ -85,14 +57,73 @@ class MessagesServiceImpl: MessagesService {
         }
     }
 
-    func setIsFavoriteConversation(for courseId: Int, and conversationId: Int64, isFavorite: Bool) async -> NetworkResponse {
-        let result = await client.sendRequest(SetIsFavoriteConversationRequest(courseId: courseId,
-                                                                               conversationId: conversationId,
-                                                                               isFavorite: isFavorite))
+    func updateIsConversationFavorite(for courseId: Int, and conversationId: Int64, isFavorite: Bool) async -> NetworkResponse {
+        let result = await client.sendRequest(
+            UpdateIsConversationFavoriteRequest(courseId: courseId, conversationId: conversationId, isFavorite: isFavorite)
+        )
+
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
+            return .failure(error: error)
+        }
+    }
+
+    struct UpdateIsConversationMutedRequest: APIRequest {
+        typealias Response = RawResponse
+
+        let courseId: Int
+        let conversationId: Int64
+        let isMuted: Bool
+
+        var method: HTTPMethod {
+            return .post
+        }
+
+        var resourceName: String {
+            return "api/courses/\(courseId)/conversations/\(conversationId)/muted?isMuted=\(isMuted)"
+        }
+    }
+
+    func updateIsConversationMuted(for courseId: Int, and conversationId: Int64, isMuted: Bool) async -> NetworkResponse {
+        let result = await client.sendRequest(
+            UpdateIsConversationMutedRequest(courseId: courseId, conversationId: conversationId, isMuted: isMuted)
+        )
+
+        switch result {
+        case .success:
+            return .success
+        case let .failure(error):
+            return .failure(error: error)
+        }
+    }
+
+    struct UpdateIsConversationHiddenRequest: APIRequest {
+        typealias Response = RawResponse
+
+        let courseId: Int
+        let conversationId: Int64
+        let isHidden: Bool
+
+        var method: HTTPMethod {
+            return .post
+        }
+
+        var resourceName: String {
+            return "api/courses/\(courseId)/conversations/\(conversationId)/hidden?isHidden=\(isHidden)"
+        }
+    }
+
+    func updateIsConversationHidden(for courseId: Int, and conversationId: Int64, isHidden: Bool) async -> NetworkResponse {
+        let result = await client.sendRequest(
+            UpdateIsConversationHiddenRequest(courseId: courseId, conversationId: conversationId, isHidden: isHidden)
+        )
+
+        switch result {
+        case .success:
+            return .success
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -117,9 +148,9 @@ class MessagesServiceImpl: MessagesService {
         let result = await client.sendRequest(GetMessagesRequest(courseId: courseId, conversationId: conversationId, size: size))
 
         switch result {
-        case .success((let messages, _)):
+        case let .success((messages, _)):
             return .done(response: messages)
-        case .failure(let error):
+        case let .failure(error):
             return DataState(error: error)
         }
     }
@@ -143,16 +174,14 @@ class MessagesServiceImpl: MessagesService {
     }
 
     func sendMessage(for courseId: Int, conversation: Conversation, content: String) async -> NetworkResponse {
-        let result = await client.sendRequest(SendMessageRequest(courseId: courseId,
-                                                                 visibleForStudents: true,
-                                                                 displayPriority: .noInformation,
-                                                                 conversation: conversation,
-                                                                 content: content))
+        let result = await client.sendRequest(
+            SendMessageRequest(courseId: courseId, visibleForStudents: true, displayPriority: .noInformation, conversation: conversation, content: content)
+        )
 
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -175,15 +204,14 @@ class MessagesServiceImpl: MessagesService {
     }
 
     func sendAnswerMessage(for courseId: Int, message: Message, content: String) async -> NetworkResponse {
-        let result = await client.sendRequest(SendAnswerMessageRequest(resolvesPost: false,
-                                                                       content: content,
-                                                                       post: message,
-                                                                       courseId: courseId))
+        let result = await client.sendRequest(
+            SendAnswerMessageRequest(resolvesPost: false, content: content, post: message, courseId: courseId)
+        )
 
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -209,7 +237,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -235,7 +263,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -265,7 +293,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -295,7 +323,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -317,14 +345,14 @@ class MessagesServiceImpl: MessagesService {
     }
 
     func addReactionToAnswerMessage(for courseId: Int, answerMessage: AnswerMessage, emojiId: String) async -> NetworkResponse {
-        let result = await client.sendRequest(AddReactionToAnswerMessageRequest(emojiId: emojiId,
-                                                                                answerPost: answerMessage,
-                                                                                courseId: courseId))
+        let result = await client.sendRequest(
+            AddReactionToAnswerMessageRequest(emojiId: emojiId, answerPost: answerMessage, courseId: courseId)
+        )
 
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -346,14 +374,14 @@ class MessagesServiceImpl: MessagesService {
     }
 
     func addReactionToMessage(for courseId: Int, message: Message, emojiId: String) async -> NetworkResponse {
-        let result = await client.sendRequest(AddReactionToMessageRequest(emojiId: emojiId,
-                                                                          post: message,
-                                                                          courseId: courseId))
+        let result = await client.sendRequest(
+            AddReactionToMessageRequest(emojiId: emojiId, post: message, courseId: courseId)
+        )
 
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -379,7 +407,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -402,9 +430,9 @@ class MessagesServiceImpl: MessagesService {
         let result = await client.sendRequest(GetChannelsOverviewRequest(courseId: courseId))
 
         switch result {
-        case .success((let channels, _)):
+        case let .success((channels, _)):
             return .done(response: channels)
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: UserFacingError(error: error))
         }
     }
@@ -435,7 +463,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -466,7 +494,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -497,7 +525,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -528,7 +556,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -553,16 +581,14 @@ class MessagesServiceImpl: MessagesService {
     }
 
     func createChannel(for courseId: Int, name: String, description: String?, isPrivate: Bool, isAnnouncement: Bool) async -> DataState<Channel> {
-        let result = await client.sendRequest(CreateChannelRequest(courseId: courseId,
-                                                                   name: name,
-                                                                   description: description,
-                                                                   isPublic: !isPrivate,
-                                                                   isAnnouncementChannel: isAnnouncement))
+        let result = await client.sendRequest(
+            CreateChannelRequest(courseId: courseId, name: name, description: description, isPublic: !isPrivate, isAnnouncementChannel: isAnnouncement)
+        )
 
         switch result {
-        case .success((let channel, _)):
+        case let .success((channel, _)):
             return .done(response: channel)
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: UserFacingError(error: error))
         }
     }
@@ -586,9 +612,9 @@ class MessagesServiceImpl: MessagesService {
         let result = await client.sendRequest(SearchForUsersRequest(courseId: courseId, searchText: searchText))
 
         switch result {
-        case .success((let users, _)):
+        case let .success((users, _)):
             return .done(response: users)
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: UserFacingError(error: error))
         }
     }
@@ -616,9 +642,9 @@ class MessagesServiceImpl: MessagesService {
         let result = await client.sendRequest(CreateGroupChatRequest(courseId: courseId, usernames: usernames))
 
         switch result {
-        case .success((let groupChat, _)):
+        case let .success((groupChat, _)):
             return .done(response: groupChat)
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: UserFacingError(error: error))
         }
     }
@@ -646,9 +672,9 @@ class MessagesServiceImpl: MessagesService {
         let result = await client.sendRequest(CreateOneToOneChatRequest(courseId: courseId, usernames: usernames))
 
         switch result {
-        case .success((let oneToOneChat, _)):
+        case let .success((oneToOneChat, _)):
             return .done(response: oneToOneChat)
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: UserFacingError(error: error))
         }
     }
@@ -671,15 +697,14 @@ class MessagesServiceImpl: MessagesService {
     }
 
     func getMembersOfConversation(for courseId: Int, conversationId: Int64, page: Int) async -> DataState<[ConversationUser]> {
-        let result = await client.sendRequest(GetMembersOfConversationRequest(courseId: courseId,
-                                                                              conversationId: conversationId,
-                                                                              searchText: nil,
-                                                                              page: page))
+        let result = await client.sendRequest(
+            GetMembersOfConversationRequest(courseId: courseId, conversationId: conversationId, searchText: nil, page: page)
+        )
 
         switch result {
-        case .success((let users, _)):
+        case let .success((users, _)):
             return .done(response: users)
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: UserFacingError(error: error))
         }
     }
@@ -705,7 +730,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -731,7 +756,7 @@ class MessagesServiceImpl: MessagesService {
         switch result {
         case .success:
             return .success
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: error)
         }
     }
@@ -758,20 +783,25 @@ class MessagesServiceImpl: MessagesService {
     }
 
     func editConversation(for courseId: Int, conversation: Conversation, newName: String?, newTopic: String?, newDescription: String?) async -> DataState<Conversation> {
-        guard let typePath = conversation.baseConversation.type.path else { return .failure(error: UserFacingError(title: R.string.localizable.unsupportedConversationType()))}
+        guard let typePath = conversation.baseConversation.type.path else {
+            return .failure(error: UserFacingError(title: R.string.localizable.unsupportedConversationType()))
+        }
 
-        let result = await client.sendRequest(RenameConversationRequest(courseId: courseId,
-                                                                        conversationId: conversation.id,
-                                                                        type: conversation.baseConversation.type,
-                                                                        typePath: typePath,
-                                                                        name: newName,
-                                                                        topic: newTopic,
-                                                                        description: newDescription))
+        let result = await client.sendRequest(
+            RenameConversationRequest(
+                courseId: courseId,
+                conversationId: conversation.id,
+                type: conversation.baseConversation.type,
+                typePath: typePath,
+                name: newName,
+                topic: newTopic,
+                description: newDescription)
+        )
 
         switch result {
-        case .success((let conversation, _)):
+        case let .success((conversation, _)):
             return .done(response: conversation)
-        case .failure(let error):
+        case let .failure(error):
             return .failure(error: UserFacingError(error: error))
         }
     }

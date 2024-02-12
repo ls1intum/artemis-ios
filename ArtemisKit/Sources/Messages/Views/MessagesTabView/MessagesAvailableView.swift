@@ -23,7 +23,9 @@ public struct MessagesAvailableView: View {
         if searchText.isEmpty {
             return []
         }
-        return (viewModel.allConversations.value ?? []).filter { $0.baseConversation.conversationName.lowercased().contains(searchText.lowercased()) }
+        return (viewModel.allConversations.value ?? []).filter {
+            $0.baseConversation.conversationName.lowercased().contains(searchText.lowercased())
+        }
     }
 
     public init(course: Course, searchText: Binding<String>) {
@@ -170,7 +172,9 @@ private struct MixedMessageSection: View {
     }
 
     var sectionUnreadCount: Int {
-        (conversations.value ?? []).reduce(0) { $0 + ($1.baseConversation.unreadMessagesCount ?? 0) }
+        (conversations.value ?? []).reduce(0) {
+            $0 + ($1.baseConversation.unreadMessagesCount ?? 0)
+        }
     }
 
     var body: some View {
@@ -179,7 +183,20 @@ private struct MixedMessageSection: View {
         } content: { conversations in
             if !conversations.isEmpty {
                 DisclosureGroup(isExpanded: $isExpanded) {
-                    ForEach(conversations) { conversation in
+                    ForEach(
+                        conversations.filter { !($0.baseConversation.isMuted ?? false) }
+                    ) { conversation in
+                        if let channel = conversation.baseConversation as? Channel {
+                            ConversationRow(viewModel: viewModel, conversation: channel)
+                        }
+                        if let groupChat = conversation.baseConversation as? GroupChat {
+                            ConversationRow(viewModel: viewModel, conversation: groupChat)
+                        }
+                        if let oneToOneChat = conversation.baseConversation as? OneToOneChat {
+                            ConversationRow(viewModel: viewModel, conversation: oneToOneChat)
+                        }
+                    }
+                    ForEach(conversations.filter({ $0.baseConversation.isMuted ?? false })) { conversation in
                         if let channel = conversation.baseConversation as? Channel {
                             ConversationRow(viewModel: viewModel, conversation: channel)
                         }
@@ -281,7 +298,9 @@ private struct MessageSection<T: BaseConversation>: View {
     var conversationType: ConversationType
 
     var sectionUnreadCount: Int {
-        (conversations.value ?? []).reduce(0) { $0 + ($1.unreadMessagesCount ?? 0) }
+        (conversations.value ?? []).reduce(0) {
+            $0 + ($1.unreadMessagesCount ?? 0)
+        }
     }
 
     init(
@@ -303,7 +322,16 @@ private struct MessageSection<T: BaseConversation>: View {
             DataStateView(data: $conversations) {
                 await viewModel.loadConversations()
             } content: { conversations in
-                ForEach(conversations, id: \.id) { conversation in
+                ForEach(
+                    conversations.filter { !($0.isMuted ?? false) },
+                    id: \.id
+                ) { conversation in
+                    ConversationRow(viewModel: viewModel, conversation: conversation)
+                }
+                ForEach(
+                    conversations.filter { $0.isMuted ?? false },
+                    id: \.id
+                ) { conversation in
                     ConversationRow(viewModel: viewModel, conversation: conversation)
                 }
             }
@@ -314,77 +342,6 @@ private struct MessageSection<T: BaseConversation>: View {
                 sectionUnreadCount: sectionUnreadCount,
                 isUnreadCountVisible: !isExpanded,
                 conversationType: conversationType)
-        }
-    }
-}
-
-private struct ConversationRow<T: BaseConversation>: View {
-
-    @EnvironmentObject var navigationController: NavigationController
-
-    @ObservedObject var viewModel: MessagesAvailableViewModel
-
-    let conversation: T
-
-    var body: some View {
-        Button {
-            // should always be non-optional
-            if let conversation = Conversation(conversation: conversation) {
-                navigationController.path.append(ConversationPath(conversation: conversation, coursePath: CoursePath(course: viewModel.course)))
-            }
-        } label: {
-            HStack {
-                if let icon = conversation.icon {
-                    icon
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: .extraSmallImage, height: .extraSmallImage)
-                }
-                Text(conversation.conversationName)
-                Spacer()
-                if let unreadCount = conversation.unreadMessagesCount {
-                    Badge(count: unreadCount)
-                }
-            }
-            .opacity((conversation.unreadMessagesCount ?? 0) > 0 ? 1 : 0.7)
-            .contextMenu {
-                contextMenuItems
-            }
-        }
-        .listRowSeparator(.hidden)
-    }
-
-    var contextMenuItems: some View {
-        Group {
-            Button((conversation.isHidden ?? false) ? R.string.localizable.show() : R.string.localizable.hide()) {
-                Task(priority: .userInitiated) {
-                    await viewModel.hideUnhideConversation(conversationId: conversation.id, isHidden: !(conversation.isHidden ?? false))
-                }
-            }
-            Button((conversation.isFavorite ?? false) ? R.string.localizable.unfavorite() : R.string.localizable.favorite()) {
-                Task(priority: .userInitiated) {
-                    await viewModel.setIsFavoriteConversation(conversationId: conversation.id, isFavorite: !(conversation.isFavorite ?? false))
-                }
-            }
-        }
-    }
-}
-
-private struct Badge: View {
-    let count: Int
-
-    var body: some View {
-        // swiftlint:disable:next empty_count
-        if count > 0 {
-            Text("\(count)")
-                .font(.body.bold().monospacedDigit())
-                .foregroundColor(.white)
-                .padding(.vertical, 2)
-                .padding(.horizontal, 8)
-                .background {
-                    Capsule()
-                        .fill(.red)
-                }
         }
     }
 }
