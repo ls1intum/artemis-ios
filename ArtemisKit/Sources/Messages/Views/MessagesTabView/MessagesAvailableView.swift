@@ -23,7 +23,9 @@ public struct MessagesAvailableView: View {
         if searchText.isEmpty {
             return []
         }
-        return (viewModel.allConversations.value ?? []).filter { $0.baseConversation.conversationName.lowercased().contains(searchText.lowercased()) }
+        return (viewModel.allConversations.value ?? []).filter {
+            $0.baseConversation.conversationName.lowercased().contains(searchText.lowercased())
+        }
     }
 
     public init(course: Course, searchText: Binding<String>) {
@@ -170,7 +172,9 @@ private struct MixedMessageSection: View {
     }
 
     var sectionUnreadCount: Int {
-        (conversations.value ?? []).reduce(0) { $0 + ($1.baseConversation.unreadMessagesCount ?? 0) }
+        (conversations.value ?? []).reduce(0) {
+            $0 + ($1.baseConversation.unreadMessagesCount ?? 0)
+        }
     }
 
     var body: some View {
@@ -179,7 +183,9 @@ private struct MixedMessageSection: View {
         } content: { conversations in
             if !conversations.isEmpty {
                 DisclosureGroup(isExpanded: $isExpanded) {
-                    ForEach(conversations.filter({ !($0.baseConversation.isMuted ?? false) })) { conversation in
+                    ForEach(conversations
+                        .filter { !($0.baseConversation.isMuted ?? false) }
+                    ) { conversation in
                         if let channel = conversation.baseConversation as? Channel {
                             ConversationRow(viewModel: viewModel, conversation: channel)
                         }
@@ -292,7 +298,9 @@ private struct MessageSection<T: BaseConversation>: View {
     var conversationType: ConversationType
 
     var sectionUnreadCount: Int {
-        (conversations.value ?? []).reduce(0) { $0 + ($1.unreadMessagesCount ?? 0) }
+        (conversations.value ?? []).reduce(0) {
+            $0 + ($1.unreadMessagesCount ?? 0)
+        }
     }
 
     init(
@@ -311,8 +319,9 @@ private struct MessageSection<T: BaseConversation>: View {
 
     var body: some View {
         DisclosureGroup(isExpanded: $isExpanded) {
-            DataStateView(data: $conversations,
-                          retryHandler: { await viewModel.loadConversations() }) { conversations in
+            DataStateView(data: $conversations) {
+                await viewModel.loadConversations()
+            } content: { conversations in
                 ForEach(conversations.filter({ !($0.isMuted ?? false) }), id: \.id) { conversation in
                     ConversationRow(viewModel: viewModel, conversation: conversation)
                 }
