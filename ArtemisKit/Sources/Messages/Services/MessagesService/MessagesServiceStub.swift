@@ -1,5 +1,5 @@
 //
-//  MockMessagesService.swift
+//  MessagesServiceStub.swift
 //
 //
 //  Created by Nityananda Zbil on 14.02.24.
@@ -8,7 +8,7 @@
 import Common
 import SharedModels
 
-struct MockMessagesService: MessagesService {
+struct MessagesServiceStub: MessagesService {
     let messages: [Message]
 
     func getConversations(for courseId: Int) async -> Common.DataState<[SharedModels.Conversation]> {

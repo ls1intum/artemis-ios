@@ -147,43 +147,38 @@ private extension MessageCell {
 }
 
 #Preview {
-    ForEach([
-        "Hi - new",
-        """
-        Hello, world!
-        
-        Bye…
-        """
-    ], id: \.self) { content in
-        {
-            let now = Date.now
+    {
+        let now = Date.now
 
-            let course = Course(
-                id: 1,
-                courseInformationSharingConfiguration: .communicationAndMessaging)
+        let course = Course(
+            id: 1,
+            courseInformationSharingConfiguration: .communicationAndMessaging)
 
-            var oneToOneChat = OneToOneChat(id: 1)
-            oneToOneChat.lastReadDate = now
-            let conversation = Conversation.oneToOneChat(conversation: oneToOneChat)
+        var oneToOneChat = OneToOneChat(id: 1)
+        oneToOneChat.lastReadDate = now
+        let conversation = Conversation.oneToOneChat(conversation: oneToOneChat)
 
-            var author = ConversationUser(id: 0)
-            author.name = "Alice"
+        var author = ConversationUser(id: 0)
+        author.name = "Alice"
 
-            var message = Message(id: 1)
-            message.author = author
-            message.content = content
-            message.creationDate = Calendar.current.date(byAdding: .minute, value: 1, to: now)
-            message.updatedDate = Calendar.current.date(byAdding: .minute, value: 2, to: now)
+        var message = Message(id: 1)
+        message.author = author
+        message.creationDate = Calendar.current.date(byAdding: .minute, value: 1, to: now)
+        message.content = "Hello, world!"
+        message.reactions = [
+            Reaction(id: 100),
+            Reaction(id: 101),
+            Reaction(id: 102, emojiId: "heart")
+        ]
+        message.updatedDate = Calendar.current.date(byAdding: .minute, value: 2, to: now)
 
-            return MessageCell(
-                viewModel: ConversationViewModel(
-                    course: course,
-                    conversation: conversation),
-                message: Binding.constant(DataState<BaseMessage>.done(response: message)),
-                conversationPath: ConversationPath(conversation: conversation, coursePath: CoursePath(id: course.id)),
-                isHeaderVisible: true
-            )
-            .environmentObject(NavigationController())
-        }()
-    }
+        return MessageCell(
+            viewModel: ConversationViewModel(
+                course: course,
+                conversation: conversation),
+            message: Binding.constant(DataState<BaseMessage>.done(response: message)),
+            conversationPath: ConversationPath(conversation: conversation, coursePath: CoursePath(id: course.id)),
+            isHeaderVisible: true
+        )
+    }()
 }

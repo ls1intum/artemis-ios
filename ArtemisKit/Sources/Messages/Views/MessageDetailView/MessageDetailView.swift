@@ -38,7 +38,7 @@ struct MessageDetailView: View {
                 ScrollViewReader { proxy in
                     ScrollView {
                         top(message: message)
-                        bottom(message: message, proxy: proxy)
+                        answers(of: message, proxy: proxy)
                     }
                 }
                 Spacer()
@@ -46,7 +46,7 @@ struct MessageDetailView: View {
                    let message = message as? Message {
                     SendMessageView(
                         viewModel: viewModel,
-                        sendMessageType: .answerMessage(message, { await reloadMessage() }))
+                        sendMessageType: .answerMessage(message, reloadMessage))
                 }
             }
         }
@@ -91,7 +91,7 @@ private extension MessageDetailView {
             ReactionsView(viewModel: viewModel, message: $message)
         }
         .padding(.horizontal, .l)
-        .contentShape(Rectangle())
+        .contentShape(.rect)
         .onLongPressGesture(maximumDistance: 30) {
             let impactMed = UIImpactFeedbackGenerator(style: .heavy)
             impactMed.impactOccurred()
@@ -104,7 +104,7 @@ private extension MessageDetailView {
     }
 
     @ViewBuilder
-    func bottom(message: BaseMessage, proxy: ScrollViewProxy) -> some View {
+    func answers(of message: BaseMessage, proxy: ScrollViewProxy) -> some View {
         if let message = message as? Message {
             Divider()
             VStack {
@@ -235,13 +235,12 @@ private struct MessageCellWrapper: View {
             return message
         }()
 
-        let messagesService = MockMessagesService(messages: [message])
+        let messagesService = MessagesServiceStub(messages: [message])
         let viewModel: ConversationViewModel = {
             let viewModel = ConversationViewModel(
                 courseId: 1,
                 conversationId: 1,
                 messagesService: messagesService)
-            #warning("Help")
             viewModel.dailyMessages = .done(response: [.now: [message]])
             return viewModel
         }()

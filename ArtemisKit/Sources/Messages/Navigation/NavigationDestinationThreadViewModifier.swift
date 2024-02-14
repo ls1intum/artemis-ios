@@ -12,9 +12,8 @@ public struct NavigationDestinationThreadViewModifier: ViewModifier {
     public init () {}
 
     public func body(content: Content) -> some View {
-        content
-            .navigationDestination(for: MessagePath.self) { messagePath in
-                MessageDetailView(viewModel: messagePath.conversationViewModel, message: messagePath.message)
-            }
+        content.navigationDestination(for: MessagePath.self) { messagePath in
+            MessageDetailView(viewModel: messagePath.conversationViewModel, message: messagePath.message)
+        }
     }
 }
