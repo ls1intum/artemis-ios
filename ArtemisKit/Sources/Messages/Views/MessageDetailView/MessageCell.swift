@@ -74,7 +74,7 @@ struct MessageCell: View {
                         .font(.footnote)
                 }
 
-                ReactionsView(viewModel: viewModel, message: $message, showEmojiAddButton: false)
+                ReactionsView(viewModel: viewModel, message: $message, isEmojiPickerButtonVisible: false)
 
                 if let message = message.value as? Message,
                    let answerCount = message.answers?.count,
