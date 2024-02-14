@@ -10,6 +10,15 @@
       }
     },
     {
+      "identity" : "artemis-ios-core-modules",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ls1intum/artemis-ios-core-modules",
+      "state" : {
+        "branch" : "feature/communication/conversation-and-thread",
+        "revision" : "1087cf5d13350ae51ee0cd208219d01ea863c0fe"
+      }
+    },
+    {
       "identity" : "collectionconcurrencykit",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/JohnSundell/CollectionConcurrencyKit.git",
@@ -41,8 +50,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/onevcat/Kingfisher.git",
       "state" : {
-        "revision" : "3ec0ab0bca4feb56e8b33e289c9496e89059dd08",
-        "version" : "7.10.2"
+        "revision" : "5b92f029fab2cce44386d28588098b5be0824ef5",
+        "version" : "7.11.0"
       }
     },
     {
