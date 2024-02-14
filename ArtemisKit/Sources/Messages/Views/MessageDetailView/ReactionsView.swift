@@ -49,7 +49,7 @@ struct ReactionsView: View {
     }
 
     var body: some View {
-        LazyVGrid(columns: columns) {
+        LazyVGrid(columns: columns, alignment: .leading) {
             ForEach(mappedReaction.sorted(by: { $0.key < $1.key }), id: \.key) { map in
                 EmojiTextButton(viewModel: viewModel, pair: (map.key, map.value), message: $message)
             }
