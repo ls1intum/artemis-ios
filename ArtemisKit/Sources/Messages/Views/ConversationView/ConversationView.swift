@@ -146,14 +146,12 @@ private struct ConversationDaySection: View {
             Divider()
                 .padding(.horizontal, .l)
             ForEach(Array(messages.enumerated()), id: \.1.id) { index, message in
-                #warning("De-duplicate")
-                let showHeader = index == 0 || !message.isContinuation(of: messages[index - 1])
                 MessageCellWrapper(
                     viewModel: viewModel,
                     day: day,
                     message: message,
                     conversationPath: conversationPath,
-                    isHeaderVisible: showHeader)
+                    isHeaderVisible: index == 0 || !message.isContinuation(of: messages[index - 1]))
             }
         }
     }

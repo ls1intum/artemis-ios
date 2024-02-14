@@ -34,10 +34,10 @@ struct MessageCell: View {
         message.value?.content ?? ""
     }
 
+    var user: () -> User? = { UserSession.shared.user }
+
     let conversationPath: ConversationPath?
     let isHeaderVisible: Bool
-
-    let user: () -> User? = { UserSession.shared.user }
 
     var body: some View {
         HStack(alignment: .top, spacing: .m) {
@@ -55,19 +55,13 @@ struct MessageCell: View {
                         if let creationDate {
                             Text(creationDate, formatter: DateFormatter.timeOnly)
                                 .font(.caption)
-
-                            let chipIsVisible = conversationPath?.conversation?.baseConversation
-                                .lastReadDate.map { lastReadDate in
-                                    lastReadDate < creationDate && user()?.id != message.value?.author?.id
-                                } ?? false
-
                             Chip(
                                 text: R.string.localizable.new(),
                                 backgroundColor: .Artemis.artemisBlue,
                                 padding: .s
                             )
                             .font(.footnote)
-                            .opacity(chipIsVisible ? 1 : 0)
+                            .opacity(isChipVisible(creationDate: creationDate) ? 1 : 0)
                         }
                     }
                 }
@@ -118,6 +112,14 @@ struct MessageCell: View {
 }
 
 private extension MessageCell {
+    func isChipVisible(creationDate: Date) -> Bool {
+        guard let lastReadDate = conversationPath?.conversation?.baseConversation.lastReadDate else {
+            return false
+        }
+
+        return lastReadDate < creationDate && user()?.id != message.value?.author?.id
+    }
+
     func onTapPresentMessage() {
         if let conversationPath, let messagePath = MessagePath(
             message: $message,

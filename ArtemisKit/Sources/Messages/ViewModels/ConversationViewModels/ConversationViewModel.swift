@@ -28,16 +28,18 @@ class ConversationViewModel: BaseViewModel {
 
     private var size = 50
 
-    private let artemisStompClient = ArtemisStompClient.shared
     private let courseService: CourseService
     private let messagesService: MessagesService
-    private let userSession = UserSession.shared
+    private let stompClient: ArtemisStompClient
+    private let userSession: UserSession
 
     init(
         course: Course,
         conversation: Conversation,
         courseService: CourseService = CourseServiceFactory.shared,
-        messagesService: MessagesService = MessagesServiceFactory.shared
+        messagesService: MessagesService = MessagesServiceFactory.shared,
+        stompClient: ArtemisStompClient = .shared,
+        userSession: UserSession = .shared
     ) {
         self._course = Published(wrappedValue: .done(response: course))
         self.courseId = course.id
@@ -46,6 +48,8 @@ class ConversationViewModel: BaseViewModel {
 
         self.courseService = courseService
         self.messagesService = messagesService
+        self.stompClient = stompClient
+        self.userSession = userSession
 
         super.init()
 
@@ -56,7 +60,9 @@ class ConversationViewModel: BaseViewModel {
         courseId: Int,
         conversationId: Int64,
         courseService: CourseService = CourseServiceFactory.shared,
-        messagesService: MessagesService = MessagesServiceFactory.shared
+        messagesService: MessagesService = MessagesServiceFactory.shared,
+        stompClient: ArtemisStompClient = .shared,
+        userSession: UserSession = .shared
     ) {
         self.courseId = courseId
         self.conversationId = conversationId
@@ -65,6 +71,8 @@ class ConversationViewModel: BaseViewModel {
 
         self.courseService = courseService
         self.messagesService = messagesService
+        self.stompClient = stompClient
+        self.userSession = userSession
 
         super.init()
 
@@ -372,23 +380,28 @@ private extension ConversationViewModel {
         let topic: String
         if conversation.value?.baseConversation.type == .channel {
             topic = WebSocketTopic.makeChannelNotifications(courseId: courseId)
-        } else if let id = UserSession.shared.user?.id {
+        } else if let id = userSession.user?.id {
             topic = WebSocketTopic.makeConversationNotifications(userId: id)
         } else {
             return
         }
-        if artemisStompClient.didSubscribeTopic(topic) {
+        if stompClient.didSubscribeTopic(topic) {
             return
         }
         websocketSubscriptionTask = Task { [weak self] in
-            let stream = artemisStompClient.subscribe(to: topic)
+            guard let stream = self?.stompClient.subscribe(to: topic) else {
+                return
+            }
 
             for await message in stream {
                 guard let messageWebsocketDTO = JSONDecoder.getTypeFromSocketMessage(type: MessageWebsocketDTO.self, message: message) else {
                     continue
                 }
 
-                self?.onMessageReceived(messageWebsocketDTO: messageWebsocketDTO)
+                guard let self else {
+                    return
+                }
+                onMessageReceived(messageWebsocketDTO: messageWebsocketDTO)
             }
         }
     }

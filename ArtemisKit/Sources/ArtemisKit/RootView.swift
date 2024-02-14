@@ -48,7 +48,7 @@ public struct RootView: View {
                                         LectureDetailView(courseId: lecturePath.coursePath.id, lectureId: lecturePath.id)
                                     }
                                 }
-                                .modifier(MessagesNavigationViewModifier())
+                                .modifier(NavigationDestinationThreadViewModifier())
                                 .navigationDestination(for: ConversationPath.self) { conversationPath in
                                     if let conversation = conversationPath.conversation,
                                        let course = conversationPath.coursePath.course {

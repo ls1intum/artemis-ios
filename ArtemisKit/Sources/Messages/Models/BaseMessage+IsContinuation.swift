@@ -12,7 +12,7 @@ import SharedModels
 private let MAX_MINUTES_FOR_GROUPING_MESSAGES = 5
 
 extension BaseMessage {
-    /// `isContinuation` computes if the same author messages multiple times within 5 minutes.
+    /// `isContinuation` computes if the same author messaged multiple times within 5 minutes.
     func isContinuation(of message: some BaseMessage) -> Bool {
         guard author == message.author,
               let lhs = creationDate,
