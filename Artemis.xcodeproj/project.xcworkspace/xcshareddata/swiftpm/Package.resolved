@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ls1intum/artemis-ios-core-modules",
       "state" : {
-        "branch" : "feature/communication/conversation-and-thread",
-        "revision" : "37a198bac8514301707aef63abbc3425e19a9344"
+        "revision" : "e2fbd0dcdfc93085afbc0651f4c165c3e36f435e",
+        "version" : "9.1.0"
       }
     },
     {
