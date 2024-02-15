@@ -147,40 +147,15 @@ private extension MessageCell {
 }
 
 #Preview {
-    ForEach([true, false], id: \.self) { isHeaderVisible in
-        {
-            let now = Date.now
-
-            var message = Message(id: 1)
-            message.author = MessagesServiceStub.alice
-            message.creationDate = Calendar.current.date(byAdding: .minute, value: 1, to: now)
-            message.content = "Hello, world!"
-
-            if isHeaderVisible {
-                message.updatedDate = Calendar.current.date(byAdding: .minute, value: 2, to: now)
-                message.reactions = [
-                    Reaction(id: 100),
-                    Reaction(id: 101),
-                    Reaction(id: 102, emojiId: "heart")
-                ]
-                message.answers = [
-                    AnswerMessage(id: 2),
-                    AnswerMessage(id: 3),
-                    AnswerMessage(id: 4)
-                ]
-            }
-
-            return MessageCell(
-                viewModel: ConversationViewModel(
-                    course: MessagesServiceStub.course,
-                    conversation: MessagesServiceStub.conversation),
-                message: Binding.constant(DataState<BaseMessage>.done(response: message)),
-                conversationPath: ConversationPath(
-                    conversation: MessagesServiceStub.conversation,
-                    coursePath: CoursePath(course: MessagesServiceStub.course)
-                ),
-                isHeaderVisible: isHeaderVisible
-            )
-        }()
-    }
+    MessageCell(
+        viewModel: ConversationViewModel(
+            course: MessagesServiceStub.course,
+            conversation: MessagesServiceStub.conversation),
+        message: Binding.constant(DataState<BaseMessage>.done(response: MessagesServiceStub.message)),
+        conversationPath: ConversationPath(
+            conversation: MessagesServiceStub.conversation,
+            coursePath: CoursePath(course: MessagesServiceStub.course)
+        ),
+        isHeaderVisible: true
+    )
 }

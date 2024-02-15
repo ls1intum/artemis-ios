@@ -42,8 +42,24 @@ struct MessagesServiceStub {
     static let message: Message = {
         var message = Message(id: 1)
         message.author = alice
-        message.creationDate = now
+        message.creationDate = Calendar.current.date(byAdding: .minute, value: 1, to: now)
+
         message.content = "Hello, world!"
+
+        message.updatedDate = Calendar.current.date(byAdding: .minute, value: 2, to: now)
+
+        message.reactions = [
+            Reaction(id: 1),
+            Reaction(id: 2),
+            Reaction(id: 3, emojiId: "heart")
+        ]
+
+        message.answers = [
+            AnswerMessage(id: 2),
+            AnswerMessage(id: 3),
+            AnswerMessage(id: 4)
+        ]
+
         return message
     }()
 
