@@ -202,7 +202,7 @@ private extension EmojiPickerButton {
 
 #Preview {
     ReactionsView(
-        viewModel: ConversationViewModel.init(courseId: 1, conversationId: 2),
+        viewModel: ConversationViewModel(courseId: 1, conversationId: 2),
         message: Binding.constant(DataState<BaseMessage>.done(
             response: {
                 var message = Message(id: 1)

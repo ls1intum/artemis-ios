@@ -6,9 +6,27 @@
 //
 
 import Common
+import Foundation
 import SharedModels
 
 struct MessagesServiceStub {
+    static let now: Date = {
+        // swiftlint:disable:next force_try
+        try! Date("2024-02-15T19:23:40Z", strategy: .iso8601)
+    }()
+
+    static let course: Course = {
+        let course = Course(id: 1, courseInformationSharingConfiguration: .communicationAndMessaging)
+        return course
+    }()
+
+    static let conversation: Conversation = {
+        var oneToOneChat = OneToOneChat(id: 1)
+        oneToOneChat.lastReadDate = now
+        let conversation = Conversation.oneToOneChat(conversation: oneToOneChat)
+        return conversation
+    }()
+
     static let alice: ConversationUser = {
         var author = ConversationUser(id: 1)
         author.name = "Alice"

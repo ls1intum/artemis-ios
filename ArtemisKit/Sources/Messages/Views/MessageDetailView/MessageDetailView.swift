@@ -214,14 +214,6 @@ private struct MessageCellWrapper: View {
     {
         let now = Date.now
 
-        let course = Course(
-            id: 1,
-            courseInformationSharingConfiguration: .communicationAndMessaging)
-
-        var oneToOneChat = OneToOneChat(id: 1)
-        oneToOneChat.lastReadDate = now
-        let conversation = Conversation.oneToOneChat(conversation: oneToOneChat)
-
         let answer: AnswerMessage = {
             var answer = AnswerMessage(id: 2)
             answer.author = MessagesServiceStub.bob
@@ -242,8 +234,8 @@ private struct MessageCellWrapper: View {
         let messagesService = MessagesServiceStub(messages: [message])
         let viewModel: ConversationViewModel = {
             let viewModel = ConversationViewModel(
-                course: course,
-                conversation: conversation,
+                course: MessagesServiceStub.course,
+                conversation: MessagesServiceStub.conversation,
                 messagesService: messagesService)
             viewModel.dailyMessages = .done(response: [.now: [message]])
             return viewModel

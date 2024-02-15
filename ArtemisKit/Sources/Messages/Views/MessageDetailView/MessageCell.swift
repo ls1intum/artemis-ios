@@ -151,14 +151,6 @@ private extension MessageCell {
         {
             let now = Date.now
 
-            let course = Course(
-                id: 1,
-                courseInformationSharingConfiguration: .communicationAndMessaging)
-
-            var oneToOneChat = OneToOneChat(id: 1)
-            oneToOneChat.lastReadDate = now
-            let conversation = Conversation.oneToOneChat(conversation: oneToOneChat)
-
             var message = Message(id: 1)
             message.author = MessagesServiceStub.alice
             message.creationDate = Calendar.current.date(byAdding: .minute, value: 1, to: now)
@@ -180,12 +172,12 @@ private extension MessageCell {
 
             return MessageCell(
                 viewModel: ConversationViewModel(
-                    course: course,
-                    conversation: conversation),
+                    course: MessagesServiceStub.course,
+                    conversation: MessagesServiceStub.conversation),
                 message: Binding.constant(DataState<BaseMessage>.done(response: message)),
                 conversationPath: ConversationPath(
-                    conversation: conversation,
-                    coursePath: CoursePath(id: course.id)
+                    conversation: MessagesServiceStub.conversation,
+                    coursePath: CoursePath(course: MessagesServiceStub.course)
                 ),
                 isHeaderVisible: isHeaderVisible
             )
