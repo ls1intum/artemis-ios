@@ -14,6 +14,7 @@ import SwiftUI
 import UserStore
 
 struct MessageCell: View {
+    @Environment(\.isActionSheetEnabled) var isActionSheetEnabled: Bool
 
     @EnvironmentObject var navigationController: NavigationController
 
@@ -22,7 +23,7 @@ struct MessageCell: View {
     @Binding var message: DataState<BaseMessage>
 
     @State private var isActionSheetPresented = false
-    @State private var isPressed = false
+    @State private var isDetectingLongPress = false
 
     var author: String {
         message.value?.author?.name ?? ""
@@ -96,16 +97,14 @@ struct MessageCell: View {
             .background {
                 RoundedRectangle(cornerRadius: .m)
                     .foregroundStyle(
-                        (isPressed || isActionSheetPresented) ? Color.Artemis.messsageCellPressed : Color.clear)
+                        (isDetectingLongPress || isActionSheetPresented) ? Color.Artemis.messsageCellPressed : Color.clear)
             }
             .id(message.value?.id.description)
         }
         .padding(.horizontal, .l)
         .contentShape(.rect)
         .onTapGesture(perform: onTapPresentMessage)
-        .onLongPressGesture(minimumDuration: 0.1, maximumDistance: 30, perform: onLongPressPresentActionSheet) { pressed in
-            isPressed = pressed
-        }
+        .gesture(longPress, including: isActionSheetEnabled ? .all : .subviews)
         .sheet(isPresented: $isActionSheetPresented) {
             MessageActionSheet(viewModel: viewModel, message: $message, conversationPath: conversationPath)
                 .presentationDetents([.height(350), .large])
@@ -122,6 +121,8 @@ private extension MessageCell {
         return lastReadDate < creationDate && user()?.id != message.value?.author?.id
     }
 
+    // MARK: Gestures
+
     func onTapPresentMessage() {
         if let conversationPath, let messagePath = MessagePath(
             message: $message,
@@ -131,6 +132,18 @@ private extension MessageCell {
         ) {
             navigationController.path.append(messagePath)
         }
+    }
+
+    var longPress: some Gesture {
+        LongPressGesture(minimumDuration: 0, maximumDistance: 30)
+            .onChanged { changed in
+                isDetectingLongPress = changed
+            }
+            .onEnded { ended in
+                if ended {
+                    onLongPressPresentActionSheet()
+                }
+            }
     }
 
     func onLongPressPresentActionSheet() {
@@ -144,7 +157,24 @@ private extension MessageCell {
         let impactMed = UIImpactFeedbackGenerator(style: .heavy)
         impactMed.impactOccurred()
         isActionSheetPresented = true
-        isPressed = false
+        isDetectingLongPress = false
+    }
+}
+
+// MARK: - Environment+IsActionSheetEnabled
+
+private enum IsActionSheetEnabledEnvironmentKey: EnvironmentKey {
+    static let defaultValue = true
+}
+
+extension EnvironmentValues {
+    var isActionSheetEnabled: Bool {
+        get {
+            self[IsActionSheetEnabledEnvironmentKey.self]
+        }
+        set {
+            self[IsActionSheetEnabledEnvironmentKey.self] = newValue
+        }
     }
 }
 

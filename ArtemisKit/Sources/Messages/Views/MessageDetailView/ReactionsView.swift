@@ -201,7 +201,7 @@ private extension EmojiPickerButton {
 
 // MARK: - Environment+IsEmojiPickerVisible
 
-private struct IsEmojiPickerVisibleEnvironmentKey: EnvironmentKey {
+private enum IsEmojiPickerVisibleEnvironmentKey: EnvironmentKey {
     static let defaultValue = false
 }
 
