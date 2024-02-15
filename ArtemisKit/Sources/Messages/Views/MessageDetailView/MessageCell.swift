@@ -94,12 +94,15 @@ struct MessageCell: View {
                     }
                 }
             }
+            .background {
+                RoundedRectangle(cornerRadius: .m)
+                    .foregroundStyle(
+                        (isPressed || isActionSheetPresented) ? Color.Artemis.messsageCellPressed : Color.clear)
+            }
             .id(message.value?.id.description)
-            Spacer()
         }
         .padding(.horizontal, .l)
-        .contentShape(Rectangle())
-        .background(isPressed ? Color.Artemis.messsageCellPressed : Color.clear)
+        .contentShape(.rect)
         .onTapGesture(perform: onTapPresentMessage)
         .onLongPressGesture(minimumDuration: 0.1, maximumDistance: 30, perform: onLongPressPresentActionSheet) { pressed in
             isPressed = pressed
