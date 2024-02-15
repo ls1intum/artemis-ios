@@ -12,7 +12,7 @@ import SharedModels
 struct MessagesServiceStub {
     static let now: Date = {
         // swiftlint:disable:next force_try
-        try! Date("2024-02-15T19:23:40Z", strategy: .iso8601)
+        try! Date("2024-01-08T9:41:32Z", strategy: .iso8601)
     }()
 
     static let course: Course = {
@@ -37,6 +37,14 @@ struct MessagesServiceStub {
         var author = ConversationUser(id: 2)
         author.name = "Bob"
         return author
+    }()
+
+    static let message: Message = {
+        var message = Message(id: 1)
+        message.author = alice
+        message.creationDate = now
+        message.content = "Hello, world!"
+        return message
     }()
 
     let messages: [Message]
