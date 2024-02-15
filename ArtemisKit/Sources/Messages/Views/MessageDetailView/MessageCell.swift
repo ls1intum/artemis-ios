@@ -147,38 +147,53 @@ private extension MessageCell {
 }
 
 #Preview {
-    {
-        let now = Date.now
+    ForEach([true, false], id: \.self) { isHeaderVisible in
+        {
+            let now = Date.now
 
-        let course = Course(
-            id: 1,
-            courseInformationSharingConfiguration: .communicationAndMessaging)
+            let course = Course(
+                id: 1,
+                courseInformationSharingConfiguration: .communicationAndMessaging)
 
-        var oneToOneChat = OneToOneChat(id: 1)
-        oneToOneChat.lastReadDate = now
-        let conversation = Conversation.oneToOneChat(conversation: oneToOneChat)
+            var oneToOneChat = OneToOneChat(id: 1)
+            oneToOneChat.lastReadDate = now
+            let conversation = Conversation.oneToOneChat(conversation: oneToOneChat)
 
-        var author = ConversationUser(id: 0)
-        author.name = "Alice"
+            var author = ConversationUser(id: 0)
+            author.name = "Alice"
 
-        var message = Message(id: 1)
-        message.author = author
-        message.creationDate = Calendar.current.date(byAdding: .minute, value: 1, to: now)
-        message.content = "Hello, world!"
-        message.reactions = [
-            Reaction(id: 100),
-            Reaction(id: 101),
-            Reaction(id: 102, emojiId: "heart")
-        ]
-        message.updatedDate = Calendar.current.date(byAdding: .minute, value: 2, to: now)
+            var message = Message(id: 1)
+            message.author = author
+            message.creationDate = Calendar.current.date(byAdding: .minute, value: 1, to: now)
+            message.content = "Hello, world!"
 
-        return MessageCell(
-            viewModel: ConversationViewModel(
-                course: course,
-                conversation: conversation),
-            message: Binding.constant(DataState<BaseMessage>.done(response: message)),
-            conversationPath: ConversationPath(conversation: conversation, coursePath: CoursePath(id: course.id)),
-            isHeaderVisible: true
-        )
-    }()
+            if isHeaderVisible {
+                message.updatedDate = Calendar.current.date(byAdding: .minute, value: 2, to: now)
+                message.reactions = [
+                    Reaction(id: 100),
+                    Reaction(id: 101),
+                    Reaction(id: 102, emojiId: "heart")
+                ]
+                message.answers = [
+                    AnswerMessage(id: 2),
+                    AnswerMessage(id: 3),
+                    AnswerMessage(id: 4)
+                ]
+            }
+
+            return VStack {
+                MessageCell(
+                    viewModel: ConversationViewModel(
+                        course: course,
+                        conversation: conversation),
+                    message: Binding.constant(DataState<BaseMessage>.done(response: message)),
+                    conversationPath: ConversationPath(
+                        conversation: conversation,
+                        coursePath: CoursePath(id: course.id)
+                    ),
+                    isHeaderVisible: isHeaderVisible
+                )
+            }
+        }()
+    }
 }
