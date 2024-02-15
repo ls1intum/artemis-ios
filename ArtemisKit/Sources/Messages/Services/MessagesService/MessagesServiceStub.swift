@@ -54,16 +54,20 @@ struct MessagesServiceStub {
             Reaction(id: 3, emojiId: "heart")
         ]
 
-        message.answers = [
-            AnswerMessage(id: 2),
-            AnswerMessage(id: 3),
-            AnswerMessage(id: 4)
-        ]
+        message.answers = [answer]
 
         return message
     }()
 
-    let messages: [Message]
+    static let answer: AnswerMessage = {
+        var answer = AnswerMessage(id: 2)
+        answer.author = bob
+        answer.creationDate = Calendar.current.date(byAdding: .minute, value: 3, to: now)
+        answer.content = "Hello, Alice!"
+        return answer
+    }()
+
+    var messages: [Message] = [message]
 }
 
 extension MessagesServiceStub: MessagesService {

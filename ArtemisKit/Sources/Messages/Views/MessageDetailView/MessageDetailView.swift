@@ -211,39 +211,19 @@ private struct MessageCellWrapper: View {
 }
 
 #Preview {
-    {
-        let now = Date.now
-
-        let answer: AnswerMessage = {
-            var answer = AnswerMessage(id: 2)
-            answer.author = MessagesServiceStub.bob
-            answer.creationDate = Calendar.current.date(byAdding: .minute, value: 1, to: now)
-            answer.content = "How are you?"
-            return answer
-        }()
-
-        let message: Message = {
-            var message = Message(id: 1)
-            message.author = MessagesServiceStub.alice
-            message.creationDate = now
-            message.content = "Hi, Bob!"
-            message.answers = [answer]
-            return message
-        }()
-
-        let messagesService = MessagesServiceStub(messages: [message])
-        let viewModel: ConversationViewModel = {
+    MessageDetailView(
+        viewModel: {
             let viewModel = ConversationViewModel(
                 course: MessagesServiceStub.course,
                 conversation: MessagesServiceStub.conversation,
-                messagesService: messagesService)
-            viewModel.dailyMessages = .done(response: [.now: [message]])
+                messagesService: MessagesServiceStub())
+            viewModel.dailyMessages = .done(response: [
+                MessagesServiceStub.now: [
+                    MessagesServiceStub.message
+                ]
+            ])
             return viewModel
-        }()
-
-        return MessageDetailView(
-            viewModel: viewModel,
-            message: Binding<DataState<BaseMessage>>.constant(
-                DataState<BaseMessage>.done(response: message)))
-    }()
+        }(),
+        message: Binding.constant(
+            DataState<BaseMessage>.done(response: MessagesServiceStub.message)))
 }
