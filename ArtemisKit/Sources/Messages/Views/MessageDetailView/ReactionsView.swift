@@ -205,8 +205,6 @@ private extension EmojiPickerButton {
         viewModel: ConversationViewModel(
             course: MessagesServiceStub.course,
             conversation: MessagesServiceStub.conversation),
-        message: Binding.constant(DataState<BaseMessage>.done(
-            response: MessagesServiceStub.message
-        )),
+        message: Binding.constant(DataState<BaseMessage>.done(response: MessagesServiceStub.message)),
         isEmojiPickerButtonVisible: true)
 }

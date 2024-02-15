@@ -87,7 +87,7 @@ struct MessagesServiceStub {
 }
 
 extension MessagesServiceStub: MessagesService {
-    func getConversations(for courseId: Int) async -> Common.DataState<[SharedModels.Conversation]> {
+    func getConversations(for courseId: Int) async -> DataState<[Conversation]> {
         .loading
     }
 
@@ -103,91 +103,91 @@ extension MessagesServiceStub: MessagesService {
         .loading
     }
 
-    func getMessages(for courseId: Int, and conversationId: Int64, size: Int) async -> Common.DataState<[SharedModels.Message]> {
+    func getMessages(for courseId: Int, and conversationId: Int64, size: Int) async -> DataState<[Message]> {
         .done(response: messages)
     }
 
-    func sendMessage(for courseId: Int, conversation: SharedModels.Conversation, content: String) async -> Common.NetworkResponse {
+    func sendMessage(for courseId: Int, conversation: Conversation, content: String) async -> NetworkResponse {
         .loading
     }
 
-    func sendAnswerMessage(for courseId: Int, message: SharedModels.Message, content: String) async -> Common.NetworkResponse {
+    func sendAnswerMessage(for courseId: Int, message: Message, content: String) async -> NetworkResponse {
         .loading
     }
 
-    func deleteMessage(for courseId: Int, messageId: Int64) async -> Common.NetworkResponse {
+    func deleteMessage(for courseId: Int, messageId: Int64) async -> NetworkResponse {
         .loading
     }
 
-    func deleteAnswerMessage(for courseId: Int, anserMessageId: Int64) async -> Common.NetworkResponse {
+    func deleteAnswerMessage(for courseId: Int, anserMessageId: Int64) async -> NetworkResponse {
         .loading
     }
 
-    func editMessage(for courseId: Int, message: SharedModels.Message) async -> Common.NetworkResponse {
+    func editMessage(for courseId: Int, message: Message) async -> NetworkResponse {
         .loading
     }
 
-    func editAnswerMessage(for courseId: Int, answerMessage: SharedModels.AnswerMessage) async -> Common.NetworkResponse {
+    func editAnswerMessage(for courseId: Int, answerMessage: AnswerMessage) async -> NetworkResponse {
         .loading
     }
 
-    func addReactionToAnswerMessage(for courseId: Int, answerMessage: SharedModels.AnswerMessage, emojiId: String) async -> Common.NetworkResponse {
+    func addReactionToAnswerMessage(for courseId: Int, answerMessage: AnswerMessage, emojiId: String) async -> NetworkResponse {
         .loading
     }
 
-    func addReactionToMessage(for courseId: Int, message: SharedModels.Message, emojiId: String) async -> Common.NetworkResponse {
+    func addReactionToMessage(for courseId: Int, message: Message, emojiId: String) async -> NetworkResponse {
         .loading
     }
 
-    func removeReactionFromMessage(for courseId: Int, reaction: SharedModels.Reaction) async -> Common.NetworkResponse {
+    func removeReactionFromMessage(for courseId: Int, reaction: Reaction) async -> NetworkResponse {
         .loading
     }
 
-    func getChannelsOverview(for courseId: Int) async -> Common.DataState<[SharedModels.Channel]> {
+    func getChannelsOverview(for courseId: Int) async -> DataState<[Channel]> {
         .loading
     }
 
-    func addMembersToChannel(for courseId: Int, channelId: Int64, usernames: [String]) async -> Common.NetworkResponse {
+    func addMembersToChannel(for courseId: Int, channelId: Int64, usernames: [String]) async -> NetworkResponse {
         .loading
     }
 
-    func removeMembersFromChannel(for courseId: Int, channelId: Int64, usernames: [String]) async -> Common.NetworkResponse {
+    func removeMembersFromChannel(for courseId: Int, channelId: Int64, usernames: [String]) async -> NetworkResponse {
         .loading
     }
 
-    func addMembersToGroupChat(for courseId: Int, groupChatId: Int64, usernames: [String]) async -> Common.NetworkResponse {
+    func addMembersToGroupChat(for courseId: Int, groupChatId: Int64, usernames: [String]) async -> NetworkResponse {
         .loading
     }
 
-    func removeMembersFromGroupChat(for courseId: Int, groupChatId: Int64, usernames: [String]) async -> Common.NetworkResponse {
+    func removeMembersFromGroupChat(for courseId: Int, groupChatId: Int64, usernames: [String]) async -> NetworkResponse {
         .loading
     }
 
-    func createChannel(for courseId: Int, name: String, description: String?, isPrivate: Bool, isAnnouncement: Bool) async -> Common.DataState<SharedModels.Channel> {
+    func createChannel(for courseId: Int, name: String, description: String?, isPrivate: Bool, isAnnouncement: Bool) async -> DataState<Channel> {
         .loading
     }
 
-    func searchForUsers(for courseId: Int, searchText: String) async -> Common.DataState<[SharedModels.ConversationUser]> {
+    func searchForUsers(for courseId: Int, searchText: String) async -> DataState<[ConversationUser]> {
         .loading
     }
 
-    func createGroupChat(for courseId: Int, usernames: [String]) async -> Common.DataState<SharedModels.GroupChat> {
+    func createGroupChat(for courseId: Int, usernames: [String]) async -> DataState<GroupChat> {
         .loading
     }
 
-    func createOneToOneChat(for courseId: Int, usernames: [String]) async -> Common.DataState<SharedModels.OneToOneChat> {
+    func createOneToOneChat(for courseId: Int, usernames: [String]) async -> DataState<OneToOneChat> {
         .loading
     }
 
-    func getMembersOfConversation(for courseId: Int, conversationId: Int64, page: Int) async -> Common.DataState<[SharedModels.ConversationUser]> {
+    func getMembersOfConversation(for courseId: Int, conversationId: Int64, page: Int) async -> DataState<[ConversationUser]> {
         .loading
     }
 
-    func archiveChannel(for courseId: Int, channelId: Int64) async -> Common.NetworkResponse {
+    func archiveChannel(for courseId: Int, channelId: Int64) async -> NetworkResponse {
         .loading
     }
 
-    func unarchiveChannel(for courseId: Int, channelId: Int64) async -> Common.NetworkResponse {
+    func unarchiveChannel(for courseId: Int, channelId: Int64) async -> NetworkResponse {
         .loading
     }
 }

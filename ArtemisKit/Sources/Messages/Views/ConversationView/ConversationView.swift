@@ -249,7 +249,6 @@ private struct PullToRefresh: View {
             MessagesServiceStub.continuation,
             MessagesServiceStub.reply
         ],
-        conversationPath: ConversationPath(id: 1, coursePath: CoursePath(course: MessagesServiceStub.course)
-        )
+        conversationPath: ConversationPath(id: 1, coursePath: CoursePath(course: MessagesServiceStub.course))
     )
 }

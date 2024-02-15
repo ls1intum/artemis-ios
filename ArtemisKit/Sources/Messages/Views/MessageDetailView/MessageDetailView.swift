@@ -44,9 +44,7 @@ struct MessageDetailView: View {
                 Spacer()
                 if !((viewModel.conversation.value?.baseConversation as? Channel)?.isArchived ?? false),
                    let message = message as? Message {
-                    SendMessageView(
-                        viewModel: viewModel,
-                        sendMessageType: .answerMessage(message, reloadMessage))
+                    SendMessageView(viewModel: viewModel, sendMessageType: .answerMessage(message, reloadMessage))
                 }
             }
         }
@@ -215,8 +213,7 @@ private struct MessageCellWrapper: View {
         viewModel: {
             let viewModel = ConversationViewModel(
                 course: MessagesServiceStub.course,
-                conversation: MessagesServiceStub.conversation,
-                messagesService: MessagesServiceStub())
+                conversation: MessagesServiceStub.conversation)
             viewModel.dailyMessages = .done(response: [
                 MessagesServiceStub.now: [
                     MessagesServiceStub.message
@@ -224,6 +221,5 @@ private struct MessageCellWrapper: View {
             ])
             return viewModel
         }(),
-        message: Binding.constant(
-            DataState<BaseMessage>.done(response: MessagesServiceStub.message)))
+        message: Binding.constant(DataState<BaseMessage>.done(response: MessagesServiceStub.message)))
 }
