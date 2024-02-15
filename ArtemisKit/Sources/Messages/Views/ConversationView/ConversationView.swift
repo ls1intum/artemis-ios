@@ -236,18 +236,20 @@ private struct PullToRefresh: View {
                 conversation: MessagesServiceStub.conversation)
             viewModel.dailyMessages = .done(response: [
                 MessagesServiceStub.now: [
-                    MessagesServiceStub.message
+                    MessagesServiceStub.message,
+                    MessagesServiceStub.continuation,
+                    MessagesServiceStub.reply
                 ]
             ])
             return viewModel
         }(),
         day: MessagesServiceStub.now,
         messages: [
-            MessagesServiceStub.message
+            MessagesServiceStub.message,
+            MessagesServiceStub.continuation,
+            MessagesServiceStub.reply
         ],
-        conversationPath: ConversationPath(
-            id: 0,
-            coursePath: CoursePath(course: MessagesServiceStub.course)
+        conversationPath: ConversationPath(id: 1, coursePath: CoursePath(course: MessagesServiceStub.course)
         )
     )
 }

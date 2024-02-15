@@ -67,7 +67,23 @@ struct MessagesServiceStub {
         return answer
     }()
 
-    var messages: [Message] = [message]
+    static let continuation: Message = {
+        var message = Message(id: 3)
+        message.author = alice
+        message.creationDate = Calendar.current.date(byAdding: .minute, value: 4, to: now)
+        message.content = "How are you?"
+        return message
+    }()
+
+    static let reply: Message = {
+        var message = Message(id: 4)
+        message.author = bob
+        message.creationDate = Calendar.current.date(byAdding: .minute, value: 4, to: now)
+        message.content = "I am great."
+        return message
+    }()
+
+    var messages: [Message] = [message, continuation, reply]
 }
 
 extension MessagesServiceStub: MessagesService {
