@@ -233,6 +233,6 @@ extension EnvironmentValues {
                 ]
                 return message
             }()
-        )),
-        isEmojiPickerButtonVisible: true)
+        ))
+    )
 }
