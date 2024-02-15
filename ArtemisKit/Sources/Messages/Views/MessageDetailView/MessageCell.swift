@@ -74,12 +74,11 @@ struct MessageCell: View {
                         .font(.footnote)
                 }
 
-                ReactionsView(viewModel: viewModel, message: $message, isEmojiPickerButtonVisible: false)
+                ReactionsView(viewModel: viewModel, message: $message)
 
                 if let message = message.value as? Message,
-                   let answerCount = message.answers?.count,
-                   let conversationPath,
-                   answerCount > 0 {
+                   let answerCount = message.answers?.count, answerCount > 0,
+                   let conversationPath {
                     Button(R.string.localizable.replyAction(answerCount)) {
                         if let messagePath = MessagePath(
                             message: self.$message,

@@ -62,36 +62,13 @@ struct MessageDetailView: View {
 
 private extension MessageDetailView {
     func top(message: BaseMessage) -> some View {
-        VStack(alignment: .leading) {
-            HStack(alignment: .top, spacing: .l) {
-                Image(systemName: "person")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 30, height: 30)
-                    .padding(.top, .s)
-                VStack(alignment: .leading, spacing: .m) {
-                    Text(message.author?.name ?? "")
-                        .bold()
-                    if let creationDate = message.creationDate {
-                        Text(creationDate, formatter: DateFormatter.timeOnly)
-                            .font(.caption)
-                    }
-                }
-                Spacer()
-            }
-
-            ArtemisMarkdownView(string: message.content ?? "")
-
-            if let updatedDate = message.updatedDate {
-                Text("\(R.string.localizable.edited()) (\(updatedDate.shortDateAndTime))")
-                    .foregroundColor(.Artemis.secondaryLabel)
-                    .font(.footnote)
-            }
-
-            ReactionsView(viewModel: viewModel, message: $message)
-        }
-        .padding(.horizontal, .l)
-        .contentShape(.rect)
+        MessageCell(
+            viewModel: viewModel,
+            message: Binding<DataState<BaseMessage>>.constant(DataState<BaseMessage>.done(response: message)),
+            conversationPath: nil,
+            isHeaderVisible: true
+        )
+        .environment(\.isEmojiPickerButtonVisible, true)
         .onLongPressGesture(maximumDistance: 30) {
             let impactMed = UIImpactFeedbackGenerator(style: .heavy)
             impactMed.impactOccurred()
@@ -130,7 +107,6 @@ private extension MessageDetailView {
                         }
                     }
             }
-            .padding(.horizontal, .l)
         }
     }
 
