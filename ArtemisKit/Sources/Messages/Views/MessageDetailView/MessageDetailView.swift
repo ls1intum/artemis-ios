@@ -223,20 +223,16 @@ private struct MessageCellWrapper: View {
         let conversation = Conversation.oneToOneChat(conversation: oneToOneChat)
 
         let answer: AnswerMessage = {
-            var author = ConversationUser(id: 2)
-            author.name = "Bob"
             var answer = AnswerMessage(id: 2)
-            answer.author = author
+            answer.author = MessagesServiceStub.bob
             answer.creationDate = Calendar.current.date(byAdding: .minute, value: 1, to: now)
             answer.content = "How are you?"
             return answer
         }()
 
         let message: Message = {
-            var author = ConversationUser(id: 1)
-            author.name = "Alice"
             var message = Message(id: 1)
-            message.author = author
+            message.author = MessagesServiceStub.alice
             message.creationDate = now
             message.content = "Hi, Bob!"
             message.answers = [answer]

@@ -8,9 +8,23 @@
 import Common
 import SharedModels
 
-struct MessagesServiceStub: MessagesService {
-    let messages: [Message]
+struct MessagesServiceStub {
+    static let alice: ConversationUser = {
+        var author = ConversationUser(id: 1)
+        author.name = "Alice"
+        return author
+    }()
 
+    static let bob: ConversationUser = {
+        var author = ConversationUser(id: 2)
+        author.name = "Bob"
+        return author
+    }()
+
+    let messages: [Message]
+}
+
+extension MessagesServiceStub: MessagesService {
     func getConversations(for courseId: Int) async -> Common.DataState<[SharedModels.Conversation]> {
         .loading
     }

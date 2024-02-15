@@ -159,11 +159,8 @@ private extension MessageCell {
             oneToOneChat.lastReadDate = now
             let conversation = Conversation.oneToOneChat(conversation: oneToOneChat)
 
-            var author = ConversationUser(id: 0)
-            author.name = "Alice"
-
             var message = Message(id: 1)
-            message.author = author
+            message.author = MessagesServiceStub.alice
             message.creationDate = Calendar.current.date(byAdding: .minute, value: 1, to: now)
             message.content = "Hello, world!"
 
