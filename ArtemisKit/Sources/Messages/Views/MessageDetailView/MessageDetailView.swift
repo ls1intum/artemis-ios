@@ -194,7 +194,7 @@ private struct MessageCellWrapper: View {
                        let answerMessageIndex = messages[messageIndex].answers?.firstIndex(where: isAnswerMessage) {
 
                         viewModel.dailyMessages.value?[key]?[messageIndex].answers?[answerMessageIndex] = newAnswerMessage
-                        break
+                        continue
                     }
                 }
             }
