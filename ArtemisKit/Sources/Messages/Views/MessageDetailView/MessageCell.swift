@@ -181,19 +181,17 @@ private extension MessageCell {
                 ]
             }
 
-            return VStack {
-                MessageCell(
-                    viewModel: ConversationViewModel(
-                        course: course,
-                        conversation: conversation),
-                    message: Binding.constant(DataState<BaseMessage>.done(response: message)),
-                    conversationPath: ConversationPath(
-                        conversation: conversation,
-                        coursePath: CoursePath(id: course.id)
-                    ),
-                    isHeaderVisible: isHeaderVisible
-                )
-            }
+            return MessageCell(
+                viewModel: ConversationViewModel(
+                    course: course,
+                    conversation: conversation),
+                message: Binding.constant(DataState<BaseMessage>.done(response: message)),
+                conversationPath: ConversationPath(
+                    conversation: conversation,
+                    coursePath: CoursePath(id: course.id)
+                ),
+                isHeaderVisible: isHeaderVisible
+            )
         }()
     }
 }
