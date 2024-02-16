@@ -12,9 +12,6 @@ import Navigation
 import SharedModels
 import SwiftUI
 
-// swiftlint:disable:next identifier_name
-private let MAX_MINUTES_FOR_GROUPING_MESSAGES = 5
-
 public struct ConversationView: View {
 
     @EnvironmentObject var navigationController: NavigationController
@@ -154,15 +151,9 @@ private struct ConversationDaySection: View {
                     day: day,
                     message: message,
                     conversationPath: conversationPath,
-                    showHeader: (index == 0 ? true : showHeader(message: message, previousMessage: messages[index - 1])))
+                    isHeaderVisible: index == 0 || !message.isContinuation(of: messages[index - 1]))
             }
         }
-    }
-
-    // header is not shown if same person messages multiple times within 5 minutes
-    private func showHeader(message: Message, previousMessage: Message) -> Bool {
-        !(message.author == previousMessage.author &&
-          message.creationDate ?? .now < (previousMessage.creationDate ?? .yesterday).addingTimeInterval(TimeInterval(MAX_MINUTES_FOR_GROUPING_MESSAGES * 60)))
     }
 }
 
@@ -172,7 +163,7 @@ private struct MessageCellWrapper: View {
     let day: Date
     let message: Message
     let conversationPath: ConversationPath
-    let showHeader: Bool
+    let isHeaderVisible: Bool
 
     private var messageBinding: Binding<DataState<BaseMessage>> {
         Binding(get: {
@@ -194,7 +185,7 @@ private struct MessageCellWrapper: View {
             viewModel: viewModel,
             message: messageBinding,
             conversationPath: conversationPath,
-            showHeader: showHeader)
+            isHeaderVisible: isHeaderVisible)
     }
 }
 
@@ -235,4 +226,29 @@ private struct PullToRefresh: View {
         }
         .padding(.top, -50)
     }
+}
+
+#Preview {
+    ConversationDaySection(
+        viewModel: {
+            let viewModel = ConversationViewModel(
+                course: MessagesServiceStub.course,
+                conversation: MessagesServiceStub.conversation)
+            viewModel.dailyMessages = .done(response: [
+                MessagesServiceStub.now: [
+                    MessagesServiceStub.message,
+                    MessagesServiceStub.continuation,
+                    MessagesServiceStub.reply
+                ]
+            ])
+            return viewModel
+        }(),
+        day: MessagesServiceStub.now,
+        messages: [
+            MessagesServiceStub.message,
+            MessagesServiceStub.continuation,
+            MessagesServiceStub.reply
+        ],
+        conversationPath: ConversationPath(id: 1, coursePath: CoursePath(course: MessagesServiceStub.course))
+    )
 }
