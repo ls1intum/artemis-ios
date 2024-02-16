@@ -56,7 +56,12 @@ struct MessageActionSheet: View {
                    let conversationPath {
                     Divider()
                     Button(action: {
-                        if let messagePath = MessagePath(message: $message, coursePath: conversationPath.coursePath, conversationPath: conversationPath, conversationViewModel: viewModel) {
+                        if let messagePath = MessagePath(
+                            message: $message,
+                            coursePath: conversationPath.coursePath,
+                            conversationPath: conversationPath,
+                            conversationViewModel: viewModel
+                        ) {
                             dismiss()
                             navigationController.path.append(messagePath)
                         } else {

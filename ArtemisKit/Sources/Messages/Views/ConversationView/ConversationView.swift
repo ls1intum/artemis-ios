@@ -229,33 +229,26 @@ private struct PullToRefresh: View {
 }
 
 #Preview {
-    {
-        let now = Date.now
-
-        let message: Message = {
-            var author = ConversationUser(id: 1)
-            author.name = "Alice"
-
-            var message = Message(id: 2)
-            message.author = author
-            message.creationDate = now
-            message.content = "Hello, world!"
-            return message
-        }()
-
-        let viewModel = ConversationViewModel(
-            courseId: 0,
-            conversationId: 0)
-        viewModel.dailyMessages = .done(response: [now: [message]])
-
-        return ConversationDaySection(
-            viewModel: viewModel,
-            day: now,
-            messages: [message],
-            conversationPath: ConversationPath(
-                id: 0,
-                coursePath: CoursePath(id: 0)
-            )
-        )
-    }()
+    ConversationDaySection(
+        viewModel: {
+            let viewModel = ConversationViewModel(
+                course: MessagesServiceStub.course,
+                conversation: MessagesServiceStub.conversation)
+            viewModel.dailyMessages = .done(response: [
+                MessagesServiceStub.now: [
+                    MessagesServiceStub.message,
+                    MessagesServiceStub.continuation,
+                    MessagesServiceStub.reply
+                ]
+            ])
+            return viewModel
+        }(),
+        day: MessagesServiceStub.now,
+        messages: [
+            MessagesServiceStub.message,
+            MessagesServiceStub.continuation,
+            MessagesServiceStub.reply
+        ],
+        conversationPath: ConversationPath(id: 1, coursePath: CoursePath(course: MessagesServiceStub.course))
+    )
 }

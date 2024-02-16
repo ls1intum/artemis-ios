@@ -170,7 +170,7 @@ private struct MessageCellWrapper: View {
                        let answerMessageIndex = messages[messageIndex].answers?.firstIndex(where: isAnswerMessage) {
 
                         viewModel.dailyMessages.value?[key]?[messageIndex].answers?[answerMessageIndex] = newAnswerMessage
-                        break
+                        continue
                     }
                 }
             }
@@ -187,43 +187,17 @@ private struct MessageCellWrapper: View {
 }
 
 #Preview {
-    {
-        let now = Date.now
-
-        let answer: AnswerMessage = {
-            var author = ConversationUser(id: 2)
-            author.name = "Bob"
-            var answer = AnswerMessage(id: 2)
-            answer.author = author
-            answer.creationDate = Calendar.current.date(byAdding: .minute, value: 1, to: now)
-            answer.content = "How are you?"
-            return answer
-        }()
-
-        let message: Message = {
-            var author = ConversationUser(id: 1)
-            author.name = "Alice"
-            var message = Message(id: 1)
-            message.author = author
-            message.creationDate = now
-            message.content = "Hi, Bob!"
-            message.answers = [answer]
-            return message
-        }()
-
-        let messagesService = MessagesServiceStub(messages: [message])
-        let viewModel: ConversationViewModel = {
+    MessageDetailView(
+        viewModel: {
             let viewModel = ConversationViewModel(
-                courseId: 1,
-                conversationId: 1,
-                messagesService: messagesService)
-            viewModel.dailyMessages = .done(response: [.now: [message]])
+                course: MessagesServiceStub.course,
+                conversation: MessagesServiceStub.conversation)
+            viewModel.dailyMessages = .done(response: [
+                MessagesServiceStub.now: [
+                    MessagesServiceStub.message
+                ]
+            ])
             return viewModel
-        }()
-
-        return MessageDetailView(
-            viewModel: viewModel,
-            message: Binding<DataState<BaseMessage>>.constant(
-                DataState<BaseMessage>.done(response: message)))
-    }()
+        }(),
+        message: Binding.constant(DataState<BaseMessage>.done(response: MessagesServiceStub.message)))
 }

@@ -218,21 +218,9 @@ extension EnvironmentValues {
 
 #Preview {
     ReactionsView(
-        viewModel: ConversationViewModel.init(courseId: 1, conversationId: 2),
-        message: Binding.constant(DataState<BaseMessage>.done(
-            response: {
-                var message = Message(id: 1)
-                message.reactions = [
-                    Reaction(id: 1),
-                    Reaction(id: 2, emojiId: "heart"),
-                    Reaction(id: 3, emojiId: "call_me_hand"),
-                    Reaction(id: 4, emojiId: "dog"),
-                    Reaction(id: 5, emojiId: "cat"),
-                    Reaction(id: 6, emojiId: "purse"),
-                    Reaction(id: 7, emojiId: "pineapple")
-                ]
-                return message
-            }()
-        ))
+        viewModel: ConversationViewModel(
+            course: MessagesServiceStub.course,
+            conversation: MessagesServiceStub.conversation),
+        message: Binding.constant(DataState<BaseMessage>.done(response: MessagesServiceStub.message))
     )
 }
