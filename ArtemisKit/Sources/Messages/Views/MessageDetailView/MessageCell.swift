@@ -45,9 +45,8 @@ struct MessageCell: View {
             Image(systemName: "person")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 40, height: 40)
+                .frame(width: 40, height: isHeaderVisible ? 40 : 0)
                 .padding(.top, .s)
-                .opacity(isHeaderVisible ? 1 : 0)
             VStack(alignment: .leading, spacing: .xs) {
                 if isHeaderVisible {
                     HStack(alignment: .firstTextBaseline, spacing: .m) {
