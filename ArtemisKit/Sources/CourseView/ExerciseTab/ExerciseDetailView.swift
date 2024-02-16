@@ -62,7 +62,7 @@ public struct ExerciseDetailView: View {
 
     private var showFeedbackButton: Bool {
         switch exercise.value {
-        case .fileUpload, .modeling, .programming, .text:
+        case .fileUpload, .programming, .text:
             return true
         default:
             return false
@@ -240,16 +240,23 @@ public struct ExerciseDetailView: View {
         .task {
             await loadExercise()
         }
+        .refreshable {
+            await refreshExercise()
+        }
     }
 
     private func loadExercise() async {
         if let exercise = exercise.value {
             setParticipationAndResultId(from: exercise)
         } else {
-            self.exercise = await ExerciseServiceFactory.shared.getExercise(exerciseId: exerciseId)
-            if let exercise = self.exercise.value {
-                setParticipationAndResultId(from: exercise)
-            }
+            await refreshExercise()
+        }
+    }
+
+    private func refreshExercise() async {
+        self.exercise = await ExerciseServiceFactory.shared.getExercise(exerciseId: exerciseId)
+        if let exercise = self.exercise.value {
+            setParticipationAndResultId(from: exercise)
         }
     }
 
