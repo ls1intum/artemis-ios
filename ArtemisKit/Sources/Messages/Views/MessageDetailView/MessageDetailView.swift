@@ -44,9 +44,7 @@ struct MessageDetailView: View {
                 Spacer()
                 if !((viewModel.conversation.value?.baseConversation as? Channel)?.isArchived ?? false),
                    let message = message as? Message {
-                    SendMessageView(
-                        viewModel: viewModel,
-                        sendMessageType: .answerMessage(message, reloadMessage))
+                    SendMessageView(viewModel: viewModel, sendMessageType: .answerMessage(message, reloadMessage))
                 }
             }
         }
@@ -69,6 +67,7 @@ private extension MessageDetailView {
             isHeaderVisible: true
         )
         .environment(\.isEmojiPickerButtonVisible, true)
+        .environment(\.isActionSheetEnabled, false)
         .onLongPressGesture(maximumDistance: 30) {
             let impactMed = UIImpactFeedbackGenerator(style: .heavy)
             impactMed.impactOccurred()
