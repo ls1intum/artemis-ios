@@ -13,6 +13,8 @@ import DesignLibrary
 
 struct EditModelingExerciseView: View {
     @StateObject var modelingViewModel: ModelingExerciseViewModel
+    @State private var showSubmissionAlert = false
+    @State private var isSubmissionSuccessful = false
 
     init(exercise: Exercise, participationId: Int, problemStatementURL: URLRequest) {
         self._modelingViewModel = StateObject(wrappedValue: ModelingExerciseViewModel(exercise: exercise,
@@ -47,23 +49,44 @@ struct EditModelingExerciseView: View {
                 if !modelingViewModel.diagramTypeUnsupported {
                     HStack {
                         ProblemStatementButton(modelingViewModel: modelingViewModel)
-                        SubmitButton(modelingViewModel: modelingViewModel)
+                        SubmitButton(modelingViewModel: modelingViewModel, showSubmissionAlert: $showSubmissionAlert, isSubmissionSuccessful: $isSubmissionSuccessful)
                     }
                 }
             }
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.visible, for: .navigationBar)
+        .alert(isPresented: $showSubmissionAlert) {
+            if isSubmissionSuccessful {
+                return Alert(
+                    title: Text(R.string.localizable.successfulSubmissionAlertTitle()),
+                    message: Text(R.string.localizable.successfulSubmissionAlertMessage())
+                )
+            } else {
+                return Alert(
+                    title: Text(R.string.localizable.failedSubmissionAlertTitle()),
+                    message: Text(R.string.localizable.failedSubmissionAlertMessage())
+                )
+            }
+        }
     }
 }
 
 struct SubmitButton: View {
     @ObservedObject var modelingViewModel: ModelingExerciseViewModel
+    @Binding var showSubmissionAlert: Bool
+    @Binding var isSubmissionSuccessful: Bool
 
     var body: some View {
         Button {
             Task {
-                await modelingViewModel.submitSubmission()
+                do {
+                    try await modelingViewModel.submitSubmission()
+                    isSubmissionSuccessful = true
+                } catch {
+                    isSubmissionSuccessful = false
+                }
+                showSubmissionAlert.toggle()
             }
         } label: {
             Text(R.string.localizable.submitSubmission())
