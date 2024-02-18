@@ -77,7 +77,7 @@ struct SendMessageView: View {
                     if isEditMode {
                         EmptyView()
                     } else {
-                        RoundedRectangle(cornerRadius: 20)
+                        RoundedRectangle(cornerRadius: .l)
                             .trim(from: isFocused ? 0.52 : 0.51, to: isFocused ? 0.98 : 0.99)
                             .stroke(Color.Artemis.artemisBlue, lineWidth: 2)
                     }

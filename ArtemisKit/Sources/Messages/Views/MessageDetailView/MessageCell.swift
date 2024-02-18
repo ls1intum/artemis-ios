@@ -14,7 +14,6 @@ import SwiftUI
 import UserStore
 
 struct MessageCell: View {
-
     @EnvironmentObject var navigationController: NavigationController
 
     @ObservedObject var viewModel: ConversationViewModel
@@ -22,7 +21,7 @@ struct MessageCell: View {
     @Binding var message: DataState<BaseMessage>
 
     @State private var isActionSheetPresented = false
-    @State private var isPressed = false
+    @State private var isDetectingLongPress = false
 
     var author: String {
         message.value?.author?.name ?? ""
@@ -44,9 +43,8 @@ struct MessageCell: View {
             Image(systemName: "person")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 40, height: 40)
+                .frame(width: 40, height: isHeaderVisible ? 40 : 0)
                 .padding(.top, .s)
-                .opacity(isHeaderVisible ? 1 : 0)
             VStack(alignment: .leading, spacing: .xs) {
                 if isHeaderVisible {
                     HStack(alignment: .firstTextBaseline, spacing: .m) {
@@ -74,13 +72,12 @@ struct MessageCell: View {
                         .font(.footnote)
                 }
 
-                ReactionsView(viewModel: viewModel, message: $message, isEmojiPickerButtonVisible: false)
+                ReactionsView(viewModel: viewModel, message: $message)
 
                 if let message = message.value as? Message,
-                   let answerCount = message.answers?.count,
-                   let conversationPath,
-                   answerCount > 0 {
-                    Button(R.string.localizable.replyAction(answerCount)) {
+                   let answerCount = message.answers?.count, answerCount > 0,
+                   let conversationPath {
+                    Button("^[\(answerCount) \(R.string.localizable.reply())](inflect: true)") {
                         if let messagePath = MessagePath(
                             message: self.$message,
                             coursePath: conversationPath.coursePath,
@@ -94,15 +91,18 @@ struct MessageCell: View {
                     }
                 }
             }
+            .background {
+                RoundedRectangle(cornerRadius: .m)
+                    .foregroundStyle(
+                        (isDetectingLongPress || isActionSheetPresented) ? Color.Artemis.messsageCellPressed : Color.clear)
+            }
             .id(message.value?.id.description)
-            Spacer()
         }
         .padding(.horizontal, .l)
-        .contentShape(Rectangle())
-        .background(isPressed ? Color.Artemis.messsageCellPressed : Color.clear)
+        .contentShape(.rect)
         .onTapGesture(perform: onTapPresentMessage)
-        .onLongPressGesture(minimumDuration: 0.1, maximumDistance: 30, perform: onLongPressPresentActionSheet) { pressed in
-            isPressed = pressed
+        .onLongPressGesture(perform: onLongPressPresentActionSheet) { changed in
+            isDetectingLongPress = changed
         }
         .sheet(isPresented: $isActionSheetPresented) {
             MessageActionSheet(viewModel: viewModel, message: $message, conversationPath: conversationPath)
@@ -120,7 +120,10 @@ private extension MessageCell {
         return lastReadDate < creationDate && user()?.id != message.value?.author?.id
     }
 
+    // MARK: Gestures
+
     func onTapPresentMessage() {
+        // Tap is disabled, if conversation path is nil, e.g., in the message detail view.
         if let conversationPath, let messagePath = MessagePath(
             message: $message,
             coursePath: conversationPath.coursePath,
@@ -142,7 +145,7 @@ private extension MessageCell {
         let impactMed = UIImpactFeedbackGenerator(style: .heavy)
         impactMed.impactOccurred()
         isActionSheetPresented = true
-        isPressed = false
+        isDetectingLongPress = false
     }
 }
 

@@ -50,7 +50,7 @@
 // MARK: ConversationView
 "noMessages" = "No Messages";
 "noMessagesDescription" = "Write the first message to kickstart this conversation.";
-"replyAction" = "%d reply";
+"reply" = "reply";
 "new" = "New";
 
 // MARK: CreateChannelView
