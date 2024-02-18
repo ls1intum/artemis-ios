@@ -67,7 +67,6 @@ private extension MessageDetailView {
             isHeaderVisible: true
         )
         .environment(\.isEmojiPickerButtonVisible, true)
-        .environment(\.isActionSheetEnabled, false)
         .onLongPressGesture(maximumDistance: 30) {
             let impactMed = UIImpactFeedbackGenerator(style: .heavy)
             impactMed.impactOccurred()

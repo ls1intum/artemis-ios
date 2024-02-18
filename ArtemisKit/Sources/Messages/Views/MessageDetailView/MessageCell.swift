@@ -14,8 +14,6 @@ import SwiftUI
 import UserStore
 
 struct MessageCell: View {
-    @Environment(\.isActionSheetEnabled) var isActionSheetEnabled: Bool
-
     @EnvironmentObject var navigationController: NavigationController
 
     @ObservedObject var viewModel: ConversationViewModel
@@ -103,7 +101,9 @@ struct MessageCell: View {
         .padding(.horizontal, .l)
         .contentShape(.rect)
         .onTapGesture(perform: onTapPresentMessage)
-        .gesture(longPress, including: isActionSheetEnabled ? .all : .subviews)
+        .onLongPressGesture(perform: onLongPressPresentActionSheet) { changed in
+            isDetectingLongPress = changed
+        }
         .sheet(isPresented: $isActionSheetPresented) {
             MessageActionSheet(viewModel: viewModel, message: $message, conversationPath: conversationPath)
                 .presentationDetents([.height(350), .large])
@@ -123,6 +123,7 @@ private extension MessageCell {
     // MARK: Gestures
 
     func onTapPresentMessage() {
+        // Tap is disabled, if conversation path is nil, e.g., in the message detail view.
         if let conversationPath, let messagePath = MessagePath(
             message: $message,
             coursePath: conversationPath.coursePath,
@@ -131,18 +132,6 @@ private extension MessageCell {
         ) {
             navigationController.path.append(messagePath)
         }
-    }
-
-    var longPress: some Gesture {
-        LongPressGesture(minimumDuration: 0, maximumDistance: 30)
-            .onChanged { changed in
-                isDetectingLongPress = changed
-            }
-            .onEnded { ended in
-                if ended {
-                    onLongPressPresentActionSheet()
-                }
-            }
     }
 
     func onLongPressPresentActionSheet() {
@@ -157,23 +146,6 @@ private extension MessageCell {
         impactMed.impactOccurred()
         isActionSheetPresented = true
         isDetectingLongPress = false
-    }
-}
-
-// MARK: - Environment+IsActionSheetEnabled
-
-private enum IsActionSheetEnabledEnvironmentKey: EnvironmentKey {
-    static let defaultValue = true
-}
-
-extension EnvironmentValues {
-    var isActionSheetEnabled: Bool {
-        get {
-            self[IsActionSheetEnabledEnvironmentKey.self]
-        }
-        set {
-            self[IsActionSheetEnabledEnvironmentKey.self] = newValue
-        }
     }
 }
 
