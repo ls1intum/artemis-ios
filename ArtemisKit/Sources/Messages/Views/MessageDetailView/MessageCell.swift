@@ -79,7 +79,7 @@ struct MessageCell: View {
                 if let message = message.value as? Message,
                    let answerCount = message.answers?.count, answerCount > 0,
                    let conversationPath {
-                    Button(R.string.localizable.replyAction(answerCount)) {
+                    Button("^[\(answerCount) \(R.string.localizable.reply())](inflect: true)") {
                         if let messagePath = MessagePath(
                             message: self.$message,
                             coursePath: conversationPath.coursePath,
