@@ -11,8 +11,10 @@ import UserStore
 import DesignLibrary
 import Common
 import SharedServices
+import Navigation
 
 public struct ExerciseDetailView: View {
+    @EnvironmentObject var navigationController: NavigationController
 
     @State private var webViewHeight = CGFloat.s
     @State private var urlRequest: URLRequest
@@ -67,15 +69,51 @@ public struct ExerciseDetailView: View {
         }
     }
 
+    private var isExerciseParticipationAvailable: Bool {
+        switch exercise.value {
+        case .modeling:
+            return true
+        default:
+            return false
+        }
+    }
+
     public var body: some View {
         DataStateView(data: $exercise, retryHandler: { await loadExercise() }) { exercise in
             ScrollView {
                 VStack(alignment: .leading, spacing: .l) {
-                    // HStack for all buttons regarding viewing feedback and for the future, starting an exercise
-                    if let latestResultId, let participationId, showFeedbackButton {
-                        HStack(spacing: .l) {
-                            Button(R.string.localizable.showFeedback()) {
+                    // All buttons regarding viewing feedback and for the future, starting an exercise
+                    HStack(spacing: .m) {
+                        if isExerciseParticipationAvailable {
+                            if let dueDate = exercise.baseExercise.dueDate {
+                                if dueDate > Date() {
+                                    if let participationId {
+                                        OpenExerciseButton(exercise: exercise, participationId: participationId, problemStatementURL: urlRequest)
+                                    } else {
+                                        StartExerciseButton(exercise: exercise, participationId: $participationId)
+                                    }
+                                } else {
+                                    if let participationId {
+                                        if  latestResultId == nil {
+                                            ViewExerciseSubmissionButton(exercise: exercise, participationId: participationId)
+                                        } else {
+                                            ViewExerciseResultButton(exercise: exercise, participationId: participationId)
+                                        }
+                                    }
+                                }
+                            } else {
+                                if let participationId {
+                                    OpenExerciseButton(exercise: exercise, participationId: participationId, problemStatementURL: urlRequest)
+                                } else {
+                                    StartExerciseButton(exercise: exercise, participationId: $participationId)
+                                }
+                            }
+                        }
+                        if let latestResultId, let participationId, showFeedbackButton {
+                            Button {
                                 showFeedback = true
+                            } label: {
+                                Text(R.string.localizable.showFeedback())
                             }
                             .buttonStyle(ArtemisButton())
                             .sheet(isPresented: $showFeedback) {
@@ -85,13 +123,15 @@ public struct ExerciseDetailView: View {
                                              resultId: latestResultId)
                             }
                         }
-                        .padding(.m)
+                    }
+                    .padding(.horizontal, .m)
+
+                    if !isExerciseParticipationAvailable {
+                        ArtemisHintBox(text: R.string.localizable.exerciseParticipationHint(), hintType: .info)
+                            .padding(.horizontal, .m)
                     }
 
-                    ArtemisHintBox(text: R.string.localizable.exerciseParticipationHint(), hintType: .info)
-                        .padding(.horizontal, .m)
-
-                    // HStack to display all score related information
+                    // All score related information
                     VStack(alignment: .leading, spacing: .xs) {
                         Text(R.string.localizable.points(
                             score,
@@ -100,7 +140,7 @@ public struct ExerciseDetailView: View {
 
                         SubmissionResultStatusView(exercise: exercise)
                     }
-                    .padding(.m)
+                    .padding(.horizontal, .m)
 
                     // Exercise Details
                     VStack(alignment: .leading, spacing: 0) {
@@ -143,13 +183,6 @@ public struct ExerciseDetailView: View {
                         if let complaintPossible = exercise.baseExercise.allowComplaintsForAutomaticAssessments {
                             ExerciseDetailCell(descriptionText: R.string.localizable.complaintPossible()) {
                                 Text(complaintPossible ? "Yes" : "No")
-                            }
-                        }
-
-                        // Assessment Type
-                        if let assessmentType = exercise.baseExercise.assessmentType {
-                            ExerciseDetailCell(descriptionText: R.string.localizable.assessmentType()) {
-                                Text(assessmentType.description)
                             }
                         }
 
@@ -250,10 +283,83 @@ private struct ExerciseDetailCell<Content: View>: View {
     }
 }
 
+private struct StartExerciseButton: View {
+    var exercise: Exercise
+    @Binding var participationId: Int?
+
+    var body: some View {
+        Button {
+            Task {
+                let exerciseService = ExerciseSubmissionServiceFactory.service(for: exercise)
+                do {
+                    let response = try await exerciseService.startParticipation(exerciseId: exercise.id)
+                    participationId = response.baseParticipation.id
+                } catch {
+                    log.error(String(describing: error))
+                }
+            }
+        } label: {
+            Text(R.string.localizable.startExercise())
+        }
+        .buttonStyle(ArtemisButton())
+    }
+}
+
+private struct OpenExerciseButton: View {
+    var exercise: Exercise
+    var participationId: Int
+    var problemStatementURL: URLRequest
+
+    var body: some View {
+        switch exercise {
+        case .modeling:
+            NavigationLink(destination: EditModelingExerciseView(exercise: exercise,
+                                                                 participationId: participationId,
+                                                                 problemStatementURL: problemStatementURL)) {
+                Text(R.string.localizable.openModelingEditor())
+            }.buttonStyle(ArtemisButton())
+        default:
+            ArtemisHintBox(text: R.string.localizable.exerciseParticipationHint(), hintType: .info)
+        }
+    }
+}
+
+private struct ViewExerciseSubmissionButton: View {
+    var exercise: Exercise
+    var participationId: Int
+
+    var body: some View {
+        switch exercise {
+        case .modeling:
+            NavigationLink(destination: ViewModelingExerciseView(exercise: exercise,
+                                                                 participationId: participationId)) {
+                Text(R.string.localizable.viewSubmission())
+            }.buttonStyle(ArtemisButton())
+        default:
+            ArtemisHintBox(text: R.string.localizable.exerciseParticipationHint(), hintType: .info)
+        }
+    }
+}
+
+private struct ViewExerciseResultButton: View {
+    var exercise: Exercise
+    var participationId: Int
+
+    var body: some View {
+        switch exercise {
+        case .modeling:
+            NavigationLink(destination: ViewModelingExerciseResultView(exercise: exercise,
+                                                                       participationId: participationId)) {
+                Text(R.string.localizable.viewResult())
+            }.buttonStyle(ArtemisButton())
+        default:
+            ArtemisHintBox(text: R.string.localizable.exerciseParticipationHint(), hintType: .info)
+        }
+    }
+}
+
 private struct FeedbackView: View {
-
     @Environment(\.dismiss) var dismiss
-
     @State private var webViewHeight = CGFloat.s
     @State private var urlRequest: URLRequest
     @State private var isWebViewLoading = true

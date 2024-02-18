@@ -48,16 +48,30 @@
 "noDueDate" = "No due date";
 "points" = "Points: %s of %s";
 "assessment" = "Assessment: %s";
-"showFeedback" = "Show Feedback";
+"showFeedback" = "Show feedback";
+"startExercise" = "Start exercise";
+"openModelingEditor" = "Open modeling editor";
+"submitSubmission" = "Submit";
+"viewSubmission" = "View submission";
+"viewSubmissionTitle" = "Submission";
+"viewResult" = "View result";
+"viewResultTitle" = "Result";
 "exerciseParticipationHint" = "Participating in exercises is currently not possible in the mobile app";
+"diagramTypeNotSupported" = "This diagram type is not yet supported in the mobile app";
 "releaseDate" = "Release date:";
 "submissionDate" = "Submission due:";
 "assessmentDate" = "Assessment due:";
 "complaintPossible" = "Complaint possible:";
-"assessmentType" = "Assessment type:";
 "exerciseType" = "Exercise type:";
 "difficulty" = "Difficulty:";
 "categories" = "Categories:";
+
+// Modeling Feedback
+"modelingFeedbackElement" = "Element";
+"modelingFeedbackPoints" = "Points";
+"modelingFeedback" = "Feedback:";
+"modelingAdditionalFeedback" = "Additional feedback:";
+"modelingAssessment" = "Assessment";
 
 // MARK: - LectureDetailView
 "attachmentCouldNotBeOpened" = "Attachment could not be opened!";

@@ -27,6 +27,8 @@
 "hiddenSection" = "Hidden";
 "favorite" = "Favorite";
 "unfavorite" = "Unfavorite";
+"mute" = "Mute";
+"unmute" = "Unmute";
 "hide" = "Hide";
 "show" = "Show";
 "channels" = "Channels";
@@ -52,7 +54,7 @@
 // MARK: ConversationView
 "noMessages" = "No Messages";
 "noMessagesDescription" = "Write the first message to kickstart this conversation.";
-"replyAction" = "%d reply";
+"reply" = "reply";
 "new" = "New";
 
 // MARK: CreateChannelView

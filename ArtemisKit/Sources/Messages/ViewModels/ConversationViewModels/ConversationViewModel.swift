@@ -5,15 +5,16 @@
 //  Created by Sven Andabaka on 06.04.23.
 //
 
+import APIClient
 import Foundation
 import Common
 import SharedModels
-import APIClient
 import SharedServices
+import UserStore
 
 // swiftlint:disable file_length
 @MainActor
-public class ConversationViewModel: BaseViewModel {
+class ConversationViewModel: BaseViewModel {
 
     @Published var dailyMessages: DataState<[Date: [Message]]> = .loading
     @Published var conversation: DataState<Conversation> = .loading
@@ -27,22 +28,51 @@ public class ConversationViewModel: BaseViewModel {
 
     private var size = 50
 
-    public init(course: Course, conversation: Conversation) {
+    private let courseService: CourseService
+    private let messagesService: MessagesService
+    private let stompClient: ArtemisStompClient
+    private let userSession: UserSession
+
+    init(
+        course: Course,
+        conversation: Conversation,
+        courseService: CourseService = CourseServiceFactory.shared,
+        messagesService: MessagesService = MessagesServiceFactory.shared,
+        stompClient: ArtemisStompClient = .shared,
+        userSession: UserSession = .shared
+    ) {
         self._course = Published(wrappedValue: .done(response: course))
         self.courseId = course.id
         self._conversation = Published(wrappedValue: .done(response: conversation))
         self.conversationId = conversation.id
+
+        self.courseService = courseService
+        self.messagesService = messagesService
+        self.stompClient = stompClient
+        self.userSession = userSession
 
         super.init()
 
         subscribeToConversationTopic()
     }
 
-    public init(courseId: Int, conversationId: Int64) {
+    init(
+        courseId: Int,
+        conversationId: Int64,
+        courseService: CourseService = CourseServiceFactory.shared,
+        messagesService: MessagesService = MessagesServiceFactory.shared,
+        stompClient: ArtemisStompClient = .shared,
+        userSession: UserSession = .shared
+    ) {
         self.courseId = courseId
         self.conversationId = conversationId
         self._conversation = Published(wrappedValue: .loading)
         self._course = Published(wrappedValue: .loading)
+
+        self.courseService = courseService
+        self.messagesService = messagesService
+        self.stompClient = stompClient
+        self.userSession = userSession
 
         super.init()
 
@@ -56,20 +86,8 @@ public class ConversationViewModel: BaseViewModel {
         subscribeToConversationTopic()
     }
 
-    private func subscribeToConversationTopic() {
-        let topic = "/user/topic/metis/courses/\(courseId)/conversations/\(conversationId)"
-        if ArtemisStompClient.shared.didSubscribeTopic(topic) {
-            return
-        }
-        websocketSubscriptionTask = Task { [weak self] in
-            let stream = ArtemisStompClient.shared.subscribe(to: topic)
-
-            for await message in stream {
-                guard let messageWebsocketDTO = JSONDecoder.getTypeFromSocketMessage(type: MessageWebsocketDTO.self, message: message) else { continue }
-
-                self?.onMessageReceived(messageWebsocketDTO: messageWebsocketDTO)
-            }
-        }
+    deinit {
+        websocketSubscriptionTask?.cancel()
     }
 
     func loadFurtherMessages() async {
@@ -84,7 +102,7 @@ public class ConversationViewModel: BaseViewModel {
     }
 
     func loadMessages() async {
-        let result = await MessagesServiceFactory.shared.getMessages(for: courseId, and: conversationId, size: size)
+        let result = await messagesService.getMessages(for: courseId, and: conversationId, size: size)
 
         switch result {
         case .loading:
@@ -94,13 +112,15 @@ public class ConversationViewModel: BaseViewModel {
         case .done(let response):
             var dailyMessages: [Date: [Message]] = [:]
 
-            response.forEach { message in
+            for message in response {
                 if let date = message.creationDate?.startOfDay {
                     if dailyMessages[date] == nil {
                         dailyMessages[date] = [message]
                     } else {
                         dailyMessages[date]?.append(message)
-                        dailyMessages[date] = dailyMessages[date]?.sorted(by: { $0.creationDate! < $1.creationDate! })
+                        dailyMessages[date] = dailyMessages[date]?.sorted {
+                            $0.creationDate! < $1.creationDate!
+                        }
                     }
                 }
             }
@@ -111,7 +131,7 @@ public class ConversationViewModel: BaseViewModel {
 
     func loadMessage(messageId: Int64) async -> DataState<Message> {
         // TODO: add API to only load one single message
-        let result = await MessagesServiceFactory.shared.getMessages(for: courseId, and: conversationId, size: size)
+        let result = await messagesService.getMessages(for: courseId, and: conversationId, size: size)
 
         switch result {
         case .loading:
@@ -128,7 +148,7 @@ public class ConversationViewModel: BaseViewModel {
 
     func loadAnswerMessage(answerMessageId: Int64) async -> DataState<AnswerMessage> {
         // TODO: add API to only load one single answer message
-        let result = await MessagesServiceFactory.shared.getMessages(for: courseId, and: conversationId, size: size)
+        let result = await messagesService.getMessages(for: courseId, and: conversationId, size: size)
 
         switch result {
         case .loading:
@@ -151,7 +171,7 @@ public class ConversationViewModel: BaseViewModel {
             return .failure(error: error)
         }
         isLoading = true
-        let result = await MessagesServiceFactory.shared.sendMessage(for: courseId, conversation: conversation, content: text)
+        let result = await messagesService.sendMessage(for: courseId, conversation: conversation, content: text)
         switch result {
         case .notStarted, .loading:
             isLoading = false
@@ -172,7 +192,7 @@ public class ConversationViewModel: BaseViewModel {
 
     func sendAnswerMessage(text: String, for message: Message, completion: () async -> Void) async -> NetworkResponse {
         isLoading = true
-        let result = await MessagesServiceFactory.shared.sendAnswerMessage(for: courseId, message: message, content: text)
+        let result = await messagesService.sendAnswerMessage(for: courseId, message: message, content: text)
         switch result {
         case .notStarted, .loading:
             isLoading = false
@@ -194,9 +214,9 @@ public class ConversationViewModel: BaseViewModel {
         isLoading = true
         let result: NetworkResponse
         if let reaction = message.getReactionFromMe(emojiId: emojiId) {
-            result = await MessagesServiceFactory.shared.removeReactionFromMessage(for: courseId, reaction: reaction)
+            result = await messagesService.removeReactionFromMessage(for: courseId, reaction: reaction)
         } else {
-            result = await MessagesServiceFactory.shared.addReactionToMessage(for: courseId, message: message, emojiId: emojiId)
+            result = await messagesService.addReactionToMessage(for: courseId, message: message, emojiId: emojiId)
         }
         switch result {
         case .notStarted, .loading:
@@ -225,9 +245,9 @@ public class ConversationViewModel: BaseViewModel {
         isLoading = true
         let result: NetworkResponse
         if let reaction = message.getReactionFromMe(emojiId: emojiId) {
-            result = await MessagesServiceFactory.shared.removeReactionFromMessage(for: courseId, reaction: reaction)
+            result = await messagesService.removeReactionFromMessage(for: courseId, reaction: reaction)
         } else {
-            result = await MessagesServiceFactory.shared.addReactionToAnswerMessage(for: courseId, answerMessage: message, emojiId: emojiId)
+            result = await messagesService.addReactionToAnswerMessage(for: courseId, answerMessage: message, emojiId: emojiId)
         }
         switch result {
         case .notStarted, .loading:
@@ -258,7 +278,7 @@ public class ConversationViewModel: BaseViewModel {
             return false
         }
 
-        let result = await MessagesServiceFactory.shared.deleteMessage(for: courseId, messageId: messageId)
+        let result = await messagesService.deleteMessage(for: courseId, messageId: messageId)
 
         switch result {
         case .notStarted, .loading:
@@ -278,7 +298,7 @@ public class ConversationViewModel: BaseViewModel {
             return false
         }
 
-        let result = await MessagesServiceFactory.shared.deleteAnswerMessage(for: courseId, anserMessageId: messageId)
+        let result = await messagesService.deleteAnswerMessage(for: courseId, anserMessageId: messageId)
 
         switch result {
         case .notStarted, .loading:
@@ -293,7 +313,7 @@ public class ConversationViewModel: BaseViewModel {
     }
 
     func editMessage(message: Message) async -> Bool {
-        let result = await MessagesServiceFactory.shared.editMessage(for: courseId, message: message)
+        let result = await messagesService.editMessage(for: courseId, message: message)
 
         switch result {
         case .notStarted, .loading:
@@ -308,7 +328,7 @@ public class ConversationViewModel: BaseViewModel {
     }
 
     func editAnswerMessage(answerMessage: AnswerMessage) async -> Bool {
-        let result = await MessagesServiceFactory.shared.editAnswerMessage(for: courseId, answerMessage: answerMessage)
+        let result = await messagesService.editAnswerMessage(for: courseId, answerMessage: answerMessage)
 
         switch result {
         case .notStarted, .loading:
@@ -321,9 +341,13 @@ public class ConversationViewModel: BaseViewModel {
             return false
         }
     }
+}
 
-    private func loadConversation() async {
-        let result = await MessagesServiceFactory.shared.getConversations(for: courseId)
+// MARK: Start (initializer)
+
+private extension ConversationViewModel {
+    func loadConversation() async {
+        let result = await messagesService.getConversations(for: courseId)
 
         switch result {
         case .loading:
@@ -339,8 +363,8 @@ public class ConversationViewModel: BaseViewModel {
         }
     }
 
-    private func loadCourse() async {
-        let result = await CourseServiceFactory.shared.getCourse(courseId: courseId)
+    func loadCourse() async {
+        let result = await courseService.getCourse(courseId: courseId)
 
         switch result {
         case .loading:
@@ -352,15 +376,45 @@ public class ConversationViewModel: BaseViewModel {
         }
     }
 
-    deinit {
-        websocketSubscriptionTask?.cancel()
+    func subscribeToConversationTopic() {
+        let topic: String
+        if conversation.value?.baseConversation.type == .channel {
+            topic = WebSocketTopic.makeChannelNotifications(courseId: courseId)
+        } else if let id = userSession.user?.id {
+            topic = WebSocketTopic.makeConversationNotifications(userId: id)
+        } else {
+            return
+        }
+        if stompClient.didSubscribeTopic(topic) {
+            return
+        }
+        websocketSubscriptionTask = Task { [weak self] in
+            guard let stream = self?.stompClient.subscribe(to: topic) else {
+                return
+            }
+
+            for await message in stream {
+                guard let messageWebsocketDTO = JSONDecoder.getTypeFromSocketMessage(type: MessageWebsocketDTO.self, message: message) else {
+                    continue
+                }
+
+                guard let self else {
+                    return
+                }
+                onMessageReceived(messageWebsocketDTO: messageWebsocketDTO)
+            }
+        }
     }
 }
 
-// All functions to handle new conversation received socket
-extension ConversationViewModel {
+// MARK: Receive message
 
-    private func onMessageReceived(messageWebsocketDTO: MessageWebsocketDTO) {
+private extension ConversationViewModel {
+    func onMessageReceived(messageWebsocketDTO: MessageWebsocketDTO) {
+        // Guard message corresponds to conversation
+        guard messageWebsocketDTO.post.conversation?.id == conversation.value?.id else {
+            return
+        }
         switch messageWebsocketDTO.action {
         case .create:
             handleNewMessage(messageWebsocketDTO.post)
@@ -373,7 +427,7 @@ extension ConversationViewModel {
         }
     }
 
-    private func handleNewMessage(_ newMessage: Message) {
+    func handleNewMessage(_ newMessage: Message) {
         guard var dailyMessages = dailyMessages.value else {
             // messages not loaded yet
             return
@@ -393,7 +447,7 @@ extension ConversationViewModel {
         self.dailyMessages = .done(response: dailyMessages)
     }
 
-    private func handleUpdateMessage(_ updatedMessage: Message) {
+    func handleUpdateMessage(_ updatedMessage: Message) {
         guard var dailyMessages = dailyMessages.value else {
             // messages not loaded yet
             return
@@ -411,7 +465,7 @@ extension ConversationViewModel {
         self.dailyMessages = .done(response: dailyMessages)
     }
 
-    private func handleDeletedMessage(_ deletedMessage: Message) {
+    func handleDeletedMessage(_ deletedMessage: Message) {
         guard var dailyMessages = dailyMessages.value else {
             // messages not loaded yet
             return

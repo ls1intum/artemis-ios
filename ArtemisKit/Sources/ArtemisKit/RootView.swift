@@ -1,12 +1,12 @@
-import SwiftUI
-import Login
-import Dashboard
+import Common
 import CourseRegistration
 import CourseView
+import Dashboard
+import Login
+import Messages
 import Navigation
 import PushNotifications
-import Common
-import Messages
+import SwiftUI
 
 public struct RootView: View {
 
@@ -19,7 +19,7 @@ public struct RootView: View {
     public var body: some View {
         Group {
             if viewModel.isLoading {
-                Image("Artemis-Logo")
+                Image("Artemis-Logo", bundle: .module)
                     .resizable()
                     .scaledToFit()
                     .frame(width: .extraLargeImage)
@@ -48,17 +48,6 @@ public struct RootView: View {
                                         LectureDetailView(courseId: lecturePath.coursePath.id, lectureId: lecturePath.id)
                                     }
                                 }
-                                .navigationDestination(for: MessagePath.self) { messagePath in
-                                    if let message = messagePath.message,
-                                       let conversationViewModel = messagePath.conversationViewModel as? ConversationViewModel {
-                                        MessageDetailView(viewModel: conversationViewModel,
-                                                          message: message)
-                                    } else {
-                                        MessageDetailView(viewModel: ConversationViewModel(courseId: messagePath.coursePath.id,
-                                                                                           conversationId: messagePath.conversationPath.id),
-                                                          messageId: messagePath.id)
-                                    }
-                                }
                                 .navigationDestination(for: ConversationPath.self) { conversationPath in
                                     if let conversation = conversationPath.conversation,
                                        let course = conversationPath.coursePath.course {
@@ -69,6 +58,7 @@ public struct RootView: View {
                                                          conversationId: conversationPath.id)
                                     }
                                 }
+                                .modifier(NavigationDestinationThreadViewModifier())
                         }
                         .onChange(of: navigationController.path) {
                             log.debug("NavigationController count: \(navigationController.path.count)")
