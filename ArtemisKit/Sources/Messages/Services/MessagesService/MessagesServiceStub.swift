@@ -147,6 +147,10 @@ extension MessagesServiceStub: MessagesService {
         .loading
     }
 
+    func getChannelsPublicOverview(for courseId: Int) async -> DataState<[ChannelIdAndNameDTO]> {
+        .loading
+    }
+
     func addMembersToChannel(for courseId: Int, channelId: Int64, usernames: [String]) async -> NetworkResponse {
         .loading
     }

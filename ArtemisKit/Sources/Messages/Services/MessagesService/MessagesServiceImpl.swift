@@ -437,6 +437,11 @@ class MessagesServiceImpl: MessagesService {
         }
     }
 
+    func getChannelsPublicOverview(for courseId: Int) async -> DataState<[ChannelIdAndNameDTO]> {
+        #warning("TODO")
+        return .loading
+    }
+
     struct AddMembersToChannelRequest: APIRequest {
         typealias Response = RawResponse
 
