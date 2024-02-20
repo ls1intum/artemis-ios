@@ -56,7 +56,7 @@ struct SendMessageView: View {
                 let conversation = viewModel.conversation.value {
                 SendMessageMemberPicker(course: course, conversation: conversation, text: $responseText)
                     .listStyle(.plain)
-                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                    .clipShape(.rect(cornerRadius: 20))
                     .overlay {
                         RoundedRectangle(cornerRadius: 20)
                             .stroke(Color.Artemis.artemisBlue, lineWidth: 2)
@@ -110,7 +110,7 @@ struct SendMessageView: View {
                 if isEditMode {
                     EmptyView()
                 } else {
-                    RoundedRectangle(cornerRadius: 20)
+                    RoundedRectangle(cornerRadius: .m)
                         .trim(from: isFocused ? 0.52 : 0.51, to: isFocused ? 0.98 : 0.99)
                         .stroke(Color.Artemis.artemisBlue, lineWidth: 2)
                 }
