@@ -10,12 +10,14 @@ import SharedModels
 import SharedServices
 import SwiftUI
 
-class SendMessageMemberPickerModel: BaseViewModel {
+@Observable
+class SendMessageMemberPickerModel {
 
     let course: Course
     let conversation: Conversation
+    #warning("Search _conversation_ members")
 
-    @Published var members: DataState<[UserNameAndLoginDTO]> = .loading
+    var members: DataState<[UserNameAndLoginDTO]> = .loading
 
     private let courseService: CourseService
 
@@ -30,8 +32,6 @@ class SendMessageMemberPickerModel: BaseViewModel {
     }
 
     func search(loginOrName: String) async {
-        isLoading = true
         members = await courseService.getCourseMembers(courseId: course.id, searchLoginOrName: loginOrName)
-        isLoading = false
     }
 }

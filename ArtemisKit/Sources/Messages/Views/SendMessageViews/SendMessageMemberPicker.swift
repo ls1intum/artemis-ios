@@ -31,12 +31,12 @@ enum SendMessageMemberCandidate {
 
 struct SendMessageMemberPicker: View {
 
-    @StateObject private var viewModel: SendMessageMemberPickerModel
+    @State private var viewModel: SendMessageMemberPickerModel
 
     @Binding var text: String
 
     init(course: Course, conversation: Conversation, text: Binding<String>) {
-        self._viewModel = StateObject(wrappedValue: SendMessageMemberPickerModel(course: course, conversation: conversation))
+        self.viewModel = SendMessageMemberPickerModel(course: course, conversation: conversation)
         self._text = text
     }
 
