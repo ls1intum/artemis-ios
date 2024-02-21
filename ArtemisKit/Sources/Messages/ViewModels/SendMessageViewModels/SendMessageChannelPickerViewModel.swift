@@ -25,7 +25,8 @@ class SendMessageChannelPickerViewModel {
         let channels = await MessagesServiceFactory.shared.getChannelsPublicOverview(for: course.id)
         if case let .done(channels) = channels {
             let filtered = channels.filter { channel in
-                channel.name.lowercased().contains(idOrName.lowercased())
+                let range = channel.name.range(of: idOrName, options: [.caseInsensitive, .diacriticInsensitive])
+                return range != nil
             }
             self.channels = .done(response: filtered)
         } else {
