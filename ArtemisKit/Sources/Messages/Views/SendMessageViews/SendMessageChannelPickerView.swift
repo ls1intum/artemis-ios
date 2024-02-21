@@ -13,26 +13,25 @@ import SwiftUI
 enum SendMessageChannelCandidate {
 
     /// `regex` matches the last number symbol followed by a candidate. The candidate is a possible channel name.
-    private static let regex = #/#(?<candidate>.*)/#
+    private static let regex = #/#(?<candidate>[\w-]*)/#
 
     static func search(text: String) -> Substring? {
-        #warning("Shorten")
-        let matches = text.matches(of: #/#(?<candidate>.*)/#)
-        matches.forEach { m in
-            log.info(m.candidate)
-        }
-        guard let match = matches.last, text.hasSuffix(match.0) else {
-            return nil
-        }
-        return match.candidate
+        let matches = text.matches(of: regex)
+        return matches.last?.candidate
     }
 
     static func replace(text: inout String, channel: ChannelIdAndNameDTO) {
-        guard let search = search(text: text) else {
+        guard let candidate = search(text: text) else {
             return
         }
-        #warning("#")
-        text.replace("#" + search, with: "[channel]\(channel.name)(\(channel.id))[/channel]")
+
+        /// Replaces all occurrences.
+        let range = Range<String.Index>?.none
+
+        text = text.replacingOccurrences(
+            of: "#" + candidate,
+            with: "[channel]\(channel.name)(\(channel.id))[/channel]",
+            range: range)
     }
 }
 
