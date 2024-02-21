@@ -22,8 +22,8 @@ struct SendMessageView: View {
     @ObservedObject var viewModel: ConversationViewModel
 
     @State private var responseText = ""
-    @State private var showExercisePicker = false
-    @State private var showLecturePicker = false
+    @State private var isExercisePickerPresented = false
+    @State private var isLecturePickerPresented = false
 
     @State private var isMemberPickerSuppressed = false
     @State private var isChannelPickerSuppressed = false
@@ -203,11 +203,11 @@ private extension SendMessageView {
                     }
                     Button {
                         isFocused = false
-                        showExercisePicker = true
+                        isExercisePickerPresented = true
                     } label: {
                         Text(R.string.localizable.exercise())
                     }
-                    .sheet(isPresented: $showExercisePicker) {
+                    .sheet(isPresented: $isExercisePickerPresented) {
                         isFocused = true
                     } content: {
                         if let course = viewModel.course.value {
@@ -218,11 +218,11 @@ private extension SendMessageView {
                     }
                     Button {
                         isFocused = false
-                        showLecturePicker = true
+                        isLecturePickerPresented = true
                     } label: {
                         Text(R.string.localizable.lecture())
                     }
-                    .sheet(isPresented: $showExercisePicker) {
+                    .sheet(isPresented: $isExercisePickerPresented) {
                         isFocused = true
                     } content: {
                         if let course = viewModel.course.value {
