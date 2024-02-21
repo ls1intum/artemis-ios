@@ -418,11 +418,11 @@ class MessagesServiceImpl: MessagesService {
         let courseId: Int
 
         var method: HTTPMethod {
-            .get
+            return .get
         }
 
         var resourceName: String {
-            "api/courses/\(courseId)/channels/overview"
+            return "api/courses/\(courseId)/channels/overview"
         }
     }
 
@@ -470,11 +470,11 @@ class MessagesServiceImpl: MessagesService {
         let usernames: [String]
 
         var method: HTTPMethod {
-            .post
+            return .post
         }
 
         var resourceName: String {
-            "api/courses/\(courseId)/channels/\(channelId)/register"
+            return "api/courses/\(courseId)/channels/\(channelId)/register"
         }
 
         func encode(to encoder: Encoder) throws {
