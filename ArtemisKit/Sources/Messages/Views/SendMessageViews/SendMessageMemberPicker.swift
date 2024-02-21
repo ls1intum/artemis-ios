@@ -9,23 +9,31 @@ import DesignLibrary
 import SharedModels
 import SwiftUI
 
+/// Matches the last 'at' symbol followed by a candidate.
+/// The candidate is a possible username or login.
 enum SendMessageMemberCandidate {
 
-    /// `regex` matches a prefix and the last at symbol followed by a candidate. The candidate is a possible user name
-    /// or login.
-    private static let regex = #/(?<prefix>[^@]*)@(?<candidate>.*)/#
+    private static let regex = #/@(?<candidate>[\w]*)/#
 
     static func search(text: String) -> Substring? {
-        text.wholeMatch(of: regex)?.candidate
+        let matches = text.matches(of: regex)
+        return matches.last?.candidate
     }
 
     static func replace(text: inout String, member: UserNameAndLoginDTO) {
-        guard let name = member.name, let login = member.login else {
+        guard let candidate = search(text: text),
+              let name = member.name, let login = member.login
+        else {
             return
         }
-        text.replace(regex) { match in
-            match.prefix + "[user]\(name)(\(login))[/user]"
-        }
+
+        // Replaces all occurrences. Otherwise, we need to get the match.
+        let range = Range<String.Index>?.none
+
+        text = text.replacingOccurrences(
+            of: "@" + candidate,
+            with: "[user]\(name)(\(login))[/user]",
+            range: range)
     }
 }
 

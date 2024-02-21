@@ -10,9 +10,10 @@ import DesignLibrary
 import SharedModels
 import SwiftUI
 
+/// Matches the last 'number' symbol followed by a candidate.
+/// The candidate is a possible channel name.
 enum SendMessageChannelCandidate {
 
-    /// `regex` matches the last number symbol followed by a candidate. The candidate is a possible channel name.
     private static let regex = #/#(?<candidate>[\w-]*)/#
 
     static func search(text: String) -> Substring? {
@@ -25,7 +26,7 @@ enum SendMessageChannelCandidate {
             return
         }
 
-        /// Replaces all occurrences.
+        // Replaces all occurrences. Otherwise, we need to get the match.
         let range = Range<String.Index>?.none
 
         text = text.replacingOccurrences(
