@@ -62,7 +62,7 @@ public struct ExerciseDetailView: View {
 
     private var showFeedbackButton: Bool {
         switch exercise.value {
-        case .fileUpload, .modeling, .programming, .text:
+        case .fileUpload, .programming, .text:
             return true
         default:
             return false
