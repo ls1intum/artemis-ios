@@ -68,8 +68,7 @@ struct SendMessageMemberPicker: View {
                     ContentUnavailableView(R.string.localizable.membersUnavailable(), systemImage: "magnifyingglass")
                 }
             }
-            .onAppear(perform: search)
-            .onChange(of: text, search)
+            .onChange(of: text, initial: true, search)
             Spacer()
         }
     }

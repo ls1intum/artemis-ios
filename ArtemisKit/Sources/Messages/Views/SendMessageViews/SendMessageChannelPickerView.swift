@@ -67,8 +67,7 @@ struct SendMessageChannelPickerView: View {
                     ContentUnavailableView(R.string.localizable.channelsUnavailable(), systemImage: "magnifyingglass")
                 }
             }
-            .onAppear(perform: search)
-            .onChange(of: text, search)
+            .onChange(of: text, initial: true, search)
             Spacer()
         }
     }
