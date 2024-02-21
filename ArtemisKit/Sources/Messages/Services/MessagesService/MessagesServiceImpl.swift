@@ -443,11 +443,11 @@ class MessagesServiceImpl: MessagesService {
         let courseId: Int
 
         var method: HTTPMethod {
-            .get
+            return .get
         }
 
         var resourceName: String {
-            "api/courses/{courseId}/channels/public-overview"
+            return "api/courses/\(courseId)/channels/public-overview"
         }
     }
 
