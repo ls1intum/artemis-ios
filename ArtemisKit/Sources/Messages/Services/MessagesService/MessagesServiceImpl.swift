@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Sven Andabaka on 03.04.23.
 //
@@ -22,11 +22,11 @@ class MessagesServiceImpl: MessagesService {
         let courseId: Int
 
         var method: HTTPMethod {
-            .get
+            return .get
         }
 
         var resourceName: String {
-            "api/courses/\(courseId)/conversations"
+            return "api/courses/\(courseId)/conversations"
         }
     }
 
@@ -49,11 +49,11 @@ class MessagesServiceImpl: MessagesService {
         let isFavorite: Bool
 
         var method: HTTPMethod {
-            .post
+            return .post
         }
 
         var resourceName: String {
-            "api/courses/\(courseId)/conversations/\(conversationId)/favorite?isFavorite=\(isFavorite)"
+            return "api/courses/\(courseId)/conversations/\(conversationId)/favorite?isFavorite=\(isFavorite)"
         }
     }
 
@@ -136,11 +136,11 @@ class MessagesServiceImpl: MessagesService {
         let size: Int
 
         var method: HTTPMethod {
-            .get
+            return .get
         }
 
         var resourceName: String {
-            "api/courses/\(courseId)/messages?postSortCriterion=CREATION_DATE&sortingOrder=ASCENDING&conversationId=\(conversationId)&pagingEnabled=true&page=0&size=\(size)"
+            return "api/courses/\(courseId)/messages?postSortCriterion=CREATION_DATE&sortingOrder=ASCENDING&conversationId=\(conversationId)&pagingEnabled=true&page=0&size=\(size)"
         }
     }
 
@@ -165,11 +165,11 @@ class MessagesServiceImpl: MessagesService {
         let content: String
 
         var method: HTTPMethod {
-            .post
+            return .post
         }
 
         var resourceName: String {
-            "api/courses/\(courseId)/messages"
+            return "api/courses/\(courseId)/messages"
         }
     }
 
@@ -195,11 +195,11 @@ class MessagesServiceImpl: MessagesService {
         let courseId: Int
 
         var method: HTTPMethod {
-            .post
+            return .post
         }
 
         var resourceName: String {
-            "api/courses/\(courseId)/answer-messages"
+            return "api/courses/\(courseId)/answer-messages"
         }
     }
 
@@ -223,11 +223,11 @@ class MessagesServiceImpl: MessagesService {
         let courseId: Int
 
         var method: HTTPMethod {
-            .delete
+            return .delete
         }
 
         var resourceName: String {
-            "api/courses/\(courseId)/messages/\(messageId)"
+            return "api/courses/\(courseId)/messages/\(messageId)"
         }
     }
 
@@ -249,11 +249,11 @@ class MessagesServiceImpl: MessagesService {
         let courseId: Int
 
         var method: HTTPMethod {
-            .delete
+            return .delete
         }
 
         var resourceName: String {
-            "api/courses/\(courseId)/answer-messages/\(messageId)"
+            return "api/courses/\(courseId)/answer-messages/\(messageId)"
         }
     }
 
@@ -275,11 +275,11 @@ class MessagesServiceImpl: MessagesService {
         let courseId: Int
 
         var method: HTTPMethod {
-            .put
+            return .put
         }
 
         var resourceName: String {
-            "api/courses/\(courseId)/messages/\(message.id)"
+            return "api/courses/\(courseId)/messages/\(message.id)"
         }
 
         func encode(to encoder: Encoder) throws {
@@ -305,11 +305,11 @@ class MessagesServiceImpl: MessagesService {
         let courseId: Int
 
         var method: HTTPMethod {
-            .put
+            return .put
         }
 
         var resourceName: String {
-            "api/courses/\(courseId)/answer-messages/\(answerMessage.id)"
+            return "api/courses/\(courseId)/answer-messages/\(answerMessage.id)"
         }
 
         func encode(to encoder: Encoder) throws {
@@ -336,11 +336,11 @@ class MessagesServiceImpl: MessagesService {
         let courseId: Int
 
         var method: HTTPMethod {
-            .post
+            return .post
         }
 
         var resourceName: String {
-            "api/courses/\(courseId)/postings/reactions"
+            return "api/courses/\(courseId)/postings/reactions"
         }
     }
 
@@ -365,11 +365,11 @@ class MessagesServiceImpl: MessagesService {
         let courseId: Int
 
         var method: HTTPMethod {
-            .post
+            return .post
         }
 
         var resourceName: String {
-            "api/courses/\(courseId)/postings/reactions"
+            return "api/courses/\(courseId)/postings/reactions"
         }
     }
 
@@ -393,11 +393,11 @@ class MessagesServiceImpl: MessagesService {
         let reactionId: Int64
 
         var method: HTTPMethod {
-            .delete
+            return .delete
         }
 
         var resourceName: String {
-            "api/courses/\(courseId)/postings/reactions/\(reactionId)"
+            return "api/courses/\(courseId)/postings/reactions/\(reactionId)"
         }
     }
 
@@ -501,11 +501,11 @@ class MessagesServiceImpl: MessagesService {
         let usernames: [String]
 
         var method: HTTPMethod {
-            .post
+            return .post
         }
 
         var resourceName: String {
-            "api/courses/\(courseId)/channels/\(channelId)/deregister"
+            return "api/courses/\(courseId)/channels/\(channelId)/deregister"
         }
 
         func encode(to encoder: Encoder) throws {
@@ -532,11 +532,11 @@ class MessagesServiceImpl: MessagesService {
         let usernames: [String]
 
         var method: HTTPMethod {
-            .post
+            return .post
         }
 
         var resourceName: String {
-            "api/courses/\(courseId)/group-chats/\(groupChatId)/register"
+            return "api/courses/\(courseId)/group-chats/\(groupChatId)/register"
         }
 
         func encode(to encoder: Encoder) throws {
@@ -563,11 +563,11 @@ class MessagesServiceImpl: MessagesService {
         let usernames: [String]
 
         var method: HTTPMethod {
-            .post
+            return .post
         }
 
         var resourceName: String {
-            "api/courses/\(courseId)/group-chats/\(groupChatId)/deregister"
+            return "api/courses/\(courseId)/group-chats/\(groupChatId)/deregister"
         }
 
         func encode(to encoder: Encoder) throws {
@@ -597,11 +597,11 @@ class MessagesServiceImpl: MessagesService {
         let isAnnouncementChannel: Bool
 
         var method: HTTPMethod {
-            .post
+            return .post
         }
 
         var resourceName: String {
-            "api/courses/\(courseId)/channels"
+            return "api/courses/\(courseId)/channels"
         }
     }
 
@@ -625,11 +625,11 @@ class MessagesServiceImpl: MessagesService {
         let searchText: String
 
         var method: HTTPMethod {
-            .get
+            return .get
         }
 
         var resourceName: String {
-            "api/courses/\(courseId)/users/search?loginOrName=\(searchText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&roles=students,tutors,instructors"
+            return "api/courses/\(courseId)/users/search?loginOrName=\(searchText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&roles=students,tutors,instructors"
         }
     }
 
@@ -651,11 +651,11 @@ class MessagesServiceImpl: MessagesService {
         let usernames: [String]
 
         var method: HTTPMethod {
-            .post
+            return .post
         }
 
         var resourceName: String {
-            "api/courses/\(courseId)/group-chats"
+            return "api/courses/\(courseId)/group-chats"
         }
 
         func encode(to encoder: Encoder) throws {
@@ -681,11 +681,11 @@ class MessagesServiceImpl: MessagesService {
         let usernames: [String]
 
         var method: HTTPMethod {
-            .post
+            return .post
         }
 
         var resourceName: String {
-            "api/courses/\(courseId)/one-to-one-chats"
+            return "api/courses/\(courseId)/one-to-one-chats"
         }
 
         func encode(to encoder: Encoder) throws {
@@ -713,11 +713,11 @@ class MessagesServiceImpl: MessagesService {
         let page: Int
 
         var method: HTTPMethod {
-            .get
+            return .get
         }
 
         var resourceName: String {
-            "api/courses/\(courseId)/conversations/\(conversationId)/members/search?loginOrName=\(searchText ?? "")&sort=firstName,asc&sort=lastName,asc&page=\(page)&size=20"
+            return "api/courses/\(courseId)/conversations/\(conversationId)/members/search?loginOrName=\(searchText ?? "")&sort=firstName,asc&sort=lastName,asc&page=\(page)&size=20"
         }
     }
 
@@ -741,11 +741,11 @@ class MessagesServiceImpl: MessagesService {
         let channelId: Int64
 
         var method: HTTPMethod {
-            .post
+            return .post
         }
 
         var resourceName: String {
-            "api/courses/\(courseId)/channels/\(channelId)/archive"
+            return "api/courses/\(courseId)/channels/\(channelId)/archive"
         }
     }
 
@@ -767,11 +767,11 @@ class MessagesServiceImpl: MessagesService {
         let channelId: Int64
 
         var method: HTTPMethod {
-            .post
+            return .post
         }
 
         var resourceName: String {
-            "api/courses/\(courseId)/channels/\(channelId)/unarchive"
+            return "api/courses/\(courseId)/channels/\(channelId)/unarchive"
         }
     }
 
@@ -799,11 +799,11 @@ class MessagesServiceImpl: MessagesService {
         let description: String?
 
         var method: HTTPMethod {
-            .put
+            return .put
         }
 
         var resourceName: String {
-            "api/courses/\(courseId)/\(typePath)/\(conversationId)"
+            return "api/courses/\(courseId)/\(typePath)/\(conversationId)"
         }
     }
 
