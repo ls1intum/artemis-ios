@@ -17,14 +17,21 @@ class SendMessageMemberPickerModel: BaseViewModel {
 
     @Published var members: DataState<[UserNameAndLoginDTO]> = .loading
 
-    init(course: Course, conversation: Conversation) {
+    private let courseService: CourseService
+
+    init(
+        course: Course,
+        conversation: Conversation,
+        courseService: CourseService = CourseServiceFactory.shared
+    ) {
         self.course = course
         self.conversation = conversation
+        self.courseService = courseService
     }
 
     func search(loginOrName: String) async {
         isLoading = true
-        members = await CourseServiceFactory.shared.getCourseMembers(courseId: course.id, searchLoginOrName: loginOrName)
+        members = await courseService.getCourseMembers(courseId: course.id, searchLoginOrName: loginOrName)
         isLoading = false
     }
 }

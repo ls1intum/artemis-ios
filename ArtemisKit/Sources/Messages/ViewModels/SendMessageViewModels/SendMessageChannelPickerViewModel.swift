@@ -17,12 +17,19 @@ class SendMessageChannelPickerViewModel {
 
     var channels: DataState<[ChannelIdAndNameDTO]> = .loading
 
-    init(course: Course, conversation: Conversation) {
+    private let messagesService: MessagesService
+
+    init(
+        course: Course,
+        conversation: Conversation,
+        messagesService: MessagesService = MessagesServiceFactory.shared
+    ) {
         self.course = course
+        self.messagesService = messagesService
     }
 
     func search(idOrName: String) async {
-        let channels = await MessagesServiceFactory.shared.getChannelsPublicOverview(for: course.id)
+        let channels = await messagesService.getChannelsPublicOverview(for: course.id)
         if case let .done(channels) = channels {
             let filtered = channels.filter { channel in
                 let range = channel.name.range(of: idOrName, options: [.caseInsensitive, .diacriticInsensitive])
