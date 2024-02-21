@@ -56,9 +56,9 @@ struct SendMessageView: View {
                 let conversation = viewModel.conversation.value {
                 SendMessageMemberPicker(course: course, conversation: conversation, text: $responseText)
                     .listStyle(.plain)
-                    .clipShape(.rect(cornerRadius: 20))
+                    .clipShape(.rect(cornerRadius: .l))
                     .overlay {
-                        RoundedRectangle(cornerRadius: 20)
+                        RoundedRectangle(cornerRadius: .l)
                             .stroke(Color.Artemis.artemisBlue, lineWidth: 2)
                     }
                     .padding(.bottom, .m)
@@ -68,9 +68,9 @@ struct SendMessageView: View {
                 let conversation = viewModel.conversation.value {
                 SendMessageChannelPickerView(course: course, conversation: conversation, text: $responseText)
                     .listStyle(.plain)
-                    .clipShape(.rect(cornerRadius: 20))
+                    .clipShape(.rect(cornerRadius: .l))
                     .overlay {
-                        RoundedRectangle(cornerRadius: 20)
+                        RoundedRectangle(cornerRadius: .l)
                             .stroke(Color.Artemis.artemisBlue, lineWidth: 2)
                     }
             }
