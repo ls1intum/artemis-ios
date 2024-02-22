@@ -23,8 +23,17 @@ final class SendMessageViewModel {
 
     private(set) var presentation: Presentation?
 
-    var isMemberPickerSuppressed = false
-    var isChannelPickerSuppressed = false
+    var isMemberPickerSuppressed = false {
+        didSet {
+            updatePresentation()
+        }
+    }
+
+    var isChannelPickerSuppressed = false {
+        didSet {
+            updatePresentation()
+        }
+    }
 
     var isExercisePickerPresented = false
     var isLecturePickerPresented = false
@@ -43,24 +52,20 @@ extension SendMessageViewModel {
 }
 
 private extension SendMessageViewModel {
-    /// .
-    ///
-    /// If a presentation is and a second wants to be,
-    /// then find out the next…
     func updatePresentation() {
         switch (
             presentation,
             SendMessageMemberCandidate.search(text: text),
             SendMessageChannelCandidate.search(text: text)
         ) {
-        case (.some, _, _):
-            break
         case (_, .some, _) where !isMemberPickerSuppressed:
             presentation = .memberPicker
         case (_, _, .some) where !isChannelPickerSuppressed:
             presentation = .channelPicker
+        case (.some, _, _):
+            fallthrough
         default:
-            break
+            presentation = nil
         }
     }
 }
