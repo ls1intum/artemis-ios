@@ -11,7 +11,7 @@ import SharedServices
 import SwiftUI
 
 @Observable
-class SendMessageMemberPickerModel {
+final class SendMessageMemberPickerModel {
 
     let course: Course
     let conversation: Conversation
