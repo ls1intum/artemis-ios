@@ -17,24 +17,6 @@ enum SendMessageType {
     case editAnswerMessage(AnswerMessage, () -> Void)
 }
 
-@Observable
-final class SendMessageViewModel {
-    var text: String = ""
-
-    var isMemberPickerSuppressed = false
-    var isChannelPickerSuppressed = false
-}
-
-extension SendMessageViewModel {
-    var isMemberPickerPresented: Bool {
-        SendMessageMemberCandidate.search(text: text) != nil && !isMemberPickerSuppressed
-    }
-
-    var isChannelPickerPresented: Bool {
-        SendMessageChannelCandidate.search(text: text) != nil && !isChannelPickerSuppressed
-    }
-}
-
 struct SendMessageView: View {
 
     @ObservedObject var viewModel: ConversationViewModel
