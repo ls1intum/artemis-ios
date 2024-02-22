@@ -125,6 +125,8 @@ let package = Package(
             ]),
         .testTarget(
             name: "ArtemisKitTests",
-            dependencies: [])
+            dependencies: [
+                "Messages"
+            ])
     ]
 )
