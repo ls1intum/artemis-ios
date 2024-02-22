@@ -25,6 +25,9 @@ final class SendMessageViewModel {
 
     var isMemberPickerSuppressed = false
     var isChannelPickerSuppressed = false
+
+    var isExercisePickerPresented = false
+    var isLecturePickerPresented = false
 }
 
 // MARK: - Presentation

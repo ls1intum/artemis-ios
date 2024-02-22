@@ -23,9 +23,6 @@ struct SendMessageView: View {
 
     @State var sendMessageViewModel = SendMessageViewModel()
 
-    @State private var isExercisePickerPresented = false
-    @State private var isLecturePickerPresented = false
-
     @FocusState private var isFocused: Bool
 
     let sendMessageType: SendMessageType
@@ -193,11 +190,11 @@ private extension SendMessageView {
                     }
                     Button {
                         isFocused = false
-                        isExercisePickerPresented = true
+                        sendMessageViewModel.isExercisePickerPresented = true
                     } label: {
                         Text(R.string.localizable.exercise())
                     }
-                    .sheet(isPresented: $isExercisePickerPresented) {
+                    .sheet(isPresented: $sendMessageViewModel.isExercisePickerPresented) {
                         isFocused = true
                     } content: {
                         if let course = viewModel.course.value {
@@ -208,11 +205,11 @@ private extension SendMessageView {
                     }
                     Button {
                         isFocused = false
-                        isLecturePickerPresented = true
+                        sendMessageViewModel.isLecturePickerPresented = true
                     } label: {
                         Text(R.string.localizable.lecture())
                     }
-                    .sheet(isPresented: $isExercisePickerPresented) {
+                    .sheet(isPresented: $sendMessageViewModel.isExercisePickerPresented) {
                         isFocused = true
                     } content: {
                         if let course = viewModel.course.value {
