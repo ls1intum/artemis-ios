@@ -168,26 +168,8 @@ private extension SendMessageView {
                     } label: {
                         Image(systemName: "link")
                     }
-                    Button {
-                        if sendMessageViewModel.isMemberPickerPresented {
-                            sendMessageViewModel.isMemberPickerSuppressed = true
-                        } else {
-                            sendMessageViewModel.isMemberPickerSuppressed = false
-                            sendMessageViewModel.text += "@"
-                        }
-                    } label: {
-                        Image(systemName: "at")
-                    }
-                    Button {
-                        if sendMessageViewModel.isChannelPickerPresented {
-                            sendMessageViewModel.isChannelPickerSuppressed = true
-                        } else {
-                            sendMessageViewModel.isChannelPickerSuppressed = false
-                            sendMessageViewModel.text += "#"
-                        }
-                    } label: {
-                        Image(systemName: "number")
-                    }
+                    Button("At", systemImage: "at", action: sendMessageViewModel.didTapAtButton)
+                    Button("Number", systemImage: "number", action: sendMessageViewModel.didTapNumberButton)
                     Button {
                         isFocused = false
                         sendMessageViewModel.isExercisePickerPresented = true

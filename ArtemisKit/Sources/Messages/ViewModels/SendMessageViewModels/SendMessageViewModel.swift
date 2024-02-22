@@ -39,6 +39,28 @@ final class SendMessageViewModel {
     var isLecturePickerPresented = false
 }
 
+// MARK: - Action
+
+extension SendMessageViewModel {
+    func didTapAtButton() {
+        if isMemberPickerPresented {
+            isMemberPickerSuppressed = true
+        } else {
+            isMemberPickerSuppressed = false
+            text += "@"
+        }
+    }
+
+    func didTapNumberButton() {
+        if isChannelPickerPresented {
+            isChannelPickerSuppressed = true
+        } else {
+            isChannelPickerSuppressed = false
+            text += "#"
+        }
+    }
+}
+
 // MARK: - Presentation
 
 extension SendMessageViewModel {
