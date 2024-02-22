@@ -17,24 +17,32 @@ enum SendMessageType {
     case editAnswerMessage(AnswerMessage, () -> Void)
 }
 
+@Observable
+final class SendMessageViewModel {
+    var text: String = ""
+
+    var isMemberPickerSuppressed = false
+    var isChannelPickerSuppressed = false
+}
+
+extension SendMessageViewModel {
+    var isMemberPickerPresented: Bool {
+        SendMessageMemberCandidate.search(text: text) != nil && !isMemberPickerSuppressed
+    }
+
+    var isChannelPickerPresented: Bool {
+        SendMessageChannelCandidate.search(text: text) != nil && !isChannelPickerSuppressed
+    }
+}
+
 struct SendMessageView: View {
 
     @ObservedObject var viewModel: ConversationViewModel
 
-    @State private var responseText = ""
+    @State var sendMessageViewModel = SendMessageViewModel()
+
     @State private var isExercisePickerPresented = false
     @State private var isLecturePickerPresented = false
-
-    @State private var isMemberPickerSuppressed = false
-    @State private var isChannelPickerSuppressed = false
-
-    private var isMemberPickerPresented: Bool {
-        SendMessageMemberCandidate.search(text: responseText) != nil && !isMemberPickerSuppressed
-    }
-
-    private var isChannelPickerPresented: Bool {
-        SendMessageChannelCandidate.search(text: responseText) != nil && !isChannelPickerSuppressed
-    }
 
     @FocusState private var isFocused: Bool
 
@@ -51,10 +59,10 @@ struct SendMessageView: View {
 
     var body: some View {
         VStack {
-            if isMemberPickerPresented,
+            if sendMessageViewModel.isMemberPickerPresented,
                 let course = viewModel.course.value,
                 let conversation = viewModel.conversation.value {
-                SendMessageMemberPicker(course: course, conversation: conversation, text: $responseText)
+                SendMessageMemberPicker(course: course, conversation: conversation, text: $sendMessageViewModel.text)
                     .listStyle(.plain)
                     .clipShape(.rect(cornerRadius: .l))
                     .overlay {
@@ -63,10 +71,10 @@ struct SendMessageView: View {
                     }
                     .padding(.bottom, .m)
             }
-            if isChannelPickerPresented,
+            if sendMessageViewModel.isChannelPickerPresented,
                 let course = viewModel.course.value,
                 let conversation = viewModel.conversation.value {
-                SendMessageChannelPickerView(course: course, conversation: conversation, text: $responseText)
+                SendMessageChannelPickerView(course: course, conversation: conversation, text: $sendMessageViewModel.text)
                     .listStyle(.plain)
                     .clipShape(.rect(cornerRadius: .l))
                     .overlay {
@@ -100,10 +108,10 @@ struct SendMessageView: View {
             }
             .onAppear {
                 if case .editMessage(let message, _) = sendMessageType {
-                    responseText = message.content ?? ""
+                    sendMessageViewModel.text = message.content ?? ""
                 }
                 if case .editAnswerMessage(let answerMessage, _) = sendMessageType {
-                    responseText = answerMessage.content ?? ""
+                    sendMessageViewModel.text = answerMessage.content ?? ""
                 }
             }
             .overlay {
@@ -134,11 +142,11 @@ private extension SendMessageView {
     @ViewBuilder var textField: some View {
         if isEditMode {
             TextField(R.string.localizable.messageAction(viewModel.conversation.value?.baseConversation.conversationName ?? ""),
-                      text: $responseText, axis: .vertical)
+                      text: $sendMessageViewModel.text, axis: .vertical)
             .textFieldStyle(ArtemisTextField())
         } else {
             TextField(R.string.localizable.messageAction(viewModel.conversation.value?.baseConversation.conversationName ?? ""),
-                      text: $responseText, axis: .vertical)
+                      text: $sendMessageViewModel.text, axis: .vertical)
         }
     }
 
@@ -147,56 +155,56 @@ private extension SendMessageView {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
                     Button {
-                        responseText.append("****")
+                        sendMessageViewModel.text.append("****")
                     } label: {
                         Image(systemName: "bold")
                     }
                     Button {
-                        responseText.append("**")
+                        sendMessageViewModel.text.append("**")
                     } label: {
                         Image(systemName: "italic")
                     }
                     Button {
-                        responseText.append("<ins></ins>")
+                        sendMessageViewModel.text.append("<ins></ins>")
                     } label: {
                         Image(systemName: "underline")
                     }
                     Button {
-                        responseText.append("> Reference")
+                        sendMessageViewModel.text.append("> Reference")
                     } label: {
                         Image(systemName: "quote.opening")
                     }
                     Button {
-                        responseText.append("``")
+                        sendMessageViewModel.text.append("``")
                     } label: {
                         Image(systemName: "curlybraces")
                     }
                     Button {
-                        responseText.append("```java\nSource Code\n```")
+                        sendMessageViewModel.text.append("```java\nSource Code\n```")
                     } label: {
                         Image(systemName: "curlybraces.square.fill")
                     }
                     Button {
-                        responseText.append("[](http://)")
+                        sendMessageViewModel.text.append("[](http://)")
                     } label: {
                         Image(systemName: "link")
                     }
                     Button {
-                        if isMemberPickerPresented {
-                            isMemberPickerSuppressed = true
+                        if sendMessageViewModel.isMemberPickerPresented {
+                            sendMessageViewModel.isMemberPickerSuppressed = true
                         } else {
-                            isMemberPickerSuppressed = false
-                            responseText += "@"
+                            sendMessageViewModel.isMemberPickerSuppressed = false
+                            sendMessageViewModel.text += "@"
                         }
                     } label: {
                         Image(systemName: "at")
                     }
                     Button {
-                        if isChannelPickerPresented {
-                            isChannelPickerSuppressed = true
+                        if sendMessageViewModel.isChannelPickerPresented {
+                            sendMessageViewModel.isChannelPickerSuppressed = true
                         } else {
-                            isChannelPickerSuppressed = false
-                            responseText += "#"
+                            sendMessageViewModel.isChannelPickerSuppressed = false
+                            sendMessageViewModel.text += "#"
                         }
                     } label: {
                         Image(systemName: "number")
@@ -211,7 +219,7 @@ private extension SendMessageView {
                         isFocused = true
                     } content: {
                         if let course = viewModel.course.value {
-                            SendMessageExercisePicker(text: $responseText, course: course)
+                            SendMessageExercisePicker(text: $sendMessageViewModel.text, course: course)
                         } else {
                             Text(R.string.localizable.loading())
                         }
@@ -226,7 +234,7 @@ private extension SendMessageView {
                         isFocused = true
                     } content: {
                         if let course = viewModel.course.value {
-                            SendMessageLecturePicker(text: $responseText, course: course)
+                            SendMessageLecturePicker(text: $sendMessageViewModel.text, course: course)
                         } else {
                             Text(R.string.localizable.loading())
                         }
@@ -245,12 +253,12 @@ private extension SendMessageView {
                 var result: NetworkResponse?
                 switch sendMessageType {
                 case .message:
-                    result = await viewModel.sendMessage(text: responseText)
+                    result = await viewModel.sendMessage(text: sendMessageViewModel.text)
                 case let .answerMessage(message, completion):
-                    result = await viewModel.sendAnswerMessage(text: responseText, for: message, completion: completion)
+                    result = await viewModel.sendAnswerMessage(text: sendMessageViewModel.text, for: message, completion: completion)
                 case let .editMessage(message, completion):
                     var newMessage = message
-                    newMessage.content = responseText
+                    newMessage.content = sendMessageViewModel.text
                     let success = await viewModel.editMessage(message: newMessage)
                     viewModel.isLoading = false
                     if success {
@@ -258,7 +266,7 @@ private extension SendMessageView {
                     }
                 case let .editAnswerMessage(message, completion):
                     var newMessage = message
-                    newMessage.content = responseText
+                    newMessage.content = sendMessageViewModel.text
                     let success = await viewModel.editAnswerMessage(answerMessage: newMessage)
                     viewModel.isLoading = false
                     if success {
@@ -267,7 +275,7 @@ private extension SendMessageView {
                 }
                 switch result {
                 case .success:
-                    responseText = ""
+                    sendMessageViewModel.text = ""
                 default:
                     return
                 }
@@ -277,7 +285,7 @@ private extension SendMessageView {
                 .imageScale(.large)
         }
         .padding(.leading, .l)
-        .disabled(responseText.isEmpty)
+        .disabled(sendMessageViewModel.text.isEmpty)
         .loadingIndicator(isLoading: $viewModel.isLoading)
     }
 }
