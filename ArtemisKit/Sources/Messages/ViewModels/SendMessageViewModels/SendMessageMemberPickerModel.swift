@@ -15,7 +15,6 @@ final class SendMessageMemberPickerModel {
 
     let course: Course
     let conversation: Conversation
-    #warning("Search _conversation_ members")
 
     var members: DataState<[UserNameAndLoginDTO]> = .loading
 
