@@ -6,7 +6,6 @@
 //
 
 import DesignLibrary
-import SharedModels
 import SwiftUI
 
 struct SendMessageMemberPicker: View {

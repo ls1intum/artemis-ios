@@ -5,9 +5,7 @@
 //  Created by Nityananda Zbil on 02.12.23.
 //
 
-import Common
 import DesignLibrary
-import SharedModels
 import SwiftUI
 
 struct SendMessageChannelPickerView: View {

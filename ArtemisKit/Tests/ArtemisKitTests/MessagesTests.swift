@@ -1,6 +1,23 @@
 import XCTest
 @testable import Messages
 
+final class SendMessageChannelPickerViewModelTests: XCTestCase {
+    func testChannelNameCaseInsensitivity() async throws {
+        // given
+        let viewModel = SendMessageChannelPickerViewModel(
+            course: .init(id: 1, courseInformationSharingConfiguration: .communicationAndMessaging),
+            conversation: .channel(conversation: .init(id: 1)),
+            messagesService: MessagesServiceStub())
+
+        // when
+        await viewModel.search(idOrName: "Annôunce")
+
+        // then
+        let channels = try XCTUnwrap(viewModel.channels.value)
+        XCTAssertNotNil(channels.first)
+    }
+}
+
 final class SendMessageViewModelTests: XCTestCase {
     func testWriteAt() {
         // given
@@ -10,7 +27,7 @@ final class SendMessageViewModelTests: XCTestCase {
         viewModel.text += "@"
 
         // then
-        XCTAssertTrue(viewModel.isMemberPickerPresented)
+        XCTAssertEqual(viewModel.presentation, .memberPicker)
     }
 
     func testWriteNumber() {
@@ -21,7 +38,7 @@ final class SendMessageViewModelTests: XCTestCase {
         viewModel.text += "#"
 
         // then
-        XCTAssertTrue(viewModel.isChannelPickerPresented)
+        XCTAssertEqual(viewModel.presentation, .channelPicker)
     }
 
     func testSuppressAt() {
@@ -33,7 +50,7 @@ final class SendMessageViewModelTests: XCTestCase {
         viewModel.isMemberPickerSuppressed = true
 
         // then
-        XCTAssertFalse(viewModel.isMemberPickerPresented)
+        XCTAssertNotEqual(viewModel.presentation, .memberPicker)
     }
 
     func testSuppressNumber() {
@@ -45,7 +62,7 @@ final class SendMessageViewModelTests: XCTestCase {
         viewModel.isChannelPickerSuppressed = true
 
         // then
-        XCTAssertFalse(viewModel.isChannelPickerPresented)
+        XCTAssertNotEqual(viewModel.presentation, .channelPicker)
     }
 
     func testOverrideAt() {
@@ -58,7 +75,7 @@ final class SendMessageViewModelTests: XCTestCase {
         viewModel.isMemberPickerSuppressed = true
 
         // then
-        XCTAssertTrue(viewModel.isChannelPickerPresented)
+        XCTAssertNotEqual(viewModel.presentation, .memberPicker)
     }
 
     func testOverrideNumber() {
@@ -71,6 +88,6 @@ final class SendMessageViewModelTests: XCTestCase {
         viewModel.isChannelPickerSuppressed = true
 
         // then
-        XCTAssertTrue(viewModel.isMemberPickerPresented)
+        XCTAssertNotEqual(viewModel.presentation, .channelPicker)
     }
 }

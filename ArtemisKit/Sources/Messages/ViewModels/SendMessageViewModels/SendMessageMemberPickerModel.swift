@@ -14,7 +14,6 @@ import SwiftUI
 final class SendMessageMemberPickerModel {
 
     let course: Course
-    let conversation: Conversation
 
     var members: DataState<[UserNameAndLoginDTO]> = .loading
 
@@ -22,11 +21,9 @@ final class SendMessageMemberPickerModel {
 
     init(
         course: Course,
-        conversation: Conversation,
         courseService: CourseService = CourseServiceFactory.shared
     ) {
         self.course = course
-        self.conversation = conversation
         self.courseService = courseService
     }
 

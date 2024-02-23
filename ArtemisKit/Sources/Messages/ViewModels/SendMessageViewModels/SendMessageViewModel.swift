@@ -44,7 +44,7 @@ final class SendMessageViewModel {
 
 extension SendMessageViewModel {
     func didTapAtButton() {
-        if isMemberPickerPresented {
+        if presentation == .memberPicker {
             isMemberPickerSuppressed = true
         } else {
             isMemberPickerSuppressed = false
@@ -53,7 +53,7 @@ extension SendMessageViewModel {
     }
 
     func didTapNumberButton() {
-        if isChannelPickerPresented {
+        if presentation == .channelPicker {
             isChannelPickerSuppressed = true
         } else {
             isChannelPickerSuppressed = false
@@ -104,16 +104,6 @@ extension SendMessageViewModel {
 }
 
 // MARK: - Presentation
-
-extension SendMessageViewModel {
-    var isMemberPickerPresented: Bool {
-        presentation == .memberPicker
-    }
-
-    var isChannelPickerPresented: Bool {
-        presentation == .channelPicker
-    }
-}
 
 private extension SendMessageViewModel {
     func updatePresentation() {

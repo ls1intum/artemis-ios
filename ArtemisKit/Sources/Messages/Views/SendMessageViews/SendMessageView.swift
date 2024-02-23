@@ -118,12 +118,16 @@ private extension SendMessageView {
 
     @ViewBuilder var textField: some View {
         if isEditMode {
-            TextField(R.string.localizable.messageAction(viewModel.conversation.value?.baseConversation.conversationName ?? ""),
-                      text: $sendMessageViewModel.text, axis: .vertical)
+            TextField(
+                R.string.localizable.messageAction(viewModel.conversation.value?.baseConversation.conversationName ?? ""),
+                text: $sendMessageViewModel.text, axis: .vertical
+            )
             .textFieldStyle(ArtemisTextField())
         } else {
-            TextField(R.string.localizable.messageAction(viewModel.conversation.value?.baseConversation.conversationName ?? ""),
-                      text: $sendMessageViewModel.text, axis: .vertical)
+            TextField(
+                R.string.localizable.messageAction(viewModel.conversation.value?.baseConversation.conversationName ?? ""),
+                text: $sendMessageViewModel.text, axis: .vertical
+            )
         }
     }
 
