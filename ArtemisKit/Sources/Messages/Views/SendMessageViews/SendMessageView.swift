@@ -38,7 +38,7 @@ struct SendMessageView: View {
 
     var body: some View {
         VStack {
-            pickers
+            mentions
             VStack {
                 if isFocused && !isEditMode {
                     Capsule()
@@ -96,18 +96,18 @@ struct SendMessageView: View {
 }
 
 private extension SendMessageView {
-    @ViewBuilder var pickers: some View {
+    @ViewBuilder var mentions: some View {
         if let course = viewModel.course.value,
            let conversation = viewModel.conversation.value {
             switch sendMessageViewModel.presentation {
             case .memberPicker:
-                SendMessageMemberPicker(
-                    viewModel: SendMessageMemberPickerModel(course: course),
+                SendMessageMentionMemberView(
+                    viewModel: SendMessageMentionMemberViewModel(course: course),
                     sendMessageViewModel: sendMessageViewModel
                 )
             case .channelPicker:
-                SendMessageChannelPickerView(
-                    viewModel: SendMessageChannelPickerViewModel(course: course, conversation: conversation),
+                SendMessageMentionChannelView(
+                    viewModel: SendMessageMentionChannelViewModel(course: course, conversation: conversation),
                     sendMessageViewModel: sendMessageViewModel
                 )
             case nil:

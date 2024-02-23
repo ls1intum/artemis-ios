@@ -1,5 +1,5 @@
 //
-//  SendMessageMemberPickerModel.swift
+//  SendMessageMentionMemberViewModel.swift
 //
 //
 //  Created by Nityananda Zbil on 28.10.23.
@@ -11,7 +11,7 @@ import SharedServices
 import SwiftUI
 
 @Observable
-final class SendMessageMemberPickerModel {
+final class SendMessageMentionMemberViewModel {
 
     let course: Course
 

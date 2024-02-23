@@ -1,5 +1,5 @@
 //
-//  SendMessageChannelPickerViewModel.swift
+//  SendMessageMentionChannelViewModel.swift
 //
 //
 //  Created by Nityananda Zbil on 02.12.23.
@@ -11,7 +11,7 @@ import SharedServices
 import SwiftUI
 
 @Observable
-final class SendMessageChannelPickerViewModel {
+final class SendMessageMentionChannelViewModel {
 
     let course: Course
 

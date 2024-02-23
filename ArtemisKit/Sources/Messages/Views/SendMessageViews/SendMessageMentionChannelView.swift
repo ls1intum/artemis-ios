@@ -1,5 +1,5 @@
 //
-//  SendMessageChannelPickerView.swift
+//  SendMessageMentionChannelView.swift
 //
 //
 //  Created by Nityananda Zbil on 02.12.23.
@@ -8,9 +8,9 @@
 import DesignLibrary
 import SwiftUI
 
-struct SendMessageChannelPickerView: View {
+struct SendMessageMentionChannelView: View {
 
-    @State var viewModel: SendMessageChannelPickerViewModel
+    @State var viewModel: SendMessageMentionChannelViewModel
 
     @Bindable var sendMessageViewModel: SendMessageViewModel
 
@@ -47,7 +47,7 @@ struct SendMessageChannelPickerView: View {
     }
 }
 
-private extension SendMessageChannelPickerView {
+private extension SendMessageMentionChannelView {
     func search() {
         if let candidate = sendMessageViewModel.searchChannel().map(String.init) {
             Task {

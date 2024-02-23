@@ -1,5 +1,5 @@
 //
-//  SendMessageMemberPicker.swift
+//  SendMessageMentionMemberView.swift
 //
 //
 //  Created by Nityananda Zbil on 28.10.23.
@@ -8,9 +8,9 @@
 import DesignLibrary
 import SwiftUI
 
-struct SendMessageMemberPicker: View {
+struct SendMessageMentionMemberView: View {
 
-    @State var viewModel: SendMessageMemberPickerModel
+    @State var viewModel: SendMessageMentionMemberViewModel
 
     @Bindable var sendMessageViewModel: SendMessageViewModel
 
@@ -47,7 +47,7 @@ struct SendMessageMemberPicker: View {
     }
 }
 
-private extension SendMessageMemberPicker {
+private extension SendMessageMentionMemberView {
     func search() {
         if let candidate = sendMessageViewModel.searchMember().map(String.init) {
             Task {
