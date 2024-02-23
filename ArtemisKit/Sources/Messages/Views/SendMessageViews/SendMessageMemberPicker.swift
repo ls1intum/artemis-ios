@@ -9,50 +9,17 @@ import DesignLibrary
 import SharedModels
 import SwiftUI
 
-/// Matches the last 'at' symbol followed by a candidate.
-/// The candidate is a possible username or login.
-enum SendMessageMemberCandidate {
-
-    private static let regex = #/@(?<candidate>[\w]*)/#
-
-    static func search(text: String) -> Substring? {
-        let matches = text.matches(of: regex)
-        return matches.last?.candidate
-    }
-
-    static func replace(text: inout String, member: UserNameAndLoginDTO) {
-        guard let candidate = search(text: text),
-              let name = member.name, let login = member.login
-        else {
-            return
-        }
-
-        // Replaces all occurrences. Otherwise, we need to get the match.
-        let range = Range<String.Index>?.none
-
-        text = text.replacingOccurrences(
-            of: "@" + candidate,
-            with: "[user]\(name)(\(login))[/user]",
-            range: range)
-    }
-}
-
 struct SendMessageMemberPicker: View {
 
-    @State private var viewModel: SendMessageMemberPickerModel
+    @State var viewModel: SendMessageMemberPickerModel
 
-    @Binding var text: String
-
-    init(course: Course, conversation: Conversation, text: Binding<String>) {
-        self.viewModel = SendMessageMemberPickerModel(course: course, conversation: conversation)
-        self._text = text
-    }
+    @Bindable var sendMessageViewModel: SendMessageViewModel
 
     var body: some View {
         HStack {
             Spacer()
             DataStateView(data: $viewModel.members) {
-                if let candidate = SendMessageMemberCandidate.search(text: text).map(String.init) {
+                if let candidate = sendMessageViewModel.searchMember().map(String.init) {
                     await viewModel.search(loginOrName: candidate)
                 }
             } content: { members in
@@ -60,7 +27,7 @@ struct SendMessageMemberPicker: View {
                     List {
                         ForEach(members, id: \.login) { member in
                             Button(member.name ?? "") {
-                                SendMessageMemberCandidate.replace(text: &text, member: member)
+                                sendMessageViewModel.replace(member: member)
                             }
                         }
                     }
@@ -68,7 +35,7 @@ struct SendMessageMemberPicker: View {
                     ContentUnavailableView(R.string.localizable.membersUnavailable(), systemImage: "magnifyingglass")
                 }
             }
-            .onChange(of: text, initial: true, search)
+            .onChange(of: sendMessageViewModel.text, initial: true, search)
             Spacer()
         }
     }
@@ -76,7 +43,7 @@ struct SendMessageMemberPicker: View {
 
 private extension SendMessageMemberPicker {
     func search() {
-        if let candidate = SendMessageMemberCandidate.search(text: text).map(String.init) {
+        if let candidate = sendMessageViewModel.searchMember().map(String.init) {
             Task {
                 await viewModel.search(loginOrName: candidate)
             }

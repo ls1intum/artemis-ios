@@ -41,14 +41,17 @@ struct SendMessageView: View {
             if sendMessageViewModel.isMemberPickerPresented,
                 let course = viewModel.course.value,
                 let conversation = viewModel.conversation.value {
-                SendMessageMemberPicker(course: course, conversation: conversation, text: $sendMessageViewModel.text)
-                    .listStyle(.plain)
-                    .clipShape(.rect(cornerRadius: .l))
-                    .overlay {
-                        RoundedRectangle(cornerRadius: .l)
-                            .stroke(Color.Artemis.artemisBlue, lineWidth: 2)
-                    }
-                    .padding(.bottom, .m)
+                SendMessageMemberPicker.init(
+                    viewModel: SendMessageMemberPickerModel.init(course: course, conversation: conversation),
+                    sendMessageViewModel: sendMessageViewModel
+                )
+                .listStyle(.plain)
+                .clipShape(.rect(cornerRadius: .l))
+                .overlay {
+                    RoundedRectangle(cornerRadius: .l)
+                        .stroke(Color.Artemis.artemisBlue, lineWidth: 2)
+                }
+                .padding(.bottom, .m)
             }
             if sendMessageViewModel.isChannelPickerPresented,
                 let course = viewModel.course.value,

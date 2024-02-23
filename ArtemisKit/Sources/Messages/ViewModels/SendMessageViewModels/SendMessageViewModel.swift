@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SharedModels
 
 @Observable
 final class SendMessageViewModel {
@@ -80,6 +81,26 @@ extension SendMessageViewModel {
             with: "[channel]\(channel.name)(\(channel.id))[/channel]",
             range: range)
     }
+
+    func searchMember() -> Substring? {
+        let matches = text.matches(of: #/@(?<candidate>[\w]*)/#)
+        return matches.last?.candidate
+    }
+
+    func replace(member: UserNameAndLoginDTO) {
+        guard let candidate = searchChannel(),
+              let name = member.name, let login = member.login else {
+            return
+        }
+
+        // Replaces all occurrences. Otherwise, we need to get the match.
+        let range = Range<String.Index>?.none
+
+        text = text.replacingOccurrences(
+            of: "@" + candidate,
+            with: "[user]\(name)(\(login))[/user]",
+            range: range)
+    }
 }
 
 // MARK: - Presentation
@@ -98,7 +119,7 @@ private extension SendMessageViewModel {
     func updatePresentation() {
         switch (
             presentation,
-            SendMessageMemberCandidate.search(text: text),
+            searchMember(),
             searchChannel()
         ) {
         case (_, .some, _) where !isMemberPickerSuppressed:
