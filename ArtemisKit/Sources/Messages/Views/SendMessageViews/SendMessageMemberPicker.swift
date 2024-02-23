@@ -38,6 +38,13 @@ struct SendMessageMemberPicker: View {
             .onChange(of: sendMessageViewModel.text, initial: true, search)
             Spacer()
         }
+        .listStyle(.plain)
+        .clipShape(.rect(cornerRadius: .l))
+        .overlay {
+            RoundedRectangle(cornerRadius: .l)
+                .stroke(Color.Artemis.artemisBlue, lineWidth: 2)
+        }
+        .padding(.bottom, .m)
     }
 }
 

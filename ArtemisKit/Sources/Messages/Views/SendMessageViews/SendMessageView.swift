@@ -38,35 +38,7 @@ struct SendMessageView: View {
 
     var body: some View {
         VStack {
-            if sendMessageViewModel.isMemberPickerPresented,
-                let course = viewModel.course.value,
-                let conversation = viewModel.conversation.value {
-                SendMessageMemberPicker.init(
-                    viewModel: SendMessageMemberPickerModel.init(course: course, conversation: conversation),
-                    sendMessageViewModel: sendMessageViewModel
-                )
-                .listStyle(.plain)
-                .clipShape(.rect(cornerRadius: .l))
-                .overlay {
-                    RoundedRectangle(cornerRadius: .l)
-                        .stroke(Color.Artemis.artemisBlue, lineWidth: 2)
-                }
-                .padding(.bottom, .m)
-            }
-            if sendMessageViewModel.isChannelPickerPresented,
-                let course = viewModel.course.value,
-                let conversation = viewModel.conversation.value {
-                SendMessageChannelPickerView(
-                    viewModel: SendMessageChannelPickerViewModel(course: course, conversation: conversation),
-                    sendMessageViewModel: sendMessageViewModel
-                )
-                .listStyle(.plain)
-                .clipShape(.rect(cornerRadius: .l))
-                .overlay {
-                    RoundedRectangle(cornerRadius: .l)
-                        .stroke(Color.Artemis.artemisBlue, lineWidth: 2)
-                }
-            }
+            pickers
             VStack {
                 if isFocused && !isEditMode {
                     Capsule()
@@ -124,6 +96,26 @@ struct SendMessageView: View {
 }
 
 private extension SendMessageView {
+    @ViewBuilder var pickers: some View {
+        if let course = viewModel.course.value,
+           let conversation = viewModel.conversation.value {
+            switch sendMessageViewModel.presentation {
+            case .memberPicker:
+                SendMessageMemberPicker(
+                    viewModel: SendMessageMemberPickerModel(course: course),
+                    sendMessageViewModel: sendMessageViewModel
+                )
+            case .channelPicker:
+                SendMessageChannelPickerView(
+                    viewModel: SendMessageChannelPickerViewModel(course: course, conversation: conversation),
+                    sendMessageViewModel: sendMessageViewModel
+                )
+            case nil:
+                EmptyView()
+            }
+        }
+    }
+
     @ViewBuilder var textField: some View {
         if isEditMode {
             TextField(R.string.localizable.messageAction(viewModel.conversation.value?.baseConversation.conversationName ?? ""),
