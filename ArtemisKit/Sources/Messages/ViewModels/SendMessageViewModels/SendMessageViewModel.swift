@@ -39,7 +39,7 @@ final class SendMessageViewModel {
     var isLecturePickerPresented = false
 }
 
-// MARK: - Action
+// MARK: - Actions
 
 extension SendMessageViewModel {
     func didTapAtButton() {
@@ -58,6 +58,27 @@ extension SendMessageViewModel {
             isChannelPickerSuppressed = false
             text += "#"
         }
+    }
+
+    // MARK: Search and Replace
+
+    func searchChannel() -> Substring? {
+        let matches = text.matches(of: #/#(?<candidate>[\w-]*)/#)
+        return matches.last?.candidate
+    }
+
+    func replace(channel: ChannelIdAndNameDTO) {
+        guard let candidate = searchChannel() else {
+            return
+        }
+
+        // Replaces all occurrences. Otherwise, we need to get the match.
+        let range = Range<String.Index>?.none
+
+        text = text.replacingOccurrences(
+            of: "#" + candidate,
+            with: "[channel]\(channel.name)(\(channel.id))[/channel]",
+            range: range)
     }
 }
 
@@ -78,7 +99,7 @@ private extension SendMessageViewModel {
         switch (
             presentation,
             SendMessageMemberCandidate.search(text: text),
-            SendMessageChannelCandidate.search(text: text)
+            searchChannel()
         ) {
         case (_, .some, _) where !isMemberPickerSuppressed:
             presentation = .memberPicker

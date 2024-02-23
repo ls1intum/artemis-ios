@@ -53,13 +53,16 @@ struct SendMessageView: View {
             if sendMessageViewModel.isChannelPickerPresented,
                 let course = viewModel.course.value,
                 let conversation = viewModel.conversation.value {
-                SendMessageChannelPickerView(course: course, conversation: conversation, text: $sendMessageViewModel.text)
-                    .listStyle(.plain)
-                    .clipShape(.rect(cornerRadius: .l))
-                    .overlay {
-                        RoundedRectangle(cornerRadius: .l)
-                            .stroke(Color.Artemis.artemisBlue, lineWidth: 2)
-                    }
+                SendMessageChannelPickerView(
+                    viewModel: SendMessageChannelPickerViewModel(course: course, conversation: conversation),
+                    sendMessageViewModel: sendMessageViewModel
+                )
+                .listStyle(.plain)
+                .clipShape(.rect(cornerRadius: .l))
+                .overlay {
+                    RoundedRectangle(cornerRadius: .l)
+                        .stroke(Color.Artemis.artemisBlue, lineWidth: 2)
+                }
             }
             VStack {
                 if isFocused && !isEditMode {

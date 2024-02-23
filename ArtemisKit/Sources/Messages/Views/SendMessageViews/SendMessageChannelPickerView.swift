@@ -10,48 +10,17 @@ import DesignLibrary
 import SharedModels
 import SwiftUI
 
-/// Matches the last 'number' symbol followed by a candidate.
-/// The candidate is a possible channel name.
-enum SendMessageChannelCandidate {
-
-    private static let regex = #/#(?<candidate>[\w-]*)/#
-
-    static func search(text: String) -> Substring? {
-        let matches = text.matches(of: regex)
-        return matches.last?.candidate
-    }
-
-    static func replace(text: inout String, channel: ChannelIdAndNameDTO) {
-        guard let candidate = search(text: text) else {
-            return
-        }
-
-        // Replaces all occurrences. Otherwise, we need to get the match.
-        let range = Range<String.Index>?.none
-
-        text = text.replacingOccurrences(
-            of: "#" + candidate,
-            with: "[channel]\(channel.name)(\(channel.id))[/channel]",
-            range: range)
-    }
-}
-
 struct SendMessageChannelPickerView: View {
 
-    @State private var viewModel: SendMessageChannelPickerViewModel
+    @State var viewModel: SendMessageChannelPickerViewModel
 
-    @Binding var text: String
-
-    init(course: Course, conversation: Conversation, text: Binding<String>) {
-        self.viewModel = SendMessageChannelPickerViewModel(course: course, conversation: conversation)
-        self._text = text
-    }
+    @Bindable var sendMessageViewModel: SendMessageViewModel
 
     var body: some View {
         HStack {
             Spacer()
             DataStateView(data: $viewModel.channels) {
-                if let candidate = SendMessageChannelCandidate.search(text: text).map(String.init) {
+                if let candidate = sendMessageViewModel.searchChannel().map(String.init) {
                     await viewModel.search(idOrName: candidate)
                 }
             } content: { channels in
@@ -59,7 +28,7 @@ struct SendMessageChannelPickerView: View {
                     List {
                         ForEach(channels) { channel in
                             Button(channel.name) {
-                                SendMessageChannelCandidate.replace(text: &text, channel: channel)
+                                sendMessageViewModel.replace(channel: channel)
                             }
                         }
                     }
@@ -67,7 +36,7 @@ struct SendMessageChannelPickerView: View {
                     ContentUnavailableView(R.string.localizable.channelsUnavailable(), systemImage: "magnifyingglass")
                 }
             }
-            .onChange(of: text, initial: true, search)
+            .onChange(of: sendMessageViewModel.text, initial: true, search)
             Spacer()
         }
     }
@@ -75,7 +44,7 @@ struct SendMessageChannelPickerView: View {
 
 private extension SendMessageChannelPickerView {
     func search() {
-        if let candidate = SendMessageChannelCandidate.search(text: text).map(String.init) {
+        if let candidate = sendMessageViewModel.searchChannel().map(String.init) {
             Task {
                 await viewModel.search(idOrName: candidate)
             }
