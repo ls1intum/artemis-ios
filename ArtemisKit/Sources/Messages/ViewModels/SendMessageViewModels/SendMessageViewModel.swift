@@ -88,7 +88,7 @@ extension SendMessageViewModel {
     }
 
     func replace(member: UserNameAndLoginDTO) {
-        guard let candidate = searchChannel(),
+        guard let candidate = searchMember(),
               let name = member.name, let login = member.login else {
             return
         }
@@ -107,17 +107,11 @@ extension SendMessageViewModel {
 
 private extension SendMessageViewModel {
     func updatePresentation() {
-        switch (
-            presentation,
-            searchMember(),
-            searchChannel()
-        ) {
+        switch (presentation, searchMember(), searchChannel()) {
         case (_, .some, _) where !isMemberPickerSuppressed:
             presentation = .memberPicker
         case (_, _, .some) where !isChannelPickerSuppressed:
             presentation = .channelPicker
-        case (.some, _, _):
-            fallthrough
         default:
             presentation = nil
         }

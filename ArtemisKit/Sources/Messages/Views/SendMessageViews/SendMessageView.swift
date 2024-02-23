@@ -170,8 +170,12 @@ private extension SendMessageView {
                     } label: {
                         Image(systemName: "link")
                     }
-                    Button("At", systemImage: "at", action: sendMessageViewModel.didTapAtButton)
-                    Button("Number", systemImage: "number", action: sendMessageViewModel.didTapNumberButton)
+                    Button(action: sendMessageViewModel.didTapAtButton) {
+                        Image(systemName: "at")
+                    }
+                    Button(action: sendMessageViewModel.didTapNumberButton) {
+                        Image(systemName: "number")
+                    }
                     Button {
                         isFocused = false
                         sendMessageViewModel.isExercisePickerPresented = true
