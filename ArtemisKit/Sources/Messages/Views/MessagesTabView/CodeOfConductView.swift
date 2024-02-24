@@ -5,8 +5,8 @@
 //  Created by Nityananda Zbil on 15.10.23.
 //
 
+import ArtemisMarkdown
 import DesignLibrary
-import MarkdownUI
 import SharedModels
 import SwiftUI
 
@@ -23,7 +23,7 @@ struct CodeOfConductView: View {
             await viewModel.getCodeOfConductInformation()
         } content: { _ in
             VStack(alignment: .leading) {
-                Markdown(codeOfConductSanitized() + "\n" + responsibleUserMarkdown())
+                ArtemisMarkdownView(string: codeOfConductSanitized() + "\n" + responsibleUserMarkdown())
                 // Take all available horizontal space
                 HStack {
                     Spacer()
