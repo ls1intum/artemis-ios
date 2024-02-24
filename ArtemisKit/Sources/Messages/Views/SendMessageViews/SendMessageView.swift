@@ -98,8 +98,8 @@ struct SendMessageView: View {
 private extension SendMessageView {
     @ViewBuilder var mentions: some View {
         if let course = viewModel.course.value,
-           let conversation = viewModel.conversation.value {
-            switch sendMessageViewModel.presentation {
+           let presentation = sendMessageViewModel.presentation {
+            switch presentation {
             case .memberPicker:
                 SendMessageMentionMemberView(
                     viewModel: SendMessageMentionMemberViewModel(course: course),
@@ -110,8 +110,6 @@ private extension SendMessageView {
                     viewModel: SendMessageMentionChannelViewModel(course: course),
                     sendMessageViewModel: sendMessageViewModel
                 )
-            case nil:
-                EmptyView()
             }
         }
     }
