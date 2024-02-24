@@ -4,9 +4,8 @@ import XCTest
 final class SendMessageChannelPickerViewModelTests: XCTestCase {
     func testChannelNameCaseInsensitivity() async throws {
         // given
-        let viewModel = SendMessageMentionChannelModel(
+        let viewModel = SendMessageMentionChannelViewModel(
             course: .init(id: 1, courseInformationSharingConfiguration: .communicationAndMessaging),
-            conversation: .channel(conversation: .init(id: 1)),
             messagesService: MessagesServiceStub())
 
         // when

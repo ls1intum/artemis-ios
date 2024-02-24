@@ -107,7 +107,7 @@ private extension SendMessageView {
                 )
             case .channelPicker:
                 SendMessageMentionChannelView(
-                    viewModel: SendMessageMentionChannelViewModel(course: course, conversation: conversation),
+                    viewModel: SendMessageMentionChannelViewModel(course: course),
                     sendMessageViewModel: sendMessageViewModel
                 )
             case nil:

@@ -21,7 +21,6 @@ final class SendMessageMentionChannelViewModel {
 
     init(
         course: Course,
-        conversation: Conversation,
         messagesService: MessagesService = MessagesServiceFactory.shared
     ) {
         self.course = course

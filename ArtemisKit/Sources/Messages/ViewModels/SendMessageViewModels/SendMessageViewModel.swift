@@ -16,25 +16,20 @@ final class SendMessageViewModel {
         case channelPicker
     }
 
-    var text: String = "" {
-        didSet {
-            updatePresentation()
+    var text: String = ""
+
+    var presentation: Presentation? {
+        if !isMemberPickerSuppressed, searchMember() != nil {
+            .memberPicker
+        } else if !isChannelPickerSuppressed, searchChannel() != nil {
+            .channelPicker
+        } else {
+            nil
         }
     }
 
-    private(set) var presentation: Presentation?
-
-    var isMemberPickerSuppressed = false {
-        didSet {
-            updatePresentation()
-        }
-    }
-
-    var isChannelPickerSuppressed = false {
-        didSet {
-            updatePresentation()
-        }
-    }
+    var isMemberPickerSuppressed = false
+    var isChannelPickerSuppressed = false
 
     var isExercisePickerPresented = false
     var isLecturePickerPresented = false
@@ -100,20 +95,5 @@ extension SendMessageViewModel {
             of: "@" + candidate,
             with: "[user]\(name)(\(login))[/user]",
             range: range)
-    }
-}
-
-// MARK: - Presentation
-
-private extension SendMessageViewModel {
-    func updatePresentation() {
-        switch (presentation, searchMember(), searchChannel()) {
-        case (_, .some, _) where !isMemberPickerSuppressed:
-            presentation = .memberPicker
-        case (_, _, .some) where !isChannelPickerSuppressed:
-            presentation = .channelPicker
-        default:
-            presentation = nil
-        }
     }
 }
