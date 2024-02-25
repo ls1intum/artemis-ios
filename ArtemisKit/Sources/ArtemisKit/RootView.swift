@@ -64,11 +64,6 @@ public struct RootView: View {
                             log.debug("NavigationController count: \(navigationController.path.count)")
                         }
                         .environmentObject(navigationController)
-                        .environment(\.openURL, OpenURLAction { url in
-                            DeeplinkHandler.shared.handle(url: url)
-                            log.info(url)
-                            return .handled
-                        })
                         .onOpenURL { url in
                             DeeplinkHandler.shared.handle(url: url)
                         }

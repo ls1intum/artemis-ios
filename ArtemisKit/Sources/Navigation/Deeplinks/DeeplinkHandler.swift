@@ -20,27 +20,35 @@ public class DeeplinkHandler {
 
     var navigationController: NavigationController?
 
-    private init() { }
+    private init() {}
 
     func setup(navigationController: NavigationController) {
         self.navigationController = navigationController
     }
 
     public func handle(path: String) {
-        guard let url = URL(string: path, relativeTo: UserSession.shared.institution?.baseURL) else { return }
+        guard let url = URL(string: path, relativeTo: UserSession.shared.institution?.baseURL) else {
+            return
+        }
         handle(url: url)
     }
 
-    public func handle(url: URL) {
-        guard let navigationController else {
-            return
+    @discardableResult
+    public func handle(url: URL) -> Bool {
+        guard UserSession.shared.institution?.baseURL?.host() == url.host(),
+              let navigationController,
+              let handler = buildHandler(from: url) else {
+            return false
         }
-        buildHandler(from: url)?.handle(with: navigationController)
+
+        handler.handle(with: navigationController)
+
+        return true
     }
 
     private func buildHandler(from url: URL) -> Deeplink? {
-        // warning: the order of the array matters
-        let builderFuncs: [(URL) -> Deeplink?] = [
+        // Attention: the order of the array matters
+        let builders: [(URL) -> Deeplink?] = [
             ExerciseHandler.build,
             LectureHandler.build,
             MessageHandler.build,
@@ -50,20 +58,10 @@ public class DeeplinkHandler {
             UnknownLinkHandler.build
         ]
 
-        return builderFuncs
-            .map { $0(url) }
-            .compactMap { $0 }
+        return builders
+            .compactMap { builder in
+                builder(url)
+            }
             .first
-    }
-}
-
-extension URL {
-    func trimBaseUrl() -> String? {
-        let string = self.absoluteString
-
-        guard let baseURL = UserSession.shared.institution?.baseURL,
-              let endIndex = string.range(of: baseURL.absoluteString)?.upperBound else { return nil }
-
-        return String(string.suffix(from: endIndex))
     }
 }

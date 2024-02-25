@@ -126,6 +126,13 @@ public struct ConversationView: View {
             }
         }
         .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
+        .environment(\.openURL, OpenURLAction { url in
+            if DeeplinkHandler.shared.handle(url: url) {
+                return .handled
+            } else {
+                return .systemAction
+            }
+        })
     }
 }
 
