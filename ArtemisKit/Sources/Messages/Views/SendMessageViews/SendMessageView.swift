@@ -195,7 +195,7 @@ private extension SendMessageView {
                     } label: {
                         Text(R.string.localizable.lecture())
                     }
-                    .sheet(isPresented: $sendMessageViewModel.isExercisePickerPresented) {
+                    .sheet(isPresented: $sendMessageViewModel.isLecturePickerPresented) {
                         isFocused = true
                     } content: {
                         if let course = viewModel.course.value {
