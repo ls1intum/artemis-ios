@@ -20,22 +20,29 @@ public class DeeplinkHandler {
 
     var navigationController: NavigationController?
 
-    private init() {}
+    private let userSession: UserSession
+
+    private init(
+        userSession: UserSession = .shared
+    ) {
+        self.userSession = userSession
+    }
 
     func setup(navigationController: NavigationController) {
         self.navigationController = navigationController
     }
 
     public func handle(path: String) {
-        guard let url = URL(string: path, relativeTo: UserSession.shared.institution?.baseURL) else {
+        guard let url = URL(string: path, relativeTo: userSession.institution?.baseURL) else {
             return
         }
         handle(url: url)
     }
 
+    /// - Returns: Whether a handler could handle the URL.
     @discardableResult
     public func handle(url: URL) -> Bool {
-        guard UserSession.shared.institution?.baseURL?.host() == url.host(),
+        guard url.host() == userSession.institution?.baseURL?.host(),
               let navigationController,
               let handler = buildHandler(from: url) else {
             return false
