@@ -67,6 +67,13 @@ public struct RootView: View {
                         .onOpenURL { url in
                             DeeplinkHandler.shared.handle(url: url)
                         }
+                        .environment(\.openURL, OpenURLAction { url in
+                            if DeeplinkHandler.shared.handle(url: url) {
+                                return .handled
+                            } else {
+                                return .systemAction
+                            }
+                        })
                     } else {
                         PushNotificationSetupView()
                     }
