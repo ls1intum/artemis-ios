@@ -99,9 +99,9 @@ struct MessageActionSheet: View {
                         NavigationView {
                             Group {
                                 if let message = message.value as? Message {
-                                    SendMessageView(viewModel: viewModel, sendMessageType: .editMessage(message, { self.dismiss() }))
+                                    SendMessageView(conversationViewModel: viewModel, sendMessageType: .editMessage(message, { self.dismiss() }))
                                 } else if let answerMessage = message.value as? AnswerMessage {
-                                    SendMessageView(viewModel: viewModel, sendMessageType: .editAnswerMessage(answerMessage, { self.dismiss() }))
+                                    SendMessageView(conversationViewModel: viewModel, sendMessageType: .editAnswerMessage(answerMessage, { self.dismiss() }))
                                 } else {
                                     Text(R.string.localizable.loading())
                                 }

@@ -89,7 +89,7 @@ public struct ConversationView: View {
                 }
             }
             if isAllowedToPost {
-                SendMessageView(viewModel: viewModel, sendMessageType: .message)
+                SendMessageView(conversationViewModel: viewModel, sendMessageType: .message)
             }
         }
         .toolbar {

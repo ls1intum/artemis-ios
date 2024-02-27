@@ -19,9 +19,9 @@ enum SendMessageType {
 
 struct SendMessageView: View {
 
-    @ObservedObject var viewModel: ConversationViewModel
+    @State var viewModel = SendMessageViewModel()
 
-    @State var sendMessageViewModel = SendMessageViewModel()
+    @ObservedObject var conversationViewModel: ConversationViewModel
 
     @FocusState private var isFocused: Bool
 
@@ -65,10 +65,10 @@ struct SendMessageView: View {
             }
             .onAppear {
                 if case .editMessage(let message, _) = sendMessageType {
-                    sendMessageViewModel.text = message.content ?? ""
+                    viewModel.text = message.content ?? ""
                 }
                 if case .editAnswerMessage(let answerMessage, _) = sendMessageType {
-                    sendMessageViewModel.text = answerMessage.content ?? ""
+                    viewModel.text = answerMessage.content ?? ""
                 }
             }
             .overlay {
@@ -97,18 +97,18 @@ struct SendMessageView: View {
 
 private extension SendMessageView {
     @ViewBuilder var mentions: some View {
-        if let course = viewModel.course.value,
-           let presentation = sendMessageViewModel.presentation {
+        if let course = conversationViewModel.course.value,
+           let presentation = viewModel.presentation {
             switch presentation {
             case .memberPicker:
                 SendMessageMentionMemberView(
                     viewModel: SendMessageMentionMemberViewModel(course: course),
-                    sendMessageViewModel: sendMessageViewModel
+                    sendMessageViewModel: viewModel
                 )
             case .channelPicker:
                 SendMessageMentionChannelView(
                     viewModel: SendMessageMentionChannelViewModel(course: course),
-                    sendMessageViewModel: sendMessageViewModel
+                    sendMessageViewModel: viewModel
                 )
             }
         }
@@ -117,14 +117,14 @@ private extension SendMessageView {
     @ViewBuilder var textField: some View {
         if isEditMode {
             TextField(
-                R.string.localizable.messageAction(viewModel.conversation.value?.baseConversation.conversationName ?? ""),
-                text: $sendMessageViewModel.text, axis: .vertical
+                R.string.localizable.messageAction(conversationViewModel.conversation.value?.baseConversation.conversationName ?? ""),
+                text: $viewModel.text, axis: .vertical
             )
             .textFieldStyle(ArtemisTextField())
         } else {
             TextField(
-                R.string.localizable.messageAction(viewModel.conversation.value?.baseConversation.conversationName ?? ""),
-                text: $sendMessageViewModel.text, axis: .vertical
+                R.string.localizable.messageAction(conversationViewModel.conversation.value?.baseConversation.conversationName ?? ""),
+                text: $viewModel.text, axis: .vertical
             )
         }
     }
@@ -134,72 +134,72 @@ private extension SendMessageView {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
                     Button {
-                        sendMessageViewModel.text.append("****")
+                        viewModel.text.append("****")
                     } label: {
                         Image(systemName: "bold")
                     }
                     Button {
-                        sendMessageViewModel.text.append("**")
+                        viewModel.text.append("**")
                     } label: {
                         Image(systemName: "italic")
                     }
                     Button {
-                        sendMessageViewModel.text.append("<ins></ins>")
+                        viewModel.text.append("<ins></ins>")
                     } label: {
                         Image(systemName: "underline")
                     }
                     Button {
-                        sendMessageViewModel.text.append("> Reference")
+                        viewModel.text.append("> Reference")
                     } label: {
                         Image(systemName: "quote.opening")
                     }
                     Button {
-                        sendMessageViewModel.text.append("``")
+                        viewModel.text.append("``")
                     } label: {
                         Image(systemName: "curlybraces")
                     }
                     Button {
-                        sendMessageViewModel.text.append("```java\nSource Code\n```")
+                        viewModel.text.append("```java\nSource Code\n```")
                     } label: {
                         Image(systemName: "curlybraces.square.fill")
                     }
                     Button {
-                        sendMessageViewModel.text.append("[](http://)")
+                        viewModel.text.append("[](http://)")
                     } label: {
                         Image(systemName: "link")
                     }
-                    Button(action: sendMessageViewModel.didTapAtButton) {
+                    Button(action: viewModel.didTapAtButton) {
                         Image(systemName: "at")
                     }
-                    Button(action: sendMessageViewModel.didTapNumberButton) {
+                    Button(action: viewModel.didTapNumberButton) {
                         Image(systemName: "number")
                     }
                     Button {
                         isFocused = false
-                        sendMessageViewModel.isExercisePickerPresented = true
+                        viewModel.isExercisePickerPresented = true
                     } label: {
                         Text(R.string.localizable.exercise())
                     }
-                    .sheet(isPresented: $sendMessageViewModel.isExercisePickerPresented) {
+                    .sheet(isPresented: $viewModel.isExercisePickerPresented) {
                         isFocused = true
                     } content: {
-                        if let course = viewModel.course.value {
-                            SendMessageExercisePicker(text: $sendMessageViewModel.text, course: course)
+                        if let course = conversationViewModel.course.value {
+                            SendMessageExercisePicker(text: $viewModel.text, course: course)
                         } else {
                             Text(R.string.localizable.loading())
                         }
                     }
                     Button {
                         isFocused = false
-                        sendMessageViewModel.isLecturePickerPresented = true
+                        viewModel.isLecturePickerPresented = true
                     } label: {
                         Text(R.string.localizable.lecture())
                     }
-                    .sheet(isPresented: $sendMessageViewModel.isLecturePickerPresented) {
+                    .sheet(isPresented: $viewModel.isLecturePickerPresented) {
                         isFocused = true
                     } content: {
-                        if let course = viewModel.course.value {
-                            SendMessageLecturePicker(text: $sendMessageViewModel.text, course: course)
+                        if let course = conversationViewModel.course.value {
+                            SendMessageLecturePicker(text: $viewModel.text, course: course)
                         } else {
                             Text(R.string.localizable.loading())
                         }
@@ -213,34 +213,34 @@ private extension SendMessageView {
 
     var sendButton: some View {
         Button {
-            viewModel.isLoading = true
+            conversationViewModel.isLoading = true
             Task {
                 var result: NetworkResponse?
                 switch sendMessageType {
                 case .message:
-                    result = await viewModel.sendMessage(text: sendMessageViewModel.text)
+                    result = await conversationViewModel.sendMessage(text: viewModel.text)
                 case let .answerMessage(message, completion):
-                    result = await viewModel.sendAnswerMessage(text: sendMessageViewModel.text, for: message, completion: completion)
+                    result = await conversationViewModel.sendAnswerMessage(text: viewModel.text, for: message, completion: completion)
                 case let .editMessage(message, completion):
                     var newMessage = message
-                    newMessage.content = sendMessageViewModel.text
-                    let success = await viewModel.editMessage(message: newMessage)
-                    viewModel.isLoading = false
+                    newMessage.content = viewModel.text
+                    let success = await conversationViewModel.editMessage(message: newMessage)
+                    conversationViewModel.isLoading = false
                     if success {
                         completion()
                     }
                 case let .editAnswerMessage(message, completion):
                     var newMessage = message
-                    newMessage.content = sendMessageViewModel.text
-                    let success = await viewModel.editAnswerMessage(answerMessage: newMessage)
-                    viewModel.isLoading = false
+                    newMessage.content = viewModel.text
+                    let success = await conversationViewModel.editAnswerMessage(answerMessage: newMessage)
+                    conversationViewModel.isLoading = false
                     if success {
                         completion()
                     }
                 }
                 switch result {
                 case .success:
-                    sendMessageViewModel.text = ""
+                    viewModel.text = ""
                 default:
                     return
                 }
@@ -250,7 +250,7 @@ private extension SendMessageView {
                 .imageScale(.large)
         }
         .padding(.leading, .l)
-        .disabled(sendMessageViewModel.text.isEmpty)
-        .loadingIndicator(isLoading: $viewModel.isLoading)
+        .disabled(viewModel.text.isEmpty)
+        .loadingIndicator(isLoading: $conversationViewModel.isLoading)
     }
 }
