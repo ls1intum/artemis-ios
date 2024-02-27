@@ -76,6 +76,11 @@ struct ExerciseListView: View {
                     }
                 }
         }
+        .refreshable {
+            if let courseId = viewModel.course.value?.id {
+                await viewModel.loadCourse(id: courseId)
+            }
+        }
     }
 }
 
