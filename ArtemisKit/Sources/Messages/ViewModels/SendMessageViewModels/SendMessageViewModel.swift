@@ -83,6 +83,40 @@ extension SendMessageViewModel {
         }
     }
 
+    // MARK: Toolbar
+
+    func didTapBoldButton() {
+        text.append("****")
+    }
+
+    func didTapItalicButton() {
+        text.append("**")
+    }
+
+    func didTapUnderlineButton() {
+        text.append("<ins></ins>")
+    }
+
+    func didTapBlockquoteButton() {
+        text.append("> Reference")
+    }
+
+    func didTapCodeButton() {
+        text.append("``")
+    }
+
+    func didTapCodeBlockButton() {
+        text.append("""
+                    ```java
+                    Source Code
+                    ```
+                    """)
+    }
+
+    func didTapLinkButton() {
+        text.append("[](http://)")
+    }
+
     func didTapAtButton() {
         if conditionalPresentation == .memberPicker {
             isMemberPickerSuppressed = true

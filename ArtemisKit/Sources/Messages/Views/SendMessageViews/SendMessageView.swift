@@ -117,39 +117,25 @@ private extension SendMessageView {
         HStack {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
-                    Button {
-                        viewModel.text.append("****")
-                    } label: {
+                    Button(action: viewModel.didTapBoldButton) {
                         Image(systemName: "bold")
                     }
-                    Button {
-                        viewModel.text.append("**")
-                    } label: {
+                    Button(action: viewModel.didTapItalicButton) {
                         Image(systemName: "italic")
                     }
-                    Button {
-                        viewModel.text.append("<ins></ins>")
-                    } label: {
+                    Button(action: viewModel.didTapUnderlineButton) {
                         Image(systemName: "underline")
                     }
-                    Button {
-                        viewModel.text.append("> Reference")
-                    } label: {
+                    Button(action: viewModel.didTapBlockquoteButton) {
                         Image(systemName: "quote.opening")
                     }
-                    Button {
-                        viewModel.text.append("``")
-                    } label: {
+                    Button(action: viewModel.didTapCodeButton) {
                         Image(systemName: "curlybraces")
                     }
-                    Button {
-                        viewModel.text.append("```java\nSource Code\n```")
-                    } label: {
+                    Button(action: viewModel.didTapCodeBlockButton) {
                         Image(systemName: "curlybraces.square.fill")
                     }
-                    Button {
-                        viewModel.text.append("[](http://)")
-                    } label: {
+                    Button(action: viewModel.didTapLinkButton) {
                         Image(systemName: "link")
                     }
                     Button(action: viewModel.didTapAtButton) {
