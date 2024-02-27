@@ -10,13 +10,6 @@ import DesignLibrary
 import SharedModels
 import SwiftUI
 
-enum SendMessageType {
-    case message
-    case answerMessage(Message, () async -> Void)
-    case editMessage(Message, () -> Void)
-    case editAnswerMessage(AnswerMessage, () -> Void)
-}
-
 struct SendMessageView: View {
 
     @State var viewModel: SendMessageViewModel
@@ -25,10 +18,8 @@ struct SendMessageView: View {
 
     @FocusState private var isFocused: Bool
 
-    let sendMessageType: SendMessageType
-
     private var isEditMode: Bool {
-        switch sendMessageType {
+        switch viewModel.sendMessageType {
         case .message, .answerMessage:
             return false
         case .editMessage, .editAnswerMessage:
@@ -64,10 +55,10 @@ struct SendMessageView: View {
                 .padding(.top, isFocused ? .m : .l)
             }
             .onAppear {
-                if case .editMessage(let message, _) = sendMessageType {
+                if case .editMessage(let message, _) = viewModel.sendMessageType {
                     viewModel.text = message.content ?? ""
                 }
-                if case .editAnswerMessage(let answerMessage, _) = sendMessageType {
+                if case .editAnswerMessage(let answerMessage, _) = viewModel.sendMessageType {
                     viewModel.text = answerMessage.content ?? ""
                 }
             }
@@ -216,7 +207,7 @@ private extension SendMessageView {
             conversationViewModel.isLoading = true
             Task {
                 var result: NetworkResponse?
-                switch sendMessageType {
+                switch viewModel.sendMessageType {
                 case .message:
                     result = await conversationViewModel.sendMessage(text: viewModel.text)
                 case let .answerMessage(message, completion):

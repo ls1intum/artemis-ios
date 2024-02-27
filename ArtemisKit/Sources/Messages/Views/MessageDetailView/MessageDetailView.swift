@@ -45,9 +45,8 @@ struct MessageDetailView: View {
                 if !((viewModel.conversation.value?.baseConversation as? Channel)?.isArchived ?? false),
                    let message = message as? Message {
                     SendMessageView(
-                        viewModel: SendMessageViewModel(),
-                        conversationViewModel: viewModel,
-                        sendMessageType: .answerMessage(message, reloadMessage))
+                        viewModel: SendMessageViewModel(sendMessageType: .answerMessage(message, reloadMessage)),
+                        conversationViewModel: viewModel)
                 }
             }
         }

@@ -8,6 +8,13 @@
 import Foundation
 import SharedModels
 
+enum SendMessageType {
+    case message
+    case answerMessage(Message, () async -> Void)
+    case editMessage(Message, () -> Void)
+    case editAnswerMessage(AnswerMessage, () -> Void)
+}
+
 @Observable
 final class SendMessageViewModel {
 
@@ -15,6 +22,8 @@ final class SendMessageViewModel {
         case memberPicker
         case channelPicker
     }
+
+    let sendMessageType: SendMessageType
 
     var text: String = ""
 
@@ -33,6 +42,10 @@ final class SendMessageViewModel {
 
     var isExercisePickerPresented = false
     var isLecturePickerPresented = false
+
+    init(sendMessageType: SendMessageType) {
+        self.sendMessageType = sendMessageType
+    }
 }
 
 // MARK: - Actions

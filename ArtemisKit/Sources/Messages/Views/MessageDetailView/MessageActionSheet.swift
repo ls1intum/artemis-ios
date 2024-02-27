@@ -100,14 +100,12 @@ struct MessageActionSheet: View {
                             Group {
                                 if let message = message.value as? Message {
                                     SendMessageView(
-                                        viewModel: SendMessageViewModel(),
-                                        conversationViewModel: viewModel,
-                                        sendMessageType: .editMessage(message, { self.dismiss() }))
+                                        viewModel: SendMessageViewModel(sendMessageType: .editMessage(message, { self.dismiss() })),
+                                        conversationViewModel: viewModel)
                                 } else if let answerMessage = message.value as? AnswerMessage {
                                     SendMessageView(
-                                        viewModel: SendMessageViewModel(),
-                                        conversationViewModel: viewModel,
-                                        sendMessageType: .editAnswerMessage(answerMessage, { self.dismiss() }))
+                                        viewModel: SendMessageViewModel(sendMessageType: .editAnswerMessage(answerMessage, { self.dismiss() })),
+                                        conversationViewModel: viewModel)
                                 } else {
                                     Text(R.string.localizable.loading())
                                 }
