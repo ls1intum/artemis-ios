@@ -67,6 +67,24 @@ struct SendMessageView: View {
                     }
             )
         }
+        .sheet(isPresented: $viewModel.isExercisePickerPresented) {
+            isFocused = true
+        } content: {
+            if let course = conversationViewModel.course.value {
+                SendMessageExercisePicker(text: $viewModel.text, course: course)
+            } else {
+                Text(R.string.localizable.loading())
+            }
+        }
+        .sheet(isPresented: $viewModel.isLecturePickerPresented) {
+            isFocused = true
+        } content: {
+            if let course = conversationViewModel.course.value {
+                SendMessageLecturePicker(text: $viewModel.text, course: course)
+            } else {
+                Text(R.string.localizable.loading())
+            }
+        }
     }
 }
 
@@ -150,29 +168,11 @@ private extension SendMessageView {
                     } label: {
                         Text(R.string.localizable.exercise())
                     }
-                    .sheet(isPresented: $viewModel.isExercisePickerPresented) {
-                        isFocused = true
-                    } content: {
-                        if let course = conversationViewModel.course.value {
-                            SendMessageExercisePicker(text: $viewModel.text, course: course)
-                        } else {
-                            Text(R.string.localizable.loading())
-                        }
-                    }
                     Button {
                         isFocused = false
                         viewModel.isLecturePickerPresented = true
                     } label: {
                         Text(R.string.localizable.lecture())
-                    }
-                    .sheet(isPresented: $viewModel.isLecturePickerPresented) {
-                        isFocused = true
-                    } content: {
-                        if let course = conversationViewModel.course.value {
-                            SendMessageLecturePicker(text: $viewModel.text, course: course)
-                        } else {
-                            Text(R.string.localizable.loading())
-                        }
                     }
                 }
             }
