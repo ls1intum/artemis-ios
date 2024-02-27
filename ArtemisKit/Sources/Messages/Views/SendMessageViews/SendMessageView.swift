@@ -19,7 +19,7 @@ enum SendMessageType {
 
 struct SendMessageView: View {
 
-    @State var viewModel = SendMessageViewModel()
+    @State var viewModel: SendMessageViewModel
 
     @ObservedObject var conversationViewModel: ConversationViewModel
 
