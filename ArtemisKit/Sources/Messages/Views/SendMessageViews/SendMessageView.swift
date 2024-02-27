@@ -67,20 +67,16 @@ struct SendMessageView: View {
                     }
             )
         }
-        .sheet(isPresented: $viewModel.isExercisePickerPresented) {
+        .sheet(item: $viewModel.modalPresentation) {
             isFocused = true
-        } content: {
+        } content: { presentation in
             if let course = conversationViewModel.course.value {
-                SendMessageExercisePicker(text: $viewModel.text, course: course)
-            } else {
-                Text(R.string.localizable.loading())
-            }
-        }
-        .sheet(isPresented: $viewModel.isLecturePickerPresented) {
-            isFocused = true
-        } content: {
-            if let course = conversationViewModel.course.value {
-                SendMessageLecturePicker(text: $viewModel.text, course: course)
+                switch presentation {
+                case .exercisePicker:
+                    SendMessageExercisePicker(text: $viewModel.text, course: course)
+                case .lecturePicker:
+                    SendMessageLecturePicker(text: $viewModel.text, course: course)
+                }
             } else {
                 Text(R.string.localizable.loading())
             }
@@ -91,7 +87,7 @@ struct SendMessageView: View {
 private extension SendMessageView {
     @ViewBuilder var mentions: some View {
         if let course = conversationViewModel.course.value,
-           let presentation = viewModel.presentation {
+           let presentation = viewModel.conditionalPresentation {
             switch presentation {
             case .memberPicker:
                 SendMessageMentionMemberView(
@@ -164,13 +160,13 @@ private extension SendMessageView {
                     }
                     Button {
                         isFocused = false
-                        viewModel.isExercisePickerPresented = true
+                        viewModel.modalPresentation = .exercisePicker
                     } label: {
                         Text(R.string.localizable.exercise())
                     }
                     Button {
                         isFocused = false
-                        viewModel.isLecturePickerPresented = true
+                        viewModel.modalPresentation = .lecturePicker
                     } label: {
                         Text(R.string.localizable.lecture())
                     }

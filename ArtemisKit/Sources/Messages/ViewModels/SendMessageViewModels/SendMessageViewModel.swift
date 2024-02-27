@@ -18,9 +18,18 @@ enum SendMessageType {
 @Observable
 final class SendMessageViewModel {
 
-    enum Presentation {
+    enum ConditionalPresentation {
         case memberPicker
         case channelPicker
+    }
+
+    enum ModalPresentation: Identifiable {
+        case exercisePicker
+        case lecturePicker
+
+        var id: Self {
+            self
+        }
     }
 
     let sendMessageType: SendMessageType
@@ -38,7 +47,7 @@ final class SendMessageViewModel {
 
     // MARK: Presentation
 
-    var presentation: Presentation? {
+    var conditionalPresentation: ConditionalPresentation? {
         if !isMemberPickerSuppressed, searchMember() != nil {
             .memberPicker
         } else if !isChannelPickerSuppressed, searchChannel() != nil {
@@ -51,8 +60,7 @@ final class SendMessageViewModel {
     var isMemberPickerSuppressed = false
     var isChannelPickerSuppressed = false
 
-    var isExercisePickerPresented = false
-    var isLecturePickerPresented = false
+    var modalPresentation: ModalPresentation?
 
     // MARK: Life cycle
 
@@ -76,7 +84,7 @@ extension SendMessageViewModel {
     }
 
     func didTapAtButton() {
-        if presentation == .memberPicker {
+        if conditionalPresentation == .memberPicker {
             isMemberPickerSuppressed = true
         } else {
             isMemberPickerSuppressed = false
@@ -85,7 +93,7 @@ extension SendMessageViewModel {
     }
 
     func didTapNumberButton() {
-        if presentation == .channelPicker {
+        if conditionalPresentation == .channelPicker {
             isChannelPickerSuppressed = true
         } else {
             isChannelPickerSuppressed = false
