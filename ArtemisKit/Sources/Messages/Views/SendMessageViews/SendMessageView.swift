@@ -45,14 +45,7 @@ struct SendMessageView: View {
                 .padding(.bottom, .l)
                 .padding(.top, isFocused ? .m : .l)
             }
-            .onAppear {
-                if case .editMessage(let message, _) = viewModel.sendMessageType {
-                    viewModel.text = message.content ?? ""
-                }
-                if case .editAnswerMessage(let answerMessage, _) = viewModel.sendMessageType {
-                    viewModel.text = answerMessage.content ?? ""
-                }
-            }
+            .onAppear(perform: viewModel.performOnAppear)
             .overlay {
                 if viewModel.isEditing {
                     EmptyView()
@@ -97,17 +90,12 @@ private extension SendMessageView {
     }
 
     @ViewBuilder var textField: some View {
+        let label = R.string.localizable.messageAction(conversationViewModel.conversation.value?.baseConversation.conversationName ?? "")
         if viewModel.isEditing {
-            TextField(
-                R.string.localizable.messageAction(conversationViewModel.conversation.value?.baseConversation.conversationName ?? ""),
-                text: $viewModel.text, axis: .vertical
-            )
-            .textFieldStyle(ArtemisTextField())
+            TextField(label, text: $viewModel.text, axis: .vertical)
+                .textFieldStyle(ArtemisTextField())
         } else {
-            TextField(
-                R.string.localizable.messageAction(conversationViewModel.conversation.value?.baseConversation.conversationName ?? ""),
-                text: $viewModel.text, axis: .vertical
-            )
+            TextField(label, text: $viewModel.text, axis: .vertical)
         }
     }
 

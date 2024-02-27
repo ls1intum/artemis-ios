@@ -64,6 +64,17 @@ final class SendMessageViewModel {
 // MARK: - Actions
 
 extension SendMessageViewModel {
+    func performOnAppear() {
+        switch sendMessageType {
+        case let .editMessage(message, _):
+            text = message.content ?? ""
+        case let .editAnswerMessage(message, _):
+            text = message.content ?? ""
+        default:
+            break
+        }
+    }
+
     func didTapAtButton() {
         if presentation == .memberPicker {
             isMemberPickerSuppressed = true
