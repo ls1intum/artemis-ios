@@ -89,6 +89,11 @@ protocol MessagesService {
     func getChannelsOverview(for courseId: Int) async -> DataState<[Channel]>
 
     /**
+     * Perform a get request to retrieve all channels in the public overview in a specific course to the server.
+     */
+    func getChannelsPublicOverview(for courseId: Int) async -> DataState<[ChannelIdAndNameDTO]>
+
+    /**
      * Perform a post request to add members to a specific channels in a specific course to the server.
      */
     func addMembersToChannel(for courseId: Int, channelId: Int64, usernames: [String]) async -> NetworkResponse

@@ -28,37 +28,7 @@ public struct RootView: View {
                     if viewModel.didSetupNotifications {
                         NavigationStack(path: $navigationController.path) {
                             DashboardView()
-                                .navigationDestination(for: CoursePath.self) { coursePath in
-                                    CourseView(courseId: coursePath.id)
-                                        .id(coursePath.id)
-                                }
-                            // Sadly the following navigationDestination have to be here since SwiftUI is ...
-                                .navigationDestination(for: ExercisePath.self) { exercisePath in
-                                    if let course = exercisePath.coursePath.course,
-                                       let exercise = exercisePath.exercise {
-                                        ExerciseDetailView(course: course, exercise: exercise)
-                                    } else {
-                                        ExerciseDetailView(courseId: exercisePath.coursePath.id, exerciseId: exercisePath.id)
-                                    }
-                                }
-                                .navigationDestination(for: LecturePath.self) { lecturePath in
-                                    if let course = lecturePath.coursePath.course {
-                                        LectureDetailView(course: course, lectureId: lecturePath.id)
-                                    } else {
-                                        LectureDetailView(courseId: lecturePath.coursePath.id, lectureId: lecturePath.id)
-                                    }
-                                }
-                                .navigationDestination(for: ConversationPath.self) { conversationPath in
-                                    if let conversation = conversationPath.conversation,
-                                       let course = conversationPath.coursePath.course {
-                                        ConversationView(course: course,
-                                                         conversation: conversation)
-                                    } else {
-                                        ConversationView(courseId: conversationPath.coursePath.id,
-                                                         conversationId: conversationPath.id)
-                                    }
-                                }
-                                .modifier(NavigationDestinationThreadViewModifier())
+                                .modifier(NavigationDestinationRootViewModifier())
                         }
                         .onChange(of: navigationController.path) {
                             log.debug("NavigationController count: \(navigationController.path.count)")
@@ -67,6 +37,13 @@ public struct RootView: View {
                         .onOpenURL { url in
                             DeeplinkHandler.shared.handle(url: url)
                         }
+                        .environment(\.openURL, OpenURLAction { url in
+                            if DeeplinkHandler.shared.handle(url: url) {
+                                return .handled
+                            } else {
+                                return .systemAction
+                            }
+                        })
                     } else {
                         PushNotificationSetupView()
                     }
@@ -85,5 +62,41 @@ public struct RootView: View {
                 }
             }
         })
+    }
+}
+
+private struct NavigationDestinationRootViewModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .navigationDestination(for: CoursePath.self) { coursePath in
+                CourseView(courseId: coursePath.id)
+                    .id(coursePath.id)
+            }
+            .navigationDestination(for: ExercisePath.self) { exercisePath in
+                if let course = exercisePath.coursePath.course,
+                   let exercise = exercisePath.exercise {
+                    ExerciseDetailView(course: course, exercise: exercise)
+                } else {
+                    ExerciseDetailView(courseId: exercisePath.coursePath.id, exerciseId: exercisePath.id)
+                }
+            }
+            .navigationDestination(for: LecturePath.self) { lecturePath in
+                if let course = lecturePath.coursePath.course {
+                    LectureDetailView(course: course, lectureId: lecturePath.id)
+                } else {
+                    LectureDetailView(courseId: lecturePath.coursePath.id, lectureId: lecturePath.id)
+                }
+            }
+            .navigationDestination(for: ConversationPath.self) { conversationPath in
+                if let conversation = conversationPath.conversation,
+                   let course = conversationPath.coursePath.course {
+                    ConversationView(course: course,
+                                     conversation: conversation)
+                } else {
+                    ConversationView(courseId: conversationPath.coursePath.id,
+                                     conversationId: conversationPath.id)
+                }
+            }
+            .modifier(NavigationDestinationThreadViewModifier())
     }
 }

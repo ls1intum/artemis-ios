@@ -48,7 +48,7 @@ class CourseRegistrationServiceImpl: CourseRegistrationService {
         let result = await client.sendRequest(RegisterCourseRequest(courseId: courseId))
 
         switch result {
-        case .success((let response, _)):
+        case .success:
             return .success
         case .failure(let error):
             return .failure(error: UserFacingError(error: error))
