@@ -7,7 +7,11 @@
 
 // MARK: SendMessageView
 "exercise" = "Exercise";
+"exercisesUnavailable" = "No Exercises";
 "lecture" = "Lecture";
+"channelsUnavailable" = "No Channels";
+"lecturesUnavailable" = "No Lectures";
+"membersUnavailable" = "No Members";
 "messageAction" = "Message %@";
 
 // MARK: ReactionsView
@@ -50,7 +54,7 @@
 // MARK: ConversationView
 "noMessages" = "No Messages";
 "noMessagesDescription" = "Write the first message to kickstart this conversation.";
-"replyAction" = "%d reply";
+"reply" = "reply";
 "new" = "New";
 
 // MARK: CreateChannelView

@@ -13,13 +13,14 @@ import SwiftUI
 import UserStore
 
 struct ReactionsView: View {
+    @Environment(\.isEmojiPickerButtonVisible) var isEmojiPickerButtonVisible: Bool
 
     @ObservedObject private var viewModel: ConversationViewModel
 
     @Binding var message: DataState<BaseMessage>
-    let isEmojiPickerButtonVisible: Bool
 
     @State private var viewRerenderWorkaround = false
+
     let columns = [ GridItem(.adaptive(minimum: 45)) ]
 
     var mappedReaction: [String: [Reaction]] {
@@ -40,16 +41,14 @@ struct ReactionsView: View {
 
     init(
         viewModel: ConversationViewModel,
-        message: Binding<DataState<BaseMessage>>,
-        isEmojiPickerButtonVisible: Bool = true
+        message: Binding<DataState<BaseMessage>>
     ) {
         self.viewModel = viewModel
         self._message = message
-        self.isEmojiPickerButtonVisible = isEmojiPickerButtonVisible
     }
 
     var body: some View {
-        LazyVGrid(columns: columns) {
+        LazyVGrid(columns: columns, alignment: .leading) {
             ForEach(mappedReaction.sorted(by: { $0.key < $1.key }), id: \.key) { map in
                 EmojiTextButton(viewModel: viewModel, pair: (map.key, map.value), message: $message)
             }
@@ -200,11 +199,28 @@ private extension EmojiPickerButton {
     }
 }
 
+// MARK: - Environment+IsEmojiPickerVisible
+
+private enum IsEmojiPickerVisibleEnvironmentKey: EnvironmentKey {
+    static let defaultValue = false
+}
+
+extension EnvironmentValues {
+    var isEmojiPickerButtonVisible: Bool {
+        get {
+            self[IsEmojiPickerVisibleEnvironmentKey.self]
+        }
+        set {
+            self[IsEmojiPickerVisibleEnvironmentKey.self] = newValue
+        }
+    }
+}
+
 #Preview {
     ReactionsView(
         viewModel: ConversationViewModel(
             course: MessagesServiceStub.course,
             conversation: MessagesServiceStub.conversation),
-        message: Binding.constant(DataState<BaseMessage>.done(response: MessagesServiceStub.message)),
-        isEmojiPickerButtonVisible: true)
+        message: Binding.constant(DataState<BaseMessage>.done(response: MessagesServiceStub.message))
+    )
 }
