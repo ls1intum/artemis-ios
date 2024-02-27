@@ -164,40 +164,7 @@ private extension SendMessageView {
     }
 
     var sendButton: some View {
-        Button {
-            conversationViewModel.isLoading = true
-            Task {
-                var result: NetworkResponse?
-                switch viewModel.sendMessageType {
-                case .message:
-                    result = await conversationViewModel.sendMessage(text: viewModel.text)
-                case let .answerMessage(message, completion):
-                    result = await conversationViewModel.sendAnswerMessage(text: viewModel.text, for: message, completion: completion)
-                case let .editMessage(message, completion):
-                    var newMessage = message
-                    newMessage.content = viewModel.text
-                    let success = await conversationViewModel.editMessage(message: newMessage)
-                    conversationViewModel.isLoading = false
-                    if success {
-                        completion()
-                    }
-                case let .editAnswerMessage(message, completion):
-                    var newMessage = message
-                    newMessage.content = viewModel.text
-                    let success = await conversationViewModel.editAnswerMessage(answerMessage: newMessage)
-                    conversationViewModel.isLoading = false
-                    if success {
-                        completion()
-                    }
-                }
-                switch result {
-                case .success:
-                    viewModel.text = ""
-                default:
-                    return
-                }
-            }
-        } label: {
+        Button(action: viewModel.didTapSendButton) {
             Image(systemName: "paperplane.fill")
                 .imageScale(.large)
         }
