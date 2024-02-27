@@ -27,6 +27,17 @@ final class SendMessageViewModel {
 
     var text: String = ""
 
+    var isEditing: Bool {
+        switch sendMessageType {
+        case .message, .answerMessage:
+            return false
+        case .editMessage, .editAnswerMessage:
+            return true
+        }
+    }
+
+    // MARK: Presentation
+
     var presentation: Presentation? {
         if !isMemberPickerSuppressed, searchMember() != nil {
             .memberPicker
@@ -42,6 +53,8 @@ final class SendMessageViewModel {
 
     var isExercisePickerPresented = false
     var isLecturePickerPresented = false
+
+    // MARK: Life cycle
 
     init(sendMessageType: SendMessageType) {
         self.sendMessageType = sendMessageType

@@ -18,20 +18,11 @@ struct SendMessageView: View {
 
     @FocusState private var isFocused: Bool
 
-    private var isEditMode: Bool {
-        switch viewModel.sendMessageType {
-        case .message, .answerMessage:
-            return false
-        case .editMessage, .editAnswerMessage:
-            return true
-        }
-    }
-
     var body: some View {
         VStack {
             mentions
             VStack {
-                if isFocused && !isEditMode {
+                if isFocused && !viewModel.isEditing {
                     Capsule()
                         .fill(Color.secondary)
                         .frame(width: 50, height: 3)
@@ -63,7 +54,7 @@ struct SendMessageView: View {
                 }
             }
             .overlay {
-                if isEditMode {
+                if viewModel.isEditing {
                     EmptyView()
                 } else {
                     RoundedRectangle(cornerRadius: .m)
@@ -106,7 +97,7 @@ private extension SendMessageView {
     }
 
     @ViewBuilder var textField: some View {
-        if isEditMode {
+        if viewModel.isEditing {
             TextField(
                 R.string.localizable.messageAction(conversationViewModel.conversation.value?.baseConversation.conversationName ?? ""),
                 text: $viewModel.text, axis: .vertical
