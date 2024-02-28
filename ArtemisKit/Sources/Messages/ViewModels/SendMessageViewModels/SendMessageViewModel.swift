@@ -9,17 +9,14 @@ import APIClient
 import Common
 import Foundation
 import SharedModels
-import SwiftUI
 
-enum SendMessageType {
-    case message
-    case answerMessage(Message, () async -> Void)
-    case editMessage(Message, () -> Void)
-    case editAnswerMessage(AnswerMessage, () -> Void)
-}
-
-@Observable
-final class SendMessageViewModel {
+extension SendMessageViewModel {
+    enum Configuration {
+        case message
+        case answerMessage(Message, () async -> Void)
+        case editMessage(Message, () -> Void)
+        case editAnswerMessage(AnswerMessage, () -> Void)
+    }
 
     enum ConditionalPresentation {
         case memberPicker
@@ -34,21 +31,24 @@ final class SendMessageViewModel {
             self
         }
     }
+}
 
+@Observable
+final class SendMessageViewModel {
     let course: Course
     let conversation: Conversation
-    let sendMessageType: SendMessageType
+    let sendMessageType: Configuration
 
     private let delegate: SendMessageViewModelDelegate
     private let messagesService: MessagesService
 
     // MARK: Loading
 
-    var isLoading: Bool = false
+    var isLoading = false
 
     // MARK: Text
 
-    var text: String = ""
+    var text = ""
 
     var isEditing: Bool {
         switch sendMessageType {
@@ -81,7 +81,7 @@ final class SendMessageViewModel {
     init(
         course: Course,
         conversation: Conversation,
-        sendMessageType: SendMessageType,
+        sendMessageType: Configuration,
         delegate: SendMessageViewModelDelegate,
         messagesService: MessagesService = MessagesServiceFactory.shared
     ) {
@@ -198,14 +198,14 @@ extension SendMessageViewModel {
     }
 
     @MainActor
-    func sendMessage(text: String) async -> NetworkResponse {
+    private func sendMessage(text: String) async -> NetworkResponse {
         isLoading = true
         let result = await messagesService.sendMessage(for: course.id, conversation: conversation, content: text)
         switch result {
         case .notStarted, .loading:
             isLoading = false
         case .success:
-            delegate.shouldScrollToId("bottom")
+            delegate.scrollToId("bottom")
             await delegate.loadMessages()
             isLoading = false
         case .failure(let error):
@@ -220,7 +220,7 @@ extension SendMessageViewModel {
     }
 
     @MainActor
-    func sendAnswerMessage(text: String, for message: Message, completion: () async -> Void) async -> NetworkResponse {
+    private func sendAnswerMessage(text: String, for message: Message, completion: () async -> Void) async -> NetworkResponse {
         isLoading = true
         let result = await messagesService.sendAnswerMessage(for: course.id, message: message, content: text)
         switch result {
@@ -241,7 +241,7 @@ extension SendMessageViewModel {
     }
 
     @MainActor
-    func editMessage(message: Message) async -> Bool {
+    private func editMessage(message: Message) async -> Bool {
         let result = await messagesService.editMessage(for: course.id, message: message)
 
         switch result {
@@ -257,7 +257,7 @@ extension SendMessageViewModel {
     }
 
     @MainActor
-    func editAnswerMessage(answerMessage: AnswerMessage) async -> Bool {
+    private func editAnswerMessage(answerMessage: AnswerMessage) async -> Bool {
         let result = await messagesService.editAnswerMessage(for: course.id, answerMessage: answerMessage)
 
         switch result {

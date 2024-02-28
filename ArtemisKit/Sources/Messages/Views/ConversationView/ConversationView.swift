@@ -88,18 +88,17 @@ public struct ConversationView: View {
                     }
                 }
             }
-            if isAllowedToPost {
-                if let course = viewModel.course.value,
-                   let conversation = viewModel.conversation.value {
-                    SendMessageView(
-                        viewModel: SendMessageViewModel(
-                            course: course,
-                            conversation: conversation,
-                            sendMessageType: .message,
-                            delegate: SendMessageViewModelDelegate(viewModel)
-                        )
+            if isAllowedToPost,
+               let course = viewModel.course.value,
+               let conversation = viewModel.conversation.value {
+                SendMessageView(
+                    viewModel: SendMessageViewModel(
+                        course: course,
+                        conversation: conversation,
+                        sendMessageType: .message,
+                        delegate: SendMessageViewModelDelegate(viewModel)
                     )
-                }
+                )
             }
         }
         .toolbar {
