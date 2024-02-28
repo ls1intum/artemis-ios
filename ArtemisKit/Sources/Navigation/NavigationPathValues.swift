@@ -2,7 +2,7 @@
 //  NavigationPathValues.swift
 //
 //
-//  Created by TUM School on 26.02.24.
+//  Created by Nityananda Zbil on 26.02.24.
 //
 
 import SharedModels

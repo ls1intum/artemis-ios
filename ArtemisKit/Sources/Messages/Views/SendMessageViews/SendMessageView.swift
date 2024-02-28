@@ -10,37 +10,17 @@ import DesignLibrary
 import SharedModels
 import SwiftUI
 
-enum SendMessageType {
-    case message
-    case answerMessage(Message, () async -> Void)
-    case editMessage(Message, () -> Void)
-    case editAnswerMessage(AnswerMessage, () -> Void)
-}
-
 struct SendMessageView: View {
 
-    @ObservedObject var viewModel: ConversationViewModel
-
-    @State var sendMessageViewModel = SendMessageViewModel()
+    @State var viewModel: SendMessageViewModel
 
     @FocusState private var isFocused: Bool
-
-    let sendMessageType: SendMessageType
-
-    private var isEditMode: Bool {
-        switch sendMessageType {
-        case .message, .answerMessage:
-            return false
-        case .editMessage, .editAnswerMessage:
-            return true
-        }
-    }
 
     var body: some View {
         VStack {
             mentions
             VStack {
-                if isFocused && !isEditMode {
+                if isFocused && !viewModel.isEditing {
                     Capsule()
                         .fill(Color.secondary)
                         .frame(width: 50, height: 3)
@@ -63,16 +43,9 @@ struct SendMessageView: View {
                 .padding(.bottom, .l)
                 .padding(.top, isFocused ? .m : .l)
             }
-            .onAppear {
-                if case .editMessage(let message, _) = sendMessageType {
-                    sendMessageViewModel.text = message.content ?? ""
-                }
-                if case .editAnswerMessage(let answerMessage, _) = sendMessageType {
-                    sendMessageViewModel.text = answerMessage.content ?? ""
-                }
-            }
+            .onAppear(perform: viewModel.performOnAppear)
             .overlay {
-                if isEditMode {
+                if viewModel.isEditing {
                     EmptyView()
                 } else {
                     RoundedRectangle(cornerRadius: .m)
@@ -92,40 +65,44 @@ struct SendMessageView: View {
                     }
             )
         }
+        .sheet(item: $viewModel.modalPresentation) {
+            isFocused = true
+        } content: { presentation in
+            switch presentation {
+            case .exercisePicker:
+                SendMessageExercisePicker(text: $viewModel.text, course: viewModel.course)
+            case .lecturePicker:
+                SendMessageLecturePicker(text: $viewModel.text, course: viewModel.course)
+            }
+        }
     }
 }
 
 private extension SendMessageView {
     @ViewBuilder var mentions: some View {
-        if let course = viewModel.course.value,
-           let presentation = sendMessageViewModel.presentation {
-            switch presentation {
-            case .memberPicker:
-                SendMessageMentionMemberView(
-                    viewModel: SendMessageMentionMemberViewModel(course: course),
-                    sendMessageViewModel: sendMessageViewModel
-                )
-            case .channelPicker:
-                SendMessageMentionChannelView(
-                    viewModel: SendMessageMentionChannelViewModel(course: course),
-                    sendMessageViewModel: sendMessageViewModel
-                )
-            }
+        switch viewModel.conditionalPresentation {
+        case .memberPicker:
+            SendMessageMentionMemberView(
+                viewModel: SendMessageMentionMemberViewModel(course: viewModel.course),
+                sendMessageViewModel: viewModel
+            )
+        case .channelPicker:
+            SendMessageMentionChannelView(
+                viewModel: SendMessageMentionChannelViewModel(course: viewModel.course),
+                sendMessageViewModel: viewModel
+            )
+        case nil:
+            EmptyView()
         }
     }
 
     @ViewBuilder var textField: some View {
-        if isEditMode {
-            TextField(
-                R.string.localizable.messageAction(viewModel.conversation.value?.baseConversation.conversationName ?? ""),
-                text: $sendMessageViewModel.text, axis: .vertical
-            )
-            .textFieldStyle(ArtemisTextField())
+        let label = R.string.localizable.messageAction(viewModel.conversation.baseConversation.conversationName)
+        if viewModel.isEditing {
+            TextField(label, text: $viewModel.text, axis: .vertical)
+                .textFieldStyle(ArtemisTextField())
         } else {
-            TextField(
-                R.string.localizable.messageAction(viewModel.conversation.value?.baseConversation.conversationName ?? ""),
-                text: $sendMessageViewModel.text, axis: .vertical
-            )
+            TextField(label, text: $viewModel.text, axis: .vertical)
         }
     }
 
@@ -133,76 +110,44 @@ private extension SendMessageView {
         HStack {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
-                    Button {
-                        sendMessageViewModel.text.append("****")
-                    } label: {
+                    Button(action: viewModel.didTapBoldButton) {
                         Image(systemName: "bold")
                     }
-                    Button {
-                        sendMessageViewModel.text.append("**")
-                    } label: {
+                    Button(action: viewModel.didTapItalicButton) {
                         Image(systemName: "italic")
                     }
-                    Button {
-                        sendMessageViewModel.text.append("<ins></ins>")
-                    } label: {
+                    Button(action: viewModel.didTapUnderlineButton) {
                         Image(systemName: "underline")
                     }
-                    Button {
-                        sendMessageViewModel.text.append("> Reference")
-                    } label: {
+                    Button(action: viewModel.didTapBlockquoteButton) {
                         Image(systemName: "quote.opening")
                     }
-                    Button {
-                        sendMessageViewModel.text.append("``")
-                    } label: {
+                    Button(action: viewModel.didTapCodeButton) {
                         Image(systemName: "curlybraces")
                     }
-                    Button {
-                        sendMessageViewModel.text.append("```java\nSource Code\n```")
-                    } label: {
+                    Button(action: viewModel.didTapCodeBlockButton) {
                         Image(systemName: "curlybraces.square.fill")
                     }
-                    Button {
-                        sendMessageViewModel.text.append("[](http://)")
-                    } label: {
+                    Button(action: viewModel.didTapLinkButton) {
                         Image(systemName: "link")
                     }
-                    Button(action: sendMessageViewModel.didTapAtButton) {
+                    Button(action: viewModel.didTapAtButton) {
                         Image(systemName: "at")
                     }
-                    Button(action: sendMessageViewModel.didTapNumberButton) {
+                    Button(action: viewModel.didTapNumberButton) {
                         Image(systemName: "number")
                     }
                     Button {
                         isFocused = false
-                        sendMessageViewModel.isExercisePickerPresented = true
+                        viewModel.modalPresentation = .exercisePicker
                     } label: {
                         Text(R.string.localizable.exercise())
                     }
-                    .sheet(isPresented: $sendMessageViewModel.isExercisePickerPresented) {
-                        isFocused = true
-                    } content: {
-                        if let course = viewModel.course.value {
-                            SendMessageExercisePicker(text: $sendMessageViewModel.text, course: course)
-                        } else {
-                            Text(R.string.localizable.loading())
-                        }
-                    }
                     Button {
                         isFocused = false
-                        sendMessageViewModel.isLecturePickerPresented = true
+                        viewModel.modalPresentation = .lecturePicker
                     } label: {
                         Text(R.string.localizable.lecture())
-                    }
-                    .sheet(isPresented: $sendMessageViewModel.isLecturePickerPresented) {
-                        isFocused = true
-                    } content: {
-                        if let course = viewModel.course.value {
-                            SendMessageLecturePicker(text: $sendMessageViewModel.text, course: course)
-                        } else {
-                            Text(R.string.localizable.loading())
-                        }
                     }
                 }
             }
@@ -212,45 +157,12 @@ private extension SendMessageView {
     }
 
     var sendButton: some View {
-        Button {
-            viewModel.isLoading = true
-            Task {
-                var result: NetworkResponse?
-                switch sendMessageType {
-                case .message:
-                    result = await viewModel.sendMessage(text: sendMessageViewModel.text)
-                case let .answerMessage(message, completion):
-                    result = await viewModel.sendAnswerMessage(text: sendMessageViewModel.text, for: message, completion: completion)
-                case let .editMessage(message, completion):
-                    var newMessage = message
-                    newMessage.content = sendMessageViewModel.text
-                    let success = await viewModel.editMessage(message: newMessage)
-                    viewModel.isLoading = false
-                    if success {
-                        completion()
-                    }
-                case let .editAnswerMessage(message, completion):
-                    var newMessage = message
-                    newMessage.content = sendMessageViewModel.text
-                    let success = await viewModel.editAnswerMessage(answerMessage: newMessage)
-                    viewModel.isLoading = false
-                    if success {
-                        completion()
-                    }
-                }
-                switch result {
-                case .success:
-                    sendMessageViewModel.text = ""
-                default:
-                    return
-                }
-            }
-        } label: {
+        Button(action: viewModel.didTapSendButton) {
             Image(systemName: "paperplane.fill")
                 .imageScale(.large)
         }
         .padding(.leading, .l)
-        .disabled(sendMessageViewModel.text.isEmpty)
+        .disabled(viewModel.text.isEmpty)
         .loadingIndicator(isLoading: $viewModel.isLoading)
     }
 }

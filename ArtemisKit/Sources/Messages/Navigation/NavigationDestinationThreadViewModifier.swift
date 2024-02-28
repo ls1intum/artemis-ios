@@ -9,7 +9,7 @@ import SwiftUI
 
 /// Navigates to a thread view of a message.
 public struct NavigationDestinationThreadViewModifier: ViewModifier {
-    public init () {}
+    public init() {}
 
     public func body(content: Content) -> some View {
         content.navigationDestination(for: MessagePath.self) { messagePath in

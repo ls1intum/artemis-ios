@@ -89,6 +89,13 @@ class ConversationViewModel: BaseViewModel {
     deinit {
         websocketSubscriptionTask?.cancel()
     }
+}
+
+// MARK: - Internal
+
+extension ConversationViewModel {
+
+    // MARK: Load
 
     func loadFurtherMessages() async {
         size += 50
@@ -164,51 +171,7 @@ class ConversationViewModel: BaseViewModel {
         }
     }
 
-    func sendMessage(text: String) async -> NetworkResponse {
-        guard let conversation = conversation.value else {
-            let error = UserFacingError(title: R.string.localizable.conversationNotLoaded())
-            presentError(userFacingError: error)
-            return .failure(error: error)
-        }
-        isLoading = true
-        let result = await messagesService.sendMessage(for: courseId, conversation: conversation, content: text)
-        switch result {
-        case .notStarted, .loading:
-            isLoading = false
-        case .success:
-            shouldScrollToId = "bottom"
-            await loadMessages()
-            isLoading = false
-        case .failure(let error):
-            isLoading = false
-            if let apiClientError = error as? APIClientError {
-                presentError(userFacingError: UserFacingError(error: apiClientError))
-            } else {
-                presentError(userFacingError: UserFacingError(title: error.localizedDescription))
-            }
-        }
-        return result
-    }
-
-    func sendAnswerMessage(text: String, for message: Message, completion: () async -> Void) async -> NetworkResponse {
-        isLoading = true
-        let result = await messagesService.sendAnswerMessage(for: courseId, message: message, content: text)
-        switch result {
-        case .notStarted, .loading:
-            isLoading = false
-        case .success:
-            await completion()
-            isLoading = false
-        case .failure(let error):
-            isLoading = false
-            if let apiClientError = error as? APIClientError {
-                presentError(userFacingError: UserFacingError(error: apiClientError))
-            } else {
-                presentError(userFacingError: UserFacingError(title: error.localizedDescription))
-            }
-        }
-        return result
-    }
+    // MARK: React
 
     func addReactionToMessage(for message: Message, emojiId: String) async -> DataState<Message> {
         isLoading = true
@@ -272,6 +235,8 @@ class ConversationViewModel: BaseViewModel {
         }
     }
 
+    // MARK: Delete
+
     func deleteMessage(messageId: Int64?) async -> Bool {
         guard let messageId else {
             presentError(userFacingError: UserFacingError(title: R.string.localizable.deletionErrorLabel()))
@@ -311,41 +276,14 @@ class ConversationViewModel: BaseViewModel {
             return false
         }
     }
-
-    func editMessage(message: Message) async -> Bool {
-        let result = await messagesService.editMessage(for: courseId, message: message)
-
-        switch result {
-        case .notStarted, .loading:
-            return false
-        case .success:
-            await loadMessages()
-            return true
-        case .failure(let error):
-            presentError(userFacingError: UserFacingError(title: error.localizedDescription))
-            return false
-        }
-    }
-
-    func editAnswerMessage(answerMessage: AnswerMessage) async -> Bool {
-        let result = await messagesService.editAnswerMessage(for: courseId, answerMessage: answerMessage)
-
-        switch result {
-        case .notStarted, .loading:
-            return false
-        case .success:
-            await loadMessages()
-            return true
-        case .failure(let error):
-            presentError(userFacingError: UserFacingError(title: error.localizedDescription))
-            return false
-        }
-    }
 }
 
-// MARK: Start (initializer)
+// MARK: - Private
 
 private extension ConversationViewModel {
+
+    // MARK: Start (initializer)
+
     func loadConversation() async {
         let result = await messagesService.getConversations(for: courseId)
 
@@ -405,11 +343,9 @@ private extension ConversationViewModel {
             }
         }
     }
-}
 
-// MARK: Receive message
+    // MARK: Receive message
 
-private extension ConversationViewModel {
     func onMessageReceived(messageWebsocketDTO: MessageWebsocketDTO) {
         // Guard message corresponds to conversation
         guard messageWebsocketDTO.post.conversation?.id == conversation.value?.id else {
