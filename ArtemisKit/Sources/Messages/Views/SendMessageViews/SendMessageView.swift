@@ -14,8 +14,6 @@ struct SendMessageView: View {
 
     @State var viewModel: SendMessageViewModel
 
-    @ObservedObject var conversationViewModel: ConversationViewModel
-
     @FocusState private var isFocused: Bool
 
     var body: some View {
@@ -70,15 +68,11 @@ struct SendMessageView: View {
         .sheet(item: $viewModel.modalPresentation) {
             isFocused = true
         } content: { presentation in
-            if let course = conversationViewModel.course.value {
-                switch presentation {
-                case .exercisePicker:
-                    SendMessageExercisePicker(text: $viewModel.text, course: course)
-                case .lecturePicker:
-                    SendMessageLecturePicker(text: $viewModel.text, course: course)
-                }
-            } else {
-                Text(R.string.localizable.loading())
+            switch presentation {
+            case .exercisePicker:
+                SendMessageExercisePicker(text: $viewModel.text, course: viewModel.course)
+            case .lecturePicker:
+                SendMessageLecturePicker(text: $viewModel.text, course: viewModel.course)
             }
         }
     }
@@ -86,25 +80,24 @@ struct SendMessageView: View {
 
 private extension SendMessageView {
     @ViewBuilder var mentions: some View {
-        if let course = conversationViewModel.course.value,
-           let presentation = viewModel.conditionalPresentation {
-            switch presentation {
-            case .memberPicker:
-                SendMessageMentionMemberView(
-                    viewModel: SendMessageMentionMemberViewModel(course: course),
-                    sendMessageViewModel: viewModel
-                )
-            case .channelPicker:
-                SendMessageMentionChannelView(
-                    viewModel: SendMessageMentionChannelViewModel(course: course),
-                    sendMessageViewModel: viewModel
-                )
-            }
+        switch viewModel.conditionalPresentation {
+        case .memberPicker:
+            SendMessageMentionMemberView(
+                viewModel: SendMessageMentionMemberViewModel(course: viewModel.course),
+                sendMessageViewModel: viewModel
+            )
+        case .channelPicker:
+            SendMessageMentionChannelView(
+                viewModel: SendMessageMentionChannelViewModel(course: viewModel.course),
+                sendMessageViewModel: viewModel
+            )
+        case nil:
+            EmptyView()
         }
     }
 
     @ViewBuilder var textField: some View {
-        let label = R.string.localizable.messageAction(conversationViewModel.conversation.value?.baseConversation.conversationName ?? "")
+        let label = R.string.localizable.messageAction(viewModel.conversation.baseConversation.conversationName)
         if viewModel.isEditing {
             TextField(label, text: $viewModel.text, axis: .vertical)
                 .textFieldStyle(ArtemisTextField())
@@ -170,6 +163,6 @@ private extension SendMessageView {
         }
         .padding(.leading, .l)
         .disabled(viewModel.text.isEmpty)
-        .loadingIndicator(isLoading: $conversationViewModel.isLoading)
+        .loadingIndicator(isLoading: viewModel.isLoading)
     }
 }

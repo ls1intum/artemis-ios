@@ -57,8 +57,8 @@ struct MessageDetailView: View {
                                 },
                                 loadMessages: viewModel.loadMessages,
                                 presentError: viewModel.presentError(userFacingError:)
-                            ),
-                            conversationViewModel: viewModel)
+                            )
+                        )
                     }
                 }
             }

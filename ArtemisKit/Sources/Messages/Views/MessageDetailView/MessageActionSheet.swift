@@ -160,8 +160,8 @@ private extension MessageActionSheet {
                                 },
                                 loadMessages: viewModel.loadMessages,
                                 presentError: viewModel.presentError(userFacingError:)
-                            ),
-                            conversationViewModel: viewModel)
+                            )
+                        )
                     } else if let answerMessage = message.value as? AnswerMessage {
                         SendMessageView(
                             viewModel: SendMessageViewModel(
@@ -174,8 +174,8 @@ private extension MessageActionSheet {
                                 },
                                 loadMessages: viewModel.loadMessages,
                                 presentError: viewModel.presentError(userFacingError:)
-                            ),
-                            conversationViewModel: viewModel)
+                            )
+                        )
                     } else {
                         Text(R.string.localizable.loading())
                     }
