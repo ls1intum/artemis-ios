@@ -76,21 +76,43 @@ struct SubmitButton: View {
     @ObservedObject var modelingViewModel: ModelingExerciseViewModel
     @Binding var showSubmissionAlert: Bool
     @Binding var isSubmissionSuccessful: Bool
+    @State private var isSubmitting = false
 
     var body: some View {
         Button {
-            Task {
-                do {
-                    try await modelingViewModel.submitSubmission()
-                    isSubmissionSuccessful = true
-                } catch {
-                    isSubmissionSuccessful = false
+            submit()
+        } label: {
+            ZStack {
+                Text(R.string.localizable.submitSubmission())
+                    .opacity(isSubmitting ? 0 : 1)
+                // Show a Progress View, whilst the submision is being submitted
+                if isSubmitting {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: Color.Artemis.primaryButtonTextColor))
                 }
+            }
+        }
+        .buttonStyle(ArtemisButton(buttonColor: showSubmissionAlert ?
+                                   (isSubmissionSuccessful ? Color.Artemis.resultSuccess : Color.Artemis.resultFailedColor) :
+                                    Color.Artemis.primaryButtonColor,
+                                   buttonTextColor: Color.Artemis.primaryButtonTextColor))
+        .disabled(isSubmitting)
+    }
+
+    private func submit() {
+        isSubmitting = true
+        Task {
+            do {
+                try await modelingViewModel.submitSubmission()
+                isSubmissionSuccessful = true
+            } catch {
+                isSubmissionSuccessful = false
+            }
+            withAnimation {
+                isSubmitting = false
                 showSubmissionAlert.toggle()
             }
-        } label: {
-            Text(R.string.localizable.submitSubmission())
-        }.buttonStyle(ArtemisButton())
+        }
     }
 }
 
