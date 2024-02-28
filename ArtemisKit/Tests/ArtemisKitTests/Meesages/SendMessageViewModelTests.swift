@@ -1,26 +1,22 @@
 import XCTest
+import SharedModels
 @testable import Messages
 
-final class SendMessageChannelPickerViewModelTests: XCTestCase {
-    func testChannelNameCaseInsensitivity() async throws {
-        // given
-        let viewModel = SendMessageMentionChannelViewModel(
-            course: .init(id: 1, courseInformationSharingConfiguration: .communicationAndMessaging),
-            messagesService: MessagesServiceStub())
-
-        // when
-        await viewModel.search(idOrName: "Annôunce")
-
-        // then
-        let channels = try XCTUnwrap(viewModel.channels.value)
-        XCTAssertNotNil(channels.first)
-    }
-}
-
 final class SendMessageViewModelTests: XCTestCase {
+    func makeViewModel() -> SendMessageViewModel {
+        SendMessageViewModel(
+            course: Course(id: 1, courseInformationSharingConfiguration: .communicationAndMessaging),
+            conversation: Conversation(conversation: Channel(id: 1))!,
+            sendMessageType: .message,
+            delegate: SendMessageViewModelDelegate(
+                loadMessages: {},
+                presentError: { _ in },
+                scrollToId: { _ in }))
+    }
+
     func testWriteAt() {
         // given
-        let viewModel = SendMessageViewModel()
+        let viewModel = self.makeViewModel()
 
         // when
         viewModel.text += "@"
@@ -31,7 +27,7 @@ final class SendMessageViewModelTests: XCTestCase {
 
     func testWriteNumber() {
         // given
-        let viewModel = SendMessageViewModel()
+        let viewModel = self.makeViewModel()
 
         // when
         viewModel.text += "#"
@@ -42,7 +38,7 @@ final class SendMessageViewModelTests: XCTestCase {
 
     func testSuppressAt() {
         // given
-        let viewModel = SendMessageViewModel()
+        let viewModel = self.makeViewModel()
 
         // when
         viewModel.text += "@"
@@ -54,7 +50,7 @@ final class SendMessageViewModelTests: XCTestCase {
 
     func testSuppressNumber() {
         // given
-        let viewModel = SendMessageViewModel()
+        let viewModel = self.makeViewModel()
 
         // when
         viewModel.text += "#"
@@ -66,7 +62,7 @@ final class SendMessageViewModelTests: XCTestCase {
 
     func testOverrideAt() {
         // given
-        let viewModel = SendMessageViewModel()
+        let viewModel = self.makeViewModel()
 
         // when
         viewModel.text += "@user "
@@ -79,7 +75,7 @@ final class SendMessageViewModelTests: XCTestCase {
 
     func testOverrideNumber() {
         // given
-        let viewModel = SendMessageViewModel()
+        let viewModel = self.makeViewModel()
 
         // when
         viewModel.text += "#channel "
