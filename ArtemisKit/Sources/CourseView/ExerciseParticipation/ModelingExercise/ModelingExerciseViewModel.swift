@@ -102,7 +102,7 @@ class ModelingExerciseViewModel: BaseViewModel {
         }
     }
 
-    func submitSubmission() async {
+    func submitSubmission() async throws {
         guard var submitSubmission = submission as? ModelingSubmission, let umlModel else {
             return
         }
@@ -117,6 +117,7 @@ class ModelingExerciseViewModel: BaseViewModel {
             try await exerciseService.updateSubmission(exerciseId: exercise.id, submission: submitSubmission)
         } catch {
             log.error(String(describing: error))
+            throw error
         }
     }
 
