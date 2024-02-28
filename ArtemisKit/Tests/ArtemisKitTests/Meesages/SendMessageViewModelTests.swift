@@ -16,7 +16,7 @@ final class SendMessageViewModelTests: XCTestCase {
 
     func testWriteAt() {
         // given
-        let viewModel = self.makeViewModel()
+        let viewModel = makeViewModel()
 
         // when
         viewModel.text += "@"
@@ -27,7 +27,7 @@ final class SendMessageViewModelTests: XCTestCase {
 
     func testWriteNumber() {
         // given
-        let viewModel = self.makeViewModel()
+        let viewModel = makeViewModel()
 
         // when
         viewModel.text += "#"
@@ -38,7 +38,7 @@ final class SendMessageViewModelTests: XCTestCase {
 
     func testSuppressAt() {
         // given
-        let viewModel = self.makeViewModel()
+        let viewModel = makeViewModel()
 
         // when
         viewModel.text += "@"
@@ -50,7 +50,7 @@ final class SendMessageViewModelTests: XCTestCase {
 
     func testSuppressNumber() {
         // given
-        let viewModel = self.makeViewModel()
+        let viewModel = makeViewModel()
 
         // when
         viewModel.text += "#"
@@ -62,7 +62,7 @@ final class SendMessageViewModelTests: XCTestCase {
 
     func testOverrideAt() {
         // given
-        let viewModel = self.makeViewModel()
+        let viewModel = makeViewModel()
 
         // when
         viewModel.text += "@user "
@@ -75,7 +75,7 @@ final class SendMessageViewModelTests: XCTestCase {
 
     func testOverrideNumber() {
         // given
-        let viewModel = self.makeViewModel()
+        let viewModel = makeViewModel()
 
         // when
         viewModel.text += "#channel "
