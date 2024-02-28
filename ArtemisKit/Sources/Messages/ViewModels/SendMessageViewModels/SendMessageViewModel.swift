@@ -39,13 +39,12 @@ final class SendMessageViewModel {
     let conversation: Conversation
     let sendMessageType: SendMessageType
 
-    // ConversationViewModel
-    let isLoading: Binding<Bool>
-    let shouldScrollToId: (String) -> Void
-    let loadMessages: () async -> Void
-    let presentError: (UserFacingError) -> Void
-
+    private let delegate: SendMessageViewModelDelegate
     private let messagesService: MessagesService
+
+    // MARK: Loading
+
+    var isLoading: Bool = false
 
     // MARK: Text
 
@@ -83,21 +82,14 @@ final class SendMessageViewModel {
         course: Course,
         conversation: Conversation,
         sendMessageType: SendMessageType,
-        isLoading: Binding<Bool>,
-        shouldScrollToId: @escaping (String) -> Void,
-        loadMessages: @escaping () async -> Void,
-        presentError: @escaping (UserFacingError) -> Void,
+        delegate: SendMessageViewModelDelegate,
         messagesService: MessagesService = MessagesServiceFactory.shared
     ) {
         self.course = course
         self.conversation = conversation
         self.sendMessageType = sendMessageType
 
-        self.isLoading = isLoading
-        self.shouldScrollToId = shouldScrollToId
-        self.loadMessages = loadMessages
-        self.presentError = presentError
-
+        self.delegate = delegate
         self.messagesService = messagesService
     }
 }
@@ -171,7 +163,7 @@ extension SendMessageViewModel {
     // MARK: Send Message
 
     func didTapSendButton() {
-        isLoading.wrappedValue = true
+        isLoading = true
         Task { @MainActor in
             var result: NetworkResponse?
             switch sendMessageType {
@@ -183,7 +175,7 @@ extension SendMessageViewModel {
                 var newMessage = message
                 newMessage.content = text
                 let success = await editMessage(message: newMessage)
-                isLoading.wrappedValue = false
+                isLoading = false
                 if success {
                     completion()
                 }
@@ -191,7 +183,7 @@ extension SendMessageViewModel {
                 var newMessage = message
                 newMessage.content = text
                 let success = await editAnswerMessage(answerMessage: newMessage)
-                isLoading.wrappedValue = false
+                isLoading = false
                 if success {
                     completion()
                 }
@@ -207,21 +199,21 @@ extension SendMessageViewModel {
 
     @MainActor
     func sendMessage(text: String) async -> NetworkResponse {
-        isLoading.wrappedValue = true
+        isLoading = true
         let result = await messagesService.sendMessage(for: course.id, conversation: conversation, content: text)
         switch result {
         case .notStarted, .loading:
-            isLoading.wrappedValue = false
+            isLoading = false
         case .success:
-            shouldScrollToId("bottom")
-            await loadMessages()
-            isLoading.wrappedValue = false
+            delegate.shouldScrollToId("bottom")
+            await delegate.loadMessages()
+            isLoading = false
         case .failure(let error):
-            isLoading.wrappedValue = false
+            isLoading = false
             if let apiClientError = error as? APIClientError {
-                presentError(UserFacingError(error: apiClientError))
+                delegate.presentError(UserFacingError(error: apiClientError))
             } else {
-                presentError(UserFacingError(title: error.localizedDescription))
+                delegate.presentError(UserFacingError(title: error.localizedDescription))
             }
         }
         return result
@@ -229,26 +221,26 @@ extension SendMessageViewModel {
 
     @MainActor
     func sendAnswerMessage(text: String, for message: Message, completion: () async -> Void) async -> NetworkResponse {
-        isLoading.wrappedValue = true
+        isLoading = true
         let result = await messagesService.sendAnswerMessage(for: course.id, message: message, content: text)
         switch result {
         case .notStarted, .loading:
-            isLoading.wrappedValue = false
+            isLoading = false
         case .success:
             await completion()
-            isLoading.wrappedValue = false
+            isLoading = false
         case .failure(let error):
-            isLoading.wrappedValue = false
+            isLoading = false
             if let apiClientError = error as? APIClientError {
-                presentError(UserFacingError(error: apiClientError))
+                delegate.presentError(UserFacingError(error: apiClientError))
             } else {
-                presentError(UserFacingError(title: error.localizedDescription))
+                delegate.presentError(UserFacingError(title: error.localizedDescription))
             }
         }
         return result
     }
 
-//    @MainActor
+    @MainActor
     func editMessage(message: Message) async -> Bool {
         let result = await messagesService.editMessage(for: course.id, message: message)
 
@@ -256,15 +248,15 @@ extension SendMessageViewModel {
         case .notStarted, .loading:
             return false
         case .success:
-            await loadMessages()
+            await delegate.loadMessages()
             return true
         case .failure(let error):
-            presentError(UserFacingError(title: error.localizedDescription))
+            delegate.presentError(UserFacingError(title: error.localizedDescription))
             return false
         }
     }
 
-//    @MainActor
+    @MainActor
     func editAnswerMessage(answerMessage: AnswerMessage) async -> Bool {
         let result = await messagesService.editAnswerMessage(for: course.id, answerMessage: answerMessage)
 
@@ -272,10 +264,10 @@ extension SendMessageViewModel {
         case .notStarted, .loading:
             return false
         case .success:
-            await loadMessages()
+            await delegate.loadMessages()
             return true
         case .failure(let error):
-            presentError(UserFacingError(title: error.localizedDescription))
+            delegate.presentError(UserFacingError(title: error.localizedDescription))
             return false
         }
     }

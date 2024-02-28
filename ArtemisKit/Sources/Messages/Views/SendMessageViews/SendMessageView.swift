@@ -163,6 +163,6 @@ private extension SendMessageView {
         }
         .padding(.leading, .l)
         .disabled(viewModel.text.isEmpty)
-        .loadingIndicator(isLoading: viewModel.isLoading)
+        .loadingIndicator(isLoading: $viewModel.isLoading)
     }
 }

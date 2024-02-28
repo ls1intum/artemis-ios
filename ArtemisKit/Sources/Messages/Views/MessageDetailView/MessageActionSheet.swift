@@ -154,12 +154,7 @@ private extension MessageActionSheet {
                                 course: course,
                                 conversation: conversation,
                                 sendMessageType: .editMessage(message, { self.dismiss() }),
-                                isLoading: $viewModel.isLoading,
-                                shouldScrollToId: { [weak viewModel] id in
-                                    viewModel?.shouldScrollToId = id
-                                },
-                                loadMessages: viewModel.loadMessages,
-                                presentError: viewModel.presentError(userFacingError:)
+                                delegate: SendMessageViewModelDelegate(viewModel)
                             )
                         )
                     } else if let answerMessage = message.value as? AnswerMessage {
@@ -168,12 +163,7 @@ private extension MessageActionSheet {
                                 course: course,
                                 conversation: conversation,
                                 sendMessageType: .editAnswerMessage(answerMessage, { self.dismiss() }),
-                                isLoading: $viewModel.isLoading,
-                                shouldScrollToId: { [weak viewModel] id in
-                                    viewModel?.shouldScrollToId = id
-                                },
-                                loadMessages: viewModel.loadMessages,
-                                presentError: viewModel.presentError(userFacingError:)
+                                delegate: SendMessageViewModelDelegate(viewModel)
                             )
                         )
                     } else {

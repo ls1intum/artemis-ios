@@ -96,12 +96,7 @@ public struct ConversationView: View {
                             course: course,
                             conversation: conversation,
                             sendMessageType: .message,
-                            isLoading: $viewModel.isLoading,
-                            shouldScrollToId: { [weak viewModel] id in
-                                viewModel?.shouldScrollToId = id
-                            },
-                            loadMessages: viewModel.loadMessages,
-                            presentError: viewModel.presentError(userFacingError:)
+                            delegate: SendMessageViewModelDelegate(viewModel)
                         )
                     )
                 }
