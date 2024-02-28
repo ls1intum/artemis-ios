@@ -5,8 +5,11 @@
 //  Created by Nityananda Zbil on 22.02.24.
 //
 
+import APIClient
+import Common
 import Foundation
 import SharedModels
+import SwiftUI
 
 enum SendMessageType {
     case message
@@ -32,7 +35,19 @@ final class SendMessageViewModel {
         }
     }
 
+    let course: Course
+    let conversation: Conversation
     let sendMessageType: SendMessageType
+
+    // ConversationViewModel
+    let isLoading: Binding<Bool>
+    let shouldScrollToId: (String) -> Void
+    let loadMessages: () async -> Void
+    let presentError: (UserFacingError) -> Void
+
+    private let messagesService: MessagesService
+
+    // MARK: Text
 
     var text: String = ""
 
@@ -64,8 +79,26 @@ final class SendMessageViewModel {
 
     // MARK: Life cycle
 
-    init(sendMessageType: SendMessageType) {
+    init(
+        course: Course,
+        conversation: Conversation,
+        sendMessageType: SendMessageType,
+        isLoading: Binding<Bool>,
+        shouldScrollToId: @escaping (String) -> Void,
+        loadMessages: @escaping () async -> Void,
+        presentError: @escaping (UserFacingError) -> Void,
+        messagesService: MessagesService = MessagesServiceFactory.shared
+    ) {
+        self.course = course
+        self.conversation = conversation
         self.sendMessageType = sendMessageType
+
+        self.isLoading = isLoading
+        self.shouldScrollToId = shouldScrollToId
+        self.loadMessages = loadMessages
+        self.presentError = presentError
+
+        self.messagesService = messagesService
     }
 }
 
@@ -132,6 +165,118 @@ extension SendMessageViewModel {
         } else {
             isChannelPickerSuppressed = false
             text += "#"
+        }
+    }
+
+    // MARK: Send Message
+
+    func didTapSendButton() {
+        isLoading.wrappedValue = true
+        Task { @MainActor in
+            var result: NetworkResponse?
+            switch sendMessageType {
+            case .message:
+                result = await sendMessage(text: text)
+            case let .answerMessage(message, completion):
+                result = await sendAnswerMessage(text: text, for: message, completion: completion)
+            case let .editMessage(message, completion):
+                var newMessage = message
+                newMessage.content = text
+                let success = await editMessage(message: newMessage)
+                isLoading.wrappedValue = false
+                if success {
+                    completion()
+                }
+            case let .editAnswerMessage(message, completion):
+                var newMessage = message
+                newMessage.content = text
+                let success = await editAnswerMessage(answerMessage: newMessage)
+                isLoading.wrappedValue = false
+                if success {
+                    completion()
+                }
+            }
+            switch result {
+            case .success:
+                text = ""
+            default:
+                return
+            }
+        }
+    }
+
+    @MainActor
+    func sendMessage(text: String) async -> NetworkResponse {
+        isLoading.wrappedValue = true
+        let result = await messagesService.sendMessage(for: course.id, conversation: conversation, content: text)
+        switch result {
+        case .notStarted, .loading:
+            isLoading.wrappedValue = false
+        case .success:
+            shouldScrollToId("bottom")
+            await loadMessages()
+            isLoading.wrappedValue = false
+        case .failure(let error):
+            isLoading.wrappedValue = false
+            if let apiClientError = error as? APIClientError {
+                presentError(UserFacingError(error: apiClientError))
+            } else {
+                presentError(UserFacingError(title: error.localizedDescription))
+            }
+        }
+        return result
+    }
+
+    @MainActor
+    func sendAnswerMessage(text: String, for message: Message, completion: () async -> Void) async -> NetworkResponse {
+        isLoading.wrappedValue = true
+        let result = await messagesService.sendAnswerMessage(for: course.id, message: message, content: text)
+        switch result {
+        case .notStarted, .loading:
+            isLoading.wrappedValue = false
+        case .success:
+            await completion()
+            isLoading.wrappedValue = false
+        case .failure(let error):
+            isLoading.wrappedValue = false
+            if let apiClientError = error as? APIClientError {
+                presentError(UserFacingError(error: apiClientError))
+            } else {
+                presentError(UserFacingError(title: error.localizedDescription))
+            }
+        }
+        return result
+    }
+
+//    @MainActor
+    func editMessage(message: Message) async -> Bool {
+        let result = await messagesService.editMessage(for: course.id, message: message)
+
+        switch result {
+        case .notStarted, .loading:
+            return false
+        case .success:
+            await loadMessages()
+            return true
+        case .failure(let error):
+            presentError(UserFacingError(title: error.localizedDescription))
+            return false
+        }
+    }
+
+//    @MainActor
+    func editAnswerMessage(answerMessage: AnswerMessage) async -> Bool {
+        let result = await messagesService.editAnswerMessage(for: course.id, answerMessage: answerMessage)
+
+        switch result {
+        case .notStarted, .loading:
+            return false
+        case .success:
+            await loadMessages()
+            return true
+        case .failure(let error):
+            presentError(UserFacingError(title: error.localizedDescription))
+            return false
         }
     }
 

@@ -42,11 +42,24 @@ struct MessageDetailView: View {
                     }
                 }
                 Spacer()
-                if !((viewModel.conversation.value?.baseConversation as? Channel)?.isArchived ?? false),
-                   let message = message as? Message {
-                    SendMessageView(
-                        viewModel: SendMessageViewModel(sendMessageType: .answerMessage(message, reloadMessage)),
-                        conversationViewModel: viewModel)
+                if let course = viewModel.course.value,
+                   let conversation = viewModel.conversation.value {
+                    if !((viewModel.conversation.value?.baseConversation as? Channel)?.isArchived ?? false),
+                       let message = message as? Message {
+                        SendMessageView(
+                            viewModel: SendMessageViewModel(
+                                course: course, 
+                                conversation: conversation,
+                                sendMessageType: .answerMessage(message, reloadMessage),
+                                isLoading: $viewModel.isLoading,
+                                shouldScrollToId: { [weak viewModel] id in
+                                    viewModel?.shouldScrollToId = id
+                                },
+                                loadMessages: viewModel.loadMessages,
+                                presentError: viewModel.presentError(userFacingError:)
+                            ),
+                            conversationViewModel: viewModel)
+                    }
                 }
             }
         }

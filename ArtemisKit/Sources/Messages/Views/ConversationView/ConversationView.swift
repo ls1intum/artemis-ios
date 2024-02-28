@@ -89,7 +89,22 @@ public struct ConversationView: View {
                 }
             }
             if isAllowedToPost {
-                SendMessageView(viewModel: SendMessageViewModel(sendMessageType: .message), conversationViewModel: viewModel)
+                if let course = viewModel.course.value,
+                   let conversation = viewModel.conversation.value {
+                    SendMessageView(
+                        viewModel: SendMessageViewModel(
+                            course: course,
+                            conversation: conversation,
+                            sendMessageType: .message,
+                            isLoading: $viewModel.isLoading,
+                            shouldScrollToId: { [weak viewModel] id in
+                                viewModel?.shouldScrollToId = id
+                            },
+                            loadMessages: viewModel.loadMessages,
+                            presentError: viewModel.presentError(userFacingError:)
+                        ), conversationViewModel: viewModel
+                    )
+                }
             }
         }
         .toolbar {

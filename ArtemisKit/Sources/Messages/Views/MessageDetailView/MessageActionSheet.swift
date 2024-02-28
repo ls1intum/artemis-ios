@@ -93,7 +93,9 @@ struct MessageActionSheet: View {
         .loadingIndicator(isLoading: $viewModel.isLoading)
         .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
     }
+}
 
+private extension MessageActionSheet {
     var editDeleteSection: some View {
         Group {
             if isAbleToEditDelete {
@@ -105,31 +107,7 @@ struct MessageActionSheet: View {
                     ButtonContent(title: R.string.localizable.editMessage(), icon: "pencil")
                 }
                 .sheet(isPresented: $showEditSheet) {
-                    NavigationView {
-                        Group {
-                            if let message = message.value as? Message {
-                                SendMessageView(
-                                    viewModel: SendMessageViewModel(sendMessageType: .editMessage(message, { self.dismiss() })),
-                                    conversationViewModel: viewModel)
-                            } else if let answerMessage = message.value as? AnswerMessage {
-                                SendMessageView(
-                                    viewModel: SendMessageViewModel(sendMessageType: .editAnswerMessage(answerMessage, { self.dismiss() })),
-                                    conversationViewModel: viewModel)
-                            } else {
-                                Text(R.string.localizable.loading())
-                            }
-                        }
-                        .navigationTitle(R.string.localizable.editMessage())
-                        .navigationBarTitleDisplayMode(.inline)
-                        .toolbar {
-                            ToolbarItem(placement: .navigationBarLeading) {
-                                Button(R.string.localizable.cancel()) {
-                                    showEditSheet = false
-                                }
-                            }
-                        }
-                    }
-                    .presentationDetents([.height(200), .medium])
+                    editMessage
                 }
 
                 Button {
@@ -163,6 +141,57 @@ struct MessageActionSheet: View {
                 }
             }
         }
+    }
+
+    var editMessage: some View {
+        NavigationView {
+            Group {
+                if let course = viewModel.course.value,
+                   let conversation = viewModel.conversation.value {
+                    if let message = message.value as? Message {
+                        SendMessageView(
+                            viewModel: SendMessageViewModel(
+                                course: course,
+                                conversation: conversation,
+                                sendMessageType: .editMessage(message, { self.dismiss() }),
+                                isLoading: $viewModel.isLoading,
+                                shouldScrollToId: { [weak viewModel] id in
+                                    viewModel?.shouldScrollToId = id
+                                },
+                                loadMessages: viewModel.loadMessages,
+                                presentError: viewModel.presentError(userFacingError:)
+                            ),
+                            conversationViewModel: viewModel)
+                    } else if let answerMessage = message.value as? AnswerMessage {
+                        SendMessageView(
+                            viewModel: SendMessageViewModel(
+                                course: course,
+                                conversation: conversation,
+                                sendMessageType: .editAnswerMessage(answerMessage, { self.dismiss() }),
+                                isLoading: $viewModel.isLoading,
+                                shouldScrollToId: { [weak viewModel] id in
+                                    viewModel?.shouldScrollToId = id
+                                },
+                                loadMessages: viewModel.loadMessages,
+                                presentError: viewModel.presentError(userFacingError:)
+                            ),
+                            conversationViewModel: viewModel)
+                    } else {
+                        Text(R.string.localizable.loading())
+                    }
+                }
+            }
+            .navigationTitle(R.string.localizable.editMessage())
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(R.string.localizable.cancel()) {
+                        showEditSheet = false
+                    }
+                }
+            }
+        }
+        .presentationDetents([.height(200), .medium])
     }
 }
 
