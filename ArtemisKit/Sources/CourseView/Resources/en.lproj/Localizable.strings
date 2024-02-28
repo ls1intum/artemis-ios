@@ -66,6 +66,12 @@
 "difficulty" = "Difficulty:";
 "categories" = "Categories:";
 
+// Modeling Submission Alerts
+"successfulSubmissionAlertTitle" = "Your submission was successful!";
+"successfulSubmissionAlertMessage" = "You can change your submission or wait for your feedback.";
+"failedSubmissionAlertTitle" = "An error occurred...";
+"failedSubmissionAlertMessage" = "Please try again later.";
+
 // Modeling Feedback
 "modelingFeedbackElement" = "Element";
 "modelingFeedbackPoints" = "Points";
