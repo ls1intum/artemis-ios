@@ -25,16 +25,16 @@ final class InstitutionModel {
 
 @Model
 final class ConversationModel {
-//    @Attribute(.unique)
-//    var remoteId: Int
+    @Attribute(.unique)
+    var remoteId: Int
 
     var draft: String
 
     init(
-//        remoteId: Int,
+        remoteId: Int,
         draft: String = ""
     ) {
-//        self.remoteId = remoteId
+        self.remoteId = remoteId
         self.draft = draft
     }
 }
@@ -60,8 +60,10 @@ final class AnyRepository {
 
 @MainActor
 extension AnyRepository {
-    func fetch() throws -> [ConversationModel] {
-        try container.mainContext.fetch(FetchDescriptor<ConversationModel>())
+    func fetch(remoteId: Int) throws -> [ConversationModel] {
+        try container.mainContext.fetch(FetchDescriptor<ConversationModel>(predicate: #Predicate {
+            $0.remoteId == remoteId
+        }))
     }
 
     func insert(institution: InstitutionModel) throws {

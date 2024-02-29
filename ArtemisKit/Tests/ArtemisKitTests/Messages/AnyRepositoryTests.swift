@@ -5,24 +5,25 @@ final class AnyRepositoryTests: XCTestCase {
     func testRoundtrip() async throws {
         // given
         let repository = try AnyRepository()
+        let remoteId = 1
         let draft = "Hello"
         let override = "Hello, world!"
 
         // when
         // - a
         do {
-            let conversation = ConversationModel(draft: draft)
+            let conversation = ConversationModel(remoteId: remoteId, draft: draft)
             try await repository.insert(conversation: conversation)
         }
 
         // - b
         do {
-            let conversation = ConversationModel(draft: override)
+            let conversation = ConversationModel(remoteId: remoteId, draft: override)
             try await repository.insert(conversation: conversation)
         }
 
         // - c
-        let conversations = try await repository.fetch()
+        let conversations = try await repository.fetch(remoteId: remoteId)
 
         // then
         let first = try XCTUnwrap(conversations.first)
