@@ -120,7 +120,7 @@ extension SendMessageViewModel {
     func performOnDisappear() {
         do {
             if !text.isEmpty {
-                try AnyRepository.shared.insert(conversation: ConversationModel(remoteId: Int(conversation.id), draft: text))
+                try AnyRepository.shared.insert(conversation: ConversationModel(draft: text))
             }
         } catch {
             log.error(error)
