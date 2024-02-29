@@ -40,6 +40,7 @@ final class SendMessageViewModel {
     let sendMessageType: Configuration
 
     private let delegate: SendMessageViewModelDelegate
+    private let anyRepository: AnyRepository
     private let messagesService: MessagesService
 
     // MARK: Loading
@@ -83,6 +84,7 @@ final class SendMessageViewModel {
         conversation: Conversation,
         sendMessageType: Configuration,
         delegate: SendMessageViewModelDelegate,
+        anyRepository: AnyRepository = .shared,
         messagesService: MessagesService = MessagesServiceFactory.shared
     ) {
         self.course = course
@@ -90,6 +92,7 @@ final class SendMessageViewModel {
         self.sendMessageType = sendMessageType
 
         self.delegate = delegate
+        self.anyRepository = anyRepository
         self.messagesService = messagesService
     }
 }
@@ -106,7 +109,7 @@ extension SendMessageViewModel {
             text = message.content ?? ""
         default:
             do {
-                let conversations = try AnyRepository.shared.fetch(remoteId: Int(conversation.id))
+                let conversations = try anyRepository.fetch(remoteId: Int(conversation.id))
                 if let first = conversations.first {
                     text = first.draft
                 }
@@ -120,7 +123,7 @@ extension SendMessageViewModel {
     func performOnDisappear() {
         do {
             if !text.isEmpty {
-                try AnyRepository.shared.insert(conversation: Schema.Conversation(remoteId: Int(conversation.id), draft: text))
+                try anyRepository.insert(conversation: Schema.Conversation(remoteId: Int(conversation.id), draft: text))
             }
         } catch {
             log.error(error)
