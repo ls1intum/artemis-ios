@@ -6,18 +6,27 @@ final class AnyRepositoryTests: XCTestCase {
         // given
         let repository = try AnyRepository()
         let draft = "Hello"
+        let override = "Hello, world!"
 
         // when
         // - a
-        let conversation = ConversationModel(draft: draft)
-        try await repository.insert(conversation: conversation)
-        let conversations = try await repository.fetch()
+        do {
+            let conversation = ConversationModel(draft: draft)
+            try await repository.insert(conversation: conversation)
+        }
 
         // - b
+        do {
+            let conversation = ConversationModel(draft: override)
+            try await repository.insert(conversation: conversation)
+        }
+
+        // - c
+        let conversations = try await repository.fetch()
 
         // then
         let first = try XCTUnwrap(conversations.first)
-        XCTAssertEqual(first.draft, draft)
+        XCTAssertEqual(first.draft, override)
     }
 
 //    func test_() async throws {
