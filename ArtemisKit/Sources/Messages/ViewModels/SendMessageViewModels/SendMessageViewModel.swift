@@ -97,6 +97,7 @@ final class SendMessageViewModel {
 // MARK: - Actions
 
 extension SendMessageViewModel {
+    @MainActor
     func performOnAppear() {
         switch sendMessageType {
         case let .editMessage(message, _):
@@ -104,7 +105,25 @@ extension SendMessageViewModel {
         case let .editAnswerMessage(message, _):
             text = message.content ?? ""
         default:
-            break
+            do {
+                let conversations = try AnyRepository.shared.fetch()
+                if let first = conversations.first {
+                    text = first.draft
+                }
+            } catch {
+                log.error(error)
+            }
+        }
+    }
+
+    @MainActor
+    func performOnDisappear() {
+        do {
+            if !text.isEmpty {
+                try AnyRepository.shared.insert(conversation: ConversationModel(remoteId: Int(conversation.id), draft: text))
+            }
+        } catch {
+            log.error(error)
         }
     }
 
