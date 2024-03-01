@@ -28,7 +28,7 @@ final class AnyRepository {
     }
 
     deinit {
-        Task { @MainActor in
+        Task { @MainActor [container = self.container] in
             do {
                 try container.mainContext.save()
             } catch {
