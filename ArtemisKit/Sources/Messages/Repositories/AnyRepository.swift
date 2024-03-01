@@ -9,6 +9,7 @@ import Common
 import Foundation
 import SwiftData
 
+@MainActor
 final class AnyRepository {
     static let shared: AnyRepository = {
         do {
@@ -19,29 +20,27 @@ final class AnyRepository {
         }
     }()
 
-    let container: ModelContainer
+    private let context: ModelContext
 
     init() throws {
-        let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try ModelContainer(for: SchemaServer.self, configurations: configuration)
-        self.container = container
+        let schema = Schema([SchemaServer.self, SchemaConversation.self])
+        let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+        let container = try ModelContainer(for: schema, configurations: configuration)
+        self.context = container.mainContext
     }
 
     deinit {
-        Task { @MainActor [container = self.container] in
-            do {
-                try container.mainContext.save()
-            } catch {
-                log.error(error)
-            }
+        do {
+            try context.save()
+        } catch {
+            log.error(error)
         }
     }
 }
 
-@MainActor
 extension AnyRepository {
     func fetch(remoteId: Int) throws -> [SchemaConversation] {
-        try container.mainContext.fetch(
+        try context.fetch(
             FetchDescriptor<SchemaConversation>(predicate: #Predicate {
                 $0.remoteId == remoteId
             })
@@ -49,12 +48,10 @@ extension AnyRepository {
     }
 
     func insert(institution: SchemaServer) throws {
-        container.mainContext.insert(institution)
-        try container.mainContext.save()
+        context.insert(institution)
     }
 
     func insert(conversation: SchemaConversation) throws {
-        container.mainContext.insert(conversation)
-        try container.mainContext.save()
+        context.insert(conversation)
     }
 }

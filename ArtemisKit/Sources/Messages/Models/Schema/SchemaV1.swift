@@ -19,6 +19,8 @@ enum SchemaV1: VersionedSchema {
         @Attribute(.unique)
         var host: String
 
+        // Assumes that a server assigns non-hierarchical IDs,
+        // i.e., every conversation of every course has a unique ID, here `remoteId`.
         @Relationship(deleteRule: .cascade)
         var conversations: [Conversation]
 

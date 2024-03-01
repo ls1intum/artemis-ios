@@ -4,7 +4,7 @@ import XCTest
 final class AnyRepositoryTests: XCTestCase {
     func testRoundtrip() async throws {
         // given
-        let repository = try AnyRepository()
+        let repository = try await AnyRepository()
         let remoteId = 1
         let draft = "Hello"
         let override = "Hello, world!"
