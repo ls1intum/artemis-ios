@@ -1,5 +1,5 @@
 //
-//  Schema20240229185058.swift
+//  SchemaV1.swift
 //  
 //
 //  Created by Nityananda Zbil on 29.02.24.
@@ -7,7 +7,13 @@
 
 import SwiftData
 
-enum Schema20240229185058 {
+enum SchemaV1: VersionedSchema {
+    static var versionIdentifier = Schema.Version(1, 0, 0)
+
+    static var models: [any PersistentModel.Type] {
+        [Institution.self, Conversation.self]
+    }
+
     @Model
     final class Institution {
         @Attribute(.unique)

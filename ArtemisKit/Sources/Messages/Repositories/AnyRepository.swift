@@ -23,7 +23,7 @@ final class AnyRepository {
 
     init() throws {
         let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try ModelContainer(for: Schema.Institution.self, configurations: configuration)
+        let container = try ModelContainer(for: SchemaInstitution.self, configurations: configuration)
         self.container = container
     }
 
@@ -40,19 +40,19 @@ final class AnyRepository {
 
 @MainActor
 extension AnyRepository {
-    func fetch(remoteId: Int) throws -> [Schema.Conversation] {
+    func fetch(remoteId: Int) throws -> [SchemaConversation] {
         try container.mainContext.fetch(
-            FetchDescriptor<Schema.Conversation>(predicate: #Predicate {
+            FetchDescriptor<SchemaConversation>(predicate: #Predicate {
                 $0.remoteId == remoteId
             })
         )
     }
 
-    func insert(institution: Schema.Institution) throws {
+    func insert(institution: SchemaInstitution) throws {
         container.mainContext.insert(institution)
     }
 
-    func insert(conversation: Schema.Conversation) throws {
+    func insert(conversation: SchemaConversation) throws {
         container.mainContext.insert(conversation)
     }
 }

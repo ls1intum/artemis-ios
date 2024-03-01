@@ -2,10 +2,8 @@
 //  Schema.swift
 //  
 //
-//  Created by TUM School on 29.02.24.
+//  Created by Nityananda Zbil on 29.02.24.
 //
 
-enum Schema {
-    typealias Conversation = Schema20240229185058.Conversation
-    typealias Institution = Schema20240229185058.Institution
-}
+typealias SchemaInstitution = SchemaV1.Institution
+typealias SchemaConversation = SchemaV1.Conversation
