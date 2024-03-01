@@ -5,6 +5,7 @@
 //  Created by Nityananda Zbil on 29.02.24.
 //
 
+import Foundation
 import SwiftData
 
 enum SchemaV1: VersionedSchema {
@@ -17,15 +18,15 @@ enum SchemaV1: VersionedSchema {
     @Model
     final class Server {
         @Attribute(.unique)
-        var host: String
+        var url: URL
 
         // Assumes that a server assigns non-hierarchical IDs,
         // i.e., every conversation of every course has a unique ID, here `remoteId`.
         @Relationship(deleteRule: .cascade)
         var conversations: [Conversation]
 
-        init(host: String, conversations: [Conversation] = []) {
-            self.host = host
+        init(url: URL, conversations: [Conversation] = []) {
+            self.url = url
             self.conversations = conversations
         }
     }

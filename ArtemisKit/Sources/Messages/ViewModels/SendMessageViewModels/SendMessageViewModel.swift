@@ -109,19 +109,19 @@ extension SendMessageViewModel {
     @MainActor
     func performOnAppear() {
         switch sendMessageType {
-        case let .editMessage(message, _):
-            text = message.content ?? ""
-        case let .editAnswerMessage(message, _):
-            text = message.content ?? ""
-        default:
+        case .message, .answerMessage:
             do {
                 let conversations = try conversationRepository.fetch(remoteId: Int(conversation.id))
-                if let first = conversations.first {
-                    text = first.draft
+                if let conversation = conversations.first {
+                    text = conversation.draft
                 }
             } catch {
                 log.error(error)
             }
+        case let .editMessage(message, _):
+            text = message.content ?? ""
+        case let .editAnswerMessage(message, _):
+            text = message.content ?? ""
         }
     }
 
