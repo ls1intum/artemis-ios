@@ -9,6 +9,7 @@ import APIClient
 import Common
 import Foundation
 import SharedModels
+import UserStore
 
 extension SendMessageViewModel {
     enum Configuration {
@@ -40,7 +41,7 @@ final class SendMessageViewModel {
     let sendMessageType: Configuration
 
     private let delegate: SendMessageViewModelDelegate
-    private let conversationRepository: ConversationRepository
+    private let messagesRepository: MessagesRepository
     private let messagesService: MessagesService
 
     // MARK: Loading
@@ -90,7 +91,7 @@ final class SendMessageViewModel {
         conversation: Conversation,
         sendMessageType: Configuration,
         delegate: SendMessageViewModelDelegate,
-        conversationRepository: ConversationRepository = .shared,
+        messagesRepository: MessagesRepository = .shared,
         messagesService: MessagesService = MessagesServiceFactory.shared
     ) {
         self.course = course
@@ -98,7 +99,7 @@ final class SendMessageViewModel {
         self.sendMessageType = sendMessageType
 
         self.delegate = delegate
-        self.conversationRepository = conversationRepository
+        self.messagesRepository = messagesRepository
         self.messagesService = messagesService
     }
 }
@@ -110,13 +111,15 @@ extension SendMessageViewModel {
     func performOnAppear() {
         switch sendMessageType {
         case .message, .answerMessage:
-            do {
-                let conversations = try conversationRepository.fetch(remoteId: Int(conversation.id))
-                if let conversation = conversations.first {
-                    text = conversation.draft
+            if let host = UserSession.shared.institution?.baseURL?.host() {
+                do {
+                    let conversation = try messagesRepository.fetchConversation(host: host, remoteId: Int(conversation.id))
+                    conversation.map {
+                        text = $0.draft
+                    }
+                } catch {
+                    log.error(error)
                 }
-            } catch {
-                log.error(error)
             }
         case let .editMessage(message, _):
             text = message.content ?? ""
@@ -127,10 +130,12 @@ extension SendMessageViewModel {
 
     @MainActor
     private func performOnTextChange() {
-        do {
-            try conversationRepository.insert(conversation: ConversationModel(remoteId: Int(conversation.id), draft: text))
-        } catch {
-            log.error(error)
+        if let host = UserSession.shared.institution?.baseURL?.host(), !text.isEmpty {
+            do {
+                try messagesRepository.insertConversation(host: host, remoteId: Int(conversation.id), draft: text)
+            } catch {
+                log.error(error)
+            }
         }
     }
 

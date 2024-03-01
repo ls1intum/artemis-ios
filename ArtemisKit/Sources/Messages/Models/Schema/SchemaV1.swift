@@ -18,29 +18,30 @@ enum SchemaV1: VersionedSchema {
     @Model
     final class Server {
         @Attribute(.unique)
-        var url: URL
+        var host: String
 
         // Assumes that a server assigns non-hierarchical IDs,
         // i.e., every conversation of every course has a unique ID, here `remoteId`.
         @Relationship(deleteRule: .cascade)
         var conversations: [Conversation]
 
-        init(url: URL, conversations: [Conversation] = []) {
-            self.url = url
+        init(host: String, conversations: [Conversation] = []) {
+            self.host = host
             self.conversations = conversations
         }
     }
 
     @Model
     final class Conversation {
-        var server: Server?
+        var server: Server
 
         @Attribute(.unique)
         var remoteId: Int
 
         var draft: String
 
-        init(remoteId: Int, draft: String = "") {
+        init(server: Server, remoteId: Int, draft: String) {
+            self.server = server
             self.remoteId = remoteId
             self.draft = draft
         }
