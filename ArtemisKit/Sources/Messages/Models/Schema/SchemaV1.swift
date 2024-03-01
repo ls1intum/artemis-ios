@@ -11,11 +11,11 @@ enum SchemaV1: VersionedSchema {
     static var versionIdentifier = Schema.Version(1, 0, 0)
 
     static var models: [any PersistentModel.Type] {
-        [Institution.self, Conversation.self]
+        [Server.self, Conversation.self]
     }
 
     @Model
-    final class Institution {
+    final class Server {
         @Attribute(.unique)
         var host: String
 

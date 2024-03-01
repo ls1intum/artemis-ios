@@ -23,7 +23,7 @@ final class AnyRepository {
 
     init() throws {
         let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try ModelContainer(for: SchemaInstitution.self, configurations: configuration)
+        let container = try ModelContainer(for: SchemaServer.self, configurations: configuration)
         self.container = container
     }
 
@@ -48,7 +48,7 @@ extension AnyRepository {
         )
     }
 
-    func insert(institution: SchemaInstitution) throws {
+    func insert(institution: SchemaServer) throws {
         container.mainContext.insert(institution)
         try container.mainContext.save()
     }
