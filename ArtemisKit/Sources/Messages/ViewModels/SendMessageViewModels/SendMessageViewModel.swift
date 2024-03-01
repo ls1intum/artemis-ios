@@ -40,7 +40,7 @@ final class SendMessageViewModel {
     let sendMessageType: Configuration
 
     private let delegate: SendMessageViewModelDelegate
-    private let anyRepository: AnyRepository
+    private let conversationRepository: ConversationRepository
     private let messagesService: MessagesService
 
     // MARK: Loading
@@ -84,7 +84,7 @@ final class SendMessageViewModel {
         conversation: Conversation,
         sendMessageType: Configuration,
         delegate: SendMessageViewModelDelegate,
-        anyRepository: AnyRepository = .shared,
+        conversationRepository: ConversationRepository = .shared,
         messagesService: MessagesService = MessagesServiceFactory.shared
     ) {
         self.course = course
@@ -92,7 +92,7 @@ final class SendMessageViewModel {
         self.sendMessageType = sendMessageType
 
         self.delegate = delegate
-        self.anyRepository = anyRepository
+        self.conversationRepository = conversationRepository
         self.messagesService = messagesService
     }
 }
@@ -109,7 +109,7 @@ extension SendMessageViewModel {
             text = message.content ?? ""
         default:
             do {
-                let conversations = try anyRepository.fetch(remoteId: Int(conversation.id))
+                let conversations = try conversationRepository.fetch(remoteId: Int(conversation.id))
                 if let first = conversations.first {
                     text = first.draft
                 }
@@ -122,7 +122,7 @@ extension SendMessageViewModel {
     @MainActor
     func performOnDisappear() {
         do {
-            try anyRepository.insert(conversation: SchemaConversation(remoteId: Int(conversation.id), draft: text))
+            try conversationRepository.insert(conversation: SchemaConversation(remoteId: Int(conversation.id), draft: text))
             if !text.isEmpty {
             }
         } catch {

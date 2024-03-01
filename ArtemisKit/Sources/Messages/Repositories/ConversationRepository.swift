@@ -1,6 +1,6 @@
 //
-//  AnyRepository.swift
-//  
+//  ConversationRepository.swift
+//
 //
 //  Created by Nityananda Zbil on 28.02.24.
 //
@@ -10,10 +10,10 @@ import Foundation
 import SwiftData
 
 @MainActor
-final class AnyRepository {
-    static let shared: AnyRepository = {
+final class ConversationRepository {
+    static let shared: ConversationRepository = {
         do {
-            return try AnyRepository()
+            return try ConversationRepository()
         } catch {
             log.error(error)
             fatalError("Failed to initialize repository")
@@ -38,7 +38,7 @@ final class AnyRepository {
     }
 }
 
-extension AnyRepository {
+extension ConversationRepository {
     func fetch(remoteId: Int) throws -> [SchemaConversation] {
         let predicate = #Predicate<SchemaConversation> {
             $0.remoteId == remoteId

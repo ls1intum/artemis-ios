@@ -1,10 +1,10 @@
 import XCTest
 @testable import Messages
 
-final class AnyRepositoryTests: XCTestCase {
+final class ConversationRepositoryTests: XCTestCase {
     func testRoundtrip() async throws {
         // given
-        let repository = try await AnyRepository()
+        let repository = try await ConversationRepository()
         let remoteId = 1
         let draft = "Hello"
         let override = "Hello, world!"
