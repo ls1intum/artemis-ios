@@ -23,7 +23,7 @@ final class ConversationRepository {
     private let context: ModelContext
 
     init() throws {
-        let schema = Schema([SchemaServer.self, SchemaConversation.self])
+        let schema = Schema(versionedSchema: SchemaV1.self)
         let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         let container = try ModelContainer(for: schema, configurations: configuration)
         self.context = container.mainContext
@@ -39,18 +39,18 @@ final class ConversationRepository {
 }
 
 extension ConversationRepository {
-    func fetch(remoteId: Int) throws -> [SchemaConversation] {
-        let predicate = #Predicate<SchemaConversation> {
+    func fetch(remoteId: Int) throws -> [ConversationModel] {
+        let predicate = #Predicate<ConversationModel> {
             $0.remoteId == remoteId
         }
         return try context.fetch(FetchDescriptor(predicate: predicate))
     }
 
-    func insert(institution: SchemaServer) throws {
+    func insert(institution: ServerModel) throws {
         context.insert(institution)
     }
 
-    func insert(conversation: SchemaConversation) throws {
+    func insert(conversation: ConversationModel) throws {
         context.insert(conversation)
     }
 }

@@ -12,13 +12,13 @@ final class ConversationRepositoryTests: XCTestCase {
         // when
         // - a
         do {
-            let conversation = SchemaConversation(remoteId: remoteId, draft: draft)
+            let conversation = ConversationModel(remoteId: remoteId, draft: draft)
             try await repository.insert(conversation: conversation)
         }
 
         // - b
         do {
-            let conversation = SchemaConversation(remoteId: remoteId, draft: override)
+            let conversation = ConversationModel(remoteId: remoteId, draft: override)
             try await repository.insert(conversation: conversation)
         }
 

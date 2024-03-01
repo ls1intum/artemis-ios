@@ -122,7 +122,7 @@ extension SendMessageViewModel {
     @MainActor
     func performOnDisappear() {
         do {
-            try conversationRepository.insert(conversation: SchemaConversation(remoteId: Int(conversation.id), draft: text))
+            try conversationRepository.insert(conversation: ConversationModel(remoteId: Int(conversation.id), draft: text))
             if !text.isEmpty {
             }
         } catch {
