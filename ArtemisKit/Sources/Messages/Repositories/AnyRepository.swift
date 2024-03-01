@@ -40,11 +40,10 @@ final class AnyRepository {
 
 extension AnyRepository {
     func fetch(remoteId: Int) throws -> [SchemaConversation] {
-        try context.fetch(
-            FetchDescriptor<SchemaConversation>(predicate: #Predicate {
-                $0.remoteId == remoteId
-            })
-        )
+        let predicate = #Predicate<SchemaConversation> {
+            $0.remoteId == remoteId
+        }
+        return try context.fetch(FetchDescriptor(predicate: predicate))
     }
 
     func insert(institution: SchemaServer) throws {
