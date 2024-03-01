@@ -33,6 +33,8 @@ enum SchemaV1: VersionedSchema {
 
     @Model
     final class Conversation {
+        var server: Server?
+
         @Attribute(.unique)
         var remoteId: Int
 
