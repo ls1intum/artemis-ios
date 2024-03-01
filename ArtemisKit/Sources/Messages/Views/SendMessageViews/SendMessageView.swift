@@ -46,9 +46,6 @@ struct SendMessageView: View {
             .onAppear {
                 viewModel.performOnAppear()
             }
-            .onDisappear {
-                viewModel.performOnDisappear()
-            }
             .overlay {
                 if viewModel.isEditing {
                     EmptyView()

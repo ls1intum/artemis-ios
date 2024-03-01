@@ -49,7 +49,13 @@ final class SendMessageViewModel {
 
     // MARK: Text
 
-    var text = ""
+    var text = "" {
+        didSet {
+            Task { @MainActor in
+                performOnTextChange()
+            }
+        }
+    }
 
     var isEditing: Bool {
         switch sendMessageType {
@@ -120,11 +126,9 @@ extension SendMessageViewModel {
     }
 
     @MainActor
-    func performOnDisappear() {
+    private func performOnTextChange() {
         do {
             try conversationRepository.insert(conversation: ConversationModel(remoteId: Int(conversation.id), draft: text))
-            if !text.isEmpty {
-            }
         } catch {
             log.error(error)
         }
