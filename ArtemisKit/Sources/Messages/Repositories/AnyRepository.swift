@@ -50,9 +50,11 @@ extension AnyRepository {
 
     func insert(institution: SchemaInstitution) throws {
         container.mainContext.insert(institution)
+        try container.mainContext.save()
     }
 
     func insert(conversation: SchemaConversation) throws {
         container.mainContext.insert(conversation)
+        try container.mainContext.save()
     }
 }
