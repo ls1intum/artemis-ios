@@ -38,7 +38,7 @@ extension SendMessageViewModel {
 final class SendMessageViewModel {
     let course: Course
     let conversation: Conversation
-    let sendMessageType: Configuration
+    let configuration: Configuration
 
     private let delegate: SendMessageViewModelDelegate
     private let messagesRepository: MessagesRepository
@@ -54,7 +54,7 @@ final class SendMessageViewModel {
     var text = ""
 
     var isEditing: Bool {
-        switch sendMessageType {
+        switch configuration {
         case .message, .answerMessage:
             return false
         case .editMessage, .editAnswerMessage:
@@ -84,7 +84,7 @@ final class SendMessageViewModel {
     init(
         course: Course,
         conversation: Conversation,
-        sendMessageType: Configuration,
+        configuration: Configuration,
         delegate: SendMessageViewModelDelegate,
         messagesRepository: MessagesRepository = .shared,
         messagesService: MessagesService = MessagesServiceFactory.shared,
@@ -92,7 +92,7 @@ final class SendMessageViewModel {
     ) {
         self.course = course
         self.conversation = conversation
-        self.sendMessageType = sendMessageType
+        self.configuration = configuration
 
         self.delegate = delegate
         self.messagesRepository = messagesRepository
@@ -106,7 +106,7 @@ final class SendMessageViewModel {
 extension SendMessageViewModel {
     @MainActor
     func performOnAppear() {
-        switch sendMessageType {
+        switch configuration {
         case .message:
             if let host = userSession.institution?.baseURL?.host() {
                 do {
@@ -142,7 +142,7 @@ extension SendMessageViewModel {
     @MainActor
     func performOnDisappear() {
         if let host = userSession.institution?.baseURL?.host() {
-            switch sendMessageType {
+            switch configuration {
             case .message:
                 do {
                     try messagesRepository.insertConversation(
@@ -228,7 +228,7 @@ extension SendMessageViewModel {
         isLoading = true
         Task { @MainActor in
             var result: NetworkResponse?
-            switch sendMessageType {
+            switch configuration {
             case .message:
                 result = await sendMessage(text: text)
             case let .answerMessage(message, completion):

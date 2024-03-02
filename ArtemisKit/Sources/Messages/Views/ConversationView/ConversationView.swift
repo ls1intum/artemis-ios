@@ -95,7 +95,7 @@ public struct ConversationView: View {
                     viewModel: SendMessageViewModel(
                         course: course,
                         conversation: conversation,
-                        sendMessageType: .message,
+                        configuration: .message,
                         delegate: SendMessageViewModelDelegate(viewModel)
                     )
                 )

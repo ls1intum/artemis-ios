@@ -153,7 +153,7 @@ private extension MessageActionSheet {
                             viewModel: SendMessageViewModel(
                                 course: course,
                                 conversation: conversation,
-                                sendMessageType: .editMessage(message, { self.dismiss() }),
+                                configuration: .editMessage(message, { self.dismiss() }),
                                 delegate: SendMessageViewModelDelegate(viewModel)
                             )
                         )
@@ -162,7 +162,7 @@ private extension MessageActionSheet {
                             viewModel: SendMessageViewModel(
                                 course: course,
                                 conversation: conversation,
-                                sendMessageType: .editAnswerMessage(answerMessage, { self.dismiss() }),
+                                configuration: .editAnswerMessage(answerMessage, { self.dismiss() }),
                                 delegate: SendMessageViewModelDelegate(viewModel)
                             )
                         )
