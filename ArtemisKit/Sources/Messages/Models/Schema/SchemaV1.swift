@@ -20,7 +20,7 @@ enum SchemaV1: VersionedSchema {
         @Attribute(.unique)
         var host: String
 
-        @Relationship(deleteRule: .cascade)
+        @Relationship(deleteRule: .cascade, inverse: \Conversation.server)
         var conversations: [Conversation]
 
         init(host: String, conversations: [Conversation] = []) {
