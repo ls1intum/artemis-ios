@@ -44,12 +44,14 @@ extension MessagesRepository {
 
     @discardableResult
     func insertServer(host: String) -> ServerModel {
+        log.verbose("begin")
         let server = ServerModel(host: host)
         context.insert(server)
         return server
     }
 
     func fetchServer(host: String) throws -> ServerModel? {
+        log.verbose("begin")
         let predicate = #Predicate<ServerModel> { server in
             server.host == host
         }
@@ -60,6 +62,7 @@ extension MessagesRepository {
 
     @discardableResult
     func insertCourse(host: String, courseId: Int) throws -> CourseModel {
+        log.verbose("begin")
         let server = try fetchServer(host: host) ?? insertServer(host: host)
         let course = CourseModel(server: server, courseId: courseId)
         context.insert(course)
@@ -67,6 +70,7 @@ extension MessagesRepository {
     }
 
     func fetchCourse(host: String, courseId: Int) throws -> CourseModel? {
+        log.verbose("begin")
         let predicate = #Predicate<CourseModel> { course in
             course.server.host == host
             && course.courseId == courseId
@@ -78,6 +82,7 @@ extension MessagesRepository {
 
     @discardableResult
     func insertConversation(host: String, courseId: Int, conversationId: Int, messageDraft: String) throws -> ConversationModel {
+        log.verbose("begin")
         let course = try fetchCourse(host: host, courseId: courseId) ?? insertCourse(host: host, courseId: courseId)
         let conversation = ConversationModel(course: course, conversationId: conversationId, messageDraft: messageDraft)
         context.insert(conversation)
@@ -85,6 +90,7 @@ extension MessagesRepository {
     }
 
     func fetchConversation(host: String, courseId: Int, conversationId: Int) throws -> ConversationModel? {
+        log.verbose("begin")
         let predicate = #Predicate<ConversationModel> { conversation in
             conversation.course.server.host == host
             && conversation.course.courseId == courseId
@@ -97,6 +103,7 @@ extension MessagesRepository {
 
     @discardableResult
     func insertMessage(host: String, courseId: Int, conversationId: Int, messageId: Int, answerMessageDraft: String) throws -> MessageModel {
+        log.verbose("begin")
         let conversation = try fetchConversation(host: host, courseId: courseId, conversationId: conversationId)
             ?? insertConversation(host: host, courseId: courseId, conversationId: conversationId, messageDraft: "")
         let message = MessageModel(conversation: conversation, messageId: messageId, answerMessageDraft: answerMessageDraft)
@@ -105,6 +112,7 @@ extension MessagesRepository {
     }
 
     func fetchMessage(host: String, courseId: Int, conversationId: Int, messageId: Int) throws -> MessageModel? {
+        log.verbose("begin")
         let predicate = #Predicate<MessageModel> { message in
             message.conversation.course.server.host == host
             && message.conversation.course.courseId == courseId
