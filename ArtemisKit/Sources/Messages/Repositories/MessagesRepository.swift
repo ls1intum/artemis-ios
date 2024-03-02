@@ -50,11 +50,10 @@ extension MessagesRepository {
     }
 
     func fetchServer(host: String) throws -> ServerModel? {
-        let predicate = #Predicate<ServerModel> {
-            $0.host == host
+        let predicate = #Predicate<ServerModel> { server in
+            server.host == host
         }
-        let servers = try context.fetch(FetchDescriptor(predicate: predicate))
-        return servers.first
+        return try context.fetch(FetchDescriptor(predicate: predicate)).first
     }
 
     // MARK: - Course
@@ -68,12 +67,11 @@ extension MessagesRepository {
     }
 
     func fetchCourse(host: String, courseId: Int) throws -> CourseModel? {
-        let predicate = #Predicate<CourseModel> {
-            $0.server.host == host
-            && $0.courseId == courseId
+        let predicate = #Predicate<CourseModel> { course in
+            course.server.host == host
+            && course.courseId == courseId
         }
-        let servers = try context.fetch(FetchDescriptor(predicate: predicate))
-        return servers.first
+        return try context.fetch(FetchDescriptor(predicate: predicate)).first
     }
 
     // MARK: - Conversation
@@ -87,12 +85,11 @@ extension MessagesRepository {
     }
 
     func fetchConversation(host: String, courseId: Int, conversationId: Int) throws -> ConversationModel? {
-        let predicate = #Predicate<ConversationModel> {
-            $0.course.server.host == host
-            && $0.course.courseId == courseId
-            && $0.conversationId == conversationId
+        let predicate = #Predicate<ConversationModel> { conversation in
+            conversation.course.server.host == host
+            && conversation.course.courseId == courseId
+            && conversation.conversationId == conversationId
         }
-        let servers = try context.fetch(FetchDescriptor(predicate: predicate))
-        return servers.first
+        return try context.fetch(FetchDescriptor(predicate: predicate)).first
     }
 }

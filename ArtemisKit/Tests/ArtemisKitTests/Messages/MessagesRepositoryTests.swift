@@ -2,14 +2,14 @@ import XCTest
 @testable import Messages
 
 final class MessagesRepositoryTests: XCTestCase {
-    func testRoundtrip() async throws {
+    func testInsertAndUpdateAndFetch() async throws {
         // given
         let url = try XCTUnwrap(URL(string: "https://example.org"))
         let host = try XCTUnwrap(url.host())
         let courseId = 1
         let conversationId = 1
         let draft = "Hello"
-        let override = "Hello, world!"
+        let draftUpdate = "Hello, world!"
 
         // when
         // - init
@@ -19,13 +19,13 @@ final class MessagesRepositoryTests: XCTestCase {
 
         // - draft & override
         try await repository.insertConversation(host: host, courseId: courseId, conversationId: conversationId, draft: draft)
-        try await repository.insertConversation(host: host, courseId: courseId, conversationId: conversationId, draft: override)
+        try await repository.insertConversation(host: host, courseId: courseId, conversationId: conversationId, draft: draftUpdate)
 
         // - fetch
         let conversation = try await repository.fetchConversation(host: host, courseId: courseId, conversationId: conversationId)
 
         // then
         let first = try XCTUnwrap(conversation)
-        XCTAssertEqual(first.draft, override)
+        XCTAssertEqual(first.draft, draftUpdate)
     }
 }

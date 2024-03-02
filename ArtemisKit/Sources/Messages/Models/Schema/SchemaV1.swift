@@ -50,11 +50,10 @@ enum SchemaV1: VersionedSchema {
     final class Conversation {
         var course: Course
 
-        // Assumes that a server assigns non-hierarchical IDs,
-        // i.e., every conversation of every course has a unique ID, here `conversationId`.
         @Attribute(.unique)
         var conversationId: Int
 
+        /// A user's draft of a message, which they began to compose.
         var draft: String
 
         init(course: Course, conversationId: Int, draft: String = "") {

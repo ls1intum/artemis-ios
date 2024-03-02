@@ -43,6 +43,7 @@ final class SendMessageViewModel {
     private let delegate: SendMessageViewModelDelegate
     private let messagesRepository: MessagesRepository
     private let messagesService: MessagesService
+    private let userSession: UserSession
 
     // MARK: Loading
 
@@ -92,7 +93,8 @@ final class SendMessageViewModel {
         sendMessageType: Configuration,
         delegate: SendMessageViewModelDelegate,
         messagesRepository: MessagesRepository = .shared,
-        messagesService: MessagesService = MessagesServiceFactory.shared
+        messagesService: MessagesService = MessagesServiceFactory.shared,
+        userSession: UserSession = .shared
     ) {
         self.course = course
         self.conversation = conversation
@@ -101,6 +103,7 @@ final class SendMessageViewModel {
         self.delegate = delegate
         self.messagesRepository = messagesRepository
         self.messagesService = messagesService
+        self.userSession = userSession
     }
 }
 
@@ -111,12 +114,10 @@ extension SendMessageViewModel {
     func performOnAppear() {
         switch sendMessageType {
         case .message, .answerMessage:
-            if let host = UserSession.shared.institution?.baseURL?.host() {
+            if let host = userSession.institution?.baseURL?.host() {
                 do {
                     let conversation = try messagesRepository.fetchConversation(host: host, courseId: course.id, conversationId: Int(conversation.id))
-                    conversation.map {
-                        text = $0.draft
-                    }
+                    text = conversation?.draft ?? ""
                 } catch {
                     log.error(error)
                 }
@@ -130,7 +131,7 @@ extension SendMessageViewModel {
 
     @MainActor
     private func performOnTextChange() {
-        if let host = UserSession.shared.institution?.baseURL?.host(), !text.isEmpty {
+        if let host = userSession.institution?.baseURL?.host() {
             do {
                 try messagesRepository.insertConversation(host: host, courseId: course.id, conversationId: Int(conversation.id), draft: text)
             } catch {
