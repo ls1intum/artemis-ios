@@ -51,13 +51,7 @@ final class SendMessageViewModel {
 
     // MARK: Text
 
-    var text = "" {
-        didSet {
-            Task { @MainActor in
-                performOnTextChange()
-            }
-        }
-    }
+    var text = ""
 
     var isEditing: Bool {
         switch sendMessageType {
@@ -146,7 +140,7 @@ extension SendMessageViewModel {
     }
 
     @MainActor
-    private func performOnTextChange() {
+    func performOnDisappear() {
         if let host = userSession.institution?.baseURL?.host() {
             switch sendMessageType {
             case .message:
