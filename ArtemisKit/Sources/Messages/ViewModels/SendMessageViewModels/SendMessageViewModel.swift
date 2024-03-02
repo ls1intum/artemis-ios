@@ -106,67 +106,59 @@ final class SendMessageViewModel {
 extension SendMessageViewModel {
     @MainActor
     func performOnAppear() {
-        switch configuration {
-        case .message:
-            if let host = userSession.institution?.baseURL?.host() {
-                do {
+        do {
+            switch configuration {
+            case .message:
+                if let host = userSession.institution?.baseURL?.host() {
                     let conversation = try messagesRepository.fetchConversation(
                         host: host,
                         courseId: course.id,
                         conversationId: Int(conversation.id))
                     text = conversation?.messageDraft ?? ""
-                } catch {
-                    log.error(error)
                 }
-            }
-        case let .answerMessage(message, _):
-            if let host = userSession.institution?.baseURL?.host() {
-                do {
+            case let .answerMessage(message, _):
+                if let host = userSession.institution?.baseURL?.host() {
                     let message = try messagesRepository.fetchMessage(
                         host: host,
                         courseId: course.id,
                         conversationId: Int(conversation.id),
                         messageId: Int(message.id))
                     text = message?.answerMessageDraft ?? ""
-                } catch {
-                    log.error(error)
                 }
+            case let .editMessage(message, _):
+                text = message.content ?? ""
+            case let .editAnswerMessage(message, _):
+                text = message.content ?? ""
             }
-        case let .editMessage(message, _):
-            text = message.content ?? ""
-        case let .editAnswerMessage(message, _):
-            text = message.content ?? ""
+        } catch {
+            log.error(error)
         }
     }
 
     @MainActor
     func performOnDisappear() {
-        if let host = userSession.institution?.baseURL?.host() {
-            switch configuration {
-            case .message:
-                do {
+        do {
+            if let host = userSession.institution?.baseURL?.host() {
+                switch configuration {
+                case .message:
                     try messagesRepository.insertConversation(
                         host: host,
                         courseId: course.id,
                         conversationId: Int(conversation.id),
                         messageDraft: text)
-                } catch {
-                    log.error(error)
-                }
-            case let .answerMessage(message, _):
-                do {
+                case let .answerMessage(message, _):
                     try messagesRepository.insertMessage(
                         host: host,
                         courseId: course.id,
                         conversationId: Int(conversation.id),
                         messageId: Int(message.id),
                         answerMessageDraft: text)
-                } catch {
-                    log.error(error)
+                default:
+                    break
                 }
-            default:
-                break
             }
+        } catch {
+            log.error(error)
         }
     }
 
