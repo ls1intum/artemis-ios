@@ -43,7 +43,12 @@ struct SendMessageView: View {
                 .padding(.bottom, .l)
                 .padding(.top, isFocused ? .m : .l)
             }
-            .onAppear(perform: viewModel.performOnAppear)
+            .onAppear {
+                viewModel.performOnAppear()
+            }
+            .onDisappear {
+                viewModel.performOnDisappear()
+            }
             .overlay {
                 if viewModel.isEditing {
                     EmptyView()

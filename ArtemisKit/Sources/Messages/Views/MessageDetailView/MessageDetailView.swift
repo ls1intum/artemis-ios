@@ -50,7 +50,7 @@ struct MessageDetailView: View {
                         viewModel: SendMessageViewModel(
                             course: course,
                             conversation: conversation,
-                            sendMessageType: .answerMessage(message, reloadMessage),
+                            configuration: .answerMessage(message, reloadMessage),
                             delegate: SendMessageViewModelDelegate(viewModel)
                         )
                     )

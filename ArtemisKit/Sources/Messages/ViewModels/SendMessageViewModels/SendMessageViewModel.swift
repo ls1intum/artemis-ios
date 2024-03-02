@@ -9,6 +9,7 @@ import APIClient
 import Common
 import Foundation
 import SharedModels
+import UserStore
 
 extension SendMessageViewModel {
     enum Configuration {
@@ -37,10 +38,12 @@ extension SendMessageViewModel {
 final class SendMessageViewModel {
     let course: Course
     let conversation: Conversation
-    let sendMessageType: Configuration
+    let configuration: Configuration
 
     private let delegate: SendMessageViewModelDelegate
+    private let messagesRepository: MessagesRepository
     private let messagesService: MessagesService
+    private let userSession: UserSession
 
     // MARK: Loading
 
@@ -51,7 +54,7 @@ final class SendMessageViewModel {
     var text = ""
 
     var isEditing: Bool {
-        switch sendMessageType {
+        switch configuration {
         case .message, .answerMessage:
             return false
         case .editMessage, .editAnswerMessage:
@@ -81,30 +84,81 @@ final class SendMessageViewModel {
     init(
         course: Course,
         conversation: Conversation,
-        sendMessageType: Configuration,
+        configuration: Configuration,
         delegate: SendMessageViewModelDelegate,
-        messagesService: MessagesService = MessagesServiceFactory.shared
+        messagesRepository: MessagesRepository = .shared,
+        messagesService: MessagesService = MessagesServiceFactory.shared,
+        userSession: UserSession = .shared
     ) {
         self.course = course
         self.conversation = conversation
-        self.sendMessageType = sendMessageType
+        self.configuration = configuration
 
         self.delegate = delegate
+        self.messagesRepository = messagesRepository
         self.messagesService = messagesService
+        self.userSession = userSession
     }
 }
 
 // MARK: - Actions
 
 extension SendMessageViewModel {
+    @MainActor
     func performOnAppear() {
-        switch sendMessageType {
-        case let .editMessage(message, _):
-            text = message.content ?? ""
-        case let .editAnswerMessage(message, _):
-            text = message.content ?? ""
-        default:
-            break
+        do {
+            switch configuration {
+            case .message:
+                if let host = userSession.institution?.baseURL?.host() {
+                    let conversation = try messagesRepository.fetchConversation(
+                        host: host,
+                        courseId: course.id,
+                        conversationId: Int(conversation.id))
+                    text = conversation?.messageDraft ?? ""
+                }
+            case let .answerMessage(message, _):
+                if let host = userSession.institution?.baseURL?.host() {
+                    let message = try messagesRepository.fetchMessage(
+                        host: host,
+                        courseId: course.id,
+                        conversationId: Int(conversation.id),
+                        messageId: Int(message.id))
+                    text = message?.answerMessageDraft ?? ""
+                }
+            case let .editMessage(message, _):
+                text = message.content ?? ""
+            case let .editAnswerMessage(message, _):
+                text = message.content ?? ""
+            }
+        } catch {
+            log.error(error)
+        }
+    }
+
+    @MainActor
+    func performOnDisappear() {
+        do {
+            if let host = userSession.institution?.baseURL?.host() {
+                switch configuration {
+                case .message:
+                    try messagesRepository.insertConversation(
+                        host: host,
+                        courseId: course.id,
+                        conversationId: Int(conversation.id),
+                        messageDraft: text)
+                case let .answerMessage(message, _):
+                    try messagesRepository.insertMessage(
+                        host: host,
+                        courseId: course.id,
+                        conversationId: Int(conversation.id),
+                        messageId: Int(message.id),
+                        answerMessageDraft: text)
+                default:
+                    break
+                }
+            }
+        } catch {
+            log.error(error)
         }
     }
 
@@ -166,7 +220,7 @@ extension SendMessageViewModel {
         isLoading = true
         Task { @MainActor in
             var result: NetworkResponse?
-            switch sendMessageType {
+            switch configuration {
             case .message:
                 result = await sendMessage(text: text)
             case let .answerMessage(message, completion):

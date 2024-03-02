@@ -7,7 +7,7 @@ final class SendMessageViewModelTests: XCTestCase {
         SendMessageViewModel(
             course: Course(id: 1, courseInformationSharingConfiguration: .communicationAndMessaging),
             conversation: Conversation(conversation: Channel(id: 1))!,
-            sendMessageType: .message,
+            configuration: .message,
             delegate: SendMessageViewModelDelegate(
                 loadMessages: {},
                 presentError: { _ in },
