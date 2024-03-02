@@ -113,7 +113,7 @@ extension SendMessageViewModel {
         case .message, .answerMessage:
             if let host = UserSession.shared.institution?.baseURL?.host() {
                 do {
-                    let conversation = try messagesRepository.fetchConversation(host: host, conversationId: Int(conversation.id))
+                    let conversation = try messagesRepository.fetchConversation(host: host, courseId: course.id, conversationId: Int(conversation.id))
                     conversation.map {
                         text = $0.draft
                     }
@@ -132,7 +132,7 @@ extension SendMessageViewModel {
     private func performOnTextChange() {
         if let host = UserSession.shared.institution?.baseURL?.host(), !text.isEmpty {
             do {
-                try messagesRepository.insertConversation(host: host, conversationId: Int(conversation.id), draft: text)
+                try messagesRepository.insertConversation(host: host, courseId: course.id, conversationId: Int(conversation.id), draft: text)
             } catch {
                 log.error(error)
             }

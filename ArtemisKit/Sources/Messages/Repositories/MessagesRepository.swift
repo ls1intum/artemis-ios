@@ -38,9 +38,10 @@ final class MessagesRepository {
     }
 }
 
-// MARK: - Server
-
 extension MessagesRepository {
+
+    // MARK: - Server
+
     @discardableResult
     func insertServer(host: String) -> ServerModel {
         let server = ServerModel(host: host)
@@ -55,24 +56,41 @@ extension MessagesRepository {
         let servers = try context.fetch(FetchDescriptor(predicate: predicate))
         return servers.first
     }
-}
 
-// MARK: - Conversation
+    // MARK: - Course
 
-extension MessagesRepository {
     @discardableResult
-    func insertConversation(host: String, conversationId: Int, draft: String) throws -> ConversationModel {
+    func insertCourse(host: String, courseId: Int) throws -> CourseModel {
         let server = try fetchServer(host: host) ?? insertServer(host: host)
-        let conversation = ConversationModel(server: server, conversationId: conversationId, draft: draft)
+        let course = CourseModel(server: server, courseId: courseId)
+        context.insert(course)
+        return course
+    }
+
+    func fetchCourse(host: String, courseId: Int) throws -> CourseModel? {
+        let predicate = #Predicate<CourseModel> {
+            $0.server.host == host
+            && $0.courseId == courseId
+        }
+        let servers = try context.fetch(FetchDescriptor(predicate: predicate))
+        return servers.first
+    }
+
+    // MARK: - Conversation
+
+    @discardableResult
+    func insertConversation(host: String, courseId: Int, conversationId: Int, draft: String) throws -> ConversationModel {
+        let course = try fetchCourse(host: host, courseId: courseId) ?? insertCourse(host: host, courseId: courseId)
+        let conversation = ConversationModel(course: course, conversationId: conversationId, draft: draft)
         context.insert(conversation)
         return conversation
     }
 
-    func fetchConversation(host: String, conversationId: Int) throws -> ConversationModel? {
+    func fetchConversation(host: String, courseId: Int, conversationId: Int) throws -> ConversationModel? {
         let predicate = #Predicate<ConversationModel> {
-            $0.server.host == host
-            &&
-            $0.conversationId == conversationId
+            $0.course.server.host == host
+            && $0.course.courseId == courseId
+            && $0.conversationId == conversationId
         }
         let servers = try context.fetch(FetchDescriptor(predicate: predicate))
         return servers.first

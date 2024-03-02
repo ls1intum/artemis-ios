@@ -6,6 +6,7 @@ final class MessagesRepositoryTests: XCTestCase {
         // given
         let url = try XCTUnwrap(URL(string: "https://example.org"))
         let host = try XCTUnwrap(url.host())
+        let courseId = 1
         let conversationId = 1
         let draft = "Hello"
         let override = "Hello, world!"
@@ -17,11 +18,11 @@ final class MessagesRepositoryTests: XCTestCase {
         await repository.insertServer(host: host)
 
         // - draft & override
-        try await repository.insertConversation(host: host, conversationId: conversationId, draft: draft)
-        try await repository.insertConversation(host: host, conversationId: conversationId, draft: override)
+        try await repository.insertConversation(host: host, courseId: courseId, conversationId: conversationId, draft: draft)
+        try await repository.insertConversation(host: host, courseId: courseId, conversationId: conversationId, draft: override)
 
         // - fetch
-        let conversation = try await repository.fetchConversation(host: host, conversationId: conversationId)
+        let conversation = try await repository.fetchConversation(host: host, courseId: courseId, conversationId: conversationId)
 
         // then
         let first = try XCTUnwrap(conversation)

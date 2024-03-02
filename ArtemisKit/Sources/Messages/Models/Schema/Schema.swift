@@ -8,4 +8,5 @@
 // Alias for the most recent schema
 
 typealias ServerModel = SchemaV1.Server
+typealias CourseModel = SchemaV1.Course
 typealias ConversationModel = SchemaV1.Conversation
