@@ -61,18 +61,18 @@ extension MessagesRepository {
 
 extension MessagesRepository {
     @discardableResult
-    func insertConversation(host: String, remoteId: Int, draft: String) throws -> ConversationModel {
+    func insertConversation(host: String, conversationId: Int, draft: String) throws -> ConversationModel {
         let server = try fetchServer(host: host) ?? insertServer(host: host)
-        let conversation = ConversationModel(server: server, remoteId: remoteId, draft: draft)
+        let conversation = ConversationModel(server: server, conversationId: conversationId, draft: draft)
         context.insert(conversation)
         return conversation
     }
 
-    func fetchConversation(host: String, remoteId: Int) throws -> ConversationModel? {
+    func fetchConversation(host: String, conversationId: Int) throws -> ConversationModel? {
         let predicate = #Predicate<ConversationModel> {
             $0.server.host == host
             &&
-            $0.remoteId == remoteId
+            $0.conversationId == conversationId
         }
         let servers = try context.fetch(FetchDescriptor(predicate: predicate))
         return servers.first
