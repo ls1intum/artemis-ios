@@ -17,7 +17,7 @@ final class MessagesRepositoryTests: XCTestCase {
 
         await repository.insertServer(host: host)
 
-        // - draft & override
+        // - insert & update
         try await repository.insertConversation(host: host, courseId: courseId, conversationId: conversationId, draft: draft)
         try await repository.insertConversation(host: host, courseId: courseId, conversationId: conversationId, draft: draftUpdate)
 
