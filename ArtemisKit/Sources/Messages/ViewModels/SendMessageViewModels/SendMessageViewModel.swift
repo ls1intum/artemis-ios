@@ -133,6 +133,7 @@ extension SendMessageViewModel {
                         courseId: course.id,
                         conversationId: Int(conversation.id),
                         messageId: Int(message.id))
+                    text = message?.answerMessageDraft ?? ""
                 } catch {
                     log.error(error)
                 }
