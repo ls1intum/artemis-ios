@@ -64,13 +64,17 @@ extension MessagesRepository {
     func insertConversation(host: String, remoteId: Int, draft: String) throws -> ConversationModel {
         let server = try fetchServer(host: host) ?? insertServer(host: host)
         let conversation = ConversationModel(server: server, remoteId: remoteId, draft: draft)
+        context.insert(conversation)
         return conversation
     }
 
     func fetchConversation(host: String, remoteId: Int) throws -> ConversationModel? {
-        let server = try fetchServer(host: host)
-        return server?.conversations.first { conversation in
-            conversation.remoteId == remoteId
+        let predicate = #Predicate<ConversationModel> {
+            $0.server.host == host
+            &&
+            $0.remoteId == remoteId
         }
+        let servers = try context.fetch(FetchDescriptor(predicate: predicate))
+        return servers.first
     }
 }
