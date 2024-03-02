@@ -8,8 +8,8 @@ final class MessagesRepositoryTests: XCTestCase {
         let host = try XCTUnwrap(url.host())
         let courseId = 1
         let conversationId = 1
-        let draft = "Hello"
-        let draftUpdate = "Hello, world!"
+        let messageDraft = "Hello"
+        let messageDraftUpdate = "Hello, world!"
 
         // when
         // - init
@@ -18,14 +18,14 @@ final class MessagesRepositoryTests: XCTestCase {
         await repository.insertServer(host: host)
 
         // - insert & update
-        try await repository.insertConversation(host: host, courseId: courseId, conversationId: conversationId, draft: draft)
-        try await repository.insertConversation(host: host, courseId: courseId, conversationId: conversationId, draft: draftUpdate)
+        try await repository.insertConversation(host: host, courseId: courseId, conversationId: conversationId, messageDraft: messageDraft)
+        try await repository.insertConversation(host: host, courseId: courseId, conversationId: conversationId, messageDraft: messageDraftUpdate)
 
         // - fetch
         let conversation = try await repository.fetchConversation(host: host, courseId: courseId, conversationId: conversationId)
 
         // then
         let first = try XCTUnwrap(conversation)
-        XCTAssertEqual(first.draft, draftUpdate)
+        XCTAssertEqual(first.messageDraft, messageDraftUpdate)
     }
 }

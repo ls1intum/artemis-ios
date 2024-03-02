@@ -12,7 +12,7 @@ enum SchemaV1: VersionedSchema {
     static var versionIdentifier = Schema.Version(1, 0, 0)
 
     static var models: [any PersistentModel.Type] {
-        [Server.self, Course.self, Conversation.self]
+        [Server.self, Course.self, Conversation.self, Message.self]
     }
 
     @Model
@@ -54,12 +54,29 @@ enum SchemaV1: VersionedSchema {
         var conversationId: Int
 
         /// A user's draft of a message, which they began to compose.
-        var draft: String
+        var messageDraft: String
 
-        init(course: Course, conversationId: Int, draft: String = "") {
+        init(course: Course, conversationId: Int, messageDraft: String = "") {
             self.course = course
             self.conversationId = conversationId
-            self.draft = draft
+            self.messageDraft = messageDraft
+        }
+    }
+
+    @Model
+    final class Message {
+        var conversation: Conversation
+
+        @Attribute(.unique)
+        var messageId: Int
+
+        /// A user's draft of an answer message, which they began to compose.
+        var answerMessageDraft: String
+
+        init(conversation: Conversation, messageId: Int, answerMessageDraft: String = "") {
+            self.conversation = conversation
+            self.messageId = messageId
+            self.answerMessageDraft = answerMessageDraft
         }
     }
 }

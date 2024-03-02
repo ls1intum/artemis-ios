@@ -77,9 +77,9 @@ extension MessagesRepository {
     // MARK: - Conversation
 
     @discardableResult
-    func insertConversation(host: String, courseId: Int, conversationId: Int, draft: String) throws -> ConversationModel {
+    func insertConversation(host: String, courseId: Int, conversationId: Int, messageDraft: String) throws -> ConversationModel {
         let course = try fetchCourse(host: host, courseId: courseId) ?? insertCourse(host: host, courseId: courseId)
-        let conversation = ConversationModel(course: course, conversationId: conversationId, draft: draft)
+        let conversation = ConversationModel(course: course, conversationId: conversationId, messageDraft: messageDraft)
         context.insert(conversation)
         return conversation
     }
@@ -89,6 +89,27 @@ extension MessagesRepository {
             conversation.course.server.host == host
             && conversation.course.courseId == courseId
             && conversation.conversationId == conversationId
+        }
+        return try context.fetch(FetchDescriptor(predicate: predicate)).first
+    }
+
+    // MARK: - Message
+
+    @discardableResult
+    func insertMessage(host: String, courseId: Int, conversationId: Int, messageId: Int, answerMessageDraft: String) throws -> MessageModel {
+        let conversation = try fetchConversation(host: host, courseId: courseId, conversationId: conversationId)
+            ?? insertConversation(host: host, courseId: courseId, conversationId: conversationId, messageDraft: "")
+        let message = MessageModel(conversation: conversation, messageId: messageId, answerMessageDraft: answerMessageDraft)
+        context.insert(message)
+        return message
+    }
+
+    func fetchMessage(host: String, courseId: Int, conversationId: Int, messageId: Int) throws -> MessageModel? {
+        let predicate = #Predicate<MessageModel> { message in
+            message.conversation.course.server.host == host
+            && message.conversation.course.courseId == courseId
+            && message.conversation.conversationId == conversationId
+            && message.messageId == messageId
         }
         return try context.fetch(FetchDescriptor(predicate: predicate)).first
     }

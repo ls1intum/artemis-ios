@@ -113,11 +113,26 @@ extension SendMessageViewModel {
     @MainActor
     func performOnAppear() {
         switch sendMessageType {
-        case .message, .answerMessage:
+        case .message:
             if let host = userSession.institution?.baseURL?.host() {
                 do {
-                    let conversation = try messagesRepository.fetchConversation(host: host, courseId: course.id, conversationId: Int(conversation.id))
-                    text = conversation?.draft ?? ""
+                    let conversation = try messagesRepository.fetchConversation(
+                        host: host,
+                        courseId: course.id,
+                        conversationId: Int(conversation.id))
+                    text = conversation?.messageDraft ?? ""
+                } catch {
+                    log.error(error)
+                }
+            }
+        case let .answerMessage(message, _):
+            if let host = userSession.institution?.baseURL?.host() {
+                do {
+                    let message = try messagesRepository.fetchMessage(
+                        host: host,
+                        courseId: course.id,
+                        conversationId: Int(conversation.id),
+                        messageId: Int(message.id))
                 } catch {
                     log.error(error)
                 }
@@ -132,10 +147,30 @@ extension SendMessageViewModel {
     @MainActor
     private func performOnTextChange() {
         if let host = userSession.institution?.baseURL?.host() {
-            do {
-                try messagesRepository.insertConversation(host: host, courseId: course.id, conversationId: Int(conversation.id), draft: text)
-            } catch {
-                log.error(error)
+            switch sendMessageType {
+            case .message:
+                do {
+                    try messagesRepository.insertConversation(
+                        host: host,
+                        courseId: course.id,
+                        conversationId: Int(conversation.id),
+                        messageDraft: text)
+                } catch {
+                    log.error(error)
+                }
+            case let .answerMessage(message, _):
+                do {
+                    try messagesRepository.insertMessage(
+                        host: host,
+                        courseId: course.id,
+                        conversationId: Int(conversation.id),
+                        messageId: Int(message.id),
+                        answerMessageDraft: text)
+                } catch {
+                    log.error(error)
+                }
+            default:
+                break
             }
         }
     }
