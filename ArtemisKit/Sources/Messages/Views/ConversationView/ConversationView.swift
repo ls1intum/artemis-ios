@@ -72,6 +72,9 @@ public struct ConversationView: View {
                                         messages: dailyMessage.value,
                                         conversationPath: conversationPath)
                                 }
+                                ForEach([SchemaV1.ConversationOfflineMessage]()) { offline in
+                                    Color.green
+                                }
                                 Spacer()
                                     .id("bottom")
                             }
