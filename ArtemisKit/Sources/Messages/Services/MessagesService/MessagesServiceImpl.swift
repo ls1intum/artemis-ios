@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Sven Andabaka on 03.04.23.
 //
@@ -428,6 +428,31 @@ class MessagesServiceImpl: MessagesService {
 
     func getChannelsOverview(for courseId: Int) async -> DataState<[Channel]> {
         let result = await client.sendRequest(GetChannelsOverviewRequest(courseId: courseId))
+
+        switch result {
+        case let .success((channels, _)):
+            return .done(response: channels)
+        case let .failure(error):
+            return .failure(error: UserFacingError(error: error))
+        }
+    }
+
+    struct GetChannelsPublicOverviewRequest: APIRequest {
+        typealias Response = [ChannelIdAndNameDTO]
+
+        let courseId: Int
+
+        var method: HTTPMethod {
+            return .get
+        }
+
+        var resourceName: String {
+            return "api/courses/\(courseId)/channels/public-overview"
+        }
+    }
+
+    func getChannelsPublicOverview(for courseId: Int) async -> DataState<[ChannelIdAndNameDTO]> {
+        let result = await client.sendRequest(GetChannelsPublicOverviewRequest(courseId: courseId))
 
         switch result {
         case let .success((channels, _)):

@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ls1intum/apollon-ios-module",
       "state" : {
-        "revision" : "1690e711415330b28e836cd8035e1805c0a4e479",
-        "version" : "1.0.2"
+        "revision" : "73a3999b4cdcdd0ae2b86426d65a7b75c6ac3af0",
+        "version" : "1.0.6"
       }
     },
     {
@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ls1intum/artemis-ios-core-modules",
       "state" : {
-        "revision" : "b5b5a7282691d27ea121aadc08b89369f3c8d566",
-        "version" : "9.0.0"
+        "revision" : "b14fec4f95b78587c9fa107353d0bca0895288b0",
+        "version" : "9.1.1"
       }
     },
     {
@@ -50,8 +50,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/onevcat/Kingfisher.git",
       "state" : {
-        "revision" : "3ec0ab0bca4feb56e8b33e289c9496e89059dd08",
-        "version" : "7.10.2"
+        "revision" : "5b92f029fab2cce44386d28588098b5be0824ef5",
+        "version" : "7.11.0"
       }
     },
     {
