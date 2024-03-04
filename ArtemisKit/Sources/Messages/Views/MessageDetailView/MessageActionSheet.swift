@@ -62,7 +62,6 @@ struct MessageActionSheet: View {
                     Button {
                         if let messagePath = MessagePath(
                             message: $message,
-                            coursePath: conversationPath.coursePath,
                             conversationPath: conversationPath,
                             conversationViewModel: viewModel
                         ) {

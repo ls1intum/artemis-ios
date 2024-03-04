@@ -80,7 +80,6 @@ struct MessageCell: View {
                     Button("^[\(answerCount) \(R.string.localizable.reply())](inflect: true)") {
                         if let messagePath = MessagePath(
                             message: self.$message,
-                            coursePath: conversationPath.coursePath,
                             conversationPath: conversationPath,
                             conversationViewModel: viewModel
                         ) {
@@ -126,7 +125,6 @@ private extension MessageCell {
         // Tap is disabled, if conversation path is nil, e.g., in the message detail view.
         if let conversationPath, let messagePath = MessagePath(
             message: $message,
-            coursePath: conversationPath.coursePath,
             conversationPath: conversationPath,
             conversationViewModel: viewModel
         ) {

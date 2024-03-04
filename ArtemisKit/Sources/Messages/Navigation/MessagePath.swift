@@ -13,13 +13,11 @@ import SwiftUI
 struct MessagePath: Hashable {
     let id: Int64
     let message: Binding<DataState<BaseMessage>>
-    let coursePath: CoursePath
     let conversationPath: ConversationPath
     let conversationViewModel: ConversationViewModel
 
     init?(
         message: Binding<DataState<BaseMessage>>,
-        coursePath: CoursePath,
         conversationPath: ConversationPath,
         conversationViewModel: ConversationViewModel
     ) {
@@ -29,13 +27,12 @@ struct MessagePath: Hashable {
 
         self.id = id
         self.message = message
-        self.coursePath = coursePath
         self.conversationPath = conversationPath
         self.conversationViewModel = conversationViewModel
     }
 
     static func == (lhs: MessagePath, rhs: MessagePath) -> Bool {
-        lhs.id == rhs.id && lhs.coursePath == rhs.coursePath && lhs.conversationPath == rhs.conversationPath
+        lhs.id == rhs.id && lhs.conversationPath == rhs.conversationPath
     }
 
     func hash(into hasher: inout Hasher) {
