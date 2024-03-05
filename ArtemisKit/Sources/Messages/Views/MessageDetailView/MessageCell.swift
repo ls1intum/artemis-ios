@@ -133,10 +133,7 @@ private extension MessageCell {
     }
 
     func onLongPressPresentActionSheet() {
-        guard let conversation = viewModel.conversation.value else {
-            return
-        }
-        if let channel = conversation.baseConversation as? Channel, channel.isArchived ?? false {
+        if let channel = viewModel.conversation.baseConversation as? Channel, channel.isArchived ?? false {
             return
         }
 

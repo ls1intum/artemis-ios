@@ -16,15 +16,13 @@ import UserStore
 @MainActor
 class ConversationViewModel: BaseViewModel {
 
+    let course: Course
+    let conversation: Conversation
+
     @Published var dailyMessages: DataState<[Date: [Message]]> = .loading
-    @Published var conversation: DataState<Conversation> = .loading
-    @Published var course: DataState<Course> = .loading
 
     var shouldScrollToId: String?
     var websocketSubscriptionTask: Task<(), Never>?
-
-    let courseId: Int
-    let conversationId: Int64
 
     private var size = 50
 
@@ -39,10 +37,8 @@ class ConversationViewModel: BaseViewModel {
         stompClient: ArtemisStompClient = .shared,
         userSession: UserSession = .shared
     ) {
-        self._course = Published(wrappedValue: .done(response: course))
-        self.courseId = course.id
-        self._conversation = Published(wrappedValue: .done(response: conversation))
-        self.conversationId = conversation.id
+        self.course = course
+        self.conversation = conversation
 
         self.messagesService = messagesService
         self.stompClient = stompClient
@@ -76,7 +72,7 @@ extension ConversationViewModel {
     }
 
     func loadMessages() async {
-        let result = await messagesService.getMessages(for: courseId, and: conversationId, size: size)
+        let result = await messagesService.getMessages(for: course.id, and: conversation.id, size: size)
 
         switch result {
         case .loading:
@@ -105,7 +101,7 @@ extension ConversationViewModel {
 
     func loadMessage(messageId: Int64) async -> DataState<Message> {
         // TODO: add API to only load one single message
-        let result = await messagesService.getMessages(for: courseId, and: conversationId, size: size)
+        let result = await messagesService.getMessages(for: course.id, and: conversation.id, size: size)
 
         switch result {
         case .loading:
@@ -122,7 +118,7 @@ extension ConversationViewModel {
 
     func loadAnswerMessage(answerMessageId: Int64) async -> DataState<AnswerMessage> {
         // TODO: add API to only load one single answer message
-        let result = await messagesService.getMessages(for: courseId, and: conversationId, size: size)
+        let result = await messagesService.getMessages(for: course.id, and: conversation.id, size: size)
 
         switch result {
         case .loading:
@@ -144,9 +140,9 @@ extension ConversationViewModel {
         isLoading = true
         let result: NetworkResponse
         if let reaction = message.getReactionFromMe(emojiId: emojiId) {
-            result = await messagesService.removeReactionFromMessage(for: courseId, reaction: reaction)
+            result = await messagesService.removeReactionFromMessage(for: course.id, reaction: reaction)
         } else {
-            result = await messagesService.addReactionToMessage(for: courseId, message: message, emojiId: emojiId)
+            result = await messagesService.addReactionToMessage(for: course.id, message: message, emojiId: emojiId)
         }
         switch result {
         case .notStarted, .loading:
@@ -175,9 +171,9 @@ extension ConversationViewModel {
         isLoading = true
         let result: NetworkResponse
         if let reaction = message.getReactionFromMe(emojiId: emojiId) {
-            result = await messagesService.removeReactionFromMessage(for: courseId, reaction: reaction)
+            result = await messagesService.removeReactionFromMessage(for: course.id, reaction: reaction)
         } else {
-            result = await messagesService.addReactionToAnswerMessage(for: courseId, answerMessage: message, emojiId: emojiId)
+            result = await messagesService.addReactionToAnswerMessage(for: course.id, answerMessage: message, emojiId: emojiId)
         }
         switch result {
         case .notStarted, .loading:
@@ -210,7 +206,7 @@ extension ConversationViewModel {
             return false
         }
 
-        let result = await messagesService.deleteMessage(for: courseId, messageId: messageId)
+        let result = await messagesService.deleteMessage(for: course.id, messageId: messageId)
 
         switch result {
         case .notStarted, .loading:
@@ -230,7 +226,7 @@ extension ConversationViewModel {
             return false
         }
 
-        let result = await messagesService.deleteAnswerMessage(for: courseId, anserMessageId: messageId)
+        let result = await messagesService.deleteAnswerMessage(for: course.id, anserMessageId: messageId)
 
         switch result {
         case .notStarted, .loading:
@@ -253,8 +249,8 @@ private extension ConversationViewModel {
 
     func subscribeToConversationTopic() {
         let topic: String
-        if conversation.value?.baseConversation.type == .channel {
-            topic = WebSocketTopic.makeChannelNotifications(courseId: courseId)
+        if conversation.baseConversation.type == .channel {
+            topic = WebSocketTopic.makeChannelNotifications(courseId: course.id)
         } else if let id = userSession.user?.id {
             topic = WebSocketTopic.makeConversationNotifications(userId: id)
         } else {
@@ -285,7 +281,7 @@ private extension ConversationViewModel {
 
     func onMessageReceived(messageWebsocketDTO: MessageWebsocketDTO) {
         // Guard message corresponds to conversation
-        guard messageWebsocketDTO.post.conversation?.id == conversation.value?.id else {
+        guard messageWebsocketDTO.post.conversation?.id == conversation.id else {
             return
         }
         switch messageWebsocketDTO.action {

@@ -42,14 +42,12 @@ struct MessageDetailView: View {
                     }
                 }
                 Spacer()
-                if !((viewModel.conversation.value?.baseConversation as? Channel)?.isArchived ?? false),
-                   let message = message as? Message,
-                   let course = viewModel.course.value,
-                   let conversation = viewModel.conversation.value {
+                if !((viewModel.conversation.baseConversation as? Channel)?.isArchived ?? false),
+                   let message = message as? Message {
                     SendMessageView(
                         viewModel: SendMessageViewModel(
-                            course: course,
-                            conversation: conversation,
+                            course: viewModel.course,
+                            conversation: viewModel.conversation,
                             configuration: .answerMessage(message, reloadMessage),
                             delegate: SendMessageViewModelDelegate(viewModel)
                         )

@@ -35,7 +35,7 @@ struct MessageActionSheet: View {
             return true
         }
 
-        guard let channel = viewModel.conversation.value?.baseConversation as? Channel else {
+        guard let channel = viewModel.conversation.baseConversation as? Channel else {
             return false
         }
         if channel.hasChannelModerationRights ?? false && message is Message {
@@ -145,29 +145,26 @@ private extension MessageActionSheet {
     var editMessage: some View {
         NavigationView {
             Group {
-                if let course = viewModel.course.value,
-                   let conversation = viewModel.conversation.value {
-                    if let message = message.value as? Message {
-                        SendMessageView(
-                            viewModel: SendMessageViewModel(
-                                course: course,
-                                conversation: conversation,
-                                configuration: .editMessage(message, { self.dismiss() }),
-                                delegate: SendMessageViewModelDelegate(viewModel)
-                            )
+                if let message = message.value as? Message {
+                    SendMessageView(
+                        viewModel: SendMessageViewModel(
+                            course: viewModel.course,
+                            conversation: viewModel.conversation,
+                            configuration: .editMessage(message, { self.dismiss() }),
+                            delegate: SendMessageViewModelDelegate(viewModel)
                         )
-                    } else if let answerMessage = message.value as? AnswerMessage {
-                        SendMessageView(
-                            viewModel: SendMessageViewModel(
-                                course: course,
-                                conversation: conversation,
-                                configuration: .editAnswerMessage(answerMessage, { self.dismiss() }),
-                                delegate: SendMessageViewModelDelegate(viewModel)
-                            )
+                    )
+                } else if let answerMessage = message.value as? AnswerMessage {
+                    SendMessageView(
+                        viewModel: SendMessageViewModel(
+                            course: viewModel.course,
+                            conversation: viewModel.conversation,
+                            configuration: .editAnswerMessage(answerMessage, { self.dismiss() }),
+                            delegate: SendMessageViewModelDelegate(viewModel)
                         )
-                    } else {
-                        Text(R.string.localizable.loading())
-                    }
+                    )
+                } else {
+                    Text(R.string.localizable.loading())
                 }
             }
             .navigationTitle(R.string.localizable.editMessage())

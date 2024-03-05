@@ -25,14 +25,13 @@ public struct ConversationView: View {
     }
 
     private var conversationPath: ConversationPath {
-        if let conversation = viewModel.conversation.value {
-            return ConversationPath(conversation: conversation, coursePath: CoursePath(id: viewModel.courseId))
-        }
-        return ConversationPath(id: viewModel.conversationId, coursePath: CoursePath(id: viewModel.courseId))
+        ConversationPath(conversation: viewModel.conversation, coursePath: CoursePath(course: viewModel.course))
     }
 
     private var isAllowedToPost: Bool {
-        guard let channel = viewModel.conversation.value?.baseConversation as? Channel else { return true }
+        guard let channel = viewModel.conversation.baseConversation as? Channel else {
+            return true
+        }
         // Channel is archived
         if channel.isArchived ?? false {
             return false
@@ -84,13 +83,11 @@ public struct ConversationView: View {
                     }
                 }
             }
-            if isAllowedToPost,
-               let course = viewModel.course.value,
-               let conversation = viewModel.conversation.value {
+            if isAllowedToPost {
                 SendMessageView(
                     viewModel: SendMessageViewModel(
-                        course: course,
-                        conversation: conversation,
+                        course: viewModel.course,
+                        conversation: viewModel.conversation,
                         configuration: .message,
                         delegate: SendMessageViewModelDelegate(viewModel)
                     )
@@ -102,21 +99,18 @@ public struct ConversationView: View {
                 Button {
                     isConversationInfoSheetPresented = true
                 } label: {
-                    Text(viewModel.conversation.value?.baseConversation.conversationName ?? R.string.localizable.loading())
+                    Text(viewModel.conversation.baseConversation.conversationName)
                         .foregroundColor(.Artemis.primaryLabel)
                         .frame(width: UIScreen.main.bounds.size.width * 0.6)
                 }
             }
         }
         .sheet(isPresented: $isConversationInfoSheetPresented) {
-            if let course = viewModel.course.value {
-                ConversationInfoSheetView(
-                    conversation: $viewModel.conversation,
-                    course: course,
-                    conversationId: viewModel.conversationId)
-            } else {
-                Text(R.string.localizable.loading())
-            }
+            #warning("Constant")
+            ConversationInfoSheetView(
+                conversation: .constant(.done(response: viewModel.conversation)),
+                course: viewModel.course,
+                conversationId: viewModel.conversation.id)
         }
         .task {
             viewModel.shouldScrollToId = "bottom"
