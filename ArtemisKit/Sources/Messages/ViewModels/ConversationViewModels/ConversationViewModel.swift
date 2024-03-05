@@ -28,7 +28,6 @@ class ConversationViewModel: BaseViewModel {
 
     private var size = 50
 
-    private let courseService: CourseService
     private let messagesService: MessagesService
     private let stompClient: ArtemisStompClient
     private let userSession: UserSession
@@ -36,7 +35,6 @@ class ConversationViewModel: BaseViewModel {
     init(
         course: Course,
         conversation: Conversation,
-        courseService: CourseService = CourseServiceFactory.shared,
         messagesService: MessagesService = MessagesServiceFactory.shared,
         stompClient: ArtemisStompClient = .shared,
         userSession: UserSession = .shared
@@ -46,7 +44,6 @@ class ConversationViewModel: BaseViewModel {
         self._conversation = Published(wrappedValue: .done(response: conversation))
         self.conversationId = conversation.id
 
-        self.courseService = courseService
         self.messagesService = messagesService
         self.stompClient = stompClient
         self.userSession = userSession
