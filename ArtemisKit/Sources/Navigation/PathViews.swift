@@ -12,7 +12,7 @@ import SwiftUI
 
 public struct CoursePathView<Content: View>: View {
     @State var viewModel: CoursePathViewModel
-    @ViewBuilder let content: (Course) -> Content
+    let content: (Course) -> Content
 
     public var body: some View {
         DataStateView(data: $viewModel.course) {

@@ -28,23 +28,12 @@ final class ConversationPathViewModel {
 
     func loadConversation() async {
         let result = await messagesService.getConversations(for: path.coursePath.id)
-        self.conversation = result.flatMap { response in
-            if let conversation = response.first(where: { $0.id == path.id }) {
+        self.conversation = result.flatMap { conversations in
+            if let conversation = conversations.first(where: { $0.id == path.id }) {
                 return .success(conversation)
             } else {
                 return .failure(UserFacingError(title: R.string.localizable.conversationNotLoaded()))
             }
         }
-    }
-}
-
-@Observable
-final class MessagePathViewModel {
-    let path: MessagePath
-    var message: DataState<BaseMessage>
-
-    init(path: MessagePath) {
-        self.path = path
-        self.message = path.message.wrappedValue
     }
 }
