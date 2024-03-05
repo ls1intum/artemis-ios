@@ -20,12 +20,8 @@ public struct ConversationView: View {
 
     @State private var isConversationInfoSheetPresented = false
 
-    public init(course: Course, conversation: Conversation) {
+    init(course: Course, conversation: Conversation) {
         _viewModel = StateObject(wrappedValue: ConversationViewModel(course: course, conversation: conversation))
-    }
-
-    public init(courseId: Int, conversationId: Int64) {
-        _viewModel = StateObject(wrappedValue: ConversationViewModel(courseId: courseId, conversationId: conversationId))
     }
 
     private var conversationPath: ConversationPath {

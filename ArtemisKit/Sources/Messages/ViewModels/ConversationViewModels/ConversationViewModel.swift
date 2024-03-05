@@ -56,36 +56,6 @@ class ConversationViewModel: BaseViewModel {
         subscribeToConversationTopic()
     }
 
-    init(
-        courseId: Int,
-        conversationId: Int64,
-        courseService: CourseService = CourseServiceFactory.shared,
-        messagesService: MessagesService = MessagesServiceFactory.shared,
-        stompClient: ArtemisStompClient = .shared,
-        userSession: UserSession = .shared
-    ) {
-        self.courseId = courseId
-        self.conversationId = conversationId
-        self._conversation = Published(wrappedValue: .loading)
-        self._course = Published(wrappedValue: .loading)
-
-        self.courseService = courseService
-        self.messagesService = messagesService
-        self.stompClient = stompClient
-        self.userSession = userSession
-
-        super.init()
-
-        Task {
-            await loadConversation()
-        }
-        Task {
-            await loadCourse()
-        }
-
-        subscribeToConversationTopic()
-    }
-
     deinit {
         websocketSubscriptionTask?.cancel()
     }
@@ -282,37 +252,7 @@ extension ConversationViewModel {
 
 private extension ConversationViewModel {
 
-    // MARK: Start (initializer)
-
-    func loadConversation() async {
-        let result = await messagesService.getConversations(for: courseId)
-
-        switch result {
-        case .loading:
-            conversation = .loading
-        case .failure(let error):
-            conversation = .failure(error: error)
-        case .done(let response):
-            guard let conversation = response.first(where: { $0.id == conversationId }) else {
-                self.conversation = .failure(error: UserFacingError(title: R.string.localizable.conversationNotLoaded()))
-                return
-            }
-            self.conversation = .done(response: conversation)
-        }
-    }
-
-    func loadCourse() async {
-        let result = await courseService.getCourse(courseId: courseId)
-
-        switch result {
-        case .loading:
-            course = .loading
-        case .failure(let error):
-            course = .failure(error: error)
-        case .done(let response):
-            course = .done(response: response.course)
-        }
-    }
+    // MARK: Initializer
 
     func subscribeToConversationTopic() {
         let topic: String
