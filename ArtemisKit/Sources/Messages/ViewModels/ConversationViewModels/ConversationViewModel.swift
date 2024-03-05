@@ -17,7 +17,7 @@ import UserStore
 class ConversationViewModel: BaseViewModel {
 
     let course: Course
-    let conversation: Conversation
+    @Published fileprivate(set) var conversation: Conversation
 
     @Published var dailyMessages: DataState<[Date: [Message]]> = .loading
 
@@ -349,5 +349,15 @@ private extension ConversationViewModel {
 
         shouldScrollToId = nil
         self.dailyMessages = .done(response: dailyMessages)
+    }
+}
+
+// MARK: - ConversationViewModel+ConversationInfoSheetViewModelDelegate
+
+extension ConversationInfoSheetViewModelDelegate {
+    init(_ viewModel: ConversationViewModel) {
+        self.init { [weak viewModel] conversation in
+            viewModel?.conversation = conversation
+        }
     }
 }
