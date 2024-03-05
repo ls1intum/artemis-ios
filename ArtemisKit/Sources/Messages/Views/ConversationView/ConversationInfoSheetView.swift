@@ -29,7 +29,10 @@ struct ConversationInfoSheetView: View {
 
     var body: some View {
         NavigationView {
-            DataStateView(data: $conversation, retryHandler: { self.conversation = await viewModel.reloadConversation(for: course.id, conversationId: conversationId) }) { conversation in
+            DataStateView(data: $conversation) {
+                #warning("Mutation")
+                self.conversation = await viewModel.reloadConversation(for: course.id, conversationId: conversationId)
+            } content: { conversation in
                 List {
                     InfoSection(viewModel: viewModel, conversation: $conversation, course: course)
                     membersSection
@@ -109,6 +112,7 @@ struct ConversationInfoSheetView: View {
                                         // do nothing
                                         break
                                     case .done:
+                                        #warning("Mutation")
                                         self.conversation = result
                                     }
 
@@ -125,6 +129,7 @@ struct ConversationInfoSheetView: View {
                                         // do nothing
                                         break
                                     case .done:
+                                        #warning("Mutation")
                                         self.conversation = result
                                     }
                                     viewModel.isLoading = false
@@ -156,6 +161,7 @@ struct ConversationInfoSheetView: View {
                             // do nothing
                             break
                         case .done:
+                            #warning("Mutation")
                             self.conversation = result
                         }
 
@@ -197,6 +203,7 @@ struct ConversationInfoSheetView: View {
                                                     // do nothing
                                                     break
                                                 case .done:
+                                                    #warning("Mutation")
                                                     self.conversation = result
                                                 }
 
@@ -302,6 +309,7 @@ private struct InfoSection: View {
                 Button(R.string.localizable.ok()) {
                     viewModel.isLoading = true
                     Task(priority: .userInitiated) {
+                        #warning("Mutation")
                         self.conversation = await viewModel.editName(for: course.id, conversation: conversation, newName: newName)
                     }
                 }
@@ -339,6 +347,7 @@ private struct InfoSection: View {
                                     Button(R.string.localizable.ok()) {
                                         viewModel.isLoading = true
                                         Task(priority: .userInitiated) {
+                                            #warning("Mutation")
                                             self.conversation = await viewModel.editTopic(for: course.id, conversation: conversation, newTopic: newTopic)
                                         }
                                     }
@@ -361,6 +370,7 @@ private struct InfoSection: View {
                                     Button(R.string.localizable.ok()) {
                                         viewModel.isLoading = true
                                         Task(priority: .userInitiated) {
+                                            #warning("Mutation")
                                             self.conversation = await viewModel.editDescription(for: course.id, conversation: conversation, newDescription: newDescription)
                                         }
                                     }
