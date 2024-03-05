@@ -1,6 +1,6 @@
 //
 //  ConversationInfoSheetView.swift
-//  
+//
 //
 //  Created by Sven Andabaka on 23.04.23.
 //
@@ -52,10 +52,13 @@ struct ConversationInfoSheetView: View {
             }
         }
     }
+}
 
-    private var canLeaveConversation: Bool {
-        guard let conversation = conversation.value else { return false }
-
+private extension ConversationInfoSheetView {
+    var canLeaveConversation: Bool {
+        guard let conversation = conversation.value else {
+            return false
+        }
         // not possible to leave a conversation as not a member
         if !(conversation.baseConversation.isMember ?? false) {
             return false
@@ -71,9 +74,10 @@ struct ConversationInfoSheetView: View {
         return true
     }
 
-    private var canAddUsers: Bool {
-        guard let conversation = conversation.value else { return false }
-
+    var canAddUsers: Bool {
+        guard let conversation = conversation.value else {
+            return false
+        }
         switch conversation {
         case .channel(let conversation):
             return conversation.hasChannelModerationRights ?? false
@@ -86,11 +90,13 @@ struct ConversationInfoSheetView: View {
         }
     }
 
-    private var canRemoveUsers: Bool {
+    var canRemoveUsers: Bool {
         canAddUsers
     }
 
-    private var actionsSection: some View {
+    // MARK: View
+
+    var actionsSection: some View {
         Group {
             if let conversation = conversation.value {
                 Section(R.string.localizable.settings()) {
@@ -106,7 +112,6 @@ struct ConversationInfoSheetView: View {
                                 viewModel.isLoading = true
                                 Task(priority: .userInitiated) {
                                     let result = await viewModel.unarchiveChannel(for: course.id, conversationId: conversation.id)
-
                                     switch result {
                                     case .loading, .failure:
                                         // do nothing
@@ -115,10 +120,10 @@ struct ConversationInfoSheetView: View {
                                         #warning("Mutation")
                                         self.conversation = result
                                     }
-
                                     viewModel.isLoading = false
                                 }
-                            }.foregroundColor(.Artemis.badgeWarningColor)
+                            }
+                            .foregroundColor(.Artemis.badgeWarningColor)
                         } else {
                             Button(R.string.localizable.archiveChannelButtonLabel()) {
                                 viewModel.isLoading = true
@@ -134,7 +139,8 @@ struct ConversationInfoSheetView: View {
                                     }
                                     viewModel.isLoading = false
                                 }
-                            }.foregroundColor(.Artemis.badgeWarningColor)
+                            }
+                            .foregroundColor(.Artemis.badgeWarningColor)
                         }
                     }
                     if canLeaveConversation {
@@ -142,20 +148,20 @@ struct ConversationInfoSheetView: View {
                             viewModel.isLoading = true
                             Task(priority: .userInitiated) {
                                 let success = await viewModel.leaveConversation(for: course.id, conversation: conversation)
-
                                 if success {
                                     navigationController.goToCourseConversations(courseId: course.id)
                                 } else {
                                     viewModel.isLoading = false
                                 }
                             }
-                        }.foregroundColor(.Artemis.badgeDangerColor)
+                        }
+                        .foregroundColor(.Artemis.badgeDangerColor)
                     }
-                }.sheet(isPresented: $showAddMemberSheet, onDismiss: {
+                }
+                .sheet(isPresented: $showAddMemberSheet) {
                     viewModel.isLoading = true
                     Task {
                         let result = await viewModel.reloadConversation(for: course.id, conversationId: conversation.id)
-
                         switch result {
                         case .loading, .failure:
                             // do nothing
@@ -164,12 +170,11 @@ struct ConversationInfoSheetView: View {
                             #warning("Mutation")
                             self.conversation = result
                         }
-
                         await viewModel.loadMembers(for: course.id, conversationId: conversation.id)
                         viewModel.isLoading = false
                     }
-                }) {
-                    CreateOrAddToChatView(courseId: course.id, configuration: .addToChat(conversation))
+                } content: {
+                    CreateOrAddToChatView(courseId: course.id, type: .addToChat(conversation))
                 }
             }
         }
@@ -179,8 +184,9 @@ struct ConversationInfoSheetView: View {
         Group {
             if let conversation = conversation.value {
                 Section(content: {
-                    DataStateView(data: $viewModel.members,
-                                  retryHandler: { await viewModel.loadMembers(for: course.id, conversationId: conversation.id) }) { members in
+                    DataStateView(data: $viewModel.members) {
+                        await viewModel.loadMembers(for: course.id, conversationId: conversation.id)
+                    } content: { members in
                         ForEach(members, id: \.id) { member in
                             if let name = member.name {
                                 HStack {
@@ -197,7 +203,6 @@ struct ConversationInfoSheetView: View {
                                             viewModel.isLoading = true
                                             Task(priority: .userInitiated) {
                                                 let result = await viewModel.removeMemberFromConversation(for: course.id, conversation: conversation, member: member)
-
                                                 switch result {
                                                 case .loading, .failure:
                                                     // do nothing
@@ -206,7 +211,6 @@ struct ConversationInfoSheetView: View {
                                                     #warning("Mutation")
                                                     self.conversation = result
                                                 }
-
                                                 viewModel.isLoading = false
                                             }
                                         }
@@ -257,6 +261,8 @@ struct ConversationInfoSheetView: View {
         }
     }
 }
+
+// MARK: - InfoSection
 
 private struct InfoSection: View {
 
@@ -318,7 +324,9 @@ private struct InfoSection: View {
             .textCase(nil)
         }
     }
+}
 
+private extension InfoSection {
     var channelSections: some View {
         Group {
             if let conversation = conversation.value,
@@ -339,21 +347,23 @@ private struct InfoSection: View {
                         Text(channel.topic ?? R.string.localizable.noTopicSet())
                         if channel.hasChannelModerationRights ?? false {
                             Spacer()
-                            Button(action: { showChangeTopicAlert = true }, label: {
+                            Button {
+                                showChangeTopicAlert = true
+                            } label: {
                                 Image(systemName: "pencil")
-                            })
-                                .alert(R.string.localizable.editTopicTitle(), isPresented: $showChangeTopicAlert) {
-                                    TextField(R.string.localizable.newTopicLabel(), text: $newTopic)
-                                    Button(R.string.localizable.ok()) {
-                                        viewModel.isLoading = true
-                                        Task(priority: .userInitiated) {
-                                            #warning("Mutation")
-                                            self.conversation = await viewModel.editTopic(for: course.id, conversation: conversation, newTopic: newTopic)
-                                        }
+                            }
+                            .alert(R.string.localizable.editTopicTitle(), isPresented: $showChangeTopicAlert) {
+                                TextField(R.string.localizable.newTopicLabel(), text: $newTopic)
+                                Button(R.string.localizable.ok()) {
+                                    viewModel.isLoading = true
+                                    Task(priority: .userInitiated) {
+                                        #warning("Mutation")
+                                        self.conversation = await viewModel.editTopic(for: course.id, conversation: conversation, newTopic: newTopic)
                                     }
-                                    Button(R.string.localizable.cancel(), role: .cancel) { }
                                 }
-                                .textCase(nil)
+                                Button(R.string.localizable.cancel(), role: .cancel) { }
+                            }
+                            .textCase(nil)
                         }
                     }
                 }
@@ -362,28 +372,30 @@ private struct InfoSection: View {
                         Text(channel.description ?? R.string.localizable.noDescriptionSet())
                         if channel.hasChannelModerationRights ?? false {
                             Spacer()
-                            Button(action: { showChangeDescriptionAlert = true }, label: {
+                            Button { 
+                                showChangeDescriptionAlert = true
+                            } label: {
                                 Image(systemName: "pencil")
-                            })
-                                .alert(R.string.localizable.editDescriptionLabel(), isPresented: $showChangeDescriptionAlert) {
-                                    TextField(R.string.localizable.newDescriptionLabel(), text: $newDescription)
-                                    Button(R.string.localizable.ok()) {
-                                        viewModel.isLoading = true
-                                        Task(priority: .userInitiated) {
-                                            #warning("Mutation")
-                                            self.conversation = await viewModel.editDescription(for: course.id, conversation: conversation, newDescription: newDescription)
-                                        }
+                            }
+                            .alert(R.string.localizable.editDescriptionLabel(), isPresented: $showChangeDescriptionAlert) {
+                                TextField(R.string.localizable.newDescriptionLabel(), text: $newDescription)
+                                Button(R.string.localizable.ok()) {
+                                    viewModel.isLoading = true
+                                    Task(priority: .userInitiated) {
+                                        #warning("Mutation")
+                                        self.conversation = await viewModel.editDescription(for: course.id, conversation: conversation, newDescription: newDescription)
                                     }
-                                    Button(R.string.localizable.cancel(), role: .cancel) { }
                                 }
-                                .textCase(nil)
+                                Button(R.string.localizable.cancel(), role: .cancel) { }
+                            }
+                            .textCase(nil)
                         }
                     }
                 }
-                    .onAppear {
-                        newTopic = channel.topic ?? ""
-                        newDescription = channel.description ?? ""
-                    }
+                .onAppear {
+                    newTopic = channel.topic ?? ""
+                    newDescription = channel.description ?? ""
+                }
             }
         }
     }
