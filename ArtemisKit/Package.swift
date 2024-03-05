@@ -87,10 +87,16 @@ let package = Package(
                 .plugin(name: "RswiftGeneratePublicResources", package: "R.swift")
             ]),
         .target(
+            name: "Extensions",
+            dependencies: [
+                .product(name: "Common", package: "artemis-ios-core-modules"),
+            ]),
+        .target(
             name: "Messages",
             dependencies: [
-                "EmojiPicker",
+                "Extensions",
                 "Navigation",
+                .product(name: "EmojiPicker", package: "EmojiPicker"),
                 .product(name: "APIClient", package: "artemis-ios-core-modules"),
                 .product(name: "ArtemisMarkdown", package: "artemis-ios-core-modules"),
                 .product(name: "DesignLibrary", package: "artemis-ios-core-modules"),

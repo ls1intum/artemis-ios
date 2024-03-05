@@ -7,38 +7,11 @@
 
 import Common
 import DesignLibrary
+import Extensions
 import Navigation
 import SharedModels
 import SharedServices
 import SwiftUI
-
-extension DataState {
-    func map<U>(_ transform: (T) -> U) -> DataState<U> {
-        .init(toOptionalResult()?.map(transform))
-    }
-
-    private init(_ optionalResult: Swift.Result<T, UserFacingError>?) {
-        switch optionalResult {
-        case let .success(success):
-            self = .done(response: success)
-        case let .failure(failure):
-            self = .failure(error: failure)
-        case nil:
-            self = .loading
-        }
-    }
-
-    private func toOptionalResult() -> Swift.Result<T, UserFacingError>? {
-        switch self {
-        case let .done(response: success):
-            return .success(success)
-        case let .failure(error: failure):
-            return .failure(failure)
-        case .loading:
-            return nil
-        }
-    }
-}
 
 @Observable
 final class CoursePathViewModel {
@@ -94,18 +67,12 @@ final class ConversationPathViewModel {
 
     func loadConversation() async {
         let result = await messagesService.getConversations(for: path.coursePath.id)
-
-        switch result {
-        case .loading:
-            conversation = .loading
-        case .failure(let error):
-            conversation = .failure(error: error)
-        case .done(let response):
-            guard let conversation = response.first(where: { $0.id == path.id }) else {
-                self.conversation = .failure(error: UserFacingError(title: R.string.localizable.conversationNotLoaded()))
-                return
+        self.conversation = result.flatMap { response in
+            if let conversation = response.first(where: { $0.id == path.id }) {
+                return .success(conversation)
+            } else {
+                return .failure(UserFacingError(title: R.string.localizable.conversationNotLoaded()))
             }
-            self.conversation = .done(response: conversation)
         }
     }
 }
