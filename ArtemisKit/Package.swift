@@ -89,7 +89,7 @@ let package = Package(
         .target(
             name: "Extensions",
             dependencies: [
-                .product(name: "Common", package: "artemis-ios-core-modules"),
+                .product(name: "Common", package: "artemis-ios-core-modules")
             ]),
         .target(
             name: "Messages",
@@ -111,6 +111,7 @@ let package = Package(
         .target(
             name: "Navigation",
             dependencies: [
+                "Extensions",
                 .product(name: "Common", package: "artemis-ios-core-modules"),
                 .product(name: "SharedModels", package: "artemis-ios-core-modules"),
                 .product(name: "UserStore", package: "artemis-ios-core-modules")
