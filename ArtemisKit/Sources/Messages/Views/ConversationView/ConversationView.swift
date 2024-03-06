@@ -28,21 +28,6 @@ public struct ConversationView: View {
         ConversationPath(conversation: viewModel.conversation, coursePath: CoursePath(course: viewModel.course))
     }
 
-    private var isAllowedToPost: Bool {
-        guard let channel = viewModel.conversation.baseConversation as? Channel else {
-            return true
-        }
-        // Channel is archived
-        if channel.isArchived ?? false {
-            return false
-        }
-        // Channel is announcement channel and current user is not instructor
-        if channel.isAnnouncementChannel ?? false && !(channel.hasChannelModerationRights ?? false) {
-            return false
-        }
-        return true
-    }
-
     public var body: some View {
         VStack {
             DataStateView(data: $viewModel.dailyMessages) {
@@ -83,7 +68,7 @@ public struct ConversationView: View {
                     }
                 }
             }
-            if isAllowedToPost {
+            if viewModel.isAllowedToPost {
                 SendMessageView(
                     viewModel: SendMessageViewModel(
                         course: viewModel.course,

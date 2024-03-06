@@ -21,6 +21,21 @@ class ConversationViewModel: BaseViewModel {
 
     @Published var dailyMessages: DataState<[Date: [Message]]> = .loading
 
+    var isAllowedToPost: Bool {
+        guard let channel = conversation.baseConversation as? Channel else {
+            return true
+        }
+        // Channel is archived
+        if channel.isArchived ?? false {
+            return false
+        }
+        // Channel is announcement channel and current user is not instructor
+        if channel.isAnnouncementChannel ?? false && !(channel.hasChannelModerationRights ?? false) {
+            return false
+        }
+        return true
+    }
+
     var shouldScrollToId: String?
     var websocketSubscriptionTask: Task<(), Never>?
 
