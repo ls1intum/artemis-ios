@@ -114,6 +114,7 @@ let package = Package(
                 "Extensions",
                 .product(name: "Common", package: "artemis-ios-core-modules"),
                 .product(name: "SharedModels", package: "artemis-ios-core-modules"),
+                .product(name: "SharedServices", package: "artemis-ios-core-modules"),
                 .product(name: "UserStore", package: "artemis-ios-core-modules")
             ]),
         .target(
