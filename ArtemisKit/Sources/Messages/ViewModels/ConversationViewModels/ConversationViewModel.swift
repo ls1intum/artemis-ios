@@ -8,11 +8,11 @@
 import APIClient
 import Foundation
 import Common
+import Extensions
 import SharedModels
 import SharedServices
 import UserStore
 
-// swiftlint:disable file_length
 @MainActor
 class ConversationViewModel: BaseViewModel {
 
