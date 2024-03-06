@@ -87,16 +87,7 @@ private struct NavigationDestinationRootViewModifier: ViewModifier {
                     LectureDetailView(courseId: lecturePath.coursePath.id, lectureId: lecturePath.id)
                 }
             }
-            .navigationDestination(for: ConversationPath.self) { conversationPath in
-                if let conversation = conversationPath.conversation,
-                   let course = conversationPath.coursePath.course {
-                    ConversationView(course: course,
-                                     conversation: conversation)
-                } else {
-                    ConversationView(courseId: conversationPath.coursePath.id,
-                                     conversationId: conversationPath.id)
-                }
-            }
+            .navigationDestination(for: ConversationPath.self, destination: ConversationPathView.init)
             .modifier(NavigationDestinationThreadViewModifier())
     }
 }

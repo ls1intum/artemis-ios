@@ -8,27 +8,39 @@
 import APIClient
 import Foundation
 import Common
+import Extensions
 import SharedModels
 import SharedServices
 import UserStore
 
-// swiftlint:disable file_length
 @MainActor
 class ConversationViewModel: BaseViewModel {
 
+    let course: Course
+    let conversation: Conversation
+
     @Published var dailyMessages: DataState<[Date: [Message]]> = .loading
-    @Published var conversation: DataState<Conversation> = .loading
-    @Published var course: DataState<Course> = .loading
+
+    var isAllowedToPost: Bool {
+        guard let channel = conversation.baseConversation as? Channel else {
+            return true
+        }
+        // Channel is archived
+        if channel.isArchived ?? false {
+            return false
+        }
+        // Channel is announcement channel and current user is not instructor
+        if channel.isAnnouncementChannel ?? false && !(channel.hasChannelModerationRights ?? false) {
+            return false
+        }
+        return true
+    }
 
     var shouldScrollToId: String?
     var websocketSubscriptionTask: Task<(), Never>?
 
-    let courseId: Int
-    let conversationId: Int64
-
     private var size = 50
 
-    private let courseService: CourseService
     private let messagesService: MessagesService
     private let stompClient: ArtemisStompClient
     private let userSession: UserSession
@@ -36,52 +48,18 @@ class ConversationViewModel: BaseViewModel {
     init(
         course: Course,
         conversation: Conversation,
-        courseService: CourseService = CourseServiceFactory.shared,
         messagesService: MessagesService = MessagesServiceFactory.shared,
         stompClient: ArtemisStompClient = .shared,
         userSession: UserSession = .shared
     ) {
-        self._course = Published(wrappedValue: .done(response: course))
-        self.courseId = course.id
-        self._conversation = Published(wrappedValue: .done(response: conversation))
-        self.conversationId = conversation.id
+        self.course = course
+        self.conversation = conversation
 
-        self.courseService = courseService
         self.messagesService = messagesService
         self.stompClient = stompClient
         self.userSession = userSession
 
         super.init()
-
-        subscribeToConversationTopic()
-    }
-
-    init(
-        courseId: Int,
-        conversationId: Int64,
-        courseService: CourseService = CourseServiceFactory.shared,
-        messagesService: MessagesService = MessagesServiceFactory.shared,
-        stompClient: ArtemisStompClient = .shared,
-        userSession: UserSession = .shared
-    ) {
-        self.courseId = courseId
-        self.conversationId = conversationId
-        self._conversation = Published(wrappedValue: .loading)
-        self._course = Published(wrappedValue: .loading)
-
-        self.courseService = courseService
-        self.messagesService = messagesService
-        self.stompClient = stompClient
-        self.userSession = userSession
-
-        super.init()
-
-        Task {
-            await loadConversation()
-        }
-        Task {
-            await loadCourse()
-        }
 
         subscribeToConversationTopic()
     }
@@ -109,17 +87,10 @@ extension ConversationViewModel {
     }
 
     func loadMessages() async {
-        let result = await messagesService.getMessages(for: courseId, and: conversationId, size: size)
-
-        switch result {
-        case .loading:
-            dailyMessages = .loading
-        case .failure(let error):
-            dailyMessages = .failure(error: error)
-        case .done(let response):
+        let result = await messagesService.getMessages(for: course.id, and: conversation.id, size: size)
+        self.dailyMessages = result.map { messages in
             var dailyMessages: [Date: [Message]] = [:]
-
-            for message in response {
+            for message in messages {
                 if let date = message.creationDate?.startOfDay {
                     if dailyMessages[date] == nil {
                         dailyMessages[date] = [message]
@@ -131,43 +102,30 @@ extension ConversationViewModel {
                     }
                 }
             }
-
-            self.dailyMessages = .done(response: dailyMessages)
+            return dailyMessages
         }
     }
 
     func loadMessage(messageId: Int64) async -> DataState<Message> {
         // TODO: add API to only load one single message
-        let result = await messagesService.getMessages(for: courseId, and: conversationId, size: size)
-
-        switch result {
-        case .loading:
-            return .loading
-        case .failure(let error):
-            return .failure(error: error)
-        case .done(let response):
-            guard let message = response.first(where: { $0.id == messageId }) else {
-                return .failure(error: UserFacingError(title: R.string.localizable.messageCouldNotBeLoadedError()))
+        let result = await messagesService.getMessages(for: course.id, and: conversation.id, size: size)
+        return result.flatMap { messages in
+            guard let message = messages.first(where: { $0.id == messageId }) else {
+                return .failure(UserFacingError(title: R.string.localizable.messageCouldNotBeLoadedError()))
             }
-            return .done(response: message)
+            return .success(message)
         }
     }
 
     func loadAnswerMessage(answerMessageId: Int64) async -> DataState<AnswerMessage> {
         // TODO: add API to only load one single answer message
-        let result = await messagesService.getMessages(for: courseId, and: conversationId, size: size)
-
-        switch result {
-        case .loading:
-            return .loading
-        case .failure(let error):
-            return .failure(error: error)
-        case .done(let response):
-            guard let message = response.first(where: { $0.answers?.contains(where: { $0.id == answerMessageId }) ?? false }),
+        let result = await messagesService.getMessages(for: course.id, and: conversation.id, size: size)
+        return result.flatMap { messages in
+            guard let message = messages.first(where: { $0.answers?.contains(where: { $0.id == answerMessageId }) ?? false }),
                   let answerMessage = message.answers?.first(where: { $0.id == answerMessageId }) else {
-                return .failure(error: UserFacingError(title: R.string.localizable.messageCouldNotBeLoadedError()))
+                return .failure(UserFacingError(title: R.string.localizable.messageCouldNotBeLoadedError()))
             }
-            return .done(response: answerMessage)
+            return .success(answerMessage)
         }
     }
 
@@ -177,9 +135,9 @@ extension ConversationViewModel {
         isLoading = true
         let result: NetworkResponse
         if let reaction = message.getReactionFromMe(emojiId: emojiId) {
-            result = await messagesService.removeReactionFromMessage(for: courseId, reaction: reaction)
+            result = await messagesService.removeReactionFromMessage(for: course.id, reaction: reaction)
         } else {
-            result = await messagesService.addReactionToMessage(for: courseId, message: message, emojiId: emojiId)
+            result = await messagesService.addReactionToMessage(for: course.id, message: message, emojiId: emojiId)
         }
         switch result {
         case .notStarted, .loading:
@@ -208,9 +166,9 @@ extension ConversationViewModel {
         isLoading = true
         let result: NetworkResponse
         if let reaction = message.getReactionFromMe(emojiId: emojiId) {
-            result = await messagesService.removeReactionFromMessage(for: courseId, reaction: reaction)
+            result = await messagesService.removeReactionFromMessage(for: course.id, reaction: reaction)
         } else {
-            result = await messagesService.addReactionToAnswerMessage(for: courseId, answerMessage: message, emojiId: emojiId)
+            result = await messagesService.addReactionToAnswerMessage(for: course.id, answerMessage: message, emojiId: emojiId)
         }
         switch result {
         case .notStarted, .loading:
@@ -243,7 +201,7 @@ extension ConversationViewModel {
             return false
         }
 
-        let result = await messagesService.deleteMessage(for: courseId, messageId: messageId)
+        let result = await messagesService.deleteMessage(for: course.id, messageId: messageId)
 
         switch result {
         case .notStarted, .loading:
@@ -263,7 +221,7 @@ extension ConversationViewModel {
             return false
         }
 
-        let result = await messagesService.deleteAnswerMessage(for: courseId, anserMessageId: messageId)
+        let result = await messagesService.deleteAnswerMessage(for: course.id, anserMessageId: messageId)
 
         switch result {
         case .notStarted, .loading:
@@ -282,42 +240,12 @@ extension ConversationViewModel {
 
 private extension ConversationViewModel {
 
-    // MARK: Start (initializer)
-
-    func loadConversation() async {
-        let result = await messagesService.getConversations(for: courseId)
-
-        switch result {
-        case .loading:
-            conversation = .loading
-        case .failure(let error):
-            conversation = .failure(error: error)
-        case .done(let response):
-            guard let conversation = response.first(where: { $0.id == conversationId }) else {
-                self.conversation = .failure(error: UserFacingError(title: R.string.localizable.conversationNotLoaded()))
-                return
-            }
-            self.conversation = .done(response: conversation)
-        }
-    }
-
-    func loadCourse() async {
-        let result = await courseService.getCourse(courseId: courseId)
-
-        switch result {
-        case .loading:
-            course = .loading
-        case .failure(let error):
-            course = .failure(error: error)
-        case .done(let response):
-            course = .done(response: response.course)
-        }
-    }
+    // MARK: Initializer
 
     func subscribeToConversationTopic() {
         let topic: String
-        if conversation.value?.baseConversation.type == .channel {
-            topic = WebSocketTopic.makeChannelNotifications(courseId: courseId)
+        if conversation.baseConversation.type == .channel {
+            topic = WebSocketTopic.makeChannelNotifications(courseId: course.id)
         } else if let id = userSession.user?.id {
             topic = WebSocketTopic.makeConversationNotifications(userId: id)
         } else {
@@ -348,7 +276,7 @@ private extension ConversationViewModel {
 
     func onMessageReceived(messageWebsocketDTO: MessageWebsocketDTO) {
         // Guard message corresponds to conversation
-        guard messageWebsocketDTO.post.conversation?.id == conversation.value?.id else {
+        guard messageWebsocketDTO.post.conversation?.id == conversation.id else {
             return
         }
         switch messageWebsocketDTO.action {
