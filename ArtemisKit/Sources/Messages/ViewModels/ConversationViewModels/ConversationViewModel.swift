@@ -88,16 +88,9 @@ extension ConversationViewModel {
 
     func loadMessages() async {
         let result = await messagesService.getMessages(for: course.id, and: conversation.id, size: size)
-
-        switch result {
-        case .loading:
-            dailyMessages = .loading
-        case .failure(let error):
-            dailyMessages = .failure(error: error)
-        case .done(let response):
+        self.dailyMessages = result.map { messages in
             var dailyMessages: [Date: [Message]] = [:]
-
-            for message in response {
+            for message in messages {
                 if let date = message.creationDate?.startOfDay {
                     if dailyMessages[date] == nil {
                         dailyMessages[date] = [message]
@@ -109,43 +102,30 @@ extension ConversationViewModel {
                     }
                 }
             }
-
-            self.dailyMessages = .done(response: dailyMessages)
+            return dailyMessages
         }
     }
 
     func loadMessage(messageId: Int64) async -> DataState<Message> {
         // TODO: add API to only load one single message
         let result = await messagesService.getMessages(for: course.id, and: conversation.id, size: size)
-
-        switch result {
-        case .loading:
-            return .loading
-        case .failure(let error):
-            return .failure(error: error)
-        case .done(let response):
-            guard let message = response.first(where: { $0.id == messageId }) else {
-                return .failure(error: UserFacingError(title: R.string.localizable.messageCouldNotBeLoadedError()))
+        return result.flatMap { messages in
+            guard let message = messages.first(where: { $0.id == messageId }) else {
+                return .failure(UserFacingError(title: R.string.localizable.messageCouldNotBeLoadedError()))
             }
-            return .done(response: message)
+            return .success(message)
         }
     }
 
     func loadAnswerMessage(answerMessageId: Int64) async -> DataState<AnswerMessage> {
         // TODO: add API to only load one single answer message
         let result = await messagesService.getMessages(for: course.id, and: conversation.id, size: size)
-
-        switch result {
-        case .loading:
-            return .loading
-        case .failure(let error):
-            return .failure(error: error)
-        case .done(let response):
-            guard let message = response.first(where: { $0.answers?.contains(where: { $0.id == answerMessageId }) ?? false }),
+        return result.flatMap { messages in
+            guard let message = messages.first(where: { $0.answers?.contains(where: { $0.id == answerMessageId }) ?? false }),
                   let answerMessage = message.answers?.first(where: { $0.id == answerMessageId }) else {
-                return .failure(error: UserFacingError(title: R.string.localizable.messageCouldNotBeLoadedError()))
+                return .failure(UserFacingError(title: R.string.localizable.messageCouldNotBeLoadedError()))
             }
-            return .done(response: answerMessage)
+            return .success(answerMessage)
         }
     }
 
