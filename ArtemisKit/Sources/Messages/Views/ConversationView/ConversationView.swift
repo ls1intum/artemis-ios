@@ -56,7 +56,7 @@ public struct ConversationView: View {
                             }
                         }
                         .coordinateSpace(name: "pullToRefresh")
-                        .onChange(of: viewModel.dailyMessages.value) {
+                        .onChange(of: viewModel.dailyMessages.value, initial: true) {
                             // TODO: does not work correctly when loadFurtherMessages is called -> is called to early -> investigate
                             if let id = viewModel.shouldScrollToId {
                                 withAnimation {
