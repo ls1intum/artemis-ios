@@ -74,10 +74,23 @@ struct MessageCell: View {
 
                 ReactionsView(viewModel: viewModel, message: $message)
 
+                if false {
+                    Button {
+                        //
+                    } label: {
+                        Label {
+                            Text("Failed to send")
+                        } icon: {
+                            Image(systemName: "arrow.clockwise")
+                        }
+                    }
+                    .foregroundStyle(.red)
+                }
+
                 if let message = message.value as? Message,
                    let answerCount = message.answers?.count, answerCount > 0,
                    let conversationPath {
-                    Button("^[\(answerCount) \(R.string.localizable.reply())](inflect: true)") {
+                    Button {
                         if let messagePath = MessagePath(
                             message: self.$message,
                             conversationPath: conversationPath,
@@ -87,6 +100,13 @@ struct MessageCell: View {
                         } else {
                             viewModel.presentError(userFacingError: UserFacingError(title: R.string.localizable.detailViewCantBeOpened()))
                         }
+                    } label: {
+                        Label {
+                            Text("^[\(answerCount) \(R.string.localizable.reply())](inflect: true)")
+                        } icon: {
+                            Image(systemName: "arrow.turn.down.right")
+                        }
+
                     }
                 }
             }
