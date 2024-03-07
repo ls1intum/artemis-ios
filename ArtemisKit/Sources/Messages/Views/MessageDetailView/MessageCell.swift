@@ -23,16 +23,6 @@ struct MessageCell: View {
     @State private var isActionSheetPresented = false
     @State private var isDetectingLongPress = false
 
-    var author: String {
-        message.value?.author?.name ?? ""
-    }
-    var creationDate: Date? {
-        message.value?.creationDate
-    }
-    var content: String {
-        message.value?.content ?? ""
-    }
-
     var user: () -> User? = { UserSession.shared.user }
 
     let conversationPath: ConversationPath?
@@ -46,84 +36,30 @@ struct MessageCell: View {
                 .frame(width: 40, height: isHeaderVisible ? 40 : 0)
                 .padding(.top, .s)
             VStack(alignment: .leading, spacing: .xs) {
-                if isHeaderVisible {
-                    HStack(alignment: .firstTextBaseline, spacing: .m) {
-                        Text(author)
-                            .bold()
-                        if let creationDate {
-                            Group {
-                                Text(creationDate, formatter: DateFormatter.timeOnly)
-
-                                if message.value?.updatedDate != nil {
-                                    Text(R.string.localizable.edited())
-                                        .foregroundColor(.Artemis.secondaryLabel)
-                                }
-                            }
-                            .font(.caption)
-                            Chip(
-                                text: R.string.localizable.new(),
-                                backgroundColor: .Artemis.artemisBlue,
-                                padding: .s
-                            )
-                            .font(.footnote)
-                            .opacity(isChipVisible(creationDate: creationDate) ? 1 : 0)
-                        }
+                HStack {
+                    VStack(alignment: .leading, spacing: .xs) {
+                        headerIfVisible
+                        ArtemisMarkdownView(string: content)
                     }
+                    Spacer()
                 }
-
-                ArtemisMarkdownView(string: content)
+                .background {
+                    RoundedRectangle(cornerRadius: .m)
+                        .foregroundStyle(backgroundOnPress)
+                }
+                .contentShape(.rect)
+                .onTapGesture(perform: onTapPresentMessage)
+                .onLongPressGesture(perform: onLongPressPresentActionSheet) { changed in
+                    isDetectingLongPress = changed
+                }
 
                 ReactionsView(viewModel: viewModel, message: $message)
-
-                if false {
-                    Button {
-                        //
-                    } label: {
-                        Label {
-                            Text("Failed to send")
-                        } icon: {
-                            Image(systemName: "arrow.clockwise")
-                        }
-                    }
-                    .foregroundStyle(.red)
-                }
-
-                if let message = message.value as? Message,
-                   let answerCount = message.answers?.count, answerCount > 0,
-                   let conversationPath {
-                    Button {
-                        if let messagePath = MessagePath(
-                            message: self.$message,
-                            conversationPath: conversationPath,
-                            conversationViewModel: viewModel
-                        ) {
-                            navigationController.path.append(messagePath)
-                        } else {
-                            viewModel.presentError(userFacingError: UserFacingError(title: R.string.localizable.detailViewCantBeOpened()))
-                        }
-                    } label: {
-                        Label {
-                            Text("^[\(answerCount) \(R.string.localizable.reply())](inflect: true)")
-                        } icon: {
-                            Image(systemName: "arrow.turn.down.right")
-                        }
-
-                    }
-                }
-            }
-            .background {
-                RoundedRectangle(cornerRadius: .m)
-                    .foregroundStyle(
-                        (isDetectingLongPress || isActionSheetPresented) ? Color.Artemis.messsageCellPressed : Color.clear)
+                retryButtonIfAvailable
+                replyButtonIfAvailable
             }
             .id(message.value?.id.description)
         }
         .padding(.horizontal, .l)
-        .contentShape(.rect)
-        .onTapGesture(perform: onTapPresentMessage)
-        .onLongPressGesture(perform: onLongPressPresentActionSheet) { changed in
-            isDetectingLongPress = changed
-        }
         .sheet(isPresented: $isActionSheetPresented) {
             MessageActionSheet(viewModel: viewModel, message: $message, conversationPath: conversationPath)
                 .presentationDetents([.height(350), .large])
@@ -132,12 +68,94 @@ struct MessageCell: View {
 }
 
 private extension MessageCell {
+    var author: String {
+        message.value?.author?.name ?? ""
+    }
+
+    var creationDate: Date? {
+        message.value?.creationDate
+    }
+
+    var content: String {
+        message.value?.content ?? ""
+    }
+
+    var backgroundOnPress: Color {
+        (isDetectingLongPress || isActionSheetPresented) ? Color.Artemis.messsageCellPressed : Color.clear
+    }
+
+    @ViewBuilder var headerIfVisible: some View {
+        if isHeaderVisible {
+            HStack(alignment: .firstTextBaseline, spacing: .m) {
+                Text(author)
+                    .bold()
+                if let creationDate {
+                    Group {
+                        Text(creationDate, formatter: DateFormatter.timeOnly)
+
+                        if message.value?.updatedDate != nil {
+                            Text(R.string.localizable.edited())
+                                .foregroundColor(.Artemis.secondaryLabel)
+                        }
+                    }
+                    .font(.caption)
+                    Chip(
+                        text: R.string.localizable.new(),
+                        backgroundColor: .Artemis.artemisBlue,
+                        padding: .s
+                    )
+                    .font(.footnote)
+                    .opacity(isChipVisible(creationDate: creationDate) ? 1 : 0)
+                }
+            }
+        }
+    }
+
     func isChipVisible(creationDate: Date) -> Bool {
         guard let lastReadDate = conversationPath?.conversation?.baseConversation.lastReadDate else {
             return false
         }
 
         return lastReadDate < creationDate && user()?.id != message.value?.author?.id
+    }
+
+    @ViewBuilder var retryButtonIfAvailable: some View {
+        if false {
+            Button {
+                //
+            } label: {
+                Label {
+                    Text("Failed to send")
+                } icon: {
+                    Image(systemName: "arrow.clockwise")
+                }
+            }
+            .foregroundStyle(.red)
+        }
+    }
+
+    @ViewBuilder var replyButtonIfAvailable: some View {
+        if let message = message.value as? Message,
+           let answerCount = message.answers?.count, answerCount > 0,
+           let conversationPath {
+            Button {
+                if let messagePath = MessagePath(
+                    message: self.$message,
+                    conversationPath: conversationPath,
+                    conversationViewModel: viewModel
+                ) {
+                    navigationController.path.append(messagePath)
+                } else {
+                    viewModel.presentError(userFacingError: UserFacingError(title: R.string.localizable.detailViewCantBeOpened()))
+                }
+            } label: {
+                Label {
+                    Text("^[\(answerCount) \(R.string.localizable.reply())](inflect: true)")
+                } icon: {
+                    Image(systemName: "arrow.turn.down.right")
+                }
+            }
+        }
     }
 
     // MARK: Gestures
@@ -158,8 +176,8 @@ private extension MessageCell {
             return
         }
 
-        let impactMed = UIImpactFeedbackGenerator(style: .heavy)
-        impactMed.impactOccurred()
+        let feedback = UIImpactFeedbackGenerator(style: .heavy)
+        feedback.impactOccurred()
         isActionSheetPresented = true
         isDetectingLongPress = false
     }
