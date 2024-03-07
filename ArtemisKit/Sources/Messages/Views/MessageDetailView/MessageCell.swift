@@ -51,8 +51,15 @@ struct MessageCell: View {
                         Text(author)
                             .bold()
                         if let creationDate {
-                            Text(creationDate, formatter: DateFormatter.timeOnly)
-                                .font(.caption)
+                            Group {
+                                Text(creationDate, formatter: DateFormatter.timeOnly)
+
+                                if message.value?.updatedDate != nil {
+                                    Text(R.string.localizable.edited())
+                                        .foregroundColor(.Artemis.secondaryLabel)
+                                }
+                            }
+                            .font(.caption)
                             Chip(
                                 text: R.string.localizable.new(),
                                 backgroundColor: .Artemis.artemisBlue,
@@ -65,12 +72,6 @@ struct MessageCell: View {
                 }
 
                 ArtemisMarkdownView(string: content)
-
-                if message.value?.updatedDate != nil {
-                    Text(R.string.localizable.edited())
-                        .foregroundColor(.Artemis.secondaryLabel)
-                        .font(.footnote)
-                }
 
                 ReactionsView(viewModel: viewModel, message: $message)
 
