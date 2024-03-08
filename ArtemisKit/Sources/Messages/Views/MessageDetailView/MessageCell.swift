@@ -89,8 +89,9 @@ private extension MessageCell {
     @ViewBuilder var headerIfVisible: some View {
         if isHeaderVisible {
             HStack(alignment: .firstTextBaseline, spacing: .m) {
-                Text(author)
+                Text(message.value?.author?.name ?? "Redacted")
                     .bold()
+                    .redacted(reason: message.value?.author?.name.map { _ in [] } ?? .placeholder)
                 if let creationDate {
                     Group {
                         Text(creationDate, formatter: DateFormatter.timeOnly)

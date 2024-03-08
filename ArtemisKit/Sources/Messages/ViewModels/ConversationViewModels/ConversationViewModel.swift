@@ -21,6 +21,8 @@ class ConversationViewModel: BaseViewModel {
 
     @Published var dailyMessages: DataState<[Date: [Message]]> = .loading
 
+    @Published var offlineMessages: [ConversationOfflineMessageModel] = []
+
     var isAllowedToPost: Bool {
         guard let channel = conversation.baseConversation as? Channel else {
             return true
@@ -145,10 +147,23 @@ extension ConversationViewModel {
             isLoading = false
         case .failure(let error):
             isLoading = false
-            if let apiClientError = error as? APIClientError {
-                delegate.presentError(UserFacingError(error: apiClientError))
-            } else {
-                delegate.presentError(UserFacingError(title: error.localizedDescription))
+            #warning("SendMessageView keeps loading")
+            do {
+                if let host = userSession.institution?.baseURL?.host() {
+                    let conversation = try MessagesRepository.shared.fetchConversation(
+                        host: host, courseId: course.id, conversationId: Int(conversation.id)
+                    ) ?? MessagesRepository.shared.insertConversation(
+                        host: host, courseId: course.id, conversationId: Int(conversation.id), messageDraft: ""
+                    )
+                    offlineMessages.append(ConversationOfflineMessageModel(conversation: conversation, date: Date.now, text: text))
+                }
+            } catch {
+                log.error(error)
+                if let apiClientError = error as? APIClientError {
+                    delegate.presentError(UserFacingError(error: apiClientError))
+                } else {
+                    delegate.presentError(UserFacingError(title: error.localizedDescription))
+                }
             }
         }
         return result

@@ -48,8 +48,18 @@ public struct ConversationView: View {
                                         messages: dailyMessage.value,
                                         conversationPath: conversationPath)
                                 }
-                                ForEach([SchemaV1.ConversationOfflineMessage]()) { offline in
-                                    Color.green
+                                if !viewModel.offlineMessages.isEmpty {
+                                    VStack(alignment: .leading) {
+                                        Text("Queue")
+                                            .font(.headline)
+                                            .padding(.top, .m)
+                                            .padding(.horizontal, .l)
+                                        Divider()
+                                            .padding(.horizontal, .l)
+                                    }
+                                    ForEach(viewModel.offlineMessages) { offline in
+                                        ConversationOfflineMessageCell(viewModel: viewModel, message: offline)
+                                    }
                                 }
                                 Spacer()
                                     .id("bottom")
