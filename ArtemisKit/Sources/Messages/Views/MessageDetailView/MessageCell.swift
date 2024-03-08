@@ -28,6 +28,8 @@ struct MessageCell: View {
     let conversationPath: ConversationPath?
     let isHeaderVisible: Bool
 
+    var retryButtonAction: (() -> Void)?
+
     var body: some View {
         HStack(alignment: .top, spacing: .m) {
             Image(systemName: "person")
@@ -120,10 +122,8 @@ private extension MessageCell {
     }
 
     @ViewBuilder var retryButtonIfAvailable: some View {
-        if false {
-            Button {
-                //
-            } label: {
+        if let retryButtonAction {
+            Button(action: retryButtonAction) {
                 Label {
                     Text("Failed to send")
                 } icon: {
