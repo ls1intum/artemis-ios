@@ -69,7 +69,7 @@ private extension MessageDetailView {
     func top(message: BaseMessage) -> some View {
         MessageCell(
             viewModel: viewModel,
-            message: Binding<DataState<BaseMessage>>.constant(DataState<BaseMessage>.done(response: message)),
+            message: Binding.constant(DataState<BaseMessage>.done(response: message)),
             conversationPath: nil,
             isHeaderVisible: true
         )
