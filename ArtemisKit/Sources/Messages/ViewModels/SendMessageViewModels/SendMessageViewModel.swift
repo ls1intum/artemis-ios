@@ -222,7 +222,8 @@ extension SendMessageViewModel {
             var result: NetworkResponse?
             switch configuration {
             case .message:
-                result = await sendMessage(text: text)
+                result = await delegate.sendMessage(text)
+                isLoading = false
             case let .answerMessage(message, completion):
                 result = await sendAnswerMessage(text: text, for: message, completion: completion)
             case let .editMessage(message, completion):
@@ -249,28 +250,6 @@ extension SendMessageViewModel {
                 return
             }
         }
-    }
-
-    @MainActor
-    private func sendMessage(text: String) async -> NetworkResponse {
-        isLoading = true
-        let result = await messagesService.sendMessage(for: course.id, conversation: conversation, content: text)
-        switch result {
-        case .notStarted, .loading:
-            isLoading = false
-        case .success:
-            delegate.scrollToId("bottom")
-            await delegate.loadMessages()
-            isLoading = false
-        case .failure(let error):
-            isLoading = false
-            if let apiClientError = error as? APIClientError {
-                delegate.presentError(UserFacingError(error: apiClientError))
-            } else {
-                delegate.presentError(UserFacingError(title: error.localizedDescription))
-            }
-        }
-        return result
     }
 
     @MainActor

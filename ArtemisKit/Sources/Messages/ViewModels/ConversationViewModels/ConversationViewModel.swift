@@ -129,6 +129,31 @@ extension ConversationViewModel {
         }
     }
 
+    // MARK: Send message
+
+    func sendMessage(text: String) async -> NetworkResponse {
+        let delegate = SendMessageViewModelDelegate(self)
+
+        isLoading = true
+        let result = await messagesService.sendMessage(for: course.id, conversation: conversation, content: text)
+        switch result {
+        case .notStarted, .loading:
+            isLoading = false
+        case .success:
+            delegate.scrollToId("bottom")
+            await delegate.loadMessages()
+            isLoading = false
+        case .failure(let error):
+            isLoading = false
+            if let apiClientError = error as? APIClientError {
+                delegate.presentError(UserFacingError(error: apiClientError))
+            } else {
+                delegate.presentError(UserFacingError(title: error.localizedDescription))
+            }
+        }
+        return result
+    }
+
     // MARK: React
 
     func addReactionToMessage(for message: Message, emojiId: String) async -> DataState<Message> {

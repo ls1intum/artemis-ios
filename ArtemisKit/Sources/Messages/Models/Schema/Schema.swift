@@ -11,3 +11,6 @@ typealias ServerModel = SchemaV1.Server
 typealias CourseModel = SchemaV1.Course
 typealias ConversationModel = SchemaV1.Conversation
 typealias MessageModel = SchemaV1.Message
+
+typealias ConversationOfflineMessageModel = SchemaV1.ConversationOfflineMessage
+typealias MessageOfflineAnswerModel = SchemaV1.MessageOfflineAnswer
