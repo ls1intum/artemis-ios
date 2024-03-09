@@ -107,7 +107,7 @@ extension MessagesRepository {
     ) throws -> ConversationOfflineMessageModel {
         log.verbose("begin")
         let conversation = try fetchConversation(host: host, courseId: courseId, conversationId: conversationId)
-        ?? insertConversation(host: host, courseId: courseId, conversationId: conversationId, messageDraft: "")
+            ?? insertConversation(host: host, courseId: courseId, conversationId: conversationId, messageDraft: "")
         let message = ConversationOfflineMessageModel(conversation: conversation, date: date, text: text)
         context.insert(message)
         return message
@@ -135,7 +135,7 @@ extension MessagesRepository {
     func insertMessage(host: String, courseId: Int, conversationId: Int, messageId: Int, answerMessageDraft: String) throws -> MessageModel {
         log.verbose("begin")
         let conversation = try fetchConversation(host: host, courseId: courseId, conversationId: conversationId)
-        ?? insertConversation(host: host, courseId: courseId, conversationId: conversationId, messageDraft: "")
+            ?? insertConversation(host: host, courseId: courseId, conversationId: conversationId, messageDraft: "")
         let message = MessageModel(conversation: conversation, messageId: messageId, answerMessageDraft: answerMessageDraft)
         context.insert(message)
         return message
