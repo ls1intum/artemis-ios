@@ -42,7 +42,7 @@ class ConversationViewModel: BaseViewModel {
 
     private var size = 50
 
-    private let messagesRepository: MessagesRepository
+    fileprivate let messagesRepository: MessagesRepository
     private let messagesService: MessagesService
     private let stompClient: ArtemisStompClient
     private let userSession: UserSession
@@ -391,7 +391,8 @@ extension OfflineMessageCellModelDelegate {
             viewModel.shouldScrollToId = "bottom"
             await viewModel.loadMessages()
             if let index = viewModel.offlineMessages.firstIndex(of: message) {
-                viewModel.offlineMessages.remove(at: index)
+                let message = viewModel.offlineMessages.remove(at: index)
+                viewModel.messagesRepository.deleteConversationOfflineMessage(message)
             }
         }
     }
