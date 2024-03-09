@@ -21,6 +21,8 @@ final class OfflineMessageCellModel {
     let conversation: Conversation
     let message: ConversationOfflineMessageModel
 
+    var inProgress: Task<Void, Error>?
+
     private let delegate: OfflineMessageCellModelDelegate
     private let messagesService: MessagesService
 
@@ -39,7 +41,7 @@ final class OfflineMessageCellModel {
         self.messagesService = messagesService
     }
 
-    func start() async {
+    func sendMessage() async {
 //        isLoading = true
         let result = await messagesService.sendMessage(for: course.id, conversation: conversation, content: message.text)
         switch result {
@@ -88,11 +90,17 @@ struct OfflineMessageCell: View {
             conversationPath: ConversationPath?.none,
             isHeaderVisible: true,
             retryButtonAction: {
-                //
+                if let task = viewModel.inProgress {
+                    log.info("In progress")
+                } else {
+                    viewModel.inProgress = Task {
+                        await viewModel.sendMessage()
+                    }
+                }
             }
         )
         .task {
-            await viewModel.start()
+            await viewModel.sendMessage()
         }
     }
 }
