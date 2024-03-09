@@ -99,6 +99,32 @@ extension MessagesRepository {
         return try context.fetch(FetchDescriptor(predicate: predicate)).first
     }
 
+    // MARK: Conversation Offline Message
+
+    @discardableResult
+    func insertConversationOfflineMessage(host: String, courseId: Int, conversationId: Int, date: Date, text: String) throws -> ConversationOfflineMessageModel {
+        log.verbose("begin")
+        let conversation = try fetchConversation(host: host, courseId: courseId, conversationId: conversationId)
+            ?? insertConversation(host: host, courseId: courseId, conversationId: conversationId, messageDraft: "")
+        let message = ConversationOfflineMessageModel(conversation: conversation, date: date, text: text)
+        context.insert(message)
+        return message
+    }
+
+    func fetchConversationOfflineMessages(host: String, courseId: Int, conversationId: Int) throws -> [ConversationOfflineMessageModel] {
+        log.verbose("begin")
+        let predicate = #Predicate<ConversationOfflineMessageModel> { message in
+            message.conversation.course.server.host == host
+            && message.conversation.course.courseId == courseId
+            && message.conversation.conversationId == conversationId
+        }
+        return try context.fetch(FetchDescriptor(predicate: predicate, sortBy: [SortDescriptor(\.date)]))
+    }
+
+    func deleteConversationOfflineMessage(_ model: ConversationOfflineMessageModel) {
+        context.delete(model)
+    }
+
     // MARK: - Message
 
     @discardableResult
