@@ -20,7 +20,6 @@ class ConversationViewModel: BaseViewModel {
     let conversation: Conversation
 
     @Published var dailyMessages: DataState<[Date: [Message]]> = .loading
-
     @Published var offlineMessages: [ConversationOfflineMessageModel] = []
 
     var isAllowedToPost: Bool {
@@ -43,6 +42,7 @@ class ConversationViewModel: BaseViewModel {
 
     private var size = 50
 
+    private let messagesRepository: MessagesRepository
     private let messagesService: MessagesService
     private let stompClient: ArtemisStompClient
     private let userSession: UserSession
@@ -50,6 +50,7 @@ class ConversationViewModel: BaseViewModel {
     init(
         course: Course,
         conversation: Conversation,
+        messagesRepository: MessagesRepository = .shared,
         messagesService: MessagesService = MessagesServiceFactory.shared,
         stompClient: ArtemisStompClient = .shared,
         userSession: UserSession = .shared
@@ -57,6 +58,7 @@ class ConversationViewModel: BaseViewModel {
         self.course = course
         self.conversation = conversation
 
+        self.messagesRepository = messagesRepository
         self.messagesService = messagesService
         self.stompClient = stompClient
         self.userSession = userSession
@@ -64,6 +66,7 @@ class ConversationViewModel: BaseViewModel {
         super.init()
 
         subscribeToConversationTopic()
+        fetchConversationOfflineMessages()
     }
 
     deinit {
@@ -134,39 +137,18 @@ extension ConversationViewModel {
     // MARK: Send message
 
     func sendMessage(text: String) async -> NetworkResponse {
-        let delegate = SendMessageViewModelDelegate(self)
-
-        isLoading = true
-        let result = await messagesService.sendMessage(for: course.id, conversation: conversation, content: text)
-        switch result {
-        case .notStarted, .loading:
-            isLoading = false
-        case .success:
-            delegate.scrollToId("bottom")
-            await delegate.loadMessages()
-            isLoading = false
-        case .failure(let error):
-            isLoading = false
-            #warning("SendMessageView keeps loading")
+        if let host = userSession.institution?.baseURL?.host() {
             do {
-                if let host = userSession.institution?.baseURL?.host() {
-                    let conversation = try MessagesRepository.shared.fetchConversation(
-                        host: host, courseId: course.id, conversationId: Int(conversation.id)
-                    ) ?? MessagesRepository.shared.insertConversation(
-                        host: host, courseId: course.id, conversationId: Int(conversation.id), messageDraft: ""
+                offlineMessages.append(
+                    try messagesRepository.insertConversationOfflineMessage(
+                        host: host, courseId: course.id, conversationId: Int(conversation.id), date: .now, text: text
                     )
-                    offlineMessages.append(ConversationOfflineMessageModel(conversation: conversation, date: Date.now, text: text))
-                }
+                )
             } catch {
                 log.error(error)
-                if let apiClientError = error as? APIClientError {
-                    delegate.presentError(UserFacingError(error: apiClientError))
-                } else {
-                    delegate.presentError(UserFacingError(title: error.localizedDescription))
-                }
             }
         }
-        return result
+        return .success
     }
 
     // MARK: React
@@ -312,6 +294,20 @@ private extension ConversationViewModel {
         }
     }
 
+    func fetchConversationOfflineMessages() {
+        if let host = userSession.institution?.baseURL?.host() {
+            do {
+                let messages = try messagesRepository.fetchConversationOfflineMessages(
+                    host: host,
+                    courseId: course.id,
+                    conversationId: Int(conversation.id))
+                self.offlineMessages = messages
+            } catch {
+                log.error(error)
+            }
+        }
+    }
+
     // MARK: Receive message
 
     func onMessageReceived(messageWebsocketDTO: MessageWebsocketDTO) {
@@ -384,5 +380,19 @@ private extension ConversationViewModel {
 
         shouldScrollToId = nil
         self.dailyMessages = .done(response: dailyMessages)
+    }
+}
+
+// MARK: - ConversationViewModel+OfflineMessageCellModelDelegate
+
+extension OfflineMessageCellModelDelegate {
+    init(_ viewModel: ConversationViewModel) {
+        self.init { message in
+            if let index = viewModel.offlineMessages.firstIndex(of: message) {
+                await viewModel.loadMessages()
+                viewModel.offlineMessages.remove(at: index)
+                viewModel.shouldScrollToId = "bottom"
+            }
+        }
     }
 }

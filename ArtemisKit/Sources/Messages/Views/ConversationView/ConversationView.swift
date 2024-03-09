@@ -58,7 +58,13 @@ public struct ConversationView: View {
                                             .padding(.horizontal, .l)
                                     }
                                     ForEach(viewModel.offlineMessages) { offline in
-                                        ConversationOfflineMessageCell(viewModel: viewModel, message: offline)
+                                        OfflineMessageCell(
+                                            viewModel: OfflineMessageCellModel(
+                                                course: viewModel.course,
+                                                conversation: viewModel.conversation,
+                                                message: offline,
+                                                delegate: OfflineMessageCellModelDelegate(viewModel)),
+                                            conversationViewModel: viewModel)
                                     }
                                 }
                                 Spacer()
