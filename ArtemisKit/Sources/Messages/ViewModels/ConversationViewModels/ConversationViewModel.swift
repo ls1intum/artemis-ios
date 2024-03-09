@@ -388,10 +388,10 @@ private extension ConversationViewModel {
 extension OfflineMessageCellModelDelegate {
     init(_ viewModel: ConversationViewModel) {
         self.init { message in
+            viewModel.shouldScrollToId = "bottom"
+            await viewModel.loadMessages()
             if let index = viewModel.offlineMessages.firstIndex(of: message) {
-                await viewModel.loadMessages()
                 viewModel.offlineMessages.remove(at: index)
-                viewModel.shouldScrollToId = "bottom"
             }
         }
     }
