@@ -48,25 +48,7 @@ public struct ConversationView: View {
                                         messages: dailyMessage.value,
                                         conversationPath: conversationPath)
                                 }
-                                if !viewModel.offlineMessages.isEmpty {
-                                    VStack(alignment: .leading) {
-                                        Text("Queue")
-                                            .font(.headline)
-                                            .padding(.top, .m)
-                                            .padding(.horizontal, .l)
-                                        Divider()
-                                            .padding(.horizontal, .l)
-                                    }
-                                    ForEach(viewModel.offlineMessages) { offline in
-                                        OfflineMessageCell(
-                                            viewModel: OfflineMessageCellModel(
-                                                course: viewModel.course,
-                                                conversation: viewModel.conversation,
-                                                message: offline,
-                                                delegate: OfflineMessageCellModelDelegate(viewModel)),
-                                            conversationViewModel: viewModel)
-                                    }
-                                }
+                                conversationOfflineSectionIfAvailable
                                 Spacer()
                                     .id("bottom")
                             }
@@ -134,9 +116,27 @@ extension ConversationView {
     }
 }
 
-extension Date: Identifiable {
-    public var id: Date {
-        return self
+private extension ConversationView {
+    @ViewBuilder var conversationOfflineSectionIfAvailable: some View {
+        if !viewModel.offlineMessages.isEmpty {
+            VStack(alignment: .leading) {
+                Text("Offline")
+                    .font(.headline)
+                    .padding(.top, .m)
+                    .padding(.horizontal, .l)
+                Divider()
+                    .padding(.horizontal, .l)
+            }
+            ForEach(viewModel.offlineMessages) { offline in
+                OfflineMessageCell(
+                    viewModel: OfflineMessageCellModel(
+                        course: viewModel.course,
+                        conversation: viewModel.conversation,
+                        message: offline,
+                        delegate: OfflineMessageCellModelDelegate(viewModel)),
+                    conversationViewModel: viewModel)
+            }
+        }
     }
 }
 

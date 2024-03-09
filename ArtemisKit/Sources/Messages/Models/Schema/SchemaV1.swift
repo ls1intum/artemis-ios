@@ -53,6 +53,8 @@ enum SchemaV1: VersionedSchema {
         }
     }
 
+    // MARK: Conversation
+
     @Model
     final class Conversation {
         var course: Course
@@ -80,6 +82,22 @@ enum SchemaV1: VersionedSchema {
     }
 
     @Model
+    final class ConversationOfflineMessage {
+        var conversation: Conversation
+
+        var date: Date
+        var text: String
+
+        init(conversation: Conversation, date: Date, text: String) {
+            self.conversation = conversation
+            self.date = date
+            self.text = text
+        }
+    }
+
+    // MARK: Message
+
+    @Model
     final class Message {
         var conversation: Conversation
 
@@ -102,22 +120,6 @@ enum SchemaV1: VersionedSchema {
             self.messageId = messageId
             self.offlineAnswers = offlineAnswers
             self.answerMessageDraft = answerMessageDraft
-        }
-    }
-}
-
-extension SchemaV1 {
-    @Model
-    final class ConversationOfflineMessage {
-        var conversation: Conversation
-
-        var date: Date
-        var text: String
-
-        init(conversation: Conversation, date: Date, text: String) {
-            self.conversation = conversation
-            self.date = date
-            self.text = text
         }
     }
 

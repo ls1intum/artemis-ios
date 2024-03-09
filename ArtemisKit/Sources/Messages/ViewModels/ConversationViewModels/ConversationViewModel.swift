@@ -134,23 +134,6 @@ extension ConversationViewModel {
         }
     }
 
-    // MARK: Send message
-
-    func sendMessage(text: String) async -> NetworkResponse {
-        if let host = userSession.institution?.baseURL?.host() {
-            do {
-                offlineMessages.append(
-                    try messagesRepository.insertConversationOfflineMessage(
-                        host: host, courseId: course.id, conversationId: Int(conversation.id), date: .now, text: text
-                    )
-                )
-            } catch {
-                log.error(error)
-            }
-        }
-        return .success
-    }
-
     // MARK: React
 
     func addReactionToMessage(for message: Message, emojiId: String) async -> DataState<Message> {
@@ -258,6 +241,29 @@ extension ConversationViewModel {
     }
 }
 
+// MARK: - Fileprivate
+
+fileprivate extension ConversationViewModel {
+
+    // MARK: Send message
+
+    func sendMessage(text: String) async -> NetworkResponse {
+        if let host = userSession.institution?.baseURL?.host() {
+            do {
+                let offlineMessage = try messagesRepository.insertConversationOfflineMessage(
+                    host: host, courseId: course.id, conversationId: Int(conversation.id), date: .now, text: text
+                )
+                offlineMessages.append(offlineMessage)
+            } catch {
+                log.error(error)
+            }
+        } else {
+            log.verbose("Host is nil")
+        }
+        return .success
+    }
+}
+
 // MARK: - Private
 
 private extension ConversationViewModel {
@@ -297,14 +303,14 @@ private extension ConversationViewModel {
     func fetchConversationOfflineMessages() {
         if let host = userSession.institution?.baseURL?.host() {
             do {
-                let messages = try messagesRepository.fetchConversationOfflineMessages(
-                    host: host,
-                    courseId: course.id,
-                    conversationId: Int(conversation.id))
-                self.offlineMessages = messages
+                self.offlineMessages = try messagesRepository.fetchConversationOfflineMessages(
+                    host: host, courseId: course.id, conversationId: Int(conversation.id)
+                )
             } catch {
                 log.error(error)
             }
+        } else {
+            log.verbose("Host is nil")
         }
     }
 
@@ -383,16 +389,27 @@ private extension ConversationViewModel {
     }
 }
 
+// swiftlint:disable file_length
+// MARK: - ConversationViewModel+SendMessageViewModelDelegate
+
+extension SendMessageViewModelDelegate {
+    init(_ conversationViewModel: ConversationViewModel) {
+        self.loadMessages = conversationViewModel.loadMessages
+        self.presentError = conversationViewModel.presentError(userFacingError:)
+        self.sendMessage = conversationViewModel.sendMessage
+    }
+}
+
 // MARK: - ConversationViewModel+OfflineMessageCellModelDelegate
 
 extension OfflineMessageCellModelDelegate {
-    init(_ viewModel: ConversationViewModel) {
-        self.init { message in
-            viewModel.shouldScrollToId = "bottom"
-            await viewModel.loadMessages()
-            if let index = viewModel.offlineMessages.firstIndex(of: message) {
-                let message = viewModel.offlineMessages.remove(at: index)
-                viewModel.messagesRepository.deleteConversationOfflineMessage(message)
+    init(_ conversationViewModel: ConversationViewModel) {
+        self.didSendConversationOfflineMessage = { message in
+            conversationViewModel.shouldScrollToId = "bottom"
+            await conversationViewModel.loadMessages()
+            if let index = conversationViewModel.offlineMessages.firstIndex(of: message) {
+                let message = conversationViewModel.offlineMessages.remove(at: index)
+                conversationViewModel.messagesRepository.delete(conversationOfflineMessage: message)
             }
         }
     }

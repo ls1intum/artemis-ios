@@ -102,16 +102,20 @@ extension MessagesRepository {
     // MARK: Conversation Offline Message
 
     @discardableResult
-    func insertConversationOfflineMessage(host: String, courseId: Int, conversationId: Int, date: Date, text: String) throws -> ConversationOfflineMessageModel {
+    func insertConversationOfflineMessage(
+        host: String, courseId: Int, conversationId: Int, date: Date, text: String
+    ) throws -> ConversationOfflineMessageModel {
         log.verbose("begin")
         let conversation = try fetchConversation(host: host, courseId: courseId, conversationId: conversationId)
-            ?? insertConversation(host: host, courseId: courseId, conversationId: conversationId, messageDraft: "")
+        ?? insertConversation(host: host, courseId: courseId, conversationId: conversationId, messageDraft: "")
         let message = ConversationOfflineMessageModel(conversation: conversation, date: date, text: text)
         context.insert(message)
         return message
     }
 
-    func fetchConversationOfflineMessages(host: String, courseId: Int, conversationId: Int) throws -> [ConversationOfflineMessageModel] {
+    func fetchConversationOfflineMessages(
+        host: String, courseId: Int, conversationId: Int
+    ) throws -> [ConversationOfflineMessageModel] {
         log.verbose("begin")
         let predicate = #Predicate<ConversationOfflineMessageModel> { message in
             message.conversation.course.server.host == host
@@ -121,8 +125,8 @@ extension MessagesRepository {
         return try context.fetch(FetchDescriptor(predicate: predicate, sortBy: [SortDescriptor(\.date)]))
     }
 
-    func deleteConversationOfflineMessage(_ model: ConversationOfflineMessageModel) {
-        context.delete(model)
+    func delete(conversationOfflineMessage: ConversationOfflineMessageModel) {
+        context.delete(conversationOfflineMessage)
     }
 
     // MARK: - Message
@@ -131,7 +135,7 @@ extension MessagesRepository {
     func insertMessage(host: String, courseId: Int, conversationId: Int, messageId: Int, answerMessageDraft: String) throws -> MessageModel {
         log.verbose("begin")
         let conversation = try fetchConversation(host: host, courseId: courseId, conversationId: conversationId)
-            ?? insertConversation(host: host, courseId: courseId, conversationId: conversationId, messageDraft: "")
+        ?? insertConversation(host: host, courseId: courseId, conversationId: conversationId, messageDraft: "")
         let message = MessageModel(conversation: conversation, messageId: messageId, answerMessageDraft: answerMessageDraft)
         context.insert(message)
         return message
@@ -146,5 +150,37 @@ extension MessagesRepository {
             && message.messageId == messageId
         }
         return try context.fetch(FetchDescriptor(predicate: predicate)).first
+    }
+
+    // MARK: Message Offline Answer
+
+    @discardableResult
+    // swiftlint:disable:next function_parameter_count
+    func insertMessageOfflineAnswer(
+        host: String, courseId: Int, conversationId: Int, messageId: Int, date: Date, text: String
+    ) throws -> MessageOfflineAnswerModel {
+        log.verbose("begin")
+        let message = try fetchMessage(host: host, courseId: courseId, conversationId: conversationId, messageId: messageId)
+            ?? insertMessage(host: host, courseId: courseId, conversationId: conversationId, messageId: messageId, answerMessageDraft: "")
+        let answer = MessageOfflineAnswerModel(message: message, date: date, text: text)
+        context.insert(answer)
+        return answer
+    }
+
+    func fetchMessageOfflineAnswers(
+        host: String, courseId: Int, conversationId: Int, messageId: Int
+    ) throws -> [MessageOfflineAnswerModel] {
+        log.verbose("begin")
+        let predicate = #Predicate<MessageOfflineAnswerModel> { answer in
+            answer.message.conversation.course.server.host == host
+            && answer.message.conversation.course.courseId == courseId
+            && answer.message.conversation.conversationId == conversationId
+            && answer.message.messageId == messageId
+        }
+        return try context.fetch(FetchDescriptor(predicate: predicate, sortBy: [SortDescriptor(\.date)]))
+    }
+
+    func delete(messageOfflineAnswer: MessageOfflineAnswerModel) {
+        context.delete(messageOfflineAnswer)
     }
 }

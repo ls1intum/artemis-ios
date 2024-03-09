@@ -1,16 +1,16 @@
 //
-//  ConversationOfflineMessage.swift
+//  MessageOfflineAnswer.swift
 //
 //
-//  Created by Nityananda Zbil on 08.03.24.
+//  Created by Nityananda Zbil on 09.03.24.
 //
 
 import Foundation
 import SharedModels
 
-struct ConversationOfflineMessage: BaseMessage {
+struct MessageOfflineAnswer: BaseMessage {
     var id: Int64
-    var author: ConversationUser?
+    var author: SharedModels.ConversationUser?
     var creationDate: Date?
     var updatedDate: Date?
     var content: String?
@@ -19,8 +19,8 @@ struct ConversationOfflineMessage: BaseMessage {
     var reactions: [SharedModels.Reaction]?
 }
 
-extension ConversationOfflineMessage {
-    init(_ message: ConversationOfflineMessageModel) {
+extension MessageOfflineAnswer {
+    init(_ message: MessageOfflineAnswerModel) {
         self.init(
             id: 0,
             author: ConversationUser?.none,
