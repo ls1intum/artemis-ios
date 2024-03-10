@@ -83,6 +83,7 @@ struct SendMessageView: View {
     }
 }
 
+@MainActor
 private extension SendMessageView {
     @ViewBuilder var mentions: some View {
         switch viewModel.conditionalPresentation {
@@ -115,31 +116,49 @@ private extension SendMessageView {
         HStack {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
-                    Button(action: viewModel.didTapBoldButton) {
+                    Button {
+                        viewModel.didTapBoldButton()
+                    } label: {
                         Image(systemName: "bold")
                     }
-                    Button(action: viewModel.didTapItalicButton) {
+                    Button {
+                        viewModel.didTapItalicButton()
+                    } label: {
                         Image(systemName: "italic")
                     }
-                    Button(action: viewModel.didTapUnderlineButton) {
+                    Button {
+                        viewModel.didTapUnderlineButton()
+                    } label: {
                         Image(systemName: "underline")
                     }
-                    Button(action: viewModel.didTapBlockquoteButton) {
+                    Button {
+                        viewModel.didTapBlockquoteButton()
+                    } label: {
                         Image(systemName: "quote.opening")
                     }
-                    Button(action: viewModel.didTapCodeButton) {
+                    Button {
+                        viewModel.didTapCodeButton()
+                    } label: {
                         Image(systemName: "curlybraces")
                     }
-                    Button(action: viewModel.didTapCodeBlockButton) {
+                    Button {
+                        viewModel.didTapCodeBlockButton()
+                    } label: {
                         Image(systemName: "curlybraces.square.fill")
                     }
-                    Button(action: viewModel.didTapLinkButton) {
+                    Button {
+                        viewModel.didTapLinkButton()
+                    } label: {
                         Image(systemName: "link")
                     }
-                    Button(action: viewModel.didTapAtButton) {
+                    Button {
+                        viewModel.didTapAtButton()
+                    } label: {
                         Image(systemName: "at")
                     }
-                    Button(action: viewModel.didTapNumberButton) {
+                    Button {
+                        viewModel.didTapNumberButton()
+                    } label: {
                         Image(systemName: "number")
                     }
                     Button {
