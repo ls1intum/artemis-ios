@@ -11,7 +11,6 @@ import SharedModels
 import SwiftUI
 
 struct ConversationDaySection: View {
-
     @ObservedObject var viewModel: ConversationViewModel
 
     let day: Date

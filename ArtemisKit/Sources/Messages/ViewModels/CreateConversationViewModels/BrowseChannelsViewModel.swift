@@ -9,7 +9,6 @@ import Foundation
 import Common
 import SharedModels
 
-@MainActor
 class BrowseChannelsViewModel: BaseViewModel {
 
     @Published var allChannels: DataState<[Channel]> = .loading

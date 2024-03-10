@@ -13,7 +13,6 @@ import SharedModels
 import SharedServices
 import UserStore
 
-@MainActor
 class ConversationViewModel: BaseViewModel {
 
     let course: Course
