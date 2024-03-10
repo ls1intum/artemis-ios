@@ -28,7 +28,7 @@ final class OfflineMessageCellModel {
             return nil
         } else {
             return {
-                if let task = self.task {
+                if self.task != nil {
                     log.verbose("In progress")
                 } else {
                     self.task = Task {
