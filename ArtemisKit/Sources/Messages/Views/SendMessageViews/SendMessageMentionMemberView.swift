@@ -34,7 +34,9 @@ struct SendMessageMentionMemberView: View {
                     ContentUnavailableView(R.string.localizable.membersUnavailable(), systemImage: "magnifyingglass")
                 }
             }
-            .onChange(of: sendMessageViewModel.text, initial: true, search)
+            .onChange(of: sendMessageViewModel.text, initial: true) {
+                search()
+            }
             Spacer()
         }
         .listStyle(.plain)
@@ -48,6 +50,7 @@ struct SendMessageMentionMemberView: View {
 }
 
 private extension SendMessageMentionMemberView {
+    @MainActor
     func search() {
         if let candidate = sendMessageViewModel.searchMember().map(String.init) {
             Task {

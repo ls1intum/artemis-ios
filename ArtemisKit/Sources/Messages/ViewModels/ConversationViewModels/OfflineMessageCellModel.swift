@@ -14,6 +14,7 @@ struct OfflineMessageCellModelDelegate {
     let didSendConversationOfflineMessage: (ConversationOfflineMessageModel) async -> Void
 }
 
+@MainActor
 @Observable
 final class OfflineMessageCellModel {
     let course: Course

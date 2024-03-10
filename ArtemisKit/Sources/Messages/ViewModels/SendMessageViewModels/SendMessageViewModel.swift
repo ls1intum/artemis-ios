@@ -34,6 +34,7 @@ extension SendMessageViewModel {
     }
 }
 
+@MainActor
 @Observable
 final class SendMessageViewModel {
     let course: Course
@@ -104,7 +105,6 @@ final class SendMessageViewModel {
 // MARK: - Actions
 
 extension SendMessageViewModel {
-    @MainActor
     func performOnAppear() {
         do {
             switch configuration {
@@ -135,7 +135,6 @@ extension SendMessageViewModel {
         }
     }
 
-    @MainActor
     func performOnDisappear() {
         do {
             if let host = userSession.institution?.baseURL?.host() {
@@ -252,7 +251,6 @@ extension SendMessageViewModel {
         }
     }
 
-    @MainActor
     private func sendAnswerMessage(text: String, for message: Message, completion: () async -> Void) async -> NetworkResponse {
         isLoading = true
         let result = await messagesService.sendAnswerMessage(for: course.id, message: message, content: text)
@@ -273,7 +271,6 @@ extension SendMessageViewModel {
         return result
     }
 
-    @MainActor
     private func editMessage(message: Message) async -> Bool {
         let result = await messagesService.editMessage(for: course.id, message: message)
 
@@ -289,7 +286,6 @@ extension SendMessageViewModel {
         }
     }
 
-    @MainActor
     private func editAnswerMessage(answerMessage: AnswerMessage) async -> Bool {
         let result = await messagesService.editAnswerMessage(for: course.id, answerMessage: answerMessage)
 
