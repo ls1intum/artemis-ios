@@ -48,7 +48,7 @@ public struct ConversationView: View {
                                         messages: dailyMessage.value,
                                         conversationPath: conversationPath)
                                 }
-                                conversationOfflineSectionIfAvailable
+                                ConversationOfflineSection(viewModel: viewModel)
                                 Spacer()
                                     .id("bottom")
                             }
@@ -113,30 +113,6 @@ public struct ConversationView: View {
 extension ConversationView {
     init(course: Course, conversation: Conversation) {
         self.init(viewModel: ConversationViewModel(course: course, conversation: conversation))
-    }
-}
-
-private extension ConversationView {
-    @ViewBuilder var conversationOfflineSectionIfAvailable: some View {
-        if !viewModel.offlineMessages.isEmpty {
-            VStack(alignment: .leading) {
-                Text("Offline")
-                    .font(.headline)
-                    .padding(.top, .m)
-                    .padding(.horizontal, .l)
-                Divider()
-                    .padding(.horizontal, .l)
-            }
-            ForEach(viewModel.offlineMessages) { offline in
-                OfflineMessageCell(
-                    viewModel: OfflineMessageCellModel(
-                        course: viewModel.course,
-                        conversation: viewModel.conversation,
-                        message: offline,
-                        delegate: OfflineMessageCellModelDelegate(viewModel)),
-                    conversationViewModel: viewModel)
-            }
-        }
     }
 }
 
