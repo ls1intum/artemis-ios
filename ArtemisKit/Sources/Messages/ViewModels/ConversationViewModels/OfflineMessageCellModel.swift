@@ -20,13 +20,11 @@ final class OfflineMessageCellModel {
     let conversation: Conversation
     let message: ConversationOfflineMessageModel
 
-    var task: Task<Void, Error>?
-    var taskDidFail = false
+    private(set) var task: Task<Void, Error>?
+    private(set) var taskDidFail = false
 
     var retryButtonAction: (() -> Void)? {
         if taskDidFail {
-            return nil
-        } else {
             return {
                 if self.task != nil {
                     log.verbose("In progress")
@@ -36,6 +34,8 @@ final class OfflineMessageCellModel {
                     }
                 }
             }
+        } else {
+            return nil
         }
     }
 
@@ -52,7 +52,6 @@ final class OfflineMessageCellModel {
         self.course = course
         self.conversation = conversation
         self.message = message
-
         self.delegate = delegate
         self.messagesService = messagesService
     }
