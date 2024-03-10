@@ -49,8 +49,8 @@ struct SendMessageMentionMemberView: View {
     }
 }
 
+@MainActor
 private extension SendMessageMentionMemberView {
-    @MainActor
     func search() {
         if let candidate = sendMessageViewModel.searchMember().map(String.init) {
             Task {

@@ -9,6 +9,7 @@ import Foundation
 import Common
 import SharedModels
 
+@MainActor
 class CreateChatViewModel: BaseViewModel {
 
     @Published var searchText = "" {

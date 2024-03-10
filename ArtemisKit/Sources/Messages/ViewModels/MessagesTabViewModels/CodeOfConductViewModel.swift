@@ -9,6 +9,7 @@ import Common
 import SharedModels
 import SwiftUI
 
+@MainActor
 class CodeOfConductViewModel: BaseViewModel {
 
     let course: Course

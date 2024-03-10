@@ -10,6 +10,7 @@ import Common
 import Combine
 import SharedModels
 
+@MainActor
 class MessagesTabViewModel: BaseViewModel {
 
     let course: Course

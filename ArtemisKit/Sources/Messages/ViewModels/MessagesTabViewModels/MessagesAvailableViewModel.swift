@@ -11,6 +11,7 @@ import SharedModels
 import APIClient
 import UserStore
 
+@MainActor
 class MessagesAvailableViewModel: BaseViewModel {
 
     @Published var allConversations: DataState<[Conversation]> = .loading {
