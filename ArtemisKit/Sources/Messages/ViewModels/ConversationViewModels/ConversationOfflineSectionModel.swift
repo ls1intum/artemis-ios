@@ -1,5 +1,5 @@
 //
-//  OfflineMessageCellModel.swift
+//  ConversationOfflineSectionModel.swift
 //
 //
 //  Created by Nityananda Zbil on 09.03.24.
@@ -10,13 +10,13 @@ import Foundation
 import SharedModels
 
 @MainActor
-struct OfflineMessageCellModelDelegate {
+struct ConversationOfflineSectionModelDelegate {
     let didSendConversationOfflineMessage: (ConversationOfflineMessageModel) async -> Void
 }
 
 @MainActor
 @Observable
-final class OfflineMessageCellModel {
+final class ConversationOfflineSectionModel {
     let course: Course
     let conversation: Conversation
     let message: ConversationOfflineMessageModel
@@ -40,14 +40,14 @@ final class OfflineMessageCellModel {
         }
     }
 
-    private let delegate: OfflineMessageCellModelDelegate
+    private let delegate: ConversationOfflineSectionModelDelegate
     private let messagesService: MessagesService
 
     init(
         course: Course,
         conversation: Conversation,
         message: ConversationOfflineMessageModel,
-        delegate: OfflineMessageCellModelDelegate,
+        delegate: ConversationOfflineSectionModelDelegate,
         messagesService: MessagesService = MessagesServiceFactory.shared
     ) {
         self.course = course

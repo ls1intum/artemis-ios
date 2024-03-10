@@ -48,7 +48,17 @@ public struct ConversationView: View {
                                         messages: dailyMessage.value,
                                         conversationPath: conversationPath)
                                 }
-                                ConversationOfflineSection(viewModel: viewModel)
+                                if let first = viewModel.offlineMessages.first {
+                                    ConversationOfflineSection(
+                                        viewModel: ConversationOfflineSectionModel(
+                                            course: viewModel.course,
+                                            conversation: viewModel.conversation,
+                                            message: first,
+                                            delegate: ConversationOfflineSectionModelDelegate(viewModel)),
+                                        conversationViewModel: viewModel
+                                    )
+                                    .id(first)
+                                }
                                 Spacer()
                                     .id("bottom")
                             }

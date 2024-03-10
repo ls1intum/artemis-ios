@@ -5,13 +5,16 @@
 //  Created by Nityananda Zbil on 10.03.24.
 //
 
+import Common
+import SharedModels
 import SwiftUI
 
 struct ConversationOfflineSection: View {
-    @ObservedObject var viewModel: ConversationViewModel
+    @State var viewModel: ConversationOfflineSectionModel
+    @ObservedObject var conversationViewModel: ConversationViewModel
 
     var body: some View {
-        if !viewModel.offlineMessages.isEmpty {
+        if let first = conversationViewModel.offlineMessages.first {
             VStack(alignment: .leading) {
                 Text("Offline")
                     .font(.headline)
@@ -20,14 +23,30 @@ struct ConversationOfflineSection: View {
                 Divider()
                     .padding(.horizontal, .l)
             }
-            ForEach(viewModel.offlineMessages) { offline in
-                OfflineMessageCell(
-                    viewModel: OfflineMessageCellModel(
-                        course: viewModel.course,
-                        conversation: viewModel.conversation,
-                        message: offline,
-                        delegate: OfflineMessageCellModelDelegate(viewModel)),
-                    conversationViewModel: viewModel)
+            MessageCell(
+                viewModel: conversationViewModel,
+                message: Binding.constant(DataState<BaseMessage>.done(response: OfflineMessageOrAnswer(first))),
+                conversationPath: nil,
+                isHeaderVisible: true,
+                retryButtonAction: viewModel.retryButtonAction
+            )
+            .task {
+                await withTaskCancellationHandler {
+                    await viewModel.sendMessage()
+                } onCancel: {
+                    log.verbose("cancel")
+                }
+            }
+            .onDisappear {
+                viewModel.task?.cancel()
+            }
+            ForEach(conversationViewModel.offlineMessages.dropFirst()) { offline in
+                MessageCell(
+                    viewModel: conversationViewModel,
+                    message: Binding.constant(DataState<BaseMessage>.done(response: OfflineMessageOrAnswer(offline))),
+                    conversationPath: nil,
+                    isHeaderVisible: false
+                )
             }
         }
     }

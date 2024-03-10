@@ -400,9 +400,9 @@ extension SendMessageViewModelDelegate {
     }
 }
 
-// MARK: - ConversationViewModel+OfflineMessageCellModelDelegate
+// MARK: - ConversationViewModel+ConversationOfflineSectionModelDelegate
 
-extension OfflineMessageCellModelDelegate {
+extension ConversationOfflineSectionModelDelegate {
     init(_ conversationViewModel: ConversationViewModel) {
         self.didSendConversationOfflineMessage = { message in
             conversationViewModel.shouldScrollToId = "bottom"
