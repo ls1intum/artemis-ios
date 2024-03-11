@@ -55,8 +55,7 @@ struct ExerciseListView: View {
                     }
                 } else {
                     if searchResults.isEmpty {
-                        Text("There is no result for your search.")
-                            .padding(.l)
+                        ContentUnavailableView.search(text: searchText)
                             .listRowSeparator(.hidden)
                     } else {
                         ForEach(searchResults) { exercise in
