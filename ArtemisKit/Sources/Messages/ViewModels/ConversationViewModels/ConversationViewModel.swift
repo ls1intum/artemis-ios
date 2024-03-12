@@ -404,7 +404,7 @@ extension SendMessageViewModelDelegate {
 
 extension ConversationOfflineSectionModelDelegate {
     init(_ conversationViewModel: ConversationViewModel) {
-        self.didSendConversationOfflineMessage = { message in
+        self.didSendOfflineMessage = { message in
             conversationViewModel.shouldScrollToId = "bottom"
             await conversationViewModel.loadMessages()
             if let index = conversationViewModel.offlineMessages.firstIndex(of: message) {

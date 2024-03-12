@@ -14,44 +14,58 @@ struct ConversationOfflineSection: View {
     @ObservedObject var conversationViewModel: ConversationViewModel
 
     var body: some View {
-        if let first = conversationViewModel.offlineMessages.first {
-            VStack(alignment: .leading) {
-                Text("Offline")
-                    .font(.headline)
-                    .padding(.top, .m)
-                    .padding(.horizontal, .l)
-                Divider()
-                    .padding(.horizontal, .l)
-            }
+        let message = OfflineMessageOrAnswer(viewModel.message)
+        MessageCell(
+            viewModel: conversationViewModel,
+            message: Binding.constant(DataState<BaseMessage>.done(response: message)),
+            conversationPath: nil,
+            isHeaderVisible: !(viewModel.messageAhead.map { message.isContinuation(of: $0) } ?? false),
+            retryButtonAction: viewModel.retryButtonAction
+        )
+        .task {
+            try? await Task.sleep(for: .seconds(4))
+            await viewModel.sendMessage()
+        }
+        .onDisappear {
+            viewModel.task?.cancel()
+        }
+        ForEach(conversationViewModel.offlineMessages.dropFirst()) { offline in
             MessageCell(
                 viewModel: conversationViewModel,
-                message: Binding.constant(DataState<BaseMessage>.done(response: OfflineMessageOrAnswer(first))),
+                message: Binding.constant(DataState<BaseMessage>.done(response: OfflineMessageOrAnswer(offline))),
                 conversationPath: nil,
-                isHeaderVisible: true,
-                retryButtonAction: viewModel.retryButtonAction
+                isHeaderVisible: false
             )
-            .task {
-                await withTaskCancellationHandler {
-                    log.verbose("1️⃣")
-                    try? await Task.sleep(for: .seconds(10))
-                    log.verbose("2️⃣")
-                    await viewModel.sendMessage()
-                    log.verbose("3️⃣")
-                } onCancel: {
-                    log.verbose("❌")
-                }
+        }
+    }
+}
+
+extension ConversationOfflineSection {
+    init?(_ conversationViewModel: ConversationViewModel) {
+        if let message = conversationViewModel.offlineMessages.first {
+            let messageQueue = conversationViewModel.offlineMessages.dropFirst()
+
+            let messageAhead: Message?
+            if let dailyMessages = conversationViewModel.dailyMessages.value,
+               let max = dailyMessages.keys.max(),
+               let dailyMessage = dailyMessages[max],
+               let last = dailyMessage.last {
+                messageAhead = last
+            } else {
+                messageAhead = nil
             }
-            .onDisappear {
-                viewModel.task?.cancel()
-            }
-            ForEach(conversationViewModel.offlineMessages.dropFirst()) { offline in
-                MessageCell(
-                    viewModel: conversationViewModel,
-                    message: Binding.constant(DataState<BaseMessage>.done(response: OfflineMessageOrAnswer(offline))),
-                    conversationPath: nil,
-                    isHeaderVisible: false
-                )
-            }
+
+            self.init(
+                viewModel: ConversationOfflineSectionModel(
+                    course: conversationViewModel.course,
+                    conversation: conversationViewModel.conversation,
+                    messageAhead: messageAhead,
+                    message: message,
+                    messageQueue: messageQueue,
+                    delegate: ConversationOfflineSectionModelDelegate(conversationViewModel)),
+                conversationViewModel: conversationViewModel)
+        } else {
+            return nil
         }
     }
 }

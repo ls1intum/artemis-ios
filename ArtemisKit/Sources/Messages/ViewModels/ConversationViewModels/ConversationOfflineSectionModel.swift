@@ -11,7 +11,7 @@ import SharedModels
 
 @MainActor
 struct ConversationOfflineSectionModelDelegate {
-    let didSendConversationOfflineMessage: (ConversationOfflineMessageModel) async -> Void
+    let didSendOfflineMessage: (ConversationOfflineMessageModel) async -> Void
 }
 
 @MainActor
@@ -19,7 +19,9 @@ struct ConversationOfflineSectionModelDelegate {
 final class ConversationOfflineSectionModel {
     let course: Course
     let conversation: Conversation
+    let messageAhead: Message?
     let message: ConversationOfflineMessageModel
+    let messageQueue: ArraySlice<ConversationOfflineMessageModel>
 
     private(set) var task: Task<Void, Error>?
     private(set) var taskDidFail = false
@@ -46,13 +48,17 @@ final class ConversationOfflineSectionModel {
     init(
         course: Course,
         conversation: Conversation,
+        messageAhead: Message?,
         message: ConversationOfflineMessageModel,
+        messageQueue: ArraySlice<ConversationOfflineMessageModel>,
         delegate: ConversationOfflineSectionModelDelegate,
         messagesService: MessagesService = MessagesServiceFactory.shared
     ) {
         self.course = course
         self.conversation = conversation
+        self.messageAhead = messageAhead
         self.message = message
+        self.messageQueue = messageQueue
         self.delegate = delegate
         self.messagesService = messagesService
     }
@@ -63,7 +69,7 @@ final class ConversationOfflineSectionModel {
         case .notStarted, .loading:
             break
         case .success:
-            await delegate.didSendConversationOfflineMessage(message)
+            await delegate.didSendOfflineMessage(message)
         case .failure:
             taskDidFail = true
         }
