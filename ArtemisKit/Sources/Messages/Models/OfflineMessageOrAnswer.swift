@@ -10,13 +10,13 @@ import SharedModels
 
 struct OfflineMessageOrAnswer: BaseMessage {
     var id: Int64 = 0
-    var author: ConversationUser? = nil
+    var author: ConversationUser?
     var creationDate: Date?
-    var updatedDate: Date? = nil
+    var updatedDate: Date?
     var content: String?
-    var tokenizedContent: String? = nil
-    var authorRoleTransient: UserRole? = nil
-    var reactions: [Reaction]? = nil
+    var tokenizedContent: String?
+    var authorRoleTransient: UserRole?
+    var reactions: [Reaction]?
 }
 
 extension OfflineMessageOrAnswer {
