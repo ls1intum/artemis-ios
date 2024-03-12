@@ -22,7 +22,6 @@ struct ConversationOfflineSection: View {
             retryButtonAction: viewModel.retryButtonAction
         )
         .task {
-            try? await Task.sleep(for: .seconds(4))
             await viewModel.sendMessage()
         }
         .onDisappear {

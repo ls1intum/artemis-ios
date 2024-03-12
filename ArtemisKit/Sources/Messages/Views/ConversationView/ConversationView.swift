@@ -29,7 +29,7 @@ public struct ConversationView: View {
             DataStateView(data: $viewModel.dailyMessages) {
                 await viewModel.loadMessages()
             } content: { dailyMessages in
-                if dailyMessages.isEmpty {
+                if dailyMessages.isEmpty && viewModel.offlineMessages.isEmpty {
                     ContentUnavailableView(
                         R.string.localizable.noMessages(),
                         systemImage: "bubble.right",
