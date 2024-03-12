@@ -14,12 +14,11 @@ struct ConversationOfflineSection: View {
     @ObservedObject var conversationViewModel: ConversationViewModel
 
     var body: some View {
-        let message = OfflineMessageOrAnswer(viewModel.message)
         MessageCell(
             viewModel: conversationViewModel,
-            message: Binding.constant(DataState<BaseMessage>.done(response: message)),
+            message: Binding.constant(DataState<BaseMessage>.done(response: OfflineMessageOrAnswer(viewModel.message))),
             conversationPath: nil,
-            isHeaderVisible: !(viewModel.messageAhead.map { message.isContinuation(of: $0) } ?? false),
+            isHeaderVisible: viewModel.taskDidFail,
             retryButtonAction: viewModel.retryButtonAction
         )
         .task {
@@ -45,21 +44,10 @@ extension ConversationOfflineSection {
         if let message = conversationViewModel.offlineMessages.first {
             let messageQueue = conversationViewModel.offlineMessages.dropFirst()
 
-            let messageAhead: Message?
-            if let dailyMessages = conversationViewModel.dailyMessages.value,
-               let max = dailyMessages.keys.max(),
-               let dailyMessage = dailyMessages[max],
-               let last = dailyMessage.last {
-                messageAhead = last
-            } else {
-                messageAhead = nil
-            }
-
             self.init(
                 viewModel: ConversationOfflineSectionModel(
                     course: conversationViewModel.course,
                     conversation: conversationViewModel.conversation,
-                    messageAhead: messageAhead,
                     message: message,
                     messageQueue: messageQueue,
                     delegate: ConversationOfflineSectionModelDelegate(conversationViewModel)),

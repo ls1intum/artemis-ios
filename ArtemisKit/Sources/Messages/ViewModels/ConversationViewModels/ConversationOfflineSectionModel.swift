@@ -19,7 +19,6 @@ struct ConversationOfflineSectionModelDelegate {
 final class ConversationOfflineSectionModel {
     let course: Course
     let conversation: Conversation
-    let messageAhead: Message?
     let message: ConversationOfflineMessageModel
     let messageQueue: ArraySlice<ConversationOfflineMessageModel>
 
@@ -48,7 +47,6 @@ final class ConversationOfflineSectionModel {
     init(
         course: Course,
         conversation: Conversation,
-        messageAhead: Message?,
         message: ConversationOfflineMessageModel,
         messageQueue: ArraySlice<ConversationOfflineMessageModel>,
         delegate: ConversationOfflineSectionModelDelegate,
@@ -56,7 +54,6 @@ final class ConversationOfflineSectionModel {
     ) {
         self.course = course
         self.conversation = conversation
-        self.messageAhead = messageAhead
         self.message = message
         self.messageQueue = messageQueue
         self.delegate = delegate
