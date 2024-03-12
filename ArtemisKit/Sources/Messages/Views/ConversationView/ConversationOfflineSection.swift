@@ -32,9 +32,13 @@ struct ConversationOfflineSection: View {
             )
             .task {
                 await withTaskCancellationHandler {
+                    log.verbose("1️⃣")
+                    try? await Task.sleep(for: .seconds(10))
+                    log.verbose("2️⃣")
                     await viewModel.sendMessage()
+                    log.verbose("3️⃣")
                 } onCancel: {
-                    log.verbose("cancel")
+                    log.verbose("❌")
                 }
             }
             .onDisappear {
