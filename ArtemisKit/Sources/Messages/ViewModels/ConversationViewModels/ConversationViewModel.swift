@@ -66,7 +66,7 @@ class ConversationViewModel: BaseViewModel {
         super.init()
 
         subscribeToConversationTopic()
-        fetchConversationOfflineMessages()
+        fetchOfflineMessages()
     }
 
     deinit {
@@ -247,7 +247,7 @@ fileprivate extension ConversationViewModel {
 
     // MARK: Send message
 
-    func sendMessage(text: String) async -> NetworkResponse {
+    func sendMessage(text: String) async {
         if let host = userSession.institution?.baseURL?.host() {
             do {
                 let offlineMessage = try messagesRepository.insertConversationOfflineMessage(
@@ -260,7 +260,6 @@ fileprivate extension ConversationViewModel {
         } else {
             log.verbose("Host is nil")
         }
-        return .success
     }
 }
 
@@ -300,7 +299,7 @@ private extension ConversationViewModel {
         }
     }
 
-    func fetchConversationOfflineMessages() {
+    func fetchOfflineMessages() {
         if let host = userSession.institution?.baseURL?.host() {
             do {
                 self.offlineMessages = try messagesRepository.fetchConversationOfflineMessages(
@@ -395,7 +394,7 @@ private extension ConversationViewModel {
 extension SendMessageViewModelDelegate {
     init(_ conversationViewModel: ConversationViewModel) {
         self.loadMessages = conversationViewModel.loadMessages
-        self.presentError = conversationViewModel.presentError(userFacingError:)
+        self.presentError = conversationViewModel.presentError
         self.sendMessage = conversationViewModel.sendMessage
     }
 }

@@ -27,10 +27,10 @@ struct ConversationOfflineSection: View {
         .onDisappear {
             viewModel.task?.cancel()
         }
-        ForEach(conversationViewModel.offlineMessages.dropFirst()) { offline in
+        ForEach(viewModel.messageQueue) { message in
             MessageCell(
                 viewModel: conversationViewModel,
-                message: Binding.constant(DataState<BaseMessage>.done(response: OfflineMessageOrAnswer(offline))),
+                message: Binding.constant(DataState<BaseMessage>.done(response: OfflineMessageOrAnswer(message))),
                 conversationPath: nil,
                 isHeaderVisible: false
             )

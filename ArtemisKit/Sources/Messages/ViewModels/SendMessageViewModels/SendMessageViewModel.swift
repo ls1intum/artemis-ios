@@ -221,7 +221,8 @@ extension SendMessageViewModel {
             var result: NetworkResponse?
             switch configuration {
             case .message:
-                result = await delegate.sendMessage(text)
+                await delegate.sendMessage(text)
+                result = .success
                 isLoading = false
             case let .answerMessage(message, completion):
                 result = await sendAnswerMessage(text: text, for: message, completion: completion)

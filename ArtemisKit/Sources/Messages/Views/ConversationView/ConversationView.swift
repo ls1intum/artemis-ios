@@ -49,6 +49,7 @@ public struct ConversationView: View {
                                         conversationPath: conversationPath)
                                 }
                                 ConversationOfflineSection(viewModel)
+                                    // Force re-evaluation, when offline messages change.
                                     .id(viewModel.offlineMessages.first)
                                 Spacer()
                                     .id("bottom")
