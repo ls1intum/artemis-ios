@@ -14,27 +14,30 @@ struct ConversationOfflineSection: View {
     @ObservedObject var conversationViewModel: ConversationViewModel
 
     var body: some View {
-        MessageCell(
-            viewModel: conversationViewModel,
-            message: Binding.constant(DataState<BaseMessage>.done(response: OfflineMessageOrAnswer(viewModel.message))),
-            conversationPath: nil,
-            isHeaderVisible: viewModel.taskDidFail,
-            retryButtonAction: viewModel.retryButtonAction
-        )
-        .task {
-            await viewModel.sendMessage()
-        }
-        .onDisappear {
-            viewModel.task?.cancel()
-        }
-        ForEach(viewModel.messageQueue) { message in
+        Group {
             MessageCell(
                 viewModel: conversationViewModel,
-                message: Binding.constant(DataState<BaseMessage>.done(response: OfflineMessageOrAnswer(message))),
+                message: Binding.constant(DataState<BaseMessage>.done(response: OfflineMessageOrAnswer(viewModel.message))),
                 conversationPath: nil,
-                isHeaderVisible: false
+                isHeaderVisible: viewModel.taskDidFail,
+                retryButtonAction: viewModel.retryButtonAction
             )
+            .task {
+                await viewModel.sendMessage()
+            }
+            .onDisappear {
+                viewModel.task?.cancel()
+            }
+            ForEach(viewModel.messageQueue) { message in
+                MessageCell(
+                    viewModel: conversationViewModel,
+                    message: Binding.constant(DataState<BaseMessage>.done(response: OfflineMessageOrAnswer(message))),
+                    conversationPath: nil,
+                    isHeaderVisible: false
+                )
+            }
         }
+        .environment(\.isMessageOffline, true)
     }
 }
 
