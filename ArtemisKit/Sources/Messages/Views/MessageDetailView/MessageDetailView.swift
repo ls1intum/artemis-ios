@@ -64,6 +64,12 @@ struct MessageDetailView: View {
     }
 }
 
+extension MessageDetailView {
+    init(path: MessagePath) {
+        self.init(viewModel: path.conversationViewModel, message: path.message)
+    }
+}
+
 private extension MessageDetailView {
     func top(message: BaseMessage) -> some View {
         MessageCell(
