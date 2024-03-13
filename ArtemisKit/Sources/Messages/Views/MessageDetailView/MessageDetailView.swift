@@ -22,8 +22,6 @@ struct MessageDetailView: View {
 
     private let messageId: Int64?
 
-    @State private var internalMessage: BaseMessage?
-
     init(viewModel: ConversationViewModel, message: Binding<DataState<BaseMessage>>) {
         self.viewModel = viewModel
         self.messageId = message.wrappedValue.value?.id
