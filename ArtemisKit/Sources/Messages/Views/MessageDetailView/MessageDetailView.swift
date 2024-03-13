@@ -47,7 +47,7 @@ struct MessageDetailView: View {
                         viewModel: SendMessageViewModel(
                             course: viewModel.course,
                             conversation: viewModel.conversation,
-                            configuration: .answerMessage(message, reloadMessage),
+                            configuration: .answerMessage(message),
                             delegate: SendMessageViewModelDelegate(viewModel)
                         )
                     )
@@ -114,6 +114,7 @@ private extension MessageDetailView {
         }
     }
 
+    @available(*, deprecated, message: "Refactor MessagePath")
     func reloadMessage() async {
         viewModel.shouldScrollToId = "bottom"
         guard let messageId else { return }

@@ -14,7 +14,7 @@ import UserStore
 extension SendMessageViewModel {
     enum Configuration {
         case message
-        case answerMessage(Message, () async -> Void)
+        case answerMessage(Message)
         case editMessage(Message, () -> Void)
         case editAnswerMessage(AnswerMessage, () -> Void)
     }
@@ -116,7 +116,7 @@ extension SendMessageViewModel {
                         conversationId: Int(conversation.id))
                     text = conversation?.messageDraft ?? ""
                 }
-            case let .answerMessage(message, _):
+            case let .answerMessage(message):
                 if let host = userSession.institution?.baseURL?.host() {
                     let message = try messagesRepository.fetchMessage(
                         host: host,
@@ -145,7 +145,7 @@ extension SendMessageViewModel {
                         courseId: course.id,
                         conversationId: Int(conversation.id),
                         messageDraft: text)
-                case let .answerMessage(message, _):
+                case let .answerMessage(message):
                     try messagesRepository.insertMessage(
                         host: host,
                         courseId: course.id,
@@ -224,8 +224,10 @@ extension SendMessageViewModel {
                 await delegate.sendMessage(text)
                 result = .success
                 isLoading = false
-            case let .answerMessage(message, completion):
-                result = await sendAnswerMessage(text: text, for: message, completion: completion)
+            case let .answerMessage(message):
+                await delegate.sendAnswerMessage(text)
+                result = .success
+                isLoading = false
             case let .editMessage(message, completion):
                 var newMessage = message
                 newMessage.content = text
@@ -250,26 +252,6 @@ extension SendMessageViewModel {
                 return
             }
         }
-    }
-
-    private func sendAnswerMessage(text: String, for message: Message, completion: () async -> Void) async -> NetworkResponse {
-        isLoading = true
-        let result = await messagesService.sendAnswerMessage(for: course.id, message: message, content: text)
-        switch result {
-        case .notStarted, .loading:
-            isLoading = false
-        case .success:
-            await completion()
-            isLoading = false
-        case .failure(let error):
-            isLoading = false
-            if let apiClientError = error as? APIClientError {
-                delegate.presentError(UserFacingError(error: apiClientError))
-            } else {
-                delegate.presentError(UserFacingError(title: error.localizedDescription))
-            }
-        }
-        return result
     }
 
     private func editMessage(message: Message) async -> Bool {

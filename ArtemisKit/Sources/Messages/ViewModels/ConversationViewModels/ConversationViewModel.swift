@@ -261,6 +261,27 @@ fileprivate extension ConversationViewModel {
             log.verbose("Host is nil")
         }
     }
+
+    func sendAnswerMessage(text: String) async {
+        if let host = userSession.institution?.baseURL?.host() {
+            do {
+                // pass
+                let messageId = 0
+                let offlineAnswer = try messagesRepository.insertMessageOfflineAnswer(
+                    host: host, 
+                    courseId: course.id,
+                    conversationId: Int(conversation.id),
+                    messageId: messageId,
+                    date: .now,
+                    text: text)
+                // append
+            } catch {
+                log.error(error)
+            }
+        } else {
+            log.verbose("Host is nil")
+        }
+    }
 }
 
 // MARK: - Private
@@ -396,6 +417,7 @@ extension SendMessageViewModelDelegate {
         self.loadMessages = conversationViewModel.loadMessages
         self.presentError = conversationViewModel.presentError
         self.sendMessage = conversationViewModel.sendMessage
+        self.sendAnswerMessage = conversationViewModel.sendAnswerMessage
     }
 }
 
