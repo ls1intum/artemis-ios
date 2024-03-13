@@ -39,6 +39,7 @@ struct MessageDetailView: View {
                     ScrollView {
                         top(message: message)
                         answers(of: message, proxy: proxy)
+                        MessageOfflineSection()
                     }
                 }
                 Spacer()
