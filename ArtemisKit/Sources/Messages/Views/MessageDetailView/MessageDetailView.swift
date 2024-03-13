@@ -14,7 +14,8 @@ import SwiftUI
 
 struct MessageDetailView: View {
 
-    @ObservedObject var viewModel: ConversationViewModel
+    @State var viewModel: MessageDetailViewModel
+    @ObservedObject var conversationViewModel: ConversationViewModel
     @Binding var message: DataState<BaseMessage>
 
     @State private var isMessageActionSheetPresented = false
@@ -35,14 +36,14 @@ struct MessageDetailView: View {
                     }
                 }
                 Spacer()
-                if !((viewModel.conversation.baseConversation as? Channel)?.isArchived ?? false),
+                if !((conversationViewModel.conversation.baseConversation as? Channel)?.isArchived ?? false),
                    let message = message as? Message {
                     SendMessageView(
                         viewModel: SendMessageViewModel(
-                            course: viewModel.course,
-                            conversation: viewModel.conversation,
+                            course: conversationViewModel.course,
+                            conversation: conversationViewModel.conversation,
                             configuration: .answerMessage(message),
-                            delegate: SendMessageViewModelDelegate(viewModel)
+                            delegate: SendMessageViewModelDelegate(conversationViewModel)
                         )
                     )
                 }
@@ -54,20 +55,24 @@ struct MessageDetailView: View {
                 await reloadMessage()
             }
         }
-        .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
+        .alert(isPresented: $conversationViewModel.showError, error: conversationViewModel.error, actions: {})
     }
 }
 
 extension MessageDetailView {
     init(path: MessagePath) {
-        self.init(viewModel: path.conversationViewModel, message: path.message, messageId: path.id)
+        self.init(
+            viewModel: MessageDetailViewModel(),
+            conversationViewModel: path.conversationViewModel,
+            message: path.message,
+            messageId: path.id)
     }
 }
 
 private extension MessageDetailView {
     func top(message: BaseMessage) -> some View {
         MessageCell(
-            viewModel: viewModel,
+            viewModel: conversationViewModel,
             message: Binding.constant(DataState<BaseMessage>.done(response: message)),
             conversationPath: nil,
             isHeaderVisible: true
@@ -79,7 +84,7 @@ private extension MessageDetailView {
             isMessageActionSheetPresented = true
         }
         .sheet(isPresented: $isMessageActionSheetPresented) {
-            MessageActionSheet(viewModel: viewModel, message: $message, conversationPath: nil)
+            MessageActionSheet(viewModel: conversationViewModel, message: $message, conversationPath: nil)
                 .presentationDetents([.height(350), .large])
         }
     }
@@ -94,7 +99,7 @@ private extension MessageDetailView {
                 }
                 ForEach(Array(sortedArray.enumerated()), id: \.1) { index, answerMessage in
                     MessageCellWrapper(
-                        viewModel: viewModel,
+                        viewModel: conversationViewModel,
                         answerMessage: answerMessage,
                         isHeaderVisible: index == 0 || !answerMessage.isContinuation(of: sortedArray[index - 1]))
                 }
@@ -105,7 +110,7 @@ private extension MessageDetailView {
                     }
                     .onChange(of: message.answers) {
                         withAnimation {
-                            if let id = viewModel.shouldScrollToId {
+                            if let id = conversationViewModel.shouldScrollToId {
                                 proxy.scrollTo(id, anchor: .bottom)
                             }
                         }
@@ -116,9 +121,9 @@ private extension MessageDetailView {
 
     @available(*, deprecated, message: "Refactor MessagePath")
     func reloadMessage() async {
-        viewModel.shouldScrollToId = "bottom"
+        conversationViewModel.shouldScrollToId = "bottom"
 
-        let result = await viewModel.loadMessage(messageId: messageId)
+        let result = await conversationViewModel.loadMessage(messageId: messageId)
         switch result {
         case .loading:
             message = .loading
@@ -193,7 +198,8 @@ private struct MessageCellWrapper: View {
 
 #Preview {
     MessageDetailView(
-        viewModel: {
+        viewModel: MessageDetailViewModel(),
+        conversationViewModel: {
             let viewModel = ConversationViewModel(
                 course: MessagesServiceStub.course,
                 conversation: MessagesServiceStub.conversation)
