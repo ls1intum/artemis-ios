@@ -15,18 +15,12 @@ import SwiftUI
 struct MessageDetailView: View {
 
     @ObservedObject var viewModel: ConversationViewModel
-    @Binding private var message: DataState<BaseMessage>
+    @Binding var message: DataState<BaseMessage>
 
     @State private var isMessageActionSheetPresented = false
     @State private var viewRerenderWorkaround = false
 
-    private let messageId: Int64?
-
-    init(viewModel: ConversationViewModel, message: Binding<DataState<BaseMessage>>) {
-        self.viewModel = viewModel
-        self.messageId = message.wrappedValue.value?.id
-        self._message = message
-    }
+    let messageId: Int64
 
     var body: some View {
         DataStateView(data: $message) {
@@ -66,7 +60,7 @@ struct MessageDetailView: View {
 
 extension MessageDetailView {
     init(path: MessagePath) {
-        self.init(viewModel: path.conversationViewModel, message: path.message)
+        self.init(viewModel: path.conversationViewModel, message: path.message, messageId: path.id)
     }
 }
 
@@ -123,7 +117,7 @@ private extension MessageDetailView {
     @available(*, deprecated, message: "Refactor MessagePath")
     func reloadMessage() async {
         viewModel.shouldScrollToId = "bottom"
-        guard let messageId else { return }
+
         let result = await viewModel.loadMessage(messageId: messageId)
         switch result {
         case .loading:
@@ -210,5 +204,6 @@ private struct MessageCellWrapper: View {
             ])
             return viewModel
         }(),
-        message: Binding.constant(DataState<BaseMessage>.done(response: MessagesServiceStub.message)))
+        message: Binding.constant(DataState<BaseMessage>.done(response: MessagesServiceStub.message)),
+        messageId: MessagesServiceStub.message.id)
 }
