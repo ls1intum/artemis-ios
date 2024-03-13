@@ -186,7 +186,7 @@ private extension MessageCell {
     }
 }
 
-// MARK: - Environment+IsEmojiPickerVisible
+// MARK: - Environment+IsMessageOffline
 
 private enum IsMessageOfflineEnvironmentKey: EnvironmentKey {
     static let defaultValue = false
