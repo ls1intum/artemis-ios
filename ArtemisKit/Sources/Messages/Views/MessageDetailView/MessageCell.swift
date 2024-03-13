@@ -14,6 +14,7 @@ import SwiftUI
 import UserStore
 
 struct MessageCell: View {
+    @Environment(\.isMessageOffline) var isMessageOffline: Bool
     @EnvironmentObject var navigationController: NavigationController
 
     @ObservedObject var viewModel: ConversationViewModel
@@ -42,6 +43,7 @@ struct MessageCell: View {
                     VStack(alignment: .leading, spacing: .xs) {
                         headerIfVisible
                         ArtemisMarkdownView(string: content)
+                            .opacity(isMessageOffline ? 0.5 : 1)
                     }
                     Spacer()
                 }
@@ -89,9 +91,9 @@ private extension MessageCell {
     @ViewBuilder var headerIfVisible: some View {
         if isHeaderVisible {
             HStack(alignment: .firstTextBaseline, spacing: .m) {
-                Text(message.value?.author?.name ?? "Redacted")
+                Text(isMessageOffline ? "Redacted" : author)
                     .bold()
-                    .redacted(reason: message.value?.author?.name.map { _ in [] } ?? .placeholder)
+                    .redacted(reason: isMessageOffline ? .placeholder : [])
                 if let creationDate {
                     Group {
                         Text(creationDate, formatter: DateFormatter.timeOnly)
@@ -181,6 +183,23 @@ private extension MessageCell {
         feedback.impactOccurred()
         isActionSheetPresented = true
         isDetectingLongPress = false
+    }
+}
+
+// MARK: - Environment+IsEmojiPickerVisible
+
+private enum IsMessageOfflineEnvironmentKey: EnvironmentKey {
+    static let defaultValue = false
+}
+
+extension EnvironmentValues {
+    var isMessageOffline: Bool {
+        get {
+            self[IsMessageOfflineEnvironmentKey.self]
+        }
+        set {
+            self[IsMessageOfflineEnvironmentKey.self] = newValue
+        }
     }
 }
 
