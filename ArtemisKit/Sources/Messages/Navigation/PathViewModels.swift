@@ -55,14 +55,10 @@ final class MessagePathViewModel {
     }
 
     func loadMessage() async {
-        let result = await messagesService.getMessages(
-            for: path.conversationPath.coursePath.id, and: path.conversationPath.id, size: Self.size
-        )
-        self.message = result.flatMap { messages in
-            guard let message = messages.first(where: { $0.id == path.id }) else {
-                return .failure(UserFacingError(title: R.string.localizable.messageCouldNotBeLoadedError()))
-            }
-            return .success(message)
-        }
+        self.message = await messagesService.getMessage(
+            courseId: path.conversationPath.coursePath.id,
+            conversationId: path.conversationPath.id,
+            messageId: path.id,
+            size: Self.size)
     }
 }

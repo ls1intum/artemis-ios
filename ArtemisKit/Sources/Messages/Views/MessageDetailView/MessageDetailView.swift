@@ -123,7 +123,9 @@ private extension MessageDetailView {
     func reloadMessage() async {
         conversationViewModel.shouldScrollToId = "bottom"
 
-        let result = await conversationViewModel.loadMessage(messageId: messageId)
+        // let result = await conversationViewModel.loadMessage(messageId: messageId)
+        #warning("viewModel")
+        let result = DataState<Message>.loading
         switch result {
         case .loading:
             message = .loading

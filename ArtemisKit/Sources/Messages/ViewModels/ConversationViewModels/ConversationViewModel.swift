@@ -111,29 +111,6 @@ extension ConversationViewModel {
         }
     }
 
-    func loadMessage(messageId: Int64) async -> DataState<Message> {
-        // TODO: add API to only load one single message
-        let result = await messagesService.getMessages(for: course.id, and: conversation.id, size: size)
-        return result.flatMap { messages in
-            guard let message = messages.first(where: { $0.id == messageId }) else {
-                return .failure(UserFacingError(title: R.string.localizable.messageCouldNotBeLoadedError()))
-            }
-            return .success(message)
-        }
-    }
-
-    func loadAnswerMessage(answerMessageId: Int64) async -> DataState<AnswerMessage> {
-        // TODO: add API to only load one single answer message
-        let result = await messagesService.getMessages(for: course.id, and: conversation.id, size: size)
-        return result.flatMap { messages in
-            guard let message = messages.first(where: { $0.answers?.contains(where: { $0.id == answerMessageId }) ?? false }),
-                  let answerMessage = message.answers?.first(where: { $0.id == answerMessageId }) else {
-                return .failure(UserFacingError(title: R.string.localizable.messageCouldNotBeLoadedError()))
-            }
-            return .success(answerMessage)
-        }
-    }
-
     // MARK: React
 
     func addReactionToMessage(for message: Message, emojiId: String) async -> DataState<Message> {
@@ -150,7 +127,9 @@ extension ConversationViewModel {
             return .loading
         case .success:
             shouldScrollToId = nil
-            let newMessage = await loadMessage(messageId: message.id)
+            let newMessage = await messagesService.getMessage(
+                courseId: course.id, conversationId: conversation.id, messageId: message.id, size: size
+            )
             isLoading = false
             return newMessage
         case .failure(let error):
@@ -181,7 +160,9 @@ extension ConversationViewModel {
             return .loading
         case .success:
             shouldScrollToId = nil
-            let newMessage = await loadAnswerMessage(answerMessageId: message.id)
+            let newMessage = await messagesService.getAnswerMessage(
+                courseId: course.id, conversationId: conversation.id, answerMessageId: message.id, size: size
+            )
             isLoading = false
             return newMessage
         case .failure(let error):
