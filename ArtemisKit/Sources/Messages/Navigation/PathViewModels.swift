@@ -56,7 +56,7 @@ final class MessagePathViewModel {
 
     func loadMessage() async {
         let result = await messagesService.getMessages(
-            for: path.conversationPath.coursePath.id, and: path.conversationPath.id, size: MessagePathViewModel.size
+            for: path.conversationPath.coursePath.id, and: path.conversationPath.id, size: Self.size
         )
         self.message = result.flatMap { messages in
             guard let message = messages.first(where: { $0.id == path.id }) else {
