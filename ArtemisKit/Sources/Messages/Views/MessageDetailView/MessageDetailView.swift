@@ -63,9 +63,7 @@ extension MessageDetailView {
     init(course: Course, conversation: Conversation, message: BaseMessage) {
         #warning("ConversationViewModel")
         self.init(
-            viewModel: MessageDetailViewModel(
-                course: course,
-                conversation: conversation),
+            viewModel: MessageDetailViewModel(course: course, conversation: conversation, message: message),
             conversationViewModel: ConversationViewModel(course: course, conversation: conversation),
             message: Binding.constant(DataState.done(response: message)),
             messageId: message.id)
@@ -203,7 +201,8 @@ private struct MessageCellWrapper: View {
     MessageDetailView(
         viewModel: MessageDetailViewModel(
             course: MessagesServiceStub.course,
-            conversation: MessagesServiceStub.conversation),
+            conversation: MessagesServiceStub.conversation,
+            message: MessagesServiceStub.message),
         conversationViewModel: {
             let viewModel = ConversationViewModel(
                 course: MessagesServiceStub.course,
