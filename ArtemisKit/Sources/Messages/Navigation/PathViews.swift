@@ -44,7 +44,7 @@ extension ConversationPathView {
 
 struct MessagePathView<Content: View>: View {
     @State var viewModel: MessagePathViewModel
-    let content: (Course, Conversation, BaseMessage) -> Content
+    let content: (Course, Conversation, Message) -> Content
 
     var body: some View {
         DataStateView(data: $viewModel.message) {

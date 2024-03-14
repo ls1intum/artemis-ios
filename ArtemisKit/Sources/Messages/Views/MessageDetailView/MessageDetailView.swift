@@ -32,7 +32,7 @@ struct MessageDetailView: View {
                     ScrollView {
                         top(message: message)
                         answers(of: message, proxy: proxy)
-                        MessageOfflineSection()
+                        MessageOfflineSection(viewModel)
                     }
                 }
                 Spacer()
@@ -60,7 +60,7 @@ struct MessageDetailView: View {
 }
 
 extension MessageDetailView {
-    init(course: Course, conversation: Conversation, message: BaseMessage) {
+    init(course: Course, conversation: Conversation, message: Message) {
         #warning("ConversationViewModel")
         self.init(
             viewModel: MessageDetailViewModel(course: course, conversation: conversation, message: message),

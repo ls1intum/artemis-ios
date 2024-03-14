@@ -12,12 +12,12 @@ import SwiftUI
 
 struct MessagePath: Hashable {
     let id: Int64
-    let message: Binding<DataState<BaseMessage>>
+    let message: Binding<DataState<Message>>
     let conversationPath: ConversationPath
     let conversationViewModel: ConversationViewModel
 
     init?(
-        message: Binding<DataState<BaseMessage>>,
+        message: Binding<DataState<Message>>,
         conversationPath: ConversationPath,
         conversationViewModel: ConversationViewModel
     ) {

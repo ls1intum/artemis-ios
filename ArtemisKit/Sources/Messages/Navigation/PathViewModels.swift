@@ -43,7 +43,7 @@ final class MessagePathViewModel {
     static let size = 50
 
     let path: MessagePath
-    var message: DataState<BaseMessage>
+    var message: DataState<Message>
 
     private let messagesService: MessagesService
 

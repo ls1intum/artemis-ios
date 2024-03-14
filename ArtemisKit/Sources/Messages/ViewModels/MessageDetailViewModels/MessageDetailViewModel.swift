@@ -15,7 +15,7 @@ import UserStore
 final class MessageDetailViewModel {
     let course: Course
     let conversation: Conversation
-    let message: BaseMessage
+    let message: Message
 
     var offlineAnswers: [MessageOfflineAnswerModel] = []
 
@@ -25,7 +25,7 @@ final class MessageDetailViewModel {
     init(
         course: Course,
         conversation: Conversation,
-        message: BaseMessage,
+        message: Message,
         messagesRepository: MessagesRepository = .shared,
         userSession: UserSession = .shared
     ) {
@@ -78,7 +78,7 @@ extension MessageOfflineSectionModelDelegate {
     init(_ messageDetailViewModel: MessageDetailViewModel) {
         self.didSendOfflineAnswer = { answer in
             if let index = messageDetailViewModel.offlineAnswers.firstIndex(of: answer) {
-                let message = messageDetailViewModel.offlineAnswers.remove(at: index)
+                let answer = messageDetailViewModel.offlineAnswers.remove(at: index)
                 messageDetailViewModel.messagesRepository.delete(messageOfflineAnswer: answer)
             }
         }
