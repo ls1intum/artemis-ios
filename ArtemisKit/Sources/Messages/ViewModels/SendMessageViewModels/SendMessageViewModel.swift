@@ -225,7 +225,6 @@ extension SendMessageViewModel {
                 result = .success
                 isLoading = false
             case let .answerMessage(message):
-                delegate.sendAnswerMessage(text)
                 result = .success
                 isLoading = false
             case let .editMessage(message, completion):

@@ -261,10 +261,6 @@ fileprivate extension ConversationViewModel {
             log.verbose("Host is nil")
         }
     }
-
-    func sendAnswerMessage(text: String) {
-        //
-    }
 }
 
 // MARK: - Private
@@ -400,7 +396,6 @@ extension SendMessageViewModelDelegate {
         self.loadMessages = conversationViewModel.loadMessages
         self.presentError = conversationViewModel.presentError
         self.sendMessage = conversationViewModel.sendMessage
-        self.sendAnswerMessage = conversationViewModel.sendAnswerMessage
     }
 }
 

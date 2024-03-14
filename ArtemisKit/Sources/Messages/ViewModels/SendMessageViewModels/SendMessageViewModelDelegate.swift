@@ -13,5 +13,4 @@ struct SendMessageViewModelDelegate {
     let loadMessages: () async -> Void
     let presentError: (UserFacingError) -> Void
     let sendMessage: (String) -> Void
-    let sendAnswerMessage: (String) -> Void
 }
