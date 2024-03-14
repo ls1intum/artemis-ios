@@ -37,3 +37,32 @@ final class ConversationPathViewModel {
         }
     }
 }
+
+@Observable
+final class MessagePathViewModel {
+    static let size = 50
+
+    let path: MessagePath
+    var message: DataState<BaseMessage>
+
+    private let messagesService: MessagesService
+
+    init(path: MessagePath, messagesService: MessagesService = MessagesServiceFactory.shared) {
+        self.path = path
+        self.message = path.message.wrappedValue.value.map(DataState.done) ?? .loading
+
+        self.messagesService = messagesService
+    }
+
+    func loadMessage() async {
+        let result = await messagesService.getMessages(
+            for: path.conversationPath.coursePath.id, and: path.conversationPath.id, size: MessagePathViewModel.size
+        )
+        self.message = result.flatMap { messages in
+            guard let message = messages.first(where: { $0.id == path.id }) else {
+                return .failure(UserFacingError(title: R.string.localizable.messageCouldNotBeLoadedError()))
+            }
+            return .success(message)
+        }
+    }
+}

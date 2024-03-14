@@ -33,3 +33,33 @@ public extension ConversationPathView where Content == ConversationView {
         self.init(viewModel: ConversationPathViewModel(path: path), content: Content.init)
     }
 }
+
+extension ConversationPathView {
+    init(path: ConversationPath, @ViewBuilder content: @escaping (Course, Conversation) -> Content) {
+        self.init(viewModel: ConversationPathViewModel(path: path), content: content)
+    }
+}
+
+// MARK: - MessagePathView
+
+struct MessagePathView<Content: View>: View {
+    @State var viewModel: MessagePathViewModel
+    let content: (Course, Conversation, BaseMessage) -> Content
+
+    var body: some View {
+        DataStateView(data: $viewModel.message) {
+            await viewModel.loadMessage()
+        } content: { message in
+            ConversationPathView(path: viewModel.path.conversationPath) { (course, conversation) in
+                content(course, conversation, message)
+            }
+        }
+
+    }
+}
+
+extension MessagePathView where Content == MessageDetailView {
+    init(path: MessagePath) {
+        self.init(viewModel: MessagePathViewModel(path: path), content: Content.init)
+    }
+}
