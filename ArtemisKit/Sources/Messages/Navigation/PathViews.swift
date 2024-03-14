@@ -50,11 +50,10 @@ struct MessagePathView<Content: View>: View {
         DataStateView(data: $viewModel.message) {
             await viewModel.loadMessage()
         } content: { message in
-            ConversationPathView(path: viewModel.path.conversationPath) { (course, conversation) in
+            ConversationPathView(path: viewModel.path.conversationPath) { course, conversation in
                 content(course, conversation, message)
             }
         }
-
     }
 }
 
