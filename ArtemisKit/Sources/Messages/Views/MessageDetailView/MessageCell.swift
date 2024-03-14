@@ -143,7 +143,7 @@ private extension MessageCell {
            let conversationPath {
             Button {
                 if let messagePath = MessagePath(
-                    message: self.$message,
+                    message: Binding.constant(DataState.done(response: message)),
                     conversationPath: conversationPath,
                     conversationViewModel: viewModel
                 ) {
@@ -165,8 +165,10 @@ private extension MessageCell {
 
     func onTapPresentMessage() {
         // Tap is disabled, if conversation path is nil, e.g., in the message detail view.
-        if let conversationPath, let messagePath = MessagePath(
-            message: $message,
+        if let message = message.value as? Message,
+           let conversationPath,
+           let messagePath = MessagePath(
+            message: Binding.constant(DataState.done(response: message)),
             conversationPath: conversationPath,
             conversationViewModel: viewModel
         ) {

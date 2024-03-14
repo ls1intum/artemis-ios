@@ -14,7 +14,6 @@ import SwiftUI
 import UserStore
 
 struct MessageActionSheet: View {
-
     @EnvironmentObject var navigationController: NavigationController
     @Environment(\.dismiss) var dismiss
 
@@ -60,8 +59,9 @@ struct MessageActionSheet: View {
                    let conversationPath {
                     Divider()
                     Button {
-                        if let messagePath = MessagePath(
-                            message: $message,
+                        if let message = message.value as? Message,
+                           let messagePath = MessagePath(
+                            message: Binding.constant(DataState.done(response: message)),
                             conversationPath: conversationPath,
                             conversationViewModel: viewModel
                         ) {
