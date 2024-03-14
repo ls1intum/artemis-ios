@@ -247,7 +247,7 @@ fileprivate extension ConversationViewModel {
 
     // MARK: Send message
 
-    func sendMessage(text: String) async {
+    func sendMessage(text: String) {
         if let host = userSession.institution?.baseURL?.host() {
             do {
                 let offlineMessage = try messagesRepository.insertConversationOfflineMessage(
@@ -262,25 +262,8 @@ fileprivate extension ConversationViewModel {
         }
     }
 
-    func sendAnswerMessage(text: String) async {
-        if let host = userSession.institution?.baseURL?.host() {
-            do {
-                // pass
-                let messageId = 0
-                let offlineAnswer = try messagesRepository.insertMessageOfflineAnswer(
-                    host: host, 
-                    courseId: course.id,
-                    conversationId: Int(conversation.id),
-                    messageId: messageId,
-                    date: .now,
-                    text: text)
-                // append
-            } catch {
-                log.error(error)
-            }
-        } else {
-            log.verbose("Host is nil")
-        }
+    func sendAnswerMessage(text: String) {
+        //
     }
 }
 
