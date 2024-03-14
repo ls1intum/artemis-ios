@@ -221,11 +221,11 @@ extension SendMessageViewModel {
             var result: NetworkResponse?
             switch configuration {
             case .message:
-                await delegate.sendMessage(text)
+                delegate.sendMessage(text)
                 result = .success
                 isLoading = false
             case let .answerMessage(message):
-                await delegate.sendAnswerMessage(text)
+                delegate.sendAnswerMessage(text)
                 result = .success
                 isLoading = false
             case let .editMessage(message, completion):
