@@ -40,3 +40,23 @@ struct MessageOfflineSection: View {
         .environment(\.isMessageOffline, true)
     }
 }
+
+extension MessageOfflineSection {
+    init?(_ messageDetailViewModel: MessageDetailViewModel, conversationViewModel: ConversationViewModel) {
+        if let answer = messageDetailViewModel.offlineAnswers.first {
+            let answerQueue = messageDetailViewModel.offlineAnswers.dropFirst()
+
+            self.init(
+                viewModel: MessageOfflineSectionModel(
+                    course: messageDetailViewModel.course,
+                    conversation: messageDetailViewModel.conversation,
+                    message: messageDetailViewModel.message,
+                    answer: answer, 
+                    answerQueue: answerQueue,
+                    delegate: MessageOfflineSectionModelDelegate(messageDetailViewModel)),
+                conversationViewModel: conversationViewModel)
+        } else {
+            return nil
+        }
+    }
+}

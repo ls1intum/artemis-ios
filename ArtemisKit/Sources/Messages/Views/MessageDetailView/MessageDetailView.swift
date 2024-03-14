@@ -13,7 +13,6 @@ import SharedModels
 import SwiftUI
 
 struct MessageDetailView: View {
-
     @State var viewModel: MessageDetailViewModel
     @ObservedObject var conversationViewModel: ConversationViewModel
     @Binding var message: DataState<BaseMessage>
@@ -32,7 +31,7 @@ struct MessageDetailView: View {
                     ScrollView {
                         top(message: message)
                         answers(of: message, proxy: proxy)
-                        MessageOfflineSection(viewModel)
+                        MessageOfflineSection(viewModel, conversationViewModel: conversationViewModel)
                     }
                 }
                 Spacer()
