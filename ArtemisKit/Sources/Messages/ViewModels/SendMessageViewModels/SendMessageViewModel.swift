@@ -226,6 +226,8 @@ extension SendMessageViewModel {
                 isLoading = false
             case let .answerMessage(_, viewModel):
                 await viewModel.sendAnswerMessage(text: text)
+                await viewModel.loadMessage()
+                viewModel.shouldScrollToId = "bottom"
                 result = .success
                 isLoading = false
             case let .editMessage(message, completion):

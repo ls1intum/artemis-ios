@@ -15,45 +15,34 @@ import SwiftUI
 struct MessageDetailView: View {
     @State var viewModel: MessageDetailViewModel
     @ObservedObject var conversationViewModel: ConversationViewModel
-    @Binding var message: DataState<BaseMessage>
 
     @State private var isMessageActionSheetPresented = false
-    @State private var viewRerenderWorkaround = false
-
-    let messageId: Int64
 
     var body: some View {
-        DataStateView(data: $message) {
-            await reloadMessage()
-        } content: { message in
-            VStack(alignment: .leading) {
-                ScrollViewReader { proxy in
-                    ScrollView {
-                        top(message: message)
-                        answers(of: message, proxy: proxy)
-                        MessageOfflineSection(viewModel, conversationViewModel: conversationViewModel)
-                    }
-                }
-                Spacer()
-                if !((conversationViewModel.conversation.baseConversation as? Channel)?.isArchived ?? false),
-                   let message = message as? Message {
-                    SendMessageView(
-                        viewModel: SendMessageViewModel(
-                            course: conversationViewModel.course,
-                            conversation: conversationViewModel.conversation,
-                            configuration: .answerMessage(message, viewModel),
-                            delegate: SendMessageViewModelDelegate(conversationViewModel)
-                        )
-                    )
+        VStack(alignment: .leading) {
+            ScrollViewReader { proxy in
+                ScrollView {
+                    top(message: viewModel.message)
+                    answers(of: viewModel.message, proxy: proxy)
+                    MessageOfflineSection(viewModel, conversationViewModel: conversationViewModel)
                 }
             }
+            Spacer()
+            if !((conversationViewModel.conversation.baseConversation as? Channel)?.isArchived ?? false) {
+                SendMessageView(
+                    viewModel: SendMessageViewModel(
+                        course: conversationViewModel.course,
+                        conversation: conversationViewModel.conversation,
+                        configuration: .answerMessage(viewModel.message, viewModel),
+                        delegate: SendMessageViewModelDelegate(conversationViewModel)
+                    )
+                )
+            }
+        }
+        .task {
+            await viewModel.loadMessage()
         }
         .navigationTitle(R.string.localizable.thread())
-        .task {
-            if message.value == nil {
-                await reloadMessage()
-            }
-        }
         .alert(isPresented: $conversationViewModel.showError, error: conversationViewModel.error, actions: {})
     }
 }
@@ -63,9 +52,7 @@ extension MessageDetailView {
     init(conversationViewModel: ConversationViewModel, course: Course, conversation: Conversation, message: Message) {
         self.init(
             viewModel: MessageDetailViewModel(course: course, conversation: conversation, message: message),
-            conversationViewModel: conversationViewModel,
-            message: Binding.constant(DataState.done(response: message)),
-            messageId: message.id)
+            conversationViewModel: conversationViewModel)
     }
 }
 
@@ -84,7 +71,8 @@ private extension MessageDetailView {
             isMessageActionSheetPresented = true
         }
         .sheet(isPresented: $isMessageActionSheetPresented) {
-            MessageActionSheet(viewModel: conversationViewModel, message: $message, conversationPath: nil)
+            #warning("Constant")
+            MessageActionSheet(viewModel: conversationViewModel, message: Binding.constant(.done(response: viewModel.message)), conversationPath: nil)
                 .presentationDetents([.height(350), .large])
         }
     }
@@ -110,30 +98,12 @@ private extension MessageDetailView {
                     }
                     .onChange(of: message.answers) {
                         withAnimation {
-                            if let id = conversationViewModel.shouldScrollToId {
+                            if let id = viewModel.shouldScrollToId {
                                 proxy.scrollTo(id, anchor: .bottom)
                             }
                         }
                     }
             }
-        }
-    }
-
-    @available(*, deprecated, message: "Refactor MessagePath")
-    func reloadMessage() async {
-        conversationViewModel.shouldScrollToId = "bottom"
-
-        // let result = await conversationViewModel.loadMessage(messageId: messageId)
-        #warning("viewModel")
-        let result = DataState<Message>.loading
-        switch result {
-        case .loading:
-            message = .loading
-        case .failure(let error):
-            message = .failure(error: error)
-        case .done(let response):
-            message = .done(response: response)
-            viewRerenderWorkaround.toggle()
         }
     }
 }
@@ -214,7 +184,6 @@ private struct MessageCellWrapper: View {
                 ]
             ])
             return viewModel
-        }(),
-        message: Binding.constant(DataState<BaseMessage>.done(response: MessagesServiceStub.message)),
-        messageId: MessagesServiceStub.message.id)
+        }()
+    )
 }

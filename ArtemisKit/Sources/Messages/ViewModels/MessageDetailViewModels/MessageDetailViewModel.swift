@@ -13,27 +13,49 @@ import UserStore
 @MainActor
 @Observable
 final class MessageDetailViewModel {
+    static let size = 50
+
     let course: Course
     let conversation: Conversation
-    let message: Message
-
+    
+    var message: Message
     var offlineAnswers: [MessageOfflineAnswerModel] = []
+    var shouldScrollToId: String?
 
     fileprivate let messagesRepository: MessagesRepository
+    private let messagesService: MessagesService
     private let userSession: UserSession
 
     init(
         course: Course,
         conversation: Conversation,
         message: Message,
+        messagesService: MessagesService = MessagesServiceFactory.shared,
         messagesRepository: MessagesRepository = .shared,
         userSession: UserSession = .shared
     ) {
         self.course = course
         self.conversation = conversation
         self.message = message
+        self.messagesService = messagesService
         self.messagesRepository = messagesRepository
         self.userSession = userSession
+    }
+
+    func loadMessage() async {
+        let result = await messagesService.getMessage(
+            courseId: course.id,
+            conversationId: conversation.id,
+            messageId: message.id,
+            size: Self.size)
+        switch result {
+        case let .done(response: message):
+            self.message = message
+        case let .failure(error: error):
+            log.error(error)
+        case .loading:
+            break
+        }
     }
 
     func sendAnswerMessage(text: String) async {
