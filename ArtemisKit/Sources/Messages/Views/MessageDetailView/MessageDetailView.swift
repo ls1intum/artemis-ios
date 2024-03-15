@@ -41,7 +41,7 @@ struct MessageDetailView: View {
                         viewModel: SendMessageViewModel(
                             course: conversationViewModel.course,
                             conversation: conversationViewModel.conversation,
-                            configuration: .answerMessage(message),
+                            configuration: .answerMessage(message, viewModel),
                             delegate: SendMessageViewModelDelegate(conversationViewModel)
                         )
                     )
@@ -59,11 +59,11 @@ struct MessageDetailView: View {
 }
 
 extension MessageDetailView {
-    init(course: Course, conversation: Conversation, message: Message) {
-        #warning("ConversationViewModel")
+    @available(*, deprecated, message: "Refactor MessagePath")
+    init(conversationViewModel: ConversationViewModel, course: Course, conversation: Conversation, message: Message) {
         self.init(
             viewModel: MessageDetailViewModel(course: course, conversation: conversation, message: message),
-            conversationViewModel: ConversationViewModel(course: course, conversation: conversation),
+            conversationViewModel: conversationViewModel,
             message: Binding.constant(DataState.done(response: message)),
             messageId: message.id)
     }

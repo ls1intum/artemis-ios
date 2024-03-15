@@ -65,6 +65,12 @@ extension MessagePathView {
 
 extension MessagePathView where Content == MessageDetailView {
     init(path: MessagePath) {
-        self.init(path: path, content: Content.init)
+        self.init(path: path) { course, conversation, message in
+            MessageDetailView(
+                conversationViewModel: path.conversationViewModel,
+                course: course,
+                conversation: conversation,
+                message: message)
+        }
     }
 }

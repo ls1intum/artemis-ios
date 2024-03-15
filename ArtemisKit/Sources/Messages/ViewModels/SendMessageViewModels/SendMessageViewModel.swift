@@ -14,7 +14,7 @@ import UserStore
 extension SendMessageViewModel {
     enum Configuration {
         case message
-        case answerMessage(Message)
+        case answerMessage(Message, MessageDetailViewModel)
         case editMessage(Message, () -> Void)
         case editAnswerMessage(AnswerMessage, () -> Void)
     }
@@ -116,7 +116,7 @@ extension SendMessageViewModel {
                         conversationId: Int(conversation.id))
                     text = conversation?.messageDraft ?? ""
                 }
-            case let .answerMessage(message):
+            case let .answerMessage(message, _):
                 if let host = userSession.institution?.baseURL?.host() {
                     let message = try messagesRepository.fetchMessage(
                         host: host,
@@ -145,7 +145,7 @@ extension SendMessageViewModel {
                         courseId: course.id,
                         conversationId: Int(conversation.id),
                         messageDraft: text)
-                case let .answerMessage(message):
+                case let .answerMessage(message, _):
                     try messagesRepository.insertMessage(
                         host: host,
                         courseId: course.id,
@@ -224,7 +224,8 @@ extension SendMessageViewModel {
                 delegate.sendMessage(text)
                 result = .success
                 isLoading = false
-            case let .answerMessage(message):
+            case let .answerMessage(_, viewModel):
+                await viewModel.sendAnswerMessage(text: text)
                 result = .success
                 isLoading = false
             case let .editMessage(message, completion):
