@@ -28,15 +28,15 @@ public struct ConversationPathView<Content: View>: View {
     }
 }
 
-public extension ConversationPathView where Content == ConversationView {
-    init(path: ConversationPath) {
-        self.init(viewModel: ConversationPathViewModel(path: path), content: Content.init)
-    }
-}
-
 extension ConversationPathView {
     init(path: ConversationPath, @ViewBuilder content: @escaping (Course, Conversation) -> Content) {
         self.init(viewModel: ConversationPathViewModel(path: path), content: content)
+    }
+}
+
+public extension ConversationPathView where Content == ConversationView {
+    init(path: ConversationPath) {
+        self.init(path: path, content: Content.init)
     }
 }
 
@@ -57,8 +57,14 @@ struct MessagePathView<Content: View>: View {
     }
 }
 
+extension MessagePathView {
+    init(path: MessagePath, @ViewBuilder content: @escaping (Course, Conversation, Message) -> Content) {
+        self.init(viewModel: MessagePathViewModel(path: path), content: content)
+    }
+}
+
 extension MessagePathView where Content == MessageDetailView {
     init(path: MessagePath) {
-        self.init(viewModel: MessagePathViewModel(path: path), content: Content.init)
+        self.init(path: path, content: Content.init)
     }
 }

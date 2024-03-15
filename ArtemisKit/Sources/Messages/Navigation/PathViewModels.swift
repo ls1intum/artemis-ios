@@ -22,7 +22,6 @@ final class ConversationPathViewModel {
     init(path: ConversationPath, messagesService: MessagesService = MessagesServiceFactory.shared) {
         self.path = path
         self.conversation = path.conversation.map(DataState.done) ?? .loading
-
         self.messagesService = messagesService
     }
 
@@ -50,7 +49,6 @@ final class MessagePathViewModel {
     init(path: MessagePath, messagesService: MessagesService = MessagesServiceFactory.shared) {
         self.path = path
         self.message = path.message.wrappedValue.value.map(DataState.done) ?? .loading
-
         self.messagesService = messagesService
     }
 
