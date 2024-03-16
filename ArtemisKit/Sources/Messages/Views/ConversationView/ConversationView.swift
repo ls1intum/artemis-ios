@@ -16,13 +16,9 @@ public struct ConversationView: View {
 
     @EnvironmentObject var navigationController: NavigationController
 
-    @StateObject private var viewModel: ConversationViewModel
+    @StateObject var viewModel: ConversationViewModel
 
     @State private var isConversationInfoSheetPresented = false
-
-    init(course: Course, conversation: Conversation) {
-        _viewModel = StateObject(wrappedValue: ConversationViewModel(course: course, conversation: conversation))
-    }
 
     private var conversationPath: ConversationPath {
         ConversationPath(conversation: viewModel.conversation, coursePath: CoursePath(course: viewModel.course))
@@ -33,7 +29,7 @@ public struct ConversationView: View {
             DataStateView(data: $viewModel.dailyMessages) {
                 await viewModel.loadMessages()
             } content: { dailyMessages in
-                if dailyMessages.isEmpty {
+                if dailyMessages.isEmpty && viewModel.offlineMessages.isEmpty {
                     ContentUnavailableView(
                         R.string.localizable.noMessages(),
                         systemImage: "bubble.right",
@@ -52,12 +48,15 @@ public struct ConversationView: View {
                                         messages: dailyMessage.value,
                                         conversationPath: conversationPath)
                                 }
+                                ConversationOfflineSection(viewModel)
+                                    // Force re-evaluation, when offline messages change.
+                                    .id(viewModel.offlineMessages.first)
                                 Spacer()
                                     .id("bottom")
                             }
                         }
                         .coordinateSpace(name: "pullToRefresh")
-                        .onChange(of: viewModel.dailyMessages.value) {
+                        .onChange(of: viewModel.dailyMessages.value, initial: true) {
                             // TODO: does not work correctly when loadFurtherMessages is called -> is called to early -> investigate
                             if let id = viewModel.shouldScrollToId {
                                 withAnimation {
@@ -113,69 +112,9 @@ public struct ConversationView: View {
     }
 }
 
-private struct ConversationDaySection: View {
-
-    @ObservedObject var viewModel: ConversationViewModel
-
-    let day: Date
-    let messages: [Message]
-    let conversationPath: ConversationPath
-
-    var body: some View {
-        VStack(alignment: .leading) {
-            Text(day, formatter: DateFormatter.dateOnly)
-                .font(.headline)
-                .padding(.top, .m)
-                .padding(.horizontal, .l)
-            Divider()
-                .padding(.horizontal, .l)
-            ForEach(Array(messages.enumerated()), id: \.1.id) { index, message in
-                MessageCellWrapper(
-                    viewModel: viewModel,
-                    day: day,
-                    message: message,
-                    conversationPath: conversationPath,
-                    isHeaderVisible: index == 0 || !message.isContinuation(of: messages[index - 1]))
-            }
-        }
-    }
-}
-
-private struct MessageCellWrapper: View {
-    @ObservedObject var viewModel: ConversationViewModel
-
-    let day: Date
-    let message: Message
-    let conversationPath: ConversationPath
-    let isHeaderVisible: Bool
-
-    private var messageBinding: Binding<DataState<BaseMessage>> {
-        Binding(get: {
-            if  let messageIndex = viewModel.dailyMessages.value?[day]?.firstIndex(where: { $0.id == message.id }),
-                let message = viewModel.dailyMessages.value?[day]?[messageIndex] {
-                return .done(response: message)
-            }
-            return .loading
-        }, set: {
-            if  let messageIndex = viewModel.dailyMessages.value?[day]?.firstIndex(where: { $0.id == message.id }),
-                let newMessage = $0.value as? Message {
-                viewModel.dailyMessages.value?[day]?[messageIndex] = newMessage
-            }
-        })
-    }
-
-    var body: some View {
-        MessageCell(
-            viewModel: viewModel,
-            message: messageBinding,
-            conversationPath: conversationPath,
-            isHeaderVisible: isHeaderVisible)
-    }
-}
-
-extension Date: Identifiable {
-    public var id: Date {
-        return self
+extension ConversationView {
+    init(course: Course, conversation: Conversation) {
+        self.init(viewModel: ConversationViewModel(course: course, conversation: conversation))
     }
 }
 
@@ -213,26 +152,10 @@ private struct PullToRefresh: View {
 }
 
 #Preview {
-    ConversationDaySection(
-        viewModel: {
-            let viewModel = ConversationViewModel(
-                course: MessagesServiceStub.course,
-                conversation: MessagesServiceStub.conversation)
-            viewModel.dailyMessages = .done(response: [
-                MessagesServiceStub.now: [
-                    MessagesServiceStub.message,
-                    MessagesServiceStub.continuation,
-                    MessagesServiceStub.reply
-                ]
-            ])
-            return viewModel
-        }(),
-        day: MessagesServiceStub.now,
-        messages: [
-            MessagesServiceStub.message,
-            MessagesServiceStub.continuation,
-            MessagesServiceStub.reply
-        ],
-        conversationPath: ConversationPath(id: 1, coursePath: CoursePath(course: MessagesServiceStub.course))
+    ConversationView(
+        viewModel: ConversationViewModel(
+            course: MessagesServiceStub.course,
+            conversation: MessagesServiceStub.conversation,
+            messagesService: MessagesServiceStub())
     )
 }

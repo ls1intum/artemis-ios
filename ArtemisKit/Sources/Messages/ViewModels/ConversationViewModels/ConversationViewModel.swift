@@ -20,6 +20,7 @@ class ConversationViewModel: BaseViewModel {
     let conversation: Conversation
 
     @Published var dailyMessages: DataState<[Date: [Message]]> = .loading
+    @Published var offlineMessages: [ConversationOfflineMessageModel] = []
 
     var isAllowedToPost: Bool {
         guard let channel = conversation.baseConversation as? Channel else {
@@ -41,6 +42,7 @@ class ConversationViewModel: BaseViewModel {
 
     private var size = 50
 
+    fileprivate let messagesRepository: MessagesRepository
     private let messagesService: MessagesService
     private let stompClient: ArtemisStompClient
     private let userSession: UserSession
@@ -48,6 +50,7 @@ class ConversationViewModel: BaseViewModel {
     init(
         course: Course,
         conversation: Conversation,
+        messagesRepository: MessagesRepository = .shared,
         messagesService: MessagesService = MessagesServiceFactory.shared,
         stompClient: ArtemisStompClient = .shared,
         userSession: UserSession = .shared
@@ -55,6 +58,7 @@ class ConversationViewModel: BaseViewModel {
         self.course = course
         self.conversation = conversation
 
+        self.messagesRepository = messagesRepository
         self.messagesService = messagesService
         self.stompClient = stompClient
         self.userSession = userSession
@@ -62,6 +66,7 @@ class ConversationViewModel: BaseViewModel {
         super.init()
 
         subscribeToConversationTopic()
+        fetchOfflineMessages()
     }
 
     deinit {
@@ -236,6 +241,28 @@ extension ConversationViewModel {
     }
 }
 
+// MARK: - Fileprivate
+
+fileprivate extension ConversationViewModel {
+
+    // MARK: Send message
+
+    func sendMessage(text: String) async {
+        if let host = userSession.institution?.baseURL?.host() {
+            do {
+                let offlineMessage = try messagesRepository.insertConversationOfflineMessage(
+                    host: host, courseId: course.id, conversationId: Int(conversation.id), date: .now, text: text
+                )
+                offlineMessages.append(offlineMessage)
+            } catch {
+                log.error(error)
+            }
+        } else {
+            log.verbose("Host is nil")
+        }
+    }
+}
+
 // MARK: - Private
 
 private extension ConversationViewModel {
@@ -269,6 +296,20 @@ private extension ConversationViewModel {
                 }
                 onMessageReceived(messageWebsocketDTO: messageWebsocketDTO)
             }
+        }
+    }
+
+    func fetchOfflineMessages() {
+        if let host = userSession.institution?.baseURL?.host() {
+            do {
+                self.offlineMessages = try messagesRepository.fetchConversationOfflineMessages(
+                    host: host, courseId: course.id, conversationId: Int(conversation.id)
+                )
+            } catch {
+                log.error(error)
+            }
+        } else {
+            log.verbose("Host is nil")
         }
     }
 
@@ -344,5 +385,31 @@ private extension ConversationViewModel {
 
         shouldScrollToId = nil
         self.dailyMessages = .done(response: dailyMessages)
+    }
+}
+
+// swiftlint:disable file_length
+// MARK: - ConversationViewModel+SendMessageViewModelDelegate
+
+extension SendMessageViewModelDelegate {
+    init(_ conversationViewModel: ConversationViewModel) {
+        self.loadMessages = conversationViewModel.loadMessages
+        self.presentError = conversationViewModel.presentError
+        self.sendMessage = conversationViewModel.sendMessage
+    }
+}
+
+// MARK: - ConversationViewModel+ConversationOfflineSectionModelDelegate
+
+extension ConversationOfflineSectionModelDelegate {
+    init(_ conversationViewModel: ConversationViewModel) {
+        self.didSendOfflineMessage = { message in
+            conversationViewModel.shouldScrollToId = "bottom"
+            await conversationViewModel.loadMessages()
+            if let index = conversationViewModel.offlineMessages.firstIndex(of: message) {
+                let message = conversationViewModel.offlineMessages.remove(at: index)
+                conversationViewModel.messagesRepository.delete(conversationOfflineMessage: message)
+            }
+        }
     }
 }
