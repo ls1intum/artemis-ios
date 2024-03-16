@@ -85,9 +85,11 @@ private extension MessageDetailView {
             VStack {
                 let sortedArray = message.answers ?? []
                 ForEach(Array(sortedArray.enumerated()), id: \.1) { index, answerMessage in
-                    MessageCellWrapper(
+                    #warning("Constant")
+                    MessageCell(
                         viewModel: conversationViewModel,
-                        answerMessage: answerMessage,
+                        message: .constant(.done(response: answerMessage)),
+                        conversationPath: nil,
                         isHeaderVisible: index == 0 || !answerMessage.isContinuation(of: sortedArray[index - 1]))
                 }
                 Spacer()
@@ -104,68 +106,6 @@ private extension MessageDetailView {
                     }
             }
         }
-    }
-}
-
-private struct MessageCellWrapper: View {
-
-    @ObservedObject var viewModel: ConversationViewModel
-
-    let answerMessage: AnswerMessage
-    let isHeaderVisible: Bool
-
-    private var answerMessageBinding: Binding<DataState<BaseMessage>> {
-        #warning("Constant")
-        return .constant(.done(response: answerMessage))
-
-        let isAnswerMessage = { (answer: AnswerMessage) -> Bool in
-            answer.id == self.answerMessage.id
-        }
-        let messageContainsAnswer = { (message: Message) -> Bool in
-            message.answers?.contains(where: isAnswerMessage) ?? false
-        }
-
-        return Binding(get: {
-            if let dailyMessages = viewModel.dailyMessages.value {
-                let answerMessages: [AnswerMessage] = dailyMessages.keys.compactMap { key in
-
-                    if let messages = dailyMessages[key],
-                       let messageIndex = messages.firstIndex(where: messageContainsAnswer),
-                       let answerMessage = messages[messageIndex].answers?.first(where: isAnswerMessage) {
-                        return answerMessage
-                    }
-                    return nil
-                }
-
-                if let answerMessage = answerMessages.first {
-                    return .done(response: answerMessage)
-                }
-            }
-            return .loading
-        }, set: { newValue in
-            if let newAnswerMessage = newValue.value as? AnswerMessage,
-               let dailyMessages = viewModel.dailyMessages.value {
-
-                for key in dailyMessages.keys {
-
-                    if let messages = dailyMessages[key],
-                       let messageIndex = messages.firstIndex(where: messageContainsAnswer),
-                       let answerMessageIndex = messages[messageIndex].answers?.firstIndex(where: isAnswerMessage) {
-
-                        viewModel.dailyMessages.value?[key]?[messageIndex].answers?[answerMessageIndex] = newAnswerMessage
-                        continue
-                    }
-                }
-            }
-        })
-    }
-
-    var body: some View {
-        MessageCell(
-            viewModel: viewModel,
-            message: answerMessageBinding,
-            conversationPath: nil,
-            isHeaderVisible: isHeaderVisible)
     }
 }
 
