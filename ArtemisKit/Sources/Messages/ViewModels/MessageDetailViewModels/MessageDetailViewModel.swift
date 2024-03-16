@@ -5,6 +5,7 @@
 //  Created by Nityananda Zbil on 13.03.24.
 //
 
+import APIClient
 import Common
 import Foundation
 import SharedModels
@@ -17,13 +18,14 @@ final class MessageDetailViewModel {
 
     let course: Course
     let conversation: Conversation
-    
+
     var message: Message
     var offlineAnswers: [MessageOfflineAnswerModel] = []
     var shouldScrollToId: String?
 
     fileprivate let messagesRepository: MessagesRepository
     private let messagesService: MessagesService
+    private let stompClient: ArtemisStompClient
     private let userSession: UserSession
 
     init(
@@ -32,6 +34,7 @@ final class MessageDetailViewModel {
         message: Message,
         messagesService: MessagesService = MessagesServiceFactory.shared,
         messagesRepository: MessagesRepository = .shared,
+        stompClient: ArtemisStompClient = .shared,
         userSession: UserSession = .shared
     ) {
         self.course = course
@@ -39,6 +42,7 @@ final class MessageDetailViewModel {
         self.message = message
         self.messagesService = messagesService
         self.messagesRepository = messagesRepository
+        self.stompClient = stompClient
         self.userSession = userSession
     }
 
