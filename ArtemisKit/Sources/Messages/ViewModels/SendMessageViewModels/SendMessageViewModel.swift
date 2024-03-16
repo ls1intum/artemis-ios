@@ -226,6 +226,8 @@ extension SendMessageViewModel {
                 isLoading = false
             case let .answerMessage(_, viewModel):
                 await viewModel.sendAnswerMessage(text: text)
+                // Otherwise, the message update is out-of-date.
+                try? await Task.sleep(for: .seconds(1))
                 await viewModel.loadMessage()
                 viewModel.shouldScrollToId = "bottom"
                 result = .success
