@@ -105,6 +105,12 @@ let package = Package(
                 .product(name: "UserStore", package: "artemis-ios-core-modules"),
                 .product(name: "RswiftLibrary", package: "R.swift")
             ],
+            swiftSettings: [
+                .unsafeFlags([
+                    "-Xfrontend", "-warn-long-function-bodies=100",
+                    "-Xfrontend", "-warn-long-expression-type-checking=100"
+                ])
+            ],
             plugins: [
                 .plugin(name: "RswiftGeneratePublicResources", package: "R.swift")
             ]),
