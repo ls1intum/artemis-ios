@@ -12,43 +12,16 @@ import Navigation
 import SharedModels
 import SwiftUI
 
-// swiftlint:disable:next identifier_name
-private let MAX_MINUTES_FOR_GROUPING_MESSAGES = 5
-
 public struct ConversationView: View {
 
     @EnvironmentObject var navigationController: NavigationController
 
-    @StateObject private var viewModel: ConversationViewModel
+    @StateObject var viewModel: ConversationViewModel
 
     @State private var isConversationInfoSheetPresented = false
 
-    public init(course: Course, conversation: Conversation) {
-        _viewModel = StateObject(wrappedValue: ConversationViewModel(course: course, conversation: conversation))
-    }
-
-    public init(courseId: Int, conversationId: Int64) {
-        _viewModel = StateObject(wrappedValue: ConversationViewModel(courseId: courseId, conversationId: conversationId))
-    }
-
     private var conversationPath: ConversationPath {
-        if let conversation = viewModel.conversation.value {
-            return ConversationPath(conversation: conversation, coursePath: CoursePath(id: viewModel.courseId))
-        }
-        return ConversationPath(id: viewModel.conversationId, coursePath: CoursePath(id: viewModel.courseId))
-    }
-
-    private var isAllowedToPost: Bool {
-        guard let channel = viewModel.conversation.value?.baseConversation as? Channel else { return true }
-        // Channel is archived
-        if channel.isArchived ?? false {
-            return false
-        }
-        // Channel is announcement channel and current user is not instructor
-        if channel.isAnnouncementChannel ?? false && !(channel.hasChannelModerationRights ?? false) {
-            return false
-        }
-        return true
+        ConversationPath(conversation: viewModel.conversation, coursePath: CoursePath(course: viewModel.course))
     }
 
     public var body: some View {
@@ -56,7 +29,7 @@ public struct ConversationView: View {
             DataStateView(data: $viewModel.dailyMessages) {
                 await viewModel.loadMessages()
             } content: { dailyMessages in
-                if dailyMessages.isEmpty {
+                if dailyMessages.isEmpty && viewModel.offlineMessages.isEmpty {
                     ContentUnavailableView(
                         R.string.localizable.noMessages(),
                         systemImage: "bubble.right",
@@ -75,12 +48,15 @@ public struct ConversationView: View {
                                         messages: dailyMessage.value,
                                         conversationPath: conversationPath)
                                 }
+                                ConversationOfflineSection(viewModel)
+                                    // Force re-evaluation, when offline messages change.
+                                    .id(viewModel.offlineMessages.first)
                                 Spacer()
                                     .id("bottom")
                             }
                         }
                         .coordinateSpace(name: "pullToRefresh")
-                        .onChange(of: viewModel.dailyMessages.value) {
+                        .onChange(of: viewModel.dailyMessages.value, initial: true) {
                             // TODO: does not work correctly when loadFurtherMessages is called -> is called to early -> investigate
                             if let id = viewModel.shouldScrollToId {
                                 withAnimation {
@@ -91,8 +67,15 @@ public struct ConversationView: View {
                     }
                 }
             }
-            if isAllowedToPost {
-                SendMessageView(viewModel: viewModel, sendMessageType: .message)
+            if viewModel.isAllowedToPost {
+                SendMessageView(
+                    viewModel: SendMessageViewModel(
+                        course: viewModel.course,
+                        conversation: viewModel.conversation,
+                        configuration: .message,
+                        delegate: SendMessageViewModelDelegate(viewModel)
+                    )
+                )
             }
         }
         .toolbar {
@@ -100,21 +83,18 @@ public struct ConversationView: View {
                 Button {
                     isConversationInfoSheetPresented = true
                 } label: {
-                    Text(viewModel.conversation.value?.baseConversation.conversationName ?? R.string.localizable.loading())
+                    Text(viewModel.conversation.baseConversation.conversationName)
                         .foregroundColor(.Artemis.primaryLabel)
                         .frame(width: UIScreen.main.bounds.size.width * 0.6)
                 }
             }
         }
         .sheet(isPresented: $isConversationInfoSheetPresented) {
-            if let course = viewModel.course.value {
-                ConversationInfoSheetView(
-                    conversation: $viewModel.conversation,
-                    course: course,
-                    conversationId: viewModel.conversationId)
-            } else {
-                Text(R.string.localizable.loading())
-            }
+            #warning("Constant")
+            ConversationInfoSheetView(
+                conversation: .constant(.done(response: viewModel.conversation)),
+                course: viewModel.course,
+                conversationId: viewModel.conversation.id)
         }
         .task {
             viewModel.shouldScrollToId = "bottom"
@@ -132,75 +112,9 @@ public struct ConversationView: View {
     }
 }
 
-private struct ConversationDaySection: View {
-
-    @ObservedObject var viewModel: ConversationViewModel
-
-    let day: Date
-    let messages: [Message]
-    let conversationPath: ConversationPath
-
-    var body: some View {
-        VStack(alignment: .leading) {
-            Text(day, formatter: DateFormatter.dateOnly)
-                .font(.headline)
-                .padding(.top, .m)
-                .padding(.horizontal, .l)
-            Divider()
-                .padding(.horizontal, .l)
-            ForEach(Array(messages.enumerated()), id: \.1.id) { index, message in
-                MessageCellWrapper(
-                    viewModel: viewModel,
-                    day: day,
-                    message: message,
-                    conversationPath: conversationPath,
-                    showHeader: (index == 0 ? true : showHeader(message: message, previousMessage: messages[index - 1])))
-            }
-        }
-    }
-
-    // header is not shown if same person messages multiple times within 5 minutes
-    private func showHeader(message: Message, previousMessage: Message) -> Bool {
-        !(message.author == previousMessage.author &&
-          message.creationDate ?? .now < (previousMessage.creationDate ?? .yesterday).addingTimeInterval(TimeInterval(MAX_MINUTES_FOR_GROUPING_MESSAGES * 60)))
-    }
-}
-
-private struct MessageCellWrapper: View {
-    @ObservedObject var viewModel: ConversationViewModel
-
-    let day: Date
-    let message: Message
-    let conversationPath: ConversationPath
-    let showHeader: Bool
-
-    private var messageBinding: Binding<DataState<BaseMessage>> {
-        Binding(get: {
-            if  let messageIndex = viewModel.dailyMessages.value?[day]?.firstIndex(where: { $0.id == message.id }),
-                let message = viewModel.dailyMessages.value?[day]?[messageIndex] {
-                return .done(response: message)
-            }
-            return .loading
-        }, set: {
-            if  let messageIndex = viewModel.dailyMessages.value?[day]?.firstIndex(where: { $0.id == message.id }),
-                let newMessage = $0.value as? Message {
-                viewModel.dailyMessages.value?[day]?[messageIndex] = newMessage
-            }
-        })
-    }
-
-    var body: some View {
-        MessageCell(
-            viewModel: viewModel,
-            message: messageBinding,
-            conversationPath: conversationPath,
-            showHeader: showHeader)
-    }
-}
-
-extension Date: Identifiable {
-    public var id: Date {
-        return self
+extension ConversationView {
+    init(course: Course, conversation: Conversation) {
+        self.init(viewModel: ConversationViewModel(course: course, conversation: conversation))
     }
 }
 
@@ -235,4 +149,13 @@ private struct PullToRefresh: View {
         }
         .padding(.top, -50)
     }
+}
+
+#Preview {
+    ConversationView(
+        viewModel: ConversationViewModel(
+            course: MessagesServiceStub.course,
+            conversation: MessagesServiceStub.conversation,
+            messagesService: MessagesServiceStub())
+    )
 }

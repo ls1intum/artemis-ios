@@ -8,6 +8,7 @@
 import Foundation
 import Common
 
+@MainActor
 class CreateChannelViewModel: BaseViewModel {
 
     @Published var nameFormatText: String?

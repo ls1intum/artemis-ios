@@ -6,44 +6,63 @@
 //  Copyright © 2023 orgName. All rights reserved.
 //
 
-import Foundation
 import Combine
-import UserStore
+import Common
+import Foundation
+import PushNotifications
 import SwiftUI
 import SharedServices
-import PushNotifications
-import Common
+import UserStore
 
 @MainActor
 class RootViewModel: ObservableObject {
 
     @Published var isLoading = true
-
     @Published var isLoggedIn = false
     @Published var didSetupNotifications = false
 
-    private var cancellables: Set<AnyCancellable> = Set()
+    private let userSession: UserSession
+    private let accountService: AccountService
 
-    init() {
-        UserSession.shared.objectWillChange.sink {
+    private var cancellable: Set<AnyCancellable> = Set()
+
+    init(
+        userSession: UserSession = .shared,
+        accountService: AccountService = AccountServiceFactory.shared
+    ) {
+        self.userSession = userSession
+        self.accountService = accountService
+
+        start()
+    }
+}
+
+private extension RootViewModel {
+    func start() {
+        userSession.objectWillChange.sink {
             DispatchQueue.main.async { [weak self] in
-                if !(self?.isLoggedIn ?? false) && UserSession.shared.isLoggedIn {
-                    self?.updateDeviceToken()
+                guard let self else {
+                    return
                 }
-                self?.isLoggedIn = UserSession.shared.isLoggedIn
-                self?.didSetupNotifications = UserSession.shared.getCurrentNotificationDeviceConfiguration() != nil
+
+                if !self.isLoggedIn && self.userSession.isLoggedIn {
+                    self.updateDeviceToken()
+                }
+                self.isLoggedIn = self.userSession.isLoggedIn
+                self.didSetupNotifications = self.userSession.getCurrentNotificationDeviceConfiguration() != nil
             }
-        }.store(in: &cancellables)
+        }
+        .store(in: &cancellable)
 
         Task(priority: .high) {
-            let user = await AccountServiceFactory.shared.getAccount()
+            let user = await accountService.getAccount()
 
             switch user {
             case .loading, .failure:
-                UserSession.shared.setTokenExpired(expired: false)
+                userSession.setTokenExpired(expired: false)
             case .done:
-                isLoggedIn = UserSession.shared.isLoggedIn
-                didSetupNotifications = UserSession.shared.getCurrentNotificationDeviceConfiguration() != nil
+                isLoggedIn = userSession.isLoggedIn
+                didSetupNotifications = userSession.getCurrentNotificationDeviceConfiguration() != nil
             }
             isLoading = false
         }
@@ -51,10 +70,12 @@ class RootViewModel: ObservableObject {
         updateDeviceToken()
     }
 
-    private func updateDeviceToken() {
-        if let notificationConfig = UserSession.shared.getCurrentNotificationDeviceConfiguration(),
+    func updateDeviceToken() {
+        if let notificationConfig = userSession.getCurrentNotificationDeviceConfiguration(),
            !notificationConfig.skippedNotifications {
-            UserSession.shared.notificationSetupError = nil
+
+            userSession.notificationSetupError = nil
+
             Task {
                 do {
                     let granted = try await UNUserNotificationCenter.current().requestAuthorization(options: [.sound, .badge, .alert])

@@ -14,19 +14,24 @@ import UserStore
 protocol MessagesService {
 
     /**
-     * Perform a get request for all Conversations of a course to the server.
+     * Perform a get request for all conversations of a course to the server.
      */
     func getConversations(for courseId: Int) async -> DataState<[Conversation]>
 
     /**
-     * Perform a hide/show post request for a specific Conversations of a specific course to the server.
+     * Perform an update favorite post request for a specific conversation of a specific course to the server.
      */
-    func hideUnhideConversation(for courseId: Int, and conversationId: Int64, isHidden: Bool) async -> NetworkResponse
+    func updateIsConversationFavorite(for courseId: Int, and conversationId: Int64, isFavorite: Bool) async -> NetworkResponse
 
     /**
-     * Perform a set favorite post request for a specific Conversations of a specific course to the server.
+     * Perform an update muted post request for a specific conversation of a specific course to the server.
      */
-    func setIsFavoriteConversation(for courseId: Int, and conversationId: Int64, isFavorite: Bool) async -> NetworkResponse
+    func updateIsConversationMuted(for courseId: Int, and conversationId: Int64, isMuted: Bool) async -> NetworkResponse
+
+    /**
+     * Perform an update hide/show post request for a specific conversation of a specific course to the server.
+     */
+    func updateIsConversationHidden(for courseId: Int, and conversationId: Int64, isHidden: Bool) async -> NetworkResponse
 
     /**
      * Perform a get request for Messages of a specific conversation in a specific course to the server.
@@ -82,6 +87,11 @@ protocol MessagesService {
      * Perform a get request to retrieve all channels in a specific course to the server.
      */
     func getChannelsOverview(for courseId: Int) async -> DataState<[Channel]>
+
+    /**
+     * Perform a get request to retrieve all channels in the public overview in a specific course to the server.
+     */
+    func getChannelsPublicOverview(for courseId: Int) async -> DataState<[ChannelIdAndNameDTO]>
 
     /**
      * Perform a post request to add members to a specific channels in a specific course to the server.

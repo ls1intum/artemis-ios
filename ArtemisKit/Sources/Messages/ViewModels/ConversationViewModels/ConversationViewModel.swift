@@ -5,72 +5,80 @@
 //  Created by Sven Andabaka on 06.04.23.
 //
 
+import APIClient
 import Foundation
 import Common
+import Extensions
 import SharedModels
-import APIClient
 import SharedServices
+import UserStore
 
-// swiftlint:disable file_length
 @MainActor
-public class ConversationViewModel: BaseViewModel {
+class ConversationViewModel: BaseViewModel {
+
+    let course: Course
+    let conversation: Conversation
 
     @Published var dailyMessages: DataState<[Date: [Message]]> = .loading
-    @Published var conversation: DataState<Conversation> = .loading
-    @Published var course: DataState<Course> = .loading
+    @Published var offlineMessages: [ConversationOfflineMessageModel] = []
+
+    var isAllowedToPost: Bool {
+        guard let channel = conversation.baseConversation as? Channel else {
+            return true
+        }
+        // Channel is archived
+        if channel.isArchived ?? false {
+            return false
+        }
+        // Channel is announcement channel and current user is not instructor
+        if channel.isAnnouncementChannel ?? false && !(channel.hasChannelModerationRights ?? false) {
+            return false
+        }
+        return true
+    }
 
     var shouldScrollToId: String?
     var websocketSubscriptionTask: Task<(), Never>?
 
-    let courseId: Int
-    let conversationId: Int64
-
     private var size = 50
 
-    public init(course: Course, conversation: Conversation) {
-        self._course = Published(wrappedValue: .done(response: course))
-        self.courseId = course.id
-        self._conversation = Published(wrappedValue: .done(response: conversation))
-        self.conversationId = conversation.id
+    fileprivate let messagesRepository: MessagesRepository
+    private let messagesService: MessagesService
+    private let stompClient: ArtemisStompClient
+    private let userSession: UserSession
+
+    init(
+        course: Course,
+        conversation: Conversation,
+        messagesRepository: MessagesRepository = .shared,
+        messagesService: MessagesService = MessagesServiceFactory.shared,
+        stompClient: ArtemisStompClient = .shared,
+        userSession: UserSession = .shared
+    ) {
+        self.course = course
+        self.conversation = conversation
+
+        self.messagesRepository = messagesRepository
+        self.messagesService = messagesService
+        self.stompClient = stompClient
+        self.userSession = userSession
 
         super.init()
 
         subscribeToConversationTopic()
+        fetchOfflineMessages()
     }
 
-    public init(courseId: Int, conversationId: Int64) {
-        self.courseId = courseId
-        self.conversationId = conversationId
-        self._conversation = Published(wrappedValue: .loading)
-        self._course = Published(wrappedValue: .loading)
-
-        super.init()
-
-        Task {
-            await loadConversation()
-        }
-        Task {
-            await loadCourse()
-        }
-
-        subscribeToConversationTopic()
+    deinit {
+        websocketSubscriptionTask?.cancel()
     }
+}
 
-    private func subscribeToConversationTopic() {
-        let topic = "/user/topic/metis/courses/\(courseId)/conversations/\(conversationId)"
-        if ArtemisStompClient.shared.didSubscribeTopic(topic) {
-            return
-        }
-        websocketSubscriptionTask = Task { [weak self] in
-            let stream = ArtemisStompClient.shared.subscribe(to: topic)
+// MARK: - Internal
 
-            for await message in stream {
-                guard let messageWebsocketDTO = JSONDecoder.getTypeFromSocketMessage(type: MessageWebsocketDTO.self, message: message) else { continue }
+extension ConversationViewModel {
 
-                self?.onMessageReceived(messageWebsocketDTO: messageWebsocketDTO)
-            }
-        }
-    }
+    // MARK: Load
 
     func loadFurtherMessages() async {
         size += 50
@@ -84,119 +92,57 @@ public class ConversationViewModel: BaseViewModel {
     }
 
     func loadMessages() async {
-        let result = await MessagesServiceFactory.shared.getMessages(for: courseId, and: conversationId, size: size)
-
-        switch result {
-        case .loading:
-            dailyMessages = .loading
-        case .failure(let error):
-            dailyMessages = .failure(error: error)
-        case .done(let response):
+        let result = await messagesService.getMessages(for: course.id, and: conversation.id, size: size)
+        self.dailyMessages = result.map { messages in
             var dailyMessages: [Date: [Message]] = [:]
-
-            response.forEach { message in
+            for message in messages {
                 if let date = message.creationDate?.startOfDay {
                     if dailyMessages[date] == nil {
                         dailyMessages[date] = [message]
                     } else {
                         dailyMessages[date]?.append(message)
-                        dailyMessages[date] = dailyMessages[date]?.sorted(by: { $0.creationDate! < $1.creationDate! })
+                        dailyMessages[date] = dailyMessages[date]?.sorted {
+                            $0.creationDate! < $1.creationDate!
+                        }
                     }
                 }
             }
-
-            self.dailyMessages = .done(response: dailyMessages)
+            return dailyMessages
         }
     }
 
     func loadMessage(messageId: Int64) async -> DataState<Message> {
         // TODO: add API to only load one single message
-        let result = await MessagesServiceFactory.shared.getMessages(for: courseId, and: conversationId, size: size)
-
-        switch result {
-        case .loading:
-            return .loading
-        case .failure(let error):
-            return .failure(error: error)
-        case .done(let response):
-            guard let message = response.first(where: { $0.id == messageId }) else {
-                return .failure(error: UserFacingError(title: R.string.localizable.messageCouldNotBeLoadedError()))
+        let result = await messagesService.getMessages(for: course.id, and: conversation.id, size: size)
+        return result.flatMap { messages in
+            guard let message = messages.first(where: { $0.id == messageId }) else {
+                return .failure(UserFacingError(title: R.string.localizable.messageCouldNotBeLoadedError()))
             }
-            return .done(response: message)
+            return .success(message)
         }
     }
 
     func loadAnswerMessage(answerMessageId: Int64) async -> DataState<AnswerMessage> {
         // TODO: add API to only load one single answer message
-        let result = await MessagesServiceFactory.shared.getMessages(for: courseId, and: conversationId, size: size)
-
-        switch result {
-        case .loading:
-            return .loading
-        case .failure(let error):
-            return .failure(error: error)
-        case .done(let response):
-            guard let message = response.first(where: { $0.answers?.contains(where: { $0.id == answerMessageId }) ?? false }),
+        let result = await messagesService.getMessages(for: course.id, and: conversation.id, size: size)
+        return result.flatMap { messages in
+            guard let message = messages.first(where: { $0.answers?.contains(where: { $0.id == answerMessageId }) ?? false }),
                   let answerMessage = message.answers?.first(where: { $0.id == answerMessageId }) else {
-                return .failure(error: UserFacingError(title: R.string.localizable.messageCouldNotBeLoadedError()))
+                return .failure(UserFacingError(title: R.string.localizable.messageCouldNotBeLoadedError()))
             }
-            return .done(response: answerMessage)
+            return .success(answerMessage)
         }
     }
 
-    func sendMessage(text: String) async -> NetworkResponse {
-        guard let conversation = conversation.value else {
-            let error = UserFacingError(title: R.string.localizable.conversationNotLoaded())
-            presentError(userFacingError: error)
-            return .failure(error: error)
-        }
-        isLoading = true
-        let result = await MessagesServiceFactory.shared.sendMessage(for: courseId, conversation: conversation, content: text)
-        switch result {
-        case .notStarted, .loading:
-            isLoading = false
-        case .success:
-            shouldScrollToId = "bottom"
-            await loadMessages()
-            isLoading = false
-        case .failure(let error):
-            isLoading = false
-            if let apiClientError = error as? APIClientError {
-                presentError(userFacingError: UserFacingError(error: apiClientError))
-            } else {
-                presentError(userFacingError: UserFacingError(title: error.localizedDescription))
-            }
-        }
-        return result
-    }
-
-    func sendAnswerMessage(text: String, for message: Message, completion: () async -> Void) async -> NetworkResponse {
-        isLoading = true
-        let result = await MessagesServiceFactory.shared.sendAnswerMessage(for: courseId, message: message, content: text)
-        switch result {
-        case .notStarted, .loading:
-            isLoading = false
-        case .success:
-            await completion()
-            isLoading = false
-        case .failure(let error):
-            isLoading = false
-            if let apiClientError = error as? APIClientError {
-                presentError(userFacingError: UserFacingError(error: apiClientError))
-            } else {
-                presentError(userFacingError: UserFacingError(title: error.localizedDescription))
-            }
-        }
-        return result
-    }
+    // MARK: React
 
     func addReactionToMessage(for message: Message, emojiId: String) async -> DataState<Message> {
         isLoading = true
         let result: NetworkResponse
         if let reaction = message.getReactionFromMe(emojiId: emojiId) {
-            result = await MessagesServiceFactory.shared.removeReactionFromMessage(for: courseId, reaction: reaction)
+            result = await messagesService.removeReactionFromMessage(for: course.id, reaction: reaction)
         } else {
-            result = await MessagesServiceFactory.shared.addReactionToMessage(for: courseId, message: message, emojiId: emojiId)
+            result = await messagesService.addReactionToMessage(for: course.id, message: message, emojiId: emojiId)
         }
         switch result {
         case .notStarted, .loading:
@@ -225,9 +171,9 @@ public class ConversationViewModel: BaseViewModel {
         isLoading = true
         let result: NetworkResponse
         if let reaction = message.getReactionFromMe(emojiId: emojiId) {
-            result = await MessagesServiceFactory.shared.removeReactionFromMessage(for: courseId, reaction: reaction)
+            result = await messagesService.removeReactionFromMessage(for: course.id, reaction: reaction)
         } else {
-            result = await MessagesServiceFactory.shared.addReactionToAnswerMessage(for: courseId, answerMessage: message, emojiId: emojiId)
+            result = await messagesService.addReactionToAnswerMessage(for: course.id, answerMessage: message, emojiId: emojiId)
         }
         switch result {
         case .notStarted, .loading:
@@ -252,13 +198,15 @@ public class ConversationViewModel: BaseViewModel {
         }
     }
 
+    // MARK: Delete
+
     func deleteMessage(messageId: Int64?) async -> Bool {
         guard let messageId else {
             presentError(userFacingError: UserFacingError(title: R.string.localizable.deletionErrorLabel()))
             return false
         }
 
-        let result = await MessagesServiceFactory.shared.deleteMessage(for: courseId, messageId: messageId)
+        let result = await messagesService.deleteMessage(for: course.id, messageId: messageId)
 
         switch result {
         case .notStarted, .loading:
@@ -278,7 +226,7 @@ public class ConversationViewModel: BaseViewModel {
             return false
         }
 
-        let result = await MessagesServiceFactory.shared.deleteAnswerMessage(for: courseId, anserMessageId: messageId)
+        let result = await messagesService.deleteAnswerMessage(for: course.id, anserMessageId: messageId)
 
         switch result {
         case .notStarted, .loading:
@@ -290,77 +238,88 @@ public class ConversationViewModel: BaseViewModel {
             presentError(userFacingError: UserFacingError(title: error.localizedDescription))
             return false
         }
-    }
-
-    func editMessage(message: Message) async -> Bool {
-        let result = await MessagesServiceFactory.shared.editMessage(for: courseId, message: message)
-
-        switch result {
-        case .notStarted, .loading:
-            return false
-        case .success:
-            await loadMessages()
-            return true
-        case .failure(let error):
-            presentError(userFacingError: UserFacingError(title: error.localizedDescription))
-            return false
-        }
-    }
-
-    func editAnswerMessage(answerMessage: AnswerMessage) async -> Bool {
-        let result = await MessagesServiceFactory.shared.editAnswerMessage(for: courseId, answerMessage: answerMessage)
-
-        switch result {
-        case .notStarted, .loading:
-            return false
-        case .success:
-            await loadMessages()
-            return true
-        case .failure(let error):
-            presentError(userFacingError: UserFacingError(title: error.localizedDescription))
-            return false
-        }
-    }
-
-    private func loadConversation() async {
-        let result = await MessagesServiceFactory.shared.getConversations(for: courseId)
-
-        switch result {
-        case .loading:
-            conversation = .loading
-        case .failure(let error):
-            conversation = .failure(error: error)
-        case .done(let response):
-            guard let conversation = response.first(where: { $0.id == conversationId }) else {
-                self.conversation = .failure(error: UserFacingError(title: R.string.localizable.conversationNotLoaded()))
-                return
-            }
-            self.conversation = .done(response: conversation)
-        }
-    }
-
-    private func loadCourse() async {
-        let result = await CourseServiceFactory.shared.getCourse(courseId: courseId)
-
-        switch result {
-        case .loading:
-            course = .loading
-        case .failure(let error):
-            course = .failure(error: error)
-        case .done(let response):
-            course = .done(response: response.course)
-        }
-    }
-
-    deinit {
-        websocketSubscriptionTask?.cancel()
     }
 }
 
-// All functions to handle new conversation received socket
-extension ConversationViewModel {
+// MARK: - Fileprivate
 
-    private func onMessageReceived(messageWebsocketDTO: MessageWebsocketDTO) {
+fileprivate extension ConversationViewModel {
+
+    // MARK: Send message
+
+    func sendMessage(text: String) async {
+        if let host = userSession.institution?.baseURL?.host() {
+            do {
+                let offlineMessage = try messagesRepository.insertConversationOfflineMessage(
+                    host: host, courseId: course.id, conversationId: Int(conversation.id), date: .now, text: text
+                )
+                offlineMessages.append(offlineMessage)
+            } catch {
+                log.error(error)
+            }
+        } else {
+            log.verbose("Host is nil")
+        }
+    }
+}
+
+// MARK: - Private
+
+private extension ConversationViewModel {
+
+    // MARK: Initializer
+
+    func subscribeToConversationTopic() {
+        let topic: String
+        if conversation.baseConversation.type == .channel {
+            topic = WebSocketTopic.makeChannelNotifications(courseId: course.id)
+        } else if let id = userSession.user?.id {
+            topic = WebSocketTopic.makeConversationNotifications(userId: id)
+        } else {
+            return
+        }
+        if stompClient.didSubscribeTopic(topic) {
+            return
+        }
+        websocketSubscriptionTask = Task { [weak self] in
+            guard let stream = self?.stompClient.subscribe(to: topic) else {
+                return
+            }
+
+            for await message in stream {
+                guard let messageWebsocketDTO = JSONDecoder.getTypeFromSocketMessage(type: MessageWebsocketDTO.self, message: message) else {
+                    continue
+                }
+
+                guard let self else {
+                    return
+                }
+                onMessageReceived(messageWebsocketDTO: messageWebsocketDTO)
+            }
+        }
+    }
+
+    func fetchOfflineMessages() {
+        if let host = userSession.institution?.baseURL?.host() {
+            do {
+                self.offlineMessages = try messagesRepository.fetchConversationOfflineMessages(
+                    host: host, courseId: course.id, conversationId: Int(conversation.id)
+                )
+            } catch {
+                log.error(error)
+            }
+        } else {
+            log.verbose("Host is nil")
+        }
+    }
+
+    // MARK: Receive message
+
+    func onMessageReceived(messageWebsocketDTO: MessageWebsocketDTO) {
+        // Guard message corresponds to conversation
+        guard messageWebsocketDTO.post.conversation?.id == conversation.id else {
+            return
+        }
         switch messageWebsocketDTO.action {
         case .create:
             handleNewMessage(messageWebsocketDTO.post)
@@ -373,7 +332,7 @@ extension ConversationViewModel {
         }
     }
 
-    private func handleNewMessage(_ newMessage: Message) {
+    func handleNewMessage(_ newMessage: Message) {
         guard var dailyMessages = dailyMessages.value else {
             // messages not loaded yet
             return
@@ -393,7 +352,7 @@ extension ConversationViewModel {
         self.dailyMessages = .done(response: dailyMessages)
     }
 
-    private func handleUpdateMessage(_ updatedMessage: Message) {
+    func handleUpdateMessage(_ updatedMessage: Message) {
         guard var dailyMessages = dailyMessages.value else {
             // messages not loaded yet
             return
@@ -411,7 +370,7 @@ extension ConversationViewModel {
         self.dailyMessages = .done(response: dailyMessages)
     }
 
-    private func handleDeletedMessage(_ deletedMessage: Message) {
+    func handleDeletedMessage(_ deletedMessage: Message) {
         guard var dailyMessages = dailyMessages.value else {
             // messages not loaded yet
             return
@@ -426,5 +385,31 @@ extension ConversationViewModel {
 
         shouldScrollToId = nil
         self.dailyMessages = .done(response: dailyMessages)
+    }
+}
+
+// swiftlint:disable file_length
+// MARK: - ConversationViewModel+SendMessageViewModelDelegate
+
+extension SendMessageViewModelDelegate {
+    init(_ conversationViewModel: ConversationViewModel) {
+        self.loadMessages = conversationViewModel.loadMessages
+        self.presentError = conversationViewModel.presentError
+        self.sendMessage = conversationViewModel.sendMessage
+    }
+}
+
+// MARK: - ConversationViewModel+ConversationOfflineSectionModelDelegate
+
+extension ConversationOfflineSectionModelDelegate {
+    init(_ conversationViewModel: ConversationViewModel) {
+        self.didSendOfflineMessage = { message in
+            conversationViewModel.shouldScrollToId = "bottom"
+            await conversationViewModel.loadMessages()
+            if let index = conversationViewModel.offlineMessages.firstIndex(of: message) {
+                let message = conversationViewModel.offlineMessages.remove(at: index)
+                conversationViewModel.messagesRepository.delete(conversationOfflineMessage: message)
+            }
+        }
     }
 }

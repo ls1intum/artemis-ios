@@ -10,6 +10,7 @@ import Common
 import UserStore
 import SharedModels
 
+@MainActor
 class ConversationInfoSheetViewModel: BaseViewModel {
 
     @Published var members: DataState<[ConversationUser]> = .loading

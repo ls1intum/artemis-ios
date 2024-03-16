@@ -1,17 +1,17 @@
 //
 //  SwiftUIView.swift
-//  
+//
 //
 //  Created by Sven Andabaka on 08.04.23.
 //
 
-import SwiftUI
-import SharedModels
-import UserStore
+import Common
 import EmojiPicker
 import Navigation
-import Common
+import SharedModels
 import Smile
+import SwiftUI
+import UserStore
 
 struct MessageActionSheet: View {
 
@@ -27,13 +27,17 @@ struct MessageActionSheet: View {
     @State private var showEditSheet = false
 
     var isAbleToEditDelete: Bool {
-        guard let message = message.value else { return false }
+        guard let message = message.value else {
+            return false
+        }
 
         if message.isCurrentUserAuthor {
             return true
         }
 
-        guard let channel = viewModel.conversation.value?.baseConversation as? Channel else { return false }
+        guard let channel = viewModel.conversation.baseConversation as? Channel else {
+            return false
+        }
         if channel.hasChannelModerationRights ?? false && message is Message {
             return true
         }
@@ -51,28 +55,32 @@ struct MessageActionSheet: View {
                     EmojiTextButton(viewModel: viewModel, message: $message, emoji: "🚀")
                     EmojiPickerButton(viewModel: viewModel, message: $message)
                 }
-                    .padding(.l)
+                .padding(.l)
                 if message.value is Message,
                    let conversationPath {
                     Divider()
-                    Button(action: {
-                        if let messagePath = MessagePath(message: $message, coursePath: conversationPath.coursePath, conversationPath: conversationPath, conversationViewModel: viewModel) {
+                    Button {
+                        if let messagePath = MessagePath(
+                            message: $message,
+                            conversationPath: conversationPath,
+                            conversationViewModel: viewModel
+                        ) {
                             dismiss()
                             navigationController.path.append(messagePath)
                         } else {
                             viewModel.presentError(userFacingError: UserFacingError(title: R.string.localizable.detailViewCantBeOpened()))
                         }
-                    }, label: {
+                    } label: {
                         ButtonContent(title: R.string.localizable.replyInThread(), icon: "text.bubble.fill")
-                    })
+                    }
                 }
                 Divider()
-                Button(action: {
+                Button {
                     UIPasteboard.general.string = message.value?.content
                     dismiss()
-                }, label: {
+                } label: {
                     ButtonContent(title: R.string.localizable.copyText(), icon: "clipboard.fill")
-                })
+                }
 
                 editDeleteSection
 
@@ -80,75 +88,96 @@ struct MessageActionSheet: View {
             }
             Spacer()
         }
-            .padding(.vertical, .xxl)
-            .loadingIndicator(isLoading: $viewModel.isLoading)
-            .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
+        .padding(.vertical, .xxl)
+        .loadingIndicator(isLoading: $viewModel.isLoading)
+        .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
     }
+}
 
+private extension MessageActionSheet {
     var editDeleteSection: some View {
         Group {
             if isAbleToEditDelete {
                 Divider()
 
-                Button(action: {
+                Button {
                     showEditSheet = true
-                }, label: {
+                } label: {
                     ButtonContent(title: R.string.localizable.editMessage(), icon: "pencil")
-                })
-                    .sheet(isPresented: $showEditSheet) {
-                        NavigationView {
-                            Group {
-                                if let message = message.value as? Message {
-                                    SendMessageView(viewModel: viewModel, sendMessageType: .editMessage(message, { self.dismiss() }))
-                                } else if let answerMessage = message.value as? AnswerMessage {
-                                    SendMessageView(viewModel: viewModel, sendMessageType: .editAnswerMessage(answerMessage, { self.dismiss() }))
-                                } else {
-                                    Text(R.string.localizable.loading())
-                                }
-                            }
-                            .navigationTitle(R.string.localizable.editMessage())
-                            .navigationBarTitleDisplayMode(.inline)
-                            .toolbar {
-                                ToolbarItem(placement: .navigationBarLeading) {
-                                    Button(R.string.localizable.cancel()) {
-                                        showEditSheet = false
-                                    }
-                                }
-                            }
-                        }.presentationDetents([.height(200), .medium])
-                    }
+                }
+                .sheet(isPresented: $showEditSheet) {
+                    editMessage
+                }
 
-                Button(action: {
+                Button {
                     showDeleteAlert = true
-                }, label: {
+                } label: {
                     ButtonContent(title: R.string.localizable.deleteMessage(), icon: "trash.fill")
                         .foregroundColor(.red)
-                })
-                    .alert(R.string.localizable.confirmDeletionTitle(), isPresented: $showDeleteAlert) {
-                        Button(R.string.localizable.confirm(), role: .destructive) {
-                            viewModel.isLoading = true
-                            Task(priority: .userInitiated) {
-                                let success: Bool
-                                let tempMessage = message.value
-                                if message.value is AnswerMessage {
-                                    success = await viewModel.deleteAnswerMessage(messageId: message.value?.id)
-                                } else {
-                                    success = await viewModel.deleteMessage(messageId: message.value?.id)
-                                }
-                                viewModel.isLoading = false
-                                if success {
-                                    dismiss()
-                                    // if we deleted a Message and are in the MessageDetailView we pop it
-                                    if navigationController.path.count == 3 && tempMessage is Message {
-                                        navigationController.path.removeLast()
-                                    }
+                }
+                .alert(R.string.localizable.confirmDeletionTitle(), isPresented: $showDeleteAlert) {
+                    Button(R.string.localizable.confirm(), role: .destructive) {
+                        viewModel.isLoading = true
+                        Task(priority: .userInitiated) {
+                            let success: Bool
+                            let tempMessage = message.value
+                            if message.value is AnswerMessage {
+                                success = await viewModel.deleteAnswerMessage(messageId: message.value?.id)
+                            } else {
+                                success = await viewModel.deleteMessage(messageId: message.value?.id)
+                            }
+                            viewModel.isLoading = false
+                            if success {
+                                dismiss()
+                                // if we deleted a Message and are in the MessageDetailView we pop it
+                                if navigationController.path.count == 3 && tempMessage is Message {
+                                    navigationController.path.removeLast()
                                 }
                             }
                         }
-                        Button(R.string.localizable.cancel(), role: .cancel) { }
                     }
+                    Button(R.string.localizable.cancel(), role: .cancel) { }
+                }
             }
         }
+    }
+
+    var editMessage: some View {
+        NavigationView {
+            Group {
+                if let message = message.value as? Message {
+                    SendMessageView(
+                        viewModel: SendMessageViewModel(
+                            course: viewModel.course,
+                            conversation: viewModel.conversation,
+                            configuration: .editMessage(message, { self.dismiss() }),
+                            delegate: SendMessageViewModelDelegate(viewModel)
+                        )
+                    )
+                } else if let answerMessage = message.value as? AnswerMessage {
+                    SendMessageView(
+                        viewModel: SendMessageViewModel(
+                            course: viewModel.course,
+                            conversation: viewModel.conversation,
+                            configuration: .editAnswerMessage(answerMessage, { self.dismiss() }),
+                            delegate: SendMessageViewModelDelegate(viewModel)
+                        )
+                    )
+                } else {
+                    Text(R.string.localizable.loading())
+                }
+            }
+            .navigationTitle(R.string.localizable.editMessage())
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(R.string.localizable.cancel()) {
+                        showEditSheet = false
+                    }
+                }
+            }
+        }
+        .presentationDetents([.height(200), .medium])
     }
 }
 
@@ -166,8 +195,8 @@ private struct ButtonContent: View {
             Text(title)
                 .font(.headline)
         }
-            .padding(.horizontal, .l)
-            .foregroundColor(.Artemis.primaryLabel)
+        .padding(.horizontal, .l)
+        .foregroundColor(.Artemis.primaryLabel)
     }
 }
 
@@ -233,7 +262,9 @@ private struct EmojiPickerButton: View {
     @State var selectedEmoji: Emoji?
 
     var body: some View {
-        Button(action: { showEmojiPicker = true }, label: {
+        Button {
+            showEmojiPicker = true
+        } label: {
             Image("face-smile", bundle: .module)
                 .renderingMode(.template)
                 .resizable()
@@ -242,43 +273,43 @@ private struct EmojiPickerButton: View {
                 .frame(width: .smallImage, height: .smallImage)
                 .padding(20)
                 .background(Capsule().fill(Color.Artemis.reactionCapsuleColor))
-        })
-            .sheet(isPresented: $showEmojiPicker) {
-                NavigationView {
-                    EmojiPickerView(selectedEmoji: $selectedEmoji, selectedColor: Color.Artemis.artemisBlue)
-                        .navigationTitle(R.string.localizable.emojis())
-                        .navigationBarTitleDisplayMode(.inline)
-                }
+        }
+        .sheet(isPresented: $showEmojiPicker) {
+            NavigationView {
+                EmojiPickerView(selectedEmoji: $selectedEmoji, selectedColor: Color.Artemis.artemisBlue)
+                    .navigationTitle(R.string.localizable.emojis())
+                    .navigationBarTitleDisplayMode(.inline)
             }
-            .onChange(of: selectedEmoji) { _, newEmoji in
-                if let newEmoji,
-                   let emojiId = Smile.alias(emoji: newEmoji.value) {
-                    Task {
-                        if let message = message.value as? Message {
-                            let result = await viewModel.addReactionToMessage(for: message, emojiId: emojiId)
-                            switch result {
-                            case .loading:
-                                self.message = .loading
-                            case .failure(let error):
-                                self.message = .failure(error: error)
-                            case .done(let response):
-                                self.message = .done(response: response)
-                            }
-                        } else if let answerMessage = message.value as? AnswerMessage {
-                            let result = await viewModel.addReactionToAnswerMessage(for: answerMessage, emojiId: emojiId)
-                            switch result {
-                            case .loading:
-                                self.message = .loading
-                            case .failure(let error):
-                                self.message = .failure(error: error)
-                            case .done(let response):
-                                self.message = .done(response: response)
-                            }
+        }
+        .onChange(of: selectedEmoji) { _, newEmoji in
+            if let newEmoji,
+               let emojiId = Smile.alias(emoji: newEmoji.value) {
+                Task {
+                    if let message = message.value as? Message {
+                        let result = await viewModel.addReactionToMessage(for: message, emojiId: emojiId)
+                        switch result {
+                        case .loading:
+                            self.message = .loading
+                        case .failure(let error):
+                            self.message = .failure(error: error)
+                        case .done(let response):
+                            self.message = .done(response: response)
                         }
-                        selectedEmoji = nil
-                        dismiss()
+                    } else if let answerMessage = message.value as? AnswerMessage {
+                        let result = await viewModel.addReactionToAnswerMessage(for: answerMessage, emojiId: emojiId)
+                        switch result {
+                        case .loading:
+                            self.message = .loading
+                        case .failure(let error):
+                            self.message = .failure(error: error)
+                        case .done(let response):
+                            self.message = .done(response: response)
+                        }
                     }
+                    selectedEmoji = nil
+                    dismiss()
                 }
             }
+        }
     }
 }
