@@ -62,6 +62,24 @@ final class MessageDetailViewModel {
         }
     }
 
+    func subscribe() async {
+        let topic: String
+        if conversation.baseConversation.type == .channel {
+            topic = WebSocketTopic.makeChannelNotifications(courseId: course.id)
+        } else if let id = userSession.user?.id {
+            topic = WebSocketTopic.makeConversationNotifications(userId: id)
+        } else {
+            return
+        }
+        let stream = stompClient.subscribe(to: topic)
+        for await blob in stream {
+            guard let message = JSONDecoder.getTypeFromSocketMessage(type: MessageWebsocketDTO.self, message: blob) else {
+                return
+            }
+            receive(webSocketMessage: message)
+        }
+    }
+
     func sendAnswerMessage(text: String) async {
         if let host = userSession.institution?.baseURL?.host() {
             do {
@@ -94,6 +112,20 @@ private extension MessageDetailViewModel {
             }
         } else {
             log.verbose("Host is nil")
+        }
+    }
+
+    // MARK: Receive message
+
+    func receive(webSocketMessage: MessageWebsocketDTO) {
+        guard webSocketMessage.post.id == self.message.id, webSocketMessage.action == .update else {
+            return
+        }
+        message = webSocketMessage.post
+        message.answers?.sort {
+            let lhs = $0.creationDate ?? .tomorrow
+            let rhs = $1.creationDate ?? .yesterday
+            return lhs.compare(rhs) == .orderedAscending
         }
     }
 }

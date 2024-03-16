@@ -41,6 +41,7 @@ struct MessageDetailView: View {
         }
         .task {
             await viewModel.loadMessage()
+            await viewModel.subscribe()
         }
         .navigationTitle(R.string.localizable.thread())
         .alert(isPresented: $conversationViewModel.showError, error: conversationViewModel.error, actions: {})
@@ -82,9 +83,7 @@ private extension MessageDetailView {
         if let message = message as? Message {
             Divider()
             VStack {
-                let sortedArray = (message.answers ?? []).sorted {
-                    $0.creationDate ?? .tomorrow < $1.creationDate ?? .yesterday
-                }
+                let sortedArray = message.answers ?? []
                 ForEach(Array(sortedArray.enumerated()), id: \.1) { index, answerMessage in
                     MessageCellWrapper(
                         viewModel: conversationViewModel,
@@ -116,6 +115,8 @@ private struct MessageCellWrapper: View {
     let isHeaderVisible: Bool
 
     private var answerMessageBinding: Binding<DataState<BaseMessage>> {
+        #warning("Constant")
+        return .constant(.done(response: answerMessage))
 
         let isAnswerMessage = { (answer: AnswerMessage) -> Bool in
             answer.id == self.answerMessage.id
