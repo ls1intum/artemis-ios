@@ -81,9 +81,8 @@
 
 // MARK: CreateOrAddTOChatView
 "newConversationTitle" = "New Conversation";
-"newConversationButtonLabel" = "Create Conversation";
-"addUserTitle" = "Add User(s)";//
-"addUserButtonLabel" = "Add User(s)";//
+"addUserButtonLabelPrefix" = "Add";
+"addUserButtonLabelSuffix" = "user";
 "exampleUser" = "Search users";
 
 // MARK: ConversationInfoSheetView

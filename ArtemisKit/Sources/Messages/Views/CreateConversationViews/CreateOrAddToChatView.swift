@@ -24,16 +24,17 @@ struct CreateOrAddToChatView: View {
     var type: CreateOrAddToChatViewType
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack(alignment: .leading) {
                 selectedUsers
                 TextField(R.string.localizable.exampleUser(), text: $viewModel.searchText)
-                    .textFieldStyle(ArtemisTextField())
+                    .textFieldStyle(.roundedBorder)
+                    .padding(.horizontal, .l)
                 searchResults
             }
             .loadingIndicator(isLoading: $viewModel.isLoading)
-            .padding(.l)
             .navigationTitle(navigationTitle)
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(R.string.localizable.cancel()) {
@@ -81,31 +82,33 @@ private extension CreateOrAddToChatView {
         case .createChat:
             return R.string.localizable.newConversationTitle()
         case .addToChat:
-            return R.string.localizable.addUserTitle()
+            return ""
         }
     }
 
-    var saveButtonLabel: String {
-        switch type {
-        case .createChat:
-            return R.string.localizable.newConversationButtonLabel()
-        case .addToChat:
-            return R.string.localizable.addUserButtonLabel()
-        }
+    var saveButtonLabel: LocalizedStringKey {
+        "\(R.string.localizable.addUserButtonLabelPrefix()) ^[\(viewModel.selectedUsers.count) \(R.string.localizable.addUserButtonLabelSuffix())](inflect:true)"
     }
 
     var selectedUsers: some View {
-        VStack(alignment: .leading) {
-            ForEach(viewModel.selectedUsers, id: \.id) { user in
-                if let name = user.name {
-                    Button {
-                        viewModel.selectedUsers.removeAll(where: { $0.id == user.id })
-                    } label: {
-                        Chip(text: name, backgroundColor: .Artemis.artemisBlue)
+        ScrollView(.horizontal) {
+            HStack {
+                ForEach(viewModel.selectedUsers, id: \.id) { user in
+                    if let name = user.name {
+                        Button(role: .destructive) {
+                            viewModel.selectedUsers.removeAll(where: { $0.id == user.id })
+                        } label: {
+                            Chip(text: name, backgroundColor: .Artemis.artemisBlue)
+                        }
                     }
                 }
             }
+            .scrollTargetLayout()
         }
+        .scrollTargetBehavior(.viewAligned)
+        .contentMargins(.l, for: .scrollContent)
+        .listRowInsets(.none)
+        .frame(height: viewModel.selectedUsers.isEmpty ? 0 : nil)
     }
 
     var searchResults: some View {
@@ -129,6 +132,7 @@ private extension CreateOrAddToChatView {
                     }
                 }
             }
+            .listStyle(.plain)
         }
     }
 }
@@ -141,6 +145,9 @@ private extension CreateOrAddToChatView {
                 MessagesServiceStub.alice,
                 MessagesServiceStub.bob
             ]
+            viewModel.searchResults = .done(response: [
+                MessagesServiceStub.charlie
+            ])
             return viewModel
         }(),
         type: .createChat)
