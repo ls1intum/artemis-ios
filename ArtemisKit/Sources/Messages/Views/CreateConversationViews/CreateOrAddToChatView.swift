@@ -19,32 +19,9 @@ struct CreateOrAddToChatView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var navigationController: NavigationController
 
-    @StateObject private var viewModel: CreateChatViewModel
+    @StateObject var viewModel: CreateChatViewModel
 
-    private var type: CreateOrAddToChatViewType
-
-    init(courseId: Int, type: CreateOrAddToChatViewType = .createChat) {
-        self.type = type
-        self._viewModel = StateObject(wrappedValue: CreateChatViewModel(courseId: courseId))
-    }
-
-    private var navigationTitle: String {
-        switch type {
-        case .createChat:
-            return R.string.localizable.newConversationTitle()
-        case .addToChat:
-            return R.string.localizable.addUserTitle()
-        }
-    }
-
-    private var saveButtonLabel: String {
-        switch type {
-        case .createChat:
-            return R.string.localizable.newConversationButtonLabel()
-        case .addToChat:
-            return R.string.localizable.addUserButtonLabel()
-        }
-    }
+    var type: CreateOrAddToChatViewType
 
     var body: some View {
         NavigationView {
@@ -91,7 +68,32 @@ struct CreateOrAddToChatView: View {
     }
 }
 
+extension CreateOrAddToChatView {
+    init(courseId: Int, type: CreateOrAddToChatViewType = .createChat) {
+        self.type = type
+        self._viewModel = StateObject(wrappedValue: CreateChatViewModel(courseId: courseId))
+    }
+}
+
 private extension CreateOrAddToChatView {
+    var navigationTitle: String {
+        switch type {
+        case .createChat:
+            return R.string.localizable.newConversationTitle()
+        case .addToChat:
+            return R.string.localizable.addUserTitle()
+        }
+    }
+
+    var saveButtonLabel: String {
+        switch type {
+        case .createChat:
+            return R.string.localizable.newConversationButtonLabel()
+        case .addToChat:
+            return R.string.localizable.addUserButtonLabel()
+        }
+    }
+
     var selectedUsers: some View {
         VStack(alignment: .leading) {
             ForEach(viewModel.selectedUsers, id: \.id) { user in
@@ -129,4 +131,17 @@ private extension CreateOrAddToChatView {
             }
         }
     }
+}
+
+#Preview {
+    CreateOrAddToChatView(
+        viewModel: {
+            let viewModel = CreateChatViewModel(courseId: 0)
+            viewModel.selectedUsers = [
+                MessagesServiceStub.alice,
+                MessagesServiceStub.bob
+            ]
+            return viewModel
+        }(),
+        type: .createChat)
 }
