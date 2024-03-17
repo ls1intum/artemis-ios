@@ -83,7 +83,7 @@
 "newConversationTitle" = "New Conversation";
 "addUserButtonLabelPrefix" = "Add";
 "addUserButtonLabelSuffix" = "user";
-"exampleUser" = "Search users";
+"searchUsersLabel" = "Search users";
 
 // MARK: ConversationInfoSheetView
 "cantRemoveMembers" = "Can not remove members in this conversation.";

@@ -27,7 +27,7 @@ struct CreateOrAddToChatView: View {
         NavigationStack {
             VStack(alignment: .leading) {
                 selectedUsers
-                TextField(R.string.localizable.exampleUser(), text: $viewModel.searchText)
+                TextField(R.string.localizable.searchUsersLabel(), text: $viewModel.searchText)
                     .textFieldStyle(.roundedBorder)
                     .padding(.horizontal, .l)
                 searchResults
