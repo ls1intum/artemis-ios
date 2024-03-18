@@ -15,8 +15,8 @@ struct CourseServiceStub: CourseService {
         course.course.title = "Hello, world!"
         course.totalScores = CourseScore()
         course.totalScores?.studentScores = StudentScore()
-        course.totalScores?.studentScores.absoluteScore = 5
-        course.totalScores?.reachablePoints = 10
+        course.totalScores?.studentScores.absoluteScore = 0
+        course.totalScores?.reachablePoints = 0
         return course
     }()
 
