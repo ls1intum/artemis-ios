@@ -110,6 +110,7 @@ private extension CourseGridCellView {
             VStack(alignment: .leading, spacing: 0) {
                 Text(courseForDashboard.course.title ?? "")
                     .font(.custom("SF Pro", size: 21, relativeTo: .title))
+                    .multilineTextAlignment(.leading)
                     .lineLimit(2)
                 Text(R.string.localizable.dashboardExercisesLabel(courseForDashboard.course.exercises?.count ?? 0))
                 Text(R.string.localizable.dashboardLecturesLabel(courseForDashboard.course.lectures?.count ?? 0))
