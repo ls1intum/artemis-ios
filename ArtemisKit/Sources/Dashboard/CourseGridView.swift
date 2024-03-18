@@ -76,14 +76,15 @@ private struct CourseGridCellView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            header
-            statistics
-            footer
-        }
-        .cardModifier(backgroundColor: .clear, hasBorder: true)
-        .onTapGesture {
+        Button {
             navigationController.path.append(CoursePath(course: courseForDashboard.course))
+        } label: {
+            VStack(alignment: .leading, spacing: 0) {
+                header
+                statistics
+                footer
+            }
+            .cardModifier(backgroundColor: .clear, hasBorder: true)
         }
     }
 }
@@ -127,7 +128,8 @@ private extension CourseGridCellView {
             if let totalScore = courseForDashboard.totalScores {
                 ProgressBar(
                     value: Int(totalScore.studentScores.absoluteScore),
-                    total: Int(totalScore.reachablePoints))
+                    total: Int(totalScore.reachablePoints)
+                )
                 .frame(height: 120)
                 .padding(.vertical, .l)
             } else {
@@ -135,6 +137,7 @@ private extension CourseGridCellView {
             }
             Spacer()
         }
+        .foregroundStyle(Color.Artemis.secondaryLabel)
         .padding(.vertical, .m)
     }
 
@@ -163,6 +166,10 @@ private extension CourseGridCellView {
         }
         .frame(maxWidth: .infinity)
         .background(Color.Artemis.dashboardCardBackgroundColor)
-        .foregroundColor(Color.Artemis.secondaryLabel)
+        .foregroundStyle(Color.Artemis.secondaryLabel)
     }
+}
+
+#Preview {
+    CourseGridView(viewModel: DashboardViewModel(courseService: CourseServiceStub()))
 }
