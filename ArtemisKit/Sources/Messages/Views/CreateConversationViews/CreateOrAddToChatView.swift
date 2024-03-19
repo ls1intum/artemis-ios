@@ -96,7 +96,7 @@ private extension CreateOrAddToChatView {
                 ForEach(viewModel.selectedUsers.reversed(), id: \.id) { user in
                     if let name = user.name {
                         Button(role: .destructive) {
-                            viewModel.selectedUsers.removeAll(where: { $0.id == user.id })
+                            viewModel.unstage(user: user)
                         } label: {
                             Chip(text: name, backgroundColor: .Artemis.artemisBlue)
                         }
@@ -121,11 +121,7 @@ private extension CreateOrAddToChatView {
                 ) { user in
                     if let name = user.name {
                         Button {
-                            if viewModel.selectedUsers.contains(user) {
-                                viewModel.selectedUsers.removeAll(where: { $0.id == user.id })
-                            } else {
-                                viewModel.selectedUsers.append(user)
-                            }
+                            viewModel.stage(user: user)
                         } label: {
                             Text(name)
                         }
