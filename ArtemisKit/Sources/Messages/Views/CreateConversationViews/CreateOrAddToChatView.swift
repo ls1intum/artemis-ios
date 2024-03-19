@@ -10,111 +10,141 @@ import SharedModels
 import DesignLibrary
 import Navigation
 
-enum CreateOrAddToChatViewType {
-    case createChat
-    case addToChat(Conversation)
-}
-
 struct CreateOrAddToChatView: View {
+
+    enum Configuration {
+        case createChat
+        case addToChat(Conversation)
+    }
 
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var navigationController: NavigationController
 
-    @StateObject private var viewModel: CreateChatViewModel
+    @StateObject var viewModel: CreateChatViewModel
 
-    private var type: CreateOrAddToChatViewType
+    var configuration: Configuration
 
-    init(courseId: Int, type: CreateOrAddToChatViewType = .createChat) {
-        self.type = type
-        self._viewModel = StateObject(wrappedValue: CreateChatViewModel(courseId: courseId))
+    var body: some View {
+        NavigationStack {
+            VStack(alignment: .leading) {
+                selectedUsers
+                TextField(R.string.localizable.searchUsersLabel(), text: $viewModel.searchText)
+                    .textFieldStyle(.roundedBorder)
+                    .padding(.horizontal, .l)
+                searchResults
+            }
+            .loadingIndicator(isLoading: $viewModel.isLoading)
+            .navigationTitle(navigationTitle)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(R.string.localizable.cancel()) {
+                        dismiss()
+                    }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(saveButtonLabel) {
+                        viewModel.isLoading = true
+                        Task(priority: .userInitiated) {
+                            switch configuration {
+                            case .createChat:
+                                let newChatId = await viewModel.createChat()
+                                viewModel.isLoading = false
+                                if let newChatId {
+                                    dismiss()
+                                    navigationController.goToCourseConversation(courseId: viewModel.courseId, conversationId: newChatId)
+                                }
+                            case .addToChat(let conversation):
+                                let success = await viewModel.addUsersToConversation(conversation)
+                                viewModel.isLoading = false
+                                if success {
+                                    dismiss()
+                                }
+                            }
+                        }
+                    }.disabled(viewModel.selectedUsers.isEmpty)
+                }
+            }
+            .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
+        }
     }
+}
 
-    private var navigationTitle: String {
-        switch type {
+extension CreateOrAddToChatView {
+    init(courseId: Int, configuration: Configuration) {
+        self.init(viewModel: CreateChatViewModel(courseId: courseId), configuration: configuration)
+    }
+}
+
+private extension CreateOrAddToChatView {
+    var navigationTitle: String {
+        switch configuration {
         case .createChat:
             return R.string.localizable.newConversationTitle()
         case .addToChat:
-            return R.string.localizable.addUserTitle()
+            return ""
         }
     }
 
-    private var saveButtonLabel: String {
-        switch type {
-        case .createChat:
-            return R.string.localizable.newConversationButtonLabel()
-        case .addToChat:
-            return R.string.localizable.addUserButtonLabel()
-        }
+    var saveButtonLabel: LocalizedStringKey {
+        "\(R.string.localizable.addUserButtonLabelPrefix()) ^[\(viewModel.selectedUsers.count) \(R.string.localizable.addUserButtonLabelSuffix())](inflect:true)"
     }
 
-    var body: some View {
-        NavigationView {
-            VStack(alignment: .leading) {
-                VStack(alignment: .leading) {
-                    ForEach(viewModel.selectedUsers, id: \.id) { user in
-                        if let name = user.name {
-                            Button(action: {
-                                viewModel.selectedUsers.removeAll(where: { $0.id == user.id })
-                            }, label: {
-                                Chip(text: name, backgroundColor: .Artemis.artemisBlue)
-                            })
-                        }
-                    }
-                }
-                TextField(R.string.localizable.exampleUser(), text: $viewModel.searchText)
-                    .textFieldStyle(ArtemisTextField())
-                DataStateView(data: $viewModel.searchResults,
-                              retryHandler: { await viewModel.loadUsers() }) { users in
-                    List {
-                        ForEach(users.filter({ user in !viewModel.selectedUsers.contains(where: { $0.id == user.id }) }), id: \.id) { user in
-                            if let name = user.name {
-                                Button(action: {
-                                    if viewModel.selectedUsers.contains(user) {
-                                        viewModel.selectedUsers.removeAll(where: { $0.id == user.id })
-                                    } else {
-                                        viewModel.selectedUsers.append(user)
-                                    }
-                                }, label: {
-                                    Text(name)
-                                })
-                            }
+    var selectedUsers: some View {
+        ScrollView(.horizontal) {
+            HStack {
+                ForEach(viewModel.selectedUsers.reversed(), id: \.id) { user in
+                    if let name = user.name {
+                        Button(role: .destructive) {
+                            viewModel.unstage(user: user)
+                        } label: {
+                            Chip(text: name, backgroundColor: .Artemis.artemisBlue)
                         }
                     }
                 }
             }
-                .loadingIndicator(isLoading: $viewModel.isLoading)
-                .padding(.l)
-                .navigationTitle(navigationTitle)
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        Button(R.string.localizable.cancel()) {
-                            dismiss()
+            .scrollTargetLayout()
+        }
+        .scrollTargetBehavior(.viewAligned)
+        .contentMargins(.l, for: .scrollContent)
+        .listRowInsets(.none)
+        .frame(height: viewModel.selectedUsers.isEmpty ? 0 : nil)
+    }
+
+    var searchResults: some View {
+        DataStateView(data: $viewModel.searchResults) {
+            await viewModel.loadUsers()
+        } content: { users in
+            List {
+                ForEach(
+                    users.filter({ user in !viewModel.selectedUsers.contains(where: { $0.id == user.id }) }), id: \.id
+                ) { user in
+                    if let name = user.name {
+                        Button {
+                            viewModel.stage(user: user)
+                        } label: {
+                            Text(name)
                         }
                     }
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(saveButtonLabel) {
-                            viewModel.isLoading = true
-                            Task(priority: .userInitiated) {
-                                switch type {
-                                case .createChat:
-                                    let newChatId = await viewModel.createChat()
-                                    viewModel.isLoading = false
-                                    if let newChatId {
-                                        dismiss()
-                                        navigationController.goToCourseConversation(courseId: viewModel.courseId, conversationId: newChatId)
-                                    }
-                                case .addToChat(let conversation):
-                                    let success = await viewModel.addUsersToConversation(conversation)
-                                    viewModel.isLoading = false
-                                    if success {
-                                        dismiss()
-                                    }
-                                }
-                            }
-                        }.disabled(viewModel.selectedUsers.isEmpty)
-                    }
                 }
-                .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
+            }
+            .listStyle(.plain)
         }
     }
+}
+
+#Preview {
+    CreateOrAddToChatView(
+        viewModel: {
+            let viewModel = CreateChatViewModel(courseId: 0)
+            viewModel.selectedUsers = [
+                MessagesServiceStub.alice,
+                MessagesServiceStub.bob
+            ]
+            viewModel.searchResults = .done(response: [
+                MessagesServiceStub.charlie
+            ])
+            return viewModel
+        }(),
+        configuration: .createChat)
 }

@@ -35,6 +35,16 @@ class CreateChatViewModel: BaseViewModel {
     func loadUsers() async {
         searchResults = await MessagesServiceFactory.shared.searchForUsers(for: courseId, searchText: searchText)
     }
+    
+    func stage(user: ConversationUser) {
+        if !selectedUsers.contains(user) {
+            selectedUsers.append(user)
+        }
+    }
+
+    func unstage(user: ConversationUser) {
+        selectedUsers.removeAll(where: { $0.id == user.id })
+    }
 
     func createChat() async -> Int64? {
         let usernames = selectedUsers.compactMap { $0.login }

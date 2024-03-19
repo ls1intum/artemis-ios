@@ -81,10 +81,9 @@
 
 // MARK: CreateOrAddTOChatView
 "newConversationTitle" = "New Conversation";
-"newConversationButtonLabel" = "Create Conversation";
-"addUserTitle" = "Add User(s)";
-"addUserButtonLabel" = "Add User(s)";
-"exampleUser" = "ex. Stefan";
+"addUserButtonLabelPrefix" = "Add";
+"addUserButtonLabelSuffix" = "user";
+"searchUsersLabel" = "Search users";
 
 // MARK: ConversationInfoSheetView
 "cantRemoveMembers" = "Can not remove members in this conversation.";

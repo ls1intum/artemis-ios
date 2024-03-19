@@ -39,6 +39,12 @@ struct MessagesServiceStub {
         return author
     }()
 
+    static let charlie: ConversationUser = {
+        var author = ConversationUser(id: 3)
+        author.name = "Charlie"
+        return author
+    }()
+
     static let message: Message = {
         var message = Message(id: 1)
         message.author = alice
