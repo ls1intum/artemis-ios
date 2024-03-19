@@ -10,18 +10,19 @@ import SharedModels
 import DesignLibrary
 import Navigation
 
-enum CreateOrAddToChatViewType {
-    case createChat
-    case addToChat(Conversation)
-}
-
 struct CreateOrAddToChatView: View {
+
+    enum Configuration {
+        case createChat
+        case addToChat(Conversation)
+    }
+
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var navigationController: NavigationController
 
     @StateObject var viewModel: CreateChatViewModel
 
-    var type: CreateOrAddToChatViewType
+    var configuration: Configuration
 
     var body: some View {
         NavigationStack {
@@ -45,7 +46,7 @@ struct CreateOrAddToChatView: View {
                     Button(saveButtonLabel) {
                         viewModel.isLoading = true
                         Task(priority: .userInitiated) {
-                            switch type {
+                            switch configuration {
                             case .createChat:
                                 let newChatId = await viewModel.createChat()
                                 viewModel.isLoading = false
@@ -70,15 +71,14 @@ struct CreateOrAddToChatView: View {
 }
 
 extension CreateOrAddToChatView {
-    init(courseId: Int, type: CreateOrAddToChatViewType = .createChat) {
-        self.type = type
-        self._viewModel = StateObject(wrappedValue: CreateChatViewModel(courseId: courseId))
+    init(courseId: Int, configuration: Configuration) {
+        self.init(viewModel: CreateChatViewModel(courseId: courseId), configuration: configuration)
     }
 }
 
 private extension CreateOrAddToChatView {
     var navigationTitle: String {
-        switch type {
+        switch configuration {
         case .createChat:
             return R.string.localizable.newConversationTitle()
         case .addToChat:
@@ -150,5 +150,5 @@ private extension CreateOrAddToChatView {
             ])
             return viewModel
         }(),
-        type: .createChat)
+        configuration: .createChat)
 }
