@@ -21,7 +21,7 @@ struct CourseGrid: View {
         } content: { coursesForDashboard in
             ScrollView {
                 LazyVGrid(columns: Self.layout, spacing: .l) {
-                    ForEach(coursesForDashboard.courses ?? [], content: CourseGridCellView.init)
+                    ForEach(coursesForDashboard.courses ?? [], content: CourseGridCell.init)
                 }
                 .padding(.horizontal, .l)
 
