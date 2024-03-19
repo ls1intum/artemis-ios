@@ -259,7 +259,7 @@ private struct SectionDisclosureLabel: View {
             }
         }
         .sheet(isPresented: $isCreateNewConversationPresented) {
-            CreateOrAddToChatView(courseId: viewModel.courseId)
+            CreateOrAddToChatView(courseId: viewModel.courseId, configuration: .createChat)
         }
         .sheet(isPresented: $isCreateChannelPresented) {
             Task {
