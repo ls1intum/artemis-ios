@@ -5,7 +5,8 @@
 //  Created by Nityananda Zbil on 19.03.24.
 //
 
-import DesignLibrary //
+import Charts
+import DesignLibrary
 import Navigation
 import SharedModels
 import SwiftUI
@@ -76,16 +77,53 @@ private extension CourseGridCell {
         .background(courseForDashboard.course.courseColor)
     }
 
+    struct Fraction: Identifiable {
+        enum ID {
+            case red
+            case green
+            case gray
+
+            var color: Color {
+                switch self {
+                case .red:
+                    return Color.Artemis.courseScoreProgressBackgroundColor
+                case .green:
+                    return Color.Artemis.courseScoreProgressRingColor
+                case .gray:
+                    return .gray
+                }
+            }
+        }
+
+        var id: ID
+        var value: Int
+    }
+
     var statistics: some View {
         HStack {
             Spacer()
             if let totalScore = courseForDashboard.totalScores {
-                ProgressBar(
-                    value: Int(totalScore.studentScores.absoluteScore),
-                    total: Int(totalScore.reachablePoints)
-                )
-                .frame(height: 120)
-                .padding(.vertical, .l)
+                let numerator = totalScore.studentScores.absoluteScore
+                let denominator = totalScore.reachablePoints
+                let fraction = denominator - numerator
+                let data = denominator == 0 ? [Fraction(id: .gray, value: 1)] : [.init(id: .green, value: Int(numerator)), .init(id: .red, value: Int(fraction))]
+                Chart(data) { score in
+                    SectorMark(
+                        angle: PlottableValue.value("Score", score.value),
+                        innerRadius: MarkDimension.ratio(2.0 / 3),
+                        angularInset: .xxs
+                    )
+                    .foregroundStyle(score.id.color)
+                    .cornerRadius(.l)
+                }
+                .chartBackground { proxy in
+                    VStack {
+                        Text(numerator.formatted() + " / " + denominator.formatted())
+                        Text("Pts")
+                    }
+                }
+                .frame(height: .xxxl)
+                .border(Color.black)
             } else {
                 Text(R.string.localizable.dashboardNoStatisticsAvailable())
             }
@@ -122,4 +160,8 @@ private extension CourseGridCell {
         .background(Color.Artemis.dashboardCardBackgroundColor)
         .foregroundStyle(Color.Artemis.secondaryLabel)
     }
+}
+
+#Preview {
+    CourseGridCell(courseForDashboard: CourseServiceStub.course)
 }
