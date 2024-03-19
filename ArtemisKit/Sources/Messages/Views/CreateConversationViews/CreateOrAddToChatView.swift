@@ -93,7 +93,7 @@ private extension CreateOrAddToChatView {
     var selectedUsers: some View {
         ScrollView(.horizontal) {
             HStack {
-                ForEach(viewModel.selectedUsers, id: \.id) { user in
+                ForEach(viewModel.selectedUsers.reversed(), id: \.id) { user in
                     if let name = user.name {
                         Button(role: .destructive) {
                             viewModel.selectedUsers.removeAll(where: { $0.id == user.id })
