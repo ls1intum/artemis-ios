@@ -178,7 +178,7 @@ struct ExerciseListCell: View {
                     if let difficulty = exercise.baseExercise.difficulty {
                         Chip(text: difficulty.description, backgroundColor: difficulty.color)
                     }
-                    if exercise.baseExercise.includedInOverallScore != .includedCompletly {
+                    if exercise.baseExercise.includedInOverallScore != .includedCompletely {
                         Chip(
                             text: exercise.baseExercise.includedInOverallScore.description,
                             backgroundColor: exercise.baseExercise.includedInOverallScore.color)
