@@ -147,7 +147,7 @@ private extension MessageCell {
                     conversationPath: conversationPath,
                     conversationViewModel: viewModel
                 ) {
-                    navigationController.path.append(messagePath)
+                    navigationController.append(messagePath)
                 } else {
                     viewModel.presentError(userFacingError: UserFacingError(title: R.string.localizable.detailViewCantBeOpened()))
                 }
@@ -170,7 +170,7 @@ private extension MessageCell {
             conversationPath: conversationPath,
             conversationViewModel: viewModel
         ) {
-            navigationController.path.append(messagePath)
+            navigationController.append(messagePath)
         }
     }
 

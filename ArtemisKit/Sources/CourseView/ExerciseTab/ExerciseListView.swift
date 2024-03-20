@@ -190,7 +190,7 @@ struct ExerciseListCell: View {
         .padding(.l)
         .artemisStyleCard()
         .onTapGesture {
-            navigationController.path.append(ExercisePath(exercise: exercise, coursePath: CoursePath(course: course)))
+            navigationController.append(ExercisePath(exercise: exercise, coursePath: CoursePath(course: course)))
         }
     }
 }

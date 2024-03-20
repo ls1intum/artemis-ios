@@ -83,7 +83,7 @@ private struct CourseGridCellView: View {
         }
         .cardModifier(backgroundColor: .clear, hasBorder: true)
         .onTapGesture {
-            navigationController.path.append(CoursePath(course: courseForDashboard.course))
+            navigationController.append(CoursePath(course: courseForDashboard.course))
         }
     }
 }

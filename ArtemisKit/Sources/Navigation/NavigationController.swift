@@ -63,4 +63,18 @@ public extension NavigationController {
         notSupportedUrl = url
         showDeeplinkNotSupported = true
     }
+
+    // MARK: General
+
+    var count: Int {
+        path.count
+    }
+
+    func append<V: Hashable>(_ value: V) {
+        path.append(value)
+    }
+
+    func removeLast() {
+        path.removeLast()
+    }
 }
