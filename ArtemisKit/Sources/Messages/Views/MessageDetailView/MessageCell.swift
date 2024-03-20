@@ -44,6 +44,18 @@ struct MessageCell: View {
                         headerIfVisible
                         ArtemisMarkdownView(string: content)
                             .opacity(isMessageOffline ? 0.5 : 1)
+                            .environment(\.openURL, OpenURLAction { url in
+                                // E.g., https://artemis-test1.artemis.cit.tum.de/courses/171/exercises/655
+                                if url.path().contains("exercises"), let exerciseId = url.pathComponents.last, let id = Int(exerciseId) {
+                                    navigationController.append(ExercisePath(id: id, coursePath: CoursePath(course: viewModel.course)))
+                                    return .handled
+                                }
+                                if url.path().contains("lectures"), let lectureId = url.pathComponents.last, let id = Int(lectureId) {
+                                    navigationController.append(LecturePath(id: id, coursePath: CoursePath(course: viewModel.course)))
+                                    return .handled
+                                }
+                                return .systemAction
+                            })
                     }
                     Spacer()
                 }
