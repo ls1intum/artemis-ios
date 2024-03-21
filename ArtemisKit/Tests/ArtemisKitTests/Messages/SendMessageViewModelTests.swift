@@ -2,6 +2,7 @@ import XCTest
 import SharedModels
 @testable import Messages
 
+@MainActor
 final class SendMessageViewModelTests: XCTestCase {
     func makeViewModel() -> SendMessageViewModel {
         SendMessageViewModel(
@@ -11,7 +12,7 @@ final class SendMessageViewModelTests: XCTestCase {
             delegate: SendMessageViewModelDelegate(
                 loadMessages: {},
                 presentError: { _ in },
-                scrollToId: { _ in }))
+                sendMessage: { _ in }))
     }
 
     func testWriteAt() {
