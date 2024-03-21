@@ -726,8 +726,18 @@ class MessagesServiceImpl: MessagesService {
             return .get
         }
 
+        var params: [URLQueryItem] {
+            [
+                .init(name: "loginOrName", value: searchText ?? ""),
+                .init(name: "sort", value: "firstName,asc"),
+                .init(name: "sort", value: "lastName,asc"),
+                .init(name: "page", value: String(describing: page)),
+                .init(name: "size", value: "20")
+            ]
+        }
+
         var resourceName: String {
-            return "api/courses/\(courseId)/conversations/\(conversationId)/members/search?loginOrName=\(searchText ?? "")&sort=firstName,asc&sort=lastName,asc&page=\(page)&size=20"
+            return "api/courses/\(courseId)/conversations/\(conversationId)/members/search"
         }
     }
 
