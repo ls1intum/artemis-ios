@@ -38,7 +38,7 @@ public struct ConversationView: View {
                     ScrollViewReader { value in
                         ScrollView {
                             PullToRefresh(coordinateSpaceName: "pullToRefresh") {
-                                await viewModel.loadFurtherMessages()
+                                await viewModel.loadEarlierMessages()
                             }
                             VStack(alignment: .leading) {
                                 ForEach(dailyMessages.sorted(by: { $0.key < $1.key }), id: \.key) { dailyMessage in

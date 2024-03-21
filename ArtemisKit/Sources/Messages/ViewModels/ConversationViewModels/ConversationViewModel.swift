@@ -40,7 +40,8 @@ class ConversationViewModel: BaseViewModel {
     var shouldScrollToId: String?
     var websocketSubscriptionTask: Task<(), Never>?
 
-    private var size = 50
+    @available(*, deprecated, renamed: "page")
+    private var size = 0
 
     fileprivate let messagesRepository: MessagesRepository
     private let messagesService: MessagesService
@@ -80,8 +81,8 @@ extension ConversationViewModel {
 
     // MARK: Load
 
-    func loadFurtherMessages() async {
-        size += 50
+    func loadEarlierMessages() async {
+        size += 1
         if let dailyMessages = dailyMessages.value,
            let lastKey = dailyMessages.keys.min(),
            let lastMessage = dailyMessages[lastKey]?.first {
@@ -92,8 +93,8 @@ extension ConversationViewModel {
     }
 
     func loadMessages() async {
-        let result = await messagesService.getMessages(for: course.id, and: conversation.id, size: size)
-        self.dailyMessages = result.map { messages in
+        let result = await messagesService.getMessages(for: course.id, and: conversation.id, page: size)
+        let dailyMessages = result.map { messages in
             var dailyMessages: [Date: [Message]] = [:]
             for message in messages {
                 if let date = message.creationDate?.startOfDay {
@@ -109,11 +110,21 @@ extension ConversationViewModel {
             }
             return dailyMessages
         }
+        if let rhs = self.dailyMessages.value {
+            if var lhs = dailyMessages.value {
+                lhs.merge(rhs) {
+                    lhs, _ in lhs
+                }
+                self.dailyMessages = .done(response: lhs)
+            }
+        } else {
+            self.dailyMessages = dailyMessages
+        }
     }
 
     func loadMessage(messageId: Int64) async -> DataState<Message> {
         // TODO: add API to only load one single message
-        let result = await messagesService.getMessages(for: course.id, and: conversation.id, size: size)
+        let result = await messagesService.getMessages(for: course.id, and: conversation.id, page: size)
         return result.flatMap { messages in
             guard let message = messages.first(where: { $0.id == messageId }) else {
                 return .failure(UserFacingError(title: R.string.localizable.messageCouldNotBeLoadedError()))
@@ -124,7 +135,7 @@ extension ConversationViewModel {
 
     func loadAnswerMessage(answerMessageId: Int64) async -> DataState<AnswerMessage> {
         // TODO: add API to only load one single answer message
-        let result = await messagesService.getMessages(for: course.id, and: conversation.id, size: size)
+        let result = await messagesService.getMessages(for: course.id, and: conversation.id, page: size)
         return result.flatMap { messages in
             guard let message = messages.first(where: { $0.answers?.contains(where: { $0.id == answerMessageId }) ?? false }),
                   let answerMessage = message.answers?.first(where: { $0.id == answerMessageId }) else {

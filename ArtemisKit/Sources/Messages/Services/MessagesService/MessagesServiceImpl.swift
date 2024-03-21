@@ -133,7 +133,7 @@ class MessagesServiceImpl: MessagesService {
 
         let courseId: Int
         let conversationId: Int64
-        let size: Int
+        let page: Int
 
         var method: HTTPMethod {
             return .get
@@ -144,8 +144,8 @@ class MessagesServiceImpl: MessagesService {
                 .init(name: "postSortCriterion", value: "CREATION_DATE"),
                 .init(name: "sortingOrder", value: "DESCENDING"),
                 .init(name: "pagingEnabled", value: "true"),
-                .init(name: "page", value: "0"),
-                .init(name: "size", value: String(describing: size))
+                .init(name: "page", value: String(describing: page)),
+                .init(name: "size", value: "50")
             ]
         }
 
@@ -154,8 +154,8 @@ class MessagesServiceImpl: MessagesService {
         }
     }
 
-    func getMessages(for courseId: Int, and conversationId: Int64, size: Int) async -> DataState<[Message]> {
-        let result = await client.sendRequest(GetMessagesRequest(courseId: courseId, conversationId: conversationId, size: size))
+    func getMessages(for courseId: Int, and conversationId: Int64, page: Int) async -> DataState<[Message]> {
+        let result = await client.sendRequest(GetMessagesRequest(courseId: courseId, conversationId: conversationId, page: page))
 
         switch result {
         case let .success((messages, _)):
