@@ -15,37 +15,35 @@ struct SendMessageMentionMemberView: View {
     @Bindable var sendMessageViewModel: SendMessageViewModel
 
     var body: some View {
-        HStack {
-            Spacer()
-            DataStateView(data: $viewModel.members) {
-                if let candidate = sendMessageViewModel.searchMember().map(String.init) {
-                    await viewModel.search(loginOrName: candidate)
-                }
-            } content: { members in
-                if !members.isEmpty {
-                    List {
-                        ForEach(members, id: \.login) { member in
-                            Button(member.name ?? "") {
+        DataStateView(data: $viewModel.members) {
+            if let candidate = sendMessageViewModel.searchMember().map(String.init) {
+                await viewModel.search(loginOrName: candidate)
+            }
+        } content: { members in
+            if !members.isEmpty {
+                ScrollView {
+                    ForEach(members, id: \.login) { member in
+                        HStack {
+                            Button {
                                 sendMessageViewModel.replace(member: member)
+                            } label: {
+                                Label(member.name ?? "", systemImage: "at")
                             }
+                            .foregroundStyle(.secondary)
+                            Spacer()
                         }
+                        Divider()
                     }
-                } else {
-                    ContentUnavailableView(R.string.localizable.membersUnavailable(), systemImage: "magnifyingglass")
                 }
+                .contentMargins(.horizontal, .l, for: .scrollContent)
+            } else {
+                ContentUnavailableView(R.string.localizable.membersUnavailable(), systemImage: "magnifyingglass")
             }
-            .onChange(of: sendMessageViewModel.text, initial: true) {
-                search()
-            }
-            Spacer()
+            Divider()
         }
-        .listStyle(.plain)
-        .clipShape(.rect(cornerRadius: .l))
-        .overlay {
-            RoundedRectangle(cornerRadius: .l)
-                .stroke(Color.Artemis.artemisBlue, lineWidth: 2)
+        .onChange(of: sendMessageViewModel.text, initial: true) {
+            search()
         }
-        .padding(.bottom, .m)
     }
 }
 
