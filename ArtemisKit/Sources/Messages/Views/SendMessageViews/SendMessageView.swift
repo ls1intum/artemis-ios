@@ -18,7 +18,12 @@ struct SendMessageView: View {
 
     var body: some View {
         VStack {
-            Divider()
+            if viewModel.isEditing {
+                Spacer()
+            } else {
+                Divider()
+            }
+
             mentions
             if isFocused && !viewModel.isEditing {
                 Capsule()
@@ -43,7 +48,7 @@ struct SendMessageView: View {
             .padding(.bottom, .l)
             .padding(.top, isFocused ? .m : .l)
         }
-        .background(Material.ultraThin)
+        .background(.regularMaterial)
         .onAppear {
             viewModel.performOnAppear()
         }
