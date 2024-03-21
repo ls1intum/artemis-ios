@@ -18,50 +18,49 @@ struct SendMessageView: View {
 
     var body: some View {
         VStack {
+            Divider()
             mentions
-            VStack {
-                if isFocused && !viewModel.isEditing {
-                    Capsule()
-                        .fill(Color.secondary)
-                        .frame(width: 50, height: 3)
-                        .padding(.top, .m)
-                }
-                HStack(alignment: .bottom) {
-                    textField
-                        .lineLimit(10)
-                        .focused($isFocused)
-                        .toolbar {
-                            ToolbarItem(placement: .keyboard) {
-                                keyboardToolbarContent
-                            }
-                        }
-                    if !isFocused {
-                        sendButton
-                    }
-                }
-                .padding(.horizontal, .l)
-                .padding(.bottom, .l)
-                .padding(.top, isFocused ? .m : .l)
+            if isFocused && !viewModel.isEditing {
+                Capsule()
+                    .fill(Color.secondary)
+                    .frame(width: 50, height: 3)
+                    .padding(.top, .m)
             }
-            .onAppear {
-                viewModel.performOnAppear()
-            }
-            .onDisappear {
-                viewModel.performOnDisappear()
-            }
-            .gesture(
-                DragGesture(minimumDistance: 30, coordinateSpace: .local)
-                    .onEnded { value in
-                        if value.translation.height > 0 {
-                            // down
-                            isFocused = false
-                            let impactMed = UIImpactFeedbackGenerator(style: .medium)
-                            impactMed.impactOccurred()
+            HStack(alignment: .bottom) {
+                textField
+                    .lineLimit(10)
+                    .focused($isFocused)
+                    .toolbar {
+                        ToolbarItem(placement: .keyboard) {
+                            keyboardToolbarContent
                         }
                     }
-            )
+                if !isFocused {
+                    sendButton
+                }
+            }
+            .padding(.horizontal, .l)
+            .padding(.bottom, .l)
+            .padding(.top, isFocused ? .m : .l)
         }
         .background(Material.ultraThin)
+        .onAppear {
+            viewModel.performOnAppear()
+        }
+        .onDisappear {
+            viewModel.performOnDisappear()
+        }
+        .gesture(
+            DragGesture(minimumDistance: 30, coordinateSpace: .local)
+                .onEnded { value in
+                    if value.translation.height > 0 {
+                        // down
+                        isFocused = false
+                        let impactMed = UIImpactFeedbackGenerator(style: .medium)
+                        impactMed.impactOccurred()
+                    }
+                }
+        )
         .sheet(item: $viewModel.modalPresentation) {
             isFocused = true
         } content: { presentation in
