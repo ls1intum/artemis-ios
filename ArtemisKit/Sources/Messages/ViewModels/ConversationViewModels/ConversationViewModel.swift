@@ -94,6 +94,12 @@ extension ConversationViewModel {
 
     func loadMessages() async {
         let result = await messagesService.getMessages(for: course.id, and: conversation.id, page: size)
+        if let messages = result.value {
+            let ids = Dictionary(grouping: messages) { element in
+                element.id
+            }
+            // Set<Message>().union(old) // keep callee's members
+        }
         let dailyMessages = result.map { messages in
             var dailyMessages: [Date: [Message]] = [:]
             for message in messages {
@@ -112,6 +118,7 @@ extension ConversationViewModel {
         }
         if let rhs = self.dailyMessages.value {
             if var lhs = dailyMessages.value {
+                #warning("Merges weekdays")
                 lhs.merge(rhs) {
                     lhs, _ in lhs
                 }
