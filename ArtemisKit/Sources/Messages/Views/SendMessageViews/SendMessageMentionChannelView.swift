@@ -9,7 +9,6 @@ import DesignLibrary
 import SwiftUI
 
 struct SendMessageMentionChannelView: View {
-
     @State var viewModel: SendMessageMentionChannelViewModel
 
     @Bindable var sendMessageViewModel: SendMessageViewModel
@@ -20,26 +19,28 @@ struct SendMessageMentionChannelView: View {
                 await viewModel.search(idOrName: candidate)
             }
         } content: { channels in
-            if !channels.isEmpty {
+            if channels.isEmpty {
+                if let candidate = sendMessageViewModel.searchChannel().map(String.init) {
+                    ContentUnavailableView.search(text: candidate)
+                } else {
+                    ContentUnavailableView(R.string.localizable.channelsUnavailable(), systemImage: "magnifyingglass")
+                }
+            } else {
                 ScrollView {
                     ForEach(channels) { channel in
                         HStack {
-                            HStack {
-                                Button {
-                                    sendMessageViewModel.replace(channel: channel)
-                                } label: {
-                                    Label(channel.name, systemImage: "number")
-                                }
-                                .foregroundStyle(.secondary)
-                                Spacer()
+                            Button {
+                                sendMessageViewModel.replace(channel: channel)
+                            } label: {
+                                Label(channel.name, systemImage: "number")
                             }
+                            .foregroundStyle(.secondary)
+                            Spacer()
                         }
                         Divider()
                     }
                 }
                 .contentMargins(.horizontal, .l, for: .scrollContent)
-            } else {
-                ContentUnavailableView(R.string.localizable.channelsUnavailable(), systemImage: "magnifyingglass")
             }
             Divider()
         }

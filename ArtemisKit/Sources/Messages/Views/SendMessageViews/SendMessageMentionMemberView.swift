@@ -9,7 +9,6 @@ import DesignLibrary
 import SwiftUI
 
 struct SendMessageMentionMemberView: View {
-
     @State var viewModel: SendMessageMentionMemberViewModel
 
     @Bindable var sendMessageViewModel: SendMessageViewModel
@@ -20,7 +19,13 @@ struct SendMessageMentionMemberView: View {
                 await viewModel.search(loginOrName: candidate)
             }
         } content: { members in
-            if !members.isEmpty {
+            if members.isEmpty {
+                if let candidate = sendMessageViewModel.searchMember().map(String.init) {
+                    ContentUnavailableView.search(text: candidate)
+                } else {
+                    ContentUnavailableView(R.string.localizable.membersUnavailable(), systemImage: "magnifyingglass")
+                }
+            } else {
                 ScrollView {
                     ForEach(members, id: \.login) { member in
                         HStack {
@@ -36,8 +41,6 @@ struct SendMessageMentionMemberView: View {
                     }
                 }
                 .contentMargins(.horizontal, .l, for: .scrollContent)
-            } else {
-                ContentUnavailableView(R.string.localizable.membersUnavailable(), systemImage: "magnifyingglass")
             }
             Divider()
         }
