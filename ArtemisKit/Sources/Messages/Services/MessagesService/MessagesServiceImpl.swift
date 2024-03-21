@@ -139,8 +139,18 @@ class MessagesServiceImpl: MessagesService {
             return .get
         }
 
+        var params: [URLQueryItem] {
+            [
+                .init(name: "postSortCriterion", value: "CREATION_DATE"),
+                .init(name: "sortingOrder", value: "DESCENDING"),
+                .init(name: "pagingEnabled", value: "true"),
+                .init(name: "page", value: "0"),
+                .init(name: "size", value: String(describing: size))
+            ]
+        }
+
         var resourceName: String {
-            return "api/courses/\(courseId)/messages?postSortCriterion=CREATION_DATE&sortingOrder=ASCENDING&conversationId=\(conversationId)&pagingEnabled=true&page=0&size=\(size)"
+            return "api/courses/\(courseId)/messages?conversationId=\(conversationId)"
         }
     }
 
