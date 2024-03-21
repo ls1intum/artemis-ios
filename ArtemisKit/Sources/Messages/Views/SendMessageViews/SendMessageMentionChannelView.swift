@@ -15,37 +15,37 @@ struct SendMessageMentionChannelView: View {
     @Bindable var sendMessageViewModel: SendMessageViewModel
 
     var body: some View {
-        HStack {
-            Spacer()
-            DataStateView(data: $viewModel.channels) {
-                if let candidate = sendMessageViewModel.searchChannel().map(String.init) {
-                    await viewModel.search(idOrName: candidate)
-                }
-            } content: { channels in
-                if !channels.isEmpty {
-                    List {
-                        ForEach(channels) { channel in
-                            Button(channel.name) {
-                                sendMessageViewModel.replace(channel: channel)
+        DataStateView(data: $viewModel.channels) {
+            if let candidate = sendMessageViewModel.searchChannel().map(String.init) {
+                await viewModel.search(idOrName: candidate)
+            }
+        } content: { channels in
+            if !channels.isEmpty {
+                ScrollView {
+                    ForEach(channels) { channel in
+                        HStack {
+                            HStack {
+                                Button {
+                                    sendMessageViewModel.replace(channel: channel)
+                                } label: {
+                                    Label(channel.name, systemImage: "number")
+                                }
+                                .foregroundStyle(.secondary)
+                                Spacer()
                             }
                         }
+                        Divider()
                     }
-                } else {
-                    ContentUnavailableView(R.string.localizable.channelsUnavailable(), systemImage: "magnifyingglass")
                 }
+                .contentMargins(.horizontal, .l, for: .scrollContent)
+            } else {
+                ContentUnavailableView(R.string.localizable.channelsUnavailable(), systemImage: "magnifyingglass")
             }
-            .onChange(of: sendMessageViewModel.text, initial: true) {
-                search()
-            }
-            Spacer()
+            Divider()
         }
-        .listStyle(.plain)
-        .clipShape(.rect(cornerRadius: .l))
-        .overlay {
-            RoundedRectangle(cornerRadius: .l)
-                .stroke(Color.Artemis.artemisBlue, lineWidth: 2)
+        .onChange(of: sendMessageViewModel.text, initial: true) {
+            search()
         }
-        .padding(.bottom, .m)
     }
 }
 
