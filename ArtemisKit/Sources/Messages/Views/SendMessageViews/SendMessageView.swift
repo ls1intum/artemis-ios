@@ -49,15 +49,6 @@ struct SendMessageView: View {
             .onDisappear {
                 viewModel.performOnDisappear()
             }
-            .overlay {
-                if viewModel.isEditing {
-                    EmptyView()
-                } else {
-                    RoundedRectangle(cornerRadius: .m)
-                        .trim(from: isFocused ? 0.52 : 0.51, to: isFocused ? 0.98 : 0.99)
-                        .stroke(Color.Artemis.artemisBlue, lineWidth: 2)
-                }
-            }
             .gesture(
                 DragGesture(minimumDistance: 30, coordinateSpace: .local)
                     .onEnded { value in
@@ -70,6 +61,7 @@ struct SendMessageView: View {
                     }
             )
         }
+        .background(Material.ultraThin)
         .sheet(item: $viewModel.modalPresentation) {
             isFocused = true
         } content: { presentation in
@@ -109,6 +101,7 @@ private extension SendMessageView {
                 .textFieldStyle(ArtemisTextField())
         } else {
             TextField(label, text: $viewModel.text, axis: .vertical)
+                .textFieldStyle(.roundedBorder)
         }
     }
 
