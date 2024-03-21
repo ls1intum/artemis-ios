@@ -42,7 +42,9 @@ struct SendMessageMentionMemberView: View {
                 }
                 .contentMargins([.horizontal, .top], .l, for: .scrollContent)
             }
-            Divider()
+            if !sendMessageViewModel.isEditing {
+                Divider()
+            }
         }
         .onChange(of: sendMessageViewModel.text, initial: true) {
             search()
