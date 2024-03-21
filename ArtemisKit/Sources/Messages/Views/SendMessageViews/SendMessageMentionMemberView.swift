@@ -40,7 +40,7 @@ struct SendMessageMentionMemberView: View {
                         Divider()
                     }
                 }
-                .contentMargins(.horizontal, .l, for: .scrollContent)
+                .contentMargins([.horizontal, .top], .l, for: .scrollContent)
             }
             Divider()
         }

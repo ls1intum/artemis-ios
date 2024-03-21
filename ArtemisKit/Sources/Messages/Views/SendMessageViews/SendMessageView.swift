@@ -17,7 +17,7 @@ struct SendMessageView: View {
     @FocusState private var isFocused: Bool
 
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             if viewModel.isEditing {
                 Spacer()
             } else {
@@ -28,25 +28,11 @@ struct SendMessageView: View {
             if isFocused && !viewModel.isEditing {
                 Capsule()
                     .fill(Color.secondary)
-                    .frame(width: 50, height: 3)
-                    .padding(.top, .m)
+                    .frame(width: .xl, height: .s)
+                    .padding(.vertical, .m)
             }
-            HStack(alignment: .bottom) {
-                textField
-                    .lineLimit(10)
-                    .focused($isFocused)
-                    .toolbar {
-                        ToolbarItem(placement: .keyboard) {
-                            keyboardToolbarContent
-                        }
-                    }
-                if !isFocused {
-                    sendButton
-                }
-            }
-            .padding(.horizontal, .l)
-            .padding(.bottom, .l)
-            .padding(.top, isFocused ? .m : .l)
+            textField
+                .padding(isFocused ? [.horizontal, .bottom] : .all, .l)
         }
         .background(.regularMaterial)
         .onAppear {
@@ -98,14 +84,24 @@ private extension SendMessageView {
         }
     }
 
-    @ViewBuilder var textField: some View {
-        let label = R.string.localizable.messageAction(viewModel.conversation.baseConversation.conversationName)
-        if viewModel.isEditing {
-            TextField(label, text: $viewModel.text, axis: .vertical)
-                .textFieldStyle(ArtemisTextField())
-        } else {
-            TextField(label, text: $viewModel.text, axis: .vertical)
-                .textFieldStyle(.roundedBorder)
+    var textField: some View {
+        HStack(alignment: .bottom) {
+            TextField(
+                R.string.localizable.messageAction(viewModel.conversation.baseConversation.conversationName),
+                text: $viewModel.text,
+                axis: .vertical
+            )
+            .textFieldStyle(.roundedBorder)
+            .lineLimit(10)
+            .focused($isFocused)
+            .toolbar {
+                ToolbarItem(placement: .keyboard) {
+                    keyboardToolbarContent
+                }
+            }
+            if !isFocused {
+                sendButton
+            }
         }
     }
 
