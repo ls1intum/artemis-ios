@@ -11,6 +11,7 @@ import UserStore
 import SharedModels
 import SwiftUI
 
+@MainActor
 class ConversationInfoSheetViewModel: BaseViewModel {
     let course: Course
 
@@ -21,7 +22,6 @@ class ConversationInfoSheetViewModel: BaseViewModel {
         }
         set {
             _conversation.wrappedValue = newValue
-            // objectWillChange.send()
         }
     }
 

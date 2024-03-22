@@ -20,12 +20,15 @@ struct ConversationInfoSheetView: View {
 
     @StateObject private var viewModel: ConversationInfoSheetViewModel
 
+    // Triggers view update
+    @Binding private var conversation: Conversation
+
     var body: some View {
         NavigationView {
             List {
-                InfoSection(viewModel: viewModel)
+                InfoSection(viewModel: viewModel, conversation: $conversation)
                 membersSection
-                switch viewModel.conversation {
+                switch conversation {
                 case .channel, .groupChat:
                     actionsSection
                 default:
@@ -35,7 +38,7 @@ struct ConversationInfoSheetView: View {
             .task {
                 await viewModel.loadMembers()
             }
-            .navigationTitle(viewModel.conversation.baseConversation.conversationName)
+            .navigationTitle(conversation.baseConversation.conversationName)
             .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
             .loadingIndicator(isLoading: $viewModel.isLoading)
         }
@@ -44,7 +47,7 @@ struct ConversationInfoSheetView: View {
 
 extension ConversationInfoSheetView {
     init(course: Course, conversation: Binding<Conversation>) {
-        self.init(viewModel: ConversationInfoSheetViewModel(course: course, conversation: conversation))
+        self.init(viewModel: ConversationInfoSheetViewModel(course: course, conversation: conversation), conversation: conversation)
     }
 }
 
@@ -57,7 +60,7 @@ private extension ConversationInfoSheetView {
                         viewModel.isAddMemberSheetPresented = true
                     }
                 }
-                if let channel = viewModel.conversation.baseConversation as? Channel,
+                if let channel = conversation.baseConversation as? Channel,
                    channel.hasChannelModerationRights ?? false {
                     if channel.isArchived ?? false {
                         Button(R.string.localizable.unarchiveChannelButtonLabel()) {
@@ -102,7 +105,7 @@ private extension ConversationInfoSheetView {
                     viewModel.isLoading = false
                 }
             } content: {
-                CreateOrAddToChatView(courseId: viewModel.course.id, configuration: .addToChat(viewModel.conversation))
+                CreateOrAddToChatView(courseId: viewModel.course.id, configuration: .addToChat(conversation))
             }
         }
     }
@@ -138,7 +141,7 @@ private extension ConversationInfoSheetView {
                     }
                 }
             } header: {
-                Text(R.string.localizable.membersLabel(viewModel.conversation.baseConversation.numberOfMembers ?? 0))
+                Text(R.string.localizable.membersLabel(conversation.baseConversation.numberOfMembers ?? 0))
             } footer: {
                 pageActions
             }
@@ -147,7 +150,7 @@ private extension ConversationInfoSheetView {
 
     var pageActions: some View {
         Group {
-            if (viewModel.conversation.baseConversation.numberOfMembers ?? 0) > PAGINATION_SIZE || viewModel.page > 0 {
+            if (conversation.baseConversation.numberOfMembers ?? 0) > PAGINATION_SIZE || viewModel.page > 0 {
                 HStack(spacing: .l) {
                     Spacer()
                     Text("< \(R.string.localizable.previous())")
@@ -166,10 +169,10 @@ private extension ConversationInfoSheetView {
                             }
                         }
                         .disabled(
-                            (viewModel.conversation.baseConversation.numberOfMembers ?? 0) <= (viewModel.page + 1) * PAGINATION_SIZE
+                            (conversation.baseConversation.numberOfMembers ?? 0) <= (viewModel.page + 1) * PAGINATION_SIZE
                         )
                         .foregroundColor(
-                            (viewModel.conversation.baseConversation.numberOfMembers ?? 0) <= (viewModel.page + 1) * PAGINATION_SIZE
+                            (conversation.baseConversation.numberOfMembers ?? 0) <= (viewModel.page + 1) * PAGINATION_SIZE
                                 ? .Artemis.buttonDisabledColor
                                 : .Artemis.artemisBlue
                         )
@@ -187,6 +190,9 @@ private extension ConversationInfoSheetView {
 private struct InfoSection: View {
     @ObservedObject var viewModel: ConversationInfoSheetViewModel
 
+    // Triggers view update
+    @Binding var conversation: Conversation
+
     @State private var showChangeNameAlert = false
     @State private var newName = ""
 
@@ -199,7 +205,7 @@ private struct InfoSection: View {
     var body: some View {
         Group {
             channelSections
-            if let groupChat = viewModel.conversation.baseConversation as? GroupChat {
+            if let groupChat = conversation.baseConversation as? GroupChat {
                 Section(R.string.localizable.nameLabel()) {
                     HStack {
                         Text(groupChat.name ?? R.string.localizable.noNameSet())
@@ -212,19 +218,19 @@ private struct InfoSection: View {
                     }
                 }
             }
-            if viewModel.conversation.baseConversation.creator?.name != nil || viewModel.conversation.baseConversation.creationDate != nil {
+            if conversation.baseConversation.creator?.name != nil || conversation.baseConversation.creationDate != nil {
                 Section(R.string.localizable.moreInfoLabel()) {
-                    if let creator = viewModel.conversation.baseConversation.creator?.name {
+                    if let creator = conversation.baseConversation.creator?.name {
                         Text(R.string.localizable.createdByLabel(creator))
                     }
-                    if let creationDate = viewModel.conversation.baseConversation.creationDate {
+                    if let creationDate = conversation.baseConversation.creationDate {
                         Text(R.string.localizable.createdOnLabel(creationDate.mediumDateShortTime))
                     }
                 }
             }
         }
         .onAppear {
-            newName = viewModel.conversation.baseConversation.conversationName
+            newName = conversation.baseConversation.conversationName
         }
         .alert(R.string.localizable.editNameTitle(), isPresented: $showChangeNameAlert) {
             TextField(R.string.localizable.newNameLabel(), text: $newName)
@@ -243,7 +249,7 @@ private struct InfoSection: View {
 private extension InfoSection {
     var channelSections: some View {
         Group {
-            if let channel = viewModel.conversation.baseConversation as? Channel {
+            if let channel = conversation.baseConversation as? Channel {
                 Section(R.string.localizable.nameLabel()) {
                     HStack {
                         Text(channel.name ?? R.string.localizable.noNameSet())
