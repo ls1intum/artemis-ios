@@ -26,42 +26,38 @@ public struct ConversationView: View {
 
     public var body: some View {
         VStack(spacing: 0) {
-            DataStateView(data: $viewModel.dailyMessages) {
-                await viewModel.loadMessages()
-            } content: { dailyMessages in
-                if dailyMessages.isEmpty && viewModel.offlineMessages.isEmpty {
-                    ContentUnavailableView(
-                        R.string.localizable.noMessages(),
-                        systemImage: "bubble.right",
-                        description: Text(R.string.localizable.noMessagesDescription()))
-                } else {
-                    ScrollViewReader { value in
-                        ScrollView {
-                            PullToRefresh(coordinateSpaceName: "pullToRefresh") {
-                                await viewModel.loadEarlierMessages()
-                            }
-                            VStack(alignment: .leading) {
-                                ForEach(dailyMessages.sorted(by: { $0.key < $1.key }), id: \.key) { dailyMessage in
-                                    ConversationDaySection(
-                                        viewModel: viewModel,
-                                        day: dailyMessage.key,
-                                        messages: dailyMessage.value,
-                                        conversationPath: conversationPath)
-                                }
-                                ConversationOfflineSection(viewModel)
-                                    // Force re-evaluation, when offline messages change.
-                                    .id(viewModel.offlineMessages.first)
-                                Spacer()
-                                    .id("bottom")
-                            }
+            if viewModel.dailyMessages.isEmpty && viewModel.offlineMessages.isEmpty {
+                ContentUnavailableView(
+                    R.string.localizable.noMessages(),
+                    systemImage: "bubble.right",
+                    description: Text(R.string.localizable.noMessagesDescription()))
+            } else {
+                ScrollViewReader { value in
+                    ScrollView {
+                        PullToRefresh(coordinateSpaceName: "pullToRefresh") {
+                            await viewModel.loadEarlierMessages()
                         }
-                        .coordinateSpace(name: "pullToRefresh")
-                        .onChange(of: viewModel.dailyMessages.value, initial: true) {
-                            #warning("does not work correctly when loadFurtherMessages is called -> is called to early")
-                            if let id = viewModel.shouldScrollToId {
-                                withAnimation {
-                                    value.scrollTo(id, anchor: .bottom)
-                                }
+                        VStack(alignment: .leading) {
+                            ForEach(viewModel.dailyMessages.sorted(by: { $0.key < $1.key }), id: \.key) { dailyMessage in
+                                ConversationDaySection(
+                                    viewModel: viewModel,
+                                    day: dailyMessage.key,
+                                    messages: dailyMessage.value,
+                                    conversationPath: conversationPath)
+                            }
+                            ConversationOfflineSection(viewModel)
+                                // Force re-evaluation, when offline messages change.
+                                .id(viewModel.offlineMessages.first)
+                            Spacer()
+                                .id("bottom")
+                        }
+                    }
+                    .coordinateSpace(name: "pullToRefresh")
+                    .onChange(of: viewModel.dailyMessages, initial: true) {
+                        #warning("does not work correctly when loadFurtherMessages is called -> is called to early")
+                        if let id = viewModel.shouldScrollToId {
+                            withAnimation {
+                                value.scrollTo(id, anchor: .bottom)
                             }
                         }
                     }
@@ -94,9 +90,7 @@ public struct ConversationView: View {
         }
         .task {
             viewModel.shouldScrollToId = "bottom"
-            if viewModel.dailyMessages.value == nil {
-                await viewModel.loadMessages()
-            }
+            await viewModel.loadMessages()
         }
         .onDisappear {
             if navigationController.path.count < 2 {

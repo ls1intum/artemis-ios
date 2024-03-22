@@ -47,15 +47,15 @@ private struct MessageCellWrapper: View {
 
     private var messageBinding: Binding<DataState<BaseMessage>> {
         Binding(get: {
-            if  let messageIndex = viewModel.dailyMessages.value?[day]?.firstIndex(where: { $0.id == message.id }),
-                let message = viewModel.dailyMessages.value?[day]?[messageIndex] {
+            if  let messageIndex = viewModel.dailyMessages[day]?.firstIndex(where: { $0.id == message.id }),
+                let message = viewModel.dailyMessages[day]?[messageIndex] {
                 return .done(response: message)
             }
             return .loading
         }, set: {
-            if  let messageIndex = viewModel.dailyMessages.value?[day]?.firstIndex(where: { $0.id == message.id }),
+            if  let messageIndex = viewModel.dailyMessages[day]?.firstIndex(where: { $0.id == message.id }),
                 let newMessage = $0.value as? Message {
-                viewModel.dailyMessages.value?[day]?[messageIndex] = newMessage
+                viewModel.dailyMessages[day]?[messageIndex] = newMessage
             }
         })
     }
@@ -75,13 +75,13 @@ private struct MessageCellWrapper: View {
             let viewModel = ConversationViewModel(
                 course: MessagesServiceStub.course,
                 conversation: MessagesServiceStub.conversation)
-            viewModel.dailyMessages = .done(response: [
+            viewModel.dailyMessages = [
                 MessagesServiceStub.now: [
                     MessagesServiceStub.message,
                     MessagesServiceStub.continuation,
                     MessagesServiceStub.reply
                 ]
-            ])
+            ]
             return viewModel
         }(),
         day: MessagesServiceStub.now,

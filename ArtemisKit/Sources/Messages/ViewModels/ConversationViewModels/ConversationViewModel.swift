@@ -19,7 +19,7 @@ class ConversationViewModel: BaseViewModel {
     let course: Course
 
     @Published var conversation: Conversation
-    @Published var dailyMessages: DataState<[Date: [Message]]> = .loading
+    @Published var dailyMessages: [Date: [Message]] = [:]
     @Published var offlineMessages: [ConversationOfflineMessageModel] = []
 
     var isAllowedToPost: Bool {
@@ -83,8 +83,7 @@ extension ConversationViewModel {
 
     func loadEarlierMessages() async {
         size += 1
-        if let dailyMessages = dailyMessages.value,
-           let lastKey = dailyMessages.keys.min(),
+        if let lastKey = dailyMessages.keys.min(),
            let lastMessage = dailyMessages[lastKey]?.first {
             shouldScrollToId = lastMessage.id.description
         }
@@ -94,12 +93,12 @@ extension ConversationViewModel {
 
     func loadMessages() async {
         let result = await messagesService.getMessages(for: course.id, and: conversation.id, page: size)
-        if let messages = result.value {
-            let ids = Dictionary(grouping: messages) { element in
-                element.id
-            }
-            // Set<Message>().union(old) // keep callee's members
-        }
+//        if let messages = result.value {
+//            let ids = Dictionary(grouping: messages) { element in
+//                element.id
+//            }
+//            // Set<Message>().union(old) // keep callee's members
+//        }
         let dailyMessages = result.map { messages in
             var dailyMessages: [Date: [Message]] = [:]
             for message in messages {
@@ -116,17 +115,14 @@ extension ConversationViewModel {
             }
             return dailyMessages
         }
-        if let rhs = self.dailyMessages.value {
-            if var lhs = dailyMessages.value {
-                #warning("Merges weekdays")
-                lhs.merge(rhs) {
-                    lhs, _ in lhs
-                }
-                self.dailyMessages = .done(response: lhs)
+        if var lhs = dailyMessages.value {
+            #warning("Merges weekdays")
+            lhs.merge(self.dailyMessages) {
+                lhs, _ in lhs
             }
-        } else {
-            self.dailyMessages = dailyMessages
+            self.dailyMessages = lhs
         }
+        #warning("Present error")
     }
 
     func loadMessage(messageId: Int64) async -> DataState<Message> {
@@ -351,11 +347,6 @@ private extension ConversationViewModel {
     }
 
     func handleNewMessage(_ newMessage: Message) {
-        guard var dailyMessages = dailyMessages.value else {
-            // messages not loaded yet
-            return
-        }
-
         if let date = newMessage.creationDate?.startOfDay {
             if dailyMessages[date] == nil {
                 dailyMessages[date] = [newMessage]
@@ -367,15 +358,9 @@ private extension ConversationViewModel {
         }
 
         shouldScrollToId = newMessage.id.description
-        self.dailyMessages = .done(response: dailyMessages)
     }
 
     func handleUpdateMessage(_ updatedMessage: Message) {
-        guard var dailyMessages = dailyMessages.value else {
-            // messages not loaded yet
-            return
-        }
-
         guard let date = updatedMessage.creationDate?.startOfDay,
               let messageIndex = dailyMessages[date]?.firstIndex(where: { $0.id == updatedMessage.id }) else {
             log.error("Message with id \(updatedMessage.id) could not be updated")
@@ -385,15 +370,9 @@ private extension ConversationViewModel {
         dailyMessages[date]?[messageIndex] = updatedMessage
 
         shouldScrollToId = nil
-        self.dailyMessages = .done(response: dailyMessages)
     }
 
     func handleDeletedMessage(_ deletedMessage: Message) {
-        guard var dailyMessages = dailyMessages.value else {
-            // messages not loaded yet
-            return
-        }
-
         guard let date = deletedMessage.creationDate?.startOfDay else {
             log.error("Message with id \(deletedMessage.id) could not be updated")
             return
@@ -402,7 +381,6 @@ private extension ConversationViewModel {
         dailyMessages[date]?.removeAll(where: { deletedMessage.id == $0.id })
 
         shouldScrollToId = nil
-        self.dailyMessages = .done(response: dailyMessages)
     }
 }
 

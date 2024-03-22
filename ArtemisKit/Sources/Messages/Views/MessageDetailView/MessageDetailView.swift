@@ -147,33 +147,30 @@ private struct MessageCellWrapper: View {
         }
 
         return Binding(get: {
-            if let dailyMessages = viewModel.dailyMessages.value {
-                let answerMessages: [AnswerMessage] = dailyMessages.keys.compactMap { key in
+            let answerMessages: [AnswerMessage] = viewModel.dailyMessages.keys.compactMap { key in
 
-                    if let messages = dailyMessages[key],
-                       let messageIndex = messages.firstIndex(where: messageContainsAnswer),
-                       let answerMessage = messages[messageIndex].answers?.first(where: isAnswerMessage) {
-                        return answerMessage
-                    }
-                    return nil
+                if let messages = viewModel.dailyMessages[key],
+                   let messageIndex = messages.firstIndex(where: messageContainsAnswer),
+                   let answerMessage = messages[messageIndex].answers?.first(where: isAnswerMessage) {
+                    return answerMessage
                 }
+                return nil
+            }
 
-                if let answerMessage = answerMessages.first {
-                    return .done(response: answerMessage)
-                }
+            if let answerMessage = answerMessages.first {
+                return .done(response: answerMessage)
             }
             return .loading
         }, set: { newValue in
-            if let newAnswerMessage = newValue.value as? AnswerMessage,
-               let dailyMessages = viewModel.dailyMessages.value {
+            if let newAnswerMessage = newValue.value as? AnswerMessage {
 
-                for key in dailyMessages.keys {
+                for key in viewModel.dailyMessages.keys {
 
-                    if let messages = dailyMessages[key],
+                    if let messages = viewModel.dailyMessages[key],
                        let messageIndex = messages.firstIndex(where: messageContainsAnswer),
                        let answerMessageIndex = messages[messageIndex].answers?.firstIndex(where: isAnswerMessage) {
 
-                        viewModel.dailyMessages.value?[key]?[messageIndex].answers?[answerMessageIndex] = newAnswerMessage
+                        viewModel.dailyMessages[key]?[messageIndex].answers?[answerMessageIndex] = newAnswerMessage
                         continue
                     }
                 }
@@ -196,11 +193,11 @@ private struct MessageCellWrapper: View {
             let viewModel = ConversationViewModel(
                 course: MessagesServiceStub.course,
                 conversation: MessagesServiceStub.conversation)
-            viewModel.dailyMessages = .done(response: [
+            viewModel.dailyMessages = [
                 MessagesServiceStub.now: [
                     MessagesServiceStub.message
                 ]
-            ])
+            ]
             return viewModel
         }(),
         message: Binding.constant(DataState<BaseMessage>.done(response: MessagesServiceStub.message)))
