@@ -90,11 +90,7 @@ public struct ConversationView: View {
             }
         }
         .sheet(isPresented: $isConversationInfoSheetPresented) {
-            #warning("Constant")
-            ConversationInfoSheetView(
-                conversation: .constant(.done(response: viewModel.conversation)),
-                course: viewModel.course,
-                conversationId: viewModel.conversation.id)
+            ConversationInfoSheetView(course: viewModel.course, conversation: $viewModel.conversation)
         }
         .task {
             viewModel.shouldScrollToId = "bottom"

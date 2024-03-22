@@ -17,8 +17,8 @@ import UserStore
 class ConversationViewModel: BaseViewModel {
 
     let course: Course
-    let conversation: Conversation
 
+    @Published var conversation: Conversation
     @Published var dailyMessages: DataState<[Date: [Message]]> = .loading
     @Published var offlineMessages: [ConversationOfflineMessageModel] = []
 

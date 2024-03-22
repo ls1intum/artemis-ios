@@ -16,7 +16,7 @@ public struct DashboardView: View {
     public init() {}
 
     public var body: some View {
-        CourseGridView(viewModel: viewModel)
+        CourseGrid(viewModel: viewModel)
             .navigationTitle(Text(R.string.localizable.dashboardTitle()))
             .navigationBarBackButtonHidden()
             .accountMenu(error: Binding(

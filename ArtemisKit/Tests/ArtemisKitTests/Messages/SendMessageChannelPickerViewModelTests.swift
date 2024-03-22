@@ -1,6 +1,7 @@
 import XCTest
 @testable import Messages
 
+@MainActor
 final class SendMessageChannelPickerViewModelTests: XCTestCase {
     func testChannelNameCaseInsensitivity() async throws {
         // given
