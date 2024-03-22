@@ -30,23 +30,23 @@ class ConversationInfoSheetViewModel: BaseViewModel {
 }
 
 extension ConversationInfoSheetViewModel {
-    func loadMembers(for courseId: Int, conversationId: Int64) async {
-        members = await MessagesServiceFactory.shared.getMembersOfConversation(for: courseId, conversationId: conversationId, page: page)
+    func loadMembers() async {
+        members = await MessagesServiceFactory.shared.getMembersOfConversation(for: course.id, conversationId: conversation.id, page: page)
     }
 
-    func loadNextMemberPage(for courseId: Int, conversationId: Int64) async {
+    func loadNextMemberPage() async {
         page += 1
-        await loadMembers(for: courseId, conversationId: conversationId)
+        await loadMembers()
     }
 
-    func loadPreviousMemberPage(for courseId: Int, conversationId: Int64) async {
+    func loadPreviousMemberPage() async {
         page -= 1
-        await loadMembers(for: courseId, conversationId: conversationId)
+        await loadMembers()
     }
 
-    func reloadConversation(for courseId: Int, conversationId: Int64) async -> DataState<Conversation> {
+    func reloadConversation() async -> DataState<Conversation> {
         // TODO: replace by call for single specific conversation
-        let result = await MessagesServiceFactory.shared.getConversations(for: courseId)
+        let result = await MessagesServiceFactory.shared.getConversations(for: course.id)
 
         switch result {
         case .loading:
@@ -54,22 +54,22 @@ extension ConversationInfoSheetViewModel {
         case .failure(let error):
             return .failure(error: error)
         case .done(let response):
-            guard let conversation = response.first(where: { $0.id == conversationId }) else {
+            guard let conversation = response.first(where: { $0.id == conversation.id }) else {
                 return .failure(error: UserFacingError(title: R.string.localizable.conversationNotLoaded()))
             }
             return .done(response: conversation)
         }
     }
 
-    func removeMemberFromConversation(for courseId: Int, conversation: Conversation, member: ConversationUser) async -> DataState<Conversation> {
+    func removeMemberFromConversation(member: ConversationUser) async -> DataState<Conversation> {
         guard let username = member.login else { return .failure(error: UserFacingError(title: R.string.localizable.cantRemoveMembers())) }
 
         let result: NetworkResponse
-        switch conversation {
+        switch conversation.wrappedValue {
         case .channel(let conversation):
-            result = await MessagesServiceFactory.shared.removeMembersFromChannel(for: courseId, channelId: conversation.id, usernames: [username])
+            result = await MessagesServiceFactory.shared.removeMembersFromChannel(for: course.id, channelId: conversation.id, usernames: [username])
         case .groupChat(let conversation):
-            result = await MessagesServiceFactory.shared.removeMembersFromGroupChat(for: courseId, groupChatId: conversation.id, usernames: [username])
+            result = await MessagesServiceFactory.shared.removeMembersFromGroupChat(for: course.id, groupChatId: conversation.id, usernames: [username])
         case .oneToOneChat, .unknown:
             // do nothing
             return .failure(error: UserFacingError(title: R.string.localizable.conversationNotLoaded()))
@@ -79,21 +79,21 @@ extension ConversationInfoSheetViewModel {
         case .notStarted, .loading:
             return .loading
         case .success:
-            await loadMembers(for: courseId, conversationId: conversation.id)
-            return await reloadConversation(for: courseId, conversationId: conversation.id)
+            await loadMembers()
+            return await reloadConversation()
         case .failure(let error):
             presentError(userFacingError: UserFacingError(title: error.localizedDescription))
             return .failure(error: UserFacingError(title: error.localizedDescription))
         }
     }
 
-    func leaveConversation(for courseId: Int, conversation: Conversation) async -> Bool {
+    func leaveConversation() async -> Bool {
         let result: NetworkResponse
-        switch conversation {
+        switch conversation.wrappedValue {
         case .channel(let conversation):
-            result = await MessagesServiceFactory.shared.leaveChannel(for: courseId, channelId: conversation.id)
+            result = await MessagesServiceFactory.shared.leaveChannel(for: course.id, channelId: conversation.id)
         case .groupChat(let conversation):
-            result = await MessagesServiceFactory.shared.leaveConversation(for: courseId, groupChatId: conversation.id)
+            result = await MessagesServiceFactory.shared.leaveConversation(for: course.id, groupChatId: conversation.id)
         case .oneToOneChat, .unknown:
             // do nothing
             return false
@@ -110,50 +110,50 @@ extension ConversationInfoSheetViewModel {
         }
     }
 
-    func archiveChannel(for courseId: Int, conversationId: Int64) async -> DataState<Conversation> {
-        let result = await MessagesServiceFactory.shared.archiveChannel(for: courseId, channelId: conversationId)
+    func archiveChannel() async -> DataState<Conversation> {
+        let result = await MessagesServiceFactory.shared.archiveChannel(for: course.id, channelId: conversation.id)
 
         switch result {
         case .notStarted, .loading:
             // do nothing
             return .loading
         case .success:
-            return await reloadConversation(for: courseId, conversationId: conversationId)
+            return await reloadConversation()
         case .failure(let error):
             presentError(userFacingError: UserFacingError(title: error.localizedDescription))
             return .failure(error: UserFacingError(title: error.localizedDescription))
         }
     }
 
-    func unarchiveChannel(for courseId: Int, conversationId: Int64) async -> DataState<Conversation> {
-        let result = await MessagesServiceFactory.shared.unarchiveChannel(for: courseId, channelId: conversationId)
+    func unarchiveChannel() async -> DataState<Conversation> {
+        let result = await MessagesServiceFactory.shared.unarchiveChannel(for: course.id, channelId: conversation.id)
 
         switch result {
         case .notStarted, .loading:
             // do nothing
             return .loading
         case .success:
-            return await reloadConversation(for: courseId, conversationId: conversationId)
+            return await reloadConversation()
         case .failure(let error):
             presentError(userFacingError: UserFacingError(title: error.localizedDescription))
             return .failure(error: UserFacingError(title: error.localizedDescription))
         }
     }
 
-    func editName(for courseId: Int, conversation: Conversation, newName: String) async -> DataState<Conversation> {
-        let result = await MessagesServiceFactory.shared.editConversation(for: courseId, conversation: conversation, newName: newName)
+    func editName(newName: String) async -> DataState<Conversation> {
+        let result = await MessagesServiceFactory.shared.editConversation(for: course.id, conversation: conversation.wrappedValue, newName: newName)
         isLoading = false
         return result
     }
 
-    func editTopic(for courseId: Int, conversation: Conversation, newTopic: String) async -> DataState<Conversation> {
-        let result = await MessagesServiceFactory.shared.editConversation(for: courseId, conversation: conversation, newTopic: newTopic)
+    func editTopic(newTopic: String) async -> DataState<Conversation> {
+        let result = await MessagesServiceFactory.shared.editConversation(for: course.id, conversation: conversation.wrappedValue, newTopic: newTopic)
         isLoading = false
         return result
     }
 
-    func editDescription(for courseId: Int, conversation: Conversation, newDescription: String) async -> DataState<Conversation> {
-        let result = await MessagesServiceFactory.shared.editConversation(for: courseId, conversation: conversation, newDescription: newDescription)
+    func editDescription(newDescription: String) async -> DataState<Conversation> {
+        let result = await MessagesServiceFactory.shared.editConversation(for: course.id, conversation: conversation.wrappedValue, newDescription: newDescription)
         isLoading = false
         return result
     }

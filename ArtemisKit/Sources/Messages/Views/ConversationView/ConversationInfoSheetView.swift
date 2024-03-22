@@ -21,7 +21,6 @@ struct ConversationInfoSheetView: View {
     @StateObject private var viewModel: ConversationInfoSheetViewModel
 
     @Binding var conversation: DataState<Conversation>
-    var conversationId: Int64
 
     @State private var showAddMemberSheet = false
 
@@ -29,7 +28,7 @@ struct ConversationInfoSheetView: View {
         NavigationView {
             DataStateView(data: $conversation) {
                 #warning("Mutation")
-                self.conversation = await viewModel.reloadConversation(for: viewModel.course.id, conversationId: conversationId)
+                self.conversation = await viewModel.reloadConversation()
             } content: { conversation in
                 List {
                     InfoSection(viewModel: viewModel, conversation: $conversation, course: viewModel.course)
@@ -42,7 +41,7 @@ struct ConversationInfoSheetView: View {
                     }
                 }
                 .task {
-                    await viewModel.loadMembers(for: viewModel.course.id, conversationId: conversation.id)
+                    await viewModel.loadMembers()
                 }
                 .navigationTitle(conversation.baseConversation.conversationName)
                 .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
@@ -55,8 +54,7 @@ struct ConversationInfoSheetView: View {
 extension ConversationInfoSheetView {
     init(course: Course, conversation: Binding<Conversation>) {
         self.init(viewModel: ConversationInfoSheetViewModel(course: course, conversation: conversation),
-                  conversation: .constant(.done(response: conversation.wrappedValue)),
-                  conversationId: conversation.wrappedValue.id)
+                  conversation: .constant(.done(response: conversation.wrappedValue)))
     }
 }
 
@@ -117,7 +115,7 @@ private extension ConversationInfoSheetView {
                             Button(R.string.localizable.unarchiveChannelButtonLabel()) {
                                 viewModel.isLoading = true
                                 Task(priority: .userInitiated) {
-                                    let result = await viewModel.unarchiveChannel(for: viewModel.course.id, conversationId: conversation.id)
+                                    let result = await viewModel.unarchiveChannel()
                                     switch result {
                                     case .loading, .failure:
                                         // do nothing
@@ -134,7 +132,7 @@ private extension ConversationInfoSheetView {
                             Button(R.string.localizable.archiveChannelButtonLabel()) {
                                 viewModel.isLoading = true
                                 Task(priority: .userInitiated) {
-                                    let result = await viewModel.archiveChannel(for: viewModel.course.id, conversationId: conversation.id)
+                                    let result = await viewModel.archiveChannel()
                                     switch result {
                                     case .loading, .failure:
                                         // do nothing
@@ -153,7 +151,7 @@ private extension ConversationInfoSheetView {
                         Button(R.string.localizable.leaveConversationButtonLabel()) {
                             viewModel.isLoading = true
                             Task(priority: .userInitiated) {
-                                let success = await viewModel.leaveConversation(for: viewModel.course.id, conversation: conversation)
+                                let success = await viewModel.leaveConversation()
                                 if success {
                                     navigationController.goToCourseConversations(courseId: viewModel.course.id)
                                 } else {
@@ -167,7 +165,7 @@ private extension ConversationInfoSheetView {
                 .sheet(isPresented: $showAddMemberSheet) {
                     viewModel.isLoading = true
                     Task {
-                        let result = await viewModel.reloadConversation(for: viewModel.course.id, conversationId: conversation.id)
+                        let result = await viewModel.reloadConversation()
                         switch result {
                         case .loading, .failure:
                             // do nothing
@@ -176,7 +174,7 @@ private extension ConversationInfoSheetView {
                             #warning("Mutation")
                             self.conversation = result
                         }
-                        await viewModel.loadMembers(for: viewModel.course.id, conversationId: conversation.id)
+                        await viewModel.loadMembers()
                         viewModel.isLoading = false
                     }
                 } content: {
@@ -191,7 +189,7 @@ private extension ConversationInfoSheetView {
             if let conversation = conversation.value {
                 Section(content: {
                     DataStateView(data: $viewModel.members) {
-                        await viewModel.loadMembers(for: viewModel.course.id, conversationId: conversation.id)
+                        await viewModel.loadMembers()
                     } content: { members in
                         ForEach(members, id: \.id) { member in
                             if let name = member.name {
@@ -208,7 +206,7 @@ private extension ConversationInfoSheetView {
                                         Button(R.string.localizable.removeUserButtonLabel()) {
                                             viewModel.isLoading = true
                                             Task(priority: .userInitiated) {
-                                                let result = await viewModel.removeMemberFromConversation(for: viewModel.course.id, conversation: conversation, member: member)
+                                                let result = await viewModel.removeMemberFromConversation(member: member)
                                                 switch result {
                                                 case .loading, .failure:
                                                     // do nothing
@@ -245,7 +243,7 @@ private extension ConversationInfoSheetView {
                     Text("< \(R.string.localizable.previous())")
                         .onTapGesture {
                             Task {
-                                await viewModel.loadPreviousMemberPage(for: viewModel.course.id, conversationId: conversation.id)
+                                await viewModel.loadPreviousMemberPage()
                             }
                         }
                         .disabled(viewModel.page == 0)
@@ -254,7 +252,7 @@ private extension ConversationInfoSheetView {
                     Text("\(R.string.localizable.next()) >")
                         .onTapGesture {
                             Task {
-                                await viewModel.loadNextMemberPage(for: viewModel.course.id, conversationId: conversation.id)
+                                await viewModel.loadNextMemberPage()
                             }
                         }
                         .disabled((conversation.baseConversation.numberOfMembers ?? 0) <= (viewModel.page + 1) * PAGINATION_SIZE)
@@ -322,7 +320,7 @@ private struct InfoSection: View {
                     viewModel.isLoading = true
                     Task(priority: .userInitiated) {
                         #warning("Mutation")
-                        self.conversation = await viewModel.editName(for: course.id, conversation: conversation, newName: newName)
+                        self.conversation = await viewModel.editName(newName: newName)
                     }
                 }
                 Button(R.string.localizable.cancel(), role: .cancel) { }
@@ -364,7 +362,7 @@ private extension InfoSection {
                                     viewModel.isLoading = true
                                     Task(priority: .userInitiated) {
                                         #warning("Mutation")
-                                        self.conversation = await viewModel.editTopic(for: course.id, conversation: conversation, newTopic: newTopic)
+                                        self.conversation = await viewModel.editTopic(newTopic: newTopic)
                                     }
                                 }
                                 Button(R.string.localizable.cancel(), role: .cancel) { }
@@ -389,7 +387,7 @@ private extension InfoSection {
                                     viewModel.isLoading = true
                                     Task(priority: .userInitiated) {
                                         #warning("Mutation")
-                                        self.conversation = await viewModel.editDescription(for: course.id, conversation: conversation, newDescription: newDescription)
+                                        self.conversation = await viewModel.editDescription(newDescription: newDescription)
                                     }
                                 }
                                 Button(R.string.localizable.cancel(), role: .cancel) { }
