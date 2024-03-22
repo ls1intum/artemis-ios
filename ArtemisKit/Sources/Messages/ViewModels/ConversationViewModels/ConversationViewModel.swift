@@ -38,10 +38,9 @@ class ConversationViewModel: BaseViewModel {
     }
 
     var shouldScrollToId: String?
-    var websocketSubscriptionTask: Task<(), Never>?
+    var subscription: Task<(), Never>?
 
-    @available(*, deprecated, renamed: "page")
-    private var size = 0
+    private var page = 0
 
     fileprivate let messagesRepository: MessagesRepository
     private let messagesService: MessagesService
@@ -71,7 +70,7 @@ class ConversationViewModel: BaseViewModel {
     }
 
     deinit {
-        websocketSubscriptionTask?.cancel()
+        subscription?.cancel()
     }
 }
 
@@ -82,7 +81,7 @@ extension ConversationViewModel {
     // MARK: Load
 
     func loadEarlierMessages() async {
-        size += 1
+        page += 1
         if let lastKey = dailyMessages.keys.min(),
            let lastMessage = dailyMessages[lastKey]?.first {
             shouldScrollToId = lastMessage.id.description
@@ -92,7 +91,7 @@ extension ConversationViewModel {
     }
 
     func loadMessages() async {
-        let result = await messagesService.getMessages(for: course.id, and: conversation.id, page: size)
+        let result = await messagesService.getMessages(for: course.id, and: conversation.id, page: page)
 //        if let messages = result.value {
 //            let ids = Dictionary(grouping: messages) { element in
 //                element.id
@@ -127,7 +126,7 @@ extension ConversationViewModel {
 
     func loadMessage(messageId: Int64) async -> DataState<Message> {
         // TODO: add API to only load one single message
-        let result = await messagesService.getMessages(for: course.id, and: conversation.id, page: size)
+        let result = await messagesService.getMessages(for: course.id, and: conversation.id, page: page)
         return result.flatMap { messages in
             guard let message = messages.first(where: { $0.id == messageId }) else {
                 return .failure(UserFacingError(title: R.string.localizable.messageCouldNotBeLoadedError()))
@@ -138,7 +137,7 @@ extension ConversationViewModel {
 
     func loadAnswerMessage(answerMessageId: Int64) async -> DataState<AnswerMessage> {
         // TODO: add API to only load one single answer message
-        let result = await messagesService.getMessages(for: course.id, and: conversation.id, page: size)
+        let result = await messagesService.getMessages(for: course.id, and: conversation.id, page: page)
         return result.flatMap { messages in
             guard let message = messages.first(where: { $0.answers?.contains(where: { $0.id == answerMessageId }) ?? false }),
                   let answerMessage = message.answers?.first(where: { $0.id == answerMessageId }) else {
@@ -295,7 +294,7 @@ private extension ConversationViewModel {
         if stompClient.didSubscribeTopic(topic) {
             return
         }
-        websocketSubscriptionTask = Task { [weak self] in
+        subscription = Task { [weak self] in
             guard let stream = self?.stompClient.subscribe(to: topic) else {
                 return
             }
