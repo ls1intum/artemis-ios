@@ -9,6 +9,6 @@ import Navigation
 
 public extension CoursePathView where Content == CourseView {
     init(path: CoursePath) {
-        self.init(path: path, content: CourseView.init)
+        self.init(path: path, content: Content.init)
     }
 }

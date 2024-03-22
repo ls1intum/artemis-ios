@@ -21,8 +21,8 @@ class CourseViewModel: BaseViewModel {
 }
 
 extension CourseViewModel {
-    func refreshCourse(id: Int) async {
-        let result = await courseService.getCourse(courseId: id)
+    func refreshCourse() async {
+        let result = await courseService.getCourse(courseId: course.id)
         switch result {
         case .loading:
             break

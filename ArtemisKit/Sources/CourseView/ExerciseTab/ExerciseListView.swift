@@ -39,7 +39,7 @@ struct ExerciseListView: View {
             }
         }
         .refreshable {
-            await viewModel.refreshCourse(id: viewModel.course.id)
+            await viewModel.refreshCourse()
         }
     }
 }
