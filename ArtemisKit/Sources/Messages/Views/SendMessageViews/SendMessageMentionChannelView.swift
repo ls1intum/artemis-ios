@@ -42,9 +42,6 @@ struct SendMessageMentionChannelView: View {
                 }
                 .contentMargins([.horizontal, .top], .l, for: .scrollContent)
             }
-            if !sendMessageViewModel.isEditing {
-                Divider()
-            }
         }
         .onChange(of: sendMessageViewModel.text, initial: true) {
             search()
