@@ -141,6 +141,7 @@ class MessagesServiceImpl: MessagesService {
 
         var params: [URLQueryItem] {
             [
+                .init(name: "conversationId", value: String(describing: conversationId)),
                 .init(name: "postSortCriterion", value: "CREATION_DATE"),
                 .init(name: "sortingOrder", value: "DESCENDING"),
                 .init(name: "pagingEnabled", value: "true"),
@@ -150,7 +151,7 @@ class MessagesServiceImpl: MessagesService {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/messages?conversationId=\(conversationId)"
+            return "api/courses/\(courseId)/messages"
         }
     }
 
