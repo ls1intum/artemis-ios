@@ -34,7 +34,6 @@ struct SendMessageView: View {
             textField
                 .padding(isFocused ? [.horizontal, .bottom] : .all, .l)
         }
-        .background(.regularMaterial)
         .onAppear {
             viewModel.performOnAppear()
         }
