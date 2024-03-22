@@ -78,15 +78,20 @@ extension ConversationInfoSheetViewModel {
         // TODO: replace by call for single specific conversation
         let result = await messagesService.getConversations(for: course.id)
 
-        let conversation0: DataState<Conversation> = result.flatMap { conversations in
+        let state: DataState<Conversation> = result.flatMap { conversations in
             guard let conversation = conversations.first(where: { $0.id == conversation.id }) else {
                 return .failure(UserFacingError(title: R.string.localizable.conversationNotLoaded()))
             }
             return .success(conversation)
         }
 
-        if let conversation = conversation0.value {
-            self.conversation = conversation
+        switch state {
+        case .loading:
+            break
+        case let .failure(error):
+            presentError(userFacingError: error)
+        case let .done(response):
+            conversation = response
         }
     }
 
