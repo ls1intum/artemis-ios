@@ -34,7 +34,6 @@ struct SendMessageView: View {
             textField
                 .padding(isFocused ? [.horizontal, .bottom] : .all, .l)
         }
-        .background(.regularMaterial)
         .onAppear {
             viewModel.performOnAppear()
         }
@@ -68,19 +67,24 @@ struct SendMessageView: View {
 @MainActor
 private extension SendMessageView {
     @ViewBuilder var mentions: some View {
-        switch viewModel.conditionalPresentation {
-        case .memberPicker:
-            SendMessageMentionMemberView(
-                viewModel: SendMessageMentionMemberViewModel(course: viewModel.course),
-                sendMessageViewModel: viewModel
-            )
-        case .channelPicker:
-            SendMessageMentionChannelView(
-                viewModel: SendMessageMentionChannelViewModel(course: viewModel.course),
-                sendMessageViewModel: viewModel
-            )
-        case nil:
-            EmptyView()
+        if let presentation = viewModel.conditionalPresentation {
+            VStack(spacing: 0) {
+                switch presentation {
+                case .memberPicker:
+                    SendMessageMentionMemberView(
+                        viewModel: SendMessageMentionMemberViewModel(course: viewModel.course),
+                        sendMessageViewModel: viewModel
+                    )
+                case .channelPicker:
+                    SendMessageMentionChannelView(
+                        viewModel: SendMessageMentionChannelViewModel(course: viewModel.course),
+                        sendMessageViewModel: viewModel
+                    )
+                }
+                if !viewModel.isEditing {
+                    Divider()
+                }
+            }
         }
     }
 

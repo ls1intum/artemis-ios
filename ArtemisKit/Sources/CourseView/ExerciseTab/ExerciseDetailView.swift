@@ -187,7 +187,7 @@ public struct ExerciseDetailView: View {
                         }
 
                         // Exercise Type
-                        if exercise.baseExercise.includedInOverallScore != .includedCompletly {
+                        if exercise.baseExercise.includedInOverallScore != .includedCompletely {
                             ExerciseDetailCell(descriptionText: R.string.localizable.exerciseType()) {
                                 Chip(text: exercise.baseExercise.includedInOverallScore.description, backgroundColor: exercise.baseExercise.includedInOverallScore.color, padding: .s)
                             }

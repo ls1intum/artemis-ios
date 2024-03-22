@@ -20,9 +20,7 @@ struct LectureListView: View {
             List {
                 if searchText.isEmpty {
                     ForEach(weeklyLectures) { weeklyLecture in
-                        if let course = viewModel.course.value {
-                            LectureListSectionView(course: course, weeklyLecture: weeklyLecture)
-                        }
+                        LectureListSectionView(course: viewModel.course, weeklyLecture: weeklyLecture)
                     }
                 } else {
                     if searchResults.isEmpty {
@@ -30,9 +28,7 @@ struct LectureListView: View {
                             .listRowSeparator(.hidden)
                     } else {
                         ForEach(searchResults) { lecture in
-                            if let course = viewModel.course.value {
-                                LectureListCellView(course: course, lecture: lecture)
-                            }
+                            LectureListCellView(course: viewModel.course, lecture: lecture)
                         }
                     }
                 }
@@ -54,8 +50,7 @@ struct LectureListView: View {
 
 private extension LectureListView {
     var searchResults: [Lecture] {
-        guard let course = viewModel.course.value,
-              let lectures = course.lectures else {
+        guard let lectures = viewModel.course.lectures else {
             return []
         }
         return lectures.filter { lecture in
@@ -65,8 +60,7 @@ private extension LectureListView {
     }
 
     var weeklyLectures: [WeeklyLecture] {
-        guard let course = viewModel.course.value,
-              let lectures = course.lectures else {
+        guard let lectures = viewModel.course.lectures else {
             return []
         }
         let groupedDates = Dictionary(grouping: lectures) { lecture in
@@ -97,7 +91,6 @@ private extension LectureListView {
 }
 
 private struct LectureListSectionView: View {
-
     private let course: Course
     private let weeklyLecture: WeeklyLecture
 
@@ -132,7 +125,6 @@ private struct LectureListSectionView: View {
 }
 
 private struct LectureListCellView: View {
-
     @EnvironmentObject var navigationController: NavigationController
 
     let course: Course

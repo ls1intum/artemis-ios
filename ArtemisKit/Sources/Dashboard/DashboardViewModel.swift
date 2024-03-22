@@ -7,15 +7,15 @@ class DashboardViewModel: BaseViewModel {
 
     @Published var coursesForDashboard: DataState<CoursesForDashboardDTO> = DataState.loading
 
-    override init() {
-        super.init()
+    private let courseService: CourseService
 
-        Task {
-            await loadCourses()
-        }
+    init(courseService: CourseService = CourseServiceFactory.shared) {
+        self.courseService = courseService
+
+        super.init()
     }
 
     func loadCourses() async {
-        coursesForDashboard = await CourseServiceFactory.shared.getCourses()
+        coursesForDashboard = await courseService.getCourses()
     }
 }
