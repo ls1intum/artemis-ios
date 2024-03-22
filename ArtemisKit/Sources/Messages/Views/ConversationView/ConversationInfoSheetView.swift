@@ -20,224 +20,166 @@ struct ConversationInfoSheetView: View {
 
     @StateObject private var viewModel: ConversationInfoSheetViewModel
 
-    @Binding var conversation: DataState<Conversation>
-
-    @State private var showAddMemberSheet = false
-
     var body: some View {
         NavigationView {
-            DataStateView(data: $conversation) {
-                #warning("Mutation")
-                self.conversation = await viewModel.reloadConversation()
-            } content: { conversation in
-                List {
-                    InfoSection(viewModel: viewModel, conversation: $conversation, course: viewModel.course)
-                    membersSection
-                    switch conversation {
-                    case .channel, .groupChat:
-                        actionsSection
-                    default:
-                        EmptyView()
-                    }
+            List {
+                InfoSection(viewModel: viewModel)
+                membersSection
+                switch viewModel.conversation {
+                case .channel, .groupChat:
+                    actionsSection
+                default:
+                    EmptyView()
                 }
-                .task {
-                    await viewModel.loadMembers()
-                }
-                .navigationTitle(conversation.baseConversation.conversationName)
-                .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
-                .loadingIndicator(isLoading: $viewModel.isLoading)
             }
+            .task {
+                await viewModel.loadMembers()
+            }
+            .navigationTitle(viewModel.conversation.baseConversation.conversationName)
+            .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
+            .loadingIndicator(isLoading: $viewModel.isLoading)
         }
     }
 }
 
 extension ConversationInfoSheetView {
     init(course: Course, conversation: Binding<Conversation>) {
-        self.init(viewModel: ConversationInfoSheetViewModel(course: course, conversation: conversation),
-                  conversation: .constant(.done(response: conversation.wrappedValue)))
+        self.init(viewModel: ConversationInfoSheetViewModel(course: course, conversation: conversation))
     }
 }
 
 private extension ConversationInfoSheetView {
-    var canLeaveConversation: Bool {
-        guard let conversation = conversation.value else {
-            return false
-        }
-        // not possible to leave a conversation as not a member
-        if !(conversation.baseConversation.isMember ?? false) {
-            return false
-        }
-        // the creator of a channel can not leave it
-        if conversation.baseConversation is Channel && conversation.baseConversation.isCreator ?? false {
-            return false
-        }
-        // can not leave a oneToOne chat
-        if conversation.baseConversation is OneToOneChat {
-            return false
-        }
-        return true
-    }
-
-    var canAddUsers: Bool {
-        guard let conversation = conversation.value else {
-            return false
-        }
-        switch conversation {
-        case .channel(let conversation):
-            return conversation.hasChannelModerationRights ?? false
-        case .groupChat(let conversation):
-            return conversation.isMember ?? false
-        case .oneToOneChat:
-            return false
-        case .unknown:
-            return false
-        }
-    }
-
-    var canRemoveUsers: Bool {
-        canAddUsers
-    }
-
-    // MARK: View
-
     var actionsSection: some View {
         Group {
-            if let conversation = conversation.value {
-                Section(R.string.localizable.settings()) {
-                    if canAddUsers {
-                        Button(R.string.localizable.addUsers()) {
-                            showAddMemberSheet = true
-                        }
+            Section(R.string.localizable.settings()) {
+                if viewModel.canAddUsers {
+                    Button(R.string.localizable.addUsers()) {
+                        viewModel.isAddMemberSheetPresented = true
                     }
-                    if let channel = conversation.baseConversation as? Channel,
-                       channel.hasChannelModerationRights ?? false {
-                        if channel.isArchived ?? false {
-                            Button(R.string.localizable.unarchiveChannelButtonLabel()) {
-                                viewModel.isLoading = true
-                                Task(priority: .userInitiated) {
-                                    let result = await viewModel.unarchiveChannel()
-                                    switch result {
-                                    case .loading, .failure:
-                                        // do nothing
-                                        break
-                                    case .done:
-                                        #warning("Mutation")
-                                        self.conversation = result
-                                    }
-                                    viewModel.isLoading = false
-                                }
-                            }
-                            .foregroundColor(.Artemis.badgeWarningColor)
-                        } else {
-                            Button(R.string.localizable.archiveChannelButtonLabel()) {
-                                viewModel.isLoading = true
-                                Task(priority: .userInitiated) {
-                                    let result = await viewModel.archiveChannel()
-                                    switch result {
-                                    case .loading, .failure:
-                                        // do nothing
-                                        break
-                                    case .done:
-                                        #warning("Mutation")
-                                        self.conversation = result
-                                    }
-                                    viewModel.isLoading = false
-                                }
-                            }
-                            .foregroundColor(.Artemis.badgeWarningColor)
-                        }
-                    }
-                    if canLeaveConversation {
-                        Button(R.string.localizable.leaveConversationButtonLabel()) {
+                }
+                if let channel = viewModel.conversation.baseConversation as? Channel,
+                   channel.hasChannelModerationRights ?? false {
+                    if channel.isArchived ?? false {
+                        Button(R.string.localizable.unarchiveChannelButtonLabel()) {
                             viewModel.isLoading = true
                             Task(priority: .userInitiated) {
-                                let success = await viewModel.leaveConversation()
-                                if success {
-                                    navigationController.goToCourseConversations(courseId: viewModel.course.id)
-                                } else {
-                                    viewModel.isLoading = false
+                                let result = await viewModel.unarchiveChannel()
+                                switch result {
+                                case .loading, .failure:
+                                    // do nothing
+                                    break
+                                case .done:
+                                    #warning("Result")
+                                    // viewModel.conversation.wrappedValue = result
                                 }
+                                viewModel.isLoading = false
                             }
                         }
-                        .foregroundColor(.Artemis.badgeDangerColor)
-                    }
-                }
-                .sheet(isPresented: $showAddMemberSheet) {
-                    viewModel.isLoading = true
-                    Task {
-                        let result = await viewModel.reloadConversation()
-                        switch result {
-                        case .loading, .failure:
-                            // do nothing
-                            break
-                        case .done:
-                            #warning("Mutation")
-                            self.conversation = result
+                        .foregroundColor(.Artemis.badgeWarningColor)
+                    } else {
+                        Button(R.string.localizable.archiveChannelButtonLabel()) {
+                            viewModel.isLoading = true
+                            Task(priority: .userInitiated) {
+                                let result = await viewModel.archiveChannel()
+                                switch result {
+                                case .loading, .failure:
+                                    // do nothing
+                                    break
+                                case .done:
+                                    #warning("Result")
+                                    // self.conversation = result
+                                }
+                                viewModel.isLoading = false
+                            }
                         }
-                        await viewModel.loadMembers()
-                        viewModel.isLoading = false
+                        .foregroundColor(.Artemis.badgeWarningColor)
                     }
-                } content: {
-                    CreateOrAddToChatView(courseId: viewModel.course.id, configuration: .addToChat(conversation))
                 }
+                if viewModel.canLeaveConversation {
+                    Button(R.string.localizable.leaveConversationButtonLabel()) {
+                        viewModel.isLoading = true
+                        Task(priority: .userInitiated) {
+                            let success = await viewModel.leaveConversation()
+                            if success {
+                                navigationController.goToCourseConversations(courseId: viewModel.course.id)
+                            } else {
+                                viewModel.isLoading = false
+                            }
+                        }
+                    }
+                    .foregroundColor(.Artemis.badgeDangerColor)
+                }
+            }
+            .sheet(isPresented: $viewModel.isAddMemberSheetPresented) {
+                viewModel.isLoading = true
+                Task {
+                    let result = await viewModel.reloadConversation()
+                    switch result {
+                    case .loading, .failure:
+                        // do nothing
+                        break
+                    case .done:
+                        #warning("Result")
+                        // self.conversation = result
+                    }
+                    await viewModel.loadMembers()
+                    viewModel.isLoading = false
+                }
+            } content: {
+                CreateOrAddToChatView(courseId: viewModel.course.id, configuration: .addToChat(viewModel.conversation))
             }
         }
     }
 
     private var membersSection: some View {
         Group {
-            if let conversation = conversation.value {
-                Section(content: {
-                    DataStateView(data: $viewModel.members) {
-                        await viewModel.loadMembers()
-                    } content: { members in
-                        ForEach(members, id: \.id) { member in
-                            if let name = member.name {
-                                HStack {
-                                    Text(name)
-                                    Spacer()
-                                    if UserSession.shared.user?.login == member.login {
-                                        Chip(text: R.string.localizable.youLabel(), backgroundColor: .Artemis.artemisBlue)
-                                    }
+            Section(content: {
+                DataStateView(data: $viewModel.members) {
+                    await viewModel.loadMembers()
+                } content: { members in
+                    ForEach(members, id: \.id) { member in
+                        if let name = member.name {
+                            HStack {
+                                Text(name)
+                                Spacer()
+                                if UserSession.shared.user?.login == member.login {
+                                    Chip(text: R.string.localizable.youLabel(), backgroundColor: .Artemis.artemisBlue)
                                 }
-                                .contextMenu {
-                                    if UserSession.shared.user?.login != member.login,
-                                       canRemoveUsers {
-                                        Button(R.string.localizable.removeUserButtonLabel()) {
-                                            viewModel.isLoading = true
-                                            Task(priority: .userInitiated) {
-                                                let result = await viewModel.removeMemberFromConversation(member: member)
-                                                switch result {
-                                                case .loading, .failure:
-                                                    // do nothing
-                                                    break
-                                                case .done:
-                                                    #warning("Mutation")
-                                                    self.conversation = result
-                                                }
-                                                viewModel.isLoading = false
+                            }
+                            .contextMenu {
+                                if UserSession.shared.user?.login != member.login,
+                                   viewModel.canRemoveUsers {
+                                    Button(R.string.localizable.removeUserButtonLabel()) {
+                                        viewModel.isLoading = true
+                                        Task(priority: .userInitiated) {
+                                            let result = await viewModel.removeMemberFromConversation(member: member)
+                                            switch result {
+                                            case .loading, .failure:
+                                                // do nothing
+                                                break
+                                            case .done:
+                                                #warning("Result")
+                                                // self.conversation = result
                                             }
+                                            viewModel.isLoading = false
                                         }
                                     }
                                 }
                             }
                         }
                     }
-                }, header: {
-                    Text(R.string.localizable.membersLabel(conversation.baseConversation.numberOfMembers ?? 0))
-                }, footer: {
-                    pageActions
-                })
-            } else {
-                EmptyView()
-            }
+                }
+            }, header: {
+                Text(R.string.localizable.membersLabel(viewModel.conversation.baseConversation.numberOfMembers ?? 0))
+            }, footer: {
+                pageActions
+            })
         }
     }
 
     var pageActions: some View {
         Group {
-            if let conversation = conversation.value,
-               (conversation.baseConversation.numberOfMembers ?? 0) > PAGINATION_SIZE || viewModel.page > 0 {
+            if (viewModel.conversation.baseConversation.numberOfMembers ?? 0) > PAGINATION_SIZE || viewModel.page > 0 {
                 HStack(spacing: .l) {
                     Spacer()
                     Text("< \(R.string.localizable.previous())")
@@ -255,8 +197,11 @@ private extension ConversationInfoSheetView {
                                 await viewModel.loadNextMemberPage()
                             }
                         }
-                        .disabled((conversation.baseConversation.numberOfMembers ?? 0) <= (viewModel.page + 1) * PAGINATION_SIZE)
-                        .foregroundColor((conversation.baseConversation.numberOfMembers ?? 0) <= (viewModel.page + 1) * PAGINATION_SIZE ? .Artemis.buttonDisabledColor : .Artemis.artemisBlue)
+                        .disabled(
+                            (viewModel.conversation.baseConversation.numberOfMembers ?? 0) <= (viewModel.page + 1) * PAGINATION_SIZE)
+                        .foregroundColor(
+                            (viewModel.conversation.baseConversation.numberOfMembers ?? 0) <= (viewModel.page + 1) * PAGINATION_SIZE
+                            ? .Artemis.buttonDisabledColor : .Artemis.artemisBlue)
                     Spacer()
                 }.font(.body)
             } else {
@@ -269,10 +214,7 @@ private extension ConversationInfoSheetView {
 // MARK: - InfoSection
 
 private struct InfoSection: View {
-
     @ObservedObject var viewModel: ConversationInfoSheetViewModel
-    @Binding var conversation: DataState<Conversation>
-    let course: Course
 
     @State private var showChangeNameAlert = false
     @State private var newName = ""
@@ -284,57 +226,54 @@ private struct InfoSection: View {
     @State private var newDescription = ""
 
     var body: some View {
-        if let conversation = conversation.value {
-            Group {
-                channelSections
-                if let groupChat = conversation.baseConversation as? GroupChat {
-                    Section(R.string.localizable.nameLabel()) {
-                        HStack {
-                            Text(groupChat.name ?? R.string.localizable.noNameSet())
-                            if groupChat.isMember ?? false {
-                                Spacer()
-                                Button(action: { showChangeNameAlert = true }, label: {
-                                    Image(systemName: "pencil")
-                                })
-                            }
-                        }
-                    }
-                }
-                if conversation.baseConversation.creator?.name != nil || conversation.baseConversation.creationDate != nil {
-                    Section(R.string.localizable.moreInfoLabel()) {
-                        if let creator = conversation.baseConversation.creator?.name {
-                            Text(R.string.localizable.createdByLabel(creator))
-                        }
-                        if let creationDate = conversation.baseConversation.creationDate {
-                            Text(R.string.localizable.createdOnLabel(creationDate.mediumDateShortTime))
+        Group {
+            channelSections
+            if let groupChat = viewModel.conversation.baseConversation as? GroupChat {
+                Section(R.string.localizable.nameLabel()) {
+                    HStack {
+                        Text(groupChat.name ?? R.string.localizable.noNameSet())
+                        if groupChat.isMember ?? false {
+                            Spacer()
+                            Button(action: { showChangeNameAlert = true }, label: {
+                                Image(systemName: "pencil")
+                            })
                         }
                     }
                 }
             }
-            .onAppear {
-                newName = conversation.baseConversation.conversationName
-            }
-            .alert(R.string.localizable.editNameTitle(), isPresented: $showChangeNameAlert) {
-                TextField(R.string.localizable.newNameLabel(), text: $newName)
-                Button(R.string.localizable.ok()) {
-                    viewModel.isLoading = true
-                    Task(priority: .userInitiated) {
-                        #warning("Mutation")
-                        self.conversation = await viewModel.editName(newName: newName)
+            if viewModel.conversation.baseConversation.creator?.name != nil || viewModel.conversation.baseConversation.creationDate != nil {
+                Section(R.string.localizable.moreInfoLabel()) {
+                    if let creator = viewModel.conversation.baseConversation.creator?.name {
+                        Text(R.string.localizable.createdByLabel(creator))
+                    }
+                    if let creationDate = viewModel.conversation.baseConversation.creationDate {
+                        Text(R.string.localizable.createdOnLabel(creationDate.mediumDateShortTime))
                     }
                 }
-                Button(R.string.localizable.cancel(), role: .cancel) { }
             }
-            .textCase(nil)
         }
+        .onAppear {
+            newName = viewModel.conversation.baseConversation.conversationName
+        }
+        .alert(R.string.localizable.editNameTitle(), isPresented: $showChangeNameAlert) {
+            TextField(R.string.localizable.newNameLabel(), text: $newName)
+            Button(R.string.localizable.ok()) {
+                viewModel.isLoading = true
+                Task(priority: .userInitiated) {
+                    #warning("Mutation")
+                    // self.conversation = await viewModel.editName(newName: newName)
+                }
+            }
+            Button(R.string.localizable.cancel(), role: .cancel) { }
+        }
+        .textCase(nil)
     }
 }
 
 private extension InfoSection {
     var channelSections: some View {
         Group {
-            if let conversation = conversation.value,
-               let channel = conversation.baseConversation as? Channel {
+            if let channel = viewModel.conversation.baseConversation as? Channel {
                 Section(R.string.localizable.nameLabel()) {
                     HStack {
                         Text(channel.name ?? R.string.localizable.noNameSet())
@@ -346,31 +285,31 @@ private extension InfoSection {
                         }
                     }
                 }
-                Section(R.string.localizable.topicLabel()) {
-                    HStack {
-                        Text(channel.topic ?? R.string.localizable.noTopicSet())
-                        if channel.hasChannelModerationRights ?? false {
-                            Spacer()
-                            Button {
-                                showChangeTopicAlert = true
-                            } label: {
-                                Image(systemName: "pencil")
-                            }
-                            .alert(R.string.localizable.editTopicTitle(), isPresented: $showChangeTopicAlert) {
-                                TextField(R.string.localizable.newTopicLabel(), text: $newTopic)
-                                Button(R.string.localizable.ok()) {
-                                    viewModel.isLoading = true
-                                    Task(priority: .userInitiated) {
-                                        #warning("Mutation")
-                                        self.conversation = await viewModel.editTopic(newTopic: newTopic)
-                                    }
-                                }
-                                Button(R.string.localizable.cancel(), role: .cancel) { }
-                            }
-                            .textCase(nil)
-                        }
-                    }
-                }
+//                Section(R.string.localizable.topicLabel()) {
+//                    HStack {
+//                        Text(channel.topic ?? R.string.localizable.noTopicSet())
+//                        if channel.hasChannelModerationRights ?? false {
+//                            Spacer()
+//                            Button {
+//                                showChangeTopicAlert = true
+//                            } label: {
+//                                Image(systemName: "pencil")
+//                            }
+//                            .alert(R.string.localizable.editTopicTitle(), isPresented: $showChangeTopicAlert) {
+//                                TextField(R.string.localizable.newTopicLabel(), text: $newTopic)
+//                                Button(R.string.localizable.ok()) {
+//                                    viewModel.isLoading = true
+//                                    Task(priority: .userInitiated) {
+//                                        #warning("Mutation")
+//                                        self.conversation = await viewModel.editTopic(newTopic: newTopic)
+//                                    }
+//                                }
+//                                Button(R.string.localizable.cancel(), role: .cancel) { }
+//                            }
+//                            .textCase(nil)
+//                        }
+//                    }
+//                }
                 Section(R.string.localizable.description()) {
                     HStack {
                         Text(channel.description ?? R.string.localizable.noDescriptionSet())
@@ -387,7 +326,7 @@ private extension InfoSection {
                                     viewModel.isLoading = true
                                     Task(priority: .userInitiated) {
                                         #warning("Mutation")
-                                        self.conversation = await viewModel.editDescription(newDescription: newDescription)
+                                        // self.conversation = await viewModel.editDescription(newDescription: newDescription)
                                     }
                                 }
                                 Button(R.string.localizable.cancel(), role: .cancel) { }

@@ -18,8 +18,17 @@ struct ConversationInfoSheetViewModelDelegate {
 
 class ConversationInfoSheetViewModel: BaseViewModel {
     let course: Course
-    let conversation: Binding<Conversation>
+    
+    private let _conversation: Binding<Conversation>
+    var conversation: Conversation {
+        get {
+            _conversation.wrappedValue
+        } set {
+            _conversation.wrappedValue = newValue
+        }
+    }
 
+    @Published var isAddMemberSheetPresented = false
     @Published var members: DataState<[ConversationUser]> = .loading
     @Published var page = 0
 
@@ -27,8 +36,43 @@ class ConversationInfoSheetViewModel: BaseViewModel {
 
     init(course: Course, conversation: Binding<Conversation>, messagesService: MessagesService = MessagesServiceFactory.shared) {
         self.course = course
-        self.conversation = conversation
+        self._conversation = conversation
         self.messagesService = messagesService
+    }
+}
+
+extension ConversationInfoSheetViewModel {
+    var canLeaveConversation: Bool {
+        // not possible to leave a conversation as not a member
+        if !(conversation.baseConversation.isMember ?? false) {
+            return false
+        }
+        // the creator of a channel can not leave it
+        if conversation.baseConversation is Channel && conversation.baseConversation.isCreator ?? false {
+            return false
+        }
+        // can not leave a oneToOne chat
+        if conversation.baseConversation is OneToOneChat {
+            return false
+        }
+        return true
+    }
+
+    var canAddUsers: Bool {
+        switch conversation {
+        case .channel(let conversation):
+            return conversation.hasChannelModerationRights ?? false
+        case .groupChat(let conversation):
+            return conversation.isMember ?? false
+        case .oneToOneChat:
+            return false
+        case .unknown:
+            return false
+        }
+    }
+
+    var canRemoveUsers: Bool {
+        canAddUsers
     }
 }
 
@@ -70,7 +114,7 @@ extension ConversationInfoSheetViewModel {
         }
 
         let result: NetworkResponse
-        switch conversation.wrappedValue {
+        switch conversation {
         case .channel(let conversation):
             result = await messagesService.removeMembersFromChannel(for: course.id, channelId: conversation.id, usernames: [username])
         case .groupChat(let conversation):
@@ -94,7 +138,7 @@ extension ConversationInfoSheetViewModel {
 
     func leaveConversation() async -> Bool {
         let result: NetworkResponse
-        switch conversation.wrappedValue {
+        switch conversation {
         case .channel(let conversation):
             result = await messagesService.leaveChannel(for: course.id, channelId: conversation.id)
         case .groupChat(let conversation):
@@ -146,19 +190,19 @@ extension ConversationInfoSheetViewModel {
     }
 
     func editName(newName: String) async -> DataState<Conversation> {
-        let result = await messagesService.editConversation(for: course.id, conversation: conversation.wrappedValue, newName: newName)
+        let result = await messagesService.editConversation(for: course.id, conversation: conversation, newName: newName)
         isLoading = false
         return result
     }
 
     func editTopic(newTopic: String) async -> DataState<Conversation> {
-        let result = await messagesService.editConversation(for: course.id, conversation: conversation.wrappedValue, newTopic: newTopic)
+        let result = await messagesService.editConversation(for: course.id, conversation: conversation, newTopic: newTopic)
         isLoading = false
         return result
     }
 
     func editDescription(newDescription: String) async -> DataState<Conversation> {
-        let result = await messagesService.editConversation(for: course.id, conversation: conversation.wrappedValue, newDescription: newDescription)
+        let result = await messagesService.editConversation(for: course.id, conversation: conversation, newDescription: newDescription)
         isLoading = false
         return result
     }
