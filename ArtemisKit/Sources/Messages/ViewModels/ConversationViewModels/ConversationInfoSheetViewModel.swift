@@ -18,13 +18,15 @@ struct ConversationInfoSheetViewModelDelegate {
 
 class ConversationInfoSheetViewModel: BaseViewModel {
     let course: Course
-    
+
     private let _conversation: Binding<Conversation>
     var conversation: Conversation {
         get {
             _conversation.wrappedValue
-        } set {
+        }
+        set {
             _conversation.wrappedValue = newValue
+            // objectWillChange.send()
         }
     }
 
@@ -77,6 +79,22 @@ extension ConversationInfoSheetViewModel {
 }
 
 extension ConversationInfoSheetViewModel {
+    func refreshConversation() async {
+        // TODO: replace by call for single specific conversation
+        let result = await messagesService.getConversations(for: course.id)
+
+        let conversation0: DataState<Conversation> = result.flatMap { conversations in
+            guard let conversation = conversations.first(where: { $0.id == conversation.id }) else {
+                return .failure(UserFacingError(title: R.string.localizable.conversationNotLoaded()))
+            }
+            return .success(conversation)
+        }
+
+        if let conversation = conversation0.value {
+            self.conversation = conversation
+        }
+    }
+
     func loadMembers() async {
         members = await messagesService.getMembersOfConversation(for: course.id, conversationId: conversation.id, page: page)
     }
@@ -91,26 +109,10 @@ extension ConversationInfoSheetViewModel {
         await loadMembers()
     }
 
-    func reloadConversation() async -> DataState<Conversation> {
-        // TODO: replace by call for single specific conversation
-        let result = await messagesService.getConversations(for: course.id)
-
-        switch result {
-        case .loading:
-            return .loading
-        case .failure(let error):
-            return .failure(error: error)
-        case .done(let response):
-            guard let conversation = response.first(where: { $0.id == conversation.id }) else {
-                return .failure(error: UserFacingError(title: R.string.localizable.conversationNotLoaded()))
-            }
-            return .done(response: conversation)
-        }
-    }
-
-    func removeMemberFromConversation(member: ConversationUser) async -> DataState<Conversation> {
+    func removeMemberFromConversation(member: ConversationUser) async {
         guard let username = member.login else {
-            return .failure(error: UserFacingError(title: R.string.localizable.cantRemoveMembers()))
+            presentError(userFacingError: UserFacingError(title: R.string.localizable.cantRemoveMembers()))
+            return
         }
 
         let result: NetworkResponse
@@ -120,19 +122,17 @@ extension ConversationInfoSheetViewModel {
         case .groupChat(let conversation):
             result = await messagesService.removeMembersFromGroupChat(for: course.id, groupChatId: conversation.id, usernames: [username])
         case .oneToOneChat, .unknown:
-            // do nothing
-            return .failure(error: UserFacingError(title: R.string.localizable.conversationNotLoaded()))
+            result = .failure(error: UserFacingError(title: R.string.localizable.conversationNotLoaded()))
         }
 
         switch result {
         case .notStarted, .loading:
-            return .loading
+            break
         case .success:
             await loadMembers()
-            return await reloadConversation()
+            await refreshConversation()
         case .failure(let error):
             presentError(userFacingError: UserFacingError(title: error.localizedDescription))
-            return .failure(error: UserFacingError(title: error.localizedDescription))
         }
     }
 
@@ -159,51 +159,71 @@ extension ConversationInfoSheetViewModel {
         }
     }
 
-    func archiveChannel() async -> DataState<Conversation> {
+    func archiveChannel() async {
         let result = await messagesService.archiveChannel(for: course.id, channelId: conversation.id)
 
         switch result {
         case .notStarted, .loading:
-            // do nothing
-            return .loading
+            break
         case .success:
-            return await reloadConversation()
+            await refreshConversation()
         case .failure(let error):
             presentError(userFacingError: UserFacingError(title: error.localizedDescription))
-            return .failure(error: UserFacingError(title: error.localizedDescription))
         }
     }
 
-    func unarchiveChannel() async -> DataState<Conversation> {
+    func unarchiveChannel() async {
         let result = await messagesService.unarchiveChannel(for: course.id, channelId: conversation.id)
 
         switch result {
         case .notStarted, .loading:
-            // do nothing
-            return .loading
+            break
         case .success:
-            return await reloadConversation()
+            await refreshConversation()
         case .failure(let error):
             presentError(userFacingError: UserFacingError(title: error.localizedDescription))
-            return .failure(error: UserFacingError(title: error.localizedDescription))
         }
     }
 
-    func editName(newName: String) async -> DataState<Conversation> {
+    func editName(newName: String) async {
         let result = await messagesService.editConversation(for: course.id, conversation: conversation, newName: newName)
         isLoading = false
-        return result
+
+        switch result {
+        case .loading:
+            break
+        case .failure(let error):
+            presentError(userFacingError: error)
+        case .done(let response):
+            conversation = response
+        }
     }
 
-    func editTopic(newTopic: String) async -> DataState<Conversation> {
+    func editTopic(newTopic: String) async {
         let result = await messagesService.editConversation(for: course.id, conversation: conversation, newTopic: newTopic)
         isLoading = false
-        return result
+
+        switch result {
+        case .loading:
+            break
+        case .failure(let error):
+            presentError(userFacingError: error)
+        case .done(let response):
+            conversation = response
+        }
     }
 
-    func editDescription(newDescription: String) async -> DataState<Conversation> {
+    func editDescription(newDescription: String) async {
         let result = await messagesService.editConversation(for: course.id, conversation: conversation, newDescription: newDescription)
         isLoading = false
-        return result
+
+        switch result {
+        case .loading:
+            break
+        case .failure(let error):
+            presentError(userFacingError: error)
+        case .done(let response):
+            conversation = response
+        }
     }
 }

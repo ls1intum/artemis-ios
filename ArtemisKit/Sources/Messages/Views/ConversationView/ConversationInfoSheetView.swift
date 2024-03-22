@@ -62,16 +62,8 @@ private extension ConversationInfoSheetView {
                     if channel.isArchived ?? false {
                         Button(R.string.localizable.unarchiveChannelButtonLabel()) {
                             viewModel.isLoading = true
-                            Task(priority: .userInitiated) {
-                                let result = await viewModel.unarchiveChannel()
-                                switch result {
-                                case .loading, .failure:
-                                    // do nothing
-                                    break
-                                case .done:
-                                    #warning("Result")
-                                    // viewModel.conversation.wrappedValue = result
-                                }
+                            Task {
+                                await viewModel.unarchiveChannel()
                                 viewModel.isLoading = false
                             }
                         }
@@ -79,16 +71,8 @@ private extension ConversationInfoSheetView {
                     } else {
                         Button(R.string.localizable.archiveChannelButtonLabel()) {
                             viewModel.isLoading = true
-                            Task(priority: .userInitiated) {
-                                let result = await viewModel.archiveChannel()
-                                switch result {
-                                case .loading, .failure:
-                                    // do nothing
-                                    break
-                                case .done:
-                                    #warning("Result")
-                                    // self.conversation = result
-                                }
+                            Task {
+                                await viewModel.archiveChannel()
                                 viewModel.isLoading = false
                             }
                         }
@@ -98,7 +82,7 @@ private extension ConversationInfoSheetView {
                 if viewModel.canLeaveConversation {
                     Button(R.string.localizable.leaveConversationButtonLabel()) {
                         viewModel.isLoading = true
-                        Task(priority: .userInitiated) {
+                        Task {
                             let success = await viewModel.leaveConversation()
                             if success {
                                 navigationController.goToCourseConversations(courseId: viewModel.course.id)
@@ -113,15 +97,7 @@ private extension ConversationInfoSheetView {
             .sheet(isPresented: $viewModel.isAddMemberSheetPresented) {
                 viewModel.isLoading = true
                 Task {
-                    let result = await viewModel.reloadConversation()
-                    switch result {
-                    case .loading, .failure:
-                        // do nothing
-                        break
-                    case .done:
-                        #warning("Result")
-                        // self.conversation = result
-                    }
+                    await viewModel.refreshConversation()
                     await viewModel.loadMembers()
                     viewModel.isLoading = false
                 }
@@ -133,7 +109,7 @@ private extension ConversationInfoSheetView {
 
     private var membersSection: some View {
         Group {
-            Section(content: {
+            Section {
                 DataStateView(data: $viewModel.members) {
                     await viewModel.loadMembers()
                 } content: { members in
@@ -151,16 +127,8 @@ private extension ConversationInfoSheetView {
                                    viewModel.canRemoveUsers {
                                     Button(R.string.localizable.removeUserButtonLabel()) {
                                         viewModel.isLoading = true
-                                        Task(priority: .userInitiated) {
-                                            let result = await viewModel.removeMemberFromConversation(member: member)
-                                            switch result {
-                                            case .loading, .failure:
-                                                // do nothing
-                                                break
-                                            case .done:
-                                                #warning("Result")
-                                                // self.conversation = result
-                                            }
+                                        Task {
+                                            await viewModel.removeMemberFromConversation(member: member)
                                             viewModel.isLoading = false
                                         }
                                     }
@@ -169,11 +137,11 @@ private extension ConversationInfoSheetView {
                         }
                     }
                 }
-            }, header: {
+            } header: {
                 Text(R.string.localizable.membersLabel(viewModel.conversation.baseConversation.numberOfMembers ?? 0))
-            }, footer: {
+            } footer: {
                 pageActions
-            })
+            }
         }
     }
 
@@ -198,10 +166,13 @@ private extension ConversationInfoSheetView {
                             }
                         }
                         .disabled(
-                            (viewModel.conversation.baseConversation.numberOfMembers ?? 0) <= (viewModel.page + 1) * PAGINATION_SIZE)
+                            (viewModel.conversation.baseConversation.numberOfMembers ?? 0) <= (viewModel.page + 1) * PAGINATION_SIZE
+                        )
                         .foregroundColor(
                             (viewModel.conversation.baseConversation.numberOfMembers ?? 0) <= (viewModel.page + 1) * PAGINATION_SIZE
-                            ? .Artemis.buttonDisabledColor : .Artemis.artemisBlue)
+                                ? .Artemis.buttonDisabledColor
+                                : .Artemis.artemisBlue
+                        )
                     Spacer()
                 }.font(.body)
             } else {
@@ -259,9 +230,8 @@ private struct InfoSection: View {
             TextField(R.string.localizable.newNameLabel(), text: $newName)
             Button(R.string.localizable.ok()) {
                 viewModel.isLoading = true
-                Task(priority: .userInitiated) {
-                    #warning("Mutation")
-                    // self.conversation = await viewModel.editName(newName: newName)
+                Task {
+                    await viewModel.editName(newName: newName)
                 }
             }
             Button(R.string.localizable.cancel(), role: .cancel) { }
@@ -279,43 +249,44 @@ private extension InfoSection {
                         Text(channel.name ?? R.string.localizable.noNameSet())
                         if channel.hasChannelModerationRights ?? false {
                             Spacer()
-                            Button(action: { showChangeNameAlert = true }, label: {
+                            Button {
+                                showChangeNameAlert = true
+                            } label: {
                                 Image(systemName: "pencil")
-                            })
+                            }
                         }
                     }
                 }
-//                Section(R.string.localizable.topicLabel()) {
-//                    HStack {
-//                        Text(channel.topic ?? R.string.localizable.noTopicSet())
-//                        if channel.hasChannelModerationRights ?? false {
-//                            Spacer()
-//                            Button {
-//                                showChangeTopicAlert = true
-//                            } label: {
-//                                Image(systemName: "pencil")
-//                            }
-//                            .alert(R.string.localizable.editTopicTitle(), isPresented: $showChangeTopicAlert) {
-//                                TextField(R.string.localizable.newTopicLabel(), text: $newTopic)
-//                                Button(R.string.localizable.ok()) {
-//                                    viewModel.isLoading = true
-//                                    Task(priority: .userInitiated) {
-//                                        #warning("Mutation")
-//                                        self.conversation = await viewModel.editTopic(newTopic: newTopic)
-//                                    }
-//                                }
-//                                Button(R.string.localizable.cancel(), role: .cancel) { }
-//                            }
-//                            .textCase(nil)
-//                        }
-//                    }
-//                }
+                Section(R.string.localizable.topicLabel()) {
+                    HStack {
+                        Text(channel.topic ?? R.string.localizable.noTopicSet())
+                        if channel.hasChannelModerationRights ?? false {
+                            Spacer()
+                            Button {
+                                showChangeTopicAlert = true
+                            } label: {
+                                Image(systemName: "pencil")
+                            }
+                            .alert(R.string.localizable.editTopicTitle(), isPresented: $showChangeTopicAlert) {
+                                TextField(R.string.localizable.newTopicLabel(), text: $newTopic)
+                                Button(R.string.localizable.ok()) {
+                                    viewModel.isLoading = true
+                                    Task {
+                                        await viewModel.editTopic(newTopic: newTopic)
+                                    }
+                                }
+                                Button(R.string.localizable.cancel(), role: .cancel) { }
+                            }
+                            .textCase(nil)
+                        }
+                    }
+                }
                 Section(R.string.localizable.description()) {
                     HStack {
                         Text(channel.description ?? R.string.localizable.noDescriptionSet())
                         if channel.hasChannelModerationRights ?? false {
                             Spacer()
-                            Button { 
+                            Button {
                                 showChangeDescriptionAlert = true
                             } label: {
                                 Image(systemName: "pencil")
@@ -324,12 +295,13 @@ private extension InfoSection {
                                 TextField(R.string.localizable.newDescriptionLabel(), text: $newDescription)
                                 Button(R.string.localizable.ok()) {
                                     viewModel.isLoading = true
-                                    Task(priority: .userInitiated) {
-                                        #warning("Mutation")
-                                        // self.conversation = await viewModel.editDescription(newDescription: newDescription)
+                                    Task {
+                                        await viewModel.editDescription(newDescription: newDescription)
                                     }
                                 }
-                                Button(R.string.localizable.cancel(), role: .cancel) { }
+                                Button(R.string.localizable.cancel(), role: .cancel) { 
+                                    //
+                                }
                             }
                             .textCase(nil)
                         }
