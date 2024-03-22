@@ -11,11 +11,6 @@ import UserStore
 import SharedModels
 import SwiftUI
 
-@MainActor
-struct ConversationInfoSheetViewModelDelegate {
-    let didUpdate: (Conversation) -> ()
-}
-
 class ConversationInfoSheetViewModel: BaseViewModel {
     let course: Course
 

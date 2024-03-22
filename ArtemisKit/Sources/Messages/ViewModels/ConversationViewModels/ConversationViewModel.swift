@@ -413,14 +413,3 @@ extension ConversationOfflineSectionModelDelegate {
         }
     }
 }
-
-// MARK: - ConversationViewModel+ConversationInfoSheetViewModelDelegate
-
-extension ConversationInfoSheetViewModelDelegate {
-    init(_ viewModel: ConversationViewModel) {
-        self.init { [weak viewModel] conversation in
-            viewModel?.conversation = conversation
-        }
-    }
-}
-
