@@ -23,15 +23,18 @@ class ConversationInfoSheetViewModel: BaseViewModel {
     @Published var members: DataState<[ConversationUser]> = .loading
     @Published var page = 0
 
-    init(course: Course, conversation: Binding<Conversation>) {
+    private let messagesService: MessagesService
+
+    init(course: Course, conversation: Binding<Conversation>, messagesService: MessagesService = MessagesServiceFactory.shared) {
         self.course = course
         self.conversation = conversation
+        self.messagesService = messagesService
     }
 }
 
 extension ConversationInfoSheetViewModel {
     func loadMembers() async {
-        members = await MessagesServiceFactory.shared.getMembersOfConversation(for: course.id, conversationId: conversation.id, page: page)
+        members = await messagesService.getMembersOfConversation(for: course.id, conversationId: conversation.id, page: page)
     }
 
     func loadNextMemberPage() async {
@@ -46,7 +49,7 @@ extension ConversationInfoSheetViewModel {
 
     func reloadConversation() async -> DataState<Conversation> {
         // TODO: replace by call for single specific conversation
-        let result = await MessagesServiceFactory.shared.getConversations(for: course.id)
+        let result = await messagesService.getConversations(for: course.id)
 
         switch result {
         case .loading:
@@ -62,14 +65,16 @@ extension ConversationInfoSheetViewModel {
     }
 
     func removeMemberFromConversation(member: ConversationUser) async -> DataState<Conversation> {
-        guard let username = member.login else { return .failure(error: UserFacingError(title: R.string.localizable.cantRemoveMembers())) }
+        guard let username = member.login else {
+            return .failure(error: UserFacingError(title: R.string.localizable.cantRemoveMembers()))
+        }
 
         let result: NetworkResponse
         switch conversation.wrappedValue {
         case .channel(let conversation):
-            result = await MessagesServiceFactory.shared.removeMembersFromChannel(for: course.id, channelId: conversation.id, usernames: [username])
+            result = await messagesService.removeMembersFromChannel(for: course.id, channelId: conversation.id, usernames: [username])
         case .groupChat(let conversation):
-            result = await MessagesServiceFactory.shared.removeMembersFromGroupChat(for: course.id, groupChatId: conversation.id, usernames: [username])
+            result = await messagesService.removeMembersFromGroupChat(for: course.id, groupChatId: conversation.id, usernames: [username])
         case .oneToOneChat, .unknown:
             // do nothing
             return .failure(error: UserFacingError(title: R.string.localizable.conversationNotLoaded()))
@@ -91,9 +96,9 @@ extension ConversationInfoSheetViewModel {
         let result: NetworkResponse
         switch conversation.wrappedValue {
         case .channel(let conversation):
-            result = await MessagesServiceFactory.shared.leaveChannel(for: course.id, channelId: conversation.id)
+            result = await messagesService.leaveChannel(for: course.id, channelId: conversation.id)
         case .groupChat(let conversation):
-            result = await MessagesServiceFactory.shared.leaveConversation(for: course.id, groupChatId: conversation.id)
+            result = await messagesService.leaveConversation(for: course.id, groupChatId: conversation.id)
         case .oneToOneChat, .unknown:
             // do nothing
             return false
@@ -111,7 +116,7 @@ extension ConversationInfoSheetViewModel {
     }
 
     func archiveChannel() async -> DataState<Conversation> {
-        let result = await MessagesServiceFactory.shared.archiveChannel(for: course.id, channelId: conversation.id)
+        let result = await messagesService.archiveChannel(for: course.id, channelId: conversation.id)
 
         switch result {
         case .notStarted, .loading:
@@ -126,7 +131,7 @@ extension ConversationInfoSheetViewModel {
     }
 
     func unarchiveChannel() async -> DataState<Conversation> {
-        let result = await MessagesServiceFactory.shared.unarchiveChannel(for: course.id, channelId: conversation.id)
+        let result = await messagesService.unarchiveChannel(for: course.id, channelId: conversation.id)
 
         switch result {
         case .notStarted, .loading:
@@ -141,19 +146,19 @@ extension ConversationInfoSheetViewModel {
     }
 
     func editName(newName: String) async -> DataState<Conversation> {
-        let result = await MessagesServiceFactory.shared.editConversation(for: course.id, conversation: conversation.wrappedValue, newName: newName)
+        let result = await messagesService.editConversation(for: course.id, conversation: conversation.wrappedValue, newName: newName)
         isLoading = false
         return result
     }
 
     func editTopic(newTopic: String) async -> DataState<Conversation> {
-        let result = await MessagesServiceFactory.shared.editConversation(for: course.id, conversation: conversation.wrappedValue, newTopic: newTopic)
+        let result = await messagesService.editConversation(for: course.id, conversation: conversation.wrappedValue, newTopic: newTopic)
         isLoading = false
         return result
     }
 
     func editDescription(newDescription: String) async -> DataState<Conversation> {
-        let result = await MessagesServiceFactory.shared.editConversation(for: course.id, conversation: conversation.wrappedValue, newDescription: newDescription)
+        let result = await messagesService.editConversation(for: course.id, conversation: conversation.wrappedValue, newDescription: newDescription)
         isLoading = false
         return result
     }
