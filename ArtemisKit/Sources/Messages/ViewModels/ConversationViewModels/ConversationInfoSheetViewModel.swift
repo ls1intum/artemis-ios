@@ -9,6 +9,7 @@ import Foundation
 import Common
 import UserStore
 import SharedModels
+import SwiftUI
 
 @MainActor
 struct ConversationInfoSheetViewModelDelegate {
@@ -16,11 +17,19 @@ struct ConversationInfoSheetViewModelDelegate {
 }
 
 class ConversationInfoSheetViewModel: BaseViewModel {
+    let course: Course
+    let conversation: Binding<Conversation>
 
     @Published var members: DataState<[ConversationUser]> = .loading
-
     @Published var page = 0
 
+    init(course: Course, conversation: Binding<Conversation>) {
+        self.course = course
+        self.conversation = conversation
+    }
+}
+
+extension ConversationInfoSheetViewModel {
     func loadMembers(for courseId: Int, conversationId: Int64) async {
         members = await MessagesServiceFactory.shared.getMembersOfConversation(for: courseId, conversationId: conversationId, page: page)
     }

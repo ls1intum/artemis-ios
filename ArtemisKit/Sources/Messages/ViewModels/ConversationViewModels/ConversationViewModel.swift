@@ -17,8 +17,8 @@ import UserStore
 class ConversationViewModel: BaseViewModel {
 
     let course: Course
-    @Published fileprivate(set) var conversation: Conversation
 
+    @Published var conversation: Conversation
     @Published var dailyMessages: DataState<[Date: [Message]]> = .loading
     @Published var offlineMessages: [ConversationOfflineMessageModel] = []
 
@@ -417,10 +417,10 @@ extension ConversationOfflineSectionModelDelegate {
 // MARK: - ConversationViewModel+ConversationInfoSheetViewModelDelegate
 
 extension ConversationInfoSheetViewModelDelegate {
-init(_ viewModel: ConversationViewModel) {
-self.init { [weak viewModel] conversation in
-viewModel?.conversation = conversation
-}
-}
+    init(_ viewModel: ConversationViewModel) {
+        self.init { [weak viewModel] conversation in
+            viewModel?.conversation = conversation
+        }
+    }
 }
 
