@@ -174,7 +174,7 @@ private extension ConversationInfoSheetView {
                         viewModel.isLoading = false
                     }
                 } content: {
-                    CreateOrAddToChatView(courseId: course.id, type: .addToChat(conversation))
+                    CreateOrAddToChatView(courseId: course.id, configuration: .addToChat(conversation))
                 }
             }
         }
