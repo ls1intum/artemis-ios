@@ -82,6 +82,7 @@ extension ConversationViewModel {
 
     func loadEarlierMessages() async {
         page += 1
+        // First ever message in set
         if let lastKey = dailyMessages.keys.min(),
            let lastMessage = dailyMessages[lastKey]?.first {
             shouldScrollToId = lastMessage.id.description
@@ -114,6 +115,7 @@ extension ConversationViewModel {
             }
             return dailyMessages
         }
+        // Merge new with old, preferring new
         if var lhs = dailyMessages.value {
             #warning("Merges weekdays")
             lhs.merge(self.dailyMessages) {
@@ -346,6 +348,7 @@ private extension ConversationViewModel {
     }
 
     func handleNewMessage(_ newMessage: Message) {
+        // Insert new message
         if let date = newMessage.creationDate?.startOfDay {
             if dailyMessages[date] == nil {
                 dailyMessages[date] = [newMessage]
@@ -360,6 +363,7 @@ private extension ConversationViewModel {
     }
 
     func handleUpdateMessage(_ updatedMessage: Message) {
+        // Update existing message
         guard let date = updatedMessage.creationDate?.startOfDay,
               let messageIndex = dailyMessages[date]?.firstIndex(where: { $0.id == updatedMessage.id }) else {
             log.error("Message with id \(updatedMessage.id) could not be updated")
@@ -372,6 +376,7 @@ private extension ConversationViewModel {
     }
 
     func handleDeletedMessage(_ deletedMessage: Message) {
+        // Remove existing message
         guard let date = deletedMessage.creationDate?.startOfDay else {
             log.error("Message with id \(deletedMessage.id) could not be updated")
             return

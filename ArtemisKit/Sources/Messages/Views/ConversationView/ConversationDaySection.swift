@@ -46,6 +46,7 @@ private struct MessageCellWrapper: View {
     let isHeaderVisible: Bool
 
     private var messageBinding: Binding<DataState<BaseMessage>> {
+        // Bind to day and id
         Binding(get: {
             if  let messageIndex = viewModel.dailyMessages[day]?.firstIndex(where: { $0.id == message.id }),
                 let message = viewModel.dailyMessages[day]?[messageIndex] {

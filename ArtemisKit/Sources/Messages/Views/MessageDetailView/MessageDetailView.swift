@@ -147,6 +147,7 @@ private struct MessageCellWrapper: View {
         }
 
         return Binding(get: {
+            // Bind to answer id
             let answerMessages: [AnswerMessage] = viewModel.dailyMessages.keys.compactMap { key in
 
                 if let messages = viewModel.dailyMessages[key],

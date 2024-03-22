@@ -38,6 +38,7 @@ public struct ConversationView: View {
                             await viewModel.loadEarlierMessages()
                         }
                         VStack(alignment: .leading) {
+                            // Index with creation day
                             ForEach(viewModel.dailyMessages.sorted(by: { $0.key < $1.key }), id: \.key) { dailyMessage in
                                 ConversationDaySection(
                                     viewModel: viewModel,
