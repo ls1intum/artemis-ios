@@ -9,34 +9,36 @@ import Common
 
 public extension DataState {
     func map<U>(_ transform: (T) -> U) -> DataState<U> {
-        .init(toOptionalResult()?.map(transform))
+        .init(Result(self)?.map(transform))
     }
 
     func flatMap<U>(_ transform: (T) -> Swift.Result<U, UserFacingError>) -> DataState<U> {
-        .init(toOptionalResult()?.flatMap(transform))
+        .init(Result(self)?.flatMap(transform))
+    }
+}
+
+private extension Swift.Result where Failure == UserFacingError {
+    init?(_ state: DataState<Success>) {
+        switch state {
+        case .loading:
+            return nil
+        case let .done(response: success):
+            self = .success(success)
+        case let .failure(error: error):
+            self = .failure(error)
+        }
     }
 }
 
 private extension DataState {
-    init(_ optionalResult: Swift.Result<T, UserFacingError>?) {
-        switch optionalResult {
+    init(_ result: Swift.Result<T, UserFacingError>?) {
+        switch result {
         case let .success(success):
             self = .done(response: success)
         case let .failure(failure):
             self = .failure(error: failure)
         case nil:
             self = .loading
-        }
-    }
-
-    func toOptionalResult() -> Swift.Result<T, UserFacingError>? {
-        switch self {
-        case let .done(response: success):
-            return .success(success)
-        case let .failure(error: failure):
-            return .failure(failure)
-        case .loading:
-            return nil
         }
     }
 }
