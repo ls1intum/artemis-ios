@@ -4,34 +4,32 @@ import Common
 import SharedServices
 
 @MainActor
-class CourseViewModel: ObservableObject {
+class CourseViewModel: BaseViewModel {
+    @Published var course: Course
 
-    @Published var course: DataState<Course> = DataState.loading
+    private let courseService: CourseService
 
     var isMessagesVisible: Bool {
-        if let configuration = course.value?.courseInformationSharingConfiguration {
-            return configuration == .communicationAndMessaging || configuration == .messagingOnly
-        } else {
-            return true
-        }
+        course.courseInformationSharingConfiguration == .communicationAndMessaging
+        || course.courseInformationSharingConfiguration == .messagingOnly
     }
 
-    init(courseId: Int) {
-        Task {
-            await loadCourse(id: courseId)
-        }
+    init(course: Course, courseService: CourseService = CourseServiceFactory.shared) {
+        self.course = course
+        self.courseService = courseService
     }
+}
 
-    func loadCourse(id: Int) async {
-        let result = await CourseServiceFactory.shared.getCourse(courseId: id)
-
+extension CourseViewModel {
+    func refreshCourse(id: Int) async {
+        let result = await courseService.getCourse(courseId: id)
         switch result {
         case .loading:
-            course = .loading
-        case .failure(let error):
-            course = .failure(error: error)
-        case .done(let response):
-            course = .done(response: response.course)
+            break
+        case let .failure(error):
+            presentError(userFacingError: error)
+        case let .done(course):
+            self.course = course.course
         }
     }
 }

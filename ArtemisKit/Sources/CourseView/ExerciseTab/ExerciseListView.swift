@@ -15,10 +15,8 @@ struct ExerciseListView: View {
             List {
                 if searchText.isEmpty {
                     ForEach(weeklyExercises) { weeklyExercise in
-                        if let course = viewModel.course.value {
-                            ExerciseListSection(course: course, weeklyExercise: weeklyExercise)
-                                .id(weeklyExercise.id)
-                        }
+                        ExerciseListSection(course: viewModel.course, weeklyExercise: weeklyExercise)
+                            .id(weeklyExercise.id)
                     }
                 } else {
                     if searchResults.isEmpty {
@@ -26,9 +24,7 @@ struct ExerciseListView: View {
                             .listRowSeparator(.hidden)
                     } else {
                         ForEach(searchResults) { exercise in
-                            if let course = viewModel.course.value {
-                                ExerciseListCell(course: course, exercise: exercise)
-                            }
+                            ExerciseListCell(course: viewModel.course, exercise: exercise)
                         }
                     }
                 }
@@ -43,17 +39,14 @@ struct ExerciseListView: View {
             }
         }
         .refreshable {
-            if let courseId = viewModel.course.value?.id {
-                await viewModel.loadCourse(id: courseId)
-            }
+            await viewModel.refreshCourse(id: viewModel.course.id)
         }
     }
 }
 
 private extension ExerciseListView {
     var searchResults: [Exercise] {
-        guard let course = viewModel.course.value,
-              let exercises = course.exercises else {
+        guard let exercises = viewModel.course.exercises else {
             return []
         }
         return exercises.filter { exercise in
@@ -63,8 +56,7 @@ private extension ExerciseListView {
     }
 
     var weeklyExercises: [WeeklyExercise] {
-        guard let course = viewModel.course.value,
-              let exercises = course.exercises else {
+        guard let exercises = viewModel.course.exercises else {
             return []
         }
         let groupedDates = exercises.reduce(into: [WeeklyExerciseId: [Exercise]]()) { partialResult, exercise in

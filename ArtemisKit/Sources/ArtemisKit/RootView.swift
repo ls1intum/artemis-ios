@@ -68,10 +68,7 @@ public struct RootView: View {
 private struct NavigationDestinationRootViewModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
-            .navigationDestination(for: CoursePath.self) { coursePath in
-                CourseView(courseId: coursePath.id)
-                    .id(coursePath.id)
-            }
+            .navigationDestination(for: CoursePath.self, destination: CoursePathView.init)
             .navigationDestination(for: ExercisePath.self) { exercisePath in
                 if let course = exercisePath.coursePath.course,
                    let exercise = exercisePath.exercise {

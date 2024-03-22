@@ -21,7 +21,6 @@ final class CoursePathViewModel {
     init(path: CoursePath, courseService: CourseService = CourseServiceFactory.shared) {
         self.path = path
         self.course = path.course.map(DataState.done) ?? .loading
-
         self.courseService = courseService
     }
 
