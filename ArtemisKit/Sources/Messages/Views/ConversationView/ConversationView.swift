@@ -95,7 +95,7 @@ public struct ConversationView: View {
         .onDisappear {
             if navigationController.path.count < 2 {
                 // only cancel task if we navigate back
-                viewModel.websocketSubscriptionTask?.cancel()
+                viewModel.subscription?.cancel()
             }
         }
         .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
