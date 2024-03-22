@@ -6,21 +6,15 @@ import Messages
 import DesignLibrary
 
 public struct CourseView: View {
+    @EnvironmentObject private var navigationController: NavigationController
 
     @StateObject private var viewModel: CourseViewModel
     @StateObject private var messagesPreferences = MessagesPreferences()
-
-    @EnvironmentObject private var navigationController: NavigationController
 
     @State private var showNewMessageDialog = false
     @State private var searchText = ""
 
     private let courseId: Int
-
-    public init(courseId: Int) {
-        self.courseId = courseId
-        self._viewModel = StateObject(wrappedValue: CourseViewModel(courseId: courseId))
-    }
 
     public var body: some View {
         TabView(selection: $navigationController.courseTab) {
@@ -37,27 +31,30 @@ public struct CourseView: View {
                 .tag(TabIdentifier.lecture)
 
             if viewModel.isMessagesVisible {
-                Group {
-                    if let course = viewModel.course.value {
-                        MessagesTabView(course: course, searchText: $searchText)
-                            .environmentObject(messagesPreferences)
-                    } else {
-                        Text("Loading...")
+                MessagesTabView(course: viewModel.course, searchText: $searchText)
+                    .environmentObject(messagesPreferences)
+                    .tabItem {
+                        Label(R.string.localizable.messagesTabLabel(), systemImage: "bubble.right.fill")
                     }
-                }
-                .tabItem {
-                    Label(R.string.localizable.messagesTabLabel(), systemImage: "bubble.right.fill")
-                }
-                .tag(TabIdentifier.communication)
+                    .tag(TabIdentifier.communication)
             }
         }
-        .navigationTitle(viewModel.course.value?.title ?? R.string.localizable.loading())
+        .navigationTitle(viewModel.course.title ?? R.string.localizable.loading())
         .navigationBarTitleDisplayMode(.inline)
-        .modifier(SearchableIf(condition: navigationController.courseTab != .communication || messagesPreferences.isSearchable,
-                               text: $searchText))
+        .modifier(
+            SearchableIf(
+                condition: navigationController.courseTab != .communication || messagesPreferences.isSearchable,
+                text: $searchText)
+        )
         .onChange(of: navigationController.courseTab) {
             searchText = ""
         }
+    }
+}
+
+extension CourseView {
+    init(course: Course) {
+        self.init(viewModel: CourseViewModel(course: course), courseId: course.id)
     }
 }
 
