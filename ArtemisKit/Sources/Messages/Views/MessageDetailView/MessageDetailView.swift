@@ -34,14 +34,13 @@ struct MessageDetailView: View {
         DataStateView(data: $message) {
             await reloadMessage()
         } content: { message in
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 0) {
                 ScrollViewReader { proxy in
                     ScrollView {
                         top(message: message)
                         answers(of: message, proxy: proxy)
                     }
                 }
-                Spacer()
                 if !((viewModel.conversation.baseConversation as? Channel)?.isArchived ?? false),
                    let message = message as? Message {
                     SendMessageView(

@@ -25,7 +25,7 @@ public struct ConversationView: View {
     }
 
     public var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             DataStateView(data: $viewModel.dailyMessages) {
                 await viewModel.loadMessages()
             } content: { dailyMessages in
