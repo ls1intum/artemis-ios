@@ -34,6 +34,7 @@ extension SendMessageViewModel {
     }
 }
 
+@MainActor
 @Observable
 final class SendMessageViewModel {
     let course: Course
@@ -104,7 +105,6 @@ final class SendMessageViewModel {
 // MARK: - Actions
 
 extension SendMessageViewModel {
-    @MainActor
     func performOnAppear() {
         do {
             switch configuration {
@@ -135,7 +135,6 @@ extension SendMessageViewModel {
         }
     }
 
-    @MainActor
     func performOnDisappear() {
         do {
             if let host = userSession.institution?.baseURL?.host() {
@@ -222,7 +221,9 @@ extension SendMessageViewModel {
             var result: NetworkResponse?
             switch configuration {
             case .message:
-                result = await sendMessage(text: text)
+                await delegate.sendMessage(text)
+                result = .success
+                isLoading = false
             case let .answerMessage(message, completion):
                 result = await sendAnswerMessage(text: text, for: message, completion: completion)
             case let .editMessage(message, completion):
@@ -251,29 +252,6 @@ extension SendMessageViewModel {
         }
     }
 
-    @MainActor
-    private func sendMessage(text: String) async -> NetworkResponse {
-        isLoading = true
-        let result = await messagesService.sendMessage(for: course.id, conversation: conversation, content: text)
-        switch result {
-        case .notStarted, .loading:
-            isLoading = false
-        case .success:
-            delegate.scrollToId("bottom")
-            await delegate.loadMessages()
-            isLoading = false
-        case .failure(let error):
-            isLoading = false
-            if let apiClientError = error as? APIClientError {
-                delegate.presentError(UserFacingError(error: apiClientError))
-            } else {
-                delegate.presentError(UserFacingError(title: error.localizedDescription))
-            }
-        }
-        return result
-    }
-
-    @MainActor
     private func sendAnswerMessage(text: String, for message: Message, completion: () async -> Void) async -> NetworkResponse {
         isLoading = true
         let result = await messagesService.sendAnswerMessage(for: course.id, message: message, content: text)
@@ -294,7 +272,6 @@ extension SendMessageViewModel {
         return result
     }
 
-    @MainActor
     private func editMessage(message: Message) async -> Bool {
         let result = await messagesService.editMessage(for: course.id, message: message)
 
@@ -310,7 +287,6 @@ extension SendMessageViewModel {
         }
     }
 
-    @MainActor
     private func editAnswerMessage(answerMessage: AnswerMessage) async -> Bool {
         let result = await messagesService.editAnswerMessage(for: course.id, answerMessage: answerMessage)
 

@@ -10,6 +10,7 @@ import SharedModels
 import SharedServices
 import SwiftUI
 
+@MainActor
 @Observable
 final class SendMessageMentionMemberViewModel {
 

@@ -1,11 +1,10 @@
-import Foundation
-import SharedModels
 import APIClient
 import Common
+import Foundation
+import SharedModels
 
 @MainActor
 class CourseRegistrationViewModel: ObservableObject {
-
     @Published var registrableCourses: DataState<[SemesterCourses]> = .loading
     @Published var isLoading = false
 
@@ -18,8 +17,14 @@ class CourseRegistrationViewModel: ObservableObject {
 
     var successCompletion: () -> Void
 
-    init(successCompletion: @escaping () -> Void) {
+    private let courseRegistrationService: CourseRegistrationService
+
+    init(
+        successCompletion: @escaping () -> Void,
+        courseRegistrationService: CourseRegistrationService = CourseRegistrationServiceFactory.shared
+    ) {
         self.successCompletion = successCompletion
+        self.courseRegistrationService = courseRegistrationService
     }
 
     func reloadRegistrableCourses() async {
@@ -27,22 +32,22 @@ class CourseRegistrationViewModel: ObservableObject {
     }
 
     func loadCourses() async {
-        let courses = await CourseRegistrationServiceFactory.shared.fetchRegistrableCourses()
+        let courses = await courseRegistrationService.fetchRegistrableCourses()
         switch courses {
         case .failure(let error):
             registrableCourses = .failure(error: error)
         case .loading:
             registrableCourses = .loading
         case .done(response: let result):
-            registrableCourses = .done(response: Dictionary(grouping: result, by: { $0.semester ?? "" })
-                                        .map { semester, courses in
-                                            SemesterCourses(semester: semester, courses: courses)
-                                        })
+            let courses = Dictionary(grouping: result, by: { $0.semester ?? "" }).map { semester, courses in
+                SemesterCourses(semester: semester, courses: courses)
+            }
+            registrableCourses = .done(response: courses)
         }
     }
 
     func signUpForCourse(_ course: Course) async {
-        let result = await CourseRegistrationServiceFactory.shared.registerInCourse(courseId: course.id)
+        let result = await courseRegistrationService.registerInCourse(courseId: course.id)
         isLoading = false
 
         switch result {

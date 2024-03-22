@@ -169,7 +169,7 @@ struct ConversationInfoSheetView: View {
                         viewModel.isLoading = false
                     }
                 }) {
-                    CreateOrAddToChatView(courseId: course.id, type: .addToChat(conversation))
+                    CreateOrAddToChatView(courseId: course.id, configuration: .addToChat(conversation))
                 }
             }
         }

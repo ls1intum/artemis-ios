@@ -34,7 +34,9 @@ struct SendMessageMentionChannelView: View {
                     ContentUnavailableView(R.string.localizable.channelsUnavailable(), systemImage: "magnifyingglass")
                 }
             }
-            .onChange(of: sendMessageViewModel.text, initial: true, search)
+            .onChange(of: sendMessageViewModel.text, initial: true) {
+                search()
+            }
             Spacer()
         }
         .listStyle(.plain)
@@ -47,6 +49,7 @@ struct SendMessageMentionChannelView: View {
     }
 }
 
+@MainActor
 private extension SendMessageMentionChannelView {
     func search() {
         if let candidate = sendMessageViewModel.searchChannel().map(String.init) {
