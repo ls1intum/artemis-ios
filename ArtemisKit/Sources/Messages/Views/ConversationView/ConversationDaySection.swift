@@ -49,8 +49,7 @@ private struct MessageCellWrapper: View {
 
     private var messageBinding: Binding<DataState<BaseMessage>> {
         Binding {
-            // Cannot call value of non-function type 'Int64'
-            if let index = viewModel.messages.firstIndex(of: .init(rawValue: .init(id: message.id))) {
+            if let index = viewModel.messages.firstIndex(of: .of(id: message.id)) {
                 return .done(response: viewModel.messages[index].rawValue)
             } else {
                 return .loading

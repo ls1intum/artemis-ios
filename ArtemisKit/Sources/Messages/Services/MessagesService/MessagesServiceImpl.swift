@@ -131,6 +131,8 @@ class MessagesServiceImpl: MessagesService {
     struct GetMessagesRequest: APIRequest {
         typealias Response = [Message]
 
+        static let size = 50
+
         let courseId: Int
         let conversationId: Int64
         let page: Int
@@ -146,7 +148,7 @@ class MessagesServiceImpl: MessagesService {
                 .init(name: "sortingOrder", value: "DESCENDING"),
                 .init(name: "pagingEnabled", value: "true"),
                 .init(name: "page", value: String(describing: page)),
-                .init(name: "size", value: "50")
+                .init(name: "size", value: String(describing: Self.size))
             ]
         }
 

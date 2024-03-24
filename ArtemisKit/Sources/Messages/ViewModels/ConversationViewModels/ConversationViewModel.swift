@@ -13,47 +13,6 @@ import SharedModels
 import SharedServices
 import UserStore
 
-struct IdentifiableMessage: RawRepresentable {
-    let rawValue: Message
-}
-
-extension IdentifiableMessage {
-    static func id(_ id: ID) -> Self {
-        .init(rawValue: .init(id: id))
-    }
-
-    static func message(_ message: RawValue) -> Self {
-        .init(rawValue: message)
-    }
-}
-
-extension IdentifiableMessage: Equatable, Hashable, Identifiable {
-    static func == (lhs: IdentifiableMessage, rhs: IdentifiableMessage) -> Bool {
-        lhs.id == rhs.id
-    }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
-
-    var id: Int64 {
-        rawValue.id
-    }
-}
-
-extension Set where Element == IdentifiableMessage {
-    func firstByCreationDate() -> Element.RawValue? {
-        let sorted = sorted {
-            if let lhs = $0.rawValue.creationDate, let rhs = $1.rawValue.creationDate {
-                lhs.compare(rhs) == .orderedAscending
-            } else {
-                false
-            }
-        }
-        return sorted.first?.rawValue
-    }
-}
-
 @MainActor
 class ConversationViewModel: BaseViewModel {
 
@@ -127,7 +86,9 @@ extension ConversationViewModel {
     // MARK: Load
 
     func loadEarlierMessages() async {
-        page += 1
+        let (quotient, _) = diff.quotientAndRemainder(dividingBy: MessagesServiceImpl.GetMessagesRequest.size)
+        page += 1 + quotient
+
         if let message = messages.firstByCreationDate() {
             shouldScrollToId = message.id.description
         }
@@ -143,6 +104,10 @@ extension ConversationViewModel {
         case let .done(response: response):
             // Keep existing members in new, i.e., update existing members in messages.
             messages = Set(response.map(IdentifiableMessage.init)).union(messages)
+//            if response.count < MessagesServiceImpl.GetMessagesRequest.size {
+//                page -= 1
+//            }
+            diff = 0
         case let .failure(error: error):
             presentError(userFacingError: error)
         }
@@ -359,39 +324,37 @@ private extension ConversationViewModel {
         }
         switch messageWebsocketDTO.action {
         case .create:
-            handleNewMessage(messageWebsocketDTO.post)
+            handle(new: messageWebsocketDTO.post)
         case .update:
-            handleUpdateMessage(messageWebsocketDTO.post)
+            handle(update: messageWebsocketDTO.post)
         case .delete:
-            handleDeletedMessage(messageWebsocketDTO.post)
+            handle(delete: messageWebsocketDTO.post)
         default:
             return
         }
     }
 
-    func handleNewMessage(_ newMessage: Message) {
-        #warning("Update")
-        let (inserted, _) = messages.insert(.message(newMessage))
+    func handle(new message: Message) {
+        shouldScrollToId = message.id.description
+        let (inserted, _) = messages.insert(.message(message))
         if inserted {
             diff += 1
         }
-        #warning("Disruptive")
-        shouldScrollToId = newMessage.id.description
     }
 
-    func handleUpdateMessage(_ updatedMessage: Message) {
-        if messages.contains(.id(updatedMessage.id)) {
-            messages.update(with: .message(updatedMessage))
-        }
+    func handle(update message: Message) {
         shouldScrollToId = nil
+        if messages.contains(.of(id: message.id)) {
+            messages.update(with: .message(message))
+        }
     }
 
-    func handleDeletedMessage(_ deletedMessage: Message) {
-        let equal = messages.remove(.message(deletedMessage))
+    func handle(delete message: Message) {
+        shouldScrollToId = nil
+        let equal = messages.remove(.message(message))
         if equal != nil {
             diff -= 1
         }
-        shouldScrollToId = nil
     }
 }
 

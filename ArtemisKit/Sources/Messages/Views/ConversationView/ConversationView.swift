@@ -18,14 +18,25 @@ public struct ConversationView: View {
 
     @StateObject var viewModel: ConversationViewModel
 
-    var dailyMessages: [(key: Date?, value: [IdentifiableMessage])] {
-        Dictionary(grouping: viewModel.messages, by: \.rawValue.creationDate)
+    var dailyMessages: [(key: Date?, value: [Message])] {
+        Dictionary(grouping: viewModel.messages, by: \.rawValue.creationDate?.startOfDay)
             .sorted {
                 if let lhs = $0.key, let rhs = $1.key {
+//                    Calendar.current.compare(<#T##date1: Date##Date#>, to: <#T##Date#>, toGranularity: .m)
                     return lhs.compare(rhs) == .orderedAscending
                 } else {
                     return false
                 }
+            }
+            .map { key, identifiables in
+                let messages = identifiables.map(\.rawValue).sorted {
+                    if let lhs = $0.creationDate, let rhs = $1.creationDate {
+                        return lhs.compare(rhs) == .orderedAscending
+                    } else {
+                        return false
+                    }
+                }
+                return (key, messages)
             }
     }
 
@@ -45,10 +56,7 @@ public struct ConversationView: View {
                         VStack(alignment: .leading) {
                             ForEach(dailyMessages, id: \.key) { dailyMessage in
                                 if let day = dailyMessage.key {
-                                    ConversationDaySection(
-                                        viewModel: viewModel,
-                                        day: day,
-                                        messages: dailyMessage.value.map(\.rawValue))
+                                    ConversationDaySection(viewModel: viewModel, day: day, messages: dailyMessage.value)
                                 }
                             }
                             ConversationOfflineSection(viewModel)
