@@ -10,7 +10,6 @@ import SwiftUI
 
 @MainActor
 struct SendMessageViewModelDelegate {
-    let loadMessages: () async -> Void
     let presentError: (UserFacingError) -> Void
     let sendMessage: (String) async -> Void
 }

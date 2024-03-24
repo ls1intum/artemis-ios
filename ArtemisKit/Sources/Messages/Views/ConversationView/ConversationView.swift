@@ -18,50 +18,52 @@ public struct ConversationView: View {
 
     @StateObject var viewModel: ConversationViewModel
 
-    @State private var isConversationInfoSheetPresented = false
-
-    private var conversationPath: ConversationPath {
-        ConversationPath(conversation: viewModel.conversation, coursePath: CoursePath(course: viewModel.course))
+    var dailyMessages: [(key: Date?, value: [Message])] {
+        Dictionary(grouping: viewModel.messages, by: \.rawValue.creationDate?.startOfDay)
+            .sorted {
+                if let lhs = $0.key, let rhs = $1.key {
+                    return lhs.compare(rhs) == .orderedAscending
+                } else {
+                    return false
+                }
+            }
+            .map { key, messages in
+                (key, messages.sortedByCreationDate())
+            }
     }
 
     public var body: some View {
         VStack(spacing: 0) {
-            DataStateView(data: $viewModel.dailyMessages) {
-                await viewModel.loadMessages()
-            } content: { dailyMessages in
-                if dailyMessages.isEmpty && viewModel.offlineMessages.isEmpty {
-                    ContentUnavailableView(
-                        R.string.localizable.noMessages(),
-                        systemImage: "bubble.right",
-                        description: Text(R.string.localizable.noMessagesDescription()))
-                } else {
-                    ScrollViewReader { value in
-                        ScrollView {
-                            PullToRefresh(coordinateSpaceName: "pullToRefresh") {
-                                await viewModel.loadFurtherMessages()
-                            }
-                            VStack(alignment: .leading) {
-                                ForEach(dailyMessages.sorted(by: { $0.key < $1.key }), id: \.key) { dailyMessage in
-                                    ConversationDaySection(
-                                        viewModel: viewModel,
-                                        day: dailyMessage.key,
-                                        messages: dailyMessage.value,
-                                        conversationPath: conversationPath)
-                                }
-                                ConversationOfflineSection(viewModel)
-                                    // Force re-evaluation, when offline messages change.
-                                    .id(viewModel.offlineMessages.first)
-                                Spacer()
-                                    .id("bottom")
-                            }
+            if viewModel.messages.isEmpty && viewModel.offlineMessages.isEmpty {
+                ContentUnavailableView(
+                    R.string.localizable.noMessages(),
+                    systemImage: "bubble.right",
+                    description: Text(R.string.localizable.noMessagesDescription()))
+            } else {
+                ScrollViewReader { value in
+                    ScrollView {
+                        PullToRefresh(coordinateSpaceName: "pullToRefresh") {
+                            await viewModel.loadEarlierMessages()
                         }
-                        .coordinateSpace(name: "pullToRefresh")
-                        .onChange(of: viewModel.dailyMessages.value, initial: true) {
-                            // TODO: does not work correctly when loadFurtherMessages is called -> is called to early -> investigate
-                            if let id = viewModel.shouldScrollToId {
-                                withAnimation {
-                                    value.scrollTo(id, anchor: .bottom)
+                        VStack(alignment: .leading) {
+                            ForEach(dailyMessages, id: \.key) { dailyMessage in
+                                if let day = dailyMessage.key {
+                                    ConversationDaySection(viewModel: viewModel, day: day, messages: dailyMessage.value)
                                 }
+                            }
+                            ConversationOfflineSection(viewModel)
+                                // Force re-evaluation, when offline messages change.
+                                .id(viewModel.offlineMessages.first)
+                            Spacer()
+                                .id("bottom")
+                        }
+                    }
+                    .coordinateSpace(name: "pullToRefresh")
+                    .onChange(of: viewModel.messages, initial: true) {
+                        #warning("does not work correctly when loadFurtherMessages is called -> is called to early")
+                        if let id = viewModel.shouldScrollToId {
+                            withAnimation {
+                                value.scrollTo(id, anchor: .bottom)
                             }
                         }
                     }
@@ -81,7 +83,7 @@ public struct ConversationView: View {
         .toolbar {
             ToolbarItem(placement: .principal) {
                 Button {
-                    isConversationInfoSheetPresented = true
+                    viewModel.isConversationInfoSheetPresented = true
                 } label: {
                     Text(viewModel.conversation.baseConversation.conversationName)
                         .foregroundColor(.Artemis.primaryLabel)
@@ -89,19 +91,17 @@ public struct ConversationView: View {
                 }
             }
         }
-        .sheet(isPresented: $isConversationInfoSheetPresented) {
+        .sheet(isPresented: $viewModel.isConversationInfoSheetPresented) {
             ConversationInfoSheetView(course: viewModel.course, conversation: $viewModel.conversation)
         }
         .task {
             viewModel.shouldScrollToId = "bottom"
-            if viewModel.dailyMessages.value == nil {
-                await viewModel.loadMessages()
-            }
+            await viewModel.loadMessages()
         }
         .onDisappear {
             if navigationController.path.count < 2 {
                 // only cancel task if we navigate back
-                viewModel.websocketSubscriptionTask?.cancel()
+                viewModel.subscription?.cancel()
             }
         }
         .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})

@@ -15,7 +15,9 @@ struct ConversationDaySection: View {
 
     let day: Date
     let messages: [Message]
-    let conversationPath: ConversationPath
+    var conversationPath: ConversationPath {
+        ConversationPath(conversation: viewModel.conversation, coursePath: CoursePath(course: viewModel.course))
+    }
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -46,18 +48,17 @@ private struct MessageCellWrapper: View {
     let isHeaderVisible: Bool
 
     private var messageBinding: Binding<DataState<BaseMessage>> {
-        Binding(get: {
-            if  let messageIndex = viewModel.dailyMessages.value?[day]?.firstIndex(where: { $0.id == message.id }),
-                let message = viewModel.dailyMessages.value?[day]?[messageIndex] {
-                return .done(response: message)
+        Binding {
+            if let index = viewModel.messages.firstIndex(of: .of(id: message.id)) {
+                return .done(response: viewModel.messages[index].rawValue)
+            } else {
+                return .loading
             }
-            return .loading
-        }, set: {
-            if  let messageIndex = viewModel.dailyMessages.value?[day]?.firstIndex(where: { $0.id == message.id }),
-                let newMessage = $0.value as? Message {
-                viewModel.dailyMessages.value?[day]?[messageIndex] = newMessage
+        } set: { value in
+            if let message = value.value as? Message {
+                viewModel.messages.update(with: .message(message))
             }
-        })
+        }
     }
 
     var body: some View {
@@ -75,13 +76,11 @@ private struct MessageCellWrapper: View {
             let viewModel = ConversationViewModel(
                 course: MessagesServiceStub.course,
                 conversation: MessagesServiceStub.conversation)
-            viewModel.dailyMessages = .done(response: [
-                MessagesServiceStub.now: [
-                    MessagesServiceStub.message,
-                    MessagesServiceStub.continuation,
-                    MessagesServiceStub.reply
-                ]
-            ])
+            viewModel.messages = [
+                .message(MessagesServiceStub.message),
+                .message(MessagesServiceStub.continuation),
+                .message(MessagesServiceStub.reply)
+            ]
             return viewModel
         }(),
         day: MessagesServiceStub.now,
@@ -89,7 +88,6 @@ private struct MessageCellWrapper: View {
             MessagesServiceStub.message,
             MessagesServiceStub.continuation,
             MessagesServiceStub.reply
-        ],
-        conversationPath: ConversationPath(id: 1, coursePath: CoursePath(course: MessagesServiceStub.course))
+        ]
     )
 }

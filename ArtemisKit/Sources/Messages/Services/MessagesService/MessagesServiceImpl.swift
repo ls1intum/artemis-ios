@@ -131,21 +131,34 @@ class MessagesServiceImpl: MessagesService {
     struct GetMessagesRequest: APIRequest {
         typealias Response = [Message]
 
+        static let size = 50
+
         let courseId: Int
         let conversationId: Int64
-        let size: Int
+        let page: Int
 
         var method: HTTPMethod {
             return .get
         }
 
+        var params: [URLQueryItem] {
+            [
+                .init(name: "conversationId", value: String(describing: conversationId)),
+                .init(name: "postSortCriterion", value: "CREATION_DATE"),
+                .init(name: "sortingOrder", value: "DESCENDING"),
+                .init(name: "pagingEnabled", value: "true"),
+                .init(name: "page", value: String(describing: page)),
+                .init(name: "size", value: String(describing: Self.size))
+            ]
+        }
+
         var resourceName: String {
-            return "api/courses/\(courseId)/messages?postSortCriterion=CREATION_DATE&sortingOrder=ASCENDING&conversationId=\(conversationId)&pagingEnabled=true&page=0&size=\(size)"
+            return "api/courses/\(courseId)/messages"
         }
     }
 
-    func getMessages(for courseId: Int, and conversationId: Int64, size: Int) async -> DataState<[Message]> {
-        let result = await client.sendRequest(GetMessagesRequest(courseId: courseId, conversationId: conversationId, size: size))
+    func getMessages(for courseId: Int, and conversationId: Int64, page: Int) async -> DataState<[Message]> {
+        let result = await client.sendRequest(GetMessagesRequest(courseId: courseId, conversationId: conversationId, page: page))
 
         switch result {
         case let .success((messages, _)):
@@ -716,8 +729,18 @@ class MessagesServiceImpl: MessagesService {
             return .get
         }
 
+        var params: [URLQueryItem] {
+            [
+                .init(name: "loginOrName", value: searchText ?? ""),
+                .init(name: "sort", value: "firstName,asc"),
+                .init(name: "sort", value: "lastName,asc"),
+                .init(name: "page", value: String(describing: page)),
+                .init(name: "size", value: "20")
+            ]
+        }
+
         var resourceName: String {
-            return "api/courses/\(courseId)/conversations/\(conversationId)/members/search?loginOrName=\(searchText ?? "")&sort=firstName,asc&sort=lastName,asc&page=\(page)&size=20"
+            return "api/courses/\(courseId)/conversations/\(conversationId)/members/search"
         }
     }
 
