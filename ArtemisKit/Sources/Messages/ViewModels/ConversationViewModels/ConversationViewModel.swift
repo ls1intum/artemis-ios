@@ -61,6 +61,8 @@ class ConversationViewModel: BaseViewModel {
 
     @Published var conversation: Conversation
     @Published var messages: Set<IdentifiableMessage> = []
+    var diff = 0
+
     @available(*, deprecated, renamed: "messages")
     @Published var dailyMessages: [Date: [Message]] = [:]
     @Published var offlineMessages: [ConversationOfflineMessageModel] = []
@@ -134,37 +136,15 @@ extension ConversationViewModel {
 
     func loadMessages() async {
         let result = await messagesService.getMessages(for: course.id, and: conversation.id, page: page)
-//        if let messages = result.value {
-//            let ids = Dictionary(grouping: messages) { element in
-//                element.id
-//            }
-//            // Set<Message>().union(old) // keep callee's members
-//        }
-        let dailyMessages = result.map { messages in
-            var dailyMessages: [Date: [Message]] = [:]
-            for message in messages {
-                if let date = message.creationDate?.startOfDay {
-                    if dailyMessages[date] == nil {
-                        dailyMessages[date] = [message]
-                    } else {
-                        dailyMessages[date]?.append(message)
-                        dailyMessages[date] = dailyMessages[date]?.sorted {
-                            $0.creationDate! < $1.creationDate!
-                        }
-                    }
-                }
-            }
-            return dailyMessages
+        switch result {
+        case .loading:
+            break
+        case let .done(response: response):
+            // Keep existing members in new, i.e., update existing members in messages.
+            messages = Set(response.map(IdentifiableMessage.init)).union(messages)
+        case let .failure(error: error):
+            presentError(userFacingError: error)
         }
-        // Merge new with old, preferring new
-        if var lhs = dailyMessages.value {
-            #warning("Merges weekdays")
-            lhs.merge(self.dailyMessages) {
-                lhs, _ in lhs
-            }
-            self.dailyMessages = lhs
-        }
-        #warning("Present error")
     }
 
     func loadMessage(messageId: Int64) async -> DataState<Message> {
@@ -389,42 +369,27 @@ private extension ConversationViewModel {
     }
 
     func handleNewMessage(_ newMessage: Message) {
-        // Insert new message
-        if let date = newMessage.creationDate?.startOfDay {
-            if dailyMessages[date] == nil {
-                dailyMessages[date] = [newMessage]
-            } else {
-                guard !(dailyMessages[date]?.contains(newMessage) ?? false) else { return }
-                dailyMessages[date]?.append(newMessage)
-                dailyMessages[date] = dailyMessages[date]?.sorted(by: { $0.creationDate! < $1.creationDate! })
-            }
+        #warning("Update")
+        let (inserted, _) = messages.insert(.message(newMessage))
+        if inserted {
+            diff += 1
         }
-
+        #warning("Disruptive")
         shouldScrollToId = newMessage.id.description
     }
 
     func handleUpdateMessage(_ updatedMessage: Message) {
-        // Update existing message
-        guard let date = updatedMessage.creationDate?.startOfDay,
-              let messageIndex = dailyMessages[date]?.firstIndex(where: { $0.id == updatedMessage.id }) else {
-            log.error("Message with id \(updatedMessage.id) could not be updated")
-            return
+        if messages.contains(.id(updatedMessage.id)) {
+            messages.update(with: .message(updatedMessage))
         }
-
-        dailyMessages[date]?[messageIndex] = updatedMessage
-
         shouldScrollToId = nil
     }
 
     func handleDeletedMessage(_ deletedMessage: Message) {
-        // Remove existing message
-        guard let date = deletedMessage.creationDate?.startOfDay else {
-            log.error("Message with id \(deletedMessage.id) could not be updated")
-            return
+        let equal = messages.remove(.message(deletedMessage))
+        if equal != nil {
+            diff -= 1
         }
-
-        dailyMessages[date]?.removeAll(where: { deletedMessage.id == $0.id })
-
         shouldScrollToId = nil
     }
 }
