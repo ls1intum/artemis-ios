@@ -73,7 +73,7 @@ struct MessageCell: View {
 }
 
 enum MentionScheme {
-    case channel(Int)
+    case channel(Int64)
     case exercise(Int)
     case lecture(Int)
     case member(String)
@@ -84,7 +84,7 @@ enum MentionScheme {
         }
         switch url.host() {
         case "channel":
-            if let id = Int(url.lastPathComponent) {
+            if let id = Int64(url.lastPathComponent) {
                 self = .channel(id)
                 return
             }
@@ -111,13 +111,14 @@ enum MentionScheme {
 private extension MessageCell {
     func handle(url: URL) -> OpenURLAction.Result {
         if let mention = MentionScheme(url) {
+            let coursePath = CoursePath(course: viewModel.course)
             switch mention {
             case let .channel(id):
-                break
+                navigationController.append(ConversationPath(id: id, coursePath: coursePath))
             case let .exercise(id):
-                navigationController.append(ExercisePath(id: id, coursePath: CoursePath(course: viewModel.course)))
+                navigationController.append(ExercisePath(id: id, coursePath: coursePath))
             case let .lecture(id):
-                navigationController.append(LecturePath(id: id, coursePath: CoursePath(course: viewModel.course)))
+                navigationController.append(LecturePath(id: id, coursePath: coursePath))
             case let .member(login):
                 break
             }
