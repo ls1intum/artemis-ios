@@ -142,41 +142,25 @@ private struct MessageCellWrapper: View {
         let isAnswerMessage = { (answer: AnswerMessage) -> Bool in
             answer.id == self.answerMessage.id
         }
-        let messageContainsAnswer = { (message: Message) -> Bool in
-            message.answers?.contains(where: isAnswerMessage) ?? false
+        let messageContainsAnswer = { (message: IdentifiableMessage) -> Bool in
+            message.rawValue.answers?.contains(where: isAnswerMessage) ?? false
         }
 
-        return Binding(get: {
-            // Bind to answer id
-            let answerMessages: [AnswerMessage] = viewModel.dailyMessages.keys.compactMap { key in
-
-                if let messages = viewModel.dailyMessages[key],
-                   let messageIndex = messages.firstIndex(where: messageContainsAnswer),
-                   let answerMessage = messages[messageIndex].answers?.first(where: isAnswerMessage) {
-                    return answerMessage
-                }
-                return nil
+        return Binding {
+            if let message = viewModel.messages.first(where: messageContainsAnswer),
+               let answer = message.rawValue.answers?.first(where: isAnswerMessage) {
+                return .done(response: answer)
+            } else {
+                return .loading
             }
-
-            if let answerMessage = answerMessages.first {
-                return .done(response: answerMessage)
+        } set: { value in
+            if var message = viewModel.messages.first(where: messageContainsAnswer)?.rawValue,
+               let answer = value.value as? AnswerMessage,
+               let index = message.answers?.firstIndex(where: isAnswerMessage) {
+                message.answers?[index] = answer
+                viewModel.messages.update(with: .message(message))
             }
-            return .loading
-        }, set: { newValue in
-            if let newAnswerMessage = newValue.value as? AnswerMessage {
-
-                for key in viewModel.dailyMessages.keys {
-
-                    if let messages = viewModel.dailyMessages[key],
-                       let messageIndex = messages.firstIndex(where: messageContainsAnswer),
-                       let answerMessageIndex = messages[messageIndex].answers?.firstIndex(where: isAnswerMessage) {
-
-                        viewModel.dailyMessages[key]?[messageIndex].answers?[answerMessageIndex] = newAnswerMessage
-                        continue
-                    }
-                }
-            }
-        })
+        }
     }
 
     var body: some View {

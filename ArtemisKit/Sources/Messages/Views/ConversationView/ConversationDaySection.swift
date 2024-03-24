@@ -46,19 +46,18 @@ private struct MessageCellWrapper: View {
     let isHeaderVisible: Bool
 
     private var messageBinding: Binding<DataState<BaseMessage>> {
-        // Bind to day and id
-        Binding(get: {
-            if  let messageIndex = viewModel.dailyMessages[day]?.firstIndex(where: { $0.id == message.id }),
-                let message = viewModel.dailyMessages[day]?[messageIndex] {
-                return .done(response: message)
+        Binding {
+            // Cannot call value of non-function type 'Int64'
+            if let index = viewModel.messages.firstIndex(of: .init(rawValue: .init(id: message.id))) {
+                return .done(response: viewModel.messages[index].rawValue)
+            } else {
+                return .loading
             }
-            return .loading
-        }, set: {
-            if  let messageIndex = viewModel.dailyMessages[day]?.firstIndex(where: { $0.id == message.id }),
-                let newMessage = $0.value as? Message {
-                viewModel.dailyMessages[day]?[messageIndex] = newMessage
+        } set: { value in
+            if let message = value.value as? Message {
+                viewModel.messages.update(with: .message(message))
             }
-        })
+        }
     }
 
     var body: some View {
