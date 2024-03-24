@@ -64,9 +64,8 @@ class ConversationViewModel: BaseViewModel {
     @Published var messages: Set<IdentifiableMessage> = []
     /// Tracks added and removed messages.
     private var diff = 0
+    private var page = 0
 
-    @available(*, deprecated, renamed: "messages")
-    @Published var dailyMessages: [Date: [Message]] = [:]
     @Published var offlineMessages: [ConversationOfflineMessageModel] = []
 
     var isAllowedToPost: Bool {
@@ -86,8 +85,6 @@ class ConversationViewModel: BaseViewModel {
 
     var shouldScrollToId: String?
     var subscription: Task<(), Never>?
-
-    private var page = 0
 
     fileprivate let messagesRepository: MessagesRepository
     private let messagesService: MessagesService

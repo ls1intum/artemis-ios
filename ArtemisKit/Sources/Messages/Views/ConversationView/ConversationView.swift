@@ -18,6 +18,17 @@ public struct ConversationView: View {
 
     @StateObject var viewModel: ConversationViewModel
 
+    var dailyMessages: [(key: Date?, value: [IdentifiableMessage])] {
+        Dictionary(grouping: viewModel.messages, by: \.rawValue.creationDate)
+            .sorted {
+                if let lhs = $0.key, let rhs = $1.key {
+                    return lhs.compare(rhs) == .orderedAscending
+                } else {
+                    return false
+                }
+            }
+    }
+
     @State private var isConversationInfoSheetPresented = false
 
     private var conversationPath: ConversationPath {
@@ -26,7 +37,7 @@ public struct ConversationView: View {
 
     public var body: some View {
         VStack(spacing: 0) {
-            if viewModel.dailyMessages.isEmpty && viewModel.offlineMessages.isEmpty {
+            if viewModel.messages.isEmpty && viewModel.offlineMessages.isEmpty {
                 ContentUnavailableView(
                     R.string.localizable.noMessages(),
                     systemImage: "bubble.right",
@@ -38,13 +49,14 @@ public struct ConversationView: View {
                             await viewModel.loadEarlierMessages()
                         }
                         VStack(alignment: .leading) {
-                            // Index with creation day
-                            ForEach(viewModel.dailyMessages.sorted(by: { $0.key < $1.key }), id: \.key) { dailyMessage in
-                                ConversationDaySection(
-                                    viewModel: viewModel,
-                                    day: dailyMessage.key,
-                                    messages: dailyMessage.value,
-                                    conversationPath: conversationPath)
+                            ForEach(dailyMessages, id: \.key) { dailyMessage in
+                                if let day = dailyMessage.key {
+                                    ConversationDaySection(
+                                        viewModel: viewModel,
+                                        day: day,
+                                        messages: dailyMessage.value.map(\.rawValue),
+                                        conversationPath: conversationPath)
+                                }
                             }
                             ConversationOfflineSection(viewModel)
                                 // Force re-evaluation, when offline messages change.
@@ -54,7 +66,7 @@ public struct ConversationView: View {
                         }
                     }
                     .coordinateSpace(name: "pullToRefresh")
-                    .onChange(of: viewModel.dailyMessages, initial: true) {
+                    .onChange(of: viewModel.messages, initial: true) {
                         #warning("does not work correctly when loadFurtherMessages is called -> is called to early")
                         if let id = viewModel.shouldScrollToId {
                             withAnimation {
