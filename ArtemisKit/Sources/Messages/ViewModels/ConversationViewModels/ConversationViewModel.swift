@@ -13,12 +13,45 @@ import SharedModels
 import SharedServices
 import UserStore
 
+struct IdentifiableMessage: RawRepresentable {
+    let rawValue: Message
+}
+
+extension IdentifiableMessage {
+    static func id(_ id: ID) -> Self {
+        .init(rawValue: .init(id: id))
+    }
+
+    static func message(_ message: RawValue) -> Self {
+        .init(rawValue: message)
+    }
+
+    init(id: Int64) {
+        self.init(rawValue: Message(id: id))
+    }
+}
+
+extension IdentifiableMessage: Equatable, Hashable, Identifiable {
+    static func == (lhs: IdentifiableMessage, rhs: IdentifiableMessage) -> Bool {
+        lhs.id == rhs.id
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+    var id: Int64 {
+        rawValue.id
+    }
+}
+
 @MainActor
 class ConversationViewModel: BaseViewModel {
 
     let course: Course
 
     @Published var conversation: Conversation
+    @Published var messages: Set<IdentifiableMessage> = []
+    @available(*, deprecated, renamed: "messages")
     @Published var dailyMessages: [Date: [Message]] = [:]
     @Published var offlineMessages: [ConversationOfflineMessageModel] = []
 
