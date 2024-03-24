@@ -1,5 +1,6 @@
 import XCTest
 import SharedModels
+@testable import Messages
 
 final class ArtemisKitTests: XCTestCase {
     static let now = Date.now
@@ -118,33 +119,77 @@ final class ArtemisKitTests: XCTestCase {
 
         XCTAssertEqual(groups.count, 2)
     }
-
-    func testSubscription() {
-        // Remove message, if contained:
-        // true: refresh same page
-        // false: refresh next page, out of scope
-    }
 }
 
-struct IdentifiableMessage: RawRepresentable {
-    let rawValue: Message
-}
+extension ArtemisKitTests {
+    // Remove message, if contained:
+    // true: refresh same page
+    // false: refresh next page, out of scope
+    func testSubscriptionContainsTrue() {
+        let size = 50
+        let page = 0
+        var diff = 0
 
-extension IdentifiableMessage {
-    init(id: Int64) {
-        self.init(rawValue: Message(id: id))
-    }
-}
+        let set: Set<IdentifiableMessage> = [.message(Self.a), .message(Self.c)]
 
-extension IdentifiableMessage: Equatable, Hashable, Identifiable {
-    static func == (lhs: IdentifiableMessage, rhs: IdentifiableMessage) -> Bool {
-        lhs.id == rhs.id
+        let isContained = set.contains(.id(Self.b.id))
+        diff -= isContained ? 1 : 0
+
+        let (quotient, remainder) = diff.quotientAndRemainder(dividingBy: size)
+        XCTAssertEqual(quotient, 0)
+        XCTAssertEqual(remainder, -1)
     }
 
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
+    func testSubscriptionContainsFalse() {
+        let size = 50
+        let page = 0
+        var diff = 0
+
+        let set: Set<IdentifiableMessage> = [.message(Self.c)]
+
+        let isContained = set.contains(.id(Self.b.id))
+        diff -= isContained ? 1 : 0
+
+        let (quotient, remainder) = diff.quotientAndRemainder(dividingBy: size)
+        XCTAssertEqual(quotient, 0)
+        XCTAssertEqual(remainder, -1)
+        // XCTAssertEqual failed: ("0") is not equal to ("-1")
     }
-    var id: Int64 {
-        rawValue.id
+
+    func testQuotientAndRemainder() {
+        let size = 50
+        var count = 0
+        var page = 0
+        guard let n = (1...5).randomElement() else {
+            XCTFail()
+            return
+        }
+        for i in 0..<n {
+            count += 50
+            page += 1
+        }
+
+        do {
+            // Remove more than the size of one page
+            guard let diff0 = (0...count).randomElement() else {
+                XCTFail()
+                return
+            }
+            let diff = -diff0
+            let (quotient, remainder) = diff.quotientAndRemainder(dividingBy: size)
+            XCTAssertLessThanOrEqual(remainder, 0)
+            XCTAssertGreaterThanOrEqual(page + quotient, 0)
+        }
+        do {
+            // More than the size of one page
+            guard let m = (1...5).randomElement() else {
+                XCTFail()
+                return
+            }
+            let diff = m * size
+            let (quotient, remainder) = diff.quotientAndRemainder(dividingBy: size)
+            XCTAssertGreaterThanOrEqual(remainder, 0)
+            XCTAssertGreaterThanOrEqual(page + quotient, page)
+        }
     }
 }
