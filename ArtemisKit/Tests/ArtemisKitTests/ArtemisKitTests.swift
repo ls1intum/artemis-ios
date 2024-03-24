@@ -144,8 +144,7 @@ extension ArtemisKitTests {
 
         let (quotient, remainder) = diff.quotientAndRemainder(dividingBy: size)
         XCTAssertEqual(quotient, 0)
-        XCTAssertEqual(remainder, -1)
-        // XCTAssertEqual failed: ("0") is not equal to ("-1")
+        XCTAssertEqual(remainder, 0)
     }
 
     func testQuotientAndRemainder() {
