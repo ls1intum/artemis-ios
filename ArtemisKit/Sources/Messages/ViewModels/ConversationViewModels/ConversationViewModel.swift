@@ -60,8 +60,10 @@ class ConversationViewModel: BaseViewModel {
     let course: Course
 
     @Published var conversation: Conversation
+
     @Published var messages: Set<IdentifiableMessage> = []
-    var diff = 0
+    /// Tracks added and removed messages.
+    private var diff = 0
 
     @available(*, deprecated, renamed: "messages")
     @Published var dailyMessages: [Date: [Message]] = [:]

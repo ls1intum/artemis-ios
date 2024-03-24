@@ -75,12 +75,10 @@ private struct MessageCellWrapper: View {
             let viewModel = ConversationViewModel(
                 course: MessagesServiceStub.course,
                 conversation: MessagesServiceStub.conversation)
-            viewModel.dailyMessages = [
-                MessagesServiceStub.now: [
-                    MessagesServiceStub.message,
-                    MessagesServiceStub.continuation,
-                    MessagesServiceStub.reply
-                ]
+            viewModel.messages = [
+                .message(MessagesServiceStub.message),
+                .message(MessagesServiceStub.continuation),
+                .message(MessagesServiceStub.reply)
             ]
             return viewModel
         }(),
