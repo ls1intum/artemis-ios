@@ -89,7 +89,6 @@ private struct MessageCellWrapper: View {
             MessagesServiceStub.message,
             MessagesServiceStub.continuation,
             MessagesServiceStub.reply
-        ],
-        conversationPath: ConversationPath(id: 1, coursePath: CoursePath(course: MessagesServiceStub.course))
+        ]
     )
 }
