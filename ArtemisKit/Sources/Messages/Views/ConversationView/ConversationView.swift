@@ -29,12 +29,6 @@ public struct ConversationView: View {
             }
     }
 
-    @State private var isConversationInfoSheetPresented = false
-
-    private var conversationPath: ConversationPath {
-        ConversationPath(conversation: viewModel.conversation, coursePath: CoursePath(course: viewModel.course))
-    }
-
     public var body: some View {
         VStack(spacing: 0) {
             if viewModel.messages.isEmpty && viewModel.offlineMessages.isEmpty {
@@ -54,8 +48,7 @@ public struct ConversationView: View {
                                     ConversationDaySection(
                                         viewModel: viewModel,
                                         day: day,
-                                        messages: dailyMessage.value.map(\.rawValue),
-                                        conversationPath: conversationPath)
+                                        messages: dailyMessage.value.map(\.rawValue))
                                 }
                             }
                             ConversationOfflineSection(viewModel)
@@ -90,7 +83,7 @@ public struct ConversationView: View {
         .toolbar {
             ToolbarItem(placement: .principal) {
                 Button {
-                    isConversationInfoSheetPresented = true
+                    viewModel.isConversationInfoSheetPresented = true
                 } label: {
                     Text(viewModel.conversation.baseConversation.conversationName)
                         .foregroundColor(.Artemis.primaryLabel)
@@ -98,7 +91,7 @@ public struct ConversationView: View {
                 }
             }
         }
-        .sheet(isPresented: $isConversationInfoSheetPresented) {
+        .sheet(isPresented: $viewModel.isConversationInfoSheetPresented) {
             ConversationInfoSheetView(course: viewModel.course, conversation: $viewModel.conversation)
         }
         .task {

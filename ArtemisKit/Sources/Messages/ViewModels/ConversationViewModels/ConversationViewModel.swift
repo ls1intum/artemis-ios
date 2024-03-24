@@ -68,6 +68,8 @@ class ConversationViewModel: BaseViewModel {
 
     @Published var offlineMessages: [ConversationOfflineMessageModel] = []
 
+    @Published var isConversationInfoSheetPresented = false
+
     var isAllowedToPost: Bool {
         guard let channel = conversation.baseConversation as? Channel else {
             return true

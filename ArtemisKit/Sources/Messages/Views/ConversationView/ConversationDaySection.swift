@@ -15,7 +15,9 @@ struct ConversationDaySection: View {
 
     let day: Date
     let messages: [Message]
-    let conversationPath: ConversationPath
+    var conversationPath: ConversationPath {
+        ConversationPath(conversation: viewModel.conversation, coursePath: CoursePath(course: viewModel.course))
+    }
 
     var body: some View {
         VStack(alignment: .leading) {
