@@ -35,15 +35,22 @@ extension IdentifiableMessage: Equatable, Hashable, Identifiable {
     }
 }
 
-extension Set where Element == IdentifiableMessage {
-    func firstByCreationDate() -> Element.RawValue? {
-        let sorted = sorted {
-            if let lhs = $0.rawValue.creationDate, let rhs = $1.rawValue.creationDate {
+extension Collection where Element == IdentifiableMessage {
+    func messages() -> [Element.RawValue] {
+        map(\.rawValue)
+    }
+
+    func sortedByCreationDate() -> [Element.RawValue] {
+        messages().sorted {
+            if let lhs = $0.creationDate, let rhs = $1.creationDate {
                 lhs.compare(rhs) == .orderedAscending
             } else {
                 false
             }
         }
-        return sorted.first?.rawValue
+    }
+
+    func firstByCreationDate() -> Element.RawValue? {
+        sortedByCreationDate().first
     }
 }
