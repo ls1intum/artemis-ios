@@ -4,7 +4,7 @@ import SharedModels
 
 @MainActor
 final class SendMessageViewModelTests: XCTestCase {
-    func makeViewModel() -> SendMessageViewModel {
+    private func makeViewModel() -> SendMessageViewModel {
         SendMessageViewModel(
             course: Course(id: 1, courseInformationSharingConfiguration: .communicationAndMessaging),
             conversation: Conversation(conversation: Channel(id: 1))!,

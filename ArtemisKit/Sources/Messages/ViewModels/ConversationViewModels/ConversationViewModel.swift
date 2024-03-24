@@ -88,11 +88,6 @@ extension ConversationViewModel {
     func loadEarlierMessages() async {
         let (quotient, _) = diff.quotientAndRemainder(dividingBy: MessagesServiceImpl.GetMessagesRequest.size)
         page += 1 + quotient
-
-        if let message = messages.firstByCreationDate() {
-            shouldScrollToId = message.id.description
-        }
-
         await loadMessages()
     }
 
@@ -104,9 +99,10 @@ extension ConversationViewModel {
         case let .done(response: response):
             // Keep existing members in new, i.e., update existing members in messages.
             messages = Set(response.map(IdentifiableMessage.init)).union(messages)
-//            if response.count < MessagesServiceImpl.GetMessagesRequest.size {
-//                page -= 1
-//            }
+            if response.count < MessagesServiceImpl.GetMessagesRequest.size {
+                page -= 1
+            }
+            log.error(page)
             diff = 0
         case let .failure(error: error):
             presentError(userFacingError: error)
@@ -214,7 +210,6 @@ extension ConversationViewModel {
         case .notStarted, .loading:
             return false
         case .success:
-            await loadMessages()
             return true
         case .failure(let error):
             presentError(userFacingError: UserFacingError(title: error.localizedDescription))
@@ -234,7 +229,6 @@ extension ConversationViewModel {
         case .notStarted, .loading:
             return false
         case .success:
-            await loadMessages()
             return true
         case .failure(let error):
             presentError(userFacingError: UserFacingError(title: error.localizedDescription))
@@ -358,12 +352,10 @@ private extension ConversationViewModel {
     }
 }
 
-// swiftlint:disable file_length
 // MARK: - ConversationViewModel+SendMessageViewModelDelegate
 
 extension SendMessageViewModelDelegate {
     init(_ conversationViewModel: ConversationViewModel) {
-        self.loadMessages = conversationViewModel.loadMessages
         self.presentError = conversationViewModel.presentError
         self.sendMessage = conversationViewModel.sendMessage
     }
@@ -374,8 +366,6 @@ extension SendMessageViewModelDelegate {
 extension ConversationOfflineSectionModelDelegate {
     init(_ conversationViewModel: ConversationViewModel) {
         self.didSendOfflineMessage = { message in
-            conversationViewModel.shouldScrollToId = "bottom"
-            await conversationViewModel.loadMessages()
             if let index = conversationViewModel.offlineMessages.firstIndex(of: message) {
                 let message = conversationViewModel.offlineMessages.remove(at: index)
                 conversationViewModel.messagesRepository.delete(conversationOfflineMessage: message)
