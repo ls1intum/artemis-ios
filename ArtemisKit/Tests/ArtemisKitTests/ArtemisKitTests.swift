@@ -90,7 +90,7 @@ final class ArtemisKitTests: XCTestCase {
         var set: Set<IdentifiableMessage> = [.init(rawValue: Self.c)]
 
         // Bind to an id
-        let messageIndex = try XCTUnwrap(set.firstIndex(of: .init(id: Self.c.id)))
+        let messageIndex = try XCTUnwrap(set.firstIndex(of: .id(Self.c.id)))
         let message = set[messageIndex]
         // set.update(with: message)
 

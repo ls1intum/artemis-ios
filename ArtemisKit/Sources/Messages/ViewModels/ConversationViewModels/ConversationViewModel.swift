@@ -25,10 +25,6 @@ extension IdentifiableMessage {
     static func message(_ message: RawValue) -> Self {
         .init(rawValue: message)
     }
-
-    init(id: Int64) {
-        self.init(rawValue: Message(id: id))
-    }
 }
 
 extension IdentifiableMessage: Equatable, Hashable, Identifiable {
