@@ -8,28 +8,29 @@ public struct CourseRegistrationView: View {
 
     @Environment(\.dismiss) var dismiss
 
-    public init(successCompletion: @escaping () -> Void) {
-        _viewModel = StateObject(wrappedValue: CourseRegistrationViewModel(successCompletion: successCompletion))
-    }
-
     public var body: some View {
         NavigationView {
             List {
-                DataStateView(data: $viewModel.registrableCourses,
-                              retryHandler: { await viewModel.loadCourses() }) { registrableCourses in
+                DataStateView(data: $viewModel.registrableCourses) {
+                    await viewModel.loadCourses()
+                } content: { registrableCourses in
                     if registrableCourses.isEmpty {
-                        Text(R.string.localizable.course_registration_no_course_available())
-                    }
-                    ForEach(registrableCourses) { semesterCourse in
-                        Section(semesterCourse.semester) {
-                            ForEach(semesterCourse.courses) { course in
-                                CourseRegistrationListCell(viewModel: viewModel, course: course)
+                        ContentUnavailableView(
+                            R.string.localizable.course_registration_no_course_available(),
+                            systemImage: "graduationcap")
+                    } else {
+                        ForEach(registrableCourses) { semesterCourse in
+                            Section(semesterCourse.semester) {
+                                ForEach(semesterCourse.courses) { course in
+                                    CourseRegistrationListCell(viewModel: viewModel, course: course)
+                                }
                             }
                         }
                     }
-                }.listRowSeparator(.hidden)
+                }
+                .listRowSeparator(.hidden)
             }
-            .listStyle(PlainListStyle())
+            .listStyle(.plain)
             .refreshable {
                 await viewModel.loadCourses()
             }
@@ -39,6 +40,7 @@ public struct CourseRegistrationView: View {
             .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
             .loadingIndicator(isLoading: $viewModel.isLoading)
             .navigationTitle(R.string.localizable.course_registration_title())
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(R.string.localizable.cancel()) {
@@ -50,8 +52,13 @@ public struct CourseRegistrationView: View {
     }
 }
 
-private struct CourseRegistrationListCell: View {
+public extension CourseRegistrationView {
+    init(successCompletion: @escaping () -> Void) {
+        _viewModel = StateObject(wrappedValue: CourseRegistrationViewModel(successCompletion: successCompletion))
+    }
+}
 
+private struct CourseRegistrationListCell: View {
     @ObservedObject var viewModel: CourseRegistrationViewModel
 
     @State private var showSignUpAlert = false
@@ -70,7 +77,8 @@ private struct CourseRegistrationListCell: View {
                 }
                 Button(R.string.localizable.course_registration_register_button()) {
                     showSignUpAlert = true
-                }.buttonStyle(ArtemisButton())
+                }
+                .buttonStyle(ArtemisButton())
             }
             .padding(.m)
             .frame(maxWidth: .infinity)
@@ -86,8 +94,13 @@ private struct CourseRegistrationListCell: View {
                     showSignUpAlert = false
                 }
             })
-        } else {
-            EmptyView()
         }
     }
+}
+
+#Preview {
+    CourseRegistrationView(
+        viewModel: CourseRegistrationViewModel(
+            successCompletion: {},
+            courseRegistrationService: CourseRegistrationServiceStub()))
 }

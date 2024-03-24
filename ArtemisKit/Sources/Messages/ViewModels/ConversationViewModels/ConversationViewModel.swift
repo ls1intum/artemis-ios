@@ -17,10 +17,17 @@ import UserStore
 class ConversationViewModel: BaseViewModel {
 
     let course: Course
-    let conversation: Conversation
 
-    @Published var dailyMessages: DataState<[Date: [Message]]> = .loading
+    @Published var conversation: Conversation
+
+    @Published var messages: Set<IdentifiableMessage> = []
+    /// Tracks added and removed messages.
+    private var diff = 0
+    private var page = 0
+
     @Published var offlineMessages: [ConversationOfflineMessageModel] = []
+
+    @Published var isConversationInfoSheetPresented = false
 
     var isAllowedToPost: Bool {
         guard let channel = conversation.baseConversation as? Channel else {
@@ -38,9 +45,7 @@ class ConversationViewModel: BaseViewModel {
     }
 
     var shouldScrollToId: String?
-    var websocketSubscriptionTask: Task<(), Never>?
-
-    private var size = 50
+    var subscription: Task<(), Never>?
 
     fileprivate let messagesRepository: MessagesRepository
     private let messagesService: MessagesService
@@ -70,7 +75,7 @@ class ConversationViewModel: BaseViewModel {
     }
 
     deinit {
-        websocketSubscriptionTask?.cancel()
+        subscription?.cancel()
     }
 }
 
@@ -80,40 +85,33 @@ extension ConversationViewModel {
 
     // MARK: Load
 
-    func loadFurtherMessages() async {
-        size += 50
-        if let dailyMessages = dailyMessages.value,
-           let lastKey = dailyMessages.keys.min(),
-           let lastMessage = dailyMessages[lastKey]?.first {
-            shouldScrollToId = lastMessage.id.description
-        }
-
+    func loadEarlierMessages() async {
+        let (quotient, _) = diff.quotientAndRemainder(dividingBy: MessagesServiceImpl.GetMessagesRequest.size)
+        page += 1 + quotient
         await loadMessages()
     }
 
     func loadMessages() async {
-        let result = await messagesService.getMessages(for: course.id, and: conversation.id, size: size)
-        self.dailyMessages = result.map { messages in
-            var dailyMessages: [Date: [Message]] = [:]
-            for message in messages {
-                if let date = message.creationDate?.startOfDay {
-                    if dailyMessages[date] == nil {
-                        dailyMessages[date] = [message]
-                    } else {
-                        dailyMessages[date]?.append(message)
-                        dailyMessages[date] = dailyMessages[date]?.sorted {
-                            $0.creationDate! < $1.creationDate!
-                        }
-                    }
-                }
+        let result = await messagesService.getMessages(for: course.id, and: conversation.id, page: page)
+        switch result {
+        case .loading:
+            break
+        case let .done(response: response):
+            // Keep existing members in new, i.e., update existing members in messages.
+            messages = Set(response.map(IdentifiableMessage.init)).union(messages)
+            if response.count < MessagesServiceImpl.GetMessagesRequest.size {
+                page -= 1
             }
-            return dailyMessages
+            log.error(page)
+            diff = 0
+        case let .failure(error: error):
+            presentError(userFacingError: error)
         }
     }
 
     func loadMessage(messageId: Int64) async -> DataState<Message> {
         // TODO: add API to only load one single message
-        let result = await messagesService.getMessages(for: course.id, and: conversation.id, size: size)
+        let result = await messagesService.getMessages(for: course.id, and: conversation.id, page: page)
         return result.flatMap { messages in
             guard let message = messages.first(where: { $0.id == messageId }) else {
                 return .failure(UserFacingError(title: R.string.localizable.messageCouldNotBeLoadedError()))
@@ -124,7 +122,7 @@ extension ConversationViewModel {
 
     func loadAnswerMessage(answerMessageId: Int64) async -> DataState<AnswerMessage> {
         // TODO: add API to only load one single answer message
-        let result = await messagesService.getMessages(for: course.id, and: conversation.id, size: size)
+        let result = await messagesService.getMessages(for: course.id, and: conversation.id, page: page)
         return result.flatMap { messages in
             guard let message = messages.first(where: { $0.answers?.contains(where: { $0.id == answerMessageId }) ?? false }),
                   let answerMessage = message.answers?.first(where: { $0.id == answerMessageId }) else {
@@ -212,7 +210,6 @@ extension ConversationViewModel {
         case .notStarted, .loading:
             return false
         case .success:
-            await loadMessages()
             return true
         case .failure(let error):
             presentError(userFacingError: UserFacingError(title: error.localizedDescription))
@@ -232,7 +229,6 @@ extension ConversationViewModel {
         case .notStarted, .loading:
             return false
         case .success:
-            await loadMessages()
             return true
         case .failure(let error):
             presentError(userFacingError: UserFacingError(title: error.localizedDescription))
@@ -281,7 +277,7 @@ private extension ConversationViewModel {
         if stompClient.didSubscribeTopic(topic) {
             return
         }
-        websocketSubscriptionTask = Task { [weak self] in
+        subscription = Task { [weak self] in
             guard let stream = self?.stompClient.subscribe(to: topic) else {
                 return
             }
@@ -322,78 +318,44 @@ private extension ConversationViewModel {
         }
         switch messageWebsocketDTO.action {
         case .create:
-            handleNewMessage(messageWebsocketDTO.post)
+            handle(new: messageWebsocketDTO.post)
         case .update:
-            handleUpdateMessage(messageWebsocketDTO.post)
+            handle(update: messageWebsocketDTO.post)
         case .delete:
-            handleDeletedMessage(messageWebsocketDTO.post)
+            handle(delete: messageWebsocketDTO.post)
         default:
             return
         }
     }
 
-    func handleNewMessage(_ newMessage: Message) {
-        guard var dailyMessages = dailyMessages.value else {
-            // messages not loaded yet
-            return
+    func handle(new message: Message) {
+        shouldScrollToId = message.id.description
+        let (inserted, _) = messages.insert(.message(message))
+        if inserted {
+            diff += 1
         }
-
-        if let date = newMessage.creationDate?.startOfDay {
-            if dailyMessages[date] == nil {
-                dailyMessages[date] = [newMessage]
-            } else {
-                guard !(dailyMessages[date]?.contains(newMessage) ?? false) else { return }
-                dailyMessages[date]?.append(newMessage)
-                dailyMessages[date] = dailyMessages[date]?.sorted(by: { $0.creationDate! < $1.creationDate! })
-            }
-        }
-
-        shouldScrollToId = newMessage.id.description
-        self.dailyMessages = .done(response: dailyMessages)
     }
 
-    func handleUpdateMessage(_ updatedMessage: Message) {
-        guard var dailyMessages = dailyMessages.value else {
-            // messages not loaded yet
-            return
-        }
-
-        guard let date = updatedMessage.creationDate?.startOfDay,
-              let messageIndex = dailyMessages[date]?.firstIndex(where: { $0.id == updatedMessage.id }) else {
-            log.error("Message with id \(updatedMessage.id) could not be updated")
-            return
-        }
-
-        dailyMessages[date]?[messageIndex] = updatedMessage
-
+    func handle(update message: Message) {
         shouldScrollToId = nil
-        self.dailyMessages = .done(response: dailyMessages)
+        if messages.contains(.of(id: message.id)) {
+            messages.update(with: .message(message))
+        }
     }
 
-    func handleDeletedMessage(_ deletedMessage: Message) {
-        guard var dailyMessages = dailyMessages.value else {
-            // messages not loaded yet
-            return
-        }
-
-        guard let date = deletedMessage.creationDate?.startOfDay else {
-            log.error("Message with id \(deletedMessage.id) could not be updated")
-            return
-        }
-
-        dailyMessages[date]?.removeAll(where: { deletedMessage.id == $0.id })
-
+    func handle(delete message: Message) {
         shouldScrollToId = nil
-        self.dailyMessages = .done(response: dailyMessages)
+        let equal = messages.remove(.message(message))
+        if equal != nil {
+            diff -= 1
+        }
     }
 }
 
-// swiftlint:disable file_length
 // MARK: - ConversationViewModel+SendMessageViewModelDelegate
 
 extension SendMessageViewModelDelegate {
     init(_ conversationViewModel: ConversationViewModel) {
-        self.loadMessages = conversationViewModel.loadMessages
         self.presentError = conversationViewModel.presentError
         self.sendMessage = conversationViewModel.sendMessage
     }
@@ -404,8 +366,6 @@ extension SendMessageViewModelDelegate {
 extension ConversationOfflineSectionModelDelegate {
     init(_ conversationViewModel: ConversationViewModel) {
         self.didSendOfflineMessage = { message in
-            conversationViewModel.shouldScrollToId = "bottom"
-            await conversationViewModel.loadMessages()
             if let index = conversationViewModel.offlineMessages.firstIndex(of: message) {
                 let message = conversationViewModel.offlineMessages.remove(at: index)
                 conversationViewModel.messagesRepository.delete(conversationOfflineMessage: message)

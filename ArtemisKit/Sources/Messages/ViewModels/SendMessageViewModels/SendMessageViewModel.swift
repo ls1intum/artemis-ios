@@ -279,7 +279,6 @@ extension SendMessageViewModel {
         case .notStarted, .loading:
             return false
         case .success:
-            await delegate.loadMessages()
             return true
         case .failure(let error):
             delegate.presentError(UserFacingError(title: error.localizedDescription))
@@ -294,7 +293,6 @@ extension SendMessageViewModel {
         case .notStarted, .loading:
             return false
         case .success:
-            await delegate.loadMessages()
             return true
         case .failure(let error):
             delegate.presentError(UserFacingError(title: error.localizedDescription))

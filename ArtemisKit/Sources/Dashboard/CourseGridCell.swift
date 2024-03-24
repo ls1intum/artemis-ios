@@ -1,63 +1,16 @@
 //
-//  CourseGridView.swift
+//  CourseGridCell.swift
 //
 //
-//  Created by Nityananda Zbil on 29.11.23.
+//  Created by Nityananda Zbil on 19.03.24.
 //
 
-import CourseRegistration
 import DesignLibrary
 import Navigation
 import SharedModels
 import SwiftUI
 
-struct CourseGridView: View {
-
-    private static let layout = [GridItem(.adaptive(minimum: 400, maximum: .infinity), spacing: .l, alignment: .center)]
-
-    @ObservedObject var viewModel: DashboardViewModel
-    @State private var isCourseRegistrationPresented = false
-
-    var body: some View {
-        DataStateView(data: $viewModel.coursesForDashboard) {
-            await viewModel.loadCourses()
-        } content: { coursesForDashboard in
-            ScrollView {
-                LazyVGrid(columns: Self.layout, spacing: .l) {
-                    ForEach(coursesForDashboard.courses ?? [], content: CourseGridCellView.init(courseForDashboard:))
-                }
-                .padding(.horizontal, .l)
-
-                HStack {
-                    Spacer()
-                    Button(R.string.localizable.dashboardRegisterForCourseButton()) {
-                        isCourseRegistrationPresented = true
-                    }
-                    .buttonStyle(ArtemisButton())
-                    Spacer()
-                }
-            }
-            .refreshable {
-                await viewModel.loadCourses()
-            }
-        }
-        .sheet(isPresented: $isCourseRegistrationPresented) {
-            CourseRegistrationView {
-                isCourseRegistrationPresented = false
-                viewModel.coursesForDashboard = .loading
-                Task {
-                    await viewModel.loadCourses()
-                }
-            }
-        }
-        .task {
-            await viewModel.loadCourses()
-        }
-    }
-}
-
-private struct CourseGridCellView: View {
-
+struct CourseGridCell: View {
     @EnvironmentObject private var navigationController: NavigationController
 
     let courseForDashboard: CourseForDashboardDTO
@@ -76,19 +29,20 @@ private struct CourseGridCellView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            header
-            statistics
-            footer
-        }
-        .cardModifier(backgroundColor: .clear, hasBorder: true)
-        .onTapGesture {
-            navigationController.append(CoursePath(course: courseForDashboard.course))
+        Button {
+            navigationController.path.append(CoursePath(course: courseForDashboard.course))
+        } label: {
+            VStack(alignment: .leading, spacing: 0) {
+                header
+                statistics
+                footer
+            }
+            .cardModifier(backgroundColor: .clear, hasBorder: true)
         }
     }
 }
 
-private extension CourseGridCellView {
+private extension CourseGridCell {
     var header: some View {
         HStack(alignment: .center) {
             AsyncImage(url: courseForDashboard.course.courseIconURL) { phase in
@@ -109,6 +63,7 @@ private extension CourseGridCellView {
             VStack(alignment: .leading, spacing: 0) {
                 Text(courseForDashboard.course.title ?? "")
                     .font(.custom("SF Pro", size: 21, relativeTo: .title))
+                    .multilineTextAlignment(.leading)
                     .lineLimit(2)
                 Text(R.string.localizable.dashboardExercisesLabel(courseForDashboard.course.exercises?.count ?? 0))
                 Text(R.string.localizable.dashboardLecturesLabel(courseForDashboard.course.lectures?.count ?? 0))
@@ -127,14 +82,15 @@ private extension CourseGridCellView {
             if let totalScore = courseForDashboard.totalScores {
                 ProgressBar(
                     value: Int(totalScore.studentScores.absoluteScore),
-                    total: Int(totalScore.reachablePoints))
-                .frame(height: 120)
-                .padding(.vertical, .l)
+                    total: Int(totalScore.reachablePoints)
+                )
+                .frame(height: .xxxl)
             } else {
                 Text(R.string.localizable.dashboardNoStatisticsAvailable())
             }
             Spacer()
         }
+        .foregroundStyle(Color.Artemis.secondaryLabel)
         .padding(.vertical, .m)
     }
 
@@ -163,6 +119,10 @@ private extension CourseGridCellView {
         }
         .frame(maxWidth: .infinity)
         .background(Color.Artemis.dashboardCardBackgroundColor)
-        .foregroundColor(Color.Artemis.secondaryLabel)
+        .foregroundStyle(Color.Artemis.secondaryLabel)
     }
+}
+
+#Preview {
+    CourseGridCell(courseForDashboard: CourseServiceStub.course)
 }
