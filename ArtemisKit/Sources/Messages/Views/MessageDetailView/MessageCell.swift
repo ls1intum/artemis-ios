@@ -44,18 +44,7 @@ struct MessageCell: View {
                         headerIfVisible
                         ArtemisMarkdownView(string: content)
                             .opacity(isMessageOffline ? 0.5 : 1)
-                            .environment(\.openURL, OpenURLAction { url in
-                                // E.g., https://artemis-test1.artemis.cit.tum.de/courses/171/exercises/655
-                                if url.path().contains("exercises"), let exerciseId = url.pathComponents.last, let id = Int(exerciseId) {
-                                    navigationController.append(ExercisePath(id: id, coursePath: CoursePath(course: viewModel.course)))
-                                    return .handled
-                                }
-                                if url.path().contains("lectures"), let lectureId = url.pathComponents.last, let id = Int(lectureId) {
-                                    navigationController.append(LecturePath(id: id, coursePath: CoursePath(course: viewModel.course)))
-                                    return .handled
-                                }
-                                return .systemAction
-                            })
+                            .environment(\.openURL, OpenURLAction(handler: handle))
                     }
                     Spacer()
                 }
@@ -83,7 +72,59 @@ struct MessageCell: View {
     }
 }
 
+enum MentionScheme {
+    case channel(Int)
+    case exercise(Int)
+    case lecture(Int)
+    case member(String)
+
+    init?(_ url: URL) {
+        guard url.scheme == "mention" else {
+            return nil
+        }
+        switch url.host() {
+        case "channel":
+            if let id = Int(url.lastPathComponent) {
+                self = .channel(id)
+                return
+            }
+        case "exercise":
+            if let id = Int(url.lastPathComponent) {
+                self = .exercise(id)
+                return
+            }
+        case "lecture":
+            if let id = Int(url.lastPathComponent) {
+                self = .lecture(id)
+                return
+            }
+        case "member":
+            self = .member(url.lastPathComponent)
+            return
+        default:
+            return nil
+        }
+        return nil
+    }
+}
+
 private extension MessageCell {
+    func handle(url: URL) -> OpenURLAction.Result {
+        if let mention = MentionScheme(url) {
+            switch mention {
+            case let .channel(id):
+                break
+            case let .exercise(id):
+                navigationController.append(ExercisePath(id: id, coursePath: CoursePath(course: viewModel.course)))
+            case let .lecture(id):
+                navigationController.append(LecturePath(id: id, coursePath: CoursePath(course: viewModel.course)))
+            case let .member(login):
+                break
+            }
+        }
+        return .systemAction
+    }
+
     var author: String {
         message.value?.author?.name ?? ""
     }
