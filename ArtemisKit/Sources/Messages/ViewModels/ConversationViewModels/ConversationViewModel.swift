@@ -35,8 +35,22 @@ extension IdentifiableMessage: Equatable, Hashable, Identifiable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
+
     var id: Int64 {
         rawValue.id
+    }
+}
+
+extension Set where Element == IdentifiableMessage {
+    func firstByCreationDate() -> Element.RawValue? {
+        let sorted = sorted {
+            if let lhs = $0.rawValue.creationDate, let rhs = $1.rawValue.creationDate {
+                lhs.compare(rhs) == .orderedAscending
+            } else {
+                false
+            }
+        }
+        return sorted.first?.rawValue
     }
 }
 
@@ -111,10 +125,8 @@ extension ConversationViewModel {
 
     func loadEarlierMessages() async {
         page += 1
-        // First ever message in set
-        if let lastKey = dailyMessages.keys.min(),
-           let lastMessage = dailyMessages[lastKey]?.first {
-            shouldScrollToId = lastMessage.id.description
+        if let message = messages.firstByCreationDate() {
+            shouldScrollToId = message.id.description
         }
 
         await loadMessages()

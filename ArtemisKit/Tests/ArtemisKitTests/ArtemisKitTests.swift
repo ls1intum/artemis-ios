@@ -31,17 +31,9 @@ final class ArtemisKitTests: XCTestCase {
     func testFirstEverMessage() throws {
         // First ever message in set
         let set = Set<IdentifiableMessage>([.init(rawValue: Self.a), .init(rawValue: Self.c)])
-        let first0 = set
-            .sorted {
-                if let lhs = $0.rawValue.creationDate, let rhs = $1.rawValue.creationDate {
-                    lhs.compare(rhs) == .orderedAscending
-                } else {
-                    false
-                }
-            }
-            .first
+        let first0 = set.firstByCreationDate()
         let first = try XCTUnwrap(first0)
-        XCTAssertEqual(first.rawValue.content, Self.a.content)
+        XCTAssertEqual(first.content, Self.a.content)
     }
 
     func testMergeNewWithOld() throws {
