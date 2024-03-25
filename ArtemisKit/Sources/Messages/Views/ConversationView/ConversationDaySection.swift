@@ -63,7 +63,7 @@ private struct MessageCellWrapper: View {
 
     var body: some View {
         MessageCell(
-            viewModel: viewModel,
+            conversationViewModel: viewModel,
             message: messageBinding,
             conversationPath: conversationPath,
             isHeaderVisible: isHeaderVisible)
