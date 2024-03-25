@@ -11,52 +11,16 @@ import SharedModels
 import SwiftUI
 
 struct LectureListView: View {
-
     @ObservedObject var viewModel: CourseViewModel
 
     @Binding var searchText: String
-
-    private var searchResults: [Lecture] {
-        if searchText.isEmpty {
-            return []
-        }
-        return (viewModel.course.value?.lectures ?? []).filter {
-            ($0.title ?? "").lowercased().contains(searchText.lowercased())
-        }
-    }
-
-    private var weeklyLectures: [WeeklyLecture] {
-        let groupedDates = Dictionary(grouping: viewModel.course.value?.lectures ?? []) { lecture in
-            var week: Int?
-            var year: Int?
-            if let dueDate = lecture.startDate {
-                week = Calendar.current.component(.weekOfYear, from: dueDate)
-                year = Calendar.current.component(.year, from: dueDate)
-            }
-            return WeeklyLectureId(week: week, year: year)
-        }
-
-        let weeklyLectures = groupedDates
-            .map { week in
-                let lectures = week.value.sorted {
-                    $0.startDate ?? .now < $1.startDate ?? .now
-                }
-                return WeeklyLecture(id: week.key, lectures: lectures)
-            }
-            .sorted {
-                $0.id.startOfWeek ?? .distantFuture < $1.id.startOfWeek ?? .distantFuture
-            }
-        return weeklyLectures
-    }
 
     var body: some View {
         ScrollViewReader { value in
             List {
                 if searchText.isEmpty {
                     ForEach(weeklyLectures) { weeklyLecture in
-                        if let course = viewModel.course.value {
-                            LectureListSectionView(course: course, weeklyLecture: weeklyLecture)
-                        }
+                        LectureListSectionView(course: viewModel.course, weeklyLecture: weeklyLecture)
                     }
                 } else {
                     if searchResults.isEmpty {
@@ -64,9 +28,7 @@ struct LectureListView: View {
                             .listRowSeparator(.hidden)
                     } else {
                         ForEach(searchResults) { lecture in
-                            if let course = viewModel.course.value {
-                                LectureListCellView(course: course, lecture: lecture)
-                            }
+                            LectureListCellView(course: viewModel.course, lecture: lecture)
                         }
                     }
                 }
@@ -86,8 +48,49 @@ struct LectureListView: View {
     }
 }
 
-private struct LectureListSectionView: View {
+private extension LectureListView {
+    var searchResults: [Lecture] {
+        guard let lectures = viewModel.course.lectures else {
+            return []
+        }
+        return lectures.filter { lecture in
+            let range = lecture.title?.range(of: searchText, options: [.caseInsensitive, .diacriticInsensitive])
+            return range != nil
+        }
+    }
 
+    var weeklyLectures: [WeeklyLecture] {
+        guard let lectures = viewModel.course.lectures else {
+            return []
+        }
+        let groupedDates = Dictionary(grouping: lectures) { lecture in
+            var week: Int?
+            var year: Int?
+            if let dueDate = lecture.startDate {
+                week = Calendar.current.component(.weekOfYear, from: dueDate)
+                year = Calendar.current.component(.year, from: dueDate)
+            }
+            return WeeklyLectureId(week: week, year: year)
+        }
+        let weeklyLectures = groupedDates
+            .map { week in
+                let lectures = week.value.sorted {
+                    let lhs = $0.startDate ?? .now
+                    let rhs = $1.startDate ?? .now
+                    return lhs.compare(rhs) == .orderedAscending
+                }
+                return WeeklyLecture(id: week.key, lectures: lectures)
+            }
+            .sorted {
+                let lhs = $0.id.startOfWeek ?? .distantFuture
+                let rhs = $1.id.startOfWeek ?? .distantFuture
+                return lhs.compare(rhs) == .orderedAscending
+            }
+        return weeklyLectures
+    }
+}
+
+private struct LectureListSectionView: View {
     private let course: Course
     private let weeklyLecture: WeeklyLecture
 
@@ -122,7 +125,6 @@ private struct LectureListSectionView: View {
 }
 
 private struct LectureListCellView: View {
-
     @EnvironmentObject var navigationController: NavigationController
 
     let course: Course
@@ -177,8 +179,7 @@ private struct WeeklyLectureId: Hashable, Identifiable {
     let year: Int?
 
     var id: String {
-        guard let week,
-              let year else {
+        guard let week, let year else {
             return "undefined"
         }
         return "\(week)/\(year)"

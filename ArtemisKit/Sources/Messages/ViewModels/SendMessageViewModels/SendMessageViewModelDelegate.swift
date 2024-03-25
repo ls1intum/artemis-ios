@@ -10,15 +10,6 @@ import SwiftUI
 
 @MainActor
 struct SendMessageViewModelDelegate {
-    let loadMessages: () async -> Void
     let presentError: (UserFacingError) -> Void
-    let scrollToId: (String) -> Void
-}
-
-extension SendMessageViewModelDelegate {
-    init(_ conversationViewModel: ConversationViewModel) {
-        self.loadMessages = conversationViewModel.loadMessages
-        self.presentError = conversationViewModel.presentError(userFacingError:)
-        self.scrollToId = { conversationViewModel.shouldScrollToId = $0 }
-    }
+    let sendMessage: (String) async -> Void
 }

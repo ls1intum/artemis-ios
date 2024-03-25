@@ -17,59 +17,40 @@ struct SendMessageView: View {
     @FocusState private var isFocused: Bool
 
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
+            if viewModel.isEditing {
+                Spacer()
+            } else {
+                Divider()
+            }
+
             mentions
-            VStack {
-                if isFocused && !viewModel.isEditing {
-                    Capsule()
-                        .fill(Color.secondary)
-                        .frame(width: 50, height: 3)
-                        .padding(.top, .m)
-                }
-                HStack(alignment: .bottom) {
-                    textField
-                        .lineLimit(10)
-                        .focused($isFocused)
-                        .toolbar {
-                            ToolbarItem(placement: .keyboard) {
-                                keyboardToolbarContent
-                            }
-                        }
-                    if !isFocused {
-                        sendButton
-                    }
-                }
-                .padding(.horizontal, .l)
-                .padding(.bottom, .l)
-                .padding(.top, isFocused ? .m : .l)
+            if isFocused && !viewModel.isEditing {
+                Capsule()
+                    .fill(Color.secondary)
+                    .frame(width: .xl, height: .s)
+                    .padding(.vertical, .m)
             }
-            .onAppear {
-                viewModel.performOnAppear()
-            }
-            .onDisappear {
-                viewModel.performOnDisappear()
-            }
-            .overlay {
-                if viewModel.isEditing {
-                    EmptyView()
-                } else {
-                    RoundedRectangle(cornerRadius: .m)
-                        .trim(from: isFocused ? 0.52 : 0.51, to: isFocused ? 0.98 : 0.99)
-                        .stroke(Color.Artemis.artemisBlue, lineWidth: 2)
-                }
-            }
-            .gesture(
-                DragGesture(minimumDistance: 30, coordinateSpace: .local)
-                    .onEnded { value in
-                        if value.translation.height > 0 {
-                            // down
-                            isFocused = false
-                            let impactMed = UIImpactFeedbackGenerator(style: .medium)
-                            impactMed.impactOccurred()
-                        }
-                    }
-            )
+            textField
+                .padding(isFocused ? [.horizontal, .bottom] : .all, .l)
         }
+        .onAppear {
+            viewModel.performOnAppear()
+        }
+        .onDisappear {
+            viewModel.performOnDisappear()
+        }
+        .gesture(
+            DragGesture(minimumDistance: 30, coordinateSpace: .local)
+                .onEnded { value in
+                    if value.translation.height > 0 {
+                        // down
+                        isFocused = false
+                        let impactMed = UIImpactFeedbackGenerator(style: .medium)
+                        impactMed.impactOccurred()
+                    }
+                }
+        )
         .sheet(item: $viewModel.modalPresentation) {
             isFocused = true
         } content: { presentation in
@@ -83,31 +64,48 @@ struct SendMessageView: View {
     }
 }
 
+@MainActor
 private extension SendMessageView {
     @ViewBuilder var mentions: some View {
-        switch viewModel.conditionalPresentation {
-        case .memberPicker:
-            SendMessageMentionMemberView(
-                viewModel: SendMessageMentionMemberViewModel(course: viewModel.course),
-                sendMessageViewModel: viewModel
-            )
-        case .channelPicker:
-            SendMessageMentionChannelView(
-                viewModel: SendMessageMentionChannelViewModel(course: viewModel.course),
-                sendMessageViewModel: viewModel
-            )
-        case nil:
-            EmptyView()
+        if let presentation = viewModel.conditionalPresentation {
+            VStack(spacing: 0) {
+                switch presentation {
+                case .memberPicker:
+                    SendMessageMentionMemberView(
+                        viewModel: SendMessageMentionMemberViewModel(course: viewModel.course),
+                        sendMessageViewModel: viewModel
+                    )
+                case .channelPicker:
+                    SendMessageMentionChannelView(
+                        viewModel: SendMessageMentionChannelViewModel(course: viewModel.course),
+                        sendMessageViewModel: viewModel
+                    )
+                }
+                if !viewModel.isEditing {
+                    Divider()
+                }
+            }
         }
     }
 
-    @ViewBuilder var textField: some View {
-        let label = R.string.localizable.messageAction(viewModel.conversation.baseConversation.conversationName)
-        if viewModel.isEditing {
-            TextField(label, text: $viewModel.text, axis: .vertical)
-                .textFieldStyle(ArtemisTextField())
-        } else {
-            TextField(label, text: $viewModel.text, axis: .vertical)
+    var textField: some View {
+        HStack(alignment: .bottom) {
+            TextField(
+                R.string.localizable.messageAction(viewModel.conversation.baseConversation.conversationName),
+                text: $viewModel.text,
+                axis: .vertical
+            )
+            .textFieldStyle(.roundedBorder)
+            .lineLimit(10)
+            .focused($isFocused)
+            .toolbar {
+                ToolbarItem(placement: .keyboard) {
+                    keyboardToolbarContent
+                }
+            }
+            if !isFocused {
+                sendButton
+            }
         }
     }
 
@@ -115,31 +113,49 @@ private extension SendMessageView {
         HStack {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
-                    Button(action: viewModel.didTapBoldButton) {
+                    Button {
+                        viewModel.didTapBoldButton()
+                    } label: {
                         Image(systemName: "bold")
                     }
-                    Button(action: viewModel.didTapItalicButton) {
+                    Button {
+                        viewModel.didTapItalicButton()
+                    } label: {
                         Image(systemName: "italic")
                     }
-                    Button(action: viewModel.didTapUnderlineButton) {
+                    Button {
+                        viewModel.didTapUnderlineButton()
+                    } label: {
                         Image(systemName: "underline")
                     }
-                    Button(action: viewModel.didTapBlockquoteButton) {
+                    Button {
+                        viewModel.didTapBlockquoteButton()
+                    } label: {
                         Image(systemName: "quote.opening")
                     }
-                    Button(action: viewModel.didTapCodeButton) {
+                    Button {
+                        viewModel.didTapCodeButton()
+                    } label: {
                         Image(systemName: "curlybraces")
                     }
-                    Button(action: viewModel.didTapCodeBlockButton) {
+                    Button {
+                        viewModel.didTapCodeBlockButton()
+                    } label: {
                         Image(systemName: "curlybraces.square.fill")
                     }
-                    Button(action: viewModel.didTapLinkButton) {
+                    Button {
+                        viewModel.didTapLinkButton()
+                    } label: {
                         Image(systemName: "link")
                     }
-                    Button(action: viewModel.didTapAtButton) {
+                    Button {
+                        viewModel.didTapAtButton()
+                    } label: {
                         Image(systemName: "at")
                     }
-                    Button(action: viewModel.didTapNumberButton) {
+                    Button {
+                        viewModel.didTapNumberButton()
+                    } label: {
                         Image(systemName: "number")
                     }
                     Button {

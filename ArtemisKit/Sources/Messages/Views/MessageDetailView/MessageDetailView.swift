@@ -34,22 +34,19 @@ struct MessageDetailView: View {
         DataStateView(data: $message) {
             await reloadMessage()
         } content: { message in
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 0) {
                 ScrollViewReader { proxy in
                     ScrollView {
                         top(message: message)
                         answers(of: message, proxy: proxy)
                     }
                 }
-                Spacer()
-                if !((viewModel.conversation.value?.baseConversation as? Channel)?.isArchived ?? false),
-                   let message = message as? Message,
-                   let course = viewModel.course.value,
-                   let conversation = viewModel.conversation.value {
+                if !((viewModel.conversation.baseConversation as? Channel)?.isArchived ?? false),
+                   let message = message as? Message {
                     SendMessageView(
                         viewModel: SendMessageViewModel(
-                            course: course,
-                            conversation: conversation,
+                            course: viewModel.course,
+                            conversation: viewModel.conversation,
                             configuration: .answerMessage(message, reloadMessage),
                             delegate: SendMessageViewModelDelegate(viewModel)
                         )
@@ -71,7 +68,7 @@ private extension MessageDetailView {
     func top(message: BaseMessage) -> some View {
         MessageCell(
             viewModel: viewModel,
-            message: Binding<DataState<BaseMessage>>.constant(DataState<BaseMessage>.done(response: message)),
+            message: Binding.constant(DataState<BaseMessage>.done(response: message)),
             conversationPath: nil,
             isHeaderVisible: true
         )
@@ -145,43 +142,25 @@ private struct MessageCellWrapper: View {
         let isAnswerMessage = { (answer: AnswerMessage) -> Bool in
             answer.id == self.answerMessage.id
         }
-        let messageContainsAnswer = { (message: Message) -> Bool in
-            message.answers?.contains(where: isAnswerMessage) ?? false
+        let messageContainsAnswer = { (message: IdentifiableMessage) -> Bool in
+            message.rawValue.answers?.contains(where: isAnswerMessage) ?? false
         }
 
-        return Binding(get: {
-            if let dailyMessages = viewModel.dailyMessages.value {
-                let answerMessages: [AnswerMessage] = dailyMessages.keys.compactMap { key in
-
-                    if let messages = dailyMessages[key],
-                       let messageIndex = messages.firstIndex(where: messageContainsAnswer),
-                       let answerMessage = messages[messageIndex].answers?.first(where: isAnswerMessage) {
-                        return answerMessage
-                    }
-                    return nil
-                }
-
-                if let answerMessage = answerMessages.first {
-                    return .done(response: answerMessage)
-                }
+        return Binding {
+            if let message = viewModel.messages.first(where: messageContainsAnswer),
+               let answer = message.rawValue.answers?.first(where: isAnswerMessage) {
+                return .done(response: answer)
+            } else {
+                return .loading
             }
-            return .loading
-        }, set: { newValue in
-            if let newAnswerMessage = newValue.value as? AnswerMessage,
-               let dailyMessages = viewModel.dailyMessages.value {
-
-                for key in dailyMessages.keys {
-
-                    if let messages = dailyMessages[key],
-                       let messageIndex = messages.firstIndex(where: messageContainsAnswer),
-                       let answerMessageIndex = messages[messageIndex].answers?.firstIndex(where: isAnswerMessage) {
-
-                        viewModel.dailyMessages.value?[key]?[messageIndex].answers?[answerMessageIndex] = newAnswerMessage
-                        continue
-                    }
-                }
+        } set: { value in
+            if var message = viewModel.messages.first(where: messageContainsAnswer)?.rawValue,
+               let answer = value.value as? AnswerMessage,
+               let index = message.answers?.firstIndex(where: isAnswerMessage) {
+                message.answers?[index] = answer
+                viewModel.messages.update(with: .message(message))
             }
-        })
+        }
     }
 
     var body: some View {
@@ -199,11 +178,9 @@ private struct MessageCellWrapper: View {
             let viewModel = ConversationViewModel(
                 course: MessagesServiceStub.course,
                 conversation: MessagesServiceStub.conversation)
-            viewModel.dailyMessages = .done(response: [
-                MessagesServiceStub.now: [
-                    MessagesServiceStub.message
-                ]
-            ])
+            viewModel.messages = [
+                .message(MessagesServiceStub.message)
+            ]
             return viewModel
         }(),
         message: Binding.constant(DataState<BaseMessage>.done(response: MessagesServiceStub.message)))

@@ -9,44 +9,47 @@ import DesignLibrary
 import SwiftUI
 
 struct SendMessageMentionChannelView: View {
-
     @State var viewModel: SendMessageMentionChannelViewModel
 
     @Bindable var sendMessageViewModel: SendMessageViewModel
 
     var body: some View {
-        HStack {
-            Spacer()
-            DataStateView(data: $viewModel.channels) {
+        DataStateView(data: $viewModel.channels) {
+            if let candidate = sendMessageViewModel.searchChannel().map(String.init) {
+                await viewModel.search(idOrName: candidate)
+            }
+        } content: { channels in
+            if channels.isEmpty {
                 if let candidate = sendMessageViewModel.searchChannel().map(String.init) {
-                    await viewModel.search(idOrName: candidate)
-                }
-            } content: { channels in
-                if !channels.isEmpty {
-                    List {
-                        ForEach(channels) { channel in
-                            Button(channel.name) {
-                                sendMessageViewModel.replace(channel: channel)
-                            }
-                        }
-                    }
+                    ContentUnavailableView.search(text: candidate)
                 } else {
                     ContentUnavailableView(R.string.localizable.channelsUnavailable(), systemImage: "magnifyingglass")
                 }
+            } else {
+                ScrollView {
+                    ForEach(channels) { channel in
+                        HStack {
+                            Button {
+                                sendMessageViewModel.replace(channel: channel)
+                            } label: {
+                                Label(channel.name, systemImage: "number")
+                            }
+                            .foregroundStyle(.secondary)
+                            Spacer()
+                        }
+                        Divider()
+                    }
+                }
+                .contentMargins([.horizontal, .top], .l, for: .scrollContent)
             }
-            .onChange(of: sendMessageViewModel.text, initial: true, search)
-            Spacer()
         }
-        .listStyle(.plain)
-        .clipShape(.rect(cornerRadius: .l))
-        .overlay {
-            RoundedRectangle(cornerRadius: .l)
-                .stroke(Color.Artemis.artemisBlue, lineWidth: 2)
+        .onChange(of: sendMessageViewModel.text, initial: true) {
+            search()
         }
-        .padding(.bottom, .m)
     }
 }
 
+@MainActor
 private extension SendMessageMentionChannelView {
     func search() {
         if let candidate = sendMessageViewModel.searchChannel().map(String.init) {

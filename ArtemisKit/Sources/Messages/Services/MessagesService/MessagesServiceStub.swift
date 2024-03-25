@@ -39,6 +39,12 @@ struct MessagesServiceStub {
         return author
     }()
 
+    static let charlie: ConversationUser = {
+        var author = ConversationUser(id: 3)
+        author.name = "Charlie"
+        return author
+    }()
+
     static let message: Message = {
         var message = Message(id: 1)
         message.author = alice
@@ -103,7 +109,7 @@ extension MessagesServiceStub: MessagesService {
         .loading
     }
 
-    func getMessages(for courseId: Int, and conversationId: Int64, size: Int) async -> DataState<[Message]> {
+    func getMessages(for courseId: Int, and conversationId: Int64, page: Int) async -> DataState<[Message]> {
         .done(response: messages)
     }
 

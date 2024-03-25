@@ -6,22 +6,60 @@ import Navigation
 import DesignLibrary
 
 struct ExerciseListView: View {
-
     @ObservedObject var viewModel: CourseViewModel
 
     @Binding var searchText: String
 
-    private var searchResults: [Exercise] {
-        if searchText.isEmpty {
+    var body: some View {
+        ScrollViewReader { value in
+            List {
+                if searchText.isEmpty {
+                    ForEach(weeklyExercises) { weeklyExercise in
+                        ExerciseListSection(course: viewModel.course, weeklyExercise: weeklyExercise)
+                            .id(weeklyExercise.id)
+                    }
+                } else {
+                    if searchResults.isEmpty {
+                        ContentUnavailableView.search(text: searchText)
+                            .listRowSeparator(.hidden)
+                    } else {
+                        ForEach(searchResults) { exercise in
+                            ExerciseListCell(course: viewModel.course, exercise: exercise)
+                        }
+                    }
+                }
+            }
+            .listStyle(.plain)
+            .onChange(of: weeklyExercises) { _, newValue in
+                withAnimation {
+                    if let id = newValue.first(where: { $0.exercises.first?.baseExercise.dueDate ?? .tomorrow > .now })?.id {
+                        value.scrollTo(id, anchor: .top)
+                    }
+                }
+            }
+        }
+        .refreshable {
+            await viewModel.refreshCourse()
+        }
+    }
+}
+
+private extension ExerciseListView {
+    var searchResults: [Exercise] {
+        guard let exercises = viewModel.course.exercises else {
             return []
         }
-        return (viewModel.course.value?.exercises ?? []).filter { ($0.baseExercise.title ?? "").lowercased().contains(searchText.lowercased()) }
+        return exercises.filter { exercise in
+            let range = exercise.baseExercise.title?.range(of: searchText, options: [.caseInsensitive, .diacriticInsensitive])
+            return range != nil
+        }
     }
 
-    private var weeklyExercises: [WeeklyExercise] {
-        var groupedDates = [WeeklyExerciseId: [Exercise]]()
-
-        viewModel.course.value?.exercises?.forEach { exercise in
+    var weeklyExercises: [WeeklyExercise] {
+        guard let exercises = viewModel.course.exercises else {
+            return []
+        }
+        let groupedDates = exercises.reduce(into: [WeeklyExerciseId: [Exercise]]()) { partialResult, exercise in
             var week: Int?
             var year: Int?
             if let dueDate = exercise.baseExercise.dueDate {
@@ -31,55 +69,24 @@ struct ExerciseListView: View {
 
             let weeklyExerciseId = WeeklyExerciseId(week: week, year: year)
 
-            if groupedDates[weeklyExerciseId] == nil {
-                groupedDates[weeklyExerciseId] = [exercise]
+            if partialResult[weeklyExerciseId] == nil {
+                partialResult[weeklyExerciseId] = [exercise]
             } else {
-                groupedDates[weeklyExerciseId]?.append(exercise)
+                partialResult[weeklyExerciseId]?.append(exercise)
             }
         }
-
-        return groupedDates.map { week in
-            WeeklyExercise(id: week.key, exercises: week.value.sorted(by: { $0.baseExercise.title?.lowercased() ?? "" < $1.baseExercise.title?.lowercased() ?? "" }))
-        }.sorted(by: { $0.id.startOfWeek ?? .distantFuture < $1.id.startOfWeek ?? .distantFuture })
-    }
-
-    var body: some View {
-        ScrollViewReader { value in
-            List {
-                if searchText.isEmpty {
-                    ForEach(weeklyExercises) { weeklyExercise in
-                        if let course = viewModel.course.value {
-                            ExerciseListSection(course: course, weeklyExercise: weeklyExercise)
-                                .id(weeklyExercise.id)
-                        }
-                    }
-                } else {
-                    if searchResults.isEmpty {
-                        Text("There is no result for your search.")
-                            .padding(.l)
-                            .listRowSeparator(.hidden)
-                    } else {
-                        ForEach(searchResults) { exercise in
-                            if let course = viewModel.course.value {
-                                ExerciseListCell(course: course, exercise: exercise)
-                            }
-                        }
-                    }
-                }
+        let weeklyExercises = groupedDates.map { week in
+            let exercises = week.value.sorted {
+                let lhs = $0.baseExercise.title?.lowercased() ?? ""
+                let rhs = $1.baseExercise.title?.lowercased() ?? ""
+                return lhs.compare(rhs) == .orderedAscending
             }
-                .listStyle(PlainListStyle())
-                .onChange(of: weeklyExercises) { _, newValue in
-                    withAnimation {
-                        if let id = newValue.first(where: { $0.exercises.first?.baseExercise.dueDate ?? .tomorrow > .now })?.id {
-                            value.scrollTo(id, anchor: .top)
-                        }
-                    }
-                }
+            return WeeklyExercise(id: week.key, exercises: exercises)
         }
-        .refreshable {
-            if let courseId = viewModel.course.value?.id {
-                await viewModel.loadCourse(id: courseId)
-            }
+        return weeklyExercises.sorted {
+            let lhs = $0.id.startOfWeek ?? .distantFuture
+            let rhs = $1.id.startOfWeek ?? .distantFuture
+            return lhs.compare(rhs) == .orderedAscending
         }
     }
 }
@@ -103,21 +110,23 @@ struct ExerciseListSection: View {
     }
 
     var body: some View {
-        DisclosureGroup("\(weeklyExercise.id.description) (Exercises: \(weeklyExercise.exercises.count))",
-                        isExpanded: $isExpanded) {
+        DisclosureGroup(
+            "\(weeklyExercise.id.description) (Exercises: \(weeklyExercise.exercises.count))",
+            isExpanded: $isExpanded
+        ) {
             LazyVStack(spacing: .m) {
                 ForEach(weeklyExercise.exercises) { exercise in
                     ExerciseListCell(course: course, exercise: exercise)
                 }
-            }.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: .l))
+            }
+            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: .l))
         }
-            .listRowSeparator(.hidden)
-            .listRowInsets(EdgeInsets(top: .m, leading: .l, bottom: .m, trailing: .l))
+        .listRowSeparator(.hidden)
+        .listRowInsets(EdgeInsets(top: .m, leading: .l, bottom: .m, trailing: .l))
     }
 }
 
 struct ExerciseListCell: View {
-
     @EnvironmentObject var navigationController: NavigationController
 
     let course: Course
@@ -150,8 +159,9 @@ struct ExerciseListCell: View {
                 LazyHGrid(rows: rows, spacing: .s) {
                     if let releaseDate = exercise.baseExercise.releaseDate,
                        releaseDate > .now {
-                        Chip(text: R.string.localizable.notReleased(),
-                             backgroundColor: Color.Artemis.badgeWarningColor)
+                        Chip(
+                            text: R.string.localizable.notReleased(),
+                            backgroundColor: Color.Artemis.badgeWarningColor)
                     }
                     ForEach(exercise.baseExercise.categories ?? [], id: \.category) { category in
                         Chip(text: category.category, backgroundColor: UIColor(hexString: category.colorCode).suColor)
@@ -160,18 +170,20 @@ struct ExerciseListCell: View {
                     if let difficulty = exercise.baseExercise.difficulty {
                         Chip(text: difficulty.description, backgroundColor: difficulty.color)
                     }
-                    if exercise.baseExercise.includedInOverallScore != .includedCompletly {
-                        Chip(text: exercise.baseExercise.includedInOverallScore.description, backgroundColor: exercise.baseExercise.includedInOverallScore.color)
+                    if exercise.baseExercise.includedInOverallScore != .includedCompletely {
+                        Chip(
+                            text: exercise.baseExercise.includedInOverallScore.description,
+                            backgroundColor: exercise.baseExercise.includedInOverallScore.color)
                     }
                 }
             }
         }
-            .frame(maxWidth: .infinity)
-            .padding(.l)
-            .artemisStyleCard()
-            .onTapGesture {
-                navigationController.path.append(ExercisePath(exercise: exercise, coursePath: CoursePath(course: course)))
-            }
+        .frame(maxWidth: .infinity)
+        .padding(.l)
+        .artemisStyleCard()
+        .onTapGesture {
+            navigationController.path.append(ExercisePath(exercise: exercise, coursePath: CoursePath(course: course)))
+        }
     }
 }
 
@@ -180,21 +192,23 @@ private struct WeeklyExerciseId: Identifiable, Hashable {
     let year: Int?
 
     var id: String {
-        guard let week,
-              let year else {
+        guard let week, let year else {
             return "undefined"
         }
         return "\(week)/\(year)"
     }
 
     var description: String {
-        guard let startOfWeek, let endOfWeek else { return "No date associated" }
+        guard let startOfWeek, let endOfWeek else {
+            return "No date associated"
+        }
         return "\(startOfWeek.dateOnly) - \(endOfWeek.dateOnly)"
     }
 
     var startOfWeek: Date? {
-        guard let week, let year else { return nil }
-
+        guard let week, let year else {
+            return nil
+        }
         var dateComponents = DateComponents()
         dateComponents.yearForWeekOfYear = year
         dateComponents.weekOfYear = week
@@ -203,7 +217,9 @@ private struct WeeklyExerciseId: Identifiable, Hashable {
     }
 
     var endOfWeek: Date? {
-        guard let startOfWeek else { return nil }
+        guard let startOfWeek else {
+            return nil
+        }
         return Calendar.current.date(byAdding: .day, value: 6, to: startOfWeek)
     }
 }
