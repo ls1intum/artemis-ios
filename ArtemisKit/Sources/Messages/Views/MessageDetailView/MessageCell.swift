@@ -13,6 +13,40 @@ import SharedModels
 import SwiftUI
 import UserStore
 
+@MainActor final class MessageCellModel {
+    let course: Course
+
+    private let messagesService: MessagesService
+
+    init(
+        course: Course,
+        messagesService: MessagesService = MessagesServiceFactory.shared
+    ) {
+        self.course = course
+        self.messagesService = messagesService
+    }
+
+    func getOneToOneChatOrCreate(login: String) async -> Conversation? {
+        async let conversations = messagesService.getConversations(for: course.id)
+        async let chat = messagesService.createOneToOneChat(for: course.id, usernames: [login])
+
+        if let conversations = await conversations.value,
+           let conversation = conversations.first(where: { conversation in
+                guard case let .oneToOneChat(conversation) = conversation,
+                      let members = conversation.members else {
+                    return false
+                }
+                return members.map(\.login).contains(login)
+           }) {
+            return conversation
+        } else if let chat = await chat.value {
+            return Conversation.oneToOneChat(conversation: chat)
+        }
+
+        return nil
+    }
+}
+
 struct MessageCell: View {
     @Environment(\.isMessageOffline) var isMessageOffline: Bool
     @EnvironmentObject var navigationController: NavigationController
@@ -114,29 +148,16 @@ private extension MessageCell {
             let coursePath = CoursePath(course: viewModel.course)
             switch mention {
             case let .channel(id):
-                navigationController.append(ConversationPath(id: id, coursePath: coursePath))
+                navigationController.path.append(ConversationPath(id: id, coursePath: coursePath))
             case let .exercise(id):
-                navigationController.append(ExercisePath(id: id, coursePath: coursePath))
+                navigationController.path.append(ExercisePath(id: id, coursePath: coursePath))
             case let .lecture(id):
-                navigationController.append(LecturePath(id: id, coursePath: coursePath))
+                navigationController.path.append(LecturePath(id: id, coursePath: coursePath))
             case let .member(login):
                 Task {
-                    if let conversations = await MessagesServiceFactory.shared.getConversations(for: viewModel.course.id).value {
-                        if let first = conversations.first(where: { conversation in
-                            if case let .oneToOneChat(conversation) = conversation,
-                               let contains = conversation.members?.map(\.login).contains(login) {
-                                return contains
-                            } else {
-                                return false
-                            }
-                        }) {
-                            navigationController.append(ConversationPath(conversation: first, coursePath: coursePath))
-                        }
-                    } else if let result = await MessagesServiceFactory.shared.createOneToOneChat(
-                        for: viewModel.course.id, usernames: [login]
-                    ).value {
-                        navigationController.append(ConversationPath(
-                            conversation: Conversation.oneToOneChat(conversation: result), coursePath: coursePath))
+                    let viewModel = MessageCellModel(course: viewModel.course)
+                    if let conversation = await viewModel.getOneToOneChatOrCreate(login: login) {
+                        navigationController.path.append(ConversationPath(conversation: conversation, coursePath: coursePath))
                     }
                 }
             }
@@ -220,7 +241,7 @@ private extension MessageCell {
                     conversationPath: conversationPath,
                     conversationViewModel: viewModel
                 ) {
-                    navigationController.append(messagePath)
+                    navigationController.path.append(messagePath)
                 } else {
                     viewModel.presentError(userFacingError: UserFacingError(title: R.string.localizable.detailViewCantBeOpened()))
                 }
@@ -243,7 +264,7 @@ private extension MessageCell {
             conversationPath: conversationPath,
             conversationViewModel: viewModel
         ) {
-            navigationController.append(messagePath)
+            navigationController.path.append(messagePath)
         }
     }
 
