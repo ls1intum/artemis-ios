@@ -13,42 +13,6 @@ import SharedModels
 import SwiftUI
 import UserStore
 
-@MainActor
-@Observable
-final class MessageCellModel {
-    let course: Course
-
-    private let messagesService: MessagesService
-
-    init(
-        course: Course,
-        messagesService: MessagesService = MessagesServiceFactory.shared
-    ) {
-        self.course = course
-        self.messagesService = messagesService
-    }
-
-    func getOneToOneChatOrCreate(login: String) async -> Conversation? {
-        async let conversations = messagesService.getConversations(for: course.id)
-        async let chat = messagesService.createOneToOneChat(for: course.id, usernames: [login])
-
-        if let conversations = await conversations.value,
-           let conversation = conversations.first(where: { conversation in
-                guard case let .oneToOneChat(conversation) = conversation,
-                      let members = conversation.members else {
-                    return false
-                }
-                return members.map(\.login).contains(login)
-           }) {
-            return conversation
-        } else if let chat = await chat.value {
-            return Conversation.oneToOneChat(conversation: chat)
-        }
-
-        return nil
-    }
-}
-
 struct MessageCell: View {
     @Environment(\.isMessageOffline) var isMessageOffline: Bool
     @EnvironmentObject var navigationController: NavigationController
@@ -56,6 +20,8 @@ struct MessageCell: View {
     @ObservedObject var conversationViewModel: ConversationViewModel
 
     @Binding var message: DataState<BaseMessage>
+
+    @State var viewModel: MessageCellModel
 
     @State private var isActionSheetPresented = false
     @State private var isDetectingLongPress = false
@@ -105,6 +71,27 @@ struct MessageCell: View {
             MessageActionSheet(viewModel: conversationViewModel, message: $message, conversationPath: conversationPath)
                 .presentationDetents([.height(350), .large])
         }
+    }
+}
+
+extension MessageCell {
+    init(
+        conversationViewModel: ConversationViewModel,
+        message: Binding<DataState<BaseMessage>>,
+        conversationPath: ConversationPath?,
+        isHeaderVisible: Bool,
+        retryButtonAction: (() -> Void)? = nil
+    ) {
+        self.init(
+            // isMessageOffline: <#T##Environment<Bool>#>,
+            // navigationController: <#T##EnvironmentObject<NavigationController>#>,
+            conversationViewModel: conversationViewModel,
+            message: message,
+            viewModel: MessageCellModel(course: conversationViewModel.course),
+            // user: <#T##() -> User?#>,
+            conversationPath: conversationPath,
+            isHeaderVisible: isHeaderVisible,
+            retryButtonAction: retryButtonAction)
     }
 }
 
@@ -241,11 +228,11 @@ private extension MessageCell {
                 if let messagePath = MessagePath(
                     message: self.$message,
                     conversationPath: conversationPath,
-                    conversationViewModel: viewModel
+                    conversationViewModel: conversationViewModel
                 ) {
                     navigationController.path.append(messagePath)
                 } else {
-                    viewModel.presentError(userFacingError: UserFacingError(title: R.string.localizable.detailViewCantBeOpened()))
+                    conversationViewModel.presentError(userFacingError: UserFacingError(title: R.string.localizable.detailViewCantBeOpened()))
                 }
             } label: {
                 Label {
