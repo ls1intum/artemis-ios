@@ -5,7 +5,6 @@
 //  Created by Nityananda Zbil on 19.03.24.
 //
 
-import Charts
 import DesignLibrary
 import Navigation
 import SharedModels

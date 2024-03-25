@@ -99,10 +99,9 @@ extension ConversationViewModel {
         case let .done(response: response):
             // Keep existing members in new, i.e., update existing members in messages.
             messages = Set(response.map(IdentifiableMessage.init)).union(messages)
-            if response.count < MessagesServiceImpl.GetMessagesRequest.size {
+            if page > 0, response.count < MessagesServiceImpl.GetMessagesRequest.size {
                 page -= 1
             }
-            log.error(page)
             diff = 0
         case let .failure(error: error):
             presentError(userFacingError: error)
