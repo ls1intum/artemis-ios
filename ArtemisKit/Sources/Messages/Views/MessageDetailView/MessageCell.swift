@@ -23,22 +23,12 @@ struct MessageCell: View {
 
     @State var viewModel: MessageCellModel
 
-    @State private var isActionSheetPresented = false
-    @State private var isDetectingLongPress = false
-
-    var user: () -> User? = { UserSession.shared.user }
-
-    let conversationPath: ConversationPath?
-    let isHeaderVisible: Bool
-
-    var retryButtonAction: (() -> Void)?
-
     var body: some View {
         HStack(alignment: .top, spacing: .m) {
             Image(systemName: "person")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 40, height: isHeaderVisible ? 40 : 0)
+                .frame(width: 40, height: viewModel.isHeaderVisible ? 40 : 0)
                 .padding(.top, .s)
             VStack(alignment: .leading, spacing: .xs) {
                 HStack {
@@ -57,7 +47,7 @@ struct MessageCell: View {
                 .contentShape(.rect)
                 .onTapGesture(perform: onTapPresentMessage)
                 .onLongPressGesture(perform: onLongPressPresentActionSheet) { changed in
-                    isDetectingLongPress = changed
+                    viewModel.isDetectingLongPress = changed
                 }
 
                 ReactionsView(viewModel: conversationViewModel, message: $message)
@@ -67,9 +57,13 @@ struct MessageCell: View {
             .id(message.value?.id.description)
         }
         .padding(.horizontal, .l)
-        .sheet(isPresented: $isActionSheetPresented) {
-            MessageActionSheet(viewModel: conversationViewModel, message: $message, conversationPath: conversationPath)
-                .presentationDetents([.height(350), .large])
+        .sheet(isPresented: $viewModel.isActionSheetPresented) {
+            MessageActionSheet(
+                viewModel: conversationViewModel,
+                message: $message,
+                conversationPath: viewModel.conversationPath
+            )
+            .presentationDetents([.height(350), .large])
         }
     }
 }
@@ -83,15 +77,14 @@ extension MessageCell {
         retryButtonAction: (() -> Void)? = nil
     ) {
         self.init(
-            // isMessageOffline: <#T##Environment<Bool>#>,
-            // navigationController: <#T##EnvironmentObject<NavigationController>#>,
             conversationViewModel: conversationViewModel,
             message: message,
-            viewModel: MessageCellModel(course: conversationViewModel.course),
-            // user: <#T##() -> User?#>,
-            conversationPath: conversationPath,
-            isHeaderVisible: isHeaderVisible,
-            retryButtonAction: retryButtonAction)
+            viewModel: MessageCellModel(
+                course: conversationViewModel.course,
+                conversationPath: conversationPath,
+                isHeaderVisible: isHeaderVisible,
+                retryButtonAction: retryButtonAction)
+        )
     }
 }
 
@@ -144,7 +137,6 @@ private extension MessageCell {
                 navigationController.path.append(LecturePath(id: id, coursePath: coursePath))
             case let .member(login):
                 Task {
-                    let viewModel = MessageCellModel(course: conversationViewModel.course)
                     if let conversation = await viewModel.getOneToOneChatOrCreate(login: login) {
                         navigationController.path.append(ConversationPath(conversation: conversation, coursePath: coursePath))
                     }
@@ -168,11 +160,11 @@ private extension MessageCell {
     }
 
     var backgroundOnPress: Color {
-        (isDetectingLongPress || isActionSheetPresented) ? Color.Artemis.messsageCellPressed : Color.clear
+        (viewModel.isDetectingLongPress || viewModel.isActionSheetPresented) ? Color.Artemis.messsageCellPressed : Color.clear
     }
 
     @ViewBuilder var headerIfVisible: some View {
-        if isHeaderVisible {
+        if viewModel.isHeaderVisible {
             HStack(alignment: .firstTextBaseline, spacing: .m) {
                 Text(isMessageOffline ? "Redacted" : author)
                     .bold()
@@ -193,22 +185,16 @@ private extension MessageCell {
                         padding: .s
                     )
                     .font(.footnote)
-                    .opacity(isChipVisible(creationDate: creationDate) ? 1 : 0)
+                    .opacity(
+                        viewModel.isChipVisible(creationDate: creationDate, authorId: message.value?.author?.id) ? 1 : 0
+                    )
                 }
             }
         }
     }
 
-    func isChipVisible(creationDate: Date) -> Bool {
-        guard let lastReadDate = conversationPath?.conversation?.baseConversation.lastReadDate else {
-            return false
-        }
-
-        return lastReadDate < creationDate && user()?.id != message.value?.author?.id
-    }
-
     @ViewBuilder var retryButtonIfAvailable: some View {
-        if let retryButtonAction {
+        if let retryButtonAction = viewModel.retryButtonAction {
             Button(action: retryButtonAction) {
                 Label {
                     Text("Failed to send")
@@ -223,7 +209,7 @@ private extension MessageCell {
     @ViewBuilder var replyButtonIfAvailable: some View {
         if let message = message.value as? Message,
            let answerCount = message.answers?.count, answerCount > 0,
-           let conversationPath {
+           let conversationPath = viewModel.conversationPath {
             Button {
                 if let messagePath = MessagePath(
                     message: self.$message,
@@ -248,7 +234,7 @@ private extension MessageCell {
 
     func onTapPresentMessage() {
         // Tap is disabled, if conversation path is nil, e.g., in the message detail view.
-        if let conversationPath, let messagePath = MessagePath(
+        if let conversationPath = viewModel.conversationPath, let messagePath = MessagePath(
             message: $message,
             conversationPath: conversationPath,
             conversationViewModel: conversationViewModel
@@ -264,8 +250,8 @@ private extension MessageCell {
 
         let feedback = UIImpactFeedbackGenerator(style: .heavy)
         feedback.impactOccurred()
-        isActionSheetPresented = true
-        isDetectingLongPress = false
+        viewModel.isActionSheetPresented = true
+        viewModel.isDetectingLongPress = false
     }
 }
 
