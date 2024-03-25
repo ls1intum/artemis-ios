@@ -120,8 +120,27 @@ private extension MessageCell {
             case let .lecture(id):
                 navigationController.append(LecturePath(id: id, coursePath: coursePath))
             case let .member(login):
-                break
+                Task {
+                    if let conversations = await MessagesServiceFactory.shared.getConversations(for: viewModel.course.id).value {
+                        if let first = conversations.first(where: { conversation in
+                            if case let .oneToOneChat(conversation) = conversation,
+                               let contains = conversation.members?.map(\.login).contains(login) {
+                                return contains
+                            } else {
+                                return false
+                            }
+                        }) {
+                            navigationController.append(ConversationPath(conversation: first, coursePath: coursePath))
+                        }
+                    } else if let result = await MessagesServiceFactory.shared.createOneToOneChat(
+                        for: viewModel.course.id, usernames: [login]
+                    ).value {
+                        navigationController.append(ConversationPath(
+                            conversation: Conversation.oneToOneChat(conversation: result), coursePath: coursePath))
+                    }
+                }
             }
+            return .handled
         }
         return .systemAction
     }
