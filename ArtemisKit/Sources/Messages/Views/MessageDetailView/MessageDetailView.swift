@@ -67,7 +67,7 @@ struct MessageDetailView: View {
 private extension MessageDetailView {
     func top(message: BaseMessage) -> some View {
         MessageCell(
-            viewModel: viewModel,
+            conversationViewModel: viewModel,
             message: Binding.constant(DataState<BaseMessage>.done(response: message)),
             conversationPath: nil,
             isHeaderVisible: true
@@ -165,7 +165,7 @@ private struct MessageCellWrapper: View {
 
     var body: some View {
         MessageCell(
-            viewModel: viewModel,
+            conversationViewModel: viewModel,
             message: answerMessageBinding,
             conversationPath: nil,
             isHeaderVisible: isHeaderVisible)

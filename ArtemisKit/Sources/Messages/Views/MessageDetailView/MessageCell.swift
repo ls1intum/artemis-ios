@@ -13,7 +13,9 @@ import SharedModels
 import SwiftUI
 import UserStore
 
-@MainActor final class MessageCellModel {
+@MainActor
+@Observable
+final class MessageCellModel {
     let course: Course
 
     private let messagesService: MessagesService
@@ -51,7 +53,7 @@ struct MessageCell: View {
     @Environment(\.isMessageOffline) var isMessageOffline: Bool
     @EnvironmentObject var navigationController: NavigationController
 
-    @ObservedObject var viewModel: ConversationViewModel
+    @ObservedObject var conversationViewModel: ConversationViewModel
 
     @Binding var message: DataState<BaseMessage>
 
@@ -92,7 +94,7 @@ struct MessageCell: View {
                     isDetectingLongPress = changed
                 }
 
-                ReactionsView(viewModel: viewModel, message: $message)
+                ReactionsView(viewModel: conversationViewModel, message: $message)
                 retryButtonIfAvailable
                 replyButtonIfAvailable
             }
@@ -100,7 +102,7 @@ struct MessageCell: View {
         }
         .padding(.horizontal, .l)
         .sheet(isPresented: $isActionSheetPresented) {
-            MessageActionSheet(viewModel: viewModel, message: $message, conversationPath: conversationPath)
+            MessageActionSheet(viewModel: conversationViewModel, message: $message, conversationPath: conversationPath)
                 .presentationDetents([.height(350), .large])
         }
     }
@@ -145,7 +147,7 @@ enum MentionScheme {
 private extension MessageCell {
     func handle(url: URL) -> OpenURLAction.Result {
         if let mention = MentionScheme(url) {
-            let coursePath = CoursePath(course: viewModel.course)
+            let coursePath = CoursePath(course: conversationViewModel.course)
             switch mention {
             case let .channel(id):
                 navigationController.path.append(ConversationPath(id: id, coursePath: coursePath))
@@ -155,7 +157,7 @@ private extension MessageCell {
                 navigationController.path.append(LecturePath(id: id, coursePath: coursePath))
             case let .member(login):
                 Task {
-                    let viewModel = MessageCellModel(course: viewModel.course)
+                    let viewModel = MessageCellModel(course: conversationViewModel.course)
                     if let conversation = await viewModel.getOneToOneChatOrCreate(login: login) {
                         navigationController.path.append(ConversationPath(conversation: conversation, coursePath: coursePath))
                     }
@@ -262,14 +264,14 @@ private extension MessageCell {
         if let conversationPath, let messagePath = MessagePath(
             message: $message,
             conversationPath: conversationPath,
-            conversationViewModel: viewModel
+            conversationViewModel: conversationViewModel
         ) {
             navigationController.path.append(messagePath)
         }
     }
 
     func onLongPressPresentActionSheet() {
-        if let channel = viewModel.conversation.baseConversation as? Channel, channel.isArchived ?? false {
+        if let channel = conversationViewModel.conversation.baseConversation as? Channel, channel.isArchived ?? false {
             return
         }
 
@@ -299,7 +301,7 @@ extension EnvironmentValues {
 
 #Preview {
     MessageCell(
-        viewModel: ConversationViewModel(
+        conversationViewModel: ConversationViewModel(
             course: MessagesServiceStub.course,
             conversation: MessagesServiceStub.conversation),
         message: Binding.constant(DataState<BaseMessage>.done(response: MessagesServiceStub.message)),
