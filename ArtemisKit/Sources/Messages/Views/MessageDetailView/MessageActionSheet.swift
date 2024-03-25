@@ -66,7 +66,7 @@ struct MessageActionSheet: View {
                             conversationViewModel: viewModel
                         ) {
                             dismiss()
-                            navigationController.append(messagePath)
+                            navigationController.path.append(messagePath)
                         } else {
                             viewModel.presentError(userFacingError: UserFacingError(title: R.string.localizable.detailViewCantBeOpened()))
                         }
@@ -130,8 +130,8 @@ private extension MessageActionSheet {
                             if success {
                                 dismiss()
                                 // if we deleted a Message and are in the MessageDetailView we pop it
-                                if navigationController.count == 3 && tempMessage is Message {
-                                    navigationController.removeLast()
+                                if navigationController.path.count == 3 && tempMessage is Message {
+                                    navigationController.path.removeLast()
                                 }
                             }
                         }

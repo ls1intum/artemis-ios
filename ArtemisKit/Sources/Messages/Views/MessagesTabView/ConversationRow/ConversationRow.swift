@@ -21,7 +21,7 @@ struct ConversationRow<T: BaseConversation>: View {
         Button {
             // should always be non-optional
             if let conversation = Conversation(conversation: conversation) {
-                navigationController.append(ConversationPath(conversation: conversation, coursePath: CoursePath(course: viewModel.course)))
+                navigationController.path.append(ConversationPath(conversation: conversation, coursePath: CoursePath(course: viewModel.course)))
             }
         } label: {
             HStack {

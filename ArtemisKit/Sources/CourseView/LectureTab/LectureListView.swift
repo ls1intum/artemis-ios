@@ -162,7 +162,7 @@ private struct LectureListCellView: View {
             cornerRadius: 2
         )
         .onTapGesture {
-            navigationController.append(LecturePath(lecture: lecture, coursePath: CoursePath(course: course)))
+            navigationController.path.append(LecturePath(lecture: lecture, coursePath: CoursePath(course: course)))
         }
     }
 }

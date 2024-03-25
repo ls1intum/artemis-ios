@@ -99,7 +99,7 @@ public struct ConversationView: View {
             await viewModel.loadMessages()
         }
         .onDisappear {
-            if navigationController.count < 2 {
+            if navigationController.path.count < 2 {
                 // only cancel task if we navigate back
                 viewModel.subscription?.cancel()
             }
