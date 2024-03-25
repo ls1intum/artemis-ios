@@ -88,65 +88,7 @@ extension MessageCell {
     }
 }
 
-enum MentionScheme {
-    case channel(Int64)
-    case exercise(Int)
-    case lecture(Int)
-    case member(String)
-
-    init?(_ url: URL) {
-        guard url.scheme == "mention" else {
-            return nil
-        }
-        switch url.host() {
-        case "channel":
-            if let id = Int64(url.lastPathComponent) {
-                self = .channel(id)
-                return
-            }
-        case "exercise":
-            if let id = Int(url.lastPathComponent) {
-                self = .exercise(id)
-                return
-            }
-        case "lecture":
-            if let id = Int(url.lastPathComponent) {
-                self = .lecture(id)
-                return
-            }
-        case "member":
-            self = .member(url.lastPathComponent)
-            return
-        default:
-            return nil
-        }
-        return nil
-    }
-}
-
 private extension MessageCell {
-    func handle(url: URL) -> OpenURLAction.Result {
-        if let mention = MentionScheme(url) {
-            let coursePath = CoursePath(course: conversationViewModel.course)
-            switch mention {
-            case let .channel(id):
-                navigationController.path.append(ConversationPath(id: id, coursePath: coursePath))
-            case let .exercise(id):
-                navigationController.path.append(ExercisePath(id: id, coursePath: coursePath))
-            case let .lecture(id):
-                navigationController.path.append(LecturePath(id: id, coursePath: coursePath))
-            case let .member(login):
-                Task {
-                    if let conversation = await viewModel.getOneToOneChatOrCreate(login: login) {
-                        navigationController.path.append(ConversationPath(conversation: conversation, coursePath: coursePath))
-                    }
-                }
-            }
-            return .handled
-        }
-        return .systemAction
-    }
-
     var author: String {
         message.value?.author?.name ?? ""
     }
@@ -252,6 +194,28 @@ private extension MessageCell {
         feedback.impactOccurred()
         viewModel.isActionSheetPresented = true
         viewModel.isDetectingLongPress = false
+    }
+
+    func handle(url: URL) -> OpenURLAction.Result {
+        if let mention = MentionScheme(url) {
+            let coursePath = CoursePath(course: conversationViewModel.course)
+            switch mention {
+            case let .channel(id):
+                navigationController.path.append(ConversationPath(id: id, coursePath: coursePath))
+            case let .exercise(id):
+                navigationController.path.append(ExercisePath(id: id, coursePath: coursePath))
+            case let .lecture(id):
+                navigationController.path.append(LecturePath(id: id, coursePath: coursePath))
+            case let .member(login):
+                Task {
+                    if let conversation = await viewModel.getOneToOneChatOrCreate(login: login) {
+                        navigationController.path.append(ConversationPath(conversation: conversation, coursePath: coursePath))
+                    }
+                }
+            }
+            return .handled
+        }
+        return .systemAction
     }
 }
 
