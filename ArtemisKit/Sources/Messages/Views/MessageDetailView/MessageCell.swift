@@ -11,7 +11,6 @@ import DesignLibrary
 import Navigation
 import SharedModels
 import SwiftUI
-import UserStore
 
 struct MessageCell: View {
     @Environment(\.isMessageOffline) var isMessageOffline: Bool
