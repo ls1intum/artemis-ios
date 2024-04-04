@@ -12,6 +12,8 @@ import SwiftUI
 
 struct SendMessageView: View {
 
+    @State var isAddContentPresented = false
+
     @State var viewModel: SendMessageViewModel
 
     @FocusState private var isFocused: Bool
@@ -60,6 +62,24 @@ struct SendMessageView: View {
             case .lecturePicker:
                 SendMessageLecturePicker(text: $viewModel.text, course: viewModel.course)
             }
+        }
+        .sheet(isPresented: $isAddContentPresented) {
+            NavigationStack {
+                List {
+                    NavigationLink {
+                        ContentUnavailableView(R.string.localizable.exercisesUnavailable(), systemImage: "magnifyingglass")
+                    } label: {
+                        Text("Exercises")
+                    }
+                    NavigationLink {
+                        ContentUnavailableView(R.string.localizable.lecturesUnavailable(), systemImage: "magnifyingglass")
+                    } label: {
+                        Text("Lectures")
+                    }
+                }
+                .listStyle(.plain)
+            }
+            .presentationDetents([.fraction(0.5), .medium])
         }
     }
 }
@@ -114,6 +134,12 @@ private extension SendMessageView {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
                     Button {
+                        isAddContentPresented.toggle()
+                    } label: {
+                        Image(systemName: "plus.circle.fill")
+                    }
+                    Divider()
+                    Button {
                         viewModel.didTapBoldButton()
                     } label: {
                         Image(systemName: "bold")
@@ -148,6 +174,7 @@ private extension SendMessageView {
                     } label: {
                         Image(systemName: "link")
                     }
+                    Divider()
                     Button {
                         viewModel.didTapAtButton()
                     } label: {
@@ -158,18 +185,18 @@ private extension SendMessageView {
                     } label: {
                         Image(systemName: "number")
                     }
-                    Button {
-                        isFocused = false
-                        viewModel.modalPresentation = .exercisePicker
-                    } label: {
-                        Text(R.string.localizable.exercise())
-                    }
-                    Button {
-                        isFocused = false
-                        viewModel.modalPresentation = .lecturePicker
-                    } label: {
-                        Text(R.string.localizable.lecture())
-                    }
+//                    Button {
+//                        isFocused = false
+//                        viewModel.modalPresentation = .exercisePicker
+//                    } label: {
+//                        Text(R.string.localizable.exercise())
+//                    }
+//                    Button {
+//                        isFocused = false
+//                        viewModel.modalPresentation = .lecturePicker
+//                    } label: {
+//                        Text(R.string.localizable.lecture())
+//                    }
                 }
             }
             Spacer()
