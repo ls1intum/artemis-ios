@@ -69,12 +69,12 @@ struct SendMessageView: View {
                     NavigationLink {
                         ContentUnavailableView(R.string.localizable.exercisesUnavailable(), systemImage: "magnifyingglass")
                     } label: {
-                        Text("Exercises")
+                        Label("Exercises", systemImage: "list.bullet.clipboard")
                     }
                     NavigationLink {
                         ContentUnavailableView(R.string.localizable.lecturesUnavailable(), systemImage: "magnifyingglass")
                     } label: {
-                        Text("Lectures")
+                        Label("Lectures", systemImage: "character.book.closed")
                     }
                 }
                 .listStyle(.plain)
