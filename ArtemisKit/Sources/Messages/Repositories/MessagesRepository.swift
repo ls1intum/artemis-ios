@@ -45,7 +45,7 @@ extension MessagesRepository {
     @discardableResult
     func insertServer(host: String) -> ServerModel {
         log.verbose("begin")
-        let server = ServerModel(host: host)
+        let server = ServerModel(host: host, lastAccessDate: .now)
         context.insert(server)
         return server
     }
