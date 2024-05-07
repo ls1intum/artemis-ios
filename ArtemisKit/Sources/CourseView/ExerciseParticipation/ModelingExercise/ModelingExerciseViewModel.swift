@@ -99,6 +99,7 @@ class ModelingExerciseViewModel: BaseViewModel {
             }
         } catch {
             log.error("Could not parse UML string: \(error)")
+            diagramTypeUnsupported = true
         }
     }
 
