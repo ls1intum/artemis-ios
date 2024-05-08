@@ -137,6 +137,16 @@ struct ExerciseListCell: View {
     ]
 
     var body: some View {
+        Button {
+            navigationController.path.append(ExercisePath(exercise: exercise, coursePath: CoursePath(course: course)))
+        } label: {
+            label
+        }
+        // Otherwise, two cells push a path value.
+        .buttonStyle(.plain)
+    }
+
+    private var label: some View {
         VStack(alignment: .leading, spacing: .m) {
             HStack(spacing: .l) {
                 exercise.image
@@ -180,11 +190,7 @@ struct ExerciseListCell: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.l)
-        .artemisStyleCard()
-        .onTapGesture {
-            navigationController.path.append(ExercisePath(exercise: exercise, coursePath: CoursePath(course: course)))
-        }
-    }
+        .artemisStyleCard()    }
 }
 
 private struct WeeklyExerciseId: Identifiable, Hashable {
