@@ -140,57 +140,54 @@ struct ExerciseListCell: View {
         Button {
             navigationController.path.append(ExercisePath(exercise: exercise, coursePath: CoursePath(course: course)))
         } label: {
-            label
-        }
-        // Otherwise, two cells push a path value.
-        .buttonStyle(.plain)
-    }
-
-    private var label: some View {
-        VStack(alignment: .leading, spacing: .m) {
-            HStack(spacing: .l) {
-                exercise.image
-                    .renderingMode(.template)
-                    .resizable()
-                    .scaledToFit()
-                    .foregroundColor(Color.Artemis.primaryLabel)
-                    .frame(width: .smallImage)
-                Text(exercise.baseExercise.title ?? "")
-                    .font(.title3)
-                Spacer()
-            }
-            if let dueDate = exercise.baseExercise.dueDate {
-                Text(R.string.localizable.dueDate(dueDate.relative ?? "?"))
-            } else {
-                Text(R.string.localizable.noDueDate())
-            }
-            SubmissionResultStatusView(exercise: exercise)
-            ScrollView(.horizontal) {
-                LazyHGrid(rows: rows, spacing: .s) {
-                    if let releaseDate = exercise.baseExercise.releaseDate,
-                       releaseDate > .now {
-                        Chip(
-                            text: R.string.localizable.notReleased(),
-                            backgroundColor: Color.Artemis.badgeWarningColor)
-                    }
-                    ForEach(exercise.baseExercise.categories ?? [], id: \.category) { category in
-                        Chip(text: category.category, backgroundColor: UIColor(hexString: category.colorCode).suColor)
-                    }
-                    // TODO: maybe add isActiveQuiz in presentationMode badge
-                    if let difficulty = exercise.baseExercise.difficulty {
-                        Chip(text: difficulty.description, backgroundColor: difficulty.color)
-                    }
-                    if exercise.baseExercise.includedInOverallScore != .includedCompletely {
-                        Chip(
-                            text: exercise.baseExercise.includedInOverallScore.description,
-                            backgroundColor: exercise.baseExercise.includedInOverallScore.color)
+            VStack(alignment: .leading, spacing: .m) {
+                HStack(spacing: .l) {
+                    exercise.image
+                        .renderingMode(.template)
+                        .resizable()
+                        .scaledToFit()
+                        .foregroundColor(Color.Artemis.primaryLabel)
+                        .frame(width: .smallImage)
+                    Text(exercise.baseExercise.title ?? "")
+                        .font(.title3)
+                    Spacer()
+                }
+                if let dueDate = exercise.baseExercise.dueDate {
+                    Text(R.string.localizable.dueDate(dueDate.relative ?? "?"))
+                } else {
+                    Text(R.string.localizable.noDueDate())
+                }
+                SubmissionResultStatusView(exercise: exercise)
+                ScrollView(.horizontal) {
+                    LazyHGrid(rows: rows, spacing: .s) {
+                        if let releaseDate = exercise.baseExercise.releaseDate,
+                           releaseDate > .now {
+                            Chip(
+                                text: R.string.localizable.notReleased(),
+                                backgroundColor: Color.Artemis.badgeWarningColor)
+                        }
+                        ForEach(exercise.baseExercise.categories ?? [], id: \.category) { category in
+                            Chip(text: category.category, backgroundColor: UIColor(hexString: category.colorCode).suColor)
+                        }
+                        // TODO: maybe add isActiveQuiz in presentationMode badge
+                        if let difficulty = exercise.baseExercise.difficulty {
+                            Chip(text: difficulty.description, backgroundColor: difficulty.color)
+                        }
+                        if exercise.baseExercise.includedInOverallScore != .includedCompletely {
+                            Chip(
+                                text: exercise.baseExercise.includedInOverallScore.description,
+                                backgroundColor: exercise.baseExercise.includedInOverallScore.color)
+                        }
                     }
                 }
             }
+            .frame(maxWidth: .infinity)
+            .padding(.l)
+            .artemisStyleCard()
         }
-        .frame(maxWidth: .infinity)
-        .padding(.l)
-        .artemisStyleCard()    }
+        // Make button style explicit, otherwise, multiple cells may activate a navigation link.
+        .buttonStyle(.plain)
+    }
 }
 
 private struct WeeklyExerciseId: Identifiable, Hashable {
