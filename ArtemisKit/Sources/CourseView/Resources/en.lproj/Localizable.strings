@@ -6,6 +6,7 @@
 "exercisesTabLabel" = "Exercises";
 "lectureTabLabel" = "Lectures";
 "messagesTabLabel" = "Messages";
+"lecturesUnavailable" = "No Lectures";
 
 // MARK: SubmissionResultStatusView
 "userNotAssignedToTeam" = "You have not been assigned to a team yet.";
