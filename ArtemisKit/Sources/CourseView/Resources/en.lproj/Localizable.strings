@@ -6,6 +6,7 @@
 "exercisesTabLabel" = "Exercises";
 "lectureTabLabel" = "Lectures";
 "messagesTabLabel" = "Messages";
+"exercisesUnavailable" = "No Exercises";
 "lecturesUnavailable" = "No Lectures";
 
 // MARK: SubmissionResultStatusView
