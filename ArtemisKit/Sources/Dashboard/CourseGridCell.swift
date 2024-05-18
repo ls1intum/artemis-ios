@@ -30,7 +30,7 @@ struct CourseGridCell: View {
 
     var body: some View {
         Button {
-            navigationController.path.append(CoursePath(course: courseForDashboard.course))
+            navigationController.path.append(CoursePath(id: courseForDashboard.id))
         } label: {
             VStack(alignment: .leading, spacing: 0) {
                 header
@@ -66,7 +66,8 @@ private extension CourseGridCell {
                     .multilineTextAlignment(.leading)
                     .lineLimit(2)
                 Text(R.string.localizable.dashboardExercisesLabel(courseForDashboard.course.exercises?.count ?? 0))
-                Text(R.string.localizable.dashboardLecturesLabel(courseForDashboard.course.lectures?.count ?? 0))
+                let numberOfLectures = courseForDashboard.course.numberOfLectures ?? courseForDashboard.course.lectures?.count ?? 0
+                Text(R.string.localizable.dashboardLecturesLabel(numberOfLectures))
             }
             .foregroundStyle(.white)
             .padding(.m)
