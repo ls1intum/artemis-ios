@@ -20,6 +20,9 @@ let package = Package(
     dependencies: [
         // Starscream 4.0.6 does not build
         .package(url: "https://github.com/daltoniam/Starscream.git", exact: "4.0.4"),
+        // SwiftStomp 1.2.0 does not build
+        .package(url: "https://github.com/Romixery/SwiftStomp.git", exact: "1.1.1"),
+        //
         .package(url: "https://github.com/Kelvas09/EmojiPicker.git", from: "1.0.0"),
         .package(url: "https://github.com/ls1intum/apollon-ios-module", .upToNextMajor(from: "1.0.2")),
         .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", branch: "feature/courses/add-number-of-lectures"),

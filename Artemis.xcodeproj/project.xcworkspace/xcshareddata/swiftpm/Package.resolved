@@ -77,8 +77,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ashleymills/Reachability.swift",
       "state" : {
-        "revision" : "57da4b1270cab7c2228919eabc0e4e1bf93e48ea",
-        "version" : "5.2.2"
+        "revision" : "98e968e7b6c1318fb61df23e347bc319761e8acb",
+        "version" : "5.0.0"
       }
     },
     {
@@ -149,8 +149,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Romixery/SwiftStomp.git",
       "state" : {
-        "revision" : "2c71e62744fc37624733604958d0fa04490e67b4",
-        "version" : "1.2.0"
+        "revision" : "99dcfa7f428485b92de2359c9df9c778fd2d5599",
+        "version" : "1.1.1"
       }
     },
     {
