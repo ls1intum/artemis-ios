@@ -18,12 +18,13 @@ struct CourseGridCell: View {
     var nextExercise: Exercise? {
         // filters out every already successful (100%) exercise, only exercises left that still need work
         let exercisesWithOpenTasks = courseForDashboard.course.upcomingExercises.filter { exercise in
-            guard let participation = exercise.baseExercise.studentParticipations?.first,
-                  let submission = participation.baseParticipation.submissions?.first,
-                  let result = submission.baseSubmission.results?.first else {
-                return false
+            if let participation = exercise.baseExercise.studentParticipations?.first,
+               let submission = participation.baseParticipation.submissions?.first,
+               let result = submission.baseSubmission.results?.first,
+               let success = result?.successful {
+                return !success
             }
-            return !(result?.successful ?? false)
+            return true
         }
         return exercisesWithOpenTasks.first
     }

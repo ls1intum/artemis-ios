@@ -16,6 +16,7 @@ struct ExerciseListView: View {
                 if searchText.isEmpty {
                     if weeklyExercises.isEmpty {
                         ContentUnavailableView(R.string.localizable.exercisesUnavailable(), systemImage: "list.bullet.clipboard")
+                            .listRowSeparator(.hidden)
                     } else {
                         ForEach(weeklyExercises) { weeklyExercise in
                             ExerciseListSection(course: viewModel.course, weeklyExercise: weeklyExercise)
