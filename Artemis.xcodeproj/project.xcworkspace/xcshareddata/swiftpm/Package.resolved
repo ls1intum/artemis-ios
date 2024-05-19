@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ls1intum/apollon-ios-module",
       "state" : {
-        "revision" : "424631162a5f05bcb0278d59ffb8f9b6f9d9c6ca",
-        "version" : "1.0.8"
+        "revision" : "5e4b1223bf33b542bcef2b844f7c451ac0ed7a9e",
+        "version" : "1.0.9"
       }
     },
     {
@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ls1intum/artemis-ios-core-modules",
       "state" : {
-        "branch" : "feature/courses/add-number-of-lectures",
-        "revision" : "00a1d57279054f2cd026e8aeb7cef2d111d04d06"
+        "revision" : "9c70eae3336c21f9de1e84ae7d25134d019b4dac",
+        "version" : "11.0.0"
       }
     },
     {
@@ -111,10 +111,10 @@
     {
       "identity" : "swift-argument-parser",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-argument-parser.git",
+      "location" : "https://github.com/apple/swift-argument-parser",
       "state" : {
-        "revision" : "8f4d2753f0e4778c76d5f05ad16c74f707390531",
-        "version" : "1.2.3"
+        "revision" : "46989693916f56d1186bd59ac15124caef896560",
+        "version" : "1.3.1"
       }
     },
     {
