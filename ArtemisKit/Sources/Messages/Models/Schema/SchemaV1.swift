@@ -27,11 +27,14 @@ enum SchemaV1: VersionedSchema {
         @Attribute(.unique)
         var host: String
 
+        var lastAccessDate: Date
+
         @Relationship(deleteRule: .cascade, inverse: \Course.server)
         var courses: [Course]
 
-        init(host: String, courses: [Course] = []) {
+        init(host: String, lastAccessDate: Date, courses: [Course] = []) {
             self.host = host
+            self.lastAccessDate = lastAccessDate
             self.courses = courses
         }
     }
