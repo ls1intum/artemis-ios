@@ -19,8 +19,13 @@ struct LectureListView: View {
         ScrollViewReader { value in
             List {
                 if searchText.isEmpty {
-                    ForEach(weeklyLectures) { weeklyLecture in
-                        LectureListSectionView(course: viewModel.course, weeklyLecture: weeklyLecture)
+                    if weeklyLectures.isEmpty {
+                        ContentUnavailableView(R.string.localizable.lecturesUnavailable(), systemImage: "character.book.closed")
+                            .listRowSeparator(.hidden)
+                    } else {
+                        ForEach(weeklyLectures) { weeklyLecture in
+                            LectureListSectionView(course: viewModel.course, weeklyLecture: weeklyLecture)
+                        }
                     }
                 } else {
                     if searchResults.isEmpty {
@@ -34,6 +39,9 @@ struct LectureListView: View {
                 }
             }
             .listStyle(.plain)
+            .refreshable {
+                await viewModel.refreshCourse()
+            }
             .onChange(of: weeklyLectures) { _, newValue in
                 withAnimation {
                     let lecture = newValue.first {

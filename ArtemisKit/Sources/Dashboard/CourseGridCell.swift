@@ -18,19 +18,20 @@ struct CourseGridCell: View {
     var nextExercise: Exercise? {
         // filters out every already successful (100%) exercise, only exercises left that still need work
         let exercisesWithOpenTasks = courseForDashboard.course.upcomingExercises.filter { exercise in
-            guard let participation = exercise.baseExercise.studentParticipations?.first,
-                  let submission = participation.baseParticipation.submissions?.first,
-                  let result = submission.baseSubmission.results?.first else {
-                return false
+            if let participation = exercise.baseExercise.studentParticipations?.first,
+               let submission = participation.baseParticipation.submissions?.first,
+               let result = submission.baseSubmission.results?.first,
+               let success = result?.successful {
+                return !success
             }
-            return !(result?.successful ?? false)
+            return true
         }
         return exercisesWithOpenTasks.first
     }
 
     var body: some View {
         Button {
-            navigationController.path.append(CoursePath(course: courseForDashboard.course))
+            navigationController.path.append(CoursePath(id: courseForDashboard.id))
         } label: {
             VStack(alignment: .leading, spacing: 0) {
                 header
@@ -66,7 +67,8 @@ private extension CourseGridCell {
                     .multilineTextAlignment(.leading)
                     .lineLimit(2)
                 Text(R.string.localizable.dashboardExercisesLabel(courseForDashboard.course.exercises?.count ?? 0))
-                Text(R.string.localizable.dashboardLecturesLabel(courseForDashboard.course.lectures?.count ?? 0))
+                let numberOfLectures = courseForDashboard.course.numberOfLectures ?? courseForDashboard.course.lectures?.count ?? 0
+                Text(R.string.localizable.dashboardLecturesLabel(numberOfLectures))
             }
             .foregroundStyle(.white)
             .padding(.m)

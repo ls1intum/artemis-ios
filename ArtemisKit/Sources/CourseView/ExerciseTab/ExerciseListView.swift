@@ -14,9 +14,14 @@ struct ExerciseListView: View {
         ScrollViewReader { value in
             List {
                 if searchText.isEmpty {
-                    ForEach(weeklyExercises) { weeklyExercise in
-                        ExerciseListSection(course: viewModel.course, weeklyExercise: weeklyExercise)
-                            .id(weeklyExercise.id)
+                    if weeklyExercises.isEmpty {
+                        ContentUnavailableView(R.string.localizable.exercisesUnavailable(), systemImage: "list.bullet.clipboard")
+                            .listRowSeparator(.hidden)
+                    } else {
+                        ForEach(weeklyExercises) { weeklyExercise in
+                            ExerciseListSection(course: viewModel.course, weeklyExercise: weeklyExercise)
+                                .id(weeklyExercise.id)
+                        }
                     }
                 } else {
                     if searchResults.isEmpty {
@@ -30,6 +35,9 @@ struct ExerciseListView: View {
                 }
             }
             .listStyle(.plain)
+            .refreshable {
+                await viewModel.refreshCourse()
+            }
             .onChange(of: weeklyExercises) { _, newValue in
                 withAnimation {
                     if let id = newValue.first(where: { $0.exercises.first?.baseExercise.dueDate ?? .tomorrow > .now })?.id {
@@ -37,9 +45,6 @@ struct ExerciseListView: View {
                     }
                 }
             }
-        }
-        .refreshable {
-            await viewModel.refreshCourse()
         }
     }
 }
