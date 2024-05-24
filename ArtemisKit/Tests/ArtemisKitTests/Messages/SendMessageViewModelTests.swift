@@ -10,7 +10,6 @@ final class SendMessageViewModelTests: XCTestCase {
             conversation: Conversation(conversation: Channel(id: 1))!,
             configuration: .message,
             delegate: SendMessageViewModelDelegate(
-                loadMessages: {},
                 presentError: { _ in },
                 sendMessage: { _ in }))
     }
