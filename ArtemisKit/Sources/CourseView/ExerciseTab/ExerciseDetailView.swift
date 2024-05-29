@@ -30,6 +30,8 @@ public struct ExerciseDetailView: View {
     private let exerciseId: Int
     private let courseId: Int
 
+    @State private var webViewId = UUID()
+
     public init(course: Course, exercise: Exercise) {
         self._exercise = State(wrappedValue: .done(response: exercise))
         self._urlRequest = State(wrappedValue: URLRequest(url: URL(string: "/courses/\(course.id)/exercises/\(exercise.id)/problem-statement", relativeTo: UserSession.shared.institution?.baseURL)!))
@@ -217,9 +219,12 @@ public struct ExerciseDetailView: View {
 
                     ArtemisWebView(urlRequest: $urlRequest,
                                    contentHeight: $webViewHeight,
-                                   isLoading: $isWebViewLoading)
+                                   isLoading: $isWebViewLoading,
+                                   customJSHeightQuery: webViewContentJS)
                     .frame(height: webViewHeight)
+                    .allowsHitTesting(false)
                     .loadingIndicator(isLoading: $isWebViewLoading)
+                    .id(webViewId)
                 }
             }
             .toolbar {
@@ -258,6 +263,8 @@ public struct ExerciseDetailView: View {
         if let exercise = self.exercise.value {
             setParticipationAndResultId(from: exercise)
         }
+        // Force WebView to reload
+        webViewId = UUID()
     }
 
     private func setParticipationAndResultId(from exercise: Exercise) {
@@ -273,6 +280,17 @@ public struct ExerciseDetailView: View {
 
         urlRequest = URLRequest(url: URL(string: "/courses/\(courseId)/exercises/\(exercise.id)/problem-statement/\(participationId?.description ?? "")", relativeTo: UserSession.shared.institution?.baseURL)!)
     }
+
+    /// JavaScript to reduce visible content in WebView to just problem statement
+    private let webViewContentJS = """
+        if (document.querySelector("jhi-course-overview") != null
+            && document.querySelector("jhi-programming-exercise-instructions") != null
+            && document.querySelector("jhi-problem-statement").innerText.length > 10) {
+        document.querySelector("jhi-course-overview").innerHTML = document.querySelector("jhi-programming-exercise-instructions").innerHTML;
+        document.querySelector("#programming-exercise-instructions-content").setAttribute("style", "overflow: unset");
+        }
+        document.querySelector(".instructions__content").scrollHeight
+        """
 }
 
 private struct ExerciseDetailCell<Content: View>: View {

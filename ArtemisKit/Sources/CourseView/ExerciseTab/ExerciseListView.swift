@@ -14,9 +14,14 @@ struct ExerciseListView: View {
         ScrollViewReader { value in
             List {
                 if searchText.isEmpty {
-                    ForEach(weeklyExercises) { weeklyExercise in
-                        ExerciseListSection(course: viewModel.course, weeklyExercise: weeklyExercise)
-                            .id(weeklyExercise.id)
+                    if weeklyExercises.isEmpty {
+                        ContentUnavailableView(R.string.localizable.exercisesUnavailable(), systemImage: "list.bullet.clipboard")
+                            .listRowSeparator(.hidden)
+                    } else {
+                        ForEach(weeklyExercises) { weeklyExercise in
+                            ExerciseListSection(course: viewModel.course, weeklyExercise: weeklyExercise)
+                                .id(weeklyExercise.id)
+                        }
                     }
                 } else {
                     if searchResults.isEmpty {
@@ -30,6 +35,9 @@ struct ExerciseListView: View {
                 }
             }
             .listStyle(.plain)
+            .refreshable {
+                await viewModel.refreshCourse()
+            }
             .onChange(of: weeklyExercises) { _, newValue in
                 withAnimation {
                     if let id = newValue.first(where: { $0.exercises.first?.baseExercise.dueDate ?? .tomorrow > .now })?.id {
@@ -37,9 +45,6 @@ struct ExerciseListView: View {
                     }
                 }
             }
-        }
-        .refreshable {
-            await viewModel.refreshCourse()
         }
     }
 }
@@ -137,53 +142,56 @@ struct ExerciseListCell: View {
     ]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: .m) {
-            HStack(spacing: .l) {
-                exercise.image
-                    .renderingMode(.template)
-                    .resizable()
-                    .scaledToFit()
-                    .foregroundColor(Color.Artemis.primaryLabel)
-                    .frame(width: .smallImage)
-                Text(exercise.baseExercise.title ?? "")
-                    .font(.title3)
-                Spacer()
-            }
-            if let dueDate = exercise.baseExercise.dueDate {
-                Text(R.string.localizable.dueDate(dueDate.relative ?? "?"))
-            } else {
-                Text(R.string.localizable.noDueDate())
-            }
-            SubmissionResultStatusView(exercise: exercise)
-            ScrollView(.horizontal) {
-                LazyHGrid(rows: rows, spacing: .s) {
-                    if let releaseDate = exercise.baseExercise.releaseDate,
-                       releaseDate > .now {
-                        Chip(
-                            text: R.string.localizable.notReleased(),
-                            backgroundColor: Color.Artemis.badgeWarningColor)
-                    }
-                    ForEach(exercise.baseExercise.categories ?? [], id: \.category) { category in
-                        Chip(text: category.category, backgroundColor: UIColor(hexString: category.colorCode).suColor)
-                    }
-                    // TODO: maybe add isActiveQuiz in presentationMode badge
-                    if let difficulty = exercise.baseExercise.difficulty {
-                        Chip(text: difficulty.description, backgroundColor: difficulty.color)
-                    }
-                    if exercise.baseExercise.includedInOverallScore != .includedCompletely {
-                        Chip(
-                            text: exercise.baseExercise.includedInOverallScore.description,
-                            backgroundColor: exercise.baseExercise.includedInOverallScore.color)
+        Button {
+            navigationController.path.append(ExercisePath(exercise: exercise, coursePath: CoursePath(course: course)))
+        } label: {
+            VStack(alignment: .leading, spacing: .m) {
+                HStack(spacing: .l) {
+                    exercise.image
+                        .renderingMode(.template)
+                        .resizable()
+                        .scaledToFit()
+                        .foregroundColor(Color.Artemis.primaryLabel)
+                        .frame(width: .smallImage)
+                    Text(exercise.baseExercise.title ?? "")
+                        .font(.title3)
+                    Spacer()
+                }
+                if let dueDate = exercise.baseExercise.dueDate {
+                    Text(R.string.localizable.dueDate(dueDate.relative ?? "?"))
+                } else {
+                    Text(R.string.localizable.noDueDate())
+                }
+                SubmissionResultStatusView(exercise: exercise)
+                ScrollView(.horizontal) {
+                    LazyHGrid(rows: rows, spacing: .s) {
+                        if let releaseDate = exercise.baseExercise.releaseDate,
+                           releaseDate > .now {
+                            Chip(
+                                text: R.string.localizable.notReleased(),
+                                backgroundColor: Color.Artemis.badgeWarningColor)
+                        }
+                        ForEach(exercise.baseExercise.categories ?? [], id: \.category) { category in
+                            Chip(text: category.category, backgroundColor: UIColor(hexString: category.colorCode).suColor)
+                        }
+                        // TODO: maybe add isActiveQuiz in presentationMode badge
+                        if let difficulty = exercise.baseExercise.difficulty {
+                            Chip(text: difficulty.description, backgroundColor: difficulty.color)
+                        }
+                        if exercise.baseExercise.includedInOverallScore != .includedCompletely {
+                            Chip(
+                                text: exercise.baseExercise.includedInOverallScore.description,
+                                backgroundColor: exercise.baseExercise.includedInOverallScore.color)
+                        }
                     }
                 }
             }
+            .frame(maxWidth: .infinity)
+            .padding(.l)
+            .artemisStyleCard()
         }
-        .frame(maxWidth: .infinity)
-        .padding(.l)
-        .artemisStyleCard()
-        .onTapGesture {
-            navigationController.path.append(ExercisePath(exercise: exercise, coursePath: CoursePath(course: course)))
-        }
+        // Make button style explicit, otherwise, multiple cells may activate a navigation link.
+        .buttonStyle(.plain)
     }
 }
 
