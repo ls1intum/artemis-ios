@@ -46,7 +46,7 @@ public struct MessagesTabView: View {
                         Spacer()
                     }
                 }
-                .padding()
+                .contentMargins(.l, for: .scrollContent)
             }
         }
         .task {
