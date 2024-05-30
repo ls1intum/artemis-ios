@@ -52,38 +52,14 @@ struct SendMessageView: View {
                 }
         )
         .sheet(isPresented: $viewModel.modalPresentation) {
-            mentionContent
+            SendMessageMentionContentView(viewModel: viewModel)
+                .presentationDetents([.fraction(0.5), .medium])
         }
     }
 }
 
 @MainActor
 private extension SendMessageView {
-    var mentionContent: some View {
-        NavigationStack {
-            List {
-                let delegate = SendMessagePickerDelegate { mention in
-                    viewModel.text.append(mention)
-                    viewModel.modalPresentation.toggle()
-                }
-                NavigationLink {
-                    SendMessageExercisePicker(delegate: delegate, course: viewModel.course)
-                } label: {
-                    Label("Exercises", systemImage: "list.bullet.clipboard")
-                }
-                NavigationLink {
-                    SendMessageLecturePicker(delegate: delegate, course: viewModel.course)
-                } label: {
-                    Label("Lectures", systemImage: "character.book.closed")
-                }
-            }
-            .listStyle(.plain)
-            .navigationTitle("Mention")
-            .navigationBarTitleDisplayMode(.inline)
-        }
-        .presentationDetents([.fraction(0.5), .medium])
-    }
-
     @ViewBuilder var mentions: some View {
         if let presentation = viewModel.conditionalPresentation {
             VStack(spacing: 0) {
