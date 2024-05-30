@@ -58,4 +58,17 @@ final class SendMessageLecturePickerViewModel {
             delegate.pickerDidSelect("[lecture-unit]\(name)(\(id))[/lecture-unit]")
         }
     }
+
+    func select(lectureUnit: LectureUnit, slide: Slide) {
+        if let name = lectureUnit.baseUnit.name,
+           let slideNumber = slide.slideNumber,
+           let slideImagePath = slide.slideImagePath,
+           let url = URL(string: slideImagePath),
+           url.pathComponents.count >= 9 {
+            let path = url.pathComponents[4...7]
+            let id = path.joined(separator: "/")
+
+            delegate.pickerDidSelect("[slide]\(name) Slide \(slideNumber)(\(id))[/slide]")
+        }
+    }
 }

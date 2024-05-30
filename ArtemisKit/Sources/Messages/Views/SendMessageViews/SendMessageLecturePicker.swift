@@ -73,7 +73,7 @@ extension SendMessageLecturePicker {
                         }
                         if case let .attachment(attachment) = lectureUnit, let slides = attachment.slides {
                             ForEach(slides, id: \.id) { slide in
-                                view(slide: slide)
+                                view(lectureUnit: lectureUnit, slide: slide)
                             }
                         }
                     }
@@ -88,10 +88,10 @@ extension SendMessageLecturePicker {
     }
 
     @ViewBuilder
-    func view(slide: Slide) -> some View {
+    func view(lectureUnit: LectureUnit, slide: Slide) -> some View {
         if let slideImagePath = slide.slideImagePath, let slideNumber = slide.slideNumber {
             Button {
-                print(slideImagePath)
+                viewModel.select(lectureUnit: lectureUnit, slide: slide)
             } label: {
                 Text("Slide \(slideNumber)")
             }
