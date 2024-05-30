@@ -71,9 +71,7 @@ extension SendMessageLecturePicker {
                 Group {
                     List {
                         Button {
-                            delegate.pickerDidSelect(
-                                "Lecture unit: \(name)"
-                            )
+                            viewModel.select(lectureUnit: lectureUnit)
                         } label: {
                             Text(name)
                         }
