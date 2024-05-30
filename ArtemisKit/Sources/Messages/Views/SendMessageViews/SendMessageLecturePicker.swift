@@ -16,7 +16,7 @@ struct SendMessageLecturePicker: View {
         Group {
             if let lectures = viewModel.course.lectures, !lectures.isEmpty {
                 List(lectures) { lecture in
-                    view(lecture: lecture)
+                    rowContent(lecture: lecture)
                 }
                 .listStyle(.plain)
             } else {
@@ -26,7 +26,7 @@ struct SendMessageLecturePicker: View {
         .task {
             await viewModel.task()
         }
-        .navigationTitle("Lectures")
+        .navigationTitle(R.string.localizable.lectures())
         .navigationBarTitleDisplayMode(.inline)
     }
 }
@@ -36,9 +36,12 @@ extension SendMessageLecturePicker {
     init(course: Course, delegate: SendMessageMentionContentDelegate) {
         self.init(viewModel: SendMessageLecturePickerViewModel(course: course, delegate: delegate))
     }
+}
 
+@MainActor
+private extension SendMessageLecturePicker {
     @ViewBuilder
-    func view(lecture: Lecture) -> some View {
+    func rowContent(lecture: Lecture) -> some View {
         if let title = lecture.title {
             NavigationLink {
                 Group {
@@ -47,7 +50,7 @@ extension SendMessageLecturePicker {
                             viewModel.select(lecture: lecture)
                         }
                         ForEach(viewModel.lectureUnits, id: \.id) { lectureUnit in
-                            view(lectureUnit: lectureUnit)
+                            rowContent(lectureUnit: lectureUnit)
                         }
                     }
                     .listStyle(.plain)
@@ -61,7 +64,7 @@ extension SendMessageLecturePicker {
     }
 
     @ViewBuilder
-    func view(lectureUnit: LectureUnit) -> some View {
+    func rowContent(lectureUnit: LectureUnit) -> some View {
         if let name = lectureUnit.baseUnit.name {
             NavigationLink {
                 Group {
@@ -73,7 +76,7 @@ extension SendMessageLecturePicker {
                         }
                         if case let .attachment(attachment) = lectureUnit, let slides = attachment.slides {
                             ForEach(slides, id: \.id) { slide in
-                                view(lectureUnit: lectureUnit, slide: slide)
+                                rowContent(lectureUnit: lectureUnit, slide: slide)
                             }
                         }
                     }
@@ -88,12 +91,12 @@ extension SendMessageLecturePicker {
     }
 
     @ViewBuilder
-    func view(lectureUnit: LectureUnit, slide: Slide) -> some View {
+    func rowContent(lectureUnit: LectureUnit, slide: Slide) -> some View {
         if let slideImagePath = slide.slideImagePath, let slideNumber = slide.slideNumber {
             Button {
                 viewModel.select(lectureUnit: lectureUnit, slide: slide)
             } label: {
-                Text("Slide \(slideNumber)")
+                Text(R.string.localizable.mentionSlideNumber(slideNumber))
             }
         }
     }

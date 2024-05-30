@@ -10,7 +10,6 @@ import SharedModels
 
 protocol LectureService {
     func getLecturesWithSlides(courseId: Int) async -> DataState<[Lecture]>
-    func getLectureDetailsWithSlides(lectureId: Int) async -> DataState<Lecture>
 }
 
 enum LectureServiceFactory {

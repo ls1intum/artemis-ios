@@ -51,7 +51,7 @@ struct SendMessageView: View {
                     }
                 }
         )
-        .sheet(isPresented: $viewModel.modalPresentation) {
+        .sheet(isPresented: $viewModel.isMentionContentViewPresented) {
             SendMessageMentionContentView(viewModel: viewModel)
                 .presentationDetents([.fraction(0.5), .medium])
         }
@@ -108,7 +108,7 @@ private extension SendMessageView {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
                     Button {
-                        viewModel.modalPresentation.toggle()
+                        viewModel.isMentionContentViewPresented.toggle()
                     } label: {
                         Image(systemName: "plus.circle.fill")
                     }

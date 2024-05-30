@@ -16,20 +16,20 @@ struct SendMessageMentionContentView: View {
             List {
                 Button {
                     viewModel.didTapAtButton()
-                    viewModel.modalPresentation.toggle()
+                    viewModel.isMentionContentViewPresented.toggle()
                 } label: {
                     Label("Members", systemImage: "at")
                 }
                 Button {
                     viewModel.didTapNumberButton()
-                    viewModel.modalPresentation.toggle()
+                    viewModel.isMentionContentViewPresented.toggle()
                 } label: {
                     Label("Channels", systemImage: "number")
                 }
 
-                let delegate = SendMessageMentionContentDelegate { mention in
-                    viewModel.text.append(mention)
-                    viewModel.modalPresentation.toggle()
+                let delegate = SendMessageMentionContentDelegate { [weak viewModel] mention in
+                    viewModel?.text.append(mention)
+                    viewModel?.isMentionContentViewPresented.toggle()
                 }
                 NavigationLink {
                     SendMessageExercisePicker(delegate: delegate, course: viewModel.course)

@@ -199,8 +199,8 @@ private extension MessageCell {
         if let mention = MentionScheme(url) {
             let coursePath = CoursePath(course: conversationViewModel.course)
             switch mention {
-            case let .attachment:
-                break
+            case let .attachment(id):
+                navigationController.path.append(LecturePath(id: id, coursePath: coursePath))
             case let .channel(id):
                 navigationController.path.append(ConversationPath(id: id, coursePath: coursePath))
             case let .exercise(id):
@@ -215,7 +215,7 @@ private extension MessageCell {
                         navigationController.path.append(ConversationPath(conversation: conversation, coursePath: coursePath))
                     }
                 }
-            case let .message:
+            case let .message(id):
                 break
             case let .slide:
                 break

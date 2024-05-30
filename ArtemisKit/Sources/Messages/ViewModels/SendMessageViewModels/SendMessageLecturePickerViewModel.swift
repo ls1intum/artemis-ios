@@ -45,6 +45,7 @@ final class SendMessageLecturePickerViewModel {
             delegate.pickerDidSelect("[lecture]\(title)(/courses/\(course.id)/lectures/\(lecture.id))[/lecture]")
         }
     }
+
     func select(lectureUnit: LectureUnit) {
         if let name = lectureUnit.baseUnit.name,
            case let .attachment(attachment) = lectureUnit,

@@ -69,7 +69,7 @@ final class SendMessageViewModel {
     var isMemberPickerSuppressed = false
     var isChannelPickerSuppressed = false
 
-    var modalPresentation = false
+    var isMentionContentViewPresented = false
 
     // MARK: Life cycle
 
