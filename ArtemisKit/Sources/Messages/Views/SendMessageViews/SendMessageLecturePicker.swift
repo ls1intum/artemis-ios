@@ -10,9 +10,7 @@ import SwiftUI
 
 struct SendMessageLecturePicker: View {
 
-    @Environment(\.dismiss) var dismiss
-
-    @Binding var text: String
+    let delegate: SendMessagePickerDelegate
 
     let course: Course
 
@@ -22,8 +20,7 @@ struct SendMessageLecturePicker: View {
                 List(lectures) { lecture in
                     if let title = lecture.title {
                         Button(title) {
-                            text.append("[lecture]\(title)(/courses/\(course.id)/lectures/\(lecture.id))[/lecture]")
-                            dismiss()
+                            delegate.pickerDidSelect("[lecture]\(title)(/courses/\(course.id)/lectures/\(lecture.id))[/lecture]")
                         }
                     }
                 }

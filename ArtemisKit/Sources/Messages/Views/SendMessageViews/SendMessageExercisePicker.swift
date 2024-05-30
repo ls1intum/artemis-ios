@@ -10,9 +10,7 @@ import SwiftUI
 
 struct SendMessageExercisePicker: View {
 
-    @Environment(\.dismiss) var dismiss
-
-    @Binding var text: String
+    let delegate: SendMessagePickerDelegate
 
     let course: Course
 
@@ -22,8 +20,7 @@ struct SendMessageExercisePicker: View {
                 List(exercises) { exercise in
                     if let title = exercise.baseExercise.title {
                         Button(title) {
-                            appendMarkdown(for: exercise)
-                            dismiss()
+                            selectMention(for: exercise)
                         }
                     }
                 }
@@ -38,7 +35,7 @@ struct SendMessageExercisePicker: View {
 }
 
 private extension SendMessageExercisePicker {
-    func appendMarkdown(for exercise: Exercise) {
+    func selectMention(for exercise: Exercise) {
         let type: String?
         switch exercise {
         case .fileUpload:
@@ -59,6 +56,6 @@ private extension SendMessageExercisePicker {
             return
         }
 
-        text.append("[\(type)]\(title)(/courses/\(course.id)/exercises/\(exercise.id))[/\(type)]")
+        delegate.pickerDidSelect("[\(type)]\(title)(/courses/\(course.id)/exercises/\(exercise.id))[/\(type)]")
     }
 }

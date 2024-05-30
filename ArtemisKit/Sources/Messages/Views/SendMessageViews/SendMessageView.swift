@@ -62,13 +62,17 @@ private extension SendMessageView {
     var mentionContent: some View {
         NavigationStack {
             List {
+                let delegate = SendMessagePickerDelegate { mention in
+                    viewModel.text.append(mention)
+                    viewModel.modalPresentation.toggle()
+                }
                 NavigationLink {
-                    SendMessageExercisePicker(text: $viewModel.text, course: viewModel.course)
+                    SendMessageExercisePicker(delegate: delegate, course: viewModel.course)
                 } label: {
                     Label("Exercises", systemImage: "list.bullet.clipboard")
                 }
                 NavigationLink {
-                    SendMessageLecturePicker(text: $viewModel.text, course: viewModel.course)
+                    SendMessageLecturePicker(delegate: delegate, course: viewModel.course)
                 } label: {
                     Label("Lectures", systemImage: "character.book.closed")
                 }
