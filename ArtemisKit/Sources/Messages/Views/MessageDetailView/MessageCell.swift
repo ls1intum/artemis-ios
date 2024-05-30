@@ -199,18 +199,26 @@ private extension MessageCell {
         if let mention = MentionScheme(url) {
             let coursePath = CoursePath(course: conversationViewModel.course)
             switch mention {
+            case let .attachment:
+                break
             case let .channel(id):
                 navigationController.path.append(ConversationPath(id: id, coursePath: coursePath))
             case let .exercise(id):
                 navigationController.path.append(ExercisePath(id: id, coursePath: coursePath))
             case let .lecture(id):
                 navigationController.path.append(LecturePath(id: id, coursePath: coursePath))
+            case let .lectureUnit:
+                break
             case let .member(login):
                 Task {
                     if let conversation = await viewModel.getOneToOneChatOrCreate(login: login) {
                         navigationController.path.append(ConversationPath(conversation: conversation, coursePath: coursePath))
                     }
                 }
+            case let .message:
+                break
+            case let .slide:
+                break
             }
             return .handled
         }
