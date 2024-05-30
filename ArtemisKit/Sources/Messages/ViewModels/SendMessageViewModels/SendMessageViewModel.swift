@@ -23,15 +23,6 @@ extension SendMessageViewModel {
         case memberPicker
         case channelPicker
     }
-
-    enum ModalPresentation: Identifiable {
-        case exercisePicker
-        case lecturePicker
-
-        var id: Self {
-            self
-        }
-    }
 }
 
 @MainActor
@@ -78,7 +69,7 @@ final class SendMessageViewModel {
     var isMemberPickerSuppressed = false
     var isChannelPickerSuppressed = false
 
-    var modalPresentation: ModalPresentation?
+    var modalPresentation = false
 
     // MARK: Life cycle
 

@@ -12,8 +12,6 @@ import SwiftUI
 
 struct SendMessageView: View {
 
-    @State var isAddContentPresented = false
-
     @State var viewModel: SendMessageViewModel
 
     @FocusState private var isFocused: Bool
@@ -53,39 +51,35 @@ struct SendMessageView: View {
                     }
                 }
         )
-        .sheet(item: $viewModel.modalPresentation) {
-            isFocused = true
-        } content: { presentation in
-            switch presentation {
-            case .exercisePicker:
-                SendMessageExercisePicker(text: $viewModel.text, course: viewModel.course)
-            case .lecturePicker:
-                SendMessageLecturePicker(text: $viewModel.text, course: viewModel.course)
-            }
-        }
-        .sheet(isPresented: $isAddContentPresented) {
-            NavigationStack {
-                List {
-                    NavigationLink {
-                        ContentUnavailableView(R.string.localizable.exercisesUnavailable(), systemImage: "magnifyingglass")
-                    } label: {
-                        Label("Exercises", systemImage: "list.bullet.clipboard")
-                    }
-                    NavigationLink {
-                        ContentUnavailableView(R.string.localizable.lecturesUnavailable(), systemImage: "magnifyingglass")
-                    } label: {
-                        Label("Lectures", systemImage: "character.book.closed")
-                    }
-                }
-                .listStyle(.plain)
-            }
-            .presentationDetents([.fraction(0.5), .medium])
+        .sheet(isPresented: $viewModel.modalPresentation) {
+            mentionContent
         }
     }
 }
 
 @MainActor
 private extension SendMessageView {
+    var mentionContent: some View {
+        NavigationStack {
+            List {
+                NavigationLink {
+                    SendMessageExercisePicker(text: $viewModel.text, course: viewModel.course)
+                } label: {
+                    Label("Exercises", systemImage: "list.bullet.clipboard")
+                }
+                NavigationLink {
+                    SendMessageLecturePicker(text: $viewModel.text, course: viewModel.course)
+                } label: {
+                    Label("Lectures", systemImage: "character.book.closed")
+                }
+            }
+            .listStyle(.plain)
+            .navigationTitle("Mention")
+            .navigationBarTitleDisplayMode(.inline)
+        }
+        .presentationDetents([.fraction(0.5), .medium])
+    }
+
     @ViewBuilder var mentions: some View {
         if let presentation = viewModel.conditionalPresentation {
             VStack(spacing: 0) {
@@ -134,11 +128,10 @@ private extension SendMessageView {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
                     Button {
-                        isAddContentPresented.toggle()
+                        viewModel.modalPresentation.toggle()
                     } label: {
                         Image(systemName: "plus.circle.fill")
                     }
-                    Divider()
                     Button {
                         viewModel.didTapBoldButton()
                     } label: {
@@ -174,29 +167,6 @@ private extension SendMessageView {
                     } label: {
                         Image(systemName: "link")
                     }
-                    Divider()
-                    Button {
-                        viewModel.didTapAtButton()
-                    } label: {
-                        Image(systemName: "at")
-                    }
-                    Button {
-                        viewModel.didTapNumberButton()
-                    } label: {
-                        Image(systemName: "number")
-                    }
-//                    Button {
-//                        isFocused = false
-//                        viewModel.modalPresentation = .exercisePicker
-//                    } label: {
-//                        Text(R.string.localizable.exercise())
-//                    }
-//                    Button {
-//                        isFocused = false
-//                        viewModel.modalPresentation = .lecturePicker
-//                    } label: {
-//                        Text(R.string.localizable.lecture())
-//                    }
                 }
             }
             Spacer()

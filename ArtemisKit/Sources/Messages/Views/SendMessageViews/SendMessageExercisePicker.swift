@@ -17,18 +17,23 @@ struct SendMessageExercisePicker: View {
     let course: Course
 
     var body: some View {
-        if let exercises = course.exercises, !exercises.isEmpty {
-            List(exercises) { exercise in
-                if let title = exercise.baseExercise.title {
-                    Button(title) {
-                        appendMarkdown(for: exercise)
-                        dismiss()
+        Group {
+            if let exercises = course.exercises, !exercises.isEmpty {
+                List(exercises) { exercise in
+                    if let title = exercise.baseExercise.title {
+                        Button(title) {
+                            appendMarkdown(for: exercise)
+                            dismiss()
+                        }
                     }
                 }
+                .listStyle(.plain)
+            } else {
+                ContentUnavailableView(R.string.localizable.exercisesUnavailable(), systemImage: "magnifyingglass")
             }
-        } else {
-            ContentUnavailableView(R.string.localizable.exercisesUnavailable(), systemImage: "magnifyingglass")
         }
+        .navigationTitle("Exercises")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 

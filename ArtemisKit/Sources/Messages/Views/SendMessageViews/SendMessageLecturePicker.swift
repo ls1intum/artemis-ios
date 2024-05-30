@@ -17,17 +17,22 @@ struct SendMessageLecturePicker: View {
     let course: Course
 
     var body: some View {
-        if let lectures = course.lectures, !lectures.isEmpty {
-            List(lectures) { lecture in
-                if let title = lecture.title {
-                    Button(title) {
-                        text.append("[lecture]\(title)(/courses/\(course.id)/lectures/\(lecture.id))[/lecture]")
-                        dismiss()
+        Group {
+            if let lectures = course.lectures, !lectures.isEmpty {
+                List(lectures) { lecture in
+                    if let title = lecture.title {
+                        Button(title) {
+                            text.append("[lecture]\(title)(/courses/\(course.id)/lectures/\(lecture.id))[/lecture]")
+                            dismiss()
+                        }
                     }
                 }
+                .listStyle(.plain)
+            } else {
+                ContentUnavailableView(R.string.localizable.lecturesUnavailable(), systemImage: "magnifyingglass")
             }
-        } else {
-            ContentUnavailableView(R.string.localizable.lecturesUnavailable(), systemImage: "magnifyingglass")
         }
+        .navigationTitle("Lectures")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
