@@ -27,7 +27,7 @@ struct SendMessageMentionContentView: View {
                     Label("Channels", systemImage: "number")
                 }
 
-                let delegate = SendMessagePickerDelegate { mention in
+                let delegate = SendMessageMentionContentDelegate { mention in
                     viewModel.text.append(mention)
                     viewModel.modalPresentation.toggle()
                 }

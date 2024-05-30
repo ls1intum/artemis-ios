@@ -15,15 +15,18 @@ final class SendMessageLecturePickerViewModel {
     let course: Course
     var lectureUnits: [LectureUnit]
 
+    private let delegate: SendMessageMentionContentDelegate
     private let lectureService: LectureService
 
     init(
         course: Course,
         lectureUnits: [LectureUnit] = [],
+        delegate: SendMessageMentionContentDelegate,
         lectureService: LectureService = LectureServiceFactory.shared
     ) {
         self.course = course
         self.lectureUnits = lectureUnits
+        self.delegate = delegate
         self.lectureService = lectureService
     }
 
@@ -32,28 +35,27 @@ final class SendMessageLecturePickerViewModel {
 
         if case let .done(lectures) = lectures,
            let lecture = lectures.first,
-           let lectureUnits = lecture.lectureUnits
-//           let lectureUnit = lectureUnits.first,
-//           case let .attachment(attachment) = lectureUnit,
-//           case let .file(file) = attachment.attachment,
-//           let link = file.link
-        {
+           let lectureUnits = lecture.lectureUnits {
             self.lectureUnits = lectureUnits
         }
     }
 
+    func select(lecture: Lecture) {
+        if let title = lecture.title {
+            delegate.pickerDidSelect("[lecture]\(title)(/courses/\(course.id)/lectures/\(lecture.id))[/lecture]")
+        }
+    }
     func select(lectureUnit: LectureUnit) {
         if let name = lectureUnit.baseUnit.name,
            case let .attachment(attachment) = lectureUnit,
            case let .file(file) = attachment.attachment,
            let link = file.link,
            let url = URL(string: link),
-           url.pathComponents.count >= 7
-        {
+           url.pathComponents.count >= 7 {
             let path = url.pathComponents[4...]
             let id = path.joined(separator: "/")
 
-            print("[lecture-unit]\(name)(\(id))[/lecture-unit]")
+            delegate.pickerDidSelect("[lecture-unit]\(name)(\(id))[/lecture-unit]")
         }
     }
 }

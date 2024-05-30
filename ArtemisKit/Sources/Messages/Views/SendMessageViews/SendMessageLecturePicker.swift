@@ -12,8 +12,6 @@ struct SendMessageLecturePicker: View {
 
     @State var viewModel: SendMessageLecturePickerViewModel
 
-    let delegate: SendMessagePickerDelegate
-
     var body: some View {
         Group {
             if let lectures = viewModel.course.lectures, !lectures.isEmpty {
@@ -35,8 +33,8 @@ struct SendMessageLecturePicker: View {
 
 @MainActor
 extension SendMessageLecturePicker {
-    init(course: Course, delegate: SendMessagePickerDelegate) {
-        self.init(viewModel: SendMessageLecturePickerViewModel(course: course), delegate: delegate)
+    init(course: Course, delegate: SendMessageMentionContentDelegate) {
+        self.init(viewModel: SendMessageLecturePickerViewModel(course: course, delegate: delegate))
     }
 
     @ViewBuilder
@@ -46,9 +44,7 @@ extension SendMessageLecturePicker {
                 Group {
                     List {
                         Button(title) {
-                            delegate.pickerDidSelect(
-                                "[lecture]\(title)(/courses/\(viewModel.course.id)/lectures/\(lecture.id))[/lecture]"
-                            )
+                            viewModel.select(lecture: lecture)
                         }
                         ForEach(viewModel.lectureUnits, id: \.id) { lectureUnit in
                             view(lectureUnit: lectureUnit)

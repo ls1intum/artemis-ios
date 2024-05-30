@@ -10,7 +10,7 @@ import SwiftUI
 
 struct SendMessageExercisePicker: View {
 
-    let delegate: SendMessagePickerDelegate
+    let delegate: SendMessageMentionContentDelegate
 
     let course: Course
 
