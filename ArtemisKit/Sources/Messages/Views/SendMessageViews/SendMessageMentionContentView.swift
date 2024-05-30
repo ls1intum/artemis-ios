@@ -37,7 +37,7 @@ struct SendMessageMentionContentView: View {
                     Label("Exercises", systemImage: "list.bullet.clipboard")
                 }
                 NavigationLink {
-                    SendMessageLecturePicker(delegate: delegate, course: viewModel.course)
+                    SendMessageLecturePicker(course: viewModel.course, delegate: delegate)
                 } label: {
                     Label("Lectures", systemImage: "character.book.closed")
                 }
