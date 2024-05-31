@@ -13,6 +13,7 @@
 "lecturesUnavailable" = "No Lectures";
 "membersUnavailable" = "No Members";
 "messageAction" = "Message %@";
+"mentionSlideNumber" = "Slide %i";
 
 // MARK: ReactionsView
 "emojis" = "Emojis";
