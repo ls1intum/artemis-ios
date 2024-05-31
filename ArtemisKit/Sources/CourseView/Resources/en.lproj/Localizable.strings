@@ -94,5 +94,5 @@
 "date" = "Date";
 "noDateAssociated" = "No date associated";
 "lectureUnits" = "Lecture Units";
-"lecturesGroupTitle" = "%s (Exercises: %i)";
+"lecturesGroupTitle" = "%s (Lectures: %i)";
 "attachments" = "Attachments";
