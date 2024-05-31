@@ -348,6 +348,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.1.0;
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = de.tum.cit.artemis;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -374,6 +375,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.1.0;
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = de.tum.cit.artemis;
 				PRODUCT_NAME = "$(TARGET_NAME)";
