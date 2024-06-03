@@ -179,5 +179,6 @@ extension MessagesService {
 }
 
 enum MessagesServiceFactory {
-    static let shared: MessagesService = MessagesServiceImpl()
+    // TODO: Invert Order
+    static let shared: MessagesService = !CommandLine.arguments.contains("-Screenshots") ? MessagesServiceStub() : MessagesServiceImpl()
 }
