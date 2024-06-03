@@ -31,6 +31,5 @@ protocol CodeOfConductService {
 }
 
 enum CodeOfConductServiceFactory {
-    // TODO: Invert order
-    static let shared: CodeOfConductService = !CommandLine.arguments.contains("-Screenshots") ? CodeOfConductServiceStub() : CodeOfConductServiceImpl()
+    static let shared: CodeOfConductService = CommandLine.arguments.contains("-Screenshots") ? CodeOfConductServiceStub() : CodeOfConductServiceImpl()
 }
