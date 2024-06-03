@@ -94,7 +94,7 @@ struct MessagesServiceStub {
 
 extension MessagesServiceStub: MessagesService {
     func getConversations(for courseId: Int) async -> DataState<[Conversation]> {
-        .loading
+        .done(response: [.channel(conversation: .mock)])
     }
 
     func updateIsConversationFavorite(for courseId: Int, and conversationId: Int64, isFavorite: Bool) async -> NetworkResponse {
