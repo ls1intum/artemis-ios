@@ -10,13 +10,28 @@
 		058557BB273AAA24004C7B11 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 058557BA273AAA24004C7B11 /* Assets.xcassets */; };
 		058557D9273AAEEB004C7B11 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 058557D8273AAEEB004C7B11 /* Preview Assets.xcassets */; };
 		2152FB042600AC8F00CF470E /* ArtemisApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2152FB032600AC8F00CF470E /* ArtemisApp.swift */; };
+		51F1B2252C0CC26800F14D01 /* ArtemisUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51F1B2242C0CC26800F14D01 /* ArtemisUITests.swift */; };
+		51F1B22C2C0CC2D700F14D01 /* SnapshotHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51F1B22B2C0CC2D700F14D01 /* SnapshotHelper.swift */; };
 		A166A2592B0381F000AB6119 /* ArtemisKit in Frameworks */ = {isa = PBXBuildFile; productRef = A166A2582B0381F000AB6119 /* ArtemisKit */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		51F1B2262C0CC26800F14D01 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7555FF73242A565900829871 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7555FF7A242A565900829871;
+			remoteInfo = Artemis;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		058557BA273AAA24004C7B11 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		058557D8273AAEEB004C7B11 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		2152FB032600AC8F00CF470E /* ArtemisApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtemisApp.swift; sourceTree = "<group>"; };
+		51F1B2202C0CC26800F14D01 /* ArtemisUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ArtemisUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		51F1B2242C0CC26800F14D01 /* ArtemisUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtemisUITests.swift; sourceTree = "<group>"; };
+		51F1B22B2C0CC2D700F14D01 /* SnapshotHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapshotHelper.swift; sourceTree = "<group>"; };
 		7555FF7B242A565900829871 /* Artemis.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Artemis.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A166A2622B03893900AB6119 /* Gemfile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Gemfile; sourceTree = SOURCE_ROOT; };
 		A166A2632B03893900AB6119 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
@@ -39,6 +54,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		51F1B21D2C0CC26800F14D01 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -57,12 +79,22 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		51F1B2212C0CC26800F14D01 /* ArtemisUITests */ = {
+			isa = PBXGroup;
+			children = (
+				51F1B2242C0CC26800F14D01 /* ArtemisUITests.swift */,
+				51F1B22B2C0CC2D700F14D01 /* SnapshotHelper.swift */,
+			);
+			path = ArtemisUITests;
+			sourceTree = "<group>";
+		};
 		7555FF72242A565900829871 = {
 			isa = PBXGroup;
 			children = (
 				D51AD00C299E390700FA5B94 /* Artemis.entitlements */,
 				A1C7E0A92B03754200804542 /* ArtemisKit */,
 				7555FF7D242A565900829871 /* Artemis */,
+				51F1B2212C0CC26800F14D01 /* ArtemisUITests */,
 				7555FF7C242A565900829871 /* Products */,
 				22B6A91C292D785600F08C7E /* Frameworks */,
 			);
@@ -72,6 +104,7 @@
 			isa = PBXGroup;
 			children = (
 				7555FF7B242A565900829871 /* Artemis.app */,
+				51F1B2202C0CC26800F14D01 /* ArtemisUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -105,6 +138,26 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		51F1B21F2C0CC26800F14D01 /* ArtemisUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 51F1B22A2C0CC26800F14D01 /* Build configuration list for PBXNativeTarget "ArtemisUITests" */;
+			buildPhases = (
+				51F1B21C2C0CC26800F14D01 /* Sources */,
+				51F1B21D2C0CC26800F14D01 /* Frameworks */,
+				51F1B21E2C0CC26800F14D01 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				51F1B2272C0CC26800F14D01 /* PBXTargetDependency */,
+			);
+			name = ArtemisUITests;
+			packageProductDependencies = (
+			);
+			productName = ArtemisUITests;
+			productReference = 51F1B2202C0CC26800F14D01 /* ArtemisUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		7555FF7A242A565900829871 /* Artemis */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 7555FFA5242A565B00829871 /* Build configuration list for PBXNativeTarget "Artemis" */;
@@ -133,10 +186,14 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastSwiftUpdateCheck = 1130;
+				LastSwiftUpdateCheck = 1520;
 				LastUpgradeCheck = 1500;
 				ORGANIZATIONNAME = orgName;
 				TargetAttributes = {
+					51F1B21F2C0CC26800F14D01 = {
+						CreatedOnToolsVersion = 15.2;
+						TestTargetID = 7555FF7A242A565900829871;
+					};
 					7555FF7A242A565900829871 = {
 						CreatedOnToolsVersion = 11.3.1;
 					};
@@ -158,11 +215,19 @@
 			projectRoot = "";
 			targets = (
 				7555FF7A242A565900829871 /* Artemis */,
+				51F1B21F2C0CC26800F14D01 /* ArtemisUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		51F1B21E2C0CC26800F14D01 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		7555FF79242A565900829871 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -195,6 +260,15 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		51F1B21C2C0CC26800F14D01 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				51F1B2252C0CC26800F14D01 /* ArtemisUITests.swift in Sources */,
+				51F1B22C2C0CC2D700F14D01 /* SnapshotHelper.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		7555FF77242A565900829871 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -205,7 +279,59 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		51F1B2272C0CC26800F14D01 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7555FF7A242A565900829871 /* Artemis */;
+			targetProxy = 51F1B2262C0CC26800F14D01 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		51F1B2282C0CC26800F14D01 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = de.tum.cit.artemis.ArtemisUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Artemis;
+			};
+			name = Debug;
+		};
+		51F1B2292C0CC26800F14D01 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = de.tum.cit.artemis.ArtemisUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Artemis;
+			};
+			name = Release;
+		};
 		7555FFA3242A565B00829871 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -385,6 +511,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		51F1B22A2C0CC26800F14D01 /* Build configuration list for PBXNativeTarget "ArtemisUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				51F1B2282C0CC26800F14D01 /* Debug */,
+				51F1B2292C0CC26800F14D01 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		7555FF76242A565900829871 /* Build configuration list for PBXProject "Artemis" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
