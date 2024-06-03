@@ -18,13 +18,13 @@ struct SendMessageMentionContentView: View {
                     viewModel.didTapAtButton()
                     viewModel.isMentionContentViewPresented.toggle()
                 } label: {
-                    Label("Members", systemImage: "at")
+                    Label(R.string.localizable.members(), systemImage: "at")
                 }
                 Button {
                     viewModel.didTapNumberButton()
                     viewModel.isMentionContentViewPresented.toggle()
                 } label: {
-                    Label("Channels", systemImage: "number")
+                    Label(R.string.localizable.channels(), systemImage: "number")
                 }
 
                 let delegate = SendMessageMentionContentDelegate { [weak viewModel] mention in
@@ -34,16 +34,16 @@ struct SendMessageMentionContentView: View {
                 NavigationLink {
                     SendMessageExercisePicker(delegate: delegate, course: viewModel.course)
                 } label: {
-                    Label("Exercises", systemImage: "list.bullet.clipboard")
+                    Label(R.string.localizable.exercises(), systemImage: "list.bullet.clipboard")
                 }
                 NavigationLink {
                     SendMessageLecturePicker(course: viewModel.course, delegate: delegate)
                 } label: {
-                    Label("Lectures", systemImage: "character.book.closed")
+                    Label(R.string.localizable.lectures(), systemImage: "character.book.closed")
                 }
             }
             .listStyle(.plain)
-            .navigationTitle("Mention")
+            .navigationTitle(R.string.localizable.mention())
             .navigationBarTitleDisplayMode(.inline)
         }
     }

@@ -15,6 +15,10 @@
 "messageAction" = "Message %@";
 "mentionSlideNumber" = "Slide %i";
 
+// MARK: SendMessageMentionContentView
+"members" = "Members";
+"mention" = "Mention";
+
 // MARK: ReactionsView
 "emojis" = "Emojis";
 
