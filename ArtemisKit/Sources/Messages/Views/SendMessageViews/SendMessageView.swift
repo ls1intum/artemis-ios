@@ -51,15 +51,9 @@ struct SendMessageView: View {
                     }
                 }
         )
-        .sheet(item: $viewModel.modalPresentation) {
-            isFocused = true
-        } content: { presentation in
-            switch presentation {
-            case .exercisePicker:
-                SendMessageExercisePicker(text: $viewModel.text, course: viewModel.course)
-            case .lecturePicker:
-                SendMessageLecturePicker(text: $viewModel.text, course: viewModel.course)
-            }
+        .sheet(isPresented: $viewModel.isMentionContentViewPresented) {
+            SendMessageMentionContentView(viewModel: viewModel)
+                .presentationDetents([.fraction(0.5), .medium])
         }
     }
 }
@@ -114,6 +108,11 @@ private extension SendMessageView {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
                     Button {
+                        viewModel.isMentionContentViewPresented.toggle()
+                    } label: {
+                        Image(systemName: "plus.circle.fill")
+                    }
+                    Button {
                         viewModel.didTapBoldButton()
                     } label: {
                         Image(systemName: "bold")
@@ -147,28 +146,6 @@ private extension SendMessageView {
                         viewModel.didTapLinkButton()
                     } label: {
                         Image(systemName: "link")
-                    }
-                    Button {
-                        viewModel.didTapAtButton()
-                    } label: {
-                        Image(systemName: "at")
-                    }
-                    Button {
-                        viewModel.didTapNumberButton()
-                    } label: {
-                        Image(systemName: "number")
-                    }
-                    Button {
-                        isFocused = false
-                        viewModel.modalPresentation = .exercisePicker
-                    } label: {
-                        Text(R.string.localizable.exercise())
-                    }
-                    Button {
-                        isFocused = false
-                        viewModel.modalPresentation = .lecturePicker
-                    } label: {
-                        Text(R.string.localizable.lecture())
                     }
                 }
             }

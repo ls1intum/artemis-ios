@@ -10,30 +10,32 @@ import SwiftUI
 
 struct SendMessageExercisePicker: View {
 
-    @Environment(\.dismiss) var dismiss
-
-    @Binding var text: String
+    let delegate: SendMessageMentionContentDelegate
 
     let course: Course
 
     var body: some View {
-        if let exercises = course.exercises, !exercises.isEmpty {
-            List(exercises) { exercise in
-                if let title = exercise.baseExercise.title {
-                    Button(title) {
-                        appendMarkdown(for: exercise)
-                        dismiss()
+        Group {
+            if let exercises = course.exercises, !exercises.isEmpty {
+                List(exercises) { exercise in
+                    if let title = exercise.baseExercise.title {
+                        Button(title) {
+                            selectMention(for: exercise)
+                        }
                     }
                 }
+                .listStyle(.plain)
+            } else {
+                ContentUnavailableView(R.string.localizable.exercisesUnavailable(), systemImage: "magnifyingglass")
             }
-        } else {
-            ContentUnavailableView(R.string.localizable.exercisesUnavailable(), systemImage: "magnifyingglass")
         }
+        .navigationTitle("Exercises")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
 private extension SendMessageExercisePicker {
-    func appendMarkdown(for exercise: Exercise) {
+    func selectMention(for exercise: Exercise) {
         let type: String?
         switch exercise {
         case .fileUpload:
@@ -54,6 +56,6 @@ private extension SendMessageExercisePicker {
             return
         }
 
-        text.append("[\(type)]\(title)(/courses/\(course.id)/exercises/\(exercise.id))[/\(type)]")
+        delegate.pickerDidSelect("[\(type)]\(title)(/courses/\(course.id)/exercises/\(exercise.id))[/\(type)]")
     }
 }
