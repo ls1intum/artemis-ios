@@ -11,32 +11,23 @@ import DesignLibrary
 import Navigation
 import SharedModels
 import SwiftUI
-import UserStore
 
 struct MessageCell: View {
     @Environment(\.isMessageOffline) var isMessageOffline: Bool
     @EnvironmentObject var navigationController: NavigationController
 
-    @ObservedObject var viewModel: ConversationViewModel
+    @ObservedObject var conversationViewModel: ConversationViewModel
 
     @Binding var message: DataState<BaseMessage>
 
-    @State private var isActionSheetPresented = false
-    @State private var isDetectingLongPress = false
-
-    var user: () -> User? = { UserSession.shared.user }
-
-    let conversationPath: ConversationPath?
-    let isHeaderVisible: Bool
-
-    var retryButtonAction: (() -> Void)?
+    @State var viewModel: MessageCellModel
 
     var body: some View {
         HStack(alignment: .top, spacing: .m) {
             Image(systemName: "person")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 40, height: isHeaderVisible ? 40 : 0)
+                .frame(width: 40, height: viewModel.isHeaderVisible ? 40 : 0)
                 .padding(.top, .s)
             VStack(alignment: .leading, spacing: .xs) {
                 HStack {
@@ -44,6 +35,7 @@ struct MessageCell: View {
                         headerIfVisible
                         ArtemisMarkdownView(string: content)
                             .opacity(isMessageOffline ? 0.5 : 1)
+                            .environment(\.openURL, OpenURLAction(handler: handle))
                     }
                     Spacer()
                 }
@@ -54,20 +46,44 @@ struct MessageCell: View {
                 .contentShape(.rect)
                 .onTapGesture(perform: onTapPresentMessage)
                 .onLongPressGesture(perform: onLongPressPresentActionSheet) { changed in
-                    isDetectingLongPress = changed
+                    viewModel.isDetectingLongPress = changed
                 }
 
-                ReactionsView(viewModel: viewModel, message: $message)
+                ReactionsView(viewModel: conversationViewModel, message: $message)
                 retryButtonIfAvailable
                 replyButtonIfAvailable
             }
             .id(message.value?.id.description)
         }
         .padding(.horizontal, .l)
-        .sheet(isPresented: $isActionSheetPresented) {
-            MessageActionSheet(viewModel: viewModel, message: $message, conversationPath: conversationPath)
-                .presentationDetents([.height(350), .large])
+        .sheet(isPresented: $viewModel.isActionSheetPresented) {
+            MessageActionSheet(
+                viewModel: conversationViewModel,
+                message: $message,
+                conversationPath: viewModel.conversationPath
+            )
+            .presentationDetents([.height(350), .large])
         }
+    }
+}
+
+extension MessageCell {
+    init(
+        conversationViewModel: ConversationViewModel,
+        message: Binding<DataState<BaseMessage>>,
+        conversationPath: ConversationPath?,
+        isHeaderVisible: Bool,
+        retryButtonAction: (() -> Void)? = nil
+    ) {
+        self.init(
+            conversationViewModel: conversationViewModel,
+            message: message,
+            viewModel: MessageCellModel(
+                course: conversationViewModel.course,
+                conversationPath: conversationPath,
+                isHeaderVisible: isHeaderVisible,
+                retryButtonAction: retryButtonAction)
+        )
     }
 }
 
@@ -85,11 +101,11 @@ private extension MessageCell {
     }
 
     var backgroundOnPress: Color {
-        (isDetectingLongPress || isActionSheetPresented) ? Color.Artemis.messsageCellPressed : Color.clear
+        (viewModel.isDetectingLongPress || viewModel.isActionSheetPresented) ? Color.Artemis.messsageCellPressed : Color.clear
     }
 
     @ViewBuilder var headerIfVisible: some View {
-        if isHeaderVisible {
+        if viewModel.isHeaderVisible {
             HStack(alignment: .firstTextBaseline, spacing: .m) {
                 Text(isMessageOffline ? "Redacted" : author)
                     .bold()
@@ -110,22 +126,16 @@ private extension MessageCell {
                         padding: .s
                     )
                     .font(.footnote)
-                    .opacity(isChipVisible(creationDate: creationDate) ? 1 : 0)
+                    .opacity(
+                        viewModel.isChipVisible(creationDate: creationDate, authorId: message.value?.author?.id) ? 1 : 0
+                    )
                 }
             }
         }
     }
 
-    func isChipVisible(creationDate: Date) -> Bool {
-        guard let lastReadDate = conversationPath?.conversation?.baseConversation.lastReadDate else {
-            return false
-        }
-
-        return lastReadDate < creationDate && user()?.id != message.value?.author?.id
-    }
-
     @ViewBuilder var retryButtonIfAvailable: some View {
-        if let retryButtonAction {
+        if let retryButtonAction = viewModel.retryButtonAction {
             Button(action: retryButtonAction) {
                 Label {
                     Text("Failed to send")
@@ -140,16 +150,16 @@ private extension MessageCell {
     @ViewBuilder var replyButtonIfAvailable: some View {
         if let message = message.value as? Message,
            let answerCount = message.answers?.count, answerCount > 0,
-           let conversationPath {
+           let conversationPath = viewModel.conversationPath {
             Button {
                 if let messagePath = MessagePath(
                     message: self.$message,
                     conversationPath: conversationPath,
-                    conversationViewModel: viewModel
+                    conversationViewModel: conversationViewModel
                 ) {
                     navigationController.path.append(messagePath)
                 } else {
-                    viewModel.presentError(userFacingError: UserFacingError(title: R.string.localizable.detailViewCantBeOpened()))
+                    conversationViewModel.presentError(userFacingError: UserFacingError(title: R.string.localizable.detailViewCantBeOpened()))
                 }
             } label: {
                 Label {
@@ -165,24 +175,54 @@ private extension MessageCell {
 
     func onTapPresentMessage() {
         // Tap is disabled, if conversation path is nil, e.g., in the message detail view.
-        if let conversationPath, let messagePath = MessagePath(
+        if let conversationPath = viewModel.conversationPath, let messagePath = MessagePath(
             message: $message,
             conversationPath: conversationPath,
-            conversationViewModel: viewModel
+            conversationViewModel: conversationViewModel
         ) {
             navigationController.path.append(messagePath)
         }
     }
 
     func onLongPressPresentActionSheet() {
-        if let channel = viewModel.conversation.baseConversation as? Channel, channel.isArchived ?? false {
+        if let channel = conversationViewModel.conversation.baseConversation as? Channel, channel.isArchived ?? false {
             return
         }
 
         let feedback = UIImpactFeedbackGenerator(style: .heavy)
         feedback.impactOccurred()
-        isActionSheetPresented = true
-        isDetectingLongPress = false
+        viewModel.isActionSheetPresented = true
+        viewModel.isDetectingLongPress = false
+    }
+
+    func handle(url: URL) -> OpenURLAction.Result {
+        if let mention = MentionScheme(url) {
+            let coursePath = CoursePath(course: conversationViewModel.course)
+            switch mention {
+            case let .attachment(id):
+                navigationController.path.append(LecturePath(id: id, coursePath: coursePath))
+            case let .channel(id):
+                navigationController.path.append(ConversationPath(id: id, coursePath: coursePath))
+            case let .exercise(id):
+                navigationController.path.append(ExercisePath(id: id, coursePath: coursePath))
+            case let .lecture(id):
+                navigationController.path.append(LecturePath(id: id, coursePath: coursePath))
+            case let .lectureUnit:
+                break
+            case let .member(login):
+                Task {
+                    if let conversation = await viewModel.getOneToOneChatOrCreate(login: login) {
+                        navigationController.path.append(ConversationPath(conversation: conversation, coursePath: coursePath))
+                    }
+                }
+            case let .message(id):
+                break
+            case let .slide:
+                break
+            }
+            return .handled
+        }
+        return .systemAction
     }
 }
 
@@ -205,7 +245,7 @@ extension EnvironmentValues {
 
 #Preview {
     MessageCell(
-        viewModel: ConversationViewModel(
+        conversationViewModel: ConversationViewModel(
             course: MessagesServiceStub.course,
             conversation: MessagesServiceStub.conversation),
         message: Binding.constant(DataState<BaseMessage>.done(response: MessagesServiceStub.message)),

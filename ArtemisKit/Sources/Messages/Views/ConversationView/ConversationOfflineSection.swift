@@ -16,7 +16,7 @@ struct ConversationOfflineSection: View {
     var body: some View {
         Group {
             MessageCell(
-                viewModel: conversationViewModel,
+                conversationViewModel: conversationViewModel,
                 message: Binding.constant(DataState<BaseMessage>.done(response: OfflineMessageOrAnswer(viewModel.message))),
                 conversationPath: nil,
                 isHeaderVisible: viewModel.taskDidFail,
@@ -30,7 +30,7 @@ struct ConversationOfflineSection: View {
             }
             ForEach(viewModel.messageQueue) { message in
                 MessageCell(
-                    viewModel: conversationViewModel,
+                    conversationViewModel: conversationViewModel,
                     message: Binding.constant(DataState<BaseMessage>.done(response: OfflineMessageOrAnswer(message))),
                     conversationPath: nil,
                     isHeaderVisible: false

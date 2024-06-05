@@ -6,6 +6,8 @@
 "exercisesTabLabel" = "Exercises";
 "lectureTabLabel" = "Lectures";
 "messagesTabLabel" = "Messages";
+"exercisesUnavailable" = "No Exercises";
+"lecturesUnavailable" = "No Lectures";
 
 // MARK: SubmissionResultStatusView
 "userNotAssignedToTeam" = "You have not been assigned to a team yet.";
@@ -92,5 +94,5 @@
 "date" = "Date";
 "noDateAssociated" = "No date associated";
 "lectureUnits" = "Lecture Units";
-"lecturesGroupTitle" = "%s (Exercises: %i)";
+"lecturesGroupTitle" = "%s (Lectures: %i)";
 "attachments" = "Attachments";

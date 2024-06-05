@@ -2,16 +2,16 @@ import XCTest
 import SharedModels
 @testable import Messages
 
+@MainActor
 final class SendMessageViewModelTests: XCTestCase {
-    func makeViewModel() -> SendMessageViewModel {
+    private func makeViewModel() -> SendMessageViewModel {
         SendMessageViewModel(
             course: Course(id: 1, courseInformationSharingConfiguration: .communicationAndMessaging),
             conversation: Conversation(conversation: Channel(id: 1))!,
             configuration: .message,
             delegate: SendMessageViewModelDelegate(
-                loadMessages: {},
                 presentError: { _ in },
-                scrollToId: { _ in }))
+                sendMessage: { _ in }))
     }
 
     func testWriteAt() {

@@ -54,7 +54,7 @@ public class DeeplinkHandler {
     }
 
     private func buildHandler(from url: URL) -> Deeplink? {
-        // Attention: the order of the array matters
+        // Attention: the order of the array matters; ordered from deepest to shallowest.
         let builders: [(URL) -> Deeplink?] = [
             ExerciseHandler.build,
             LectureHandler.build,

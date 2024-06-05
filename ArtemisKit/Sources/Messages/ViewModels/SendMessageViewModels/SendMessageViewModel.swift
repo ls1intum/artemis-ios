@@ -23,15 +23,6 @@ extension SendMessageViewModel {
         case memberPicker
         case channelPicker
     }
-
-    enum ModalPresentation: Identifiable {
-        case exercisePicker
-        case lecturePicker
-
-        var id: Self {
-            self
-        }
-    }
 }
 
 @MainActor
@@ -78,7 +69,7 @@ final class SendMessageViewModel {
     var isMemberPickerSuppressed = false
     var isChannelPickerSuppressed = false
 
-    var modalPresentation: ModalPresentation?
+    var isMentionContentViewPresented = false
 
     // MARK: Life cycle
 
@@ -279,7 +270,6 @@ extension SendMessageViewModel {
         case .notStarted, .loading:
             return false
         case .success:
-            await delegate.loadMessages()
             return true
         case .failure(let error):
             delegate.presentError(UserFacingError(title: error.localizedDescription))
@@ -294,7 +284,6 @@ extension SendMessageViewModel {
         case .notStarted, .loading:
             return false
         case .success:
-            await delegate.loadMessages()
             return true
         case .failure(let error):
             delegate.presentError(UserFacingError(title: error.localizedDescription))

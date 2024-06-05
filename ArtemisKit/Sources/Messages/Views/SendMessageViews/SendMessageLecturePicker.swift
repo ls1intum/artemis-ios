@@ -10,24 +10,94 @@ import SwiftUI
 
 struct SendMessageLecturePicker: View {
 
-    @Environment(\.dismiss) var dismiss
-
-    @Binding var text: String
-
-    let course: Course
+    @State var viewModel: SendMessageLecturePickerViewModel
 
     var body: some View {
-        if let lectures = course.lectures, !lectures.isEmpty {
-            List(lectures) { lecture in
-                if let title = lecture.title {
-                    Button(title) {
-                        text.append("[lecture]\(title)(/courses/\(course.id)/lectures/\(lecture.id))[/lecture]")
-                        dismiss()
-                    }
+        Group {
+            if let lectures = viewModel.course.lectures, !lectures.isEmpty {
+                List(lectures) { lecture in
+                    rowContent(lecture: lecture)
                 }
+                .listStyle(.plain)
+            } else {
+                ContentUnavailableView(R.string.localizable.lecturesUnavailable(), systemImage: "magnifyingglass")
             }
-        } else {
-            ContentUnavailableView(R.string.localizable.lecturesUnavailable(), systemImage: "magnifyingglass")
+        }
+        .task {
+            await viewModel.task()
+        }
+        .navigationTitle(R.string.localizable.lectures())
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+@MainActor
+extension SendMessageLecturePicker {
+    init(course: Course, delegate: SendMessageMentionContentDelegate) {
+        self.init(viewModel: SendMessageLecturePickerViewModel(course: course, delegate: delegate))
+    }
+}
+
+@MainActor
+private extension SendMessageLecturePicker {
+    @ViewBuilder
+    func rowContent(lecture: Lecture) -> some View {
+        if let title = lecture.title {
+            NavigationLink {
+                Group {
+                    List {
+                        Button(title) {
+                            viewModel.select(lecture: lecture)
+                        }
+                        ForEach(viewModel.lectureUnits, id: \.id) { lectureUnit in
+                            rowContent(lectureUnit: lectureUnit)
+                        }
+                    }
+                    .listStyle(.plain)
+                }
+                .navigationTitle(title)
+                .navigationBarTitleDisplayMode(.inline)
+            } label: {
+                Text(title)
+            }
+        }
+    }
+
+    @ViewBuilder
+    func rowContent(lectureUnit: LectureUnit) -> some View {
+        if let name = lectureUnit.baseUnit.name {
+            NavigationLink {
+                Group {
+                    List {
+                        Button {
+                            viewModel.select(lectureUnit: lectureUnit)
+                        } label: {
+                            Text(name)
+                        }
+                        if case let .attachment(attachment) = lectureUnit, let slides = attachment.slides {
+                            ForEach(slides, id: \.id) { slide in
+                                rowContent(lectureUnit: lectureUnit, slide: slide)
+                            }
+                        }
+                    }
+                    .listStyle(.plain)
+                }
+                .navigationTitle(name)
+                .navigationBarTitleDisplayMode(.inline)
+            } label: {
+                Text(name)
+            }
+        }
+    }
+
+    @ViewBuilder
+    func rowContent(lectureUnit: LectureUnit, slide: Slide) -> some View {
+        if let slideImagePath = slide.slideImagePath, let slideNumber = slide.slideNumber {
+            Button {
+                viewModel.select(lectureUnit: lectureUnit, slide: slide)
+            } label: {
+                Text(R.string.localizable.mentionSlideNumber(slideNumber))
+            }
         }
     }
 }

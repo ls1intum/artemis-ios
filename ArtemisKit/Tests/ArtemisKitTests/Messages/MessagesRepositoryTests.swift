@@ -28,4 +28,19 @@ final class MessagesRepositoryTests: XCTestCase {
         let first = try XCTUnwrap(conversation)
         XCTAssertEqual(first.messageDraft, messageDraftUpdate)
     }
+
+    func testCacheInvalidation() async throws {
+        // given
+        let url = try XCTUnwrap(URL(string: "https://example.org"))
+        let host = try XCTUnwrap(url.host())
+        let repository = try await MessagesRepository(timeoutInSeconds: 1)
+
+        // when
+        try await repository.insertServer(host: host)
+        try await Task.sleep(for: .seconds(2))
+        let server = try await repository.fetchServer(host: host)
+
+        // then
+        XCTAssertNil(server)
+    }
 }
