@@ -31,5 +31,6 @@ protocol CodeOfConductService {
 }
 
 enum CodeOfConductServiceFactory {
-    static let shared: CodeOfConductService = CommandLine.arguments.contains("-Screenshots") ? CodeOfConductServiceStub() : CodeOfConductServiceImpl()
+    @StubOrImpl(stub: CodeOfConductServiceStub(), impl: CodeOfConductServiceImpl())
+    static var shared: CodeOfConductService
 }

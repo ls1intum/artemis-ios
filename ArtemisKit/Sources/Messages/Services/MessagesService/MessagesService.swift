@@ -179,5 +179,6 @@ extension MessagesService {
 }
 
 enum MessagesServiceFactory {
-    static let shared: MessagesService = CommandLine.arguments.contains("-Screenshots") ? MessagesServiceStub() : MessagesServiceImpl()
+    @StubOrImpl(stub: MessagesServiceStub(), impl: MessagesServiceImpl())
+    static var shared: MessagesService
 }
