@@ -12,7 +12,7 @@ import SharedModels
 import UserStore
 
 // swiftlint:disable file_length type_body_length
-class MessagesServiceImpl: MessagesService {
+struct MessagesServiceImpl: MessagesService {
 
     private let client = APIClient()
 

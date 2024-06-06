@@ -121,12 +121,12 @@ private extension ConversationInfoSheetView {
                             HStack {
                                 Text(name)
                                 Spacer()
-                                if UserSession.shared.user?.login == member.login {
+                                if UserSessionFactory.shared.user?.login == member.login {
                                     Chip(text: R.string.localizable.youLabel(), backgroundColor: .Artemis.artemisBlue)
                                 }
                             }
                             .contextMenu {
-                                if UserSession.shared.user?.login != member.login,
+                                if UserSessionFactory.shared.user?.login != member.login,
                                    viewModel.canRemoveUsers {
                                     Button(R.string.localizable.removeUserButtonLabel()) {
                                         viewModel.isLoading = true

@@ -31,7 +31,7 @@ final class MessageCellModel {
         isHeaderVisible: Bool,
         retryButtonAction: (() -> Void)?,
         messagesService: MessagesService = MessagesServiceFactory.shared,
-        userSession: UserSession = .shared
+        userSession: UserSession = UserSessionFactory.shared
     ) {
         self.course = course
         self.conversationPath = conversationPath

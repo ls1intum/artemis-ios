@@ -12,7 +12,7 @@ import UserStore
 struct CodeOfConductStorageServiceImpl: CodeOfConductStorageService {
 
     func acceptCodeOfConduct(for courseId: Int, codeOfConduct: String) {
-        guard let serverHost = UserSession.shared.institution?.baseURL?.absoluteString,
+        guard let serverHost = UserSessionFactory.shared.institution?.baseURL?.absoluteString,
               let data = codeOfConduct.data(using: .utf8) else {
             return
         }
@@ -21,7 +21,7 @@ struct CodeOfConductStorageServiceImpl: CodeOfConductStorageService {
     }
 
     func getAgreement(for courseId: Int, codeOfConduct: String) -> Bool {
-        guard let serverHost = UserSession.shared.institution?.baseURL?.absoluteString,
+        guard let serverHost = UserSessionFactory.shared.institution?.baseURL?.absoluteString,
               let data = codeOfConduct.data(using: .utf8) else {
             return false
         }
