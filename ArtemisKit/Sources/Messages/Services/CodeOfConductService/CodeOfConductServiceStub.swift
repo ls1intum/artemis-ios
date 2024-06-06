@@ -8,12 +8,12 @@
 import Foundation
 import Common
 
-public class CodeOfConductServiceStub: CodeOfConductService {
-    public func acceptCodeOfConduct(for courseId: Int) async -> NetworkResponse {
+struct CodeOfConductServiceStub: CodeOfConductService {
+    func acceptCodeOfConduct(for courseId: Int) async -> NetworkResponse {
         return .success
     }
 
-    public func getAgreement(for courseId: Int) async -> DataState<Bool> {
+    func getAgreement(for courseId: Int) async -> DataState<Bool> {
         return .done(response: true)
     }
 
