@@ -16,7 +16,7 @@ final class ArtemisUITests: XCTestCase {
         super.setUp()
         app = XCUIApplication()
         setupSnapshot(app)
-        app.launchArguments += ["-Screenshots"]
+        app.launchArguments += ["-dependency-factory-test-value"]
     }
     
     @MainActor
