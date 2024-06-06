@@ -132,7 +132,7 @@ public struct MessagesAvailableView: View {
                 ScrollView {
                     CodeOfConductView(course: viewModel.course)
                 }
-                .padding()
+                .contentMargins(.l, for: .scrollContent)
                 .navigationTitle(R.string.localizable.codeOfConduct())
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {

@@ -30,7 +30,7 @@ final class SendMessageMentionChannelViewModel {
 
     func search(idOrName: String) async {
         let channels = await messagesService.getChannelsPublicOverview(for: course.id)
-        if case let .done(channels) = channels {
+        if case let .done(channels) = channels, !idOrName.isEmpty {
             let filtered = channels.filter { channel in
                 let range = channel.name.range(of: idOrName, options: [.caseInsensitive, .diacriticInsensitive])
                 return range != nil
