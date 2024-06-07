@@ -283,7 +283,7 @@ public struct ExerciseDetailView: View {
 
     /// We need a custom height calculation, otherwise the web view is often too small
     private let webViewHeightJS = """
-        if (document.querySelector("#problem-statement") != null {
+        if (document.querySelector("#problem-statement") != null) {
             document.querySelector("#problem-statement").scrollHeight;
         } else if (document.querySelector(".instructions__content") != null) {
             document.querySelector(".instructions__content").scrollHeight;
