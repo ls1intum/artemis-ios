@@ -8,7 +8,7 @@
 import APIClient
 import Common
 
-class CodeOfConductServiceImpl: CodeOfConductService {
+struct CodeOfConductServiceImpl: CodeOfConductService {
 
     private let client = APIClient()
 

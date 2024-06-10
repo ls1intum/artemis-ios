@@ -34,7 +34,9 @@ public struct ExerciseDetailView: View {
 
     public init(course: Course, exercise: Exercise) {
         self._exercise = State(wrappedValue: .done(response: exercise))
-        self._urlRequest = State(wrappedValue: URLRequest(url: URL(string: "/courses/\(course.id)/exercises/\(exercise.id)/problem-statement", relativeTo: UserSession.shared.institution?.baseURL)!))
+        self._urlRequest = State(wrappedValue: URLRequest(url: URL(
+            string: "/courses/\(course.id)/exercises/\(exercise.id)/problem-statement",
+            relativeTo: UserSessionFactory.shared.institution?.baseURL)!))
 
         self.exerciseId = exercise.id
         self.courseId = course.id
@@ -42,7 +44,9 @@ public struct ExerciseDetailView: View {
 
     public init(courseId: Int, exerciseId: Int) {
         self._exercise = State(wrappedValue: .loading)
-        self._urlRequest = State(wrappedValue: URLRequest(url: URL(string: "/courses/\(courseId)/exercises/\(exerciseId)", relativeTo: UserSession.shared.institution?.baseURL)!))
+        self._urlRequest = State(wrappedValue: URLRequest(url: URL(
+            string: "/courses/\(courseId)/exercises/\(exerciseId)",
+            relativeTo: UserSessionFactory.shared.institution?.baseURL)!))
 
         self.exerciseId = exerciseId
         self.courseId = courseId
@@ -283,7 +287,9 @@ public struct ExerciseDetailView: View {
             self.latestResultId = latestResultId
         }
 
-        urlRequest = URLRequest(url: URL(string: "/courses/\(courseId)/exercises/\(exercise.id)/problem-statement/\(participationId?.description ?? "")", relativeTo: UserSession.shared.institution?.baseURL)!)
+        urlRequest = URLRequest(url: URL(
+            string: "/courses/\(courseId)/exercises/\(exercise.id)/problem-statement/\(participationId?.description ?? "")",
+            relativeTo: UserSessionFactory.shared.institution?.baseURL)!)
     }
 
     /// JavaScript to reduce visible content in WebView to just problem statement
@@ -395,7 +401,9 @@ private struct FeedbackView: View {
     @State private var isWebViewLoading = true
 
     init(courseId: Int, exerciseId: Int, participationId: Int, resultId: Int) {
-        self._urlRequest = State(wrappedValue: URLRequest(url: URL(string: "/courses/\(courseId)/exercises/\(exerciseId)/participations/\(participationId)/results/\(resultId)/feedback/", relativeTo: UserSession.shared.institution?.baseURL)!))
+        self._urlRequest = State(wrappedValue: URLRequest(url: URL(
+            string: "/courses/\(courseId)/exercises/\(exerciseId)/participations/\(participationId)/results/\(resultId)/feedback/",
+            relativeTo: UserSessionFactory.shared.institution?.baseURL)!))
     }
 
     var body: some View {
