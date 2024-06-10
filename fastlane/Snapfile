@@ -1,0 +1,26 @@
+# For more information about all available options run fastlane action snapshot
+
+devices([
+   "iPhone 15 Pro Max",
+   "iPhone 14 Plus",
+   "iPad Pro (12.9-inch) (6th generation)",
+   "iPad Pro (12.9-inch) (2nd generation)"
+])
+
+languages([
+  "en-US"
+])
+
+scheme("ArtemisUITests")
+
+output_directory("./screenshots")
+
+ios_version '17.2'
+
+clear_previous_screenshots(true)
+
+override_status_bar(true)
+
+number_of_retries(2)
+
+skip_open_summary(true)

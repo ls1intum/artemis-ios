@@ -42,7 +42,7 @@ class NotificationViewModel: ObservableObject {
     }
 
     private func updateLastNotificationSeenDate() {
-        let userLastNotificationSeen = UserSession.shared.user?.lastNotificationRead
+        let userLastNotificationSeen = UserSessionFactory.shared.user?.lastNotificationRead
         let storedLastNotificationSeenDate = UserDefaults.standard.object(forKey: "lastNotificationSeenDate") as? Date
 
         if let userLastNotificationSeen,

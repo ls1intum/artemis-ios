@@ -27,7 +27,7 @@ class RootViewModel: ObservableObject {
     private var cancellable: Set<AnyCancellable> = Set()
 
     init(
-        userSession: UserSession = .shared,
+        userSession: UserSession = UserSessionFactory.shared,
         accountService: AccountService = AccountServiceFactory.shared
     ) {
         self.userSession = userSession

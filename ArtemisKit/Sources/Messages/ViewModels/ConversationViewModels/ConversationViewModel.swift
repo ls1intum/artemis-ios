@@ -58,7 +58,7 @@ class ConversationViewModel: BaseViewModel {
         messagesRepository: MessagesRepository = .shared,
         messagesService: MessagesService = MessagesServiceFactory.shared,
         stompClient: ArtemisStompClient = .shared,
-        userSession: UserSession = .shared
+        userSession: UserSession = UserSessionFactory.shared
     ) {
         self.course = course
         self.conversation = conversation

@@ -21,11 +21,7 @@ struct CourseServiceStub: CourseService {
     }()
 
     static let courses: CoursesForDashboardDTO = {
-        var courses = CoursesForDashboardDTO()
-        courses.courses = [
-            course
-        ]
-        return courses
+        return .mock
     }()
 
     func getCourses() async -> DataState<CoursesForDashboardDTO> {

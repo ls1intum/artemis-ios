@@ -80,7 +80,7 @@ final class SendMessageViewModel {
         delegate: SendMessageViewModelDelegate,
         messagesRepository: MessagesRepository = .shared,
         messagesService: MessagesService = MessagesServiceFactory.shared,
-        userSession: UserSession = .shared
+        userSession: UserSession = UserSessionFactory.shared
     ) {
         self.course = course
         self.conversation = conversation
