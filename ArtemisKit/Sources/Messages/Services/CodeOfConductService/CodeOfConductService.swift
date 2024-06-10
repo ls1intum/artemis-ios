@@ -30,6 +30,8 @@ protocol CodeOfConductService {
     func getTemplate() async -> DataState<String>
 }
 
-enum CodeOfConductServiceFactory {
-    static let shared: CodeOfConductService = CodeOfConductServiceImpl()
+enum CodeOfConductServiceFactory: DependencyFactory {
+    static let liveValue: CodeOfConductService = CodeOfConductServiceImpl()
+
+    static let testValue: CodeOfConductService = CodeOfConductServiceStub()
 }

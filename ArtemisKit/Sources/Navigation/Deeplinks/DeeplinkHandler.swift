@@ -23,7 +23,7 @@ public class DeeplinkHandler {
     private let userSession: UserSession
 
     private init(
-        userSession: UserSession = .shared
+        userSession: UserSession = UserSessionFactory.shared
     ) {
         self.userSession = userSession
     }
