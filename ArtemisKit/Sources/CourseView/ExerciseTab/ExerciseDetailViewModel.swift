@@ -18,11 +18,17 @@ final class ExerciseDetailViewModel {
 
     var isFeedbackPresented = false
 
-    init(courseId: Int, exerciseId: Int, exercise: DataState<Exercise>) {
+    // MARK: Web view
+
+    var urlRequest: URLRequest
+
+    init(courseId: Int, exerciseId: Int, exercise: DataState<Exercise>, urlRequest: URLRequest) {
         self.courseId = courseId
         self.exerciseId = exerciseId
 
         self.exercise = exercise
+
+        self.urlRequest = urlRequest
     }
 }
 

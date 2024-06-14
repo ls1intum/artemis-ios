@@ -19,9 +19,7 @@ public struct ExerciseDetailView: View {
     @State private var viewModel: ExerciseDetailViewModel
 
     @State private var webViewHeight = CGFloat.s
-    @State private var urlRequest: URLRequest
     @State private var isWebViewLoading = true
-
 
     @State private var latestResultId: Int?
     @State private var participationId: Int?
@@ -30,20 +28,22 @@ public struct ExerciseDetailView: View {
 
     public init(course: Course, exercise: Exercise) {
         self._viewModel = .init(wrappedValue: ExerciseDetailViewModel(
-            courseId: course.id, exerciseId: exercise.id, exercise: .done(response: exercise)))
-
-        self._urlRequest = State(wrappedValue: URLRequest(url: URL(
-            string: "/courses/\(course.id)/exercises/\(exercise.id)/problem-statement",
-            relativeTo: UserSessionFactory.shared.institution?.baseURL)!))
+            courseId: course.id, 
+            exerciseId: exercise.id,
+            exercise: .done(response: exercise),
+            urlRequest: URLRequest(url: URL(
+                string: "/courses/\(course.id)/exercises/\(exercise.id)/problem-statement",
+                relativeTo: UserSessionFactory.shared.institution?.baseURL)!)))
     }
 
     public init(courseId: Int, exerciseId: Int) {
         self._viewModel = .init(wrappedValue: ExerciseDetailViewModel(
-            courseId: courseId, exerciseId: exerciseId, exercise: .loading))
-
-        self._urlRequest = State(wrappedValue: URLRequest(url: URL(
-            string: "/courses/\(courseId)/exercises/\(exerciseId)",
-            relativeTo: UserSessionFactory.shared.institution?.baseURL)!))
+            courseId: courseId, 
+            exerciseId: exerciseId,
+            exercise: .loading,
+            urlRequest: URLRequest(url: URL(
+                string: "/courses/\(courseId)/exercises/\(exerciseId)",
+                relativeTo: UserSessionFactory.shared.institution?.baseURL)!)))
     }
 
     public var body: some View {
@@ -56,7 +56,10 @@ public struct ExerciseDetailView: View {
                             if let dueDate = exercise.baseExercise.dueDate {
                                 if dueDate > Date() {
                                     if let participationId {
-                                        OpenExerciseButton(exercise: exercise, participationId: participationId, problemStatementURL: urlRequest)
+                                        OpenExerciseButton(
+                                            exercise: exercise,
+                                            participationId: participationId,
+                                            problemStatementURL: viewModel.urlRequest)
                                     } else {
                                         StartExerciseButton(exercise: exercise, participationId: $participationId)
                                     }
@@ -71,7 +74,10 @@ public struct ExerciseDetailView: View {
                                 }
                             } else {
                                 if let participationId {
-                                    OpenExerciseButton(exercise: exercise, participationId: participationId, problemStatementURL: urlRequest)
+                                    OpenExerciseButton(
+                                        exercise: exercise,
+                                        participationId: participationId,
+                                        problemStatementURL: viewModel.urlRequest)
                                 } else {
                                     StartExerciseButton(exercise: exercise, participationId: $participationId)
                                 }
@@ -183,7 +189,7 @@ public struct ExerciseDetailView: View {
                     }
                     .padding(.horizontal, .m)
 
-                    ArtemisWebView(urlRequest: $urlRequest,
+                    ArtemisWebView(urlRequest: $viewModel.urlRequest,
                                    contentHeight: $webViewHeight,
                                    isLoading: $isWebViewLoading,
                                    customJSHeightQuery: webViewHeightJS)
@@ -249,7 +255,7 @@ public struct ExerciseDetailView: View {
             self.latestResultId = latestResultId
         }
 
-        urlRequest = URLRequest(url: URL(
+        viewModel.urlRequest = URLRequest(url: URL(
             string: "/courses/\(viewModel.courseId)/exercises/\(exercise.id)/problem-statement/\(participationId?.description ?? "")",
             relativeTo: UserSessionFactory.shared.institution?.baseURL)!)
     }
