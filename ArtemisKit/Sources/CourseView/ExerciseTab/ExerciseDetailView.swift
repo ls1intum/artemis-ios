@@ -22,7 +22,6 @@ public struct ExerciseDetailView: View {
     @State private var urlRequest: URLRequest
     @State private var isWebViewLoading = true
 
-    @State private var showFeedback = false
 
     @State private var latestResultId: Int?
     @State private var participationId: Int?
@@ -78,14 +77,14 @@ public struct ExerciseDetailView: View {
                                 }
                             }
                         }
-                        if let latestResultId, let participationId, viewModel.showFeedbackButton {
+                        if let latestResultId, let participationId, viewModel.isFeedbackButtonVisible {
                             Button {
-                                showFeedback = true
+                                viewModel.isFeedbackPresented = true
                             } label: {
                                 Text(R.string.localizable.showFeedback())
                             }
                             .buttonStyle(ArtemisButton())
-                            .sheet(isPresented: $showFeedback) {
+                            .sheet(isPresented: $viewModel.isFeedbackPresented) {
                                 FeedbackView(courseId: viewModel.courseId,
                                              exerciseId: viewModel.exerciseId,
                                              participationId: participationId,

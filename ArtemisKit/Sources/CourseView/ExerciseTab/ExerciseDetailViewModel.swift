@@ -16,6 +16,8 @@ final class ExerciseDetailViewModel {
 
     var exercise: DataState<Exercise>
 
+    var isFeedbackPresented = false
+
     init(courseId: Int, exerciseId: Int, exercise: DataState<Exercise>) {
         self.courseId = courseId
         self.exerciseId = exerciseId
@@ -39,7 +41,7 @@ extension ExerciseDetailViewModel {
         return (score * maxPoints / 100).rounded().clean
     }
 
-    var showFeedbackButton: Bool {
+    var isFeedbackButtonVisible: Bool {
         switch exercise.value {
         case .fileUpload, .programming, .text:
             return true
@@ -56,5 +58,4 @@ extension ExerciseDetailViewModel {
             return false
         }
     }
-
 }
