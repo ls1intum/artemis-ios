@@ -6,9 +6,9 @@
 //
 
 import Common
+import Foundation
 import SharedModels
 import SharedServices
-import SwiftUI
 import UserStore
 
 @Observable

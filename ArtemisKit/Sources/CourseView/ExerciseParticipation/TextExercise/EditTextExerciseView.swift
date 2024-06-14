@@ -7,24 +7,6 @@
 
 import SwiftUI
 
-enum EditTextExerciseViewTab: String, CaseIterable, Identifiable {
-    case submission
-    case problemStatement
-
-    var id: Self {
-        self
-    }
-}
-
-@Observable
-final class EditTextExerciseViewModel {
-    private let exerciseSubmissionService = TextExerciseSubmissionService()
-
-    var tab: EditTextExerciseViewTab = .submission
-    var text: String = ""
-    var isSubmitted = false
-}
-
 public struct EditTextExerciseView: View {
 
     @State var viewModel: EditTextExerciseViewModel = .init()
