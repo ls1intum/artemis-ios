@@ -18,8 +18,7 @@ public struct EditTextExerciseView: View {
         VStack(alignment: .leading) {
             TextEditor(text: $viewModel.text)
                 .overlay {
-                    // Corner radius of segmented picker.
-                    RoundedRectangle(cornerRadius: 9)
+                    RoundedRectangle(cornerRadius: .m)
                         .stroke(Color.Artemis.artemisBlue)
                 }
         }
@@ -33,7 +32,7 @@ public struct EditTextExerciseView: View {
             ToolbarItem {
                 HStack {
                     Button {
-                        //
+                        viewModel.isProblemStatementPresented = true
                     } label: {
                         Image(systemName: "newspaper")
                             .resizable()
@@ -54,6 +53,38 @@ public struct EditTextExerciseView: View {
                     .disabled(viewModel.isSubmitted)
                 }
             }
+        }
+        .sheet(isPresented: $viewModel.isProblemStatementPresented) {
+            sheet
+        }
+    }
+}
+
+private extension EditTextExerciseView {
+    var sheet: some View {
+        NavigationView {
+            VStack(alignment: .leading) {
+//                if modelingViewModel.problemStatementURL != nil {
+//                    ArtemisWebView(urlRequest: Binding(
+//                        get: { modelingViewModel.problemStatementURL ?? URLRequest(url: URL(string: "")!) },
+//                        set: { modelingViewModel.problemStatementURL = $0 }),
+//                                   isLoading: $isWebViewLoading)
+//                    .loadingIndicator(isLoading: $isWebViewLoading)
+                if true {
+                    EmptyView(
+                    )
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button {
+                                viewModel.isProblemStatementPresented = false
+                            } label: {
+                                Text(R.string.localizable.close())
+                            }
+                        }
+                    }
+                }
+            }
+            .padding(.m)
         }
     }
 }

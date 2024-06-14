@@ -13,4 +13,6 @@ final class EditTextExerciseViewModel {
 
     var text: String = ""
     var isSubmitted = false
+
+    var isProblemStatementPresented = false
 }
