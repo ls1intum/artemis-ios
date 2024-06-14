@@ -13,8 +13,15 @@ import SharedServices
 import SwiftUI
 import UserStore
 
+@Observable
+final class ExerciseDetailViewModel {
+
+}
+
 public struct ExerciseDetailView: View {
     @EnvironmentObject var navigationController: NavigationController
+
+    @State private var viewModel: ExerciseDetailViewModel
 
     @State private var webViewHeight = CGFloat.s
     @State private var urlRequest: URLRequest
@@ -33,6 +40,8 @@ public struct ExerciseDetailView: View {
     @State private var webViewId = UUID()
 
     public init(course: Course, exercise: Exercise) {
+        self._viewModel = .init(wrappedValue: ExerciseDetailViewModel())
+
         self._exercise = State(wrappedValue: .done(response: exercise))
         self._urlRequest = State(wrappedValue: URLRequest(url: URL(
             string: "/courses/\(course.id)/exercises/\(exercise.id)/problem-statement",
@@ -43,6 +52,8 @@ public struct ExerciseDetailView: View {
     }
 
     public init(courseId: Int, exerciseId: Int) {
+        self._viewModel = .init(wrappedValue: ExerciseDetailViewModel())
+
         self._exercise = State(wrappedValue: .loading)
         self._urlRequest = State(wrappedValue: URLRequest(url: URL(
             string: "/courses/\(courseId)/exercises/\(exerciseId)",
