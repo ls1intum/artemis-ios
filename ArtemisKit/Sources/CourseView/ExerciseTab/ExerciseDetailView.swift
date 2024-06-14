@@ -19,7 +19,9 @@ public struct ExerciseDetailView: View {
     @State private var viewModel: ExerciseDetailViewModel
 
     public var body: some View {
-        DataStateView(data: $viewModel.exercise, retryHandler: { await loadExercise() }) { exercise in
+        DataStateView(data: $viewModel.exercise) {
+            await viewModel.loadExercise()
+        } content: { exercise in
             ScrollView {
                 VStack(alignment: .leading, spacing: .l) {
                     // All buttons regarding viewing feedback and for the future, starting an exercise
@@ -194,44 +196,11 @@ public struct ExerciseDetailView: View {
             }
         }
         .task {
-            await loadExercise()
+            await viewModel.loadExercise()
         }
         .refreshable {
-            await refreshExercise()
+            await viewModel.refreshExercise()
         }
-    }
-
-    private func loadExercise() async {
-        if let exercise = viewModel.exercise.value {
-            setParticipationAndResultId(from: exercise)
-        } else {
-            await refreshExercise()
-        }
-    }
-
-    private func refreshExercise() async {
-        self.viewModel.exercise = await ExerciseServiceFactory.shared.getExercise(exerciseId: viewModel.exerciseId)
-        if let exercise = self.viewModel.exercise.value {
-            setParticipationAndResultId(from: exercise)
-        }
-        // Force WebView to reload
-        viewModel.webViewId = UUID()
-    }
-
-    private func setParticipationAndResultId(from exercise: Exercise) {
-        viewModel.isWebViewLoading = true
-
-        let participation = exercise.getSpecificStudentParticipation(testRun: false)
-        viewModel.participationId = participation?.id
-        // Sort participation results by completionDate desc.
-        // The latest result is the first rated result in the sorted array (=newest)
-        if let latestResultId = participation?.results?.max(by: { $0.completionDate ?? .distantPast > $1.completionDate ?? .distantPast })?.id {
-            viewModel.latestResultId = latestResultId
-        }
-
-        viewModel.urlRequest = URLRequest(url: URL(
-            string: "/courses/\(viewModel.courseId)/exercises/\(exercise.id)/problem-statement/\(viewModel.participationId?.description ?? "")",
-            relativeTo: UserSessionFactory.shared.institution?.baseURL)!)
     }
 }
 

@@ -7,7 +7,9 @@
 
 import Common
 import SharedModels
+import SharedServices
 import SwiftUI
+import UserStore
 
 @Observable
 final class ExerciseDetailViewModel {
@@ -44,6 +46,39 @@ final class ExerciseDetailViewModel {
         self.exercise = exercise
 
         self.urlRequest = urlRequest
+    }
+
+    func loadExercise() async {
+        if let exercise = exercise.value {
+            setParticipationAndResultId(from: exercise)
+        } else {
+            await refreshExercise()
+        }
+    }
+
+    func refreshExercise() async {
+        exercise = await ExerciseServiceFactory.shared.getExercise(exerciseId: exerciseId)
+        if let exercise = exercise.value {
+            setParticipationAndResultId(from: exercise)
+        }
+        // Force WebView to reload
+        webViewId = UUID()
+    }
+
+    private func setParticipationAndResultId(from exercise: Exercise) {
+        isWebViewLoading = true
+
+        let participation = exercise.getSpecificStudentParticipation(testRun: false)
+        participationId = participation?.id
+        // Sort participation results by completionDate desc.
+        // The latest result is the first rated result in the sorted array (=newest)
+        if let latestResultId = participation?.results?.max(by: { $0.completionDate ?? .distantPast > $1.completionDate ?? .distantPast })?.id {
+            self.latestResultId = latestResultId
+        }
+
+        urlRequest = URLRequest(url: URL(
+            string: "/courses/\(courseId)/exercises/\(exercise.id)/problem-statement/\(participationId?.description ?? "")",
+            relativeTo: UserSessionFactory.shared.institution?.baseURL)!)
     }
 }
 
