@@ -17,6 +17,8 @@ final class ExerciseDetailViewModel {
     var exercise: DataState<Exercise>
 
     var isFeedbackPresented = false
+    var latestResultId: Int?
+    var participationId: Int?
 
     // MARK: Web view
 

@@ -18,9 +18,6 @@ public struct ExerciseDetailView: View {
 
     @State private var viewModel: ExerciseDetailViewModel
 
-    @State private var latestResultId: Int?
-    @State private var participationId: Int?
-
     public var body: some View {
         DataStateView(data: $viewModel.exercise, retryHandler: { await loadExercise() }) { exercise in
             ScrollView {
@@ -30,17 +27,17 @@ public struct ExerciseDetailView: View {
                         if viewModel.isExerciseParticipationAvailable {
                             if let dueDate = exercise.baseExercise.dueDate {
                                 if dueDate > Date() {
-                                    if let participationId {
+                                    if let participationId = viewModel.participationId {
                                         OpenExerciseButton(
                                             exercise: exercise,
                                             participationId: participationId,
                                             problemStatementURL: viewModel.urlRequest)
                                     } else {
-                                        StartExerciseButton(exercise: exercise, participationId: $participationId)
+                                        StartExerciseButton(exercise: exercise, participationId: $viewModel.participationId)
                                     }
                                 } else {
-                                    if let participationId {
-                                        if  latestResultId == nil {
+                                    if let participationId = viewModel.participationId {
+                                        if viewModel.latestResultId == nil {
                                             ViewExerciseSubmissionButton(exercise: exercise, participationId: participationId)
                                         } else {
                                             ViewExerciseResultButton(exercise: exercise, participationId: participationId)
@@ -48,17 +45,19 @@ public struct ExerciseDetailView: View {
                                     }
                                 }
                             } else {
-                                if let participationId {
+                                if let participationId = viewModel.participationId {
                                     OpenExerciseButton(
                                         exercise: exercise,
                                         participationId: participationId,
                                         problemStatementURL: viewModel.urlRequest)
                                 } else {
-                                    StartExerciseButton(exercise: exercise, participationId: $participationId)
+                                    StartExerciseButton(exercise: exercise, participationId: $viewModel.participationId)
                                 }
                             }
                         }
-                        if let latestResultId, let participationId, viewModel.isFeedbackButtonVisible {
+                        if let latestResultId = viewModel.latestResultId,
+                           let participationId = viewModel.participationId,
+                           viewModel.isFeedbackButtonVisible {
                             Button {
                                 viewModel.isFeedbackPresented = true
                             } label: {
@@ -223,15 +222,15 @@ public struct ExerciseDetailView: View {
         viewModel.isWebViewLoading = true
 
         let participation = exercise.getSpecificStudentParticipation(testRun: false)
-        participationId = participation?.id
+        viewModel.participationId = participation?.id
         // Sort participation results by completionDate desc.
         // The latest result is the first rated result in the sorted array (=newest)
         if let latestResultId = participation?.results?.max(by: { $0.completionDate ?? .distantPast > $1.completionDate ?? .distantPast })?.id {
-            self.latestResultId = latestResultId
+            viewModel.latestResultId = latestResultId
         }
 
         viewModel.urlRequest = URLRequest(url: URL(
-            string: "/courses/\(viewModel.courseId)/exercises/\(exercise.id)/problem-statement/\(participationId?.description ?? "")",
+            string: "/courses/\(viewModel.courseId)/exercises/\(exercise.id)/problem-statement/\(viewModel.participationId?.description ?? "")",
             relativeTo: UserSessionFactory.shared.institution?.baseURL)!)
     }
 }
