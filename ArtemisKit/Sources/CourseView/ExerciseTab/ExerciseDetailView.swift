@@ -37,8 +37,6 @@ public struct ExerciseDetailView: View {
     @State private var urlRequest: URLRequest
     @State private var isWebViewLoading = true
 
-    @State private var exercise2: DataState<Exercise>
-
     @State private var showFeedback = false
 
     @State private var latestResultId: Int?
@@ -50,7 +48,6 @@ public struct ExerciseDetailView: View {
         self._viewModel = .init(wrappedValue: ExerciseDetailViewModel(
             courseId: course.id, exerciseId: exercise.id, exercise: .done(response: exercise)))
 
-        self._exercise2 = State(wrappedValue: .done(response: exercise))
         self._urlRequest = State(wrappedValue: URLRequest(url: URL(
             string: "/courses/\(course.id)/exercises/\(exercise.id)/problem-statement",
             relativeTo: UserSessionFactory.shared.institution?.baseURL)!))
@@ -60,14 +57,13 @@ public struct ExerciseDetailView: View {
         self._viewModel = .init(wrappedValue: ExerciseDetailViewModel(
             courseId: courseId, exerciseId: exerciseId, exercise: .loading))
 
-        self._exercise2 = State(wrappedValue: .loading)
         self._urlRequest = State(wrappedValue: URLRequest(url: URL(
             string: "/courses/\(courseId)/exercises/\(exerciseId)",
             relativeTo: UserSessionFactory.shared.institution?.baseURL)!))
     }
 
     private var score: String {
-        let score = exercise2.value?.baseExercise.studentParticipations?
+        let score = viewModel.exercise.value?.baseExercise.studentParticipations?
             .first?
             .baseParticipation
             .results?
@@ -75,13 +71,13 @@ public struct ExerciseDetailView: View {
             .max(by: { ($0.id ?? Int.min) > ($1.id ?? Int.min) })?
             .score ?? 0
 
-        let maxPoints = exercise2.value?.baseExercise.maxPoints ?? 0
+        let maxPoints = viewModel.exercise.value?.baseExercise.maxPoints ?? 0
 
         return (score * maxPoints / 100).rounded().clean
     }
 
     private var showFeedbackButton: Bool {
-        switch exercise2.value {
+        switch viewModel.exercise.value {
         case .fileUpload, .programming, .text:
             return true
         default:
@@ -90,7 +86,7 @@ public struct ExerciseDetailView: View {
     }
 
     private var isExerciseParticipationAvailable: Bool {
-        switch exercise2.value {
+        switch viewModel.exercise.value {
         case .modeling:
             return true
         default:
@@ -99,7 +95,7 @@ public struct ExerciseDetailView: View {
     }
 
     public var body: some View {
-        DataStateView(data: $exercise2, retryHandler: { await loadExercise() }) { exercise in
+        DataStateView(data: $viewModel.exercise, retryHandler: { await loadExercise() }) { exercise in
             ScrollView {
                 VStack(alignment: .leading, spacing: .l) {
                     // All buttons regarding viewing feedback and for the future, starting an exercise
@@ -274,7 +270,7 @@ public struct ExerciseDetailView: View {
     }
 
     private func loadExercise() async {
-        if let exercise = exercise2.value {
+        if let exercise = viewModel.exercise.value {
             setParticipationAndResultId(from: exercise)
         } else {
             await refreshExercise()
@@ -282,8 +278,8 @@ public struct ExerciseDetailView: View {
     }
 
     private func refreshExercise() async {
-        self.exercise2 = await ExerciseServiceFactory.shared.getExercise(exerciseId: viewModel.exerciseId)
-        if let exercise = self.exercise2.value {
+        self.viewModel.exercise = await ExerciseServiceFactory.shared.getExercise(exerciseId: viewModel.exerciseId)
+        if let exercise = self.viewModel.exercise.value {
             setParticipationAndResultId(from: exercise)
         }
         // Force WebView to reload
