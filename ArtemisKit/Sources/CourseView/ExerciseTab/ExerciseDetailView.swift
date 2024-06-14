@@ -28,6 +28,41 @@ final class ExerciseDetailViewModel {
     }
 }
 
+extension ExerciseDetailViewModel {
+    var score: String {
+        let score = exercise.value?.baseExercise.studentParticipations?
+            .first?
+            .baseParticipation
+            .results?
+            .filter { $0.rated ?? false }
+            .max(by: { ($0.id ?? Int.min) > ($1.id ?? Int.min) })?
+            .score ?? 0
+
+        let maxPoints = exercise.value?.baseExercise.maxPoints ?? 0
+
+        return (score * maxPoints / 100).rounded().clean
+    }
+
+    var showFeedbackButton: Bool {
+        switch exercise.value {
+        case .fileUpload, .programming, .text:
+            return true
+        default:
+            return false
+        }
+    }
+
+    var isExerciseParticipationAvailable: Bool {
+        switch exercise.value {
+        case .modeling:
+            return true
+        default:
+            return false
+        }
+    }
+
+}
+
 public struct ExerciseDetailView: View {
     @EnvironmentObject var navigationController: NavigationController
 
@@ -62,45 +97,13 @@ public struct ExerciseDetailView: View {
             relativeTo: UserSessionFactory.shared.institution?.baseURL)!))
     }
 
-    private var score: String {
-        let score = viewModel.exercise.value?.baseExercise.studentParticipations?
-            .first?
-            .baseParticipation
-            .results?
-            .filter { $0.rated ?? false }
-            .max(by: { ($0.id ?? Int.min) > ($1.id ?? Int.min) })?
-            .score ?? 0
-
-        let maxPoints = viewModel.exercise.value?.baseExercise.maxPoints ?? 0
-
-        return (score * maxPoints / 100).rounded().clean
-    }
-
-    private var showFeedbackButton: Bool {
-        switch viewModel.exercise.value {
-        case .fileUpload, .programming, .text:
-            return true
-        default:
-            return false
-        }
-    }
-
-    private var isExerciseParticipationAvailable: Bool {
-        switch viewModel.exercise.value {
-        case .modeling:
-            return true
-        default:
-            return false
-        }
-    }
-
     public var body: some View {
         DataStateView(data: $viewModel.exercise, retryHandler: { await loadExercise() }) { exercise in
             ScrollView {
                 VStack(alignment: .leading, spacing: .l) {
                     // All buttons regarding viewing feedback and for the future, starting an exercise
                     HStack(spacing: .m) {
-                        if isExerciseParticipationAvailable {
+                        if viewModel.isExerciseParticipationAvailable {
                             if let dueDate = exercise.baseExercise.dueDate {
                                 if dueDate > Date() {
                                     if let participationId {
@@ -125,7 +128,7 @@ public struct ExerciseDetailView: View {
                                 }
                             }
                         }
-                        if let latestResultId, let participationId, showFeedbackButton {
+                        if let latestResultId, let participationId, viewModel.showFeedbackButton {
                             Button {
                                 showFeedback = true
                             } label: {
@@ -142,7 +145,7 @@ public struct ExerciseDetailView: View {
                     }
                     .padding(.horizontal, .m)
 
-                    if !isExerciseParticipationAvailable {
+                    if !viewModel.isExerciseParticipationAvailable {
                         ArtemisHintBox(text: R.string.localizable.exerciseParticipationHint(), hintType: .info)
                             .padding(.horizontal, .m)
                     }
@@ -150,7 +153,7 @@ public struct ExerciseDetailView: View {
                     // All score related information
                     VStack(alignment: .leading, spacing: .xs) {
                         Text(R.string.localizable.points(
-                            score,
+                            viewModel.score,
                             exercise.baseExercise.maxPoints?.clean ?? "0"))
                         .bold()
 
