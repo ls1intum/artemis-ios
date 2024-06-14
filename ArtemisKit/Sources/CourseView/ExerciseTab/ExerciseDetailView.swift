@@ -26,26 +26,6 @@ public struct ExerciseDetailView: View {
 
     @State private var webViewId = UUID()
 
-    public init(course: Course, exercise: Exercise) {
-        self._viewModel = .init(wrappedValue: ExerciseDetailViewModel(
-            courseId: course.id, 
-            exerciseId: exercise.id,
-            exercise: .done(response: exercise),
-            urlRequest: URLRequest(url: URL(
-                string: "/courses/\(course.id)/exercises/\(exercise.id)/problem-statement",
-                relativeTo: UserSessionFactory.shared.institution?.baseURL)!)))
-    }
-
-    public init(courseId: Int, exerciseId: Int) {
-        self._viewModel = .init(wrappedValue: ExerciseDetailViewModel(
-            courseId: courseId, 
-            exerciseId: exerciseId,
-            exercise: .loading,
-            urlRequest: URLRequest(url: URL(
-                string: "/courses/\(courseId)/exercises/\(exerciseId)",
-                relativeTo: UserSessionFactory.shared.institution?.baseURL)!)))
-    }
-
     public var body: some View {
         DataStateView(data: $viewModel.exercise, retryHandler: { await loadExercise() }) { exercise in
             ScrollView {
@@ -270,6 +250,28 @@ public struct ExerciseDetailView: View {
             document.body.scrollHeight;
         }
         """
+}
+
+public extension ExerciseDetailView {
+    init(course: Course, exercise: Exercise) {
+        self.init(viewModel: ExerciseDetailViewModel(
+            courseId: course.id,
+            exerciseId: exercise.id,
+            exercise: .done(response: exercise),
+            urlRequest: URLRequest(url: URL(
+                string: "/courses/\(course.id)/exercises/\(exercise.id)/problem-statement",
+                relativeTo: UserSessionFactory.shared.institution?.baseURL)!)))
+    }
+
+    init(courseId: Int, exerciseId: Int) {
+        self.init(viewModel: ExerciseDetailViewModel(
+            courseId: courseId,
+            exerciseId: exerciseId,
+            exercise: .loading,
+            urlRequest: URLRequest(url: URL(
+                string: "/courses/\(courseId)/exercises/\(exerciseId)",
+                relativeTo: UserSessionFactory.shared.institution?.baseURL)!)))
+    }
 }
 
 private struct ExerciseDetailCell<Content: View>: View {
