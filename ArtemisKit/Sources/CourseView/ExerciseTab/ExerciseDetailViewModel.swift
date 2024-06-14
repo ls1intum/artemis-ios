@@ -39,13 +39,25 @@ final class ExerciseDetailViewModel {
         }
         """
 
-    init(courseId: Int, exerciseId: Int, exercise: DataState<Exercise>, urlRequest: URLRequest) {
+    private let exerciseService: ExerciseService
+    private let userSession: UserSession
+
+    init(
+        courseId: Int,
+        exerciseId: Int,
+        exercise: DataState<Exercise>,
+        urlRequest: URLRequest,
+        exerciseService: ExerciseService = ExerciseServiceFactory.shared,
+        userSession: UserSession = UserSessionFactory.shared
+    ) {
         self.courseId = courseId
         self.exerciseId = exerciseId
 
         self.exercise = exercise
-
         self.urlRequest = urlRequest
+
+        self.exerciseService = exerciseService
+        self.userSession = userSession
     }
 
     func loadExercise() async {
@@ -57,7 +69,7 @@ final class ExerciseDetailViewModel {
     }
 
     func refreshExercise() async {
-        exercise = await ExerciseServiceFactory.shared.getExercise(exerciseId: exerciseId)
+        exercise = await exerciseService.getExercise(exerciseId: exerciseId)
         if let exercise = exercise.value {
             setParticipationAndResultId(from: exercise)
         }
@@ -78,7 +90,7 @@ final class ExerciseDetailViewModel {
 
         urlRequest = URLRequest(url: URL(
             string: "/courses/\(courseId)/exercises/\(exercise.id)/problem-statement/\(participationId?.description ?? "")",
-            relativeTo: UserSessionFactory.shared.institution?.baseURL)!)
+            relativeTo: userSession.institution?.baseURL)!)
     }
 }
 
