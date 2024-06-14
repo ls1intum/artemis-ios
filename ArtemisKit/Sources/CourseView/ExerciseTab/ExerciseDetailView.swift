@@ -15,7 +15,13 @@ import UserStore
 
 @Observable
 final class ExerciseDetailViewModel {
+    let courseId: Int
+    let exerciseId: Int
 
+    init(courseId: Int, exerciseId: Int) {
+        self.courseId = courseId
+        self.exerciseId = exerciseId
+    }
 }
 
 public struct ExerciseDetailView: View {
@@ -34,33 +40,24 @@ public struct ExerciseDetailView: View {
     @State private var latestResultId: Int?
     @State private var participationId: Int?
 
-    private let exerciseId: Int
-    private let courseId: Int
-
     @State private var webViewId = UUID()
 
     public init(course: Course, exercise: Exercise) {
-        self._viewModel = .init(wrappedValue: ExerciseDetailViewModel())
+        self._viewModel = .init(wrappedValue: ExerciseDetailViewModel(courseId: course.id, exerciseId: exercise.id))
 
         self._exercise = State(wrappedValue: .done(response: exercise))
         self._urlRequest = State(wrappedValue: URLRequest(url: URL(
             string: "/courses/\(course.id)/exercises/\(exercise.id)/problem-statement",
             relativeTo: UserSessionFactory.shared.institution?.baseURL)!))
-
-        self.exerciseId = exercise.id
-        self.courseId = course.id
     }
 
     public init(courseId: Int, exerciseId: Int) {
-        self._viewModel = .init(wrappedValue: ExerciseDetailViewModel())
+        self._viewModel = .init(wrappedValue: ExerciseDetailViewModel(courseId: courseId, exerciseId: exerciseId))
 
         self._exercise = State(wrappedValue: .loading)
         self._urlRequest = State(wrappedValue: URLRequest(url: URL(
             string: "/courses/\(courseId)/exercises/\(exerciseId)",
             relativeTo: UserSessionFactory.shared.institution?.baseURL)!))
-
-        self.exerciseId = exerciseId
-        self.courseId = courseId
     }
 
     private var score: String {
@@ -134,8 +131,8 @@ public struct ExerciseDetailView: View {
                             }
                             .buttonStyle(ArtemisButton())
                             .sheet(isPresented: $showFeedback) {
-                                FeedbackView(courseId: courseId,
-                                             exerciseId: exerciseId,
+                                FeedbackView(courseId: viewModel.courseId,
+                                             exerciseId: viewModel.exerciseId,
                                              participationId: participationId,
                                              resultId: latestResultId)
                             }
@@ -257,7 +254,7 @@ public struct ExerciseDetailView: View {
                 }
                 ToolbarItem(placement: .primaryAction) {
                     Button(R.string.localizable.openExercise()) {
-                        navigationController.openExercise(id: exerciseId)
+                        navigationController.openExercise(id: viewModel.exerciseId)
                     }
                 }
             }
@@ -279,7 +276,7 @@ public struct ExerciseDetailView: View {
     }
 
     private func refreshExercise() async {
-        self.exercise = await ExerciseServiceFactory.shared.getExercise(exerciseId: exerciseId)
+        self.exercise = await ExerciseServiceFactory.shared.getExercise(exerciseId: viewModel.exerciseId)
         if let exercise = self.exercise.value {
             setParticipationAndResultId(from: exercise)
         }
@@ -299,7 +296,7 @@ public struct ExerciseDetailView: View {
         }
 
         urlRequest = URLRequest(url: URL(
-            string: "/courses/\(courseId)/exercises/\(exercise.id)/problem-statement/\(participationId?.description ?? "")",
+            string: "/courses/\(viewModel.courseId)/exercises/\(exercise.id)/problem-statement/\(participationId?.description ?? "")",
             relativeTo: UserSessionFactory.shared.institution?.baseURL)!)
     }
 
