@@ -18,9 +18,13 @@ final class ExerciseDetailViewModel {
     let courseId: Int
     let exerciseId: Int
 
-    init(courseId: Int, exerciseId: Int) {
+    var exercise: DataState<Exercise>
+
+    init(courseId: Int, exerciseId: Int, exercise: DataState<Exercise>) {
         self.courseId = courseId
         self.exerciseId = exerciseId
+
+        self.exercise = exercise
     }
 }
 
@@ -33,7 +37,7 @@ public struct ExerciseDetailView: View {
     @State private var urlRequest: URLRequest
     @State private var isWebViewLoading = true
 
-    @State private var exercise: DataState<Exercise>
+    @State private var exercise2: DataState<Exercise>
 
     @State private var showFeedback = false
 
@@ -43,25 +47,27 @@ public struct ExerciseDetailView: View {
     @State private var webViewId = UUID()
 
     public init(course: Course, exercise: Exercise) {
-        self._viewModel = .init(wrappedValue: ExerciseDetailViewModel(courseId: course.id, exerciseId: exercise.id))
+        self._viewModel = .init(wrappedValue: ExerciseDetailViewModel(
+            courseId: course.id, exerciseId: exercise.id, exercise: .done(response: exercise)))
 
-        self._exercise = State(wrappedValue: .done(response: exercise))
+        self._exercise2 = State(wrappedValue: .done(response: exercise))
         self._urlRequest = State(wrappedValue: URLRequest(url: URL(
             string: "/courses/\(course.id)/exercises/\(exercise.id)/problem-statement",
             relativeTo: UserSessionFactory.shared.institution?.baseURL)!))
     }
 
     public init(courseId: Int, exerciseId: Int) {
-        self._viewModel = .init(wrappedValue: ExerciseDetailViewModel(courseId: courseId, exerciseId: exerciseId))
+        self._viewModel = .init(wrappedValue: ExerciseDetailViewModel(
+            courseId: courseId, exerciseId: exerciseId, exercise: .loading))
 
-        self._exercise = State(wrappedValue: .loading)
+        self._exercise2 = State(wrappedValue: .loading)
         self._urlRequest = State(wrappedValue: URLRequest(url: URL(
             string: "/courses/\(courseId)/exercises/\(exerciseId)",
             relativeTo: UserSessionFactory.shared.institution?.baseURL)!))
     }
 
     private var score: String {
-        let score = exercise.value?.baseExercise.studentParticipations?
+        let score = exercise2.value?.baseExercise.studentParticipations?
             .first?
             .baseParticipation
             .results?
@@ -69,13 +75,13 @@ public struct ExerciseDetailView: View {
             .max(by: { ($0.id ?? Int.min) > ($1.id ?? Int.min) })?
             .score ?? 0
 
-        let maxPoints = exercise.value?.baseExercise.maxPoints ?? 0
+        let maxPoints = exercise2.value?.baseExercise.maxPoints ?? 0
 
         return (score * maxPoints / 100).rounded().clean
     }
 
     private var showFeedbackButton: Bool {
-        switch exercise.value {
+        switch exercise2.value {
         case .fileUpload, .programming, .text:
             return true
         default:
@@ -84,7 +90,7 @@ public struct ExerciseDetailView: View {
     }
 
     private var isExerciseParticipationAvailable: Bool {
-        switch exercise.value {
+        switch exercise2.value {
         case .modeling:
             return true
         default:
@@ -93,7 +99,7 @@ public struct ExerciseDetailView: View {
     }
 
     public var body: some View {
-        DataStateView(data: $exercise, retryHandler: { await loadExercise() }) { exercise in
+        DataStateView(data: $exercise2, retryHandler: { await loadExercise() }) { exercise in
             ScrollView {
                 VStack(alignment: .leading, spacing: .l) {
                     // All buttons regarding viewing feedback and for the future, starting an exercise
@@ -268,7 +274,7 @@ public struct ExerciseDetailView: View {
     }
 
     private func loadExercise() async {
-        if let exercise = exercise.value {
+        if let exercise = exercise2.value {
             setParticipationAndResultId(from: exercise)
         } else {
             await refreshExercise()
@@ -276,8 +282,8 @@ public struct ExerciseDetailView: View {
     }
 
     private func refreshExercise() async {
-        self.exercise = await ExerciseServiceFactory.shared.getExercise(exerciseId: viewModel.exerciseId)
-        if let exercise = self.exercise.value {
+        self.exercise2 = await ExerciseServiceFactory.shared.getExercise(exerciseId: viewModel.exerciseId)
+        if let exercise = self.exercise2.value {
             setParticipationAndResultId(from: exercise)
         }
         // Force WebView to reload
