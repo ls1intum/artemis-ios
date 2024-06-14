@@ -224,7 +224,7 @@ public struct ExerciseDetailView: View {
                     ArtemisWebView(urlRequest: $urlRequest,
                                    contentHeight: $webViewHeight,
                                    isLoading: $isWebViewLoading,
-                                   customJSHeightQuery: webViewContentJS)
+                                   customJSHeightQuery: webViewHeightJS)
                     .frame(height: webViewHeight)
                     .allowsHitTesting(false)
                     .loadingIndicator(isLoading: $isWebViewLoading)
@@ -292,15 +292,15 @@ public struct ExerciseDetailView: View {
             relativeTo: UserSessionFactory.shared.institution?.baseURL)!)
     }
 
-    /// JavaScript to reduce visible content in WebView to just problem statement
-    private let webViewContentJS = """
-        if (document.querySelector("jhi-course-overview") != null
-            && document.querySelector("jhi-programming-exercise-instructions") != null
-            && document.querySelector("jhi-problem-statement").innerText.length > 10) {
-        document.querySelector("jhi-course-overview").innerHTML = document.querySelector("jhi-programming-exercise-instructions").innerHTML;
-        document.querySelector("#programming-exercise-instructions-content").setAttribute("style", "overflow: unset");
+    /// We need a custom height calculation, otherwise the web view is often too small
+    private let webViewHeightJS = """
+        if (document.querySelector("#problem-statement") != null) {
+            document.querySelector("#problem-statement").scrollHeight;
+        } else if (document.querySelector(".instructions__content") != null) {
+            document.querySelector(".instructions__content").scrollHeight;
+        } else {
+            document.body.scrollHeight;
         }
-        document.querySelector(".instructions__content").scrollHeight
         """
 }
 
