@@ -18,13 +18,8 @@ public struct ExerciseDetailView: View {
 
     @State private var viewModel: ExerciseDetailViewModel
 
-    @State private var webViewHeight = CGFloat.s
-    @State private var isWebViewLoading = true
-
     @State private var latestResultId: Int?
     @State private var participationId: Int?
-
-    @State private var webViewId = UUID()
 
     public var body: some View {
         DataStateView(data: $viewModel.exercise, retryHandler: { await loadExercise() }) { exercise in
@@ -170,13 +165,13 @@ public struct ExerciseDetailView: View {
                     .padding(.horizontal, .m)
 
                     ArtemisWebView(urlRequest: $viewModel.urlRequest,
-                                   contentHeight: $webViewHeight,
-                                   isLoading: $isWebViewLoading,
-                                   customJSHeightQuery: webViewHeightJS)
-                    .frame(height: webViewHeight)
+                                   contentHeight: $viewModel.webViewHeight,
+                                   isLoading: $viewModel.isWebViewLoading,
+                                   customJSHeightQuery: viewModel.webViewHeightJS)
+                    .frame(height: viewModel.webViewHeight)
                     .allowsHitTesting(false)
-                    .loadingIndicator(isLoading: $isWebViewLoading)
-                    .id(webViewId)
+                    .loadingIndicator(isLoading: $viewModel.isWebViewLoading)
+                    .id(viewModel.webViewId)
                 }
             }
             .toolbar {
@@ -221,11 +216,11 @@ public struct ExerciseDetailView: View {
             setParticipationAndResultId(from: exercise)
         }
         // Force WebView to reload
-        webViewId = UUID()
+        viewModel.webViewId = UUID()
     }
 
     private func setParticipationAndResultId(from exercise: Exercise) {
-        isWebViewLoading = true
+        viewModel.isWebViewLoading = true
 
         let participation = exercise.getSpecificStudentParticipation(testRun: false)
         participationId = participation?.id
@@ -239,17 +234,6 @@ public struct ExerciseDetailView: View {
             string: "/courses/\(viewModel.courseId)/exercises/\(exercise.id)/problem-statement/\(participationId?.description ?? "")",
             relativeTo: UserSessionFactory.shared.institution?.baseURL)!)
     }
-
-    /// We need a custom height calculation, otherwise the web view is often too small
-    private let webViewHeightJS = """
-        if (document.querySelector("#problem-statement") != null) {
-            document.querySelector("#problem-statement").scrollHeight;
-        } else if (document.querySelector(".instructions__content") != null) {
-            document.querySelector(".instructions__content").scrollHeight;
-        } else {
-            document.body.scrollHeight;
-        }
-        """
 }
 
 public extension ExerciseDetailView {
