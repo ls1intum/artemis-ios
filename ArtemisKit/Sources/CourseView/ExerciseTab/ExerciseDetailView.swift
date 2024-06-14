@@ -245,7 +245,7 @@ public struct ExerciseDetailView: View {
                     }
                 }
                 ToolbarItem(placement: .primaryAction) {
-                    Button("Open exercise") {
+                    Button(R.string.localizable.openExercise()) {
                         navigationController.openExercise(id: exerciseId)
                     }
                 }
