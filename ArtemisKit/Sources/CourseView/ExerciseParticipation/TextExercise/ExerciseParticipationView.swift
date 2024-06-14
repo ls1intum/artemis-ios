@@ -1,5 +1,5 @@
 //
-//  ExerciseParticipationView.swift
+//  EditTextExerciseView.swift
 //
 //
 //  Created by Nityananda Zbil on 10.12.23.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-enum ExerciseParticipationViewTab: String, CaseIterable, Identifiable {
+enum EditTextExerciseViewTab: String, CaseIterable, Identifiable {
     case submission
     case problemStatement
 
@@ -17,24 +17,24 @@ enum ExerciseParticipationViewTab: String, CaseIterable, Identifiable {
 }
 
 @Observable
-final class ExerciseParticipationViewModel {
+final class EditTextExerciseViewModel {
     private let exerciseSubmissionService = TextExerciseSubmissionService()
 
-    var tab: ExerciseParticipationViewTab = .submission
+    var tab: EditTextExerciseViewTab = .submission
     var text: String = ""
     var isSubmitted = false
 }
 
-public struct ExerciseParticipationView: View {
+public struct EditTextExerciseView: View {
 
-    @State var viewModel: ExerciseParticipationViewModel = .init()
+    @State var viewModel: EditTextExerciseViewModel = .init()
 
     public init() {}
 
     public var body: some View {
         VStack(alignment: .leading) {
             Picker("Tab", selection: $viewModel.tab) {
-                ForEach(ExerciseParticipationViewTab.allCases) { tab in
+                ForEach(EditTextExerciseViewTab.allCases) { tab in
                     Text(String(describing: tab))
                 }
             }
@@ -70,9 +70,9 @@ public struct ExerciseParticipationView: View {
     }
 }
 
-// MARK: ExerciseParticipationViewTab+CustomStringConvertible
+// MARK: EditTextExerciseViewTab+CustomStringConvertible
 
-extension ExerciseParticipationViewTab: CustomStringConvertible {
+extension EditTextExerciseViewTab: CustomStringConvertible {
     var description: String {
         switch self {
         case .submission:
@@ -87,6 +87,6 @@ extension ExerciseParticipationViewTab: CustomStringConvertible {
 
 #Preview {
     NavigationStack {
-        ExerciseParticipationView()
+        EditTextExerciseView()
     }
 }

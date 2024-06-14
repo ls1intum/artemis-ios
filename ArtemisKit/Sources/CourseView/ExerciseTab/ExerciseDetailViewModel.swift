@@ -120,7 +120,7 @@ extension ExerciseDetailViewModel {
 
     var isExerciseParticipationAvailable: Bool {
         switch exercise.value {
-        case .modeling:
+        case .modeling, .text:
             return true
         default:
             return false

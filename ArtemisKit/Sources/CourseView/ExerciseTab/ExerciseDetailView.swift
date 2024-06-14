@@ -43,11 +43,6 @@ public struct ExerciseDetailView: View {
                             .font(.headline)
                     }
                 }
-                ToolbarItem(placement: .primaryAction) {
-                    Button(R.string.localizable.openExercise()) {
-                        navigationController.openExercise(id: viewModel.exerciseId)
-                    }
-                }
             }
         }
         .task {
@@ -287,11 +282,18 @@ private struct OpenExerciseButton: View {
     var body: some View {
         switch exercise {
         case .modeling:
-            NavigationLink(destination: EditModelingExerciseView(exercise: exercise,
-                                                                 participationId: participationId,
-                                                                 problemStatementURL: problemStatementURL)) {
-                Text(R.string.localizable.openModelingEditor())
-            }.buttonStyle(ArtemisButton())
+            NavigationLink(R.string.localizable.openModelingEditor()) {
+                EditModelingExerciseView(
+                    exercise: exercise,
+                    participationId: participationId,
+                    problemStatementURL: problemStatementURL)
+            }
+            .buttonStyle(ArtemisButton())
+        case .text:
+            NavigationLink(R.string.localizable.openExercise()) {
+                EditTextExerciseView()
+            }
+            .buttonStyle(ArtemisButton())
         default:
             ArtemisHintBox(text: R.string.localizable.exerciseParticipationHint(), hintType: .info)
         }
@@ -305,10 +307,14 @@ private struct ViewExerciseSubmissionButton: View {
     var body: some View {
         switch exercise {
         case .modeling:
-            NavigationLink(destination: ViewModelingExerciseView(exercise: exercise,
-                                                                 participationId: participationId)) {
+            NavigationLink {
+                ViewModelingExerciseView(
+                    exercise: exercise,
+                    participationId: participationId)
+            } label: {
                 Text(R.string.localizable.viewSubmission())
-            }.buttonStyle(ArtemisButton())
+            }
+            .buttonStyle(ArtemisButton())
         default:
             ArtemisHintBox(text: R.string.localizable.exerciseParticipationHint(), hintType: .info)
         }
@@ -322,10 +328,14 @@ private struct ViewExerciseResultButton: View {
     var body: some View {
         switch exercise {
         case .modeling:
-            NavigationLink(destination: ViewModelingExerciseResultView(exercise: exercise,
-                                                                       participationId: participationId)) {
+            NavigationLink {
+                ViewModelingExerciseResultView(
+                    exercise: exercise,
+                    participationId: participationId)
+            } label: {
                 Text(R.string.localizable.viewResult())
-            }.buttonStyle(ArtemisButton())
+            }
+            .buttonStyle(ArtemisButton())
         default:
             ArtemisHintBox(text: R.string.localizable.exerciseParticipationHint(), hintType: .info)
         }
