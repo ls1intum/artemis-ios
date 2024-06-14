@@ -5,6 +5,7 @@
 //  Created by Nityananda Zbil on 10.12.23.
 //
 
+import DesignLibrary
 import SwiftUI
 
 public struct EditTextExerciseView: View {
@@ -15,24 +16,12 @@ public struct EditTextExerciseView: View {
 
     public var body: some View {
         VStack(alignment: .leading) {
-            Picker("Tab", selection: $viewModel.tab) {
-                ForEach(EditTextExerciseViewTab.allCases) { tab in
-                    Text(String(describing: tab))
+            TextEditor(text: $viewModel.text)
+                .overlay {
+                    // Corner radius of segmented picker.
+                    RoundedRectangle(cornerRadius: 9)
+                        .stroke(Color.Artemis.artemisBlue)
                 }
-            }
-            .pickerStyle(.segmented)
-            switch viewModel.tab {
-            case .submission:
-                TextEditor(text: $viewModel.text)
-                    .overlay {
-                        // Corner radius of segmented picker.
-                        RoundedRectangle(cornerRadius: 9)
-                            .stroke(Color.Artemis.artemisBlue)
-                    }
-            case .problemStatement:
-                Text("problem")
-                Spacer()
-            }
         }
         .padding([.horizontal, .bottom])
         .onChange(of: viewModel.text) {
@@ -42,25 +31,29 @@ public struct EditTextExerciseView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem {
-                Button("Submit") {
-                    viewModel.isSubmitted = true
+                HStack {
+                    Button {
+                        //
+                    } label: {
+                        Image(systemName: "newspaper")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .foregroundColor(.white)
+                            .font(.headline)
+                            .padding(.vertical, .m)
+                            .padding(.horizontal, .l)
+                            .background {
+                                RoundedRectangle(cornerRadius: 4)
+                                    .foregroundColor(Color.Artemis.primaryButtonColor)
+                            }
+                    }
+                    Button("Submit") {
+                        viewModel.isSubmitted = true
+                    }
+                    .buttonStyle(ArtemisButton())
+                    .disabled(viewModel.isSubmitted)
                 }
-                .buttonStyle(.bordered)
-                .disabled(viewModel.isSubmitted)
             }
-        }
-    }
-}
-
-// MARK: EditTextExerciseViewTab+CustomStringConvertible
-
-extension EditTextExerciseViewTab: CustomStringConvertible {
-    var description: String {
-        switch self {
-        case .submission:
-            "Submission"
-        case .problemStatement:
-            "Problem Statement"
         }
     }
 }
