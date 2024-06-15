@@ -13,14 +13,12 @@ import DesignLibrary
 
 struct EditModelingExerciseView: View {
     @StateObject var modelingViewModel: ModelingExerciseViewModel
-    @State private var showSubmissionAlert = false
+
+    @State private var isSubmissionAlertPresented = false
     @State private var isSubmissionSuccessful = false
 
-    init(exercise: Exercise, participationId: Int, problemStatementURL: URLRequest) {
-        self._modelingViewModel = StateObject(wrappedValue: ModelingExerciseViewModel(exercise: exercise,
-                                                                                      participationId: participationId,
-                                                                                      problemStatementURL: problemStatementURL))
-    }
+    @State private var isProblemStatementPresented = false
+    @State private var isWebViewLoading = true
 
     var body: some View {
         ZStack {
@@ -48,12 +46,12 @@ struct EditModelingExerciseView: View {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 if !modelingViewModel.diagramTypeUnsupported {
                     HStack {
-                        ProblemStatementButton(modelingViewModel: modelingViewModel)
+                        ExerciseParticipationProblemButton(isProblemStatementPresented: $isProblemStatementPresented)
                         ExerciseParticipationSubmitButton(
                             delegate: ExerciseParticipationSubmitButton.Delegate {
                                 try await modelingViewModel.submitSubmission()
                             },
-                            isSubmissionAlertPresented: $showSubmissionAlert,
+                            isSubmissionAlertPresented: $isSubmissionAlertPresented,
                             isSubmissionSuccessful: $isSubmissionSuccessful)
                     }
                 }
@@ -61,65 +59,60 @@ struct EditModelingExerciseView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.visible, for: .navigationBar)
-        .alert(isPresented: $showSubmissionAlert) {
-            if isSubmissionSuccessful {
-                return Alert(
-                    title: Text(R.string.localizable.successfulSubmissionAlertTitle()),
-                    message: Text(R.string.localizable.successfulSubmissionAlertMessage())
-                )
-            } else {
-                return Alert(
-                    title: Text(R.string.localizable.failedSubmissionAlertTitle()),
-                    message: Text(R.string.localizable.failedSubmissionAlertMessage())
-                )
-            }
+        .alert(isPresented: $isSubmissionAlertPresented) {
+            alert
+        }
+        .sheet(isPresented: $isProblemStatementPresented) {
+            sheet
         }
     }
 }
 
-struct ProblemStatementButton: View {
-    @ObservedObject var modelingViewModel: ModelingExerciseViewModel
-    @State private var isShowingProblemStatement = false
-    @State private var isWebViewLoading = true
+extension EditModelingExerciseView {
+    init(exercise: Exercise, participationId: Int, problemStatementURL: URLRequest) {
+        self.init(modelingViewModel: ModelingExerciseViewModel(
+            exercise: exercise,
+            participationId: participationId,
+            problemStatementURL: problemStatementURL))
+    }
+}
 
-    var body: some View {
-        Button {
-            isShowingProblemStatement = true
-        } label: {
-            Image(systemName: "newspaper")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .foregroundColor(.white)
-                .font(.headline)
-                .padding(.vertical, .m)
-                .padding(.horizontal, .l)
-                .background {
-                    RoundedRectangle(cornerRadius: 4)
-                        .foregroundColor(Color.Artemis.primaryButtonColor)
-                }
+private extension EditModelingExerciseView {
+    var alert: Alert {
+        if isSubmissionSuccessful {
+            return Alert(
+                title: Text(R.string.localizable.successfulSubmissionAlertTitle()),
+                message: Text(R.string.localizable.successfulSubmissionAlertMessage())
+            )
+        } else {
+            return Alert(
+                title: Text(R.string.localizable.failedSubmissionAlertTitle()),
+                message: Text(R.string.localizable.failedSubmissionAlertMessage())
+            )
         }
-        .sheet(isPresented: $isShowingProblemStatement) {
-            NavigationView {
-                VStack(alignment: .leading) {
-                    if modelingViewModel.problemStatementURL != nil {
-                        ArtemisWebView(urlRequest: Binding(
-                            get: { modelingViewModel.problemStatementURL ?? URLRequest(url: URL(string: "")!) },
-                            set: { modelingViewModel.problemStatementURL = $0 }),
-                                       isLoading: $isWebViewLoading)
-                        .loadingIndicator(isLoading: $isWebViewLoading)
-                        .toolbar {
-                            ToolbarItem(placement: .cancellationAction) {
-                                Button {
-                                    isShowingProblemStatement = false
-                                } label: {
-                                    Text(R.string.localizable.close())
-                                }
+    }
+
+    var sheet: some View {
+        NavigationView {
+            VStack(alignment: .leading) {
+                if modelingViewModel.problemStatementURL != nil {
+                    ArtemisWebView(urlRequest: Binding(
+                        get: { modelingViewModel.problemStatementURL ?? URLRequest(url: URL(string: "")!) },
+                        set: { modelingViewModel.problemStatementURL = $0 }),
+                                   isLoading: $isWebViewLoading)
+                    .loadingIndicator(isLoading: $isWebViewLoading)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button {
+                                isProblemStatementPresented = false
+                            } label: {
+                                Text(R.string.localizable.close())
                             }
                         }
                     }
                 }
-                .padding(.m)
             }
+            .padding(.m)
         }
     }
 }
