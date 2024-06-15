@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct ExerciseParticipationProblemButton: View {
-    @Binding var isProblemStatementPresented: Bool
+    @Binding var isProblemPresented: Bool
 
     var body: some View {
         Button {
-            isProblemStatementPresented = true
+            isProblemPresented = true
         } label: {
             Image(systemName: "newspaper")
                 .resizable()

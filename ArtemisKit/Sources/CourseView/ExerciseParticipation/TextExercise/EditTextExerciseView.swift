@@ -30,30 +30,15 @@ struct EditTextExerciseView: View {
         .toolbar {
             ToolbarItem {
                 HStack {
-                    Button {
-                        viewModel.isProblemStatementPresented = true
-                    } label: {
-                        Image(systemName: "newspaper")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .foregroundColor(.white)
-                            .font(.headline)
-                            .padding(.vertical, .m)
-                            .padding(.horizontal, .l)
-                            .background {
-                                RoundedRectangle(cornerRadius: 4)
-                                    .foregroundColor(Color.Artemis.primaryButtonColor)
-                            }
-                    }
-                    Button(R.string.localizable.submitSubmission()) {
-                        viewModel.isSubmitted = true
-                    }
-                    .buttonStyle(ArtemisButton())
-                    .disabled(viewModel.isSubmitted)
+                    ExerciseParticipationProblemButton(isProblemPresented: $viewModel.isProblemPresented)
+                    ExerciseParticipationSubmitButton(
+                        delegate: ExerciseParticipationSubmitButton.Delegate {},
+                        isSubmissionAlertPresented: .constant(false),
+                        isSubmissionSuccessful: .constant(false))
                 }
             }
         }
-        .sheet(isPresented: $viewModel.isProblemStatementPresented) {
+        .sheet(isPresented: $viewModel.isProblemPresented) {
             sheet
         }
     }
@@ -77,7 +62,7 @@ private extension EditTextExerciseView {
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
                         Button {
-                            viewModel.isProblemStatementPresented = false
+                            viewModel.isProblemPresented = false
                         } label: {
                             Text(R.string.localizable.close())
                         }

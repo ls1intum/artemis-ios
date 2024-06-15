@@ -17,7 +17,7 @@ struct EditModelingExerciseView: View {
     @State private var isSubmissionAlertPresented = false
     @State private var isSubmissionSuccessful = false
 
-    @State private var isProblemStatementPresented = false
+    @State private var isProblemPresented = false
     @State private var isWebViewLoading = true
 
     var body: some View {
@@ -46,7 +46,7 @@ struct EditModelingExerciseView: View {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 if !modelingViewModel.diagramTypeUnsupported {
                     HStack {
-                        ExerciseParticipationProblemButton(isProblemStatementPresented: $isProblemStatementPresented)
+                        ExerciseParticipationProblemButton(isProblemPresented: $isProblemPresented)
                         ExerciseParticipationSubmitButton(
                             delegate: ExerciseParticipationSubmitButton.Delegate {
                                 try await modelingViewModel.submitSubmission()
@@ -62,7 +62,7 @@ struct EditModelingExerciseView: View {
         .alert(isPresented: $isSubmissionAlertPresented) {
             alert
         }
-        .sheet(isPresented: $isProblemStatementPresented) {
+        .sheet(isPresented: $isProblemPresented) {
             sheet
         }
     }
@@ -104,7 +104,7 @@ private extension EditModelingExerciseView {
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) {
                             Button {
-                                isProblemStatementPresented = false
+                                isProblemPresented = false
                             } label: {
                                 Text(R.string.localizable.close())
                             }
