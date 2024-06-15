@@ -77,9 +77,6 @@ private struct NavigationDestinationRootViewModifier: ViewModifier {
                     ExerciseDetailView(courseId: exercisePath.coursePath.id, exerciseId: exercisePath.id)
                 }
             }
-            .navigationDestination(for: ExerciseParticipationPath.self) { _ in
-                ExerciseParticipationView()
-            }
             .navigationDestination(for: LecturePath.self) { lecturePath in
                 if let course = lecturePath.coursePath.course {
                     LectureDetailView(course: course, lectureId: lecturePath.id)

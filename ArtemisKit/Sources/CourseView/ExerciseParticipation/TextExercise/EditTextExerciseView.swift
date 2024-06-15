@@ -6,15 +6,14 @@
 //
 
 import DesignLibrary
+import SharedModels
 import SwiftUI
 
-public struct EditTextExerciseView: View {
+struct EditTextExerciseView: View {
 
-    @State var viewModel: EditTextExerciseViewModel = .init()
+    @State var viewModel: EditTextExerciseViewModel
 
-    public init() {}
-
-    public var body: some View {
+    var body: some View {
         VStack(alignment: .leading) {
             TextEditor(text: $viewModel.text)
                 .overlay {
@@ -46,7 +45,7 @@ public struct EditTextExerciseView: View {
                                     .foregroundColor(Color.Artemis.primaryButtonColor)
                             }
                     }
-                    Button("Submit") {
+                    Button(R.string.localizable.submitSubmission()) {
                         viewModel.isSubmitted = true
                     }
                     .buttonStyle(ArtemisButton())
@@ -60,26 +59,27 @@ public struct EditTextExerciseView: View {
     }
 }
 
+extension EditTextExerciseView {
+    init(exercise: Exercise, problem: URLRequest) {
+        self.init(viewModel: EditTextExerciseViewModel(exercise: exercise, problem: problem))
+    }
+}
+
 private extension EditTextExerciseView {
     var sheet: some View {
         NavigationView {
             VStack(alignment: .leading) {
-//                if modelingViewModel.problemStatementURL != nil {
-//                    ArtemisWebView(urlRequest: Binding(
-//                        get: { modelingViewModel.problemStatementURL ?? URLRequest(url: URL(string: "")!) },
-//                        set: { modelingViewModel.problemStatementURL = $0 }),
-//                                   isLoading: $isWebViewLoading)
-//                    .loadingIndicator(isLoading: $isWebViewLoading)
-                if true {
-                    EmptyView(
-                    )
-                    .toolbar {
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button {
-                                viewModel.isProblemStatementPresented = false
-                            } label: {
-                                Text(R.string.localizable.close())
-                            }
+                ArtemisWebView(
+                    urlRequest: $viewModel.problem,
+                    isLoading: $viewModel.isWebViewLoading
+                )
+                .loadingIndicator(isLoading: $viewModel.isWebViewLoading)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button {
+                            viewModel.isProblemStatementPresented = false
+                        } label: {
+                            Text(R.string.localizable.close())
                         }
                     }
                 }
@@ -93,6 +93,8 @@ private extension EditTextExerciseView {
 
 #Preview {
     NavigationStack {
-        EditTextExerciseView()
+        EditTextExerciseView(
+            exercise: .text(exercise: TextExercise(id: 1)),
+            problem: URLRequest(url: URL(string: "example.org")!))
     }
 }

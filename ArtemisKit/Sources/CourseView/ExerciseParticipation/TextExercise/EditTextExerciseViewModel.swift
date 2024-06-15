@@ -6,13 +6,26 @@
 //
 
 import Foundation
+import SharedModels
 
 @Observable
 final class EditTextExerciseViewModel {
-    private let exerciseSubmissionService = TextExerciseSubmissionService()
+    let exercise: Exercise
+    var problem: URLRequest
 
     var text: String = ""
     var isSubmitted = false
 
     var isProblemStatementPresented = false
+
+    // MARK: Web view
+
+    var isWebViewLoading = true
+
+    private let exerciseSubmissionService = TextExerciseSubmissionService()
+
+    init(exercise: Exercise, problem: URLRequest) {
+        self.exercise = exercise
+        self.problem = problem
+    }
 }

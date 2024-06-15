@@ -83,8 +83,11 @@ final class ExerciseDetailViewModel {
         let participation = exercise.getSpecificStudentParticipation(testRun: false)
         participationId = participation?.id
         // Sort participation results by completionDate desc.
+        let areInIncreasingOrder = { (lhs: Result, rhs: Result) -> Bool in
+            lhs.completionDate ?? .distantPast > rhs.completionDate ?? .distantPast
+        }
         // The latest result is the first rated result in the sorted array (=newest)
-        if let latestResultId = participation?.results?.max(by: { $0.completionDate ?? .distantPast > $1.completionDate ?? .distantPast })?.id {
+        if let latestResultId = participation?.results?.max(by: areInIncreasingOrder)?.id {
             self.latestResultId = latestResultId
         }
 
