@@ -40,10 +40,6 @@ public struct ExercisePath: Hashable {
     }
 }
 
-public struct ExerciseParticipationPath: Hashable {
-    public let id: Int
-}
-
 public struct LecturePath: Hashable {
     public let id: Int
     public let lecture: Lecture?

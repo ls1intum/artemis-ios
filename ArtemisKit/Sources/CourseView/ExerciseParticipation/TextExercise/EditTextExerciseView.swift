@@ -25,7 +25,7 @@ struct EditTextExerciseView: View {
         .onChange(of: viewModel.text) {
             viewModel.isSubmitted = false
         }
-        .navigationTitle("Exercise")
+        .navigationTitle(viewModel.exercise.baseExercise.title ?? "")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem {
