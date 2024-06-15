@@ -32,7 +32,9 @@ struct EditTextExerciseView: View {
                 HStack {
                     ExerciseParticipationProblemButton(isProblemPresented: $viewModel.isProblemPresented)
                     ExerciseParticipationSubmitButton(
-                        delegate: ExerciseParticipationSubmitButton.Delegate {},
+                        submit: {
+
+                        },
                         isSubmissionAlertPresented: .constant(false),
                         isSubmissionSuccessful: .constant(false))
                 }

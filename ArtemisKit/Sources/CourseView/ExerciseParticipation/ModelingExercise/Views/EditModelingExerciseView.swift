@@ -48,7 +48,7 @@ struct EditModelingExerciseView: View {
                     HStack {
                         ExerciseParticipationProblemButton(isProblemPresented: $isProblemPresented)
                         ExerciseParticipationSubmitButton(
-                            delegate: ExerciseParticipationSubmitButton.Delegate {
+                            submit: {
                                 try await modelingViewModel.submitSubmission()
                             },
                             isSubmissionAlertPresented: $isSubmissionAlertPresented,

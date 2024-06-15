@@ -9,12 +9,7 @@ import DesignLibrary
 import SwiftUI
 
 struct ExerciseParticipationSubmitButton: View {
-
-    struct Delegate {
-        var submit: () async throws -> Void
-    }
-
-    let delegate: Delegate
+    let submit: () async throws -> Void
 
     @Binding var isSubmissionAlertPresented: Bool
     @Binding var isSubmissionSuccessful: Bool
@@ -23,7 +18,7 @@ struct ExerciseParticipationSubmitButton: View {
 
     var body: some View {
         Button {
-            submit()
+            action()
         } label: {
             ZStack {
                 Text(R.string.localizable.submitSubmission())
@@ -49,11 +44,11 @@ private extension ExerciseParticipationSubmitButton {
         }
     }
 
-    func submit() {
+    func action() {
         isSubmitting = true
         Task {
             do {
-                try await delegate.submit()
+                try await submit()
                 isSubmissionSuccessful = true
             } catch {
                 isSubmissionSuccessful = false
