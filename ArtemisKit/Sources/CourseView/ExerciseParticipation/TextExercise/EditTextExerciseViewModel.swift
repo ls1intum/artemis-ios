@@ -17,7 +17,7 @@ final class EditTextExerciseViewModel {
 
     var problem: URLRequest
 
-    var submission: BaseSubmission?
+    var submission: TextSubmission?
     var result: Result?
     var text: String = ""
 
@@ -31,18 +31,27 @@ final class EditTextExerciseViewModel {
 
     var isWebViewLoading = true
 
-    init(exercise: Exercise, participationId: Int, problem: URLRequest) {
+    private let exerciseService: ExerciseService
+    private let exerciseSubmissionService: ExerciseSubmissionService
+
+    init(
+        exercise: Exercise,
+        participationId: Int,
+        problem: URLRequest,
+        exerciseService: ExerciseService = ExerciseServiceFactory.shared
+    ) {
         self.exercise = exercise
         self.participationId = participationId
         self.problem = problem
+
+        self.exerciseService = exerciseService
+        self.exerciseSubmissionService = ExerciseSubmissionServiceFactory.service(for: exercise)
     }
 
     func fetchSubmission() async {
         guard submission == nil else {
             return
         }
-
-        let exerciseService = ExerciseServiceFactory.shared
 
         let data = await exerciseService.getExercise(exerciseId: exercise.id)
         guard let exercise = data.value,
@@ -68,5 +77,16 @@ final class EditTextExerciseViewModel {
     }
 
     func submit() async throws {
+        guard var submission = submission else {
+            return
+        }
+
+        do {
+            submission.text = text
+            try await exerciseSubmissionService.updateSubmission(exerciseId: exercise.id, submission: submission)
+        } catch {
+            log.error(String(describing: error))
+            throw error
+        }
     }
 }
