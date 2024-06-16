@@ -22,9 +22,6 @@ struct EditTextExerciseView: View {
                 }
         }
         .padding([.horizontal, .bottom])
-        .onChange(of: viewModel.text) {
-            viewModel.isSubmitted = false
-        }
         .navigationTitle(viewModel.exercise.baseExercise.title ?? "")
         .navigationBarTitleDisplayMode(.inline)
         .task {
@@ -46,6 +43,9 @@ struct EditTextExerciseView: View {
         .sheet(isPresented: $viewModel.isProblemPresented) {
             sheet
         }
+        .alert(isPresented: $viewModel.isSubmissionAlertPresented) {
+            alert
+        }
     }
 }
 
@@ -59,6 +59,20 @@ extension EditTextExerciseView {
 }
 
 private extension EditTextExerciseView {
+    var alert: Alert {
+        if viewModel.isSubmissionSuccessful {
+            return Alert(
+                title: Text(R.string.localizable.successfulSubmissionAlertTitle()),
+                message: Text(R.string.localizable.successfulSubmissionAlertMessage())
+            )
+        } else {
+            return Alert(
+                title: Text(R.string.localizable.failedSubmissionAlertTitle()),
+                message: Text(R.string.localizable.failedSubmissionAlertMessage())
+            )
+        }
+    }
+
     var sheet: some View {
         NavigationView {
             VStack(alignment: .leading) {

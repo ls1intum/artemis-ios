@@ -21,8 +21,6 @@ final class EditTextExerciseViewModel {
     var result: Result?
     var text: String = ""
 
-    var isSubmitted = false
-
     var isProblemPresented = false
     var isSubmissionAlertPresented = false
     var isSubmissionSuccessful = false

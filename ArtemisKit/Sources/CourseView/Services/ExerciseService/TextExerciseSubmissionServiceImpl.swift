@@ -2,7 +2,7 @@
 //  TextExerciseSubmissionServiceImpl.swift
 //
 //
-//  Created by TUM School on 16.12.23.
+//  Created by Nityananda Zbil on 16.12.23.
 //
 
 import APIClient
@@ -29,21 +29,8 @@ struct TextExerciseSubmissionServiceImpl: ExerciseSubmissionService {
         try await client.sendRequest(StartParticipationRequest(exerciseId: exerciseId)).get().0
     }
 
-//    struct GetLatestSubmissionRequest: APIRequest {
-//        typealias Response = Submission
-//
-//        let participationId: Int
-//
-//        var method: HTTPMethod {
-//            .get
-//        }
-//
-//        var resourceName: String {
-//            "api/participations/\(participationId)/latest-modeling-submission"
-//        }
-//    }
-
     enum GetLatestSubmissionError: Error {
+        // Use ExerciseService.getExercise instead.
         case unavailable
     }
 
