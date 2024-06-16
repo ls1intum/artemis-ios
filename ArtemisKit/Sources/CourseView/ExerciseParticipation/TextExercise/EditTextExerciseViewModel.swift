@@ -23,6 +23,8 @@ final class EditTextExerciseViewModel {
     var isSubmitted = false
 
     var isProblemPresented = false
+    var isSubmissionAlertPresented = false
+    var isSubmissionSuccessful = false
 
     // MARK: Web view
 

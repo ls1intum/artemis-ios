@@ -38,8 +38,8 @@ struct EditTextExerciseView: View {
                         submit: {
                             try await viewModel.submit()
                         },
-                        isSubmissionAlertPresented: .constant(false),
-                        isSubmissionSuccessful: .constant(false))
+                        isSubmissionAlertPresented: $viewModel.isSubmissionAlertPresented,
+                        isSubmissionSuccessful: $viewModel.isSubmissionSuccessful)
                 }
             }
         }
