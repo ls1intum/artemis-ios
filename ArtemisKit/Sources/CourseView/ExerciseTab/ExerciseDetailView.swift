@@ -291,7 +291,10 @@ private struct OpenExerciseButton: View {
             .buttonStyle(ArtemisButton())
         case .text:
             NavigationLink(R.string.localizable.openExercise()) {
-                EditTextExerciseView(exercise: exercise, problem: problemStatementURL)
+                EditTextExerciseView(
+                    exercise: exercise,
+                    participationId: participationId,
+                    problem: problemStatementURL)
             }
             .buttonStyle(ArtemisButton())
         default:

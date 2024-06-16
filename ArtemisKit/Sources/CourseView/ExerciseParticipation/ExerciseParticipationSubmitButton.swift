@@ -36,14 +36,6 @@ struct ExerciseParticipationSubmitButton: View {
 }
 
 private extension ExerciseParticipationSubmitButton {
-    var buttonColor: Color {
-        if isSubmissionAlertPresented {
-            (isSubmissionSuccessful ? Color.Artemis.resultSuccess : Color.Artemis.resultFailedColor)
-        } else {
-            Color.Artemis.primaryButtonColor
-        }
-    }
-
     func action() {
         isSubmitting = true
         Task {
@@ -57,6 +49,14 @@ private extension ExerciseParticipationSubmitButton {
                 isSubmitting = false
                 isSubmissionAlertPresented.toggle()
             }
+        }
+    }
+
+    var buttonColor: Color {
+        if isSubmissionAlertPresented {
+            (isSubmissionSuccessful ? Color.Artemis.resultSuccess : Color.Artemis.resultFailedColor)
+        } else {
+            Color.Artemis.primaryButtonColor
         }
     }
 }

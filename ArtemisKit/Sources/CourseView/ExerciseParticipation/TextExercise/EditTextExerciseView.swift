@@ -27,13 +27,16 @@ struct EditTextExerciseView: View {
         }
         .navigationTitle(viewModel.exercise.baseExercise.title ?? "")
         .navigationBarTitleDisplayMode(.inline)
+        .task {
+            await viewModel.fetchSubmission()
+        }
         .toolbar {
             ToolbarItem {
                 HStack {
                     ExerciseParticipationProblemButton(isProblemPresented: $viewModel.isProblemPresented)
                     ExerciseParticipationSubmitButton(
                         submit: {
-
+                            try await viewModel.submit()
                         },
                         isSubmissionAlertPresented: .constant(false),
                         isSubmissionSuccessful: .constant(false))
@@ -47,8 +50,11 @@ struct EditTextExerciseView: View {
 }
 
 extension EditTextExerciseView {
-    init(exercise: Exercise, problem: URLRequest) {
-        self.init(viewModel: EditTextExerciseViewModel(exercise: exercise, problem: problem))
+    init(exercise: Exercise, participationId: Int, problem: URLRequest) {
+        self.init(viewModel: EditTextExerciseViewModel(
+            exercise: exercise,
+            participationId: participationId,
+            problem: problem))
     }
 }
 
@@ -82,6 +88,7 @@ private extension EditTextExerciseView {
     NavigationStack {
         EditTextExerciseView(
             exercise: .text(exercise: TextExercise(id: 1)),
+            participationId: 1,
             problem: URLRequest(url: URL(string: "example.org")!))
     }
 }
