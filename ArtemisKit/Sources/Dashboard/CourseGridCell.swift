@@ -59,7 +59,7 @@ private extension CourseGridCell {
             .padding([.leading, .vertical], .m)
             VStack(alignment: .leading, spacing: 0) {
                 Text(courseForDashboard.course.title ?? "")
-                    .font(.custom("SF Pro", size: 21, relativeTo: .title))
+                    .font(.system(size: UIFontMetrics.default.scaledValue(for: 21)))
                     .multilineTextAlignment(.leading)
                     .lineLimit(2)
                 Text(R.string.localizable.dashboardExercisesLabel(courseForDashboard.course.exercises?.count ?? 0))
