@@ -75,7 +75,7 @@ final class EditTextExerciseViewModel {
     }
 
     func submit() async throws {
-        guard var submission = submission else {
+        guard var submission else {
             return
         }
 

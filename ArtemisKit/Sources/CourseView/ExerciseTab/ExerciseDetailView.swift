@@ -311,9 +311,14 @@ private struct ViewExerciseSubmissionButton: View {
         switch exercise {
         case .modeling:
             NavigationLink {
-                ViewModelingExerciseView(
-                    exercise: exercise,
-                    participationId: participationId)
+                ViewModelingExerciseView(exercise: exercise, participationId: participationId)
+            } label: {
+                Text(R.string.localizable.viewSubmission())
+            }
+            .buttonStyle(ArtemisButton())
+        case .text:
+            NavigationLink {
+                ViewTextExerciseView(exercise: exercise, participationId: participationId)
             } label: {
                 Text(R.string.localizable.viewSubmission())
             }
