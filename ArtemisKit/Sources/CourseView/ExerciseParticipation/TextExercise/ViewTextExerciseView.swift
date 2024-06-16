@@ -12,14 +12,21 @@ struct ViewTextExerciseView: View {
     @State var viewModel: EditTextExerciseViewModel
 
     var body: some View {
-        TextEditor(text: $viewModel.text)
-            .disabled(true)
-            .task {
-                await viewModel.fetchSubmission()
-            }
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(.visible, for: .navigationBar)
-            .navigationTitle(R.string.localizable.viewSubmissionTitle())
+        VStack(alignment: .leading) {
+            TextEditor(text: $viewModel.text)
+                .disabled(true)
+                .overlay {
+                    RoundedRectangle(cornerRadius: .m)
+                        .stroke(Color.Artemis.artemisBlue)
+                }
+        }
+        .padding()
+        .task {
+            await viewModel.fetchSubmission()
+        }
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(.visible, for: .navigationBar)
+        .navigationTitle(R.string.localizable.viewSubmissionTitle())
     }
 }
 

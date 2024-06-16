@@ -21,7 +21,7 @@ struct EditTextExerciseView: View {
                         .stroke(Color.Artemis.artemisBlue)
                 }
         }
-        .padding([.horizontal, .bottom])
+        .padding()
         .navigationTitle(viewModel.exercise.baseExercise.title ?? "")
         .navigationBarTitleDisplayMode(.inline)
         .task {
