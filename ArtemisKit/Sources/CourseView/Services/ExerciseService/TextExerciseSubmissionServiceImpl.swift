@@ -1,5 +1,5 @@
 //
-//  TextExerciseSubmissionService.swift
+//  TextExerciseSubmissionServiceImpl.swift
 //
 //
 //  Created by TUM School on 16.12.23.
@@ -8,7 +8,7 @@
 import APIClient
 import SharedModels
 
-struct TextExerciseSubmissionService: ExerciseSubmissionService {
+struct TextExerciseSubmissionServiceImpl: ExerciseSubmissionService {
     let client = APIClient()
 
     struct StartParticipationRequest: APIRequest {
