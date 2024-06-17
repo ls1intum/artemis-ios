@@ -76,18 +76,20 @@ private extension EditTextExerciseView {
     var sheet: some View {
         NavigationView {
             VStack(alignment: .leading) {
-                ArtemisWebView(
-                    urlRequest: $viewModel.problem,
-                    isLoading: $viewModel.isWebViewLoading
-                )
-                .loadingIndicator(isLoading: $viewModel.isWebViewLoading)
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button {
-                            viewModel.isProblemPresented = false
-                        } label: {
-                            Text(R.string.localizable.close())
-                        }
+                if let problem = Binding($viewModel.problem) {
+                    ArtemisWebView(
+                        urlRequest: problem,
+                        isLoading: $viewModel.isWebViewLoading
+                    )
+                }
+            }
+            .loadingIndicator(isLoading: $viewModel.isWebViewLoading)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button {
+                        viewModel.isProblemPresented = false
+                    } label: {
+                        Text(R.string.localizable.close())
                     }
                 }
             }

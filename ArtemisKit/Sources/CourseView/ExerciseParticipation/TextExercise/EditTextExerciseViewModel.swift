@@ -15,7 +15,7 @@ final class EditTextExerciseViewModel {
     let exercise: Exercise
     let participationId: Int
 
-    var problem: URLRequest
+    var problem: URLRequest?
 
     var submission: TextSubmission?
     var result: Result?
@@ -35,7 +35,7 @@ final class EditTextExerciseViewModel {
     init(
         exercise: Exercise,
         participationId: Int,
-        problem: URLRequest,
+        problem: URLRequest?,
         exerciseService: ExerciseService = ExerciseServiceFactory.shared
     ) {
         self.exercise = exercise

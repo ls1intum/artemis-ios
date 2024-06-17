@@ -35,6 +35,6 @@ extension ViewTextExerciseView {
         self.init(viewModel: EditTextExerciseViewModel(
             exercise: exercise,
             participationId: participationId,
-            problem: URLRequest(url: URL(string: "example.org")!)))
+            problem: nil))
     }
 }
