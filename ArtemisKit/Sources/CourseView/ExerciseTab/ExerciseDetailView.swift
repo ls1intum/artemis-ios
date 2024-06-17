@@ -345,12 +345,7 @@ private struct ViewExerciseResultButton: View {
             }
             .buttonStyle(ArtemisButton())
         case .text:
-            NavigationLink {
-                ViewTextExerciseResultView(exercise: exercise, participationId: participationId)
-            } label: {
-                Text(R.string.localizable.viewSubmission())
-            }
-            .buttonStyle(ArtemisButton())
+            EmptyView()
         default:
             ArtemisHintBox(text: R.string.localizable.exerciseParticipationHint(), hintType: .info)
         }
