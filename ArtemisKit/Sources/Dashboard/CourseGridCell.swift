@@ -46,17 +46,13 @@ struct CourseGridCell: View {
 private extension CourseGridCell {
     var header: some View {
         HStack(alignment: .center) {
-            AsyncImage(url: courseForDashboard.course.courseIconURL) { phase in
-                switch phase {
-                case let .success(image):
-                    image
-                        .resizable()
-                        .clipShape(.circle)
-                        .frame(width: .extraLargeImage)
-                case .failure, .empty:
-                    EmptyView()
-                @unknown default:
-                    EmptyView()
+            VStack {
+                if let imageURL = courseForDashboard.course.courseIconURL {
+                    ArtemisAsyncImage(imageURL: imageURL) {
+                        EmptyView()
+                    }
+                    .clipShape(.circle)
+                    .frame(width: .extraLargeImage)
                 }
             }
             .frame(height: .extraLargeImage)
