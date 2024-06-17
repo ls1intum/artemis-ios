@@ -346,7 +346,7 @@ private struct ViewExerciseResultButton: View {
             .buttonStyle(ArtemisButton())
         case .text:
             NavigationLink {
-                ViewTextExerciseResultView()
+                ViewTextExerciseResultView(exercise: exercise, participationId: participationId)
             } label: {
                 Text(R.string.localizable.viewSubmission())
             }
