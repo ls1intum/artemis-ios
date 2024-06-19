@@ -13,14 +13,12 @@ import DesignLibrary
 
 struct EditModelingExerciseView: View {
     @StateObject var modelingViewModel: ModelingExerciseViewModel
-    @State private var showSubmissionAlert = false
+
+    @State private var isSubmissionAlertPresented = false
     @State private var isSubmissionSuccessful = false
 
-    init(exercise: Exercise, participationId: Int, problemStatementURL: URLRequest) {
-        self._modelingViewModel = StateObject(wrappedValue: ModelingExerciseViewModel(exercise: exercise,
-                                                                                      participationId: participationId,
-                                                                                      problemStatementURL: problemStatementURL))
-    }
+    @State private var isProblemPresented = false
+    @State private var isWebViewLoading = true
 
     var body: some View {
         ZStack {
@@ -48,117 +46,73 @@ struct EditModelingExerciseView: View {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 if !modelingViewModel.diagramTypeUnsupported {
                     HStack {
-                        ProblemStatementButton(modelingViewModel: modelingViewModel)
-                        SubmitButton(modelingViewModel: modelingViewModel, showSubmissionAlert: $showSubmissionAlert, isSubmissionSuccessful: $isSubmissionSuccessful)
+                        ExerciseParticipationProblemButton(isProblemPresented: $isProblemPresented)
+                        ExerciseParticipationSubmitButton(
+                            submit: {
+                                try await modelingViewModel.submitSubmission()
+                            },
+                            isSubmissionAlertPresented: $isSubmissionAlertPresented,
+                            isSubmissionSuccessful: $isSubmissionSuccessful)
                     }
                 }
             }
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.visible, for: .navigationBar)
-        .alert(isPresented: $showSubmissionAlert) {
-            if isSubmissionSuccessful {
-                return Alert(
-                    title: Text(R.string.localizable.successfulSubmissionAlertTitle()),
-                    message: Text(R.string.localizable.successfulSubmissionAlertMessage())
-                )
-            } else {
-                return Alert(
-                    title: Text(R.string.localizable.failedSubmissionAlertTitle()),
-                    message: Text(R.string.localizable.failedSubmissionAlertMessage())
-                )
-            }
+        .alert(isPresented: $isSubmissionAlertPresented) {
+            alert
+        }
+        .sheet(isPresented: $isProblemPresented) {
+            sheet
         }
     }
 }
 
-struct SubmitButton: View {
-    @ObservedObject var modelingViewModel: ModelingExerciseViewModel
-    @Binding var showSubmissionAlert: Bool
-    @Binding var isSubmissionSuccessful: Bool
-    @State private var isSubmitting = false
-
-    var body: some View {
-        Button {
-            submit()
-        } label: {
-            ZStack {
-                Text(R.string.localizable.submitSubmission())
-                    .opacity(isSubmitting ? 0 : 1)
-                // Show a Progress View, whilst the submision is being submitted
-                if isSubmitting {
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: Color.Artemis.primaryButtonTextColor))
-                }
-            }
-        }
-        .buttonStyle(ArtemisButton(buttonColor: showSubmissionAlert ?
-                                   (isSubmissionSuccessful ? Color.Artemis.resultSuccess : Color.Artemis.resultFailedColor) :
-                                    Color.Artemis.primaryButtonColor,
-                                   buttonTextColor: Color.Artemis.primaryButtonTextColor))
-        .disabled(isSubmitting)
-    }
-
-    private func submit() {
-        isSubmitting = true
-        Task {
-            do {
-                try await modelingViewModel.submitSubmission()
-                isSubmissionSuccessful = true
-            } catch {
-                isSubmissionSuccessful = false
-            }
-            withAnimation {
-                isSubmitting = false
-                showSubmissionAlert.toggle()
-            }
-        }
+extension EditModelingExerciseView {
+    init(exercise: Exercise, participationId: Int, problemStatementURL: URLRequest) {
+        self.init(modelingViewModel: ModelingExerciseViewModel(
+            exercise: exercise,
+            participationId: participationId,
+            problemStatementURL: problemStatementURL))
     }
 }
 
-struct ProblemStatementButton: View {
-    @ObservedObject var modelingViewModel: ModelingExerciseViewModel
-    @State private var isShowingProblemStatement = false
-    @State private var isWebViewLoading = true
-
-    var body: some View {
-        Button {
-            isShowingProblemStatement = true
-        } label: {
-            Image(systemName: "newspaper")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .foregroundColor(.white)
-                .font(.headline)
-                .padding(.vertical, .m)
-                .padding(.horizontal, .l)
-                .background {
-                    RoundedRectangle(cornerRadius: 4)
-                        .foregroundColor(Color.Artemis.primaryButtonColor)
-                }
+private extension EditModelingExerciseView {
+    var alert: Alert {
+        if isSubmissionSuccessful {
+            return Alert(
+                title: Text(R.string.localizable.successfulSubmissionAlertTitle()),
+                message: Text(R.string.localizable.successfulSubmissionAlertMessage())
+            )
+        } else {
+            return Alert(
+                title: Text(R.string.localizable.failedSubmissionAlertTitle()),
+                message: Text(R.string.localizable.failedSubmissionAlertMessage())
+            )
         }
-        .sheet(isPresented: $isShowingProblemStatement) {
-            NavigationView {
-                VStack(alignment: .leading) {
-                    if modelingViewModel.problemStatementURL != nil {
-                        ArtemisWebView(urlRequest: Binding(
-                            get: { modelingViewModel.problemStatementURL ?? URLRequest(url: URL(string: "")!) },
-                            set: { modelingViewModel.problemStatementURL = $0 }),
-                                       isLoading: $isWebViewLoading)
-                        .loadingIndicator(isLoading: $isWebViewLoading)
-                        .toolbar {
-                            ToolbarItem(placement: .cancellationAction) {
-                                Button {
-                                    isShowingProblemStatement = false
-                                } label: {
-                                    Text(R.string.localizable.close())
-                                }
+    }
+
+    var sheet: some View {
+        NavigationView {
+            VStack(alignment: .leading) {
+                if modelingViewModel.problemStatementURL != nil {
+                    ArtemisWebView(urlRequest: Binding(
+                        get: { modelingViewModel.problemStatementURL ?? URLRequest(url: URL(string: "")!) },
+                        set: { modelingViewModel.problemStatementURL = $0 }),
+                                   isLoading: $isWebViewLoading)
+                    .loadingIndicator(isLoading: $isWebViewLoading)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button {
+                                isProblemPresented = false
+                            } label: {
+                                Text(R.string.localizable.close())
                             }
                         }
                     }
                 }
-                .padding(.m)
             }
+            .padding(.m)
         }
     }
 }

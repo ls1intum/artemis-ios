@@ -24,6 +24,8 @@ enum ExerciseSubmissionServiceFactory {
         switch exercise {
         case .modeling:
             return ModelingExerciseSubmissionServiceImpl()
+        case .text:
+            return TextExerciseSubmissionServiceImpl()
         default:
             return UnknownExerciseSubmissionServiceImpl()
         }
