@@ -51,6 +51,7 @@
 "assessment" = "Assessment: %s";
 "showFeedback" = "Show feedback";
 "startExercise" = "Start exercise";
+"openExercise" = "Open exercise";
 "openModelingEditor" = "Open modeling editor";
 "submitSubmission" = "Submit";
 "viewSubmission" = "View submission";

@@ -13,7 +13,7 @@ import DesignLibrary
 
 struct ViewModelingExerciseResultView: View {
     @StateObject var modelingViewModel: ModelingExerciseViewModel
-    @State var isStatusViewClicked = false
+    @State var isAssessmentPresented = false
 
     init(exercise: Exercise, participationId: Int) {
         self._modelingViewModel = StateObject(wrappedValue: ModelingExerciseViewModel(exercise: exercise,
@@ -55,11 +55,14 @@ struct ViewModelingExerciseResultView: View {
                 SubmissionResultStatusView(exercise: modelingViewModel.exercise)
             }
             ToolbarItemGroup(placement: .navigationBarTrailing) {
-                AssessmentViewButton(modelingViewModel: modelingViewModel, isStatusViewClicked: $isStatusViewClicked)
+                ExerciseParticipationAssessmentButton(isAssessmentPresented: $isAssessmentPresented)
             }
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(.visible, for: .navigationBar)
+        .sheet(isPresented: $isAssessmentPresented) {
+            AssessmentView(modelingViewModel: modelingViewModel, isAssessmentPresented: $isAssessmentPresented)
+        }
     }
 }
 
@@ -118,41 +121,15 @@ private struct FeedbackViewPopOver: View {
     }
 }
 
-private struct AssessmentViewButton: View {
-    @ObservedObject var modelingViewModel: ModelingExerciseViewModel
-    @Binding var isStatusViewClicked: Bool
-
-    var body: some View {
-        Button {
-            self.isStatusViewClicked = true
-        } label: {
-            Image(systemName: "ellipsis.message")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .foregroundColor(.white)
-                .font(.headline)
-                .padding(.vertical, .m)
-                .padding(.horizontal, .l)
-                .background {
-                    RoundedRectangle(cornerRadius: 4)
-                        .foregroundColor(Color.Artemis.primaryButtonColor)
-                }
-        }
-        .sheet(isPresented: $isStatusViewClicked) {
-            AssessmentView(modelingViewModel: modelingViewModel, isStatusViewClicked: $isStatusViewClicked)
-        }
-    }
-}
-
 private struct AssessmentView: View {
     @ObservedObject var modelingViewModel: ModelingExerciseViewModel
-    @Binding var isStatusViewClicked: Bool
+    @Binding var isAssessmentPresented: Bool
 
     var body: some View {
         ScrollView(.vertical) {
             VStack(alignment: .leading, spacing: .s) {
                 Button {
-                    isStatusViewClicked = false
+                    isAssessmentPresented = false
                 } label: {
                     Text(R.string.localizable.close())
                 }
