@@ -29,10 +29,12 @@ private struct NotificationBell: ViewModifier {
                         Image(systemName: "bell.fill")
                             .overlay(Badge(count: viewModel.newNotificationCount))
                     }
+                    .popover(isPresented: $isNotificationSheetPresented) {
+                        let minSize = min(UIScreen.main.bounds.width, UIScreen.main.bounds.height) * 0.8
+                        NotificationView(viewModel: viewModel)
+                            .frame(minWidth: minSize, minHeight: minSize)
+                    }
                 }
-            }
-            .sheet(isPresented: $isNotificationSheetPresented) {
-                NotificationView(viewModel: viewModel)
             }
             .task {
                 await viewModel.subscribeToNotificationUpdates()
