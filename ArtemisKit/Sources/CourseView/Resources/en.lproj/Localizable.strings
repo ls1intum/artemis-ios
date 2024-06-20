@@ -46,7 +46,6 @@
 
 // MARK: - ExerciseDetailView
 "exerciseDetails" = "Exercise details";
-"dueDate" = "Due Date: %s";
 "noDueDate" = "No due date";
 "points" = "Points: %s of %s";
 "assessment" = "Assessment: %s";
