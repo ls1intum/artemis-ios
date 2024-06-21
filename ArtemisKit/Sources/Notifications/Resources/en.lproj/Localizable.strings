@@ -1,5 +1,6 @@
 "artemisLabel" = "Artemis";
 "ok" = "OK";
+"close" = "Close";
 
 "notificationsTitle" = "Notifications";
 "notificationAuthorLabel" = "%@ by %@";
