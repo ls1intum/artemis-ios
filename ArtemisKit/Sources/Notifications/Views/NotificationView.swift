@@ -57,6 +57,13 @@ struct NotificationView: View {
             .alert(R.string.localizable.notificationTargetNotFound(), isPresented: $isTargetNotFoundAlertPresented) {
                 Button(R.string.localizable.ok(), role: .cancel) { }
             }
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(R.string.localizable.close()) {
+                        dismiss()
+                    }
+                }
+            }
         }
     }
 }
