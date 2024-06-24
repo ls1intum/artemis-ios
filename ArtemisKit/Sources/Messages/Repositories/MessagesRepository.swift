@@ -25,7 +25,7 @@ final class MessagesRepository {
 
     init(timeoutInSeconds: Int = 24 * 60 * 60) throws {
         let schema = Schema(versionedSchema: SchemaV1.self)
-        let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+        let configuration = ModelConfiguration(schema: schema)
         let container = try ModelContainer(for: schema, configurations: configuration)
         self.context = container.mainContext
         self.seconds = timeoutInSeconds
