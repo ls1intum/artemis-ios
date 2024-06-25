@@ -8,7 +8,7 @@
 import Foundation
 
 enum MentionScheme {
-    case attachment(Int)
+    case attachment(String, lectureId: Int)
     case channel(Int64)
     case exercise(Int)
     case lecture(Int)
@@ -24,8 +24,8 @@ enum MentionScheme {
         switch url.host() {
         case "attachment":
             // E.g., mention://attachment/lecture/3/LectureAttachment_2024-05-24T21-05-08-351_d37182b7.png
-            if url.pathComponents.count >= 3, let lectureId = Int(url.pathComponents[3]) {
-                self = .attachment(lectureId)
+            if url.pathComponents.count >= 3, let lectureId = Int(url.pathComponents[2]) {
+                self = .attachment(url.lastPathComponent, lectureId: lectureId)
                 return
             }
         case "channel":
