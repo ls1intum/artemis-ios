@@ -216,7 +216,15 @@ private extension MessageCell {
                     }
                 }
             case let .message(id):
-                break
+                guard let index = conversationViewModel.messages.firstIndex(of: .of(id: id)),
+                      let messagePath = MessagePath(
+                        message: Binding.constant(.done(response: conversationViewModel.messages[index].rawValue)),
+                        conversationPath: ConversationPath(conversation: conversationViewModel.conversation, coursePath: coursePath),
+                        conversationViewModel: conversationViewModel) else {
+                    break
+                }
+
+                navigationController.path.append(messagePath)
             case let .slide:
                 break
             }

@@ -14,7 +14,7 @@ enum MentionScheme {
     case lecture(Int)
     case lectureUnit
     case member(String)
-    case message(Int)
+    case message(Int64)
     case slide
 
     init?(_ url: URL) {
@@ -51,8 +51,9 @@ enum MentionScheme {
             return
         case "message":
             // E.g., mention://message/1
-            if let id = Int(url.lastPathComponent) {
+            if let id = Int64(url.lastPathComponent) {
                 self = .message(id)
+                return
             }
         case "slide":
             // E.g., mention://slide/attachment-unit/10/slide/1
