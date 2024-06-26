@@ -209,28 +209,13 @@ private extension MessageCell {
                 navigationController.path.append(LecturePath(id: id, coursePath: coursePath))
             case let .lectureUnit(id, attachmentUnit):
                 Task {
-                    let vm = SendMessageLecturePickerViewModel(
-                        course: conversationViewModel.course,
-                        delegate: SendMessageMentionContentDelegate { _ in })
+                    let delegate = SendMessageLecturePickerViewModel(course: conversationViewModel.course)
 
-                    await vm.loadLecturesWithSlides()
+                    await delegate.loadLecturesWithSlides()
 
-                    for lecture in vm.lectures {
-                        for lectureUnit in lecture.lectureUnits ?? [] {
-
-                            if let name = lectureUnit.baseUnit.name,
-                               case let .attachment(attachment) = lectureUnit,
-                               case let .file(file) = attachment.attachment,
-                               let link = file.link,
-                               let url = URL(string: link),
-                               url.pathComponents.count >= 7,
-                               url.lastPathComponent == id {
-
-                                navigationController.path.append(LecturePath(id: lecture.id, coursePath: coursePath))
-
-                                return
-                            }
-                        }
+                    if let lecture = delegate.firstLectureContains(lectureUnit: id) {
+                        navigationController.path.append(LecturePath(id: lecture.id, coursePath: coursePath))
+                        return
                     }
                 }
             case let .member(login):
@@ -249,21 +234,15 @@ private extension MessageCell {
                 }
 
                 navigationController.path.append(messagePath)
-            case let .slide(id, attachmentUnit):
+            case let .slide(number, attachmentUnit):
                 Task {
-                    let vm = SendMessageLecturePickerViewModel(
-                        course: conversationViewModel.course,
-                        delegate: SendMessageMentionContentDelegate { _ in })
+                    let delegate = SendMessageLecturePickerViewModel(course: conversationViewModel.course)
 
-                    await vm.loadLecturesWithSlides()
+                    await delegate.loadLecturesWithSlides()
 
-                    for lecture in vm.lectures {
-                        for lectureUnit in lecture.lectureUnits ?? [] where lectureUnit.baseUnit.id == attachmentUnit {
-
-                            navigationController.path.append(LecturePath(id: lecture.id, coursePath: coursePath))
-
-                            return
-                        }
+                    if let lecture = delegate.firstLectureContains(attachmentUnit: attachmentUnit) {
+                        navigationController.path.append(LecturePath(id: lecture.id, coursePath: coursePath))
+                        return
                     }
                 }
             }
