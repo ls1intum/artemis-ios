@@ -207,7 +207,33 @@ private extension MessageCell {
                 navigationController.path.append(ExercisePath(id: id, coursePath: coursePath))
             case let .lecture(id):
                 navigationController.path.append(LecturePath(id: id, coursePath: coursePath))
-            case let .lectureUnit:
+            case let .lectureUnit(id, attachmentUnit):
+                Task {
+                    let vm = SendMessageLecturePickerViewModel(
+                        course: conversationViewModel.course,
+                        delegate: SendMessageMentionContentDelegate { _ in })
+
+                    await vm.task() // rename
+
+                    for lecture in vm.lectures {
+                        for lectureUnit in lecture.lectureUnits ?? [] {
+
+                            if let name = lectureUnit.baseUnit.name,
+                               case let .attachment(attachment) = lectureUnit,
+                               case let .file(file) = attachment.attachment,
+                               let link = file.link,
+                               let url = URL(string: link),
+                               url.pathComponents.count >= 7 {
+
+                                if url.lastPathComponent == id {
+                                    navigationController.path.append(LecturePath(id: lecture.id, coursePath: coursePath))
+
+                                    return
+                                }
+                            }
+                        }
+                    }
+                }
                 break
             case let .member(login):
                 Task {

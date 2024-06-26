@@ -12,7 +12,7 @@ enum MentionScheme {
     case channel(Int64)
     case exercise(Int)
     case lecture(Int)
-    case lectureUnit
+    case lectureUnit(String, attachmentUnit: Int)
     case member(String)
     case message(Int64)
     case slide
@@ -45,7 +45,10 @@ enum MentionScheme {
             }
         case "lecture-unit":
             // E.g., mention://lecture-unit/attachment-unit/7/AttachmentUnit_2024-05-24T21-12-25-915_Inheritance__part_1_.pdf
-            self = .lectureUnit
+            if url.pathComponents.count >= 4, let attachmentUnit = Int(url.pathComponents[2]) {
+                self = .lectureUnit(url.lastPathComponent, attachmentUnit: attachmentUnit)
+                return
+            }
         case "member":
             self = .member(url.lastPathComponent)
             return
