@@ -55,17 +55,25 @@ struct ConversationRow<T: BaseConversation>: View {
 
 private extension ConversationRow {
     @ViewBuilder var contextMenuItems: some View {
-        Button((conversation.isFavorite ?? false) ? R.string.localizable.unfavorite() : R.string.localizable.favorite()) {
+        let isFavorite = conversation.isFavorite ?? false
+        Button(isFavorite ? R.string.localizable.unfavorite() : R.string.localizable.favorite(),
+               systemImage: isFavorite ? "heart.slash.fill" : "heart.fill") {
             Task(priority: .userInitiated) {
                 await viewModel.setIsConversationFavorite(conversationId: conversation.id, isFavorite: !(conversation.isFavorite ?? false))
             }
         }
-        Button((conversation.isMuted ?? false) ? R.string.localizable.unmute() : R.string.localizable.mute()) {
+
+        let isMuted = conversation.isMuted ?? false
+        Button(isMuted ? R.string.localizable.unmute() : R.string.localizable.mute(),
+               systemImage: isMuted ? "bell.fill" : "bell.slash.fill") {
             Task(priority: .userInitiated) {
                 await viewModel.setIsConversationMuted(conversationId: conversation.id, isMuted: !(conversation.isMuted ?? false))
             }
         }
-        Button((conversation.isHidden ?? false) ? R.string.localizable.show() : R.string.localizable.hide()) {
+
+        let isHidden = conversation.isHidden ?? false
+        Button(isHidden ? R.string.localizable.show() : R.string.localizable.hide(),
+               systemImage: isHidden ? "eye.fill" : "eye.slash.fill") {
             Task(priority: .userInitiated) {
                 await viewModel.setConversationIsHidden(conversationId: conversation.id, isHidden: !(conversation.isHidden ?? false))
             }
