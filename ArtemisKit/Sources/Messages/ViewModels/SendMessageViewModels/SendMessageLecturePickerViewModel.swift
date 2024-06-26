@@ -13,19 +13,19 @@ import SwiftUI
 final class SendMessageLecturePickerViewModel {
 
     let course: Course
-    var lectureUnits: [LectureUnit]
+    var lectures: [Lecture]
 
     private let delegate: SendMessageMentionContentDelegate
     private let lectureService: LectureService
 
     init(
         course: Course,
-        lectureUnits: [LectureUnit] = [],
+        lectures: [Lecture] = [],
         delegate: SendMessageMentionContentDelegate,
         lectureService: LectureService = LectureServiceFactory.shared
     ) {
         self.course = course
-        self.lectureUnits = lectureUnits
+        self.lectures = lectures
         self.delegate = delegate
         self.lectureService = lectureService
     }
@@ -33,10 +33,8 @@ final class SendMessageLecturePickerViewModel {
     func task() async {
         let lectures = await lectureService.getLecturesWithSlides(courseId: course.id)
 
-        if case let .done(lectures) = lectures,
-           let lecture = lectures.first,
-           let lectureUnits = lecture.lectureUnits {
-            self.lectureUnits = lectureUnits
+        if case let .done(lectures) = lectures {
+            self.lectures = lectures
         }
     }
 
