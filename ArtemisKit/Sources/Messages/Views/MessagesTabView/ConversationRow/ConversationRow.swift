@@ -36,6 +36,12 @@ struct ConversationRow<T: BaseConversation>: View {
                 if let unreadCount = conversation.unreadMessagesCount {
                     Badge(count: unreadCount)
                 }
+                Menu {
+                    contextMenuItems
+                } label: {
+                    Image(systemName: "ellipsis")
+                        .padding(.m)
+                }
             }
             .opacity((conversation.unreadMessagesCount ?? 0) > 0 ? 1 : 0.7)
             .contextMenu {
