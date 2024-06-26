@@ -96,7 +96,7 @@ public struct MessagesAvailableView: View {
                         viewModel: viewModel,
                         conversations: $viewModel.oneToOneChats,
                         sectionTitle: R.string.localizable.directMessages(),
-                        sectionIconName: "message.fill",
+                        sectionIconName: "bubble.left.fill",
                         conversationType: .oneToOneChat)
                     MixedMessageSection(
                         viewModel: viewModel,
