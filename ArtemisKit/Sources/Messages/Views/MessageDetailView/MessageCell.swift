@@ -249,8 +249,23 @@ private extension MessageCell {
                 }
 
                 navigationController.path.append(messagePath)
-            case let .slide:
-                break
+            case let .slide(id, attachmentUnit):
+                Task {
+                    let vm = SendMessageLecturePickerViewModel(
+                        course: conversationViewModel.course,
+                        delegate: SendMessageMentionContentDelegate { _ in })
+
+                    await vm.loadLecturesWithSlides()
+
+                    for lecture in vm.lectures {
+                        for lectureUnit in lecture.lectureUnits ?? [] where lectureUnit.baseUnit.id == attachmentUnit {
+
+                            navigationController.path.append(LecturePath(id: lecture.id, coursePath: coursePath))
+
+                            return
+                        }
+                    }
+                }
             }
             return .handled
         }
