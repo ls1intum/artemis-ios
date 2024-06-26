@@ -30,7 +30,7 @@ final class SendMessageLecturePickerViewModel {
         self.lectureService = lectureService
     }
 
-    func task() async {
+    func loadLecturesWithSlides() async {
         let lectures = await lectureService.getLecturesWithSlides(courseId: course.id)
 
         if case let .done(lectures) = lectures {

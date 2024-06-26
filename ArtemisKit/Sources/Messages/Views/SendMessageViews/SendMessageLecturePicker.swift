@@ -24,7 +24,7 @@ struct SendMessageLecturePicker: View {
             }
         }
         .task {
-            await viewModel.task()
+            await viewModel.loadLecturesWithSlides()
         }
         .navigationTitle(R.string.localizable.lectures())
         .navigationBarTitleDisplayMode(.inline)

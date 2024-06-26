@@ -213,7 +213,7 @@ private extension MessageCell {
                         course: conversationViewModel.course,
                         delegate: SendMessageMentionContentDelegate { _ in })
 
-                    await vm.task() // rename
+                    await vm.loadLecturesWithSlides()
 
                     for lecture in vm.lectures {
                         for lectureUnit in lecture.lectureUnits ?? [] {
@@ -223,18 +223,16 @@ private extension MessageCell {
                                case let .file(file) = attachment.attachment,
                                let link = file.link,
                                let url = URL(string: link),
-                               url.pathComponents.count >= 7 {
+                               url.pathComponents.count >= 7,
+                               url.lastPathComponent == id {
 
-                                if url.lastPathComponent == id {
-                                    navigationController.path.append(LecturePath(id: lecture.id, coursePath: coursePath))
+                                navigationController.path.append(LecturePath(id: lecture.id, coursePath: coursePath))
 
-                                    return
-                                }
+                                return
                             }
                         }
                     }
                 }
-                break
             case let .member(login):
                 Task {
                     if let conversation = await viewModel.getOneToOneChatOrCreate(login: login) {
