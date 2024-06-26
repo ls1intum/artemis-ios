@@ -71,24 +71,6 @@ final class SendMessageLecturePickerViewModel {
         }
     }
 
-    func firstLectureContains(lectureUnit filename: String) -> Lecture? {
-        for lecture in lectures {
-            for lectureUnit in lecture.lectureUnits ?? [] {
-
-                if let name = lectureUnit.baseUnit.name,
-                   case let .attachment(attachment) = lectureUnit,
-                   case let .file(file) = attachment.attachment,
-                   let link = file.link,
-                   let url = URL(string: link),
-                   url.pathComponents.count >= 7,
-                   url.lastPathComponent == filename {
-                    return lecture
-                }
-            }
-        }
-        return nil
-    }
-
     func firstLectureContains(attachmentUnit id: Int) -> Lecture? {
         for lecture in lectures {
             for lectureUnit in lecture.lectureUnits ?? [] where lectureUnit.baseUnit.id == id {

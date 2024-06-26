@@ -213,7 +213,7 @@ private extension MessageCell {
 
                     await delegate.loadLecturesWithSlides()
 
-                    if let lecture = delegate.firstLectureContains(lectureUnit: id) {
+                    if let lecture = delegate.firstLectureContains(attachmentUnit: attachmentUnit) {
                         navigationController.path.append(LecturePath(id: lecture.id, coursePath: coursePath))
                         return
                     }
