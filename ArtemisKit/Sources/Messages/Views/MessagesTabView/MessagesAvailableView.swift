@@ -57,44 +57,52 @@ public struct MessagesAvailableView: View {
                     MixedMessageSection(
                         viewModel: viewModel,
                         conversations: $viewModel.favoriteConversations,
-                        sectionTitle: R.string.localizable.favoritesSection())
+                        sectionTitle: R.string.localizable.favoritesSection(),
+                        sectionIconName: "heart.fill")
                     MessageSection(
                         viewModel: viewModel,
                         conversations: $viewModel.channels,
                         sectionTitle: R.string.localizable.channels(),
+                        sectionIconName: "bubble.left.fill",
                         conversationType: .channel)
                     MessageSection(
                         viewModel: viewModel,
                         conversations: $viewModel.exercises,
                         sectionTitle: R.string.localizable.exercises(),
+                        sectionIconName: "list.bullet",
                         conversationType: .channel,
                         isExpanded: false)
                     MessageSection(
                         viewModel: viewModel,
                         conversations: $viewModel.lectures,
                         sectionTitle: R.string.localizable.lectures(),
+                        sectionIconName: "doc.fill",
                         conversationType: .channel,
                         isExpanded: false)
                     MessageSection(
                         viewModel: viewModel,
                         conversations: $viewModel.exams,
                         sectionTitle: R.string.localizable.exams(),
+                        sectionIconName: "graduationcap.fill",
                         conversationType: .channel,
                         isExpanded: false)
                     MessageSection(
                         viewModel: viewModel,
                         conversations: $viewModel.groupChats,
                         sectionTitle: R.string.localizable.groupChats(),
+                        sectionIconName: "bubble.left.and.bubble.right.fill",
                         conversationType: .groupChat)
                     MessageSection(
                         viewModel: viewModel,
                         conversations: $viewModel.oneToOneChats,
                         sectionTitle: R.string.localizable.directMessages(),
+                        sectionIconName: "message.fill",
                         conversationType: .oneToOneChat)
                     MixedMessageSection(
                         viewModel: viewModel,
                         conversations: $viewModel.hiddenConversations,
                         sectionTitle: R.string.localizable.hiddenSection(),
+                        sectionIconName: "nosign",
                         isExpanded: false)
                 }
                 .listRowSeparator(.visible, edges: .top)
@@ -158,16 +166,19 @@ private struct MixedMessageSection: View {
     @State private var isExpanded = true
 
     private let sectionTitle: String
+    private let sectionIconName: String
 
     init(
         viewModel: MessagesAvailableViewModel,
         conversations: Binding<DataState<[Conversation]>>,
         sectionTitle: String,
+        sectionIconName: String,
         isExpanded: Bool = true
     ) {
         self.viewModel = viewModel
         self._conversations = conversations
         self.sectionTitle = sectionTitle
+        self.sectionIconName = sectionIconName
         self._isExpanded = State(wrappedValue: isExpanded)
     }
 
@@ -211,6 +222,7 @@ private struct MixedMessageSection: View {
                     SectionDisclosureLabel(
                         viewModel: viewModel,
                         sectionTitle: sectionTitle,
+                        sectionIconName: sectionIconName,
                         sectionUnreadCount: sectionUnreadCount,
                         isUnreadCountVisible: !isExpanded,
                         conversationType: nil)
@@ -230,6 +242,7 @@ private struct SectionDisclosureLabel: View {
     @State private var isCreateChannelPresented = false
 
     let sectionTitle: String
+    let sectionIconName: String
     let sectionUnreadCount: Int
     let isUnreadCountVisible: Bool
 
@@ -237,8 +250,9 @@ private struct SectionDisclosureLabel: View {
 
     var body: some View {
         HStack {
-            Text(sectionTitle)
+            Label(sectionTitle, systemImage: sectionIconName)
                 .font(.headline)
+                .foregroundStyle(.primary)
             Spacer()
             if isUnreadCountVisible {
                 Badge(count: sectionUnreadCount)
@@ -258,6 +272,7 @@ private struct SectionDisclosureLabel: View {
                     }
             }
         }
+        .padding(.vertical, .m)
         .sheet(isPresented: $isCreateNewConversationPresented) {
             CreateOrAddToChatView(courseId: viewModel.courseId, configuration: .createChat)
         }
@@ -294,7 +309,8 @@ private struct MessageSection<T: BaseConversation>: View {
 
     @State private var isExpanded = true
 
-    var sectionTitle: String
+    let sectionTitle: String
+    let sectionIconName: String
     var conversationType: ConversationType
 
     var sectionUnreadCount: Int {
@@ -307,12 +323,14 @@ private struct MessageSection<T: BaseConversation>: View {
         viewModel: MessagesAvailableViewModel,
         conversations: Binding<DataState<[T]>>,
         sectionTitle: String,
+        sectionIconName: String,
         conversationType: ConversationType,
         isExpanded: Bool = true
     ) {
         self.viewModel = viewModel
         self._conversations = conversations
         self.sectionTitle = sectionTitle
+        self.sectionIconName = sectionIconName
         self.conversationType = conversationType
         self._isExpanded = State(wrappedValue: isExpanded)
     }
@@ -339,6 +357,7 @@ private struct MessageSection<T: BaseConversation>: View {
             SectionDisclosureLabel(
                 viewModel: viewModel,
                 sectionTitle: sectionTitle,
+                sectionIconName: sectionIconName,
                 sectionUnreadCount: sectionUnreadCount,
                 isUnreadCountVisible: !isExpanded,
                 conversationType: conversationType)
