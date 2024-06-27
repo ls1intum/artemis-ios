@@ -199,16 +199,25 @@ private extension MessageCell {
         if let mention = MentionScheme(url) {
             let coursePath = CoursePath(course: conversationViewModel.course)
             switch mention {
-            case let .attachment(id):
-                navigationController.path.append(LecturePath(id: id, coursePath: coursePath))
+            case let .attachment(id, lectureId):
+                navigationController.path.append(LecturePath(id: lectureId, coursePath: coursePath))
             case let .channel(id):
                 navigationController.path.append(ConversationPath(id: id, coursePath: coursePath))
             case let .exercise(id):
                 navigationController.path.append(ExercisePath(id: id, coursePath: coursePath))
             case let .lecture(id):
                 navigationController.path.append(LecturePath(id: id, coursePath: coursePath))
-            case let .lectureUnit:
-                break
+            case let .lectureUnit(id, attachmentUnit):
+                Task {
+                    let delegate = SendMessageLecturePickerViewModel(course: conversationViewModel.course)
+
+                    await delegate.loadLecturesWithSlides()
+
+                    if let lecture = delegate.firstLectureContains(attachmentUnit: attachmentUnit) {
+                        navigationController.path.append(LecturePath(id: lecture.id, coursePath: coursePath))
+                        return
+                    }
+                }
             case let .member(login):
                 Task {
                     if let conversation = await viewModel.getOneToOneChatOrCreate(login: login) {
@@ -216,9 +225,26 @@ private extension MessageCell {
                     }
                 }
             case let .message(id):
-                break
-            case let .slide:
-                break
+                guard let index = conversationViewModel.messages.firstIndex(of: .of(id: id)),
+                      let messagePath = MessagePath(
+                        message: Binding.constant(.done(response: conversationViewModel.messages[index].rawValue)),
+                        conversationPath: ConversationPath(conversation: conversationViewModel.conversation, coursePath: coursePath),
+                        conversationViewModel: conversationViewModel) else {
+                    break
+                }
+
+                navigationController.path.append(messagePath)
+            case let .slide(number, attachmentUnit):
+                Task {
+                    let delegate = SendMessageLecturePickerViewModel(course: conversationViewModel.course)
+
+                    await delegate.loadLecturesWithSlides()
+
+                    if let lecture = delegate.firstLectureContains(attachmentUnit: attachmentUnit) {
+                        navigationController.path.append(LecturePath(id: lecture.id, coursePath: coursePath))
+                        return
+                    }
+                }
             }
             return .handled
         }

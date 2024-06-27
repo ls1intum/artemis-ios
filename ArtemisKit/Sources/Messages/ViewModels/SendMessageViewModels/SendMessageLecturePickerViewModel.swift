@@ -13,30 +13,28 @@ import SwiftUI
 final class SendMessageLecturePickerViewModel {
 
     let course: Course
-    var lectureUnits: [LectureUnit]
+    var lectures: [Lecture]
 
     private let delegate: SendMessageMentionContentDelegate
     private let lectureService: LectureService
 
     init(
         course: Course,
-        lectureUnits: [LectureUnit] = [],
-        delegate: SendMessageMentionContentDelegate,
+        lectures: [Lecture] = [],
+        delegate: SendMessageMentionContentDelegate = SendMessageMentionContentDelegate { _ in },
         lectureService: LectureService = LectureServiceFactory.shared
     ) {
         self.course = course
-        self.lectureUnits = lectureUnits
+        self.lectures = lectures
         self.delegate = delegate
         self.lectureService = lectureService
     }
 
-    func task() async {
+    func loadLecturesWithSlides() async {
         let lectures = await lectureService.getLecturesWithSlides(courseId: course.id)
 
-        if case let .done(lectures) = lectures,
-           let lecture = lectures.first,
-           let lectureUnits = lecture.lectureUnits {
-            self.lectureUnits = lectureUnits
+        if case let .done(lectures) = lectures {
+            self.lectures = lectures
         }
     }
 
@@ -71,5 +69,14 @@ final class SendMessageLecturePickerViewModel {
 
             delegate.pickerDidSelect("[slide]\(name) Slide \(slideNumber)(\(id))[/slide]")
         }
+    }
+
+    func firstLectureContains(attachmentUnit id: Int) -> Lecture? {
+        for lecture in lectures {
+            for lectureUnit in lecture.lectureUnits ?? [] where lectureUnit.baseUnit.id == id {
+                return lecture
+            }
+        }
+        return nil
     }
 }
