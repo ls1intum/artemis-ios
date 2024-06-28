@@ -178,6 +178,7 @@ private extension SendMessageView {
                         viewModel.didTapLinkButton()
                     } label: {
                         Label(R.string.localizable.link(), systemImage: "link")
+                            .labelStyle(.iconOnly)
                     }
                 }
             }
