@@ -51,8 +51,8 @@ struct SendMessageView: View {
                     }
                 }
         )
-        .sheet(isPresented: $viewModel.isMentionContentViewPresented) {
-            SendMessageMentionContentView(viewModel: viewModel)
+        .sheet(item: $viewModel.wantsToAddMessageMentionContentType) { type in
+            SendMessageMentionContentView(viewModel: viewModel, type: type)
                 .presentationDetents([.fraction(0.5), .medium])
         }
     }
@@ -106,11 +106,31 @@ private extension SendMessageView {
     var keyboardToolbarContent: some View {
         HStack {
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack {
-                    Button {
-                        viewModel.isMentionContentViewPresented.toggle()
+                HStack(spacing: .l) {
+                    Menu {
+                        Button {
+                            viewModel.didTapAtButton()
+                        } label: {
+                            Label(R.string.localizable.members(), systemImage: "at")
+                        }
+                        Button {
+                            viewModel.didTapNumberButton()
+                        } label: {
+                            Label(R.string.localizable.channels(), systemImage: "number")
+                        }
+                        Button {
+                            viewModel.wantsToAddMessageMentionContentType = .exercise
+                        } label: {
+                            Label(R.string.localizable.exercises(), systemImage: "list.bullet.clipboard")
+                        }
+                        Button {
+                            viewModel.wantsToAddMessageMentionContentType = .lecture
+                        } label: {
+                            Label(R.string.localizable.lectures(), systemImage: "character.book.closed")
+                        }
                     } label: {
-                        Image(systemName: "plus.circle.fill")
+                        Label("Mention", systemImage: "plus.circle.fill")
+                            .labelStyle(.iconOnly)
                     }
                     Menu {
                         Button {
@@ -138,16 +158,21 @@ private extension SendMessageView {
                     } label: {
                         Image(systemName: "quote.opening")
                     }
-                    Button {
-                        viewModel.didTapCodeButton()
+                    Menu {
+                        Button {
+                            viewModel.didTapCodeButton()
+                        } label: {
+                            Label("Inline code", systemImage: "curlybraces")
+                        }
+                        Button {
+                            viewModel.didTapCodeBlockButton()
+                        } label: {
+                            Label("Code block", systemImage: "curlybraces.square.fill")
+                        }
                     } label: {
-                        Image(systemName: "curlybraces")
-                    }
-                    Button {
-                        viewModel.didTapCodeBlockButton()
-                    } label: {
-                        Image(systemName: "curlybraces.square.fill")
-                    }
+                        Label("Code", systemImage: "curlybraces")
+                            .labelStyle(.iconOnly)
+                    }.pickerStyle(.palette)
                     Button {
                         viewModel.didTapLinkButton()
                     } label: {
