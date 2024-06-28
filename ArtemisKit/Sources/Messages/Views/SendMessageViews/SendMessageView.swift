@@ -129,54 +129,55 @@ private extension SendMessageView {
                             Label(R.string.localizable.lectures(), systemImage: "character.book.closed")
                         }
                     } label: {
-                        Label("Mention", systemImage: "plus.circle.fill")
+                        Label(R.string.localizable.mention(), systemImage: "plus.circle.fill")
                             .labelStyle(.iconOnly)
                     }
                     Menu {
                         Button {
                             viewModel.didTapBoldButton()
                         } label: {
-                            Label("Bold", systemImage: "bold")
+                            Label(R.string.localizable.bold(), systemImage: "bold")
                         }
                         Button {
                             viewModel.didTapItalicButton()
                         } label: {
-                            Label("Italic", systemImage: "italic")
+                            Label(R.string.localizable.italic(), systemImage: "italic")
                         }
                         Button {
                             viewModel.didTapUnderlineButton()
                         } label: {
-                            Label("Underline", systemImage: "underline")
+                            Label(R.string.localizable.underline(), systemImage: "underline")
                         }
                     } label: {
                         // TODO: Localize
-                        Label("Format", systemImage: "bold.italic.underline")
+                        Label(R.string.localizable.style(), systemImage: "bold.italic.underline")
                             .labelStyle(.iconOnly)
                     }
                     Button {
                         viewModel.didTapBlockquoteButton()
                     } label: {
-                        Image(systemName: "quote.opening")
+                        Label(R.string.localizable.quote(), systemImage: "quote.opening")
+                            .labelStyle(.iconOnly)
                     }
                     Menu {
                         Button {
                             viewModel.didTapCodeButton()
                         } label: {
-                            Label("Inline code", systemImage: "curlybraces")
+                            Label(R.string.localizable.inlineCode(), systemImage: "curlybraces")
                         }
                         Button {
                             viewModel.didTapCodeBlockButton()
                         } label: {
-                            Label("Code block", systemImage: "curlybraces.square.fill")
+                            Label(R.string.localizable.codeBlock(), systemImage: "curlybraces.square.fill")
                         }
                     } label: {
-                        Label("Code", systemImage: "curlybraces")
+                        Label(R.string.localizable.code(), systemImage: "curlybraces")
                             .labelStyle(.iconOnly)
-                    }.pickerStyle(.palette)
+                    }
                     Button {
                         viewModel.didTapLinkButton()
                     } label: {
-                        Image(systemName: "link")
+                        Label(R.string.localizable.link(), systemImage: "link")
                     }
                 }
             }
