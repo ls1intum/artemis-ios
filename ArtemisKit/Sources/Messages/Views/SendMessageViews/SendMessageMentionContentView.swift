@@ -18,11 +18,20 @@ struct SendMessageMentionContentView: View {
                 viewModel?.text.append(mention)
                 viewModel?.wantsToAddMessageMentionContentType = nil
             }
-            switch type {
-            case .exercise:
-                SendMessageExercisePicker(delegate: delegate, course: viewModel.course)
-            case .lecture:
-                SendMessageLecturePicker(course: viewModel.course, delegate: delegate)
+            Group {
+                switch type {
+                case .exercise:
+                    SendMessageExercisePicker(delegate: delegate, course: viewModel.course)
+                case .lecture:
+                    SendMessageLecturePicker(course: viewModel.course, delegate: delegate)
+                }
+            }
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(R.string.localizable.cancel()) {
+                        viewModel.wantsToAddMessageMentionContentType = nil
+                    }
+                }
             }
         }
     }
