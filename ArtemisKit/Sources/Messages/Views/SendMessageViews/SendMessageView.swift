@@ -149,7 +149,6 @@ private extension SendMessageView {
                             Label(R.string.localizable.underline(), systemImage: "underline")
                         }
                     } label: {
-                        // TODO: Localize
                         Label(R.string.localizable.style(), systemImage: "bold.italic.underline")
                             .labelStyle(.iconOnly)
                     }
