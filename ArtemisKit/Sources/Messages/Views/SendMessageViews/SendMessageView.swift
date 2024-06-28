@@ -112,20 +112,25 @@ private extension SendMessageView {
                     } label: {
                         Image(systemName: "plus.circle.fill")
                     }
-                    Button {
-                        viewModel.didTapBoldButton()
+                    Menu {
+                        Button {
+                            viewModel.didTapBoldButton()
+                        } label: {
+                            Image(systemName: "bold")
+                        }
+                        Button {
+                            viewModel.didTapItalicButton()
+                        } label: {
+                            Image(systemName: "italic")
+                        }
+                        Button {
+                            viewModel.didTapUnderlineButton()
+                        } label: {
+                            Image(systemName: "underline")
+                        }
                     } label: {
-                        Image(systemName: "bold")
-                    }
-                    Button {
-                        viewModel.didTapItalicButton()
-                    } label: {
-                        Image(systemName: "italic")
-                    }
-                    Button {
-                        viewModel.didTapUnderlineButton()
-                    } label: {
-                        Image(systemName: "underline")
+                        // TODO: Localize
+                        Label("Format", systemImage: "bold.italic.underline")
                     }
                     Button {
                         viewModel.didTapBlockquoteButton()
