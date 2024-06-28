@@ -116,21 +116,22 @@ private extension SendMessageView {
                         Button {
                             viewModel.didTapBoldButton()
                         } label: {
-                            Image(systemName: "bold")
+                            Label("Bold", systemImage: "bold")
                         }
                         Button {
                             viewModel.didTapItalicButton()
                         } label: {
-                            Image(systemName: "italic")
+                            Label("Italic", systemImage: "italic")
                         }
                         Button {
                             viewModel.didTapUnderlineButton()
                         } label: {
-                            Image(systemName: "underline")
+                            Label("Underline", systemImage: "underline")
                         }
                     } label: {
                         // TODO: Localize
                         Label("Format", systemImage: "bold.italic.underline")
+                            .labelStyle(.iconOnly)
                     }
                     Button {
                         viewModel.didTapBlockquoteButton()
