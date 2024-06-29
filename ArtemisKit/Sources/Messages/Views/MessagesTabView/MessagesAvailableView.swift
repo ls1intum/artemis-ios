@@ -51,7 +51,7 @@ public struct MessagesAvailableView: View {
                     if let oneToOneChat = conversation.baseConversation as? OneToOneChat {
                         ConversationRow(viewModel: viewModel, conversation: oneToOneChat)
                     }
-                }
+                }.listRowBackground(Color.clear)
             } else {
                 Group {
                     MixedMessageSection(
@@ -105,8 +105,8 @@ public struct MessagesAvailableView: View {
                         sectionIconName: "nosign",
                         isExpanded: false)
                 }
-                .listRowSeparator(.visible, edges: .top)
-                .listRowInsets(EdgeInsets(top: .s, leading: .l, bottom: .s, trailing: .l))
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets(top: 0, leading: .s, bottom: 0, trailing: .s))
 
                 HStack {
                     Spacer()
@@ -120,10 +120,12 @@ public struct MessagesAvailableView: View {
                     }
                     Spacer()
                 }
-                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
             }
         }
-        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+        .listRowSpacing(0.01)
+        .listSectionSpacing(.compact)
         .refreshable {
             await viewModel.loadConversations()
         }
@@ -193,39 +195,41 @@ private struct MixedMessageSection: View {
             await viewModel.loadConversations()
         } content: { conversations in
             if !conversations.isEmpty {
-                DisclosureGroup(isExpanded: $isExpanded) {
-                    ForEach(
-                        conversations.filter { !($0.baseConversation.isMuted ?? false) }
-                    ) { conversation in
-                        if let channel = conversation.baseConversation as? Channel {
-                            ConversationRow(viewModel: viewModel, conversation: channel)
+                Section {
+                    DisclosureGroup(isExpanded: $isExpanded) {
+                        ForEach(
+                            conversations.filter { !($0.baseConversation.isMuted ?? false) }
+                        ) { conversation in
+                            if let channel = conversation.baseConversation as? Channel {
+                                ConversationRow(viewModel: viewModel, conversation: channel)
+                            }
+                            if let groupChat = conversation.baseConversation as? GroupChat {
+                                ConversationRow(viewModel: viewModel, conversation: groupChat)
+                            }
+                            if let oneToOneChat = conversation.baseConversation as? OneToOneChat {
+                                ConversationRow(viewModel: viewModel, conversation: oneToOneChat)
+                            }
                         }
-                        if let groupChat = conversation.baseConversation as? GroupChat {
-                            ConversationRow(viewModel: viewModel, conversation: groupChat)
+                        ForEach(conversations.filter({ $0.baseConversation.isMuted ?? false })) { conversation in
+                            if let channel = conversation.baseConversation as? Channel {
+                                ConversationRow(viewModel: viewModel, conversation: channel)
+                            }
+                            if let groupChat = conversation.baseConversation as? GroupChat {
+                                ConversationRow(viewModel: viewModel, conversation: groupChat)
+                            }
+                            if let oneToOneChat = conversation.baseConversation as? OneToOneChat {
+                                ConversationRow(viewModel: viewModel, conversation: oneToOneChat)
+                            }
                         }
-                        if let oneToOneChat = conversation.baseConversation as? OneToOneChat {
-                            ConversationRow(viewModel: viewModel, conversation: oneToOneChat)
-                        }
+                    } label: {
+                        SectionDisclosureLabel(
+                            viewModel: viewModel,
+                            sectionTitle: sectionTitle,
+                            sectionIconName: sectionIconName,
+                            sectionUnreadCount: sectionUnreadCount,
+                            isUnreadCountVisible: !isExpanded,
+                            conversationType: nil)
                     }
-                    ForEach(conversations.filter({ $0.baseConversation.isMuted ?? false })) { conversation in
-                        if let channel = conversation.baseConversation as? Channel {
-                            ConversationRow(viewModel: viewModel, conversation: channel)
-                        }
-                        if let groupChat = conversation.baseConversation as? GroupChat {
-                            ConversationRow(viewModel: viewModel, conversation: groupChat)
-                        }
-                        if let oneToOneChat = conversation.baseConversation as? OneToOneChat {
-                            ConversationRow(viewModel: viewModel, conversation: oneToOneChat)
-                        }
-                    }
-                } label: {
-                    SectionDisclosureLabel(
-                        viewModel: viewModel,
-                        sectionTitle: sectionTitle,
-                        sectionIconName: sectionIconName,
-                        sectionUnreadCount: sectionUnreadCount,
-                        isUnreadCountVisible: !isExpanded,
-                        conversationType: nil)
                 }
             }
         }
@@ -272,7 +276,6 @@ private struct SectionDisclosureLabel: View {
                     }
             }
         }
-        .padding(.vertical, .m)
         .sheet(isPresented: $isCreateNewConversationPresented) {
             CreateOrAddToChatView(courseId: viewModel.courseId, configuration: .createChat)
         }
@@ -336,31 +339,33 @@ private struct MessageSection<T: BaseConversation>: View {
     }
 
     var body: some View {
-        DisclosureGroup(isExpanded: $isExpanded) {
-            DataStateView(data: $conversations) {
-                await viewModel.loadConversations()
-            } content: { conversations in
-                ForEach(
-                    conversations.filter { !($0.isMuted ?? false) },
-                    id: \.id
-                ) { conversation in
-                    ConversationRow(viewModel: viewModel, conversation: conversation)
+        Section {
+            DisclosureGroup(isExpanded: $isExpanded) {
+                DataStateView(data: $conversations) {
+                    await viewModel.loadConversations()
+                } content: { conversations in
+                    ForEach(
+                        conversations.filter { !($0.isMuted ?? false) },
+                        id: \.id
+                    ) { conversation in
+                        ConversationRow(viewModel: viewModel, conversation: conversation)
+                    }
+                    ForEach(
+                        conversations.filter { $0.isMuted ?? false },
+                        id: \.id
+                    ) { conversation in
+                        ConversationRow(viewModel: viewModel, conversation: conversation)
+                    }
                 }
-                ForEach(
-                    conversations.filter { $0.isMuted ?? false },
-                    id: \.id
-                ) { conversation in
-                    ConversationRow(viewModel: viewModel, conversation: conversation)
-                }
+            } label: {
+                SectionDisclosureLabel(
+                    viewModel: viewModel,
+                    sectionTitle: sectionTitle,
+                    sectionIconName: sectionIconName,
+                    sectionUnreadCount: sectionUnreadCount,
+                    isUnreadCountVisible: !isExpanded,
+                    conversationType: conversationType)
             }
-        } label: {
-            SectionDisclosureLabel(
-                viewModel: viewModel,
-                sectionTitle: sectionTitle,
-                sectionIconName: sectionIconName,
-                sectionUnreadCount: sectionUnreadCount,
-                isUnreadCountVisible: !isExpanded,
-                conversationType: conversationType)
         }
     }
 }
