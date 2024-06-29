@@ -198,19 +198,11 @@ private struct MixedMessageSection: View {
                 Section {
                     DisclosureGroup(isExpanded: $isExpanded) {
                         ForEach(
-                            conversations.filter { !($0.baseConversation.isMuted ?? false) }
+                            conversations.sorted {
+                                // Show non-muted conversations above muted ones
+                                ($0.baseConversation.isMuted ?? false ? 0 : 1) > ($1.baseConversation.isMuted ?? false ? 0 : 1)
+                            }
                         ) { conversation in
-                            if let channel = conversation.baseConversation as? Channel {
-                                ConversationRow(viewModel: viewModel, conversation: channel)
-                            }
-                            if let groupChat = conversation.baseConversation as? GroupChat {
-                                ConversationRow(viewModel: viewModel, conversation: groupChat)
-                            }
-                            if let oneToOneChat = conversation.baseConversation as? OneToOneChat {
-                                ConversationRow(viewModel: viewModel, conversation: oneToOneChat)
-                            }
-                        }
-                        ForEach(conversations.filter({ $0.baseConversation.isMuted ?? false })) { conversation in
                             if let channel = conversation.baseConversation as? Channel {
                                 ConversationRow(viewModel: viewModel, conversation: channel)
                             }
@@ -345,13 +337,10 @@ private struct MessageSection<T: BaseConversation>: View {
                     await viewModel.loadConversations()
                 } content: { conversations in
                     ForEach(
-                        conversations.filter { !($0.isMuted ?? false) },
-                        id: \.id
-                    ) { conversation in
-                        ConversationRow(viewModel: viewModel, conversation: conversation)
-                    }
-                    ForEach(
-                        conversations.filter { $0.isMuted ?? false },
+                        conversations.sorted {
+                            // Show non-muted conversations above muted ones
+                            ($0.isMuted ?? false ? 0 : 1) > ($1.isMuted ?? false ? 0 : 1)
+                        },
                         id: \.id
                     ) { conversation in
                         ConversationRow(viewModel: viewModel, conversation: conversation)
