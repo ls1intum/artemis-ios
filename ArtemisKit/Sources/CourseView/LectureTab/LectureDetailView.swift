@@ -199,7 +199,7 @@ struct BaseLectureUnitCell: View {
         }
             .frame(maxWidth: .infinity)
             .padding(.l)
-            .artemisStyleCard()
+            .cardModifier(backgroundColor: .Artemis.exerciseCardBackgroundColor, cornerRadius: .m)
             .onTapGesture {
                 showDetails = true
             }
