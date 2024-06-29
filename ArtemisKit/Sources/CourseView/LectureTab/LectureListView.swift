@@ -163,12 +163,7 @@ private struct LectureListCellView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.l)
-        .cardModifier(
-            backgroundColor: Color.Artemis.exerciseCardBackgroundColor,
-            hasBorder: true,
-            borderColor: Color.Artemis.artemisBlue,
-            cornerRadius: 2
-        )
+        .cardModifier(backgroundColor: .Artemis.exerciseCardBackgroundColor, cornerRadius: .m)
         .onTapGesture {
             navigationController.path.append(LecturePath(lecture: lecture, coursePath: CoursePath(course: course)))
         }
