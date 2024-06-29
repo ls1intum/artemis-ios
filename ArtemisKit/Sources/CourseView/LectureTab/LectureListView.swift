@@ -158,17 +158,12 @@ private struct LectureListCellView: View {
             if let startDate = lecture.startDate {
                 Text("\(startDate.dateOnly) (\(startDate.relative ?? "?"))")
             } else {
-                Text(R.string.localizable.noDueDate())
+                Text(R.string.localizable.noDateAssociated())
             }
         }
         .frame(maxWidth: .infinity)
         .padding(.l)
-        .cardModifier(
-            backgroundColor: Color.Artemis.exerciseCardBackgroundColor,
-            hasBorder: true,
-            borderColor: Color.Artemis.artemisBlue,
-            cornerRadius: 2
-        )
+        .cardModifier(backgroundColor: .Artemis.exerciseCardBackgroundColor, cornerRadius: .m)
         .onTapGesture {
             navigationController.path.append(LecturePath(lecture: lecture, coursePath: CoursePath(course: course)))
         }
