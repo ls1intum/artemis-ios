@@ -158,7 +158,7 @@ private struct LectureListCellView: View {
             if let startDate = lecture.startDate {
                 Text("\(startDate.dateOnly) (\(startDate.relative ?? "?"))")
             } else {
-                Text(R.string.localizable.noDueDate())
+                Text(R.string.localizable.noDateAssociated())
             }
         }
         .frame(maxWidth: .infinity)
