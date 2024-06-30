@@ -81,16 +81,18 @@ public struct MessagesAvailableView: View {
                         sectionTitle: R.string.localizable.exams(),
                         conversationType: .channel,
                         isExpanded: false)
-                    MessageSection(
-                        viewModel: viewModel,
-                        conversations: $viewModel.groupChats,
-                        sectionTitle: R.string.localizable.groupChats(),
-                        conversationType: .groupChat)
-                    MessageSection(
-                        viewModel: viewModel,
-                        conversations: $viewModel.oneToOneChats,
-                        sectionTitle: R.string.localizable.directMessages(),
-                        conversationType: .oneToOneChat)
+                    if viewModel.isDirectMessagingEnabled {
+                        MessageSection(
+                            viewModel: viewModel,
+                            conversations: $viewModel.groupChats,
+                            sectionTitle: R.string.localizable.groupChats(),
+                            conversationType: .groupChat)
+                        MessageSection(
+                            viewModel: viewModel,
+                            conversations: $viewModel.oneToOneChats,
+                            sectionTitle: R.string.localizable.directMessages(),
+                            conversationType: .oneToOneChat)
+                    }
                     MixedMessageSection(
                         viewModel: viewModel,
                         conversations: $viewModel.hiddenConversations,

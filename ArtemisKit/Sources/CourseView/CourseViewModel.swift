@@ -10,8 +10,7 @@ class CourseViewModel: BaseViewModel {
     private let courseService: CourseService
 
     var isMessagesVisible: Bool {
-        course.courseInformationSharingConfiguration == .communicationAndMessaging
-        || course.courseInformationSharingConfiguration == .messagingOnly
+        course.courseInformationSharingConfiguration != .disabled
     }
 
     init(course: Course, courseService: CourseService = CourseServiceFactory.shared) {
