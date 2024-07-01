@@ -172,15 +172,15 @@ private struct CreateOrAddChannelButton: View {
     var body: some View {
         Menu {
             if viewModel.course.isAtLeastTutorInCourse {
-                Button(R.string.localizable.createChannel()) {
+                Button(R.string.localizable.createChannel(), systemImage: "plus.bubble.fill") {
                     isCreateChannelPresented = true
                 }
             }
-            Button(R.string.localizable.browseChannels()) {
+            Button(R.string.localizable.browseChannels(), systemImage: "number") {
                 isBrowseChannelsPresented = true
             }
             if viewModel.course.courseInformationSharingConfiguration == .communicationAndMessaging {
-                Button(R.string.localizable.createChat()) {
+                Button(R.string.localizable.createChat(), systemImage: "bubble.left.fill") {
                     isCreateNewConversationPresented = true
                 }
             }
