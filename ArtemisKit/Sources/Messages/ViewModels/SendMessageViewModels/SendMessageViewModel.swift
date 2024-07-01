@@ -69,7 +69,7 @@ final class SendMessageViewModel {
     var isMemberPickerSuppressed = false
     var isChannelPickerSuppressed = false
 
-    var isMentionContentViewPresented = false
+    var wantsToAddMessageMentionContentType: MessageMentionContentType? = nil
 
     // MARK: Life cycle
 

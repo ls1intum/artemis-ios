@@ -10,41 +10,38 @@ import SwiftUI
 struct SendMessageMentionContentView: View {
 
     @Bindable var viewModel: SendMessageViewModel
+    let type: MessageMentionContentType
 
     var body: some View {
         NavigationStack {
-            List {
-                Button {
-                    viewModel.didTapAtButton()
-                    viewModel.isMentionContentViewPresented.toggle()
-                } label: {
-                    Label(R.string.localizable.members(), systemImage: "at")
-                }
-                Button {
-                    viewModel.didTapNumberButton()
-                    viewModel.isMentionContentViewPresented.toggle()
-                } label: {
-                    Label(R.string.localizable.channels(), systemImage: "number")
-                }
-
-                let delegate = SendMessageMentionContentDelegate { [weak viewModel] mention in
-                    viewModel?.text.append(mention)
-                    viewModel?.isMentionContentViewPresented.toggle()
-                }
-                NavigationLink {
+            let delegate = SendMessageMentionContentDelegate { [weak viewModel] mention in
+                viewModel?.text.append(mention)
+                viewModel?.wantsToAddMessageMentionContentType = nil
+            }
+            Group {
+                switch type {
+                case .exercise:
                     SendMessageExercisePicker(delegate: delegate, course: viewModel.course)
-                } label: {
-                    Label(R.string.localizable.exercises(), systemImage: "list.bullet.clipboard")
-                }
-                NavigationLink {
+                case .lecture:
                     SendMessageLecturePicker(course: viewModel.course, delegate: delegate)
-                } label: {
-                    Label(R.string.localizable.lectures(), systemImage: "character.book.closed")
                 }
             }
-            .listStyle(.plain)
-            .navigationTitle(R.string.localizable.mention())
-            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(R.string.localizable.cancel()) {
+                        viewModel.wantsToAddMessageMentionContentType = nil
+                    }
+                }
+            }
         }
     }
+}
+
+enum MessageMentionContentType: Identifiable {
+    var id: Self {
+        self
+    }
+
+    case exercise
+    case lecture
 }
