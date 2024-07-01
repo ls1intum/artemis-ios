@@ -121,6 +121,10 @@ public struct MessagesAvailableView: View {
                     Spacer()
                 }
                 .listRowBackground(Color.clear)
+
+                // Empty row so that there is always space for floating button
+                Spacer()
+                    .listRowBackground(Color.clear)
             }
         }
         .scrollContentBackground(.hidden)
@@ -134,6 +138,10 @@ public struct MessagesAvailableView: View {
         }
         .task {
             await viewModel.subscribeToConversationMembershipTopic()
+        }
+        .overlay(alignment: .bottomTrailing) {
+            CreateOrAddChannelButton(viewModel: viewModel)
+                .padding()
         }
         .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
         .loadingIndicator(isLoading: $viewModel.isLoading)
@@ -155,6 +163,57 @@ public struct MessagesAvailableView: View {
                     }
                 }
             }
+        }
+    }
+}
+
+private struct CreateOrAddChannelButton: View {
+    @ObservedObject var viewModel: MessagesAvailableViewModel
+
+    @State private var isCreateNewConversationPresented = false
+    @State private var isNewConversationDialogPresented = false
+    @State private var isBrowseChannelsPresented = false
+    @State private var isCreateChannelPresented = false
+
+    var body: some View {
+        Menu {
+            if viewModel.course.isAtLeastTutorInCourse {
+                Button(R.string.localizable.createChannel()) {
+                    isCreateChannelPresented = true
+                }
+            }
+            Button(R.string.localizable.browseChannels()) {
+                isBrowseChannelsPresented = true
+            }
+            if viewModel.course.courseInformationSharingConfiguration == .communicationAndMessaging {
+                Button(R.string.localizable.createChat()) {
+                    isCreateNewConversationPresented = true
+                }
+            }
+        } label: {
+            Image(systemName: "plus.bubble")
+                .foregroundStyle(.white)
+                .font(.title2)
+                .padding()
+                .background(Color.Artemis.artemisBlue, in: .circle)
+                .shadow(color: Color.gray.opacity(0.2), radius: .m)
+        }
+        .sheet(isPresented: $isCreateNewConversationPresented) {
+            CreateOrAddToChatView(courseId: viewModel.courseId, configuration: .createChat)
+        }
+        .sheet(isPresented: $isCreateChannelPresented) {
+            Task {
+                await viewModel.loadConversations()
+            }
+        } content: {
+            CreateChannelView(courseId: viewModel.courseId)
+        }
+        .sheet(isPresented: $isBrowseChannelsPresented) {
+            Task {
+                await viewModel.loadConversations()
+            }
+        } content: {
+            BrowseChannelsView(courseId: viewModel.courseId)
         }
     }
 }
@@ -232,11 +291,6 @@ private struct SectionDisclosureLabel: View {
 
     @ObservedObject var viewModel: MessagesAvailableViewModel
 
-    @State private var isCreateNewConversationPresented = false
-    @State private var isNewConversationDialogPresented = false
-    @State private var isBrowseChannelsPresented = false
-    @State private var isCreateChannelPresented = false
-
     let sectionTitle: String
     let sectionIconName: String
     let sectionUnreadCount: Int
@@ -253,47 +307,8 @@ private struct SectionDisclosureLabel: View {
             if isUnreadCountVisible {
                 Badge(count: sectionUnreadCount)
             }
-            if let conversationType {
-                Image(systemName: "plus.bubble")
-                    .onTapGesture {
-                        if conversationType == .channel {
-                            if viewModel.course.isAtLeastTutorInCourse {
-                                isNewConversationDialogPresented = true
-                            } else {
-                                isBrowseChannelsPresented = true
-                            }
-                        } else {
-                            isCreateNewConversationPresented = true
-                        }
-                    }
-            }
         }
         .padding(.vertical, .m)
-        .sheet(isPresented: $isCreateNewConversationPresented) {
-            CreateOrAddToChatView(courseId: viewModel.courseId, configuration: .createChat)
-        }
-        .sheet(isPresented: $isCreateChannelPresented) {
-            Task {
-                await viewModel.loadConversations()
-            }
-        } content: {
-            CreateChannelView(courseId: viewModel.courseId)
-        }
-        .sheet(isPresented: $isBrowseChannelsPresented) {
-            Task {
-                await viewModel.loadConversations()
-            }
-        } content: {
-            BrowseChannelsView(courseId: viewModel.courseId)
-        }
-        .confirmationDialog("", isPresented: $isNewConversationDialogPresented, titleVisibility: .hidden) {
-            Button(R.string.localizable.browseChannels()) {
-                isBrowseChannelsPresented = true
-            }
-            Button(R.string.localizable.createChannel()) {
-                isCreateChannelPresented = true
-            }
-        }
     }
 }
 
