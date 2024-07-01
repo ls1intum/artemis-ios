@@ -62,7 +62,7 @@ public struct MessagesAvailableView: View {
                     MessageSection(
                         viewModel: viewModel,
                         conversations: $viewModel.channels,
-                        sectionTitle: R.string.localizable.channels(),
+                        sectionTitle: R.string.localizable.generalTopics(),
                         sectionIconName: "bubble.left.fill",
                         conversationType: .channel)
                     MessageSection(
