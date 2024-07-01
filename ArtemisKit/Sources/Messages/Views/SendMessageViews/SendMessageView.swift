@@ -106,7 +106,7 @@ private extension SendMessageView {
     var keyboardToolbarContent: some View {
         HStack {
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: .l) {
+                HStack(alignment: .firstTextBaseline, spacing: .l) {
                     Menu {
                         Button {
                             viewModel.didTapAtButton()
