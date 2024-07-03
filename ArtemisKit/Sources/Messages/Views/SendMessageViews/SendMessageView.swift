@@ -51,8 +51,8 @@ struct SendMessageView: View {
                     }
                 }
         )
-        .sheet(isPresented: $viewModel.isMentionContentViewPresented) {
-            SendMessageMentionContentView(viewModel: viewModel)
+        .sheet(item: $viewModel.wantsToAddMessageMentionContentType) { type in
+            SendMessageMentionContentView(viewModel: viewModel, type: type)
                 .presentationDetents([.fraction(0.5), .medium])
         }
     }
@@ -106,46 +106,78 @@ private extension SendMessageView {
     var keyboardToolbarContent: some View {
         HStack {
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack {
-                    Button {
-                        viewModel.isMentionContentViewPresented.toggle()
+                HStack(alignment: .firstTextBaseline, spacing: .l) {
+                    Menu {
+                        Button {
+                            viewModel.didTapAtButton()
+                        } label: {
+                            Label(R.string.localizable.members(), systemImage: "at")
+                        }
+                        Button {
+                            viewModel.didTapNumberButton()
+                        } label: {
+                            Label(R.string.localizable.channels(), systemImage: "number")
+                        }
+                        Button {
+                            viewModel.wantsToAddMessageMentionContentType = .exercise
+                        } label: {
+                            Label(R.string.localizable.exercises(), systemImage: "list.bullet.clipboard")
+                        }
+                        Button {
+                            viewModel.wantsToAddMessageMentionContentType = .lecture
+                        } label: {
+                            Label(R.string.localizable.lectures(), systemImage: "character.book.closed")
+                        }
                     } label: {
-                        Image(systemName: "plus.circle.fill")
+                        Label(R.string.localizable.mention(), systemImage: "plus.circle.fill")
+                            .labelStyle(.iconOnly)
                     }
-                    Button {
-                        viewModel.didTapBoldButton()
+                    Menu {
+                        Button {
+                            viewModel.didTapBoldButton()
+                        } label: {
+                            Label(R.string.localizable.bold(), systemImage: "bold")
+                        }
+                        Button {
+                            viewModel.didTapItalicButton()
+                        } label: {
+                            Label(R.string.localizable.italic(), systemImage: "italic")
+                        }
+                        Button {
+                            viewModel.didTapUnderlineButton()
+                        } label: {
+                            Label(R.string.localizable.underline(), systemImage: "underline")
+                        }
                     } label: {
-                        Image(systemName: "bold")
-                    }
-                    Button {
-                        viewModel.didTapItalicButton()
-                    } label: {
-                        Image(systemName: "italic")
-                    }
-                    Button {
-                        viewModel.didTapUnderlineButton()
-                    } label: {
-                        Image(systemName: "underline")
+                        Label(R.string.localizable.style(), systemImage: "bold.italic.underline")
+                            .labelStyle(.iconOnly)
                     }
                     Button {
                         viewModel.didTapBlockquoteButton()
                     } label: {
-                        Image(systemName: "quote.opening")
+                        Label(R.string.localizable.quote(), systemImage: "quote.opening")
+                            .labelStyle(.iconOnly)
                     }
-                    Button {
-                        viewModel.didTapCodeButton()
+                    Menu {
+                        Button {
+                            viewModel.didTapCodeButton()
+                        } label: {
+                            Label(R.string.localizable.inlineCode(), systemImage: "curlybraces")
+                        }
+                        Button {
+                            viewModel.didTapCodeBlockButton()
+                        } label: {
+                            Label(R.string.localizable.codeBlock(), systemImage: "curlybraces.square.fill")
+                        }
                     } label: {
-                        Image(systemName: "curlybraces")
-                    }
-                    Button {
-                        viewModel.didTapCodeBlockButton()
-                    } label: {
-                        Image(systemName: "curlybraces.square.fill")
+                        Label(R.string.localizable.code(), systemImage: "curlybraces")
+                            .labelStyle(.iconOnly)
                     }
                     Button {
                         viewModel.didTapLinkButton()
                     } label: {
-                        Image(systemName: "link")
+                        Label(R.string.localizable.link(), systemImage: "link")
+                            .labelStyle(.iconOnly)
                     }
                 }
             }

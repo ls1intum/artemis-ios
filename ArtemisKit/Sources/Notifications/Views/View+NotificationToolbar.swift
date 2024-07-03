@@ -18,9 +18,12 @@ private struct NotificationBell: ViewModifier {
     @StateObject private var viewModel = NotificationViewModel()
 
     @State private var isNotificationSheetPresented = false
+    @Environment(\.horizontalSizeClass) var horizontalSize
 
     func body(content: Content) -> some View {
         content
+            // Prevent user from accidentally tapping buttons outside the popover while open
+            .disabled(isNotificationSheetPresented)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button {
@@ -29,10 +32,20 @@ private struct NotificationBell: ViewModifier {
                         Image(systemName: "bell.fill")
                             .overlay(Badge(count: viewModel.newNotificationCount))
                     }
+                    .popover(isPresented: $isNotificationSheetPresented) {
+                        let minSize: CGFloat? =
+                        if UIDevice.current.userInterfaceIdiom == .pad && horizontalSize != .compact {
+                            // If not shown as a sheet, we need to set a size.
+                            // Otherwise, it will be too small for its content.
+                            min(UIScreen.main.bounds.width, UIScreen.main.bounds.height) * 0.8
+                        } else {
+                            // If shown as a sheet, the default size works for us
+                            nil
+                        }
+                        NotificationView(viewModel: viewModel)
+                            .frame(minWidth: minSize, minHeight: minSize)
+                    }
                 }
-            }
-            .sheet(isPresented: $isNotificationSheetPresented) {
-                NotificationView(viewModel: viewModel)
             }
             .task {
                 await viewModel.subscribeToNotificationUpdates()

@@ -14,8 +14,8 @@ struct SendMessageLecturePicker: View {
 
     var body: some View {
         Group {
-            if let lectures = viewModel.course.lectures, !lectures.isEmpty {
-                List(lectures) { lecture in
+            if !viewModel.lectures.isEmpty {
+                List(viewModel.lectures) { lecture in
                     rowContent(lecture: lecture)
                 }
                 .listStyle(.plain)
@@ -24,7 +24,7 @@ struct SendMessageLecturePicker: View {
             }
         }
         .task {
-            await viewModel.task()
+            await viewModel.loadLecturesWithSlides()
         }
         .navigationTitle(R.string.localizable.lectures())
         .navigationBarTitleDisplayMode(.inline)
@@ -49,8 +49,10 @@ private extension SendMessageLecturePicker {
                         Button(title) {
                             viewModel.select(lecture: lecture)
                         }
-                        ForEach(viewModel.lectureUnits, id: \.id) { lectureUnit in
-                            rowContent(lectureUnit: lectureUnit)
+                        if let lectureUnits = lecture.lectureUnits {
+                            ForEach(lectureUnits, id: \.id) { lectureUnit in
+                                rowContent(lectureUnit: lectureUnit)
+                            }
                         }
                     }
                     .listStyle(.plain)

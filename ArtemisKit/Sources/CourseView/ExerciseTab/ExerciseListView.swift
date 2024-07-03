@@ -152,7 +152,7 @@ struct ExerciseListCell: View {
         Button {
             navigationController.path.append(ExercisePath(exercise: exercise, coursePath: CoursePath(course: course)))
         } label: {
-            HStack(alignment: .top) {
+            HStack(alignment: .top, spacing: 0) {
                 if let difficulty = exercise.baseExercise.difficulty {
                     Rectangle()
                         .frame(width: .m)
@@ -200,8 +200,7 @@ struct ExerciseListCell: View {
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, .m)
-                .padding(.vertical, .l)
+                .padding(.l)
             }
             .cardModifier(backgroundColor: .Artemis.exerciseCardBackgroundColor, cornerRadius: .m)
         }

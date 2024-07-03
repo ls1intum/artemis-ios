@@ -174,7 +174,7 @@ struct BaseLectureUnitCell: View {
     }
 
     var body: some View {
-        HStack {
+        HStack(spacing: .l) {
             lectureUnit.baseUnit.image
                 .renderingMode(.template)
                 .resizable()
@@ -185,7 +185,7 @@ struct BaseLectureUnitCell: View {
             Text(lectureUnit.baseUnit.name ?? "")
                 .font(.title3)
 
-            Spacer()
+            Spacer(minLength: 0)
 
             if !(lectureUnit.baseUnit.visibleToStudents ?? false) {
                 Chip(text: R.string.localizable.notReleased(), backgroundColor: .Artemis.badgeWarningColor)
@@ -199,7 +199,7 @@ struct BaseLectureUnitCell: View {
         }
             .frame(maxWidth: .infinity)
             .padding(.l)
-            .artemisStyleCard()
+            .cardModifier(backgroundColor: .Artemis.exerciseCardBackgroundColor, cornerRadius: .m)
             .onTapGesture {
                 showDetails = true
             }
