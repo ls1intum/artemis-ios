@@ -86,18 +86,20 @@ public struct MessagesAvailableView: View {
                         sectionIconName: "graduationcap.fill",
                         conversationType: .channel,
                         isExpanded: false)
-                    MessageSection(
-                        viewModel: viewModel,
-                        conversations: $viewModel.groupChats,
-                        sectionTitle: R.string.localizable.groupChats(),
-                        sectionIconName: "bubble.left.and.bubble.right.fill",
-                        conversationType: .groupChat)
-                    MessageSection(
-                        viewModel: viewModel,
-                        conversations: $viewModel.oneToOneChats,
-                        sectionTitle: R.string.localizable.directMessages(),
-                        sectionIconName: "bubble.left.fill",
-                        conversationType: .oneToOneChat)
+                    if viewModel.isDirectMessagingEnabled {
+                        MessageSection(
+                            viewModel: viewModel,
+                            conversations: $viewModel.groupChats,
+                            sectionTitle: R.string.localizable.groupChats(),
+                            sectionIconName: "bubble.left.and.bubble.right.fill",
+                            conversationType: .groupChat)
+                        MessageSection(
+                            viewModel: viewModel,
+                            conversations: $viewModel.oneToOneChats,
+                            sectionTitle: R.string.localizable.directMessages(),
+                            sectionIconName: "bubble.left.fill",
+                            conversationType: .oneToOneChat)
+                    }
                     MixedMessageSection(
                         viewModel: viewModel,
                         conversations: $viewModel.hiddenConversations,

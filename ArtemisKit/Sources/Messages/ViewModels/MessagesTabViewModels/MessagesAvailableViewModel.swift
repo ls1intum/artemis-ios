@@ -31,6 +31,10 @@ class MessagesAvailableViewModel: BaseViewModel {
 
     @Published var hiddenConversations: DataState<[Conversation]> = .loading
 
+    var isDirectMessagingEnabled: Bool {
+        course.courseInformationSharingConfiguration == .communicationAndMessaging
+    }
+
     let course: Course
     let courseId: Int
 
