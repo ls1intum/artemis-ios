@@ -36,6 +36,7 @@
 "createChannel" = "Create Channel";
 "createGroupChat" = "Create Group Chat";
 "createOneToOneChat" = "Create OneToOne Chat";
+"createChat" = "Create Chat";
 "noResultForSearch" = "There is no result for your search.";
 "favoritesSection" = "Favorites";
 "hiddenSection" = "Hidden";

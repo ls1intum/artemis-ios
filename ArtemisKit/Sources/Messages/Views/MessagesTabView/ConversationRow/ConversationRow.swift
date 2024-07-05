@@ -49,19 +49,34 @@ struct ConversationRow<T: BaseConversation>: View {
             }
         }
         .foregroundStyle((conversation.isMuted ?? false) ? .secondary : .primary)
-        .listRowSeparator(.hidden)
+        .swipeActions(edge: .leading) {
+            favoriteButton
+        }
+        .swipeActions(edge: .trailing) {
+            hideAndMuteButtons
+        }
     }
 }
 
 private extension ConversationRow {
-    @ViewBuilder var contextMenuItems: some View {
+    @ViewBuilder var favoriteButton: some View {
         let isFavorite = conversation.isFavorite ?? false
         Button(isFavorite ? R.string.localizable.unfavorite() : R.string.localizable.favorite(),
                systemImage: isFavorite ? "heart.slash.fill" : "heart.fill") {
             Task(priority: .userInitiated) {
                 await viewModel.setIsConversationFavorite(conversationId: conversation.id, isFavorite: !(conversation.isFavorite ?? false))
             }
-        }
+        }.tint(.orange)
+    }
+
+    @ViewBuilder var hideAndMuteButtons: some View {
+        let isHidden = conversation.isHidden ?? false
+        Button(isHidden ? R.string.localizable.show() : R.string.localizable.hide(),
+               systemImage: isHidden ? "eye.fill" : "eye.slash.fill") {
+            Task(priority: .userInitiated) {
+                await viewModel.setConversationIsHidden(conversationId: conversation.id, isHidden: !(conversation.isHidden ?? false))
+            }
+        }.tint(.gray)
 
         let isMuted = conversation.isMuted ?? false
         Button(isMuted ? R.string.localizable.unmute() : R.string.localizable.mute(),
@@ -69,14 +84,11 @@ private extension ConversationRow {
             Task(priority: .userInitiated) {
                 await viewModel.setIsConversationMuted(conversationId: conversation.id, isMuted: !(conversation.isMuted ?? false))
             }
-        }
-
-        let isHidden = conversation.isHidden ?? false
-        Button(isHidden ? R.string.localizable.show() : R.string.localizable.hide(),
-               systemImage: isHidden ? "eye.fill" : "eye.slash.fill") {
-            Task(priority: .userInitiated) {
-                await viewModel.setConversationIsHidden(conversationId: conversation.id, isHidden: !(conversation.isHidden ?? false))
-            }
-        }
+        }.tint(.indigo)
+    }
+    
+    @ViewBuilder var contextMenuItems: some View {
+        favoriteButton
+        hideAndMuteButtons
     }
 }
