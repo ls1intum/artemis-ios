@@ -66,14 +66,16 @@ private struct CourseRegistrationListCell: View {
     let course: Course
 
     var body: some View {
-        if let title = course.title,
-           let description = course.description {
+        if let title = course.title {
             VStack(spacing: .m) {
                 VStack(alignment: .leading) {
                     Text(title)
                         .font(.title2)
-                    Text(description)
-                        .font(.caption)
+
+                    if let description = course.description {
+                        Text(description)
+                            .font(.caption)
+                    }
                 }
                 Button(R.string.localizable.course_registration_register_button()) {
                     showSignUpAlert = true
