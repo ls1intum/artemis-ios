@@ -67,20 +67,23 @@ private struct CourseRegistrationListCell: View {
 
     var body: some View {
         if let title = course.title {
-            VStack(spacing: .m) {
-                VStack(alignment: .leading) {
-                    Text(title)
-                        .font(.title2)
+            VStack(alignment: .leading, spacing: .m) {
+                Text(title)
+                    .font(.title2)
 
-                    if let description = course.description {
-                        Text(description)
-                            .font(.caption)
+                if let description = course.description {
+                    Text(description)
+                        .font(.caption)
+                }
+
+                HStack {
+                    Spacer()
+                    Button(R.string.localizable.course_registration_register_button()) {
+                        showSignUpAlert = true
                     }
+                    .buttonStyle(ArtemisButton())
+                    Spacer()
                 }
-                Button(R.string.localizable.course_registration_register_button()) {
-                    showSignUpAlert = true
-                }
-                .buttonStyle(ArtemisButton())
             }
             .padding(.m)
             .frame(maxWidth: .infinity)
