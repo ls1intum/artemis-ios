@@ -23,9 +23,9 @@ struct MessageCell: View {
     @State var viewModel: MessageCellModel
 
     var body: some View {
-        VStack(alignment: .leading, spacing: .xs) {
+        VStack(alignment: .leading, spacing: .s) {
             HStack {
-                VStack(alignment: .leading, spacing: .xs) {
+                VStack(alignment: .leading, spacing: .s) {
                     headerIfVisible
                     ArtemisMarkdownView(string: content)
                         .opacity(isMessageOffline ? 0.5 : 1)

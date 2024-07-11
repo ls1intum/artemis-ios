@@ -27,6 +27,7 @@ struct ConversationDaySection: View {
                 .padding(.horizontal, .l)
             Divider()
                 .padding(.horizontal, .l)
+                .padding(.bottom, .s)
             ForEach(Array(messages.enumerated()), id: \.1.id) { index, message in
                 MessageCellWrapper(
                     viewModel: viewModel,
