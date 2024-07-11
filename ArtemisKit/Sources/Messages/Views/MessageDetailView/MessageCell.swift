@@ -24,11 +24,7 @@ struct MessageCell: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: .m) {
-            Image(systemName: "person")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 40, height: viewModel.isHeaderVisible ? 40 : 0)
-                .padding(.top, .s)
+            roleBadge
             VStack(alignment: .leading, spacing: .xs) {
                 HStack {
                     VStack(alignment: .leading, spacing: .xs) {
@@ -92,6 +88,10 @@ private extension MessageCell {
         message.value?.author?.name ?? ""
     }
 
+    private var authorRole: UserRole? {
+        message.value?.authorRole
+    }
+
     var creationDate: Date? {
         message.value?.creationDate
     }
@@ -102,6 +102,16 @@ private extension MessageCell {
 
     var backgroundOnPress: Color {
         (viewModel.isDetectingLongPress || viewModel.isActionSheetPresented) ? Color.Artemis.messsageCellPressed : Color.clear
+    }
+
+    @ViewBuilder var roleBadge: some View {
+        if let authorRole, viewModel.isHeaderVisible {
+            Text(authorRole.displayName)
+                .padding(.horizontal, .s)
+                .padding(.vertical, .xs)
+                .background(authorRole.badgeColor, in: .rect(cornerRadius: .s))
+                .foregroundStyle(.white)
+        }
     }
 
     @ViewBuilder var headerIfVisible: some View {
