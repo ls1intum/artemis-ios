@@ -23,34 +23,31 @@ struct MessageCell: View {
     @State var viewModel: MessageCellModel
 
     var body: some View {
-        HStack(alignment: .top, spacing: .m) {
-            roleBadge
-            VStack(alignment: .leading, spacing: .xs) {
-                HStack {
-                    VStack(alignment: .leading, spacing: .xs) {
-                        headerIfVisible
-                        ArtemisMarkdownView(string: content)
-                            .opacity(isMessageOffline ? 0.5 : 1)
-                            .environment(\.openURL, OpenURLAction(handler: handle))
-                    }
-                    Spacer()
+        VStack(alignment: .leading, spacing: .xs) {
+            HStack {
+                VStack(alignment: .leading, spacing: .xs) {
+                    headerIfVisible
+                    ArtemisMarkdownView(string: content)
+                        .opacity(isMessageOffline ? 0.5 : 1)
+                        .environment(\.openURL, OpenURLAction(handler: handle))
                 }
-                .background {
-                    RoundedRectangle(cornerRadius: .m)
-                        .foregroundStyle(backgroundOnPress)
-                }
-                .contentShape(.rect)
-                .onTapGesture(perform: onTapPresentMessage)
-                .onLongPressGesture(perform: onLongPressPresentActionSheet) { changed in
-                    viewModel.isDetectingLongPress = changed
-                }
-
-                ReactionsView(viewModel: conversationViewModel, message: $message)
-                retryButtonIfAvailable
-                replyButtonIfAvailable
+                Spacer()
             }
-            .id(message.value?.id.description)
+            .background {
+                RoundedRectangle(cornerRadius: .m)
+                    .foregroundStyle(backgroundOnPress)
+            }
+            .contentShape(.rect)
+            .onTapGesture(perform: onTapPresentMessage)
+            .onLongPressGesture(perform: onLongPressPresentActionSheet) { changed in
+                viewModel.isDetectingLongPress = changed
+            }
+
+            ReactionsView(viewModel: conversationViewModel, message: $message)
+            retryButtonIfAvailable
+            replyButtonIfAvailable
         }
+        .id(message.value?.id.description)
         .padding(.horizontal, .l)
         .sheet(isPresented: $viewModel.isActionSheetPresented) {
             MessageActionSheet(
@@ -105,7 +102,7 @@ private extension MessageCell {
     }
 
     @ViewBuilder var roleBadge: some View {
-        if let authorRole, viewModel.isHeaderVisible {
+        if let authorRole {
             Text(authorRole.displayName)
                 .padding(.horizontal, .s)
                 .padding(.vertical, .xs)
@@ -117,6 +114,7 @@ private extension MessageCell {
     @ViewBuilder var headerIfVisible: some View {
         if viewModel.isHeaderVisible {
             HStack(alignment: .firstTextBaseline, spacing: .m) {
+                roleBadge
                 Text(isMessageOffline ? "Redacted" : author)
                     .bold()
                     .redacted(reason: isMessageOffline ? .placeholder : [])
