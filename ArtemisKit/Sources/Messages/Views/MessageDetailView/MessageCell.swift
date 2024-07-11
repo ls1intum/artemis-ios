@@ -49,7 +49,11 @@ struct MessageCell: View {
         }
         .padding(.horizontal, .m)
         .padding(viewModel.isHeaderVisible ? .vertical : .bottom, .m)
-        .background(Color(uiColor: .secondarySystemBackground))
+        .background(
+            Color(uiColor: .secondarySystemBackground),
+            in: .rect(cornerRadii: viewModel.roundedCorners)
+        )
+        .padding(.top, viewModel.isHeaderVisible ? .m : 0)
         .id(message.value?.id.description)
         .padding(.horizontal, .l)
         .sheet(isPresented: $viewModel.isActionSheetPresented) {
@@ -69,6 +73,7 @@ extension MessageCell {
         message: Binding<DataState<BaseMessage>>,
         conversationPath: ConversationPath?,
         isHeaderVisible: Bool,
+        roundBottomCorners: Bool,
         retryButtonAction: (() -> Void)? = nil
     ) {
         self.init(
@@ -78,6 +83,7 @@ extension MessageCell {
                 course: conversationViewModel.course,
                 conversationPath: conversationPath,
                 isHeaderVisible: isHeaderVisible,
+                roundBottomCorners: roundBottomCorners,
                 retryButtonAction: retryButtonAction)
         )
     }
@@ -292,6 +298,7 @@ extension EnvironmentValues {
             conversation: MessagesServiceStub.conversation,
             coursePath: CoursePath(course: MessagesServiceStub.course)
         ),
-        isHeaderVisible: true
+        isHeaderVisible: true,
+        roundBottomCorners: true
     )
 }

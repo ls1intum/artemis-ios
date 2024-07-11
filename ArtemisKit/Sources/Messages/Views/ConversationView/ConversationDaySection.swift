@@ -28,29 +28,18 @@ struct ConversationDaySection: View {
             Divider()
                 .padding(.horizontal, .l)
                 .padding(.bottom, .s)
+            let totalMessages = messages.count
             ForEach(Array(messages.enumerated()), id: \.1.id) { index, message in
+                let needsRoundedCorners = index == totalMessages - 1 || !messages[index + 1].isContinuation(of: message)
                 MessageCellWrapper(
                     viewModel: viewModel,
                     day: day,
                     message: message,
                     conversationPath: conversationPath,
-                    isHeaderVisible: index == 0 || !message.isContinuation(of: messages[index - 1]))
-                .padding(.top, topMessagePadding(for: message, at: index))
+                    isHeaderVisible: index == 0 || !message.isContinuation(of: messages[index - 1]),
+                    roundBottomCorners: needsRoundedCorners)
             }
         }
-    }
-}
-
-private extension ConversationDaySection {
-    /// Calculates whether there should be space in between the current and previous message
-    func topMessagePadding(for message: Message, at index: Int) -> CGFloat {
-        if index == 0 {
-            return .s
-        }
-        if message.isContinuation(of: messages[index - 1]) {
-            return 0
-        }
-        return .m
     }
 }
 
@@ -61,6 +50,7 @@ private struct MessageCellWrapper: View {
     let message: Message
     let conversationPath: ConversationPath
     let isHeaderVisible: Bool
+    let roundBottomCorners: Bool
 
     private var messageBinding: Binding<DataState<BaseMessage>> {
         Binding {
@@ -81,7 +71,8 @@ private struct MessageCellWrapper: View {
             conversationViewModel: viewModel,
             message: messageBinding,
             conversationPath: conversationPath,
-            isHeaderVisible: isHeaderVisible)
+            isHeaderVisible: isHeaderVisible,
+            roundBottomCorners: roundBottomCorners)
     }
 }
 
