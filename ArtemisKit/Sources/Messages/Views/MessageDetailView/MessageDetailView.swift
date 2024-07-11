@@ -88,15 +88,17 @@ private extension MessageDetailView {
     func answers(of message: BaseMessage, proxy: ScrollViewProxy) -> some View {
         if let message = message as? Message {
             Divider()
-            VStack {
+            VStack(spacing: 0) {
                 let sortedArray = (message.answers ?? []).sorted {
                     $0.creationDate ?? .tomorrow < $1.creationDate ?? .yesterday
                 }
                 ForEach(Array(sortedArray.enumerated()), id: \.1) { index, answerMessage in
+                    let isHeaderVisible = index == 0 || !answerMessage.isContinuation(of: sortedArray[index - 1])
                     MessageCellWrapper(
                         viewModel: viewModel,
                         answerMessage: answerMessage,
-                        isHeaderVisible: index == 0 || !answerMessage.isContinuation(of: sortedArray[index - 1]))
+                        isHeaderVisible: isHeaderVisible)
+                    .padding(.top, isHeaderVisible ? .m : 0)
                 }
                 Spacer()
                     .id("bottom")

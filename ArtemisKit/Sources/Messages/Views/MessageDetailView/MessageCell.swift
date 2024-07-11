@@ -47,6 +47,9 @@ struct MessageCell: View {
             retryButtonIfAvailable
             replyButtonIfAvailable
         }
+        .padding(.horizontal, .m)
+        .padding(viewModel.isHeaderVisible ? .vertical : .bottom, .m)
+        .background(Color(uiColor: .secondarySystemBackground))
         .id(message.value?.id.description)
         .padding(.horizontal, .l)
         .sheet(isPresented: $viewModel.isActionSheetPresented) {

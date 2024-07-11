@@ -20,10 +20,10 @@ struct ConversationDaySection: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 0) {
             Text(day, formatter: DateFormatter.dateOnly)
                 .font(.headline)
-                .padding(.top, .m)
+                .padding(.vertical, .m)
                 .padding(.horizontal, .l)
             Divider()
                 .padding(.horizontal, .l)
@@ -35,8 +35,22 @@ struct ConversationDaySection: View {
                     message: message,
                     conversationPath: conversationPath,
                     isHeaderVisible: index == 0 || !message.isContinuation(of: messages[index - 1]))
+                .padding(.top, topMessagePadding(for: message, at: index))
             }
         }
+    }
+}
+
+private extension ConversationDaySection {
+    /// Calculates whether there should be space in between the current and previous message
+    func topMessagePadding(for message: Message, at index: Int) -> CGFloat {
+        if index == 0 {
+            return .s
+        }
+        if message.isContinuation(of: messages[index - 1]) {
+            return 0
+        }
+        return .m
     }
 }
 
