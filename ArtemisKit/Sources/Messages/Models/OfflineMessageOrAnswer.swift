@@ -15,7 +15,7 @@ struct OfflineMessageOrAnswer: BaseMessage {
     var updatedDate: Date?
     var content: String?
     var tokenizedContent: String?
-    var authorRoleTransient: UserRole?
+    var authorRole: UserRole?
     var reactions: [Reaction]?
 }
 
