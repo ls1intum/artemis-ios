@@ -103,11 +103,13 @@ private extension MessageCell {
 
     @ViewBuilder var roleBadge: some View {
         if let authorRole {
-            Text(authorRole.displayName)
-                .padding(.horizontal, .s)
-                .padding(.vertical, .xs)
-                .background(authorRole.badgeColor, in: .rect(cornerRadius: .s))
-                .foregroundStyle(.white)
+            Chip(
+                text: authorRole.displayName,
+                backgroundColor: authorRole.badgeColor,
+                horizontalPadding: .m,
+                verticalPadding: .s
+            )
+            .font(.footnote)
         }
     }
 
