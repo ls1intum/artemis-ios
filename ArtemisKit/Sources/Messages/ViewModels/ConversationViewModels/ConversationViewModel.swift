@@ -115,6 +115,7 @@ extension ConversationViewModel {
             guard let message = messages.first(where: { $0.id == messageId }) else {
                 return .failure(UserFacingError(title: R.string.localizable.messageCouldNotBeLoadedError()))
             }
+            self.messages.update(with: .message(message))
             return .success(message)
         }
     }
@@ -127,6 +128,9 @@ extension ConversationViewModel {
                   let answerMessage = message.answers?.first(where: { $0.id == answerMessageId }) else {
                 return .failure(UserFacingError(title: R.string.localizable.messageCouldNotBeLoadedError()))
             }
+            // For some reason, self.messages no longer has values for all attributes
+            // when this is called after adding a reaction. We re-add them here
+            self.messages.update(with: .message(message))
             return .success(answerMessage)
         }
     }
