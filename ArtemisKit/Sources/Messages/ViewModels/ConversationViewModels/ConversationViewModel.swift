@@ -115,7 +115,6 @@ extension ConversationViewModel {
             guard let message = messages.first(where: { $0.id == messageId }) else {
                 return .failure(UserFacingError(title: R.string.localizable.messageCouldNotBeLoadedError()))
             }
-            self.messages.update(with: .message(message))
             return .success(message)
         }
     }
@@ -128,9 +127,6 @@ extension ConversationViewModel {
                   let answerMessage = message.answers?.first(where: { $0.id == answerMessageId }) else {
                 return .failure(UserFacingError(title: R.string.localizable.messageCouldNotBeLoadedError()))
             }
-            // For some reason, self.messages no longer has values for all attributes
-            // when this is called after adding a reaction. We re-add them here
-            self.messages.update(with: .message(message))
             return .success(answerMessage)
         }
     }
@@ -342,7 +338,20 @@ private extension ConversationViewModel {
     func handle(update message: Message) {
         shouldScrollToId = nil
         if messages.contains(.of(id: message.id)) {
-            messages.update(with: .message(message))
+            let oldMessage = messages.first { $0.id == message.id }
+
+            // We do not get `authorRole` via websockets, thus we need to manually keep it
+            var newMessage = message
+            newMessage.authorRole = newMessage.authorRole ?? oldMessage?.rawValue.authorRole
+            // Same for answers
+            newMessage.answers = newMessage.answers?.map { answer in
+                var newAnswer = answer
+                let oldAnswer = oldMessage?.rawValue.answers?.first { $0.id == answer.id }
+                newAnswer.authorRole = newAnswer.authorRole ?? oldAnswer?.authorRole
+                return newAnswer
+            }
+
+            messages.update(with: .message(newMessage))
         }
     }
 
