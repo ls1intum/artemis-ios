@@ -75,7 +75,7 @@ private struct EmojiTextButton: View {
             }
         } label: {
             Text("\(pair.0) \(pair.1.count)")
-                .font(.caption)
+                .font(.footnote)
                 .foregroundColor(isMyReaction ? Color.Artemis.artemisBlue : Color.Artemis.primaryLabel)
                 .frame(height: .extraSmallImage)
                 .padding(.m)
