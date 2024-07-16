@@ -5,226 +5,29 @@
 //  Created by Sven Andabaka on 23.03.23.
 //
 
-import SwiftUI
-import SharedModels
-import UserStore
-import DesignLibrary
 import Common
-import SharedServices
+import DesignLibrary
 import Navigation
+import SharedModels
+import SwiftUI
+import UserStore
 
 public struct ExerciseDetailView: View {
     @EnvironmentObject var navigationController: NavigationController
 
-    @State private var webViewHeight = CGFloat.s
-    @State private var urlRequest: URLRequest
-    @State private var isWebViewLoading = true
-
-    @State private var exercise: DataState<Exercise>
-
-    @State private var showFeedback = false
-
-    @State private var latestResultId: Int?
-    @State private var participationId: Int?
-
-    private let exerciseId: Int
-    private let courseId: Int
-
-    @State private var webViewId = UUID()
-
-    public init(course: Course, exercise: Exercise) {
-        self._exercise = State(wrappedValue: .done(response: exercise))
-        self._urlRequest = State(wrappedValue: URLRequest(url: URL(string: "/courses/\(course.id)/exercises/\(exercise.id)/problem-statement", relativeTo: UserSession.shared.institution?.baseURL)!))
-
-        self.exerciseId = exercise.id
-        self.courseId = course.id
-    }
-
-    public init(courseId: Int, exerciseId: Int) {
-        self._exercise = State(wrappedValue: .loading)
-        self._urlRequest = State(wrappedValue: URLRequest(url: URL(string: "/courses/\(courseId)/exercises/\(exerciseId)", relativeTo: UserSession.shared.institution?.baseURL)!))
-
-        self.exerciseId = exerciseId
-        self.courseId = courseId
-    }
-
-    private var score: String {
-        let score = exercise.value?.baseExercise.studentParticipations?
-            .first?
-            .baseParticipation
-            .results?
-            .filter { $0.rated ?? false }
-            .max(by: { ($0.id ?? Int.min) > ($1.id ?? Int.min) })?
-            .score ?? 0
-
-        let maxPoints = exercise.value?.baseExercise.maxPoints ?? 0
-
-        return (score * maxPoints / 100).rounded().clean
-    }
-
-    private var showFeedbackButton: Bool {
-        switch exercise.value {
-        case .fileUpload, .programming, .text:
-            return true
-        default:
-            return false
-        }
-    }
-
-    private var isExerciseParticipationAvailable: Bool {
-        switch exercise.value {
-        case .modeling:
-            return true
-        default:
-            return false
-        }
-    }
+    @State private var viewModel: ExerciseDetailViewModel
 
     public var body: some View {
-        DataStateView(data: $exercise, retryHandler: { await loadExercise() }) { exercise in
+        DataStateView(data: $viewModel.exercise) {
+            await viewModel.loadExercise()
+        } content: { exercise in
             ScrollView {
                 VStack(alignment: .leading, spacing: .l) {
-                    // All buttons regarding viewing feedback and for the future, starting an exercise
-                    HStack(spacing: .m) {
-                        if isExerciseParticipationAvailable {
-                            if let dueDate = exercise.baseExercise.dueDate {
-                                if dueDate > Date() {
-                                    if let participationId {
-                                        OpenExerciseButton(exercise: exercise, participationId: participationId, problemStatementURL: urlRequest)
-                                    } else {
-                                        StartExerciseButton(exercise: exercise, participationId: $participationId)
-                                    }
-                                } else {
-                                    if let participationId {
-                                        if  latestResultId == nil {
-                                            ViewExerciseSubmissionButton(exercise: exercise, participationId: participationId)
-                                        } else {
-                                            ViewExerciseResultButton(exercise: exercise, participationId: participationId)
-                                        }
-                                    }
-                                }
-                            } else {
-                                if let participationId {
-                                    OpenExerciseButton(exercise: exercise, participationId: participationId, problemStatementURL: urlRequest)
-                                } else {
-                                    StartExerciseButton(exercise: exercise, participationId: $participationId)
-                                }
-                            }
-                        }
-                        if let latestResultId, let participationId, showFeedbackButton {
-                            Button {
-                                showFeedback = true
-                            } label: {
-                                Text(R.string.localizable.showFeedback())
-                            }
-                            .buttonStyle(ArtemisButton())
-                            .sheet(isPresented: $showFeedback) {
-                                FeedbackView(courseId: courseId,
-                                             exerciseId: exerciseId,
-                                             participationId: participationId,
-                                             resultId: latestResultId)
-                            }
-                        }
-                    }
-                    .padding(.horizontal, .m)
-
-                    if !isExerciseParticipationAvailable {
-                        ArtemisHintBox(text: R.string.localizable.exerciseParticipationHint(), hintType: .info)
-                            .padding(.horizontal, .m)
-                    }
-
-                    // All score related information
-                    VStack(alignment: .leading, spacing: .xs) {
-                        Text(R.string.localizable.points(
-                            score,
-                            exercise.baseExercise.maxPoints?.clean ?? "0"))
-                        .bold()
-
-                        SubmissionResultStatusView(exercise: exercise)
-                    }
-                    .padding(.horizontal, .m)
-
-                    // Exercise Details
-                    VStack(alignment: .leading, spacing: 0) {
-                        // Exercise Details title text
-                        Text(R.string.localizable.exerciseDetails)
-                            .bold()
-                            .frame(height: 25, alignment: .center)
-                            .padding(.s)
-
-                        Divider()
-                            .frame(height: 1.0)
-                            .overlay(Color.Artemis.artemisBlue)
-
-                        // Release Date
-                        if let releaseDate = exercise.baseExercise.releaseDate {
-                            ExerciseDetailCell(descriptionText: R.string.localizable.releaseDate()) {
-                                Text(releaseDate.mediumDateShortTime)
-                            }
-                        }
-
-                        // Due Date
-                        if let submissionDate = exercise.baseExercise.dueDate {
-                            ExerciseDetailCell(descriptionText: R.string.localizable.submissionDate()) {
-                                Text(submissionDate.mediumDateShortTime)
-                            }
-                        } else {
-                            ExerciseDetailCell(descriptionText: R.string.localizable.submissionDate()) {
-                                Text(R.string.localizable.noDueDate())
-                            }
-                        }
-
-                        // Assessment Due Date
-                        if let assessmentDate = exercise.baseExercise.assessmentDueDate {
-                            ExerciseDetailCell(descriptionText: R.string.localizable.assessmentDate()) {
-                                Text(assessmentDate.mediumDateShortTime)
-                            }
-                        }
-
-                        // Complaints Possible
-                        if let complaintPossible = exercise.baseExercise.allowComplaintsForAutomaticAssessments {
-                            ExerciseDetailCell(descriptionText: R.string.localizable.complaintPossible()) {
-                                Text(complaintPossible ? "Yes" : "No")
-                            }
-                        }
-
-                        // Exercise Type
-                        if exercise.baseExercise.includedInOverallScore != .includedCompletely {
-                            ExerciseDetailCell(descriptionText: R.string.localizable.exerciseType()) {
-                                Chip(text: exercise.baseExercise.includedInOverallScore.description, backgroundColor: exercise.baseExercise.includedInOverallScore.color, padding: .s)
-                            }
-                        }
-
-                        // Difficulty
-                        if let difficulty = exercise.baseExercise.difficulty {
-                            ExerciseDetailCell(descriptionText: R.string.localizable.difficulty()) {
-                                Chip(text: difficulty.description, backgroundColor: difficulty.color, padding: .s)
-                            }
-                        }
-
-                        // Categories
-                        if let categories = exercise.baseExercise.categories {
-                            ExerciseDetailCell(descriptionText: R.string.localizable.categories()) {
-                                ForEach(categories, id: \.category) { category in
-                                    Chip(text: category.category, backgroundColor: UIColor(hexString: category.colorCode).suColor, padding: .s)
-                                }
-                            }
-                        }
-                    }
-                    .background {
-                        RoundedRectangle(cornerRadius: 3.0)
-                            .stroke(Color.Artemis.artemisBlue, lineWidth: 1.0)
-                    }
-                    .padding(.horizontal, .m)
-
-                    ArtemisWebView(urlRequest: $urlRequest,
-                                   contentHeight: $webViewHeight,
-                                   isLoading: $isWebViewLoading,
-                                   customJSHeightQuery: webViewContentJS)
-                    .frame(height: webViewHeight)
-                    .allowsHitTesting(false)
-                    .loadingIndicator(isLoading: $isWebViewLoading)
-                    .id(webViewId)
+                    feedback(exercise: exercise)
+                    hint
+                    score(exercise: exercise)
+                    detail(exercise: exercise)
+                    problem
                 }
             }
             .toolbar {
@@ -243,54 +46,195 @@ public struct ExerciseDetailView: View {
             }
         }
         .task {
-            await loadExercise()
+            await viewModel.loadExercise()
         }
         .refreshable {
-            await refreshExercise()
+            await viewModel.refreshExercise()
+        }
+    }
+}
+
+public extension ExerciseDetailView {
+    init(course: Course, exercise: Exercise) {
+        self.init(viewModel: ExerciseDetailViewModel(
+            courseId: course.id,
+            exerciseId: exercise.id,
+            exercise: .done(response: exercise),
+            urlRequest: URLRequest(url: URL(
+                string: "/courses/\(course.id)/exercises/\(exercise.id)/problem-statement",
+                relativeTo: UserSessionFactory.shared.institution?.baseURL)!)))
+    }
+
+    init(courseId: Int, exerciseId: Int) {
+        self.init(viewModel: ExerciseDetailViewModel(
+            courseId: courseId,
+            exerciseId: exerciseId,
+            exercise: .loading,
+            urlRequest: URLRequest(url: URL(
+                string: "/courses/\(courseId)/exercises/\(exerciseId)",
+                relativeTo: UserSessionFactory.shared.institution?.baseURL)!)))
+    }
+}
+
+private extension ExerciseDetailView {
+    // All buttons regarding viewing feedback and for the future, starting an exercise
+    func feedback(exercise: Exercise) -> some View {
+        HStack(spacing: .m) {
+            if viewModel.isExerciseParticipationAvailable {
+                if let dueDate = exercise.baseExercise.dueDate {
+                    if dueDate > Date() {
+                        if let participationId = viewModel.participationId {
+                            OpenExerciseButton(
+                                exercise: exercise,
+                                participationId: participationId,
+                                problemStatementURL: viewModel.urlRequest)
+                        } else {
+                            StartExerciseButton(exercise: exercise, participationId: $viewModel.participationId)
+                        }
+                    } else {
+                        if let participationId = viewModel.participationId {
+                            if viewModel.latestResultId == nil {
+                                ViewExerciseSubmissionButton(exercise: exercise, participationId: participationId)
+                            } else {
+                                ViewExerciseResultButton(exercise: exercise, participationId: participationId)
+                            }
+                        }
+                    }
+                } else {
+                    if let participationId = viewModel.participationId {
+                        OpenExerciseButton(
+                            exercise: exercise,
+                            participationId: participationId,
+                            problemStatementURL: viewModel.urlRequest)
+                    } else {
+                        StartExerciseButton(exercise: exercise, participationId: $viewModel.participationId)
+                    }
+                }
+            }
+            if let latestResultId = viewModel.latestResultId,
+               let participationId = viewModel.participationId,
+               viewModel.isFeedbackButtonVisible {
+                Button {
+                    viewModel.isFeedbackPresented = true
+                } label: {
+                    Text(R.string.localizable.showFeedback())
+                }
+                .buttonStyle(ArtemisButton())
+                .sheet(isPresented: $viewModel.isFeedbackPresented) {
+                    FeedbackView(courseId: viewModel.courseId,
+                                 exerciseId: viewModel.exerciseId,
+                                 participationId: participationId,
+                                 resultId: latestResultId)
+                }
+            }
+        }
+        .padding(.horizontal, .m)
+    }
+
+    @ViewBuilder var hint: some View {
+        if !viewModel.isExerciseParticipationAvailable {
+            ArtemisHintBox(text: R.string.localizable.exerciseParticipationHint(), hintType: .info)
+                .padding(.horizontal, .m)
         }
     }
 
-    private func loadExercise() async {
-        if let exercise = exercise.value {
-            setParticipationAndResultId(from: exercise)
-        } else {
-            await refreshExercise()
+    // All score related information
+    func score(exercise: Exercise) -> some View {
+        VStack(alignment: .leading, spacing: .xs) {
+            Text(R.string.localizable.points(
+                viewModel.score,
+                exercise.baseExercise.maxPoints?.clean ?? "0"))
+            .bold()
+
+            SubmissionResultStatusView(exercise: exercise)
         }
+        .padding(.horizontal, .m)
     }
 
-    private func refreshExercise() async {
-        self.exercise = await ExerciseServiceFactory.shared.getExercise(exerciseId: exerciseId)
-        if let exercise = self.exercise.value {
-            setParticipationAndResultId(from: exercise)
+    // Exercise Details
+    func detail(exercise: Exercise) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            // Exercise Details title text
+            Text(R.string.localizable.exerciseDetails)
+                .bold()
+                .frame(height: 25, alignment: .center)
+                .padding(.s)
+
+            Divider()
+                .frame(height: 1.0)
+                .overlay(Color.Artemis.artemisBlue)
+
+            // Release Date
+            if let releaseDate = exercise.baseExercise.releaseDate {
+                ExerciseDetailCell(descriptionText: R.string.localizable.releaseDate()) {
+                    Text(releaseDate.mediumDateShortTime)
+                }
+            }
+
+            // Due Date
+            if let submissionDate = exercise.baseExercise.dueDate {
+                ExerciseDetailCell(descriptionText: R.string.localizable.submissionDate()) {
+                    Text(submissionDate.mediumDateShortTime)
+                }
+            } else {
+                ExerciseDetailCell(descriptionText: R.string.localizable.submissionDate()) {
+                    Text(R.string.localizable.noDueDate())
+                }
+            }
+
+            // Assessment Due Date
+            if let assessmentDate = exercise.baseExercise.assessmentDueDate {
+                ExerciseDetailCell(descriptionText: R.string.localizable.assessmentDate()) {
+                    Text(assessmentDate.mediumDateShortTime)
+                }
+            }
+
+            // Complaints Possible
+            if let complaintPossible = exercise.baseExercise.allowComplaintsForAutomaticAssessments {
+                ExerciseDetailCell(descriptionText: R.string.localizable.complaintPossible()) {
+                    Text(complaintPossible ? "Yes" : "No")
+                }
+            }
+
+            // Exercise Type
+            if exercise.baseExercise.includedInOverallScore != .includedCompletely {
+                ExerciseDetailCell(descriptionText: R.string.localizable.exerciseType()) {
+                    Chip(text: exercise.baseExercise.includedInOverallScore.description, backgroundColor: exercise.baseExercise.includedInOverallScore.color, padding: .s)
+                }
+            }
+
+            // Difficulty
+            if let difficulty = exercise.baseExercise.difficulty {
+                ExerciseDetailCell(descriptionText: R.string.localizable.difficulty()) {
+                    Chip(text: difficulty.description, backgroundColor: difficulty.color, padding: .s)
+                }
+            }
+
+            // Categories
+            if let categories = exercise.baseExercise.categories {
+                ExerciseDetailCell(descriptionText: R.string.localizable.categories()) {
+                    ForEach(categories, id: \.category) { category in
+                        Chip(text: category.category, backgroundColor: UIColor(hexString: category.colorCode).suColor, padding: .s)
+                    }
+                }
+            }
         }
-        // Force WebView to reload
-        webViewId = UUID()
+        .background {
+            RoundedRectangle(cornerRadius: 3.0)
+                .stroke(Color.Artemis.artemisBlue, lineWidth: 1.0)
+        }
+        .padding(.horizontal, .m)
     }
 
-    private func setParticipationAndResultId(from exercise: Exercise) {
-        isWebViewLoading = true
-
-        let participation = exercise.getSpecificStudentParticipation(testRun: false)
-        participationId = participation?.id
-        // Sort participation results by completionDate desc.
-        // The latest result is the first rated result in the sorted array (=newest)
-        if let latestResultId = participation?.results?.max(by: { $0.completionDate ?? .distantPast > $1.completionDate ?? .distantPast })?.id {
-            self.latestResultId = latestResultId
-        }
-
-        urlRequest = URLRequest(url: URL(string: "/courses/\(courseId)/exercises/\(exercise.id)/problem-statement/\(participationId?.description ?? "")", relativeTo: UserSession.shared.institution?.baseURL)!)
-    }
-
-    /// JavaScript to reduce visible content in WebView to just problem statement
-    private let webViewContentJS = """
-        if (document.querySelector("jhi-course-overview") != null
-            && document.querySelector("jhi-programming-exercise-instructions") != null
-            && document.querySelector("jhi-problem-statement").innerText.length > 10) {
-        document.querySelector("jhi-course-overview").innerHTML = document.querySelector("jhi-programming-exercise-instructions").innerHTML;
-        document.querySelector("#programming-exercise-instructions-content").setAttribute("style", "overflow: unset");
-        }
-        document.querySelector(".instructions__content").scrollHeight
-        """
+    var problem: some View {
+        ArtemisWebView(urlRequest: $viewModel.urlRequest,
+                       contentHeight: $viewModel.webViewHeight,
+                       isLoading: $viewModel.isWebViewLoading,
+                       customJSHeightQuery: viewModel.webViewHeightJS)
+        .frame(height: viewModel.webViewHeight)
+        .allowsHitTesting(false)
+        .loadingIndicator(isLoading: $viewModel.isWebViewLoading)
+        .id(viewModel.webViewId)}
 }
 
 private struct ExerciseDetailCell<Content: View>: View {
@@ -338,11 +282,21 @@ private struct OpenExerciseButton: View {
     var body: some View {
         switch exercise {
         case .modeling:
-            NavigationLink(destination: EditModelingExerciseView(exercise: exercise,
-                                                                 participationId: participationId,
-                                                                 problemStatementURL: problemStatementURL)) {
-                Text(R.string.localizable.openModelingEditor())
-            }.buttonStyle(ArtemisButton())
+            NavigationLink(R.string.localizable.openModelingEditor()) {
+                EditModelingExerciseView(
+                    exercise: exercise,
+                    participationId: participationId,
+                    problemStatementURL: problemStatementURL)
+            }
+            .buttonStyle(ArtemisButton())
+        case .text:
+            NavigationLink(R.string.localizable.openExercise()) {
+                EditTextExerciseView(
+                    exercise: exercise,
+                    participationId: participationId,
+                    problem: problemStatementURL)
+            }
+            .buttonStyle(ArtemisButton())
         default:
             ArtemisHintBox(text: R.string.localizable.exerciseParticipationHint(), hintType: .info)
         }
@@ -356,10 +310,19 @@ private struct ViewExerciseSubmissionButton: View {
     var body: some View {
         switch exercise {
         case .modeling:
-            NavigationLink(destination: ViewModelingExerciseView(exercise: exercise,
-                                                                 participationId: participationId)) {
+            NavigationLink {
+                ViewModelingExerciseView(exercise: exercise, participationId: participationId)
+            } label: {
                 Text(R.string.localizable.viewSubmission())
-            }.buttonStyle(ArtemisButton())
+            }
+            .buttonStyle(ArtemisButton())
+        case .text:
+            NavigationLink {
+                ViewTextExerciseView(exercise: exercise, participationId: participationId)
+            } label: {
+                Text(R.string.localizable.viewSubmission())
+            }
+            .buttonStyle(ArtemisButton())
         default:
             ArtemisHintBox(text: R.string.localizable.exerciseParticipationHint(), hintType: .info)
         }
@@ -373,10 +336,21 @@ private struct ViewExerciseResultButton: View {
     var body: some View {
         switch exercise {
         case .modeling:
-            NavigationLink(destination: ViewModelingExerciseResultView(exercise: exercise,
-                                                                       participationId: participationId)) {
+            NavigationLink {
+                ViewModelingExerciseResultView(
+                    exercise: exercise,
+                    participationId: participationId)
+            } label: {
                 Text(R.string.localizable.viewResult())
-            }.buttonStyle(ArtemisButton())
+            }
+            .buttonStyle(ArtemisButton())
+        case .text:
+            NavigationLink {
+                ViewTextExerciseView(exercise: exercise, participationId: participationId)
+            } label: {
+                Text(R.string.localizable.viewSubmission())
+            }
+            .buttonStyle(ArtemisButton())
         default:
             ArtemisHintBox(text: R.string.localizable.exerciseParticipationHint(), hintType: .info)
         }
@@ -390,7 +364,9 @@ private struct FeedbackView: View {
     @State private var isWebViewLoading = true
 
     init(courseId: Int, exerciseId: Int, participationId: Int, resultId: Int) {
-        self._urlRequest = State(wrappedValue: URLRequest(url: URL(string: "/courses/\(courseId)/exercises/\(exerciseId)/participations/\(participationId)/results/\(resultId)/feedback/", relativeTo: UserSession.shared.institution?.baseURL)!))
+        self._urlRequest = State(wrappedValue: URLRequest(url: URL(
+            string: "/courses/\(courseId)/exercises/\(exerciseId)/participations/\(participationId)/results/\(resultId)/feedback/",
+            relativeTo: UserSessionFactory.shared.institution?.baseURL)!))
     }
 
     var body: some View {

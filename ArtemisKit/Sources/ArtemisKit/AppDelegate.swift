@@ -46,7 +46,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     }
 
     public func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-        UserSession.shared.saveNotificationDeviceConfiguration(token: nil, encryptionKey: nil, skippedNotifications: true)
+        UserSessionFactory.shared.saveNotificationDeviceConfiguration(token: nil, encryptionKey: nil, skippedNotifications: true)
         log.error("Did Fail To Register For Remote Notifications With Error: \(error)")
     }
 

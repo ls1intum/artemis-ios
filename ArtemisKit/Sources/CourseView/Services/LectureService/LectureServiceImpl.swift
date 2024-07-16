@@ -70,7 +70,9 @@ class LectureServiceImpl: LectureService {
     }
 
     func getAttachmentFile(link: String) async -> DataState<URL> {
-        guard let url = URL(string: link, relativeTo: UserSession.shared.institution?.baseURL) else { return .failure(error: UserFacingError(title: "Wrong URL")) }
+        guard let url = URL(string: link, relativeTo: UserSessionFactory.shared.institution?.baseURL) else {
+            return .failure(error: UserFacingError(title: "Wrong URL"))
+        }
         do {
             let (data, _) = try await URLSession.shared.data(from: url)
 

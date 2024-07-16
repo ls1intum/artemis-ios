@@ -46,24 +46,20 @@ struct CourseGridCell: View {
 private extension CourseGridCell {
     var header: some View {
         HStack(alignment: .center) {
-            AsyncImage(url: courseForDashboard.course.courseIconURL) { phase in
-                switch phase {
-                case let .success(image):
-                    image
-                        .resizable()
-                        .clipShape(.circle)
-                        .frame(width: .extraLargeImage)
-                case .failure, .empty:
-                    EmptyView()
-                @unknown default:
-                    EmptyView()
+            VStack {
+                if let imageURL = courseForDashboard.course.courseIconURL {
+                    ArtemisAsyncImage(imageURL: imageURL) {
+                        EmptyView()
+                    }
+                    .clipShape(.circle)
+                    .frame(width: .extraLargeImage)
                 }
             }
             .frame(height: .extraLargeImage)
             .padding([.leading, .vertical], .m)
             VStack(alignment: .leading, spacing: 0) {
                 Text(courseForDashboard.course.title ?? "")
-                    .font(.custom("SF Pro", size: 21, relativeTo: .title))
+                    .font(.system(size: UIFontMetrics.default.scaledValue(for: 21)))
                     .multilineTextAlignment(.leading)
                     .lineLimit(2)
                 Text(R.string.localizable.dashboardExercisesLabel(courseForDashboard.course.exercises?.count ?? 0))

@@ -156,19 +156,19 @@ protocol MessagesService {
 
 extension MessagesService {
     func joinChannel(for courseId: Int, channelId: Int64) async -> NetworkResponse {
-        guard let username = UserSession.shared.user?.login else { return .failure(error: UserFacingError(error: APIClientError.wrongParameters)) }
+        guard let username = UserSessionFactory.shared.user?.login else { return .failure(error: UserFacingError(error: APIClientError.wrongParameters)) }
 
         return await addMembersToChannel(for: courseId, channelId: channelId, usernames: [username])
     }
 
     func leaveChannel(for courseId: Int, channelId: Int64) async -> NetworkResponse {
-        guard let username = UserSession.shared.user?.login else { return .failure(error: UserFacingError(error: APIClientError.wrongParameters)) }
+        guard let username = UserSessionFactory.shared.user?.login else { return .failure(error: UserFacingError(error: APIClientError.wrongParameters)) }
 
         return await removeMembersFromChannel(for: courseId, channelId: channelId, usernames: [username])
     }
 
     func leaveConversation(for courseId: Int, groupChatId: Int64) async -> NetworkResponse {
-        guard let username = UserSession.shared.user?.login else { return .failure(error: UserFacingError(error: APIClientError.wrongParameters)) }
+        guard let username = UserSessionFactory.shared.user?.login else { return .failure(error: UserFacingError(error: APIClientError.wrongParameters)) }
 
         return await removeMembersFromGroupChat(for: courseId, groupChatId: groupChatId, usernames: [username])
     }
@@ -178,6 +178,8 @@ extension MessagesService {
     }
 }
 
-enum MessagesServiceFactory {
-    static let shared: MessagesService = MessagesServiceImpl()
+enum MessagesServiceFactory: DependencyFactory {
+    static let liveValue: MessagesService = MessagesServiceImpl()
+
+    static let testValue: MessagesService = MessagesServiceStub()
 }

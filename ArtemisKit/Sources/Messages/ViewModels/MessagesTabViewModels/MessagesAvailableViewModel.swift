@@ -31,6 +31,10 @@ class MessagesAvailableViewModel: BaseViewModel {
 
     @Published var hiddenConversations: DataState<[Conversation]> = .loading
 
+    var isDirectMessagingEnabled: Bool {
+        course.courseInformationSharingConfiguration == .communicationAndMessaging
+    }
+
     let course: Course
     let courseId: Int
 
@@ -42,7 +46,7 @@ class MessagesAvailableViewModel: BaseViewModel {
         course: Course,
         messagesService: MessagesService = MessagesServiceFactory.shared,
         stompClient: ArtemisStompClient = ArtemisStompClient.shared,
-        userSession: UserSession = UserSession.shared
+        userSession: UserSession = UserSessionFactory.shared
     ) {
         self.course = course
         self.courseId = course.id

@@ -13,6 +13,20 @@
 "lecturesUnavailable" = "No Lectures";
 "membersUnavailable" = "No Members";
 "messageAction" = "Message %@";
+"mentionSlideNumber" = "Slide %i";
+"style" = "Style";
+"bold" = "Bold";
+"italic" = "Italic";
+"underline" = "Underline";
+"quote" = "Quote";
+"inlineCode" = "Inline code";
+"codeBlock" = "Code block";
+"code" = "Code";
+"link" = "Link";
+
+// MARK: SendMessageMentionContentView
+"members" = "Members";
+"mention" = "Mention";
 
 // MARK: ReactionsView
 "emojis" = "Emojis";
@@ -22,6 +36,7 @@
 "createChannel" = "Create Channel";
 "createGroupChat" = "Create Group Chat";
 "createOneToOneChat" = "Create OneToOne Chat";
+"createChat" = "Create Chat";
 "noResultForSearch" = "There is no result for your search.";
 "favoritesSection" = "Favorites";
 "hiddenSection" = "Hidden";
@@ -32,6 +47,7 @@
 "hide" = "Hide";
 "show" = "Show";
 "channels" = "Channels";
+"generalTopics" = "General Topics";
 "exercises" = "Exercises";
 "lectures" = "Lectures";
 "exams" = "Exams";

@@ -46,12 +46,12 @@
 
 // MARK: - ExerciseDetailView
 "exerciseDetails" = "Exercise details";
-"dueDate" = "Due Date: %s";
 "noDueDate" = "No due date";
 "points" = "Points: %s of %s";
 "assessment" = "Assessment: %s";
 "showFeedback" = "Show feedback";
 "startExercise" = "Start exercise";
+"openExercise" = "Open exercise";
 "openModelingEditor" = "Open modeling editor";
 "submitSubmission" = "Submit";
 "viewSubmission" = "View submission";
@@ -94,5 +94,5 @@
 "date" = "Date";
 "noDateAssociated" = "No date associated";
 "lectureUnits" = "Lecture Units";
-"lecturesGroupTitle" = "%s (Exercises: %i)";
+"lecturesGroupTitle" = "%s (Lectures: %i)";
 "attachments" = "Attachments";

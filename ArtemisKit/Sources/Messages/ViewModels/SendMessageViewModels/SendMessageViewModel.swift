@@ -23,15 +23,6 @@ extension SendMessageViewModel {
         case memberPicker
         case channelPicker
     }
-
-    enum ModalPresentation: Identifiable {
-        case exercisePicker
-        case lecturePicker
-
-        var id: Self {
-            self
-        }
-    }
 }
 
 @MainActor
@@ -78,7 +69,7 @@ final class SendMessageViewModel {
     var isMemberPickerSuppressed = false
     var isChannelPickerSuppressed = false
 
-    var modalPresentation: ModalPresentation?
+    var wantsToAddMessageMentionContentType: MessageMentionContentType? = nil
 
     // MARK: Life cycle
 
@@ -89,7 +80,7 @@ final class SendMessageViewModel {
         delegate: SendMessageViewModelDelegate,
         messagesRepository: MessagesRepository = .shared,
         messagesService: MessagesService = MessagesServiceFactory.shared,
-        userSession: UserSession = .shared
+        userSession: UserSession = UserSessionFactory.shared
     ) {
         self.course = course
         self.conversation = conversation

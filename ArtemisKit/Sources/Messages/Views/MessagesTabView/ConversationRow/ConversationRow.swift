@@ -36,6 +36,12 @@ struct ConversationRow<T: BaseConversation>: View {
                 if let unreadCount = conversation.unreadMessagesCount {
                     Badge(count: unreadCount)
                 }
+                Menu {
+                    contextMenuItems
+                } label: {
+                    Image(systemName: "ellipsis")
+                        .padding(.m)
+                }
             }
             .opacity((conversation.unreadMessagesCount ?? 0) > 0 ? 1 : 0.7)
             .contextMenu {
@@ -43,26 +49,46 @@ struct ConversationRow<T: BaseConversation>: View {
             }
         }
         .foregroundStyle((conversation.isMuted ?? false) ? .secondary : .primary)
-        .listRowSeparator(.hidden)
+        .swipeActions(edge: .leading) {
+            favoriteButton
+        }
+        .swipeActions(edge: .trailing) {
+            hideAndMuteButtons
+        }
     }
 }
 
 private extension ConversationRow {
-    @ViewBuilder var contextMenuItems: some View {
-        Button((conversation.isFavorite ?? false) ? R.string.localizable.unfavorite() : R.string.localizable.favorite()) {
+    @ViewBuilder var favoriteButton: some View {
+        let isFavorite = conversation.isFavorite ?? false
+        Button(isFavorite ? R.string.localizable.unfavorite() : R.string.localizable.favorite(),
+               systemImage: isFavorite ? "heart.slash.fill" : "heart.fill") {
             Task(priority: .userInitiated) {
                 await viewModel.setIsConversationFavorite(conversationId: conversation.id, isFavorite: !(conversation.isFavorite ?? false))
             }
-        }
-        Button((conversation.isMuted ?? false) ? R.string.localizable.unmute() : R.string.localizable.mute()) {
-            Task(priority: .userInitiated) {
-                await viewModel.setIsConversationMuted(conversationId: conversation.id, isMuted: !(conversation.isMuted ?? false))
-            }
-        }
-        Button((conversation.isHidden ?? false) ? R.string.localizable.show() : R.string.localizable.hide()) {
+        }.tint(.orange)
+    }
+
+    @ViewBuilder var hideAndMuteButtons: some View {
+        let isHidden = conversation.isHidden ?? false
+        Button(isHidden ? R.string.localizable.show() : R.string.localizable.hide(),
+               systemImage: isHidden ? "eye.fill" : "eye.slash.fill") {
             Task(priority: .userInitiated) {
                 await viewModel.setConversationIsHidden(conversationId: conversation.id, isHidden: !(conversation.isHidden ?? false))
             }
-        }
+        }.tint(.gray)
+
+        let isMuted = conversation.isMuted ?? false
+        Button(isMuted ? R.string.localizable.unmute() : R.string.localizable.mute(),
+               systemImage: isMuted ? "bell.fill" : "bell.slash.fill") {
+            Task(priority: .userInitiated) {
+                await viewModel.setIsConversationMuted(conversationId: conversation.id, isMuted: !(conversation.isMuted ?? false))
+            }
+        }.tint(.indigo)
+    }
+    
+    @ViewBuilder var contextMenuItems: some View {
+        favoriteButton
+        hideAndMuteButtons
     }
 }

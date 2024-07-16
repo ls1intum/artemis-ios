@@ -137,58 +137,72 @@ struct ExerciseListCell: View {
     let course: Course
     let exercise: Exercise
 
-    let rows = [
-        GridItem()
-    ]
+    var showAdditionalBadges: Bool {
+        if let releaseDate = exercise.baseExercise.releaseDate,
+           releaseDate > .now {
+            return true
+        }
+        if let categories = exercise.baseExercise.categories, !categories.isEmpty {
+            return true
+        }
+        return exercise.baseExercise.includedInOverallScore != .includedCompletely
+    }
 
     var body: some View {
         Button {
             navigationController.path.append(ExercisePath(exercise: exercise, coursePath: CoursePath(course: course)))
         } label: {
-            VStack(alignment: .leading, spacing: .m) {
-                HStack(spacing: .l) {
-                    exercise.image
-                        .renderingMode(.template)
-                        .resizable()
-                        .scaledToFit()
-                        .foregroundColor(Color.Artemis.primaryLabel)
-                        .frame(width: .smallImage)
-                    Text(exercise.baseExercise.title ?? "")
-                        .font(.title3)
-                    Spacer()
+            HStack(alignment: .top, spacing: 0) {
+                if let difficulty = exercise.baseExercise.difficulty {
+                    Rectangle()
+                        .frame(width: .m)
+                        .foregroundStyle(difficulty.color)
+                        .accessibilityLabel(difficulty.description)
                 }
-                if let dueDate = exercise.baseExercise.dueDate {
-                    Text(R.string.localizable.dueDate(dueDate.relative ?? "?"))
-                } else {
-                    Text(R.string.localizable.noDueDate())
-                }
-                SubmissionResultStatusView(exercise: exercise)
-                ScrollView(.horizontal) {
-                    LazyHGrid(rows: rows, spacing: .s) {
-                        if let releaseDate = exercise.baseExercise.releaseDate,
-                           releaseDate > .now {
-                            Chip(
-                                text: R.string.localizable.notReleased(),
-                                backgroundColor: Color.Artemis.badgeWarningColor)
-                        }
-                        ForEach(exercise.baseExercise.categories ?? [], id: \.category) { category in
-                            Chip(text: category.category, backgroundColor: UIColor(hexString: category.colorCode).suColor)
-                        }
-                        // TODO: maybe add isActiveQuiz in presentationMode badge
-                        if let difficulty = exercise.baseExercise.difficulty {
-                            Chip(text: difficulty.description, backgroundColor: difficulty.color)
-                        }
-                        if exercise.baseExercise.includedInOverallScore != .includedCompletely {
-                            Chip(
-                                text: exercise.baseExercise.includedInOverallScore.description,
-                                backgroundColor: exercise.baseExercise.includedInOverallScore.color)
+                VStack(alignment: .leading, spacing: .m) {
+                    HStack(spacing: .m) {
+                        exercise.image
+                            .renderingMode(.template)
+                            .resizable()
+                            .scaledToFit()
+                            .foregroundColor(Color.Artemis.primaryLabel)
+                            .frame(width: .smallImage)
+                        Text(exercise.baseExercise.title ?? "")
+                            .font(.title3)
+                            .lineLimit(1)
+                    }
+                    if let dueDate = exercise.baseExercise.dueDate {
+                        Text(dueDate, style: .date)
+                    } else {
+                        Text(R.string.localizable.noDueDate())
+                    }
+                    SubmissionResultStatusView(exercise: exercise)
+                    if showAdditionalBadges {
+                        ScrollView(.horizontal) {
+                            HStack(spacing: .s) {
+                                if let releaseDate = exercise.baseExercise.releaseDate,
+                                   releaseDate > .now {
+                                    Chip(
+                                        text: R.string.localizable.notReleased(),
+                                        backgroundColor: Color.Artemis.badgeWarningColor)
+                                }
+                                ForEach(exercise.baseExercise.categories ?? [], id: \.category) { category in
+                                    Chip(text: category.category, backgroundColor: UIColor(hexString: category.colorCode).suColor)
+                                }
+                                // TODO: maybe add isActiveQuiz in presentationMode badge
+                                if exercise.baseExercise.includedInOverallScore != .includedCompletely {
+                                    Chip(
+                                        text: exercise.baseExercise.includedInOverallScore.description,
+                                        backgroundColor: exercise.baseExercise.includedInOverallScore.color)
+                                }
+                            }
                         }
                     }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.l)
             }
-            .frame(maxWidth: .infinity)
-            .padding(.l)
-            .artemisStyleCard()
+            .cardModifier(backgroundColor: .Artemis.exerciseCardBackgroundColor, cornerRadius: .m)
         }
         // Make button style explicit, otherwise, multiple cells may activate a navigation link.
         .buttonStyle(.plain)

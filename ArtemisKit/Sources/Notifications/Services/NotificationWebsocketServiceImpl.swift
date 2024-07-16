@@ -73,7 +73,7 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
     }
 
     private func subscribeToSingleUserNotificationUpdates() async {
-        guard let userId = UserSession.shared.user?.id else {
+        guard let userId = UserSessionFactory.shared.user?.id else {
             log.debug("User could not be found. Subscribe to UserNotifications not possible")
             return
         }
@@ -199,7 +199,7 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
     }
 
     private func subscribeToTutorialGroupNotificationUpdates() async {
-        guard let userId = UserSession.shared.user?.id else {
+        guard let userId = UserSessionFactory.shared.user?.id else {
             log.debug("User could not be found. Subscription to UserNotifications is not possible")
             return
         }
@@ -217,7 +217,7 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
     }
 
     private func subscribeToConversationNotificationUpdates() async {
-        guard let userId = UserSession.shared.user?.id else {
+        guard let userId = UserSessionFactory.shared.user?.id else {
             log.debug("User could not be found. Subscription to UserNotifications is not possible")
             return
         }
@@ -228,7 +228,7 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
         let task = Task {
             for await message in stream {
                 guard let notification = JSONDecoder.getTypeFromSocketMessage(type: Notification.self, message: message),
-                      let userId = UserSession.shared.user?.id else { continue }
+                      let userId = UserSessionFactory.shared.user?.id else { continue }
 
                 // Only add notification if it is not from the current user
                 if notification.author?.id != userId {
