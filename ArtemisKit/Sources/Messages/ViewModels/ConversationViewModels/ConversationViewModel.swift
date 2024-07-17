@@ -338,7 +338,20 @@ private extension ConversationViewModel {
     func handle(update message: Message) {
         shouldScrollToId = nil
         if messages.contains(.of(id: message.id)) {
-            messages.update(with: .message(message))
+            let oldMessage = messages.first { $0.id == message.id }
+
+            // We do not get `authorRole` via websockets, thus we need to manually keep it
+            var newMessage = message
+            newMessage.authorRole = newMessage.authorRole ?? oldMessage?.rawValue.authorRole
+            // Same for answers
+            newMessage.answers = newMessage.answers?.map { answer in
+                var newAnswer = answer
+                let oldAnswer = oldMessage?.rawValue.answers?.first { $0.id == answer.id }
+                newAnswer.authorRole = newAnswer.authorRole ?? oldAnswer?.authorRole
+                return newAnswer
+            }
+
+            messages.update(with: .message(newMessage))
         }
     }
 

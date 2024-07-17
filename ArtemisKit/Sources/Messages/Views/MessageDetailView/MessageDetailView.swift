@@ -70,7 +70,8 @@ private extension MessageDetailView {
             conversationViewModel: viewModel,
             message: Binding.constant(DataState<BaseMessage>.done(response: message)),
             conversationPath: nil,
-            isHeaderVisible: true
+            isHeaderVisible: true,
+            roundBottomCorners: true
         )
         .environment(\.isEmojiPickerButtonVisible, true)
         .onLongPressGesture(maximumDistance: 30) {
@@ -88,15 +89,21 @@ private extension MessageDetailView {
     func answers(of message: BaseMessage, proxy: ScrollViewProxy) -> some View {
         if let message = message as? Message {
             Divider()
-            VStack {
+                .padding(.top, .s)
+            VStack(spacing: 0) {
                 let sortedArray = (message.answers ?? []).sorted {
                     $0.creationDate ?? .tomorrow < $1.creationDate ?? .yesterday
                 }
+                let totalMessages = sortedArray.count
                 ForEach(Array(sortedArray.enumerated()), id: \.1) { index, answerMessage in
+                    let isHeaderVisible = !answerMessage.isContinuation(of: sortedArray[safe: index - 1])
+                    let needsRoundedCorners = !(sortedArray[safe: index + 1]?.isContinuation(of: answerMessage) ?? false)
                     MessageCellWrapper(
                         viewModel: viewModel,
                         answerMessage: answerMessage,
-                        isHeaderVisible: index == 0 || !answerMessage.isContinuation(of: sortedArray[index - 1]))
+                        isHeaderVisible: isHeaderVisible,
+                        roundBottomCorners: needsRoundedCorners)
+                    .id(index == totalMessages - 1 ? nil : answerMessage)
                 }
                 Spacer()
                     .id("bottom")
@@ -136,6 +143,7 @@ private struct MessageCellWrapper: View {
 
     let answerMessage: AnswerMessage
     let isHeaderVisible: Bool
+    let roundBottomCorners: Bool
 
     private var answerMessageBinding: Binding<DataState<BaseMessage>> {
 
@@ -168,7 +176,8 @@ private struct MessageCellWrapper: View {
             conversationViewModel: viewModel,
             message: answerMessageBinding,
             conversationPath: nil,
-            isHeaderVisible: isHeaderVisible)
+            isHeaderVisible: isHeaderVisible,
+            roundBottomCorners: roundBottomCorners)
     }
 }
 

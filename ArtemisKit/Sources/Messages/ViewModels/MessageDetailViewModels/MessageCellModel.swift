@@ -8,6 +8,7 @@
 import Foundation
 import Navigation
 import SharedModels
+import SwiftUI
 import UserStore
 
 @MainActor
@@ -17,6 +18,7 @@ final class MessageCellModel {
 
     let conversationPath: ConversationPath?
     let isHeaderVisible: Bool
+    let roundBottomCorners: Bool
     let retryButtonAction: (() -> Void)?
 
     var isActionSheetPresented = false
@@ -29,6 +31,7 @@ final class MessageCellModel {
         course: Course,
         conversationPath: ConversationPath?,
         isHeaderVisible: Bool,
+        roundBottomCorners: Bool,
         retryButtonAction: (() -> Void)?,
         messagesService: MessagesService = MessagesServiceFactory.shared,
         userSession: UserSession = UserSessionFactory.shared
@@ -36,6 +39,7 @@ final class MessageCellModel {
         self.course = course
         self.conversationPath = conversationPath
         self.isHeaderVisible = isHeaderVisible
+        self.roundBottomCorners = roundBottomCorners
         self.retryButtonAction = retryButtonAction
         self.messagesService = messagesService
         self.userSession = userSession
@@ -51,6 +55,12 @@ extension MessageCellModel {
         }
 
         return lastReadDate < creationDate && userSession.user?.id != authorId
+    }
+
+    var roundedCorners: RectangleCornerRadii {
+        let top: CGFloat = isHeaderVisible ? .m : 0
+        let bottom: CGFloat = roundBottomCorners ? .m : 0
+        return .init(topLeading: top, bottomLeading: bottom, bottomTrailing: bottom, topTrailing: top)
     }
 
     // MARK: Navigation

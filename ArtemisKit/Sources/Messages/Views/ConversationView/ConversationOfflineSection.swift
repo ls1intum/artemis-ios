@@ -20,6 +20,7 @@ struct ConversationOfflineSection: View {
                 message: Binding.constant(DataState<BaseMessage>.done(response: OfflineMessageOrAnswer(viewModel.message))),
                 conversationPath: nil,
                 isHeaderVisible: viewModel.taskDidFail,
+                roundBottomCorners: true,
                 retryButtonAction: viewModel.retryButtonAction
             )
             .task {
@@ -33,7 +34,8 @@ struct ConversationOfflineSection: View {
                     conversationViewModel: conversationViewModel,
                     message: Binding.constant(DataState<BaseMessage>.done(response: OfflineMessageOrAnswer(message))),
                     conversationPath: nil,
-                    isHeaderVisible: false
+                    isHeaderVisible: false,
+                    roundBottomCorners: false
                 )
             }
         }
