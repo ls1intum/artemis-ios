@@ -149,8 +149,11 @@ struct ReactionAuthorsSheet: View {
                         viewModel.selectedReactionSheet = key
                     }
                 } label: {
-                    Text(key == "All" ? "All (\(mappedReactions.count))" : key)
-                        .containerRelativeFrame(.vertical) { size, _ in size - .m }
+                    let total = mappedReactions.reduce(0) { partialResult, pair in
+                        partialResult + pair.1.count
+                    }
+                    Text(key == "All" ? "All (\(total))" : key)
+                        .containerRelativeFrame(.vertical)
                         .padding(.horizontal, .m)
                         .font(key == "All" ? .body : .title)
                         .background(key == viewModel.selectedReactionSheet ? .gray.opacity(0.5) : .clear, in: .capsule)
