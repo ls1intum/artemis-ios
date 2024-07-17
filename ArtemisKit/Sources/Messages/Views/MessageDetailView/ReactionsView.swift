@@ -129,7 +129,6 @@ struct ReactionAuthorsSheet: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button(R.string.localizable.close()) {
                         viewModel.showAuthorsSheet = false
-                        viewModel.selectedReactionSheet = ""
                     }
                 }
             }
@@ -137,7 +136,7 @@ struct ReactionAuthorsSheet: View {
     }
 
     @ViewBuilder
-    func filterRow(mappedReactions: Dictionary<String, [Reaction]>) -> some View {
+    func filterRow(mappedReactions: [String: [Reaction]]) -> some View {
         LazyHStack {
             ForEach(["All"] + mappedReactions.keys.sorted(), id: \.self) { key in
                 Button {
@@ -146,9 +145,9 @@ struct ReactionAuthorsSheet: View {
                     }
                 } label: {
                     Text(key == "All" ? "All (\(mappedReactions.count))" : key)
+                        .containerRelativeFrame(.vertical) { size, _ in size - .m }
                         .padding(.horizontal, .m)
-                        .padding(.vertical, .s)
-                        .font(.title)
+                        .font(key == "All" ? .body : .title)
                         .background(key == viewModel.selectedReactionSheet ? .gray.opacity(0.5) : .clear, in: .capsule)
                 }
                 .buttonStyle(.plain)
@@ -165,13 +164,13 @@ struct ReactionAuthorsSheet: View {
                     ForEach(reactions, id: \.id) { reaction in
                         if let name = reaction.user?.name {
                             Text("\(key) \(name)")
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .lineLimit(1)
+                                .padding([.top, .horizontal])
                         }
                     }
                 }
             }
-            .lineLimit(1)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding([.top, .horizontal])
         }
     }
 }
