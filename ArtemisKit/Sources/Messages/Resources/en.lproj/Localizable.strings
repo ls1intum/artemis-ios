@@ -30,6 +30,7 @@
 
 // MARK: ReactionsView
 "emojis" = "Emojis";
+"close" = "Close";
 
 // MARK: MessagesTabView
 "browseChannels" = "Browse Channels";

@@ -39,6 +39,9 @@ struct ReactionsView: View {
                 EmojiPickerButton(viewModel: viewModel, viewRerenderWorkaround: $viewRerenderWorkaround)
             }
         }
+        .sheet(isPresented: $viewModel.showAuthorsSheet) {
+            ReactionAuthorsSheet(viewModel: viewModel, message: $message)
+        }
     }
 }
 
@@ -51,11 +54,6 @@ private struct EmojiTextButton: View {
 
     var body: some View {
         Button {
-            if let emojiId = Smile.alias(emoji: pair.0) {
-                Task {
-                    await viewModel.addReaction(emojiId: emojiId)
-                }
-            }
         } label: {
             Text("\(pair.0) \(pair.1.count)")
                 .font(.footnote)
@@ -75,6 +73,21 @@ private struct EmojiTextButton: View {
                     }
                 )
         }
+        .simultaneousGesture(TapGesture()
+            .onEnded { _ in
+                if let emojiId = Smile.alias(emoji: pair.0) {
+                    Task {
+                        await viewModel.addReaction(emojiId: emojiId)
+                    }
+                }
+            }
+        )
+        .simultaneousGesture(LongPressGesture()
+            .onEnded { _ in
+                viewModel.selectedReactionSheet = pair.0
+                viewModel.showAuthorsSheet = true
+            }
+        )
     }
 }
 
@@ -86,6 +99,65 @@ private extension EmojiTextButton {
         }
 
         return message.containsReactionFromMe(emojiId: emojiId)
+    }
+}
+
+struct ReactionAuthorsSheet: View {
+    @Bindable var viewModel: ReactionsViewModel
+    @Binding var message: DataState<BaseMessage>
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 0) {
+                let mappedReactions = viewModel.mappedReaction(message: message)
+
+                ScrollView(.horizontal) {
+                    LazyHStack {
+                        ForEach(mappedReactions.keys.sorted(), id: \.self) { key in
+                            Button {
+                                withAnimation {
+                                    viewModel.selectedReactionSheet = key
+                                }
+                            } label: {
+                                Text(key)
+                                    .padding(.horizontal, .m)
+                                    .font(.title)
+                                    .background(key == viewModel.selectedReactionSheet ? .gray : .clear, in: .capsule)
+                            }
+                        }
+                    }
+                }
+                .frame(height: .mediumImage, alignment: .top)
+                .contentMargins(.horizontal, .l, for: .scrollContent)
+
+                TabView(selection: $viewModel.selectedReactionSheet) {
+                    ForEach(mappedReactions.keys.sorted(), id: \.self) { key in
+                        ScrollView {
+                            if let reactions = mappedReactions[key] {
+                                ForEach(reactions, id: \.id) { reaction in
+                                    if let name = reaction.user?.name {
+                                        Text("\(key) \(name)")
+                                    }
+                                }
+                                .lineLimit(1)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding([.top, .horizontal])
+                            }
+                        }
+                        .tag(key)
+                    }
+                }
+                .tabViewStyle(.page(indexDisplayMode: .never))
+            }
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(R.string.localizable.close()) {
+                        viewModel.showAuthorsSheet = false
+                        viewModel.selectedReactionSheet = ""
+                    }
+                }
+            }
+        }
     }
 }
 

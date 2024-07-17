@@ -15,6 +15,8 @@ import SwiftUI
 class ReactionsViewModel {
     private var conversationViewModel: ConversationViewModel
     private var message: Binding<DataState<BaseMessage>>
+    var showAuthorsSheet = false
+    var selectedReactionSheet = ""
 
     init(conversationViewModel: ConversationViewModel, message: Binding<DataState<BaseMessage>>) {
         self.conversationViewModel = conversationViewModel
