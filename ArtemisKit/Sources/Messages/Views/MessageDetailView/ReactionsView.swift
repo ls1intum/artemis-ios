@@ -108,13 +108,13 @@ struct ReactionAuthorsSheet: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
+            VStack {
                 let mappedReactions = viewModel.mappedReaction(message: message)
 
                 ScrollView(.horizontal) {
                     filterRow(mappedReactions: mappedReactions)
                 }
-                .frame(height: .mediumImage, alignment: .top)
+                .frame(height: 40, alignment: .top)
                 .contentMargins(.horizontal, .l, for: .scrollContent)
 
                 TabView(selection: $viewModel.selectedReactionSheet) {
@@ -137,7 +137,7 @@ struct ReactionAuthorsSheet: View {
 
     @ViewBuilder
     func filterRow(mappedReactions: [String: [Reaction]]) -> some View {
-        LazyHStack {
+        LazyHStack(alignment: .top) {
             ForEach(["All"] + mappedReactions.keys.sorted(), id: \.self) { key in
                 Button {
                     withAnimation {
