@@ -16,7 +16,7 @@ class ReactionsViewModel {
     private var conversationViewModel: ConversationViewModel
     private var message: Binding<DataState<BaseMessage>>
     var showAuthorsSheet = false
-    var selectedReactionSheet = ""
+    var selectedReactionSheet = "All"
 
     init(conversationViewModel: ConversationViewModel, message: Binding<DataState<BaseMessage>>) {
         self.conversationViewModel = conversationViewModel

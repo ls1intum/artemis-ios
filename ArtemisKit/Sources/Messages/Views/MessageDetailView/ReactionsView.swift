@@ -112,39 +112,15 @@ struct ReactionAuthorsSheet: View {
                 let mappedReactions = viewModel.mappedReaction(message: message)
 
                 ScrollView(.horizontal) {
-                    LazyHStack {
-                        ForEach(mappedReactions.keys.sorted(), id: \.self) { key in
-                            Button {
-                                withAnimation {
-                                    viewModel.selectedReactionSheet = key
-                                }
-                            } label: {
-                                Text(key)
-                                    .padding(.horizontal, .m)
-                                    .font(.title)
-                                    .background(key == viewModel.selectedReactionSheet ? .gray : .clear, in: .capsule)
-                            }
-                        }
-                    }
+                    filterRow(mappedReactions: mappedReactions)
                 }
                 .frame(height: .mediumImage, alignment: .top)
                 .contentMargins(.horizontal, .l, for: .scrollContent)
 
                 TabView(selection: $viewModel.selectedReactionSheet) {
-                    ForEach(mappedReactions.keys.sorted(), id: \.self) { key in
-                        ScrollView {
-                            if let reactions = mappedReactions[key] {
-                                ForEach(reactions, id: \.id) { reaction in
-                                    if let name = reaction.user?.name {
-                                        Text("\(key) \(name)")
-                                    }
-                                }
-                                .lineLimit(1)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding([.top, .horizontal])
-                            }
-                        }
-                        .tag(key)
+                    ForEach(["All"] + mappedReactions.keys.sorted(), id: \.self) { key in
+                        reactionsList(for: key, mappedReactions: mappedReactions)
+                            .tag(key)
                     }
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
@@ -157,6 +133,45 @@ struct ReactionAuthorsSheet: View {
                     }
                 }
             }
+        }
+    }
+
+    @ViewBuilder
+    func filterRow(mappedReactions: Dictionary<String, [Reaction]>) -> some View {
+        LazyHStack {
+            ForEach(["All"] + mappedReactions.keys.sorted(), id: \.self) { key in
+                Button {
+                    withAnimation {
+                        viewModel.selectedReactionSheet = key
+                    }
+                } label: {
+                    Text(key == "All" ? "All (\(mappedReactions.count))" : key)
+                        .padding(.horizontal, .m)
+                        .padding(.vertical, .s)
+                        .font(.title)
+                        .background(key == viewModel.selectedReactionSheet ? .gray.opacity(0.5) : .clear, in: .capsule)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
+    @ViewBuilder
+    func reactionsList(for key: String, mappedReactions: [String: [Reaction]]) -> some View {
+        ScrollView {
+            let keys = key == "All" ? mappedReactions.keys.sorted() : [key]
+            ForEach(keys, id: \.self) { key in
+                if let reactions = mappedReactions[key] {
+                    ForEach(reactions, id: \.id) { reaction in
+                        if let name = reaction.user?.name {
+                            Text("\(key) \(name)")
+                        }
+                    }
+                }
+            }
+            .lineLimit(1)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding([.top, .horizontal])
         }
     }
 }
@@ -221,10 +236,31 @@ extension EnvironmentValues {
 }
 
 #Preview {
-    ReactionsView(
-        viewModel: ConversationViewModel(
-            course: MessagesServiceStub.course,
-            conversation: MessagesServiceStub.conversation),
-        message: Binding.constant(DataState<BaseMessage>.done(response: MessagesServiceStub.message))
+//    ReactionsView(
+//        viewModel: ConversationViewModel(
+//            course: MessagesServiceStub.course,
+//            conversation: MessagesServiceStub.conversation),
+//        message: Binding.constant(DataState<BaseMessage>.done(response: MessagesServiceStub.message))
+//    )
+    ReactionAuthorsSheet(
+        viewModel: .init(
+            conversationViewModel: 
+                    .init(
+                        course: .mock,
+                        conversation: .channel(
+                            conversation: .mock
+                        )
+                    ),
+            message: Binding.constant(
+                DataState<BaseMessage>.done(
+                    response: MessagesServiceStub.message
+                )
+            )
+        ),
+        message: Binding.constant(
+            DataState<BaseMessage>.done(
+                response: MessagesServiceStub.message
+            )
+        )
     )
 }
