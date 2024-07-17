@@ -39,7 +39,7 @@ struct ReactionsView: View {
                 EmojiPickerButton(viewModel: viewModel, viewRerenderWorkaround: $viewRerenderWorkaround)
             }
         }
-        .sheet(isPresented: $viewModel.showAuthorsSheet) {
+        .popover(isPresented: $viewModel.showAuthorsSheet) {
             ReactionAuthorsSheet(viewModel: viewModel, message: $message)
         }
     }
@@ -127,12 +127,17 @@ struct ReactionAuthorsSheet: View {
             }
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(R.string.localizable.close()) {
+                    Button {
                         viewModel.showAuthorsSheet = false
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
                     }
+                    .font(.title2)
+                    .foregroundStyle(.secondary)
                 }
             }
         }
+        .presentationDetents([.medium, .large])
     }
 
     @ViewBuilder
