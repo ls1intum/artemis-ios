@@ -28,16 +28,16 @@ struct ConversationDaySection: View {
             Divider()
                 .padding(.horizontal, .l)
                 .padding(.bottom, .s)
-            let totalMessages = messages.count
             ForEach(Array(messages.enumerated()), id: \.1.id) { index, message in
-                let needsRoundedCorners = index == totalMessages - 1 || !messages[index + 1].isContinuation(of: message)
+                let needsRoundedCorners = !(messages[safe: index + 1]?.isContinuation(of: message) ?? false)
                 MessageCellWrapper(
                     viewModel: viewModel,
                     day: day,
                     message: message,
                     conversationPath: conversationPath,
-                    isHeaderVisible: index == 0 || !message.isContinuation(of: messages[index - 1]),
+                    isHeaderVisible: !message.isContinuation(of: messages[safe: index - 1]),
                     roundBottomCorners: needsRoundedCorners)
+                .id(index == messages.count - 1 ? nil : message.id)
             }
         }
     }
