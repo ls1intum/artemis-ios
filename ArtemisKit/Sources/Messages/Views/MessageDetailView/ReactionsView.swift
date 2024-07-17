@@ -39,7 +39,7 @@ struct ReactionsView: View {
                 EmojiPickerButton(viewModel: viewModel, viewRerenderWorkaround: $viewRerenderWorkaround)
             }
         }
-        .popover(isPresented: $viewModel.showAuthorsSheet) {
+        .popover(isPresented: $viewModel.showAuthorsSheet, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
             ReactionAuthorsSheet(viewModel: viewModel, message: $message)
         }
     }
@@ -111,7 +111,7 @@ struct ReactionAuthorsSheet: View {
             VStack {
                 let mappedReactions = viewModel.mappedReaction(message: message)
 
-                ScrollView(.horizontal) {
+                ScrollView(.horizontal, showsIndicators: false) {
                     filterRow(mappedReactions: mappedReactions)
                 }
                 .frame(height: 40, alignment: .top)
@@ -125,19 +125,23 @@ struct ReactionAuthorsSheet: View {
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
             }
+            .padding(UIDevice.current.userInterfaceIdiom != .pad ? [] : [.top])
             .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button {
-                        viewModel.showAuthorsSheet = false
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
+                if UIDevice.current.userInterfaceIdiom != .pad {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button {
+                            viewModel.showAuthorsSheet = false
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                        }
+                        .font(.title2)
+                        .foregroundStyle(.secondary)
                     }
-                    .font(.title2)
-                    .foregroundStyle(.secondary)
                 }
             }
         }
         .presentationDetents([.medium, .large])
+        .frame(minWidth: 250, minHeight: 300)
     }
 
     @ViewBuilder
