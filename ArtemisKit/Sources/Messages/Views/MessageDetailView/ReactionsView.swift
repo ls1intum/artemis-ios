@@ -264,31 +264,10 @@ extension EnvironmentValues {
 }
 
 #Preview {
-//    ReactionsView(
-//        viewModel: ConversationViewModel(
-//            course: MessagesServiceStub.course,
-//            conversation: MessagesServiceStub.conversation),
-//        message: Binding.constant(DataState<BaseMessage>.done(response: MessagesServiceStub.message))
-//    )
-    ReactionAuthorsSheet(
-        viewModel: .init(
-            conversationViewModel: 
-                    .init(
-                        course: .mock,
-                        conversation: .channel(
-                            conversation: .mock
-                        )
-                    ),
-            message: Binding.constant(
-                DataState<BaseMessage>.done(
-                    response: MessagesServiceStub.message
-                )
-            )
-        ),
-        message: Binding.constant(
-            DataState<BaseMessage>.done(
-                response: MessagesServiceStub.message
-            )
-        )
+    ReactionsView(
+        viewModel: ConversationViewModel(
+            course: MessagesServiceStub.course,
+            conversation: MessagesServiceStub.conversation),
+        message: Binding.constant(DataState<BaseMessage>.done(response: MessagesServiceStub.message))
     )
 }
