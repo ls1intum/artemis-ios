@@ -173,7 +173,7 @@ struct ReactionAuthorsSheet: View {
                     let total = mappedReactions.reduce(0) { partialResult, pair in
                         partialResult + pair.1.count
                     }
-                    Text(key == "All" ? "All (\(total))" : key)
+                    Text(key == "All" ? R.string.localizable.all(total) : key)
                         .containerRelativeFrame(.vertical)
                         .padding(.horizontal, .m)
                         .font(key == "All" ? .body : .title)
