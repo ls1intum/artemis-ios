@@ -107,41 +107,58 @@ struct ReactionAuthorsSheet: View {
     @Binding var message: DataState<BaseMessage>
 
     var body: some View {
-        NavigationStack {
-            VStack {
-                let mappedReactions = viewModel.mappedReaction(message: message)
+        VStack {
+            let mappedReactions = viewModel.mappedReaction(message: message)
 
-                ScrollView(.horizontal, showsIndicators: false) {
-                    filterRow(mappedReactions: mappedReactions)
-                }
-                .frame(height: 40, alignment: .top)
-                .contentMargins(.horizontal, .l, for: .scrollContent)
-
-                TabView(selection: $viewModel.selectedReactionSheet) {
-                    ForEach(["All"] + mappedReactions.keys.sorted(), id: \.self) { key in
-                        reactionsList(for: key, mappedReactions: mappedReactions)
-                            .tag(key)
-                    }
-                }
-                .tabViewStyle(.page(indexDisplayMode: .never))
+            ScrollView(.horizontal, showsIndicators: false) {
+                filterRow(mappedReactions: mappedReactions)
             }
-            .padding(UIDevice.current.userInterfaceIdiom != .pad ? [] : [.top])
-            .toolbar {
-                if UIDevice.current.userInterfaceIdiom != .pad {
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button {
-                            viewModel.showAuthorsSheet = false
-                        } label: {
-                            Image(systemName: "xmark.circle.fill")
-                        }
-                        .font(.title2)
-                        .foregroundStyle(.secondary)
-                    }
+            .frame(height: 40, alignment: .top)
+            .contentMargins(.leading, .l, for: .scrollContent)
+            .contentMargins(.trailing, UIDevice.current.userInterfaceIdiom != .pad ? 90 : .l, for: .scrollContent)
+            .overlay(alignment: .trailing) {
+                closeButton
+            }
+
+            TabView(selection: $viewModel.selectedReactionSheet) {
+                ForEach(["All"] + mappedReactions.keys.sorted(), id: \.self) { key in
+                    reactionsList(for: key, mappedReactions: mappedReactions)
+                        .tag(key)
                 }
             }
+            .tabViewStyle(.page(indexDisplayMode: .never))
         }
+        .padding(.top)
         .presentationDetents([.medium, .large])
         .frame(minWidth: 250, minHeight: 300)
+    }
+
+    @ViewBuilder var closeButton: some View {
+        if UIDevice.current.userInterfaceIdiom != .pad {
+            ZStack(alignment: .trailing) {
+                LinearGradient(
+                    stops: [
+                        .init(color: .clear, location: 0),
+                        .init(color: .init(
+                            uiColor: .systemBackground
+                        ), location: 0.4)
+                    ],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+                .frame(width: 90)
+                Button {
+                    viewModel.showAuthorsSheet = false
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .resizable()
+                        .padding(5)
+                        .frame(width: 40, height: 40)
+                }
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, .m)
+            }
+        }
     }
 
     @ViewBuilder
