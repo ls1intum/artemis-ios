@@ -20,7 +20,7 @@ struct ReactionsView: View {
 
     @State private var viewRerenderWorkaround = false
 
-    let columns = [ GridItem(.adaptive(minimum: 45)) ]
+    let columns = [ GridItem(.adaptive(minimum: 50)) ]
 
     init(
         viewModel: ConversationViewModel,
@@ -115,7 +115,7 @@ struct ReactionAuthorsSheet: View {
             }
             .frame(height: 40, alignment: .top)
             .contentMargins(.leading, .l, for: .scrollContent)
-            .contentMargins(.trailing, UIDevice.current.userInterfaceIdiom != .pad ? 90 : .l, for: .scrollContent)
+            .contentMargins(.trailing, 90, for: .scrollContent)
             .overlay(alignment: .trailing) {
                 closeButton
             }
@@ -134,30 +134,28 @@ struct ReactionAuthorsSheet: View {
     }
 
     @ViewBuilder var closeButton: some View {
-        if UIDevice.current.userInterfaceIdiom != .pad {
-            ZStack(alignment: .trailing) {
-                LinearGradient(
-                    stops: [
-                        .init(color: .clear, location: 0),
-                        .init(color: .init(
-                            uiColor: .systemBackground
-                        ), location: 0.4)
-                    ],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-                .frame(width: 90)
-                Button {
-                    viewModel.showAuthorsSheet = false
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .resizable()
-                        .padding(5)
-                        .frame(width: 40, height: 40)
-                }
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, .m)
+        ZStack(alignment: .trailing) {
+            LinearGradient(
+                stops: [
+                    .init(color: .clear, location: 0),
+                    .init(color: .init(
+                        uiColor: .systemBackground
+                    ), location: 0.4)
+                ],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+            .frame(width: 90)
+            Button {
+                viewModel.showAuthorsSheet = false
+            } label: {
+                Image(systemName: "xmark.circle.fill")
+                    .resizable()
+                    .padding(5)
+                    .frame(width: 40, height: 40)
             }
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, .m)
         }
     }
 
