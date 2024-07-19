@@ -110,12 +110,19 @@ struct ReactionAuthorsSheet: View {
         VStack {
             let mappedReactions = viewModel.mappedReaction(message: message)
 
-            ScrollView(.horizontal, showsIndicators: false) {
-                filterRow(mappedReactions: mappedReactions)
+            ScrollViewReader { proxy in
+                ScrollView(.horizontal, showsIndicators: false) {
+                    filterRow(mappedReactions: mappedReactions)
+                }
+                .frame(height: 40, alignment: .top)
+                .contentMargins(.leading, .l, for: .scrollContent)
+                .contentMargins(.trailing, 90, for: .scrollContent)
+                .onChange(of: viewModel.selectedReactionSheet, initial: true) { _, newValue in
+                    withAnimation {
+                        proxy.scrollTo(newValue)
+                    }
+                }
             }
-            .frame(height: 40, alignment: .top)
-            .contentMargins(.leading, .l, for: .scrollContent)
-            .contentMargins(.trailing, 90, for: .scrollContent)
             .overlay(alignment: .trailing) {
                 closeButton
             }
@@ -146,6 +153,8 @@ struct ReactionAuthorsSheet: View {
                 endPoint: .trailing
             )
             .frame(width: 90)
+            .allowsHitTesting(false)
+
             Button {
                 viewModel.showAuthorsSheet = false
             } label: {
@@ -155,7 +164,7 @@ struct ReactionAuthorsSheet: View {
                     .frame(width: 40, height: 40)
             }
             .foregroundStyle(.secondary)
-            .padding(.horizontal, .m)
+            .padding(.trailing, .m)
         }
     }
 
