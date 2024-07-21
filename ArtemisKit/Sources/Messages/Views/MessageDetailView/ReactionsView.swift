@@ -18,8 +18,6 @@ struct ReactionsView: View {
     @State var viewModel: ReactionsViewModel
     @Binding var message: DataState<BaseMessage>
 
-    @State private var viewRerenderWorkaround = false
-
     let columns = [ GridItem(.adaptive(minimum: 50)) ]
 
     init(
@@ -32,23 +30,25 @@ struct ReactionsView: View {
 
     var body: some View {
         LazyVGrid(columns: columns, alignment: .leading) {
-            ForEach(viewModel.mappedReaction(message: message).sorted(by: { $0.key < $1.key }), id: \.key) { map in
-                EmojiTextButton(viewModel: viewModel, message: $message, pair: (map.key, map.value))
+            ForEach(viewModel.mappedReaction.sorted(by: { $0.key < $1.key }), id: \.key) { map in
+                EmojiTextButton(viewModel: viewModel, pair: (map.key, map.value))
             }
-            if !viewModel.mappedReaction(message: message).isEmpty || isEmojiPickerButtonVisible {
-                EmojiPickerButton(viewModel: viewModel, viewRerenderWorkaround: $viewRerenderWorkaround)
+            if !viewModel.mappedReaction.isEmpty || isEmojiPickerButtonVisible {
+                EmojiPickerButton(viewModel: viewModel)
             }
         }
         .popover(isPresented: $viewModel.showAuthorsSheet, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
-            ReactionAuthorsSheet(viewModel: viewModel, message: $message)
+            ReactionAuthorsSheet(viewModel: viewModel)
         }
+        .onChange(of: message, { _, newValue in
+            viewModel.message = newValue
+        })
     }
 }
 
 private struct EmojiTextButton: View {
 
     var viewModel: ReactionsViewModel
-    @Binding var message: DataState<BaseMessage>
 
     let pair: (String, [Reaction])
 
@@ -57,12 +57,12 @@ private struct EmojiTextButton: View {
         } label: {
             Text("\(pair.0) \(pair.1.count)")
                 .font(.footnote)
-                .foregroundColor(isMyReaction ? Color.Artemis.artemisBlue : Color.Artemis.primaryLabel)
+                .foregroundColor(viewModel.isMyReaction(pair.0) ? Color.Artemis.artemisBlue : Color.Artemis.primaryLabel)
                 .frame(height: .extraSmallImage)
                 .padding(.m)
                 .background(
                     Group {
-                        if isMyReaction {
+                        if viewModel.isMyReaction(pair.0) {
                             Capsule()
                                 .strokeBorder(Color.Artemis.artemisBlue, lineWidth: 1)
                                 .background(Capsule().foregroundColor(Color.Artemis.artemisBlue.opacity(0.25)))
@@ -91,24 +91,12 @@ private struct EmojiTextButton: View {
     }
 }
 
-private extension EmojiTextButton {
-    var isMyReaction: Bool {
-        guard let emojiId = Smile.alias(emoji: pair.0),
-              let message = message.value else {
-            return false
-        }
-
-        return message.containsReactionFromMe(emojiId: emojiId)
-    }
-}
-
 struct ReactionAuthorsSheet: View {
     @Bindable var viewModel: ReactionsViewModel
-    @Binding var message: DataState<BaseMessage>
 
     var body: some View {
         VStack {
-            let mappedReactions = viewModel.mappedReaction(message: message)
+            let mappedReactions = viewModel.mappedReaction
 
             ScrollViewReader { proxy in
                 ScrollView(.horizontal, showsIndicators: false) {
@@ -218,8 +206,6 @@ private struct EmojiPickerButton: View {
     @State private var isEmojiPickerPresented = false
     @State var selectedEmoji: Emoji?
 
-    @Binding var viewRerenderWorkaround: Bool
-
     var body: some View {
         Button {
             isEmojiPickerPresented = true
@@ -245,7 +231,6 @@ private struct EmojiPickerButton: View {
                let emojiId = Smile.alias(emoji: newEmoji.value) {
                 Task {
                     await viewModel.addReaction(emojiId: emojiId)
-                    viewRerenderWorkaround.toggle()
                     selectedEmoji = nil
                 }
             }
