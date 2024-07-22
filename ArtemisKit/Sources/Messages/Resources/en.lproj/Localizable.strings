@@ -30,6 +30,7 @@
 
 // MARK: ReactionsView
 "emojis" = "Emojis";
+"all" = "All (%i)";
 
 // MARK: MessagesTabView
 "browseChannels" = "Browse Channels";
