@@ -54,7 +54,7 @@ struct MessageDetailView: View {
                 }
             }
         }
-        .navigationTitle(R.string.localizable.thread())
+        .navigationTitle(R.string.localizable.thread() + " (\(viewModel.conversation.baseConversation.conversationName))")
         .task {
             if message.value == nil {
                 await reloadMessage()
