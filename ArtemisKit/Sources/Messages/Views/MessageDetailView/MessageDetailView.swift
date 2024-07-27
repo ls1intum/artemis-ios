@@ -88,7 +88,7 @@ private extension MessageDetailView {
     @ViewBuilder var divider: some View {
         VStack {
             Divider()
-            HStack(alignment: .bottom) {
+            HStack {
                 let replies = (message.value as? Message)?.answers?.count ?? 0
                 Text("^[\(replies) \(R.string.localizable.replies())](inflect:true)")
                     .foregroundStyle(.secondary)
@@ -100,7 +100,7 @@ private extension MessageDetailView {
                     HStack {
                         MessageActions(viewModel: viewModel, message: $message, conversationPath: nil)
                     }
-                    HStack {
+                    HStack(spacing: .l) {
                         MessageActions(viewModel: viewModel, message: $message, conversationPath: nil)
                             .labelStyle(.iconOnly)
                     }

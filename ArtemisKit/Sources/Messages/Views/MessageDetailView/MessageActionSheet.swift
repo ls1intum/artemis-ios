@@ -23,7 +23,9 @@ struct MessageActions: View {
             ReplyInThreadButton(allowDismiss: false, viewModel: viewModel, message: $message, conversationPath: conversationPath)
             CopyTextButton(allowDismiss: false, message: $message)
             EditDeleteSection(allowDismiss: false, viewModel: viewModel, message: $message)
-        }.lineLimit(1)
+        }
+        .lineLimit(1)
+        .font(.title3.bold())
     }
 
     struct ReplyInThreadButton: View {
@@ -39,7 +41,7 @@ struct MessageActions: View {
             if message.value is Message,
                let conversationPath {
                 Divider()
-                Button(R.string.localizable.replyInThread(), systemImage: "text.bubble.fill") {
+                Button(R.string.localizable.replyInThread(), systemImage: "text.bubble") {
                     if let messagePath = MessagePath(
                         message: $message,
                         conversationPath: conversationPath,
@@ -63,7 +65,7 @@ struct MessageActions: View {
         @Binding var message: DataState<BaseMessage>
 
         var body: some View {
-            Button(R.string.localizable.copyText(), systemImage: "clipboard.fill") {
+            Button(R.string.localizable.copyText(), systemImage: "clipboard") {
                 UIPasteboard.general.string = message.value?.content
                 if allowDismiss {
                     dismiss()
@@ -112,8 +114,8 @@ struct MessageActions: View {
                     .sheet(isPresented: $showEditSheet) {
                         editMessage
                     }
-                    
-                    Button(R.string.localizable.deleteMessage(), systemImage: "trash.fill", role: .destructive) {
+
+                    Button(R.string.localizable.deleteMessage(), systemImage: "trash", role: .destructive) {
                         showDeleteAlert = true
                     }
                     .alert(R.string.localizable.confirmDeletionTitle(), isPresented: $showDeleteAlert) {
@@ -214,6 +216,7 @@ struct MessageActionSheet: View {
             }
             .buttonStyle(.plain)
             .font(.headline)
+            .symbolVariant(.fill)
             Spacer()
         }
         .padding(.vertical, .xxl)
