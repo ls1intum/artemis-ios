@@ -14,6 +14,7 @@ import SwiftUI
 
 struct MessageCell: View {
     @Environment(\.isMessageOffline) var isMessageOffline: Bool
+    @Environment(\.messageUseFullWidth) var useFullWidth: Bool
     @EnvironmentObject var navigationController: NavigationController
 
     @ObservedObject var conversationViewModel: ConversationViewModel
@@ -48,14 +49,14 @@ struct MessageCell: View {
             replyButtonIfAvailable
         }
         .padding(.horizontal, .m)
-        .padding(viewModel.isHeaderVisible ? .vertical : .bottom, .m)
+        .padding(viewModel.isHeaderVisible ? .vertical : .bottom, useFullWidth ? 0 : .m)
         .background(
-            Color(uiColor: .secondarySystemBackground),
+            useFullWidth ? .clear : Color(uiColor: .secondarySystemBackground),
             in: .rect(cornerRadii: viewModel.roundedCorners)
         )
         .padding(.top, viewModel.isHeaderVisible ? .m : 0)
         .id(message.value?.id.description)
-        .padding(.horizontal, .l)
+        .padding(.horizontal, useFullWidth ? 0 : .l)
         .sheet(isPresented: $viewModel.isActionSheetPresented) {
             MessageActionSheet(
                 viewModel: conversationViewModel,
@@ -276,6 +277,9 @@ private extension MessageCell {
 private enum IsMessageOfflineEnvironmentKey: EnvironmentKey {
     static let defaultValue = false
 }
+private enum MessageFullWidthEnvironmentKey: EnvironmentKey {
+    static let defaultValue = false
+}
 
 extension EnvironmentValues {
     var isMessageOffline: Bool {
@@ -284,6 +288,14 @@ extension EnvironmentValues {
         }
         set {
             self[IsMessageOfflineEnvironmentKey.self] = newValue
+        }
+    }
+    var messageUseFullWidth: Bool {
+        get {
+            self[MessageFullWidthEnvironmentKey.self]
+        }
+        set {
+            self[MessageFullWidthEnvironmentKey.self] = newValue
         }
     }
 }

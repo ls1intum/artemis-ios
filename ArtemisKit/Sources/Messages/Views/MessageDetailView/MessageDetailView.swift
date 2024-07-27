@@ -74,6 +74,7 @@ private extension MessageDetailView {
             roundBottomCorners: true
         )
         .environment(\.isEmojiPickerButtonVisible, true)
+        .environment(\.messageUseFullWidth, true)
         .onLongPressGesture(maximumDistance: 30) {
             let impactMed = UIImpactFeedbackGenerator(style: .heavy)
             impactMed.impactOccurred()
@@ -92,6 +93,7 @@ private extension MessageDetailView {
                 let replies = (message.value as? Message)?.answers?.count ?? 0
                 Text("^[\(replies) \(R.string.localizable.replies())](inflect:true)")
                     .foregroundStyle(.secondary)
+                    .padding(.top, .s)
 
                 Spacer()
 
