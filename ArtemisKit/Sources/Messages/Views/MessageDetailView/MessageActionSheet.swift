@@ -63,17 +63,35 @@ struct MessageActions: View {
         var allowDismiss = true
         @Environment(\.dismiss) var dismiss
         @Binding var message: DataState<BaseMessage>
+        @State private var showSuccess = false
 
         var body: some View {
             Button(R.string.localizable.copyText(), systemImage: "clipboard") {
                 UIPasteboard.general.string = message.value?.content
                 if allowDismiss {
                     dismiss()
+                } else {
+                    showSuccess = true
                 }
             }
+            .opacity(showSuccess ? 0 : 1)
+            .overlay {
+                if showSuccess {
+                    Label("Copied", systemImage: "checkmark.circle.fill")
+                        .font(.title3.bold())
+                        .foregroundStyle(.green)
+                        .transition(.scale)
+                        .onAppear {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                showSuccess = false
+                            }
+                        }
+                }
+            }
+            .animation(.spring(), value: showSuccess)
         }
     }
-    
+
     struct EditDeleteSection: View {
         var allowDismiss = true
         @Environment(\.dismiss) var dismiss
@@ -107,7 +125,7 @@ struct MessageActions: View {
             Group {
                 if isAbleToEditDelete {
                     Divider()
-                    
+
                     Button(R.string.localizable.editMessage(), systemImage: "pencil") {
                         showEditSheet = true
                     }
@@ -146,7 +164,7 @@ struct MessageActions: View {
                 }
             }
         }
-        
+
         var editMessage: some View {
             NavigationView {
                 Group {
