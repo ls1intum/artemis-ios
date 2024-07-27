@@ -20,10 +20,11 @@ struct MessageActions: View {
 
     var body: some View {
         Group {
-            ReplyInThreadButton(allowDismiss: false, viewModel: viewModel, message: $message, conversationPath: conversationPath)
-            CopyTextButton(allowDismiss: false, message: $message)
-            EditDeleteSection(allowDismiss: false, viewModel: viewModel, message: $message)
+            ReplyInThreadButton(viewModel: viewModel, message: $message, conversationPath: conversationPath)
+            CopyTextButton(message: $message)
+            EditDeleteSection(viewModel: viewModel, message: $message)
         }
+        .environment(\.allowAutoDismiss, false)
         .lineLimit(1)
         .font(.title3.bold())
     }
@@ -31,7 +32,7 @@ struct MessageActions: View {
     struct ReplyInThreadButton: View {
         @EnvironmentObject var navigationController: NavigationController
         @Environment(\.dismiss) var dismiss
-        var allowDismiss = true
+        @Environment(\.allowAutoDismiss) var allowDismiss
 
         @ObservedObject var viewModel: ConversationViewModel
         @Binding var message: DataState<BaseMessage>
@@ -60,7 +61,7 @@ struct MessageActions: View {
     }
 
     struct CopyTextButton: View {
-        var allowDismiss = true
+        @Environment(\.allowAutoDismiss) var allowDismiss
         @Environment(\.dismiss) var dismiss
         @Binding var message: DataState<BaseMessage>
         @State private var showSuccess = false
@@ -93,7 +94,7 @@ struct MessageActions: View {
     }
 
     struct EditDeleteSection: View {
-        var allowDismiss = true
+        @Environment(\.allowAutoDismiss) var allowDismiss
         @Environment(\.dismiss) var dismiss
         @EnvironmentObject var navigationController: NavigationController
         @ObservedObject var viewModel: ConversationViewModel
@@ -318,6 +319,23 @@ private struct EmojiPickerButton: View {
                     dismiss()
                 }
             }
+        }
+    }
+}
+
+// MARK: - Environment+AutoDismiss
+
+private enum SheetAutoDismissEnvironmentKey: EnvironmentKey {
+    static let defaultValue = true
+}
+
+extension EnvironmentValues {
+    var allowAutoDismiss: Bool {
+        get {
+            self[SheetAutoDismissEnvironmentKey.self]
+        }
+        set {
+            self[SheetAutoDismissEnvironmentKey.self] = newValue
         }
     }
 }
