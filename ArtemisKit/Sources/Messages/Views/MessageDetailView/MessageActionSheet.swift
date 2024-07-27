@@ -245,9 +245,11 @@ struct MessageActionSheet: View {
             .buttonStyle(.plain)
             .font(.headline)
             .symbolVariant(.fill)
+            .imageScale(.large)
             Spacer()
         }
-        .padding(.vertical, .xxl)
+        .padding(.vertical, .xl)
+        .frame(maxHeight: .infinity, alignment: .top)
         .loadingIndicator(isLoading: $viewModel.isLoading)
         .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
     }
