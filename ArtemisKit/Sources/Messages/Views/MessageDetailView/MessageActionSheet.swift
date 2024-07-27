@@ -131,6 +131,7 @@ struct MessageActions: View {
                     }
                     .sheet(isPresented: $showEditSheet) {
                         editMessage
+                            .font(nil)
                     }
 
                     Button(R.string.localizable.deleteMessage(), systemImage: "trash", role: .destructive) {
@@ -210,7 +211,7 @@ struct MessageActionSheet: View {
     @Binding var message: DataState<BaseMessage>
     let conversationPath: ConversationPath?
     @State var reactionsViewModel: ReactionsViewModel
-    
+
     init(viewModel: ConversationViewModel, message: Binding<DataState<BaseMessage>>, conversationPath: ConversationPath?) {
         self.viewModel = viewModel
         self._message = message
