@@ -59,6 +59,7 @@
 "edited" = "Edited";
 "messageCouldNotBeLoadedError" = "Message could not be loaded.";
 "thread" = "Thread";
+"replies" = "Reply";
 
 // MARK: MessageActionSheet
 "replyInThread" = "Reply in Thread";
