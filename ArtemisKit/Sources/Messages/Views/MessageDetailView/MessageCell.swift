@@ -49,6 +49,11 @@ struct MessageCell: View {
         }
         .padding(.horizontal, .m)
         .padding(viewModel.isHeaderVisible ? .vertical : .bottom, .m)
+        .gesture(viewModel.swipeToReplyGesture(openThread: openThread))
+        .blur(radius: viewModel.swipeBlur)
+        .overlay(alignment: .trailing) {
+            swipeToReplyOverlay
+        }
         .background(
             Color(uiColor: .secondarySystemBackground),
             in: .rect(cornerRadii: viewModel.roundedCorners)
@@ -171,15 +176,7 @@ private extension MessageCell {
            let answerCount = message.answers?.count, answerCount > 0,
            let conversationPath = viewModel.conversationPath {
             Button {
-                if let messagePath = MessagePath(
-                    message: self.$message,
-                    conversationPath: conversationPath,
-                    conversationViewModel: conversationViewModel
-                ) {
-                    navigationController.path.append(messagePath)
-                } else {
-                    conversationViewModel.presentError(userFacingError: UserFacingError(title: R.string.localizable.detailViewCantBeOpened()))
-                }
+                openThread()
             } label: {
                 Label {
                     Text("^[\(answerCount) \(R.string.localizable.reply())](inflect: true)")
@@ -187,6 +184,32 @@ private extension MessageCell {
                     Image(systemName: "arrow.turn.down.right")
                 }
             }
+        }
+    }
+
+    @ViewBuilder var swipeToReplyOverlay: some View {
+        Image(systemName: "arrowshape.turn.up.left.circle.fill")
+            .resizable()
+            .scaledToFit()
+            .frame(width: 40)
+            .foregroundStyle(viewModel.swipedToReply ? .blue : .gray)
+            .padding(.horizontal)
+            .offset(x: viewModel.swipeToReplyOverlayOffset)
+            .scaleEffect(CGSize(width: viewModel.swipeScale, height: viewModel.swipeScale), anchor: .trailing)
+            .opacity(viewModel.swipeOpacity)
+            .animation(.easeInOut, value: viewModel.swipedToReply)
+    }
+
+    func openThread() {
+        if let conversationPath = viewModel.conversationPath,
+           let messagePath = MessagePath(
+            message: self.$message,
+            conversationPath: conversationPath,
+            conversationViewModel: conversationViewModel
+        ) {
+            navigationController.path.append(messagePath)
+        } else {
+            conversationViewModel.presentError(userFacingError: UserFacingError(title: R.string.localizable.detailViewCantBeOpened()))
         }
     }
 

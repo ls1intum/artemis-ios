@@ -44,6 +44,13 @@ final class MessageCellModel {
         self.messagesService = messagesService
         self.userSession = userSession
     }
+
+    // View properties for Swipe to reply
+    var swipedToReply = false
+    var swipeToReplyOverlayOffset: CGFloat = 100
+    var swipeBlur: CGFloat = 0
+    var swipeOpacity: CGFloat = 0
+    var swipeScale: CGFloat = 0
 }
 
 extension MessageCellModel {
@@ -61,6 +68,44 @@ extension MessageCellModel {
         let top: CGFloat = isHeaderVisible ? .m : 0
         let bottom: CGFloat = roundBottomCorners ? .m : 0
         return .init(topLeading: top, bottomLeading: bottom, bottomTrailing: bottom, topTrailing: top)
+    }
+
+    // Swipe to reply
+    func swipeToReplyGesture(openThread: @escaping () -> Void) -> some Gesture {
+        DragGesture(minimumDistance: 20)
+            .onChanged { value in
+                // No swiping in Thread View
+                guard self.conversationPath != nil else { return }
+
+                // Only allow swipe to the left
+                let distance = min(value.translation.width, 0)
+
+                self.swipeToReplyOverlayOffset = 200 * exp((distance - 10) / 30)
+                self.swipeBlur = max((-distance - 25) * 0.25, 0)
+                self.swipeOpacity = max(0, min(-(distance + 40) * 0.05, 1))
+                self.swipeScale = max(0, min(-(distance + 40) * 0.03, 1))
+
+                // If user had dragged far enough to activate reply, let them know
+                if !self.swipedToReply && distance < -70 {
+                    self.swipedToReply = true
+                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                } else if self.swipedToReply && distance >= -70 {
+                    self.swipedToReply = false
+                    UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+                }
+            }
+            .onEnded { _ in
+                if self.swipedToReply {
+                    openThread()
+                } else {
+                    withAnimation {
+                        self.swipeOpacity = 0
+                        self.swipeBlur = 0
+                        self.swipeToReplyOverlayOffset = 100
+                        self.swipeScale = 0
+                    }
+                }
+            }
     }
 
     // MARK: Navigation
