@@ -70,7 +70,6 @@ extension MessageCellModel {
         return .init(topLeading: top, bottomLeading: bottom, bottomTrailing: bottom, topTrailing: top)
     }
 
-    // Swipe to reply
     func swipeToReplyGesture(openThread: @escaping () -> Void) -> some Gesture {
         DragGesture(minimumDistance: 20)
             .onChanged { value in

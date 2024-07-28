@@ -198,6 +198,7 @@ private extension MessageCell {
             .scaleEffect(CGSize(width: viewModel.swipeScale, height: viewModel.swipeScale), anchor: .trailing)
             .opacity(viewModel.swipeOpacity)
             .animation(.easeInOut, value: viewModel.swipedToReply)
+            .accessibilityHidden(true)
     }
 
     func openThread(showErrorOnFailure: Bool = true) {
