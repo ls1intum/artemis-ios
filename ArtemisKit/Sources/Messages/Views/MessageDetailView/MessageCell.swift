@@ -49,7 +49,7 @@ struct MessageCell: View {
         }
         .padding(.horizontal, .m)
         .padding(viewModel.isHeaderVisible ? .vertical : .bottom, .m)
-        .gesture(viewModel.swipeToReplyGesture(openThread: openThread))
+        .gesture(viewModel.swipeToReplyGesture(openThread: onSwipePresentMessage))
         .blur(radius: viewModel.swipeBlur)
         .overlay(alignment: .trailing) {
             swipeToReplyOverlay
@@ -176,7 +176,7 @@ private extension MessageCell {
            let answerCount = message.answers?.count, answerCount > 0,
            let conversationPath = viewModel.conversationPath {
             Button {
-                openThread()
+                openThread(showErrorOnFailure: true)
             } label: {
                 Label {
                     Text("^[\(answerCount) \(R.string.localizable.reply())](inflect: true)")
@@ -200,7 +200,8 @@ private extension MessageCell {
             .animation(.easeInOut, value: viewModel.swipedToReply)
     }
 
-    func openThread() {
+    func openThread(showErrorOnFailure: Bool = true) {
+        // We cannot navigate to details if conversation path is nil, e.g. in the message detail view.
         if let conversationPath = viewModel.conversationPath,
            let messagePath = MessagePath(
             message: self.$message,
@@ -208,7 +209,7 @@ private extension MessageCell {
             conversationViewModel: conversationViewModel
         ) {
             navigationController.path.append(messagePath)
-        } else {
+        } else if showErrorOnFailure {
             conversationViewModel.presentError(userFacingError: UserFacingError(title: R.string.localizable.detailViewCantBeOpened()))
         }
     }
@@ -216,14 +217,11 @@ private extension MessageCell {
     // MARK: Gestures
 
     func onTapPresentMessage() {
-        // Tap is disabled, if conversation path is nil, e.g., in the message detail view.
-        if let conversationPath = viewModel.conversationPath, let messagePath = MessagePath(
-            message: $message,
-            conversationPath: conversationPath,
-            conversationViewModel: conversationViewModel
-        ) {
-            navigationController.path.append(messagePath)
-        }
+        openThread(showErrorOnFailure: false)
+    }
+
+    func onSwipePresentMessage() {
+        openThread(showErrorOnFailure: true)
     }
 
     func onLongPressPresentActionSheet() {
