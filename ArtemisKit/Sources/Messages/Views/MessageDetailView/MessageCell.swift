@@ -61,7 +61,7 @@ struct MessageCell: View {
         )
         .padding(.top, viewModel.isHeaderVisible ? .m : 0)
         .id(message.value?.id.description)
-        .padding(.horizontal, .l)
+        .padding(.horizontal, (.m + .l) / 2)
         .onDisappear(perform: viewModel.resetSwipeToReply)
         .sheet(isPresented: $viewModel.isActionSheetPresented) {
             MessageActionSheet(
