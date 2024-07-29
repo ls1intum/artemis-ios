@@ -67,7 +67,7 @@ struct MessageActions: View {
         @State private var showSuccess = false
 
         var body: some View {
-            Button(R.string.localizable.copyText(), systemImage: "clipboard") {
+            Button(R.string.localizable.copyText(), systemImage: "doc.on.doc") {
                 UIPasteboard.general.string = message.value?.content
                 if allowDismiss {
                     dismiss()
