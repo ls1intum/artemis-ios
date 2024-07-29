@@ -23,6 +23,7 @@ final class MessageCellModel {
 
     var isActionSheetPresented = false
     var isDetectingLongPress = false
+    var swipeToReplyState = SwipeToReplyState()
 
     private let messagesService: MessagesService
     private let userSession: UserSession
@@ -44,13 +45,6 @@ final class MessageCellModel {
         self.messagesService = messagesService
         self.userSession = userSession
     }
-
-    // View properties for Swipe to reply
-    var swipedToReply = false
-    var swipeToReplyOverlayOffset: CGFloat = 100
-    var swipeBlur: CGFloat = 0
-    var swipeOpacity: CGFloat = 0
-    var swipeScale: CGFloat = 0
 }
 
 extension MessageCellModel {
@@ -79,22 +73,10 @@ extension MessageCellModel {
                 // Only allow swipe to the left
                 let distance = min(value.translation.width, 0)
 
-                self.swipeToReplyOverlayOffset = 200 * exp((distance - 10) / 30)
-                self.swipeBlur = max((-distance - 25) * 0.15, 0)
-                self.swipeOpacity = max(0, min(-(distance + 40) * 0.05, 1))
-                self.swipeScale = max(0, min(-(distance + 40) * 0.03, 1))
-
-                // If user had dragged far enough to activate reply, let them know
-                if !self.swipedToReply && distance < -70 {
-                    self.swipedToReply = true
-                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                } else if self.swipedToReply && distance >= -70 {
-                    self.swipedToReply = false
-                    UIImpactFeedbackGenerator(style: .soft).impactOccurred()
-                }
+                self.swipeToReplyState.update(with: distance)
             }
             .onEnded { _ in
-                if self.swipedToReply {
+                if self.swipeToReplyState.swiped {
                     openThread()
                 } else {
                     withAnimation(.easeInOut(duration: 0.2)) {
@@ -105,11 +87,7 @@ extension MessageCellModel {
     }
 
     func resetSwipeToReply() {
-        self.swipedToReply = false
-        self.swipeOpacity = 0
-        self.swipeBlur = 0
-        self.swipeToReplyOverlayOffset = 100
-        self.swipeScale = 0
+        swipeToReplyState = .init()
     }
 
     // MARK: Navigation
@@ -132,5 +110,31 @@ extension MessageCellModel {
         }
 
         return nil
+    }
+}
+
+// MARK: Swipe to Reply
+@Observable
+class SwipeToReplyState {
+    var swiped = false
+    var overlayOffset: CGFloat = 100
+    var overlayOpacity: CGFloat = 0
+    var overlayScale: CGFloat = 0
+    var messageBlur: CGFloat = 0
+
+    func update(with distance: CGFloat) {
+        overlayOffset = 200 * exp((distance - 10) / 30)
+        messageBlur = max((-distance - 25) * 0.15, 0)
+        overlayOpacity = max(0, min(-(distance + 40) * 0.05, 1))
+        overlayScale = max(0, min(-(distance + 40) * 0.03, 1))
+
+        // If user had dragged far enough to activate reply, let them know
+        if !swiped && distance < -70 {
+            swiped = true
+            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        } else if swiped && distance >= -70 {
+            swiped = false
+            UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+        }
     }
 }

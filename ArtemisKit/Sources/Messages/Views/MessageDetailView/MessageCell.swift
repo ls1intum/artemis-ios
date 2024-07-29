@@ -51,7 +51,7 @@ struct MessageCell: View {
         .padding(viewModel.isHeaderVisible ? .vertical : .bottom, .m)
         .contentShape(.rect)
         .gesture(viewModel.swipeToReplyGesture(openThread: onSwipePresentMessage))
-        .blur(radius: viewModel.swipeBlur)
+        .blur(radius: viewModel.swipeToReplyState.messageBlur)
         .overlay(alignment: .trailing) {
             swipeToReplyOverlay
         }
@@ -194,12 +194,12 @@ private extension MessageCell {
             .resizable()
             .scaledToFit()
             .frame(width: 40)
-            .foregroundStyle(viewModel.swipedToReply ? .blue : .gray)
+            .foregroundStyle(viewModel.swipeToReplyState.swiped ? .blue : .gray)
             .padding(.horizontal)
-            .offset(x: viewModel.swipeToReplyOverlayOffset)
-            .scaleEffect(CGSize(width: viewModel.swipeScale, height: viewModel.swipeScale), anchor: .trailing)
-            .opacity(viewModel.swipeOpacity)
-            .animation(.easeInOut(duration: 0.1), value: viewModel.swipedToReply)
+            .offset(x: viewModel.swipeToReplyState.overlayOffset)
+            .scaleEffect(x: viewModel.swipeToReplyState.overlayScale, y: viewModel.swipeToReplyState.overlayScale, anchor: .trailing)
+            .opacity(viewModel.swipeToReplyState.overlayOpacity)
+            .animation(.easeInOut(duration: 0.1), value: viewModel.swipeToReplyState.swiped)
             .accessibilityHidden(true)
     }
 
@@ -207,7 +207,7 @@ private extension MessageCell {
         // We cannot navigate to details if conversation path is nil, e.g. in the message detail view.
         if let conversationPath = viewModel.conversationPath,
            let messagePath = MessagePath(
-            message: self.$message,
+            message: $message,
             conversationPath: conversationPath,
             conversationViewModel: conversationViewModel,
             presentKeyboardOnAppear: presentKeyboard
