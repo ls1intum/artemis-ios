@@ -15,73 +15,54 @@ import UserStore
 struct ReactionsView: View {
     @Environment(\.isEmojiPickerButtonVisible) var isEmojiPickerButtonVisible: Bool
 
-    @ObservedObject private var viewModel: ConversationViewModel
-
+    @State var viewModel: ReactionsViewModel
     @Binding var message: DataState<BaseMessage>
 
-    @State private var viewRerenderWorkaround = false
-
-    let columns = [ GridItem(.adaptive(minimum: 45)) ]
-
-    var mappedReaction: [String: [Reaction]] {
-        var reactions = [String: [Reaction]]()
-
-        message.value?.reactions?.forEach {
-            guard let emoji = Smile.emoji(alias: $0.emojiId) else {
-                return
-            }
-            if reactions[emoji] != nil {
-                reactions[emoji]?.append($0)
-            } else {
-                reactions[emoji] = [$0]
-            }
-        }
-        return reactions
-    }
+    let columns = [ GridItem(.adaptive(minimum: 50)) ]
 
     init(
         viewModel: ConversationViewModel,
         message: Binding<DataState<BaseMessage>>
     ) {
-        self.viewModel = viewModel
+        self._viewModel = State(initialValue: ReactionsViewModel(conversationViewModel: viewModel, message: message))
         self._message = message
     }
 
     var body: some View {
         LazyVGrid(columns: columns, alignment: .leading) {
-            ForEach(mappedReaction.sorted(by: { $0.key < $1.key }), id: \.key) { map in
-                EmojiTextButton(viewModel: viewModel, pair: (map.key, map.value), message: $message)
+            ForEach(viewModel.mappedReaction.sorted(by: { $0.key < $1.key }), id: \.key) { map in
+                EmojiTextButton(viewModel: viewModel, pair: (map.key, map.value))
             }
-            if !mappedReaction.isEmpty || isEmojiPickerButtonVisible {
-                EmojiPickerButton(viewModel: viewModel, message: $message, viewRerenderWorkaround: $viewRerenderWorkaround)
+            if !viewModel.mappedReaction.isEmpty || isEmojiPickerButtonVisible {
+                EmojiPickerButton(viewModel: viewModel)
             }
         }
+        .popover(isPresented: $viewModel.showAuthorsSheet, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
+            ReactionAuthorsSheet(viewModel: viewModel)
+        }
+        .onChange(of: message, { _, newValue in
+            viewModel.message = newValue
+        })
     }
 }
 
 private struct EmojiTextButton: View {
 
-    @ObservedObject var viewModel: ConversationViewModel
+    var viewModel: ReactionsViewModel
 
     let pair: (String, [Reaction])
-    @Binding var message: DataState<BaseMessage>
 
     var body: some View {
         Button {
-            if let emojiId = Smile.alias(emoji: pair.0) {
-                Task {
-                    await addReaction(emojiId: emojiId)
-                }
-            }
         } label: {
             Text("\(pair.0) \(pair.1.count)")
                 .font(.footnote)
-                .foregroundColor(isMyReaction ? Color.Artemis.artemisBlue : Color.Artemis.primaryLabel)
+                .foregroundColor(viewModel.isMyReaction(pair.0) ? Color.Artemis.artemisBlue : Color.Artemis.primaryLabel)
                 .frame(height: .extraSmallImage)
                 .padding(.m)
                 .background(
                     Group {
-                        if isMyReaction {
+                        if viewModel.isMyReaction(pair.0) {
                             Capsule()
                                 .strokeBorder(Color.Artemis.artemisBlue, lineWidth: 1)
                                 .background(Capsule().foregroundColor(Color.Artemis.artemisBlue.opacity(0.25)))
@@ -92,53 +73,138 @@ private struct EmojiTextButton: View {
                     }
                 )
         }
+        .simultaneousGesture(TapGesture()
+            .onEnded { _ in
+                if let emojiId = Smile.alias(emoji: pair.0) {
+                    Task {
+                        await viewModel.addReaction(emojiId: emojiId)
+                    }
+                }
+            }
+        )
+        .simultaneousGesture(LongPressGesture()
+            .onEnded { _ in
+                viewModel.selectedReactionSheet = pair.0
+                viewModel.showAuthorsSheet = true
+            }
+        )
     }
 }
 
-private extension EmojiTextButton {
-    func addReaction(emojiId: String) async {
-        if let message = message.value as? Message {
-            let result = await viewModel.addReactionToMessage(for: message, emojiId: emojiId)
-            switch result {
-            case .loading:
-                self.message = .loading
-            case .failure(let error):
-                self.message = .failure(error: error)
-            case .done(let response):
-                self.message = .done(response: response)
+struct ReactionAuthorsSheet: View {
+    @Bindable var viewModel: ReactionsViewModel
+
+    var body: some View {
+        VStack {
+            let mappedReactions = viewModel.mappedReaction
+
+            ScrollViewReader { proxy in
+                ScrollView(.horizontal, showsIndicators: false) {
+                    filterRow(mappedReactions: mappedReactions)
+                }
+                .frame(height: 40, alignment: .top)
+                .contentMargins(.leading, .l, for: .scrollContent)
+                .contentMargins(.trailing, 90, for: .scrollContent)
+                .onChange(of: viewModel.selectedReactionSheet, initial: true) { _, newValue in
+                    withAnimation {
+                        proxy.scrollTo(newValue)
+                    }
+                }
             }
-        } else if let answerMessage = message.value as? AnswerMessage {
-            let result = await viewModel.addReactionToAnswerMessage(for: answerMessage, emojiId: emojiId)
-            switch result {
-            case .loading:
-                self.message = .loading
-            case .failure(let error):
-                self.message = .failure(error: error)
-            case .done(let response):
-                self.message = .done(response: response)
+            .overlay(alignment: .trailing) {
+                closeButton
+            }
+
+            TabView(selection: $viewModel.selectedReactionSheet) {
+                ForEach(["All"] + mappedReactions.keys.sorted(), id: \.self) { key in
+                    reactionsList(for: key, mappedReactions: mappedReactions)
+                        .tag(key)
+                }
+            }
+            .tabViewStyle(.page(indexDisplayMode: .never))
+        }
+        .padding(.top)
+        .presentationDetents([.medium, .large])
+        .frame(minWidth: 250, minHeight: 300)
+    }
+
+    @ViewBuilder var closeButton: some View {
+        ZStack(alignment: .trailing) {
+            LinearGradient(
+                stops: [
+                    .init(color: .clear, location: 0),
+                    .init(color: .init(
+                        uiColor: .systemBackground
+                    ), location: 0.4)
+                ],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+            .frame(width: 90)
+            .allowsHitTesting(false)
+
+            Button {
+                viewModel.showAuthorsSheet = false
+            } label: {
+                Image(systemName: "xmark.circle.fill")
+                    .resizable()
+                    .padding(5)
+                    .frame(width: 40, height: 40)
+            }
+            .foregroundStyle(.secondary)
+            .padding(.trailing, .m)
+        }
+    }
+
+    @ViewBuilder
+    func filterRow(mappedReactions: [String: [Reaction]]) -> some View {
+        LazyHStack(alignment: .top) {
+            ForEach(["All"] + mappedReactions.keys.sorted(), id: \.self) { key in
+                Button {
+                    withAnimation {
+                        viewModel.selectedReactionSheet = key
+                    }
+                } label: {
+                    let total = mappedReactions.reduce(0) { partialResult, pair in
+                        partialResult + pair.1.count
+                    }
+                    Text(key == "All" ? R.string.localizable.all(total) : key)
+                        .containerRelativeFrame(.vertical)
+                        .padding(.horizontal, .m)
+                        .font(key == "All" ? .body : .title)
+                        .background(key == viewModel.selectedReactionSheet ? .gray.opacity(0.5) : .clear, in: .capsule)
+                }
+                .buttonStyle(.plain)
             }
         }
     }
 
-    var isMyReaction: Bool {
-        guard let emojiId = Smile.alias(emoji: pair.0),
-           let message = message.value else {
-            return false
+    @ViewBuilder
+    func reactionsList(for key: String, mappedReactions: [String: [Reaction]]) -> some View {
+        ScrollView {
+            let keys = key == "All" ? mappedReactions.keys.sorted() : [key]
+            ForEach(keys, id: \.self) { key in
+                if let reactions = mappedReactions[key] {
+                    ForEach(reactions, id: \.id) { reaction in
+                        if let name = reaction.user?.name {
+                            Text("\(key) \(name)")
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .lineLimit(1)
+                                .padding([.top, .horizontal])
+                        }
+                    }
+                }
+            }
         }
-
-        return message.containsReactionFromMe(emojiId: emojiId)
     }
 }
 
 private struct EmojiPickerButton: View {
 
-    @ObservedObject var viewModel: ConversationViewModel
+    var viewModel: ReactionsViewModel
 
     @State private var isEmojiPickerPresented = false
     @State var selectedEmoji: Emoji?
-
-    @Binding var message: DataState<BaseMessage>
-    @Binding var viewRerenderWorkaround: Bool
 
     var body: some View {
         Button {
@@ -164,36 +230,9 @@ private struct EmojiPickerButton: View {
             if let newEmoji,
                let emojiId = Smile.alias(emoji: newEmoji.value) {
                 Task {
-                    await addReaction(emojiId: emojiId)
-                    viewRerenderWorkaround.toggle()
+                    await viewModel.addReaction(emojiId: emojiId)
                     selectedEmoji = nil
                 }
-            }
-        }
-    }
-}
-
-private extension EmojiPickerButton {
-    func addReaction(emojiId: String) async {
-        if let message = message.value as? Message {
-            let result = await viewModel.addReactionToMessage(for: message, emojiId: emojiId)
-            switch result {
-            case .loading:
-                self.message = .loading
-            case .failure(let error):
-                self.message = .failure(error: error)
-            case .done(let response):
-                self.message = .done(response: response)
-            }
-        } else if let answerMessage = message.value as? AnswerMessage {
-            let result = await viewModel.addReactionToAnswerMessage(for: answerMessage, emojiId: emojiId)
-            switch result {
-            case .loading:
-                self.message = .loading
-            case .failure(let error):
-                self.message = .failure(error: error)
-            case .done(let response):
-                self.message = .done(response: response)
             }
         }
     }
