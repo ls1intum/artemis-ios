@@ -203,13 +203,14 @@ private extension MessageCell {
             .accessibilityHidden(true)
     }
 
-    func openThread(showErrorOnFailure: Bool = true) {
+    func openThread(showErrorOnFailure: Bool = true, presentKeyboard: Bool = false) {
         // We cannot navigate to details if conversation path is nil, e.g. in the message detail view.
         if let conversationPath = viewModel.conversationPath,
            let messagePath = MessagePath(
             message: self.$message,
             conversationPath: conversationPath,
-            conversationViewModel: conversationViewModel
+            conversationViewModel: conversationViewModel,
+            presentKeyboardOnAppear: presentKeyboard
         ) {
             navigationController.path.append(messagePath)
         } else if showErrorOnFailure {
@@ -224,7 +225,7 @@ private extension MessageCell {
     }
 
     func onSwipePresentMessage() {
-        openThread(showErrorOnFailure: true)
+        openThread(presentKeyboard: true)
     }
 
     func onLongPressPresentActionSheet() {

@@ -80,7 +80,7 @@ extension MessageCellModel {
                 let distance = min(value.translation.width, 0)
 
                 self.swipeToReplyOverlayOffset = 200 * exp((distance - 10) / 30)
-                self.swipeBlur = max((-distance - 25) * 0.25, 0)
+                self.swipeBlur = max((-distance - 25) * 0.15, 0)
                 self.swipeOpacity = max(0, min(-(distance + 40) * 0.05, 1))
                 self.swipeScale = max(0, min(-(distance + 40) * 0.03, 1))
 

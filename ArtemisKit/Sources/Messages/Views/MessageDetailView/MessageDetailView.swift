@@ -21,13 +21,13 @@ struct MessageDetailView: View {
     @State private var viewRerenderWorkaround = false
 
     private let messageId: Int64?
+    private let presentKeyboardOnAppear: Bool
 
-    @State private var internalMessage: BaseMessage?
-
-    init(viewModel: ConversationViewModel, message: Binding<DataState<BaseMessage>>) {
+    init(viewModel: ConversationViewModel, message: Binding<DataState<BaseMessage>>, presentKeyboardOnAppear: Bool = false) {
         self.viewModel = viewModel
         self.messageId = message.wrappedValue.value?.id
         self._message = message
+        self.presentKeyboardOnAppear = presentKeyboardOnAppear
     }
 
     var body: some View {
@@ -48,7 +48,8 @@ struct MessageDetailView: View {
                             course: viewModel.course,
                             conversation: viewModel.conversation,
                             configuration: .answerMessage(message, reloadMessage),
-                            delegate: SendMessageViewModelDelegate(viewModel)
+                            delegate: SendMessageViewModelDelegate(viewModel),
+                            presentKeyboardOnAppear: presentKeyboardOnAppear
                         )
                     )
                 }
