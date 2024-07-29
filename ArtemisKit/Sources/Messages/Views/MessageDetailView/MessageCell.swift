@@ -31,6 +31,7 @@ struct MessageCell: View {
                     ArtemisMarkdownView(string: content)
                         .opacity(isMessageOffline ? 0.5 : 1)
                         .environment(\.openURL, OpenURLAction(handler: handle))
+                    editedLabel
                 }
                 Spacer()
             }
@@ -131,26 +132,31 @@ private extension MessageCell {
                     .bold()
                     .redacted(reason: isMessageOffline ? .placeholder : [])
                 if let creationDate {
-                    Group {
-                        Text(creationDate, formatter: DateFormatter.timeOnly)
-
-                        if message.value?.updatedDate != nil {
-                            Text(R.string.localizable.edited())
-                                .foregroundColor(.Artemis.secondaryLabel)
-                        }
+                    let formatter: DateFormatter = viewModel.conversationPath == nil ? .superShortDateAndTime : .timeOnly
+                    Text(creationDate, formatter: formatter)
+                        .font(.caption)
+                    if viewModel.isChipVisible(creationDate: creationDate, authorId: message.value?.author?.id) {
+                        Chip(
+                            text: R.string.localizable.new(),
+                            backgroundColor: .Artemis.artemisBlue,
+                            padding: .s
+                        )
+                        .font(.footnote)
                     }
-                    .font(.caption)
-                    Chip(
-                        text: R.string.localizable.new(),
-                        backgroundColor: .Artemis.artemisBlue,
-                        padding: .s
-                    )
-                    .font(.footnote)
-                    .opacity(
-                        viewModel.isChipVisible(creationDate: creationDate, authorId: message.value?.author?.id) ? 1 : 0
-                    )
                 }
             }
+        }
+    }
+
+    @ViewBuilder var editedLabel: some View {
+        if let updatedDate = message.value?.updatedDate {
+            Group {
+                Text(R.string.localizable.edited() + " (") +
+                Text(updatedDate, formatter: DateFormatter.superShortDateAndTime) +
+                Text(")")
+            }
+            .font(.caption)
+            .foregroundColor(.Artemis.secondaryLabel)
         }
     }
 
