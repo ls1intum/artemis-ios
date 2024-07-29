@@ -97,14 +97,19 @@ extension MessageCellModel {
                 if self.swipedToReply {
                     openThread()
                 } else {
-                    withAnimation {
-                        self.swipeOpacity = 0
-                        self.swipeBlur = 0
-                        self.swipeToReplyOverlayOffset = 100
-                        self.swipeScale = 0
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        self.resetSwipeToReply()
                     }
                 }
             }
+    }
+
+    func resetSwipeToReply() {
+        self.swipedToReply = false
+        self.swipeOpacity = 0
+        self.swipeBlur = 0
+        self.swipeToReplyOverlayOffset = 100
+        self.swipeScale = 0
     }
 
     // MARK: Navigation

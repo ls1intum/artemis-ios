@@ -49,6 +49,7 @@ struct MessageCell: View {
         }
         .padding(.horizontal, .m)
         .padding(viewModel.isHeaderVisible ? .vertical : .bottom, .m)
+        .contentShape(.rect)
         .gesture(viewModel.swipeToReplyGesture(openThread: onSwipePresentMessage))
         .blur(radius: viewModel.swipeBlur)
         .overlay(alignment: .trailing) {
@@ -61,6 +62,7 @@ struct MessageCell: View {
         .padding(.top, viewModel.isHeaderVisible ? .m : 0)
         .id(message.value?.id.description)
         .padding(.horizontal, .l)
+        .onDisappear(perform: viewModel.resetSwipeToReply)
         .sheet(isPresented: $viewModel.isActionSheetPresented) {
             MessageActionSheet(
                 viewModel: conversationViewModel,
@@ -197,7 +199,7 @@ private extension MessageCell {
             .offset(x: viewModel.swipeToReplyOverlayOffset)
             .scaleEffect(CGSize(width: viewModel.swipeScale, height: viewModel.swipeScale), anchor: .trailing)
             .opacity(viewModel.swipeOpacity)
-            .animation(.easeInOut, value: viewModel.swipedToReply)
+            .animation(.easeInOut(duration: 0.1), value: viewModel.swipedToReply)
             .accessibilityHidden(true)
     }
 
