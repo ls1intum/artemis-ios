@@ -87,7 +87,7 @@ extension DataState<BaseMessage>: Equatable {
     public static func == (lhs: DataState<BaseMessage>, rhs: DataState<BaseMessage>) -> Bool {
         switch lhs {
         case .loading:
-            return rhs == .loading
+            return false
         case .failure:
             return false
         case .done(let responseLhs):

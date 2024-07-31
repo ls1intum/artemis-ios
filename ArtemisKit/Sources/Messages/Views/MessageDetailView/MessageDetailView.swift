@@ -54,7 +54,7 @@ struct MessageDetailView: View {
                 }
             }
         }
-        .navigationTitle(R.string.localizable.thread())
+        .navigationTitle(R.string.localizable.thread() + " (\(viewModel.conversation.baseConversation.conversationName))")
         .task {
             if message.value == nil {
                 await reloadMessage()
@@ -74,6 +74,7 @@ private extension MessageDetailView {
             roundBottomCorners: true
         )
         .environment(\.isEmojiPickerButtonVisible, true)
+        .environment(\.messageUseFullWidth, true)
         .onLongPressGesture(maximumDistance: 30) {
             let impactMed = UIImpactFeedbackGenerator(style: .heavy)
             impactMed.impactOccurred()
@@ -85,11 +86,38 @@ private extension MessageDetailView {
         }
     }
 
+    @ViewBuilder var divider: some View {
+        VStack {
+            Divider()
+            HStack {
+                let replies = (message.value as? Message)?.answers?.count ?? 0
+                Text("^[\(replies) \(R.string.localizable.replies())](inflect:true)")
+                    .foregroundStyle(.secondary)
+                    .padding(.top, .s)
+
+                Spacer()
+
+                // Only display labels if we have enough space
+                ViewThatFits(in: .horizontal) {
+                    HStack {
+                        MessageActions(viewModel: viewModel, message: $message, conversationPath: nil)
+                    }
+                    HStack(spacing: .l) {
+                        MessageActions(viewModel: viewModel, message: $message, conversationPath: nil)
+                            .labelStyle(.iconOnly)
+                    }
+                }
+            }
+            .padding(.horizontal)
+            Divider()
+        }.padding(.top, .s)
+    }
+
     @ViewBuilder
     func answers(of message: BaseMessage, proxy: ScrollViewProxy) -> some View {
         if let message = message as? Message {
-            Divider()
-                .padding(.top, .s)
+            divider
+
             VStack(spacing: 0) {
                 let sortedArray = (message.answers ?? []).sorted {
                     $0.creationDate ?? .tomorrow < $1.creationDate ?? .yesterday
