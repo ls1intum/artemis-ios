@@ -14,6 +14,7 @@ import SwiftUI
 
 struct MessageCell: View {
     @Environment(\.isMessageOffline) var isMessageOffline: Bool
+    @Environment(\.messageUseFullWidth) var useFullWidth: Bool
     @EnvironmentObject var navigationController: NavigationController
 
     @ObservedObject var conversationViewModel: ConversationViewModel
@@ -30,6 +31,7 @@ struct MessageCell: View {
                     ArtemisMarkdownView(string: content)
                         .opacity(isMessageOffline ? 0.5 : 1)
                         .environment(\.openURL, OpenURLAction(handler: handle))
+                    editedLabel
                 }
                 Spacer()
             }
@@ -48,7 +50,7 @@ struct MessageCell: View {
             replyButtonIfAvailable
         }
         .padding(.horizontal, .m)
-        .padding(viewModel.isHeaderVisible ? .vertical : .bottom, .m)
+        .padding(viewModel.isHeaderVisible ? .vertical : .bottom, useFullWidth ? 0 : .m)
         .contentShape(.rect)
         .gesture(viewModel.swipeToReplyGesture(openThread: onSwipePresentMessage))
         .blur(radius: viewModel.swipeToReplyState.messageBlur)
@@ -56,12 +58,12 @@ struct MessageCell: View {
             swipeToReplyOverlay
         }
         .background(
-            Color(uiColor: .secondarySystemBackground),
+            useFullWidth ? .clear : Color(uiColor: .secondarySystemBackground),
             in: .rect(cornerRadii: viewModel.roundedCorners)
         )
         .padding(.top, viewModel.isHeaderVisible ? .m : 0)
         .id(message.value?.id.description)
-        .padding(.horizontal, (.m + .l) / 2)
+        .padding(.horizontal, useFullWidth ? 0 : (.m + .l) / 2)
         .onDisappear(perform: viewModel.resetSwipeToReply)
         .sheet(isPresented: $viewModel.isActionSheetPresented) {
             MessageActionSheet(
@@ -137,26 +139,31 @@ private extension MessageCell {
                     .bold()
                     .redacted(reason: isMessageOffline ? .placeholder : [])
                 if let creationDate {
-                    Group {
-                        Text(creationDate, formatter: DateFormatter.timeOnly)
-
-                        if message.value?.updatedDate != nil {
-                            Text(R.string.localizable.edited())
-                                .foregroundColor(.Artemis.secondaryLabel)
-                        }
+                    let formatter: DateFormatter = viewModel.conversationPath == nil ? .superShortDateAndTime : .timeOnly
+                    Text(creationDate, formatter: formatter)
+                        .font(.caption)
+                    if viewModel.isChipVisible(creationDate: creationDate, authorId: message.value?.author?.id) {
+                        Chip(
+                            text: R.string.localizable.new(),
+                            backgroundColor: .Artemis.artemisBlue,
+                            padding: .s
+                        )
+                        .font(.footnote)
                     }
-                    .font(.caption)
-                    Chip(
-                        text: R.string.localizable.new(),
-                        backgroundColor: .Artemis.artemisBlue,
-                        padding: .s
-                    )
-                    .font(.footnote)
-                    .opacity(
-                        viewModel.isChipVisible(creationDate: creationDate, authorId: message.value?.author?.id) ? 1 : 0
-                    )
                 }
             }
+        }
+    }
+
+    @ViewBuilder var editedLabel: some View {
+        if let updatedDate = message.value?.updatedDate {
+            Group {
+                Text(R.string.localizable.edited() + " (") +
+                Text(updatedDate, formatter: DateFormatter.superShortDateAndTime) +
+                Text(")")
+            }
+            .font(.caption)
+            .foregroundColor(.Artemis.secondaryLabel)
         }
     }
 
@@ -301,6 +308,9 @@ private extension MessageCell {
 private enum IsMessageOfflineEnvironmentKey: EnvironmentKey {
     static let defaultValue = false
 }
+private enum MessageFullWidthEnvironmentKey: EnvironmentKey {
+    static let defaultValue = false
+}
 
 extension EnvironmentValues {
     var isMessageOffline: Bool {
@@ -309,6 +319,14 @@ extension EnvironmentValues {
         }
         set {
             self[IsMessageOfflineEnvironmentKey.self] = newValue
+        }
+    }
+    var messageUseFullWidth: Bool {
+        get {
+            self[MessageFullWidthEnvironmentKey.self]
+        }
+        set {
+            self[MessageFullWidthEnvironmentKey.self] = newValue
         }
     }
 }
