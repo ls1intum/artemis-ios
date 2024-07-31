@@ -201,7 +201,7 @@ open class Snapshot: NSObject {
         #else
             if #available(iOS 10.0, *) {
                 let format = UIGraphicsImageRendererFormat()
-                format.swipeScale = image.swipeScale
+                format.scale = image.scale
                 let renderer = UIGraphicsImageRenderer(size: image.size, format: format)
                 return renderer.image { context in
                     image.draw(in: CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height))
