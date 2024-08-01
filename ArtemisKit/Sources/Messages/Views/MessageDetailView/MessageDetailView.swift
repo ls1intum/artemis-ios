@@ -106,6 +106,7 @@ private extension MessageDetailView {
                     HStack(spacing: .l) {
                         MessageActions(viewModel: viewModel, message: $message, conversationPath: nil)
                             .labelStyle(.iconOnly)
+                            .fontWeight(.bold)
                     }
                 }
             }
