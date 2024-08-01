@@ -26,7 +26,14 @@ struct ConversationRow<T: BaseConversation>: View {
         } label: {
             HStack {
                 Label {
-                    Text(conversation.conversationName)
+                    HStack(alignment: .firstTextBaseline) {
+                        Text(conversation.conversationName)
+                        if let unreadCount = conversation.unreadMessagesCount, unreadCount > 0 {
+                            Text(R.string.localizable.unread(unreadCount))
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
                 } icon: {
                     if let icon = conversation.icon {
                         icon
@@ -34,12 +41,18 @@ struct ConversationRow<T: BaseConversation>: View {
                             .scaledToFit()
                             .frame(height: .extraSmallImage)
                             .frame(maxWidth: .infinity, alignment: .trailing)
+                            .overlay(alignment: .bottomTrailing) {
+                                if let unreadCount = conversation.unreadMessagesCount, unreadCount > 0 {
+                                    Circle()
+                                        .stroke(.background, lineWidth: .xs)
+                                        .fill(Color.Artemis.artemisBlue)
+                                        .frame(width: .m, height: .m)
+                                        .offset(x: .xs, y: .xs)
+                                }
+                            }
                     }
                 }
                 Spacer()
-                if let unreadCount = conversation.unreadMessagesCount {
-                    Badge(count: unreadCount)
-                }
                 Menu {
                     contextMenuItems
                 } label: {
@@ -60,6 +73,12 @@ struct ConversationRow<T: BaseConversation>: View {
         .swipeActions(edge: .trailing) {
             hideAndMuteButtons
         }
+    }
+}
+
+#Preview {
+    List {
+        ConversationRow<Channel>(viewModel: .init(course: .mock), conversation: Channel.mock)
     }
 }
 
