@@ -25,13 +25,17 @@ struct ConversationRow<T: BaseConversation>: View {
             }
         } label: {
             HStack {
-                if let icon = conversation.icon {
-                    icon
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: .extraSmallImage, height: .extraSmallImage)
+                Label {
+                    Text(conversation.conversationName)
+                } icon: {
+                    if let icon = conversation.icon {
+                        icon
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: .extraSmallImage)
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                    }
                 }
-                Text(conversation.conversationName)
                 Spacer()
                 if let unreadCount = conversation.unreadMessagesCount {
                     Badge(count: unreadCount)
@@ -49,6 +53,7 @@ struct ConversationRow<T: BaseConversation>: View {
             }
         }
         .foregroundStyle((conversation.isMuted ?? false) ? .secondary : .primary)
+        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: .m))
         .swipeActions(edge: .leading) {
             favoriteButton
         }
@@ -86,7 +91,7 @@ private extension ConversationRow {
             }
         }.tint(.indigo)
     }
-    
+
     @ViewBuilder var contextMenuItems: some View {
         favoriteButton
         hideAndMuteButtons
