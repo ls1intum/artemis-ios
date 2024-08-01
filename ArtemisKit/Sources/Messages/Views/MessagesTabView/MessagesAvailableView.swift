@@ -330,7 +330,7 @@ private struct SectionDisclosureLabel: View {
                         .foregroundStyle(.secondary)
                 }
                 Circle()
-                    .frame(width: .m, height: .m)
+                    .frame(width: .m * 1.5, height: .m * 1.5)
                     .foregroundStyle(Color.Artemis.artemisBlue)
             }
         }

@@ -76,12 +76,6 @@ struct ConversationRow<T: BaseConversation>: View {
     }
 }
 
-#Preview {
-    List {
-        ConversationRow<Channel>(viewModel: .init(course: .mock), conversation: Channel.mock)
-    }
-}
-
 private extension ConversationRow {
     @ViewBuilder var favoriteButton: some View {
         let isFavorite = conversation.isFavorite ?? false
