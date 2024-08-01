@@ -122,13 +122,17 @@ class SwipeToReplyState {
     var overlayScale: CGFloat = 0
     var messageBlur: CGFloat = 0
 
+    // Configurable properties
+    private let blurIntensity: CGFloat = 0.75
+
+    /// Update all view properies associated with swiping to reply
     func update(with distance: CGFloat) {
         overlayOffset = 200 * exp((distance - 10) / 30)
-        messageBlur = max((-distance - 25) * 0.15, 0)
+        messageBlur = max((-distance - 25) * 0.2 * blurIntensity, 0)
         overlayOpacity = max(0, min(-(distance + 40) * 0.05, 1))
         overlayScale = max(0, min(-(distance + 40) * 0.03, 1))
 
-        // If user had dragged far enough to activate reply, let them know
+        // If user dragged far enough to activate reply, let them know
         if !swiped && distance < -70 {
             swiped = true
             UIImpactFeedbackGenerator(style: .medium).impactOccurred()
