@@ -35,22 +35,7 @@ struct ConversationRow<T: BaseConversation>: View {
                         }
                     }
                 } icon: {
-                    if let icon = conversation.icon {
-                        icon
-                            .resizable()
-                            .scaledToFit()
-                            .frame(height: .extraSmallImage)
-                            .frame(maxWidth: .infinity, alignment: .trailing)
-                            .overlay(alignment: .bottomTrailing) {
-                                if let unreadCount = conversation.unreadMessagesCount, unreadCount > 0 {
-                                    Circle()
-                                        .stroke(.background, lineWidth: .xs)
-                                        .fill(Color.Artemis.artemisBlue)
-                                        .frame(width: .m, height: .m)
-                                        .offset(x: .xs, y: .xs)
-                                }
-                            }
-                    }
+                    conversationIcon
                 }
                 Spacer()
                 Menu {
@@ -66,12 +51,33 @@ struct ConversationRow<T: BaseConversation>: View {
             }
         }
         .foregroundStyle((conversation.isMuted ?? false) ? .secondary : .primary)
-        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: .m))
+        .listRowInsets(EdgeInsets(top: 0, leading: .s * -1, bottom: 0, trailing: .m))
         .swipeActions(edge: .leading) {
             favoriteButton
         }
         .swipeActions(edge: .trailing) {
             hideAndMuteButtons
+        }
+    }
+}
+
+private extension ConversationRow {
+    @ViewBuilder var conversationIcon: some View {
+        if let icon = conversation.icon {
+            icon
+                .resizable()
+                .scaledToFit()
+                .frame(height: .extraSmallImage)
+                .frame(maxWidth: .infinity, alignment: .trailing)
+                .overlay(alignment: .bottomTrailing) {
+                    if let unreadCount = conversation.unreadMessagesCount, unreadCount > 0 {
+                        Circle()
+                            .stroke(.background, lineWidth: .xs)
+                            .fill(Color.Artemis.artemisBlue)
+                            .frame(width: .m, height: .m)
+                            .offset(x: .xs, y: .xs)
+                    }
+                }
         }
     }
 }
