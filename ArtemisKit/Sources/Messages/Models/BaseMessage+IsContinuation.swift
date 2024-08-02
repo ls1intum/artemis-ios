@@ -21,6 +21,14 @@ extension BaseMessage {
             return false
         }
 
+        // Don't merge pinned messages
+        if (message as? Message)?.displayPriority == .pinned {
+            return false
+        }
+        if (self as? Message)?.displayPriority == .pinned {
+            return false
+        }
+
         return lhs < rhs.addingTimeInterval(TimeInterval(MAX_MINUTES_FOR_GROUPING_MESSAGES * 60))
     }
 }
