@@ -52,6 +52,12 @@ struct MessageCell: View {
         }
         .padding(.horizontal, .m)
         .padding(viewModel.isHeaderVisible ? .vertical : .bottom, useFullWidth ? 0 : .m)
+        .contentShape(.rect)
+        .gesture(viewModel.swipeToReplyGesture(openThread: onSwipePresentMessage))
+        .blur(radius: viewModel.swipeToReplyState.messageBlur)
+        .overlay(alignment: .trailing) {
+            swipeToReplyOverlay
+        }
         .background(
             useFullWidth ? 
                 .clear :
@@ -60,7 +66,8 @@ struct MessageCell: View {
         )
         .padding(.top, viewModel.isHeaderVisible ? .m : 0)
         .id(message.value?.id.description)
-        .padding(.horizontal, useFullWidth ? 0 : .l)
+        .padding(.horizontal, useFullWidth ? 0 : (.m + .l) / 2)
+        .onDisappear(perform: viewModel.resetSwipeToReply)
         .sheet(isPresented: $viewModel.isActionSheetPresented) {
             MessageActionSheet(
                 viewModel: conversationViewModel,
@@ -192,15 +199,7 @@ private extension MessageCell {
            let answerCount = message.answers?.count, answerCount > 0,
            let conversationPath = viewModel.conversationPath {
             Button {
-                if let messagePath = MessagePath(
-                    message: self.$message,
-                    conversationPath: conversationPath,
-                    conversationViewModel: conversationViewModel
-                ) {
-                    navigationController.path.append(messagePath)
-                } else {
-                    conversationViewModel.presentError(userFacingError: UserFacingError(title: R.string.localizable.detailViewCantBeOpened()))
-                }
+                openThread(showErrorOnFailure: true)
             } label: {
                 Label {
                     Text("^[\(answerCount) \(R.string.localizable.reply())](inflect: true)")
@@ -211,17 +210,43 @@ private extension MessageCell {
         }
     }
 
+    @ViewBuilder var swipeToReplyOverlay: some View {
+        Image(systemName: "arrowshape.turn.up.left.circle.fill")
+            .resizable()
+            .scaledToFit()
+            .frame(width: 40)
+            .foregroundStyle(viewModel.swipeToReplyState.swiped ? .blue : .gray)
+            .padding(.horizontal)
+            .offset(x: viewModel.swipeToReplyState.overlayOffset)
+            .scaleEffect(x: viewModel.swipeToReplyState.overlayScale, y: viewModel.swipeToReplyState.overlayScale, anchor: .trailing)
+            .opacity(viewModel.swipeToReplyState.overlayOpacity)
+            .animation(.easeInOut(duration: 0.1), value: viewModel.swipeToReplyState.swiped)
+            .accessibilityHidden(true)
+    }
+
+    func openThread(showErrorOnFailure: Bool = true, presentKeyboard: Bool = false) {
+        // We cannot navigate to details if conversation path is nil, e.g. in the message detail view.
+        if let conversationPath = viewModel.conversationPath,
+           let messagePath = MessagePath(
+            message: $message,
+            conversationPath: conversationPath,
+            conversationViewModel: conversationViewModel,
+            presentKeyboardOnAppear: presentKeyboard
+        ) {
+            navigationController.path.append(messagePath)
+        } else if showErrorOnFailure {
+            conversationViewModel.presentError(userFacingError: UserFacingError(title: R.string.localizable.detailViewCantBeOpened()))
+        }
+    }
+
     // MARK: Gestures
 
     func onTapPresentMessage() {
-        // Tap is disabled, if conversation path is nil, e.g., in the message detail view.
-        if let conversationPath = viewModel.conversationPath, let messagePath = MessagePath(
-            message: $message,
-            conversationPath: conversationPath,
-            conversationViewModel: conversationViewModel
-        ) {
-            navigationController.path.append(messagePath)
-        }
+        openThread(showErrorOnFailure: false)
+    }
+
+    func onSwipePresentMessage() {
+        openThread(presentKeyboard: true)
     }
 
     func onLongPressPresentActionSheet() {
