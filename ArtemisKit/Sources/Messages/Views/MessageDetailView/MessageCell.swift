@@ -59,7 +59,7 @@ struct MessageCell: View {
             swipeToReplyOverlay
         }
         .background(
-            useFullWidth ? 
+            useFullWidth ?
                 .clear :
                 isPinned ? .orange.opacity(0.3) : Color(uiColor: .secondarySystemBackground),
             in: .rect(cornerRadii: viewModel.roundedCorners)
