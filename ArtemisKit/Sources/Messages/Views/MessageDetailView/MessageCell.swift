@@ -27,6 +27,7 @@ struct MessageCell: View {
         VStack(alignment: .leading, spacing: .s) {
             HStack {
                 VStack(alignment: .leading, spacing: .s) {
+                    pinnedIndicator
                     headerIfVisible
                     ArtemisMarkdownView(string: content)
                         .opacity(isMessageOffline ? 0.5 : 1)
@@ -108,6 +109,10 @@ private extension MessageCell {
         message.value?.content ?? ""
     }
 
+    var isPinned: Bool {
+        (message.value as? Message)?.displayPriority == .pinned
+    }
+
     var backgroundOnPress: Color {
         (viewModel.isDetectingLongPress || viewModel.isActionSheetPresented) ? Color.Artemis.messsageCellPressed : Color.clear
     }
@@ -121,6 +126,13 @@ private extension MessageCell {
                 verticalPadding: .s
             )
             .font(.footnote)
+        }
+    }
+
+    @ViewBuilder var pinnedIndicator: some View {
+        if isPinned {
+            Label(R.string.localizable.pinned(), systemImage: "pin")
+                .font(.caption)
         }
     }
 
