@@ -36,6 +36,9 @@ struct SendMessageView: View {
         }
         .onAppear {
             viewModel.performOnAppear()
+            if viewModel.presentKeyboardOnAppear {
+                isFocused = true
+            }
         }
         .onDisappear {
             viewModel.performOnDisappear()

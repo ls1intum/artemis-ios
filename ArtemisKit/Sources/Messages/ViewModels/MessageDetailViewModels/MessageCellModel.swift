@@ -23,6 +23,7 @@ final class MessageCellModel {
 
     var isActionSheetPresented = false
     var isDetectingLongPress = false
+    var swipeToReplyState = SwipeToReplyState()
 
     private let messagesService: MessagesService
     private let userSession: UserSession
@@ -63,6 +64,32 @@ extension MessageCellModel {
         return .init(topLeading: top, bottomLeading: bottom, bottomTrailing: bottom, topTrailing: top)
     }
 
+    func swipeToReplyGesture(openThread: @escaping () -> Void) -> some Gesture {
+        DragGesture(minimumDistance: 20)
+            .onChanged { value in
+                // No swiping in Thread View
+                guard self.conversationPath != nil else { return }
+
+                // Only allow swipe to the left
+                let distance = min(value.translation.width, 0)
+
+                self.swipeToReplyState.update(with: distance)
+            }
+            .onEnded { _ in
+                if self.swipeToReplyState.swiped {
+                    openThread()
+                } else {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        self.resetSwipeToReply()
+                    }
+                }
+            }
+    }
+
+    func resetSwipeToReply() {
+        swipeToReplyState = .init()
+    }
+
     // MARK: Navigation
 
     func getOneToOneChatOrCreate(login: String) async -> Conversation? {
@@ -83,5 +110,35 @@ extension MessageCellModel {
         }
 
         return nil
+    }
+}
+
+// MARK: Swipe to Reply
+@Observable
+class SwipeToReplyState {
+    var swiped = false
+    var overlayOffset: CGFloat = 100
+    var overlayOpacity: CGFloat = 0
+    var overlayScale: CGFloat = 0
+    var messageBlur: CGFloat = 0
+
+    // Configurable properties
+    private let blurIntensity: CGFloat = 0.75
+
+    /// Update all view properies associated with swiping to reply
+    func update(with distance: CGFloat) {
+        overlayOffset = 200 * exp((distance - 10) / 30)
+        messageBlur = max((-distance - 25) * 0.2 * blurIntensity, 0)
+        overlayOpacity = max(0, min(-(distance + 40) * 0.05, 1))
+        overlayScale = max(0, min(-(distance + 40) * 0.03, 1))
+
+        // If user dragged far enough to activate reply, let them know
+        if !swiped && distance < -70 {
+            swiped = true
+            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        } else if swiped && distance >= -70 {
+            swiped = false
+            UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+        }
     }
 }

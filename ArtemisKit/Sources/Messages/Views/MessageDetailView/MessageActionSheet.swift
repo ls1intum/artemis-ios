@@ -26,7 +26,7 @@ struct MessageActions: View {
         }
         .environment(\.allowAutoDismiss, false)
         .lineLimit(1)
-        .font(.title3.bold())
+        .font(.title3)
     }
 
     struct ReplyInThreadButton: View {
@@ -248,6 +248,7 @@ struct MessageActionSheet: View {
             .imageScale(.large)
             Spacer()
         }
+        .fontWeight(.bold)
         .padding(.vertical, .xl)
         .frame(maxHeight: .infinity, alignment: .top)
         .loadingIndicator(isLoading: $viewModel.isLoading)
