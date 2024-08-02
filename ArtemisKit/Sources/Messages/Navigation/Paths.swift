@@ -15,11 +15,13 @@ struct MessagePath: Hashable {
     let message: Binding<DataState<BaseMessage>>
     let conversationPath: ConversationPath
     let conversationViewModel: ConversationViewModel
+    let presentKeyboardOnAppear: Bool
 
     init?(
         message: Binding<DataState<BaseMessage>>,
         conversationPath: ConversationPath,
-        conversationViewModel: ConversationViewModel
+        conversationViewModel: ConversationViewModel,
+        presentKeyboardOnAppear: Bool = false
     ) {
         guard let id = message.wrappedValue.value?.id else {
             return nil
@@ -29,6 +31,7 @@ struct MessagePath: Hashable {
         self.message = message
         self.conversationPath = conversationPath
         self.conversationViewModel = conversationViewModel
+        self.presentKeyboardOnAppear = presentKeyboardOnAppear
     }
 
     static func == (lhs: MessagePath, rhs: MessagePath) -> Bool {

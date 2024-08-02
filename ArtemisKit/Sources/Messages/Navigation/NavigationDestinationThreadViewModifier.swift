@@ -13,7 +13,7 @@ public struct NavigationDestinationThreadViewModifier: ViewModifier {
 
     public func body(content: Content) -> some View {
         content.navigationDestination(for: MessagePath.self) { messagePath in
-            MessageDetailView(viewModel: messagePath.conversationViewModel, message: messagePath.message)
+            MessageDetailView(viewModel: messagePath.conversationViewModel, message: messagePath.message, presentKeyboardOnAppear: messagePath.presentKeyboardOnAppear)
         }
     }
 }
