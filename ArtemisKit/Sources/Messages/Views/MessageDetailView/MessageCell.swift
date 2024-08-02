@@ -53,7 +53,9 @@ struct MessageCell: View {
         .padding(.horizontal, .m)
         .padding(viewModel.isHeaderVisible ? .vertical : .bottom, useFullWidth ? 0 : .m)
         .background(
-            useFullWidth ? .clear : Color(uiColor: .secondarySystemBackground),
+            useFullWidth ? 
+                .clear :
+                isPinned ? .orange.opacity(0.3) : Color(uiColor: .secondarySystemBackground),
             in: .rect(cornerRadii: viewModel.roundedCorners)
         )
         .padding(.top, viewModel.isHeaderVisible ? .m : 0)
