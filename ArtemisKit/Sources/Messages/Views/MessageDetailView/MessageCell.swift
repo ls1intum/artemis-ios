@@ -33,6 +33,7 @@ struct MessageCell: View {
                         .opacity(isMessageOffline ? 0.5 : 1)
                         .environment(\.openURL, OpenURLAction(handler: handle))
                     editedLabel
+                    resolvedIndicator
                 }
                 Spacer()
             }
@@ -122,6 +123,13 @@ private extension MessageCell {
         (message.value as? Message)?.displayPriority == .pinned
     }
 
+    var isResolved: Bool {
+        (message.value as? Message)?.resolved ?? false ||
+        (message.value as? Message)?.answers?.contains { answer in
+            answer.resolvesPost ?? false
+        } ?? false
+    }
+
     var backgroundOnPress: Color {
         (viewModel.isDetectingLongPress || viewModel.isActionSheetPresented) ? Color.Artemis.messsageCellPressed : Color.clear
     }
@@ -141,6 +149,13 @@ private extension MessageCell {
     @ViewBuilder var pinnedIndicator: some View {
         if isPinned {
             Label(R.string.localizable.pinned(), systemImage: "pin")
+                .font(.caption)
+        }
+    }
+
+    @ViewBuilder var resolvedIndicator: some View {
+        if isResolved {
+            Label(R.string.localizable.resolved(), systemImage: "checkmark")
                 .font(.caption)
         }
     }
@@ -197,7 +212,7 @@ private extension MessageCell {
     @ViewBuilder var replyButtonIfAvailable: some View {
         if let message = message.value as? Message,
            let answerCount = message.answers?.count, answerCount > 0,
-           let conversationPath = viewModel.conversationPath {
+           viewModel.conversationPath != nil {
             Button {
                 openThread(showErrorOnFailure: true)
             } label: {
