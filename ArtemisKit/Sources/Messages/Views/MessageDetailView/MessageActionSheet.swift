@@ -205,6 +205,53 @@ struct MessageActions: View {
             .presentationDetents([.height(200), .medium])
         }
     }
+
+    struct MarkResolvingButton: View {
+        @Environment(\.allowAutoDismiss) var allowDismiss
+        @Environment(\.dismiss) var dismiss
+        @EnvironmentObject var navigationController: NavigationController
+        @ObservedObject var viewModel: ConversationViewModel
+        @Binding var message: DataState<BaseMessage>
+
+        var isAbleToMarkResolving: Bool {
+            guard let message = message.value, message is AnswerMessage else {
+                return false
+            }
+            guard viewModel.conversation.baseConversation is Channel else {
+                return false
+            }
+
+            // Tutors and higher level can mark as resolving
+            if viewModel.course.isAtLeastTutorInCourse {
+                return true
+            }
+
+            return false
+        }
+
+        var body: some View {
+            Group {
+                if isAbleToMarkResolving {
+                    Divider()
+
+                    if (message.value as? AnswerMessage)?.resolvesPost ?? false {
+                        Button(R.string.localizable.unmarkAsResolving(), systemImage: "xmark", action: toggleResolved)
+                    } else {
+                        Button(R.string.localizable.markAsResolving(), systemImage: "checkmark", action: toggleResolved)
+                    }
+                }
+            }
+        }
+
+        func toggleResolved() {
+            guard let message = message.value as? AnswerMessage else { return }
+            Task {
+                if await viewModel.toggleResolving(for: message) && allowDismiss {
+                    dismiss()
+                }
+            }
+        }
+    }
 }
 
 struct MessageActionSheet: View {
@@ -238,6 +285,9 @@ struct MessageActionSheet: View {
                     .padding(.horizontal)
 
                 MessageActions.EditDeleteSection(viewModel: viewModel, message: $message)
+                    .padding(.horizontal)
+
+                MessageActions.MarkResolvingButton(viewModel: viewModel, message: $message)
                     .padding(.horizontal)
 
                 Spacer()
