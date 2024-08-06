@@ -213,6 +213,8 @@ struct MessageActions: View {
         @ObservedObject var viewModel: ConversationViewModel
         @Binding var message: DataState<BaseMessage>
 
+        @Environment(\.isOriginalMessageAuthor) var isOriginalMessageAuthor
+
         var isAbleToMarkResolving: Bool {
             guard let message = message.value, message is AnswerMessage else {
                 return false
@@ -221,8 +223,8 @@ struct MessageActions: View {
                 return false
             }
 
-            // Tutors and higher level can mark as resolving
-            if viewModel.course.isAtLeastTutorInCourse {
+            // Author as well as Tutors and higher level can mark as resolving
+            if viewModel.course.isAtLeastTutorInCourse || isOriginalMessageAuthor {
                 return true
             }
 
@@ -389,6 +391,23 @@ extension EnvironmentValues {
         }
         set {
             self[SheetAutoDismissEnvironmentKey.self] = newValue
+        }
+    }
+}
+
+// MARK: - Environment+OriginalPostAuthor
+
+private enum OriginalPostAuthorEnvironmentKey: EnvironmentKey {
+    static let defaultValue = false
+}
+
+extension EnvironmentValues {
+    var isOriginalMessageAuthor: Bool {
+        get {
+            self[OriginalPostAuthorEnvironmentKey.self]
+        }
+        set {
+            self[OriginalPostAuthorEnvironmentKey.self] = newValue
         }
     }
 }
