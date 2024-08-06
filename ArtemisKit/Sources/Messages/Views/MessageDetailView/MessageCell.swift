@@ -28,6 +28,7 @@ struct MessageCell: View {
             HStack {
                 VStack(alignment: .leading, spacing: .s) {
                     pinnedIndicator
+                    resolvesPostIndicator
                     headerIfVisible
                     ArtemisMarkdownView(string: content)
                         .opacity(isMessageOffline ? 0.5 : 1)
@@ -62,7 +63,8 @@ struct MessageCell: View {
         .background(
             useFullWidth ?
                 .clear :
-                isPinned ? .orange.opacity(0.3) : Color(uiColor: .secondarySystemBackground),
+                isPinned ? .orange.opacity(0.3) :
+                resolvesPost ? .green.opacity(0.2) : Color(uiColor: .secondarySystemBackground),
             in: .rect(cornerRadii: viewModel.roundedCorners)
         )
         .padding(.top, viewModel.isHeaderVisible ? .m : 0)
@@ -130,6 +132,10 @@ private extension MessageCell {
         } ?? false
     }
 
+    var resolvesPost: Bool {
+        (message.value as? AnswerMessage)?.resolvesPost ?? false
+    }
+
     var backgroundOnPress: Color {
         (viewModel.isDetectingLongPress || viewModel.isActionSheetPresented) ? Color.Artemis.messsageCellPressed : Color.clear
     }
@@ -154,8 +160,15 @@ private extension MessageCell {
     }
 
     @ViewBuilder var resolvedIndicator: some View {
-        if isResolved {
+        if isResolved && viewModel.conversationPath != nil {
             Label(R.string.localizable.resolved(), systemImage: "checkmark")
+                .font(.caption)
+        }
+    }
+
+    @ViewBuilder var resolvesPostIndicator: some View {
+        if resolvesPost {
+            Label(R.string.localizable.resolvesPost(), systemImage: "checkmark")
                 .font(.caption)
         }
     }

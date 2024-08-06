@@ -76,6 +76,7 @@
 "new" = "New";
 "pinned" = "Pinned";
 "resolved" = "Resolved";
+"resolvesPost" = "Resolves Post";
 
 // MARK: CreateChannelView
 "channelNameLabel" = "Name";
