@@ -75,6 +75,7 @@
 "noMessagesDescription" = "Write the first message to kickstart this conversation.";
 "reply" = "reply";
 "new" = "New";
+"pinned" = "Pinned";
 
 // MARK: CreateChannelView
 "channelNameLabel" = "Name";
