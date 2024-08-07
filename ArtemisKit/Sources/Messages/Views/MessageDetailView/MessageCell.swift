@@ -38,10 +38,7 @@ struct MessageCell: View {
                 }
                 Spacer()
             }
-            .background {
-                RoundedRectangle(cornerRadius: .m)
-                    .foregroundStyle(backgroundOnPress)
-            }
+            .background(backgroundOnPress, in: .rect(cornerRadius: .m))
             .contentShape(.rect)
             .onTapGesture(perform: onTapPresentMessage)
             .onLongPressGesture(perform: onLongPressPresentActionSheet) { changed in
@@ -63,7 +60,7 @@ struct MessageCell: View {
         .background(
             useFullWidth ?
                 .clear :
-                isPinned ? .orange.opacity(0.3) :
+                isPinned ? .orange.opacity(0.25) :
                 resolvesPost ? .green.opacity(0.2) : Color(uiColor: .secondarySystemBackground),
             in: .rect(cornerRadii: viewModel.roundedCorners)
         )
@@ -137,7 +134,7 @@ private extension MessageCell {
     }
 
     var backgroundOnPress: Color {
-        (viewModel.isDetectingLongPress || viewModel.isActionSheetPresented) ? Color.Artemis.messsageCellPressed : Color.clear
+        (viewModel.isDetectingLongPress || viewModel.isActionSheetPresented) ? Color.primary.opacity(0.1) : Color.clear
     }
 
     @ViewBuilder var roleBadge: some View {
