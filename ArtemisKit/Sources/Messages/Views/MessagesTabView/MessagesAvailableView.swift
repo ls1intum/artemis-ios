@@ -316,11 +316,24 @@ private struct SectionDisclosureLabel: View {
                 .font(.headline)
                 .foregroundStyle(.primary)
             Spacer()
-            if isUnreadCountVisible {
-                Badge(count: sectionUnreadCount)
-            }
+            unreadBadge
         }
         .padding(.vertical, .m)
+    }
+
+    @ViewBuilder var unreadBadge: some View {
+        if sectionUnreadCount > 0 {
+            HStack {
+                if isUnreadCountVisible {
+                    Text(sectionUnreadCount, format: .number.notation(.compactName))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Circle()
+                    .frame(width: .m * 1.5, height: .m * 1.5)
+                    .foregroundStyle(Color.Artemis.artemisBlue)
+            }
+        }
     }
 }
 

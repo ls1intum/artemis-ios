@@ -25,17 +25,19 @@ struct ConversationRow<T: BaseConversation>: View {
             }
         } label: {
             HStack {
-                if let icon = conversation.icon {
-                    icon
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: .extraSmallImage, height: .extraSmallImage)
+                Label {
+                    HStack(alignment: .firstTextBaseline) {
+                        Text(conversation.conversationName)
+                        if let unreadCount = conversation.unreadMessagesCount, unreadCount > 0 {
+                            Text(R.string.localizable.unread(unreadCount))
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                } icon: {
+                    conversationIcon
                 }
-                Text(conversation.conversationName)
                 Spacer()
-                if let unreadCount = conversation.unreadMessagesCount {
-                    Badge(count: unreadCount)
-                }
                 Menu {
                     contextMenuItems
                 } label: {
@@ -49,11 +51,33 @@ struct ConversationRow<T: BaseConversation>: View {
             }
         }
         .foregroundStyle((conversation.isMuted ?? false) ? .secondary : .primary)
+        .listRowInsets(EdgeInsets(top: 0, leading: .s * -1, bottom: 0, trailing: .m))
         .swipeActions(edge: .leading) {
             favoriteButton
         }
         .swipeActions(edge: .trailing) {
             hideAndMuteButtons
+        }
+    }
+}
+
+private extension ConversationRow {
+    @ViewBuilder var conversationIcon: some View {
+        if let icon = conversation.icon {
+            icon
+                .resizable()
+                .scaledToFit()
+                .frame(height: .extraSmallImage)
+                .frame(maxWidth: .infinity, alignment: .trailing)
+                .overlay(alignment: .bottomTrailing) {
+                    if let unreadCount = conversation.unreadMessagesCount, unreadCount > 0 {
+                        Circle()
+                            .stroke(.background, lineWidth: .xs)
+                            .fill(Color.Artemis.artemisBlue)
+                            .frame(width: .m, height: .m)
+                            .offset(x: .xs, y: .xs)
+                    }
+                }
         }
     }
 }
@@ -86,7 +110,7 @@ private extension ConversationRow {
             }
         }.tint(.indigo)
     }
-    
+
     @ViewBuilder var contextMenuItems: some View {
         favoriteButton
         hideAndMuteButtons
