@@ -27,6 +27,7 @@ struct MessageCell: View {
         VStack(alignment: .leading, spacing: .s) {
             HStack {
                 VStack(alignment: .leading, spacing: .s) {
+                    pinnedIndicator
                     headerIfVisible
                     ArtemisMarkdownView(string: content)
                         .opacity(isMessageOffline ? 0.5 : 1)
@@ -35,10 +36,7 @@ struct MessageCell: View {
                 }
                 Spacer()
             }
-            .background {
-                RoundedRectangle(cornerRadius: .m)
-                    .foregroundStyle(backgroundOnPress)
-            }
+            .background(backgroundOnPress, in: .rect(cornerRadius: .m))
             .contentShape(.rect)
             .onTapGesture(perform: onTapPresentMessage)
             .onLongPressGesture(perform: onLongPressPresentActionSheet) { changed in
@@ -58,7 +56,9 @@ struct MessageCell: View {
             swipeToReplyOverlay
         }
         .background(
-            useFullWidth ? .clear : Color(uiColor: .secondarySystemBackground),
+            useFullWidth ?
+                .clear :
+                isPinned ? .orange.opacity(0.25) : Color(uiColor: .secondarySystemBackground),
             in: .rect(cornerRadii: viewModel.roundedCorners)
         )
         .padding(.top, viewModel.isHeaderVisible ? .m : 0)
@@ -115,8 +115,12 @@ private extension MessageCell {
         message.value?.content ?? ""
     }
 
+    var isPinned: Bool {
+        (message.value as? Message)?.displayPriority == .pinned
+    }
+
     var backgroundOnPress: Color {
-        (viewModel.isDetectingLongPress || viewModel.isActionSheetPresented) ? Color.Artemis.messsageCellPressed : Color.clear
+        (viewModel.isDetectingLongPress || viewModel.isActionSheetPresented) ? Color.primary.opacity(0.1) : Color.clear
     }
 
     @ViewBuilder var roleBadge: some View {
@@ -128,6 +132,13 @@ private extension MessageCell {
                 verticalPadding: .s
             )
             .font(.footnote)
+        }
+    }
+
+    @ViewBuilder var pinnedIndicator: some View {
+        if isPinned {
+            Label(R.string.localizable.pinned(), systemImage: "pin")
+                .font(.caption)
         }
     }
 

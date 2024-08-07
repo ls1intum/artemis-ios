@@ -86,10 +86,6 @@ class ReactionsViewModel {
 extension DataState<BaseMessage>: Equatable {
     public static func == (lhs: DataState<BaseMessage>, rhs: DataState<BaseMessage>) -> Bool {
         switch lhs {
-        case .loading:
-            return false
-        case .failure:
-            return false
         case .done(let responseLhs):
             switch rhs {
             case .done(let responseRhs):
@@ -103,12 +99,16 @@ extension DataState<BaseMessage>: Equatable {
                 hashRhs.combine(responseRhs.reactions)
                 hashLhs.combine(responseLhs.updatedDate)
                 hashRhs.combine(responseRhs.updatedDate)
+                hashLhs.combine((responseLhs as? Message)?.displayPriority)
+                hashRhs.combine((responseRhs as? Message)?.displayPriority)
                 hashLhs.combine(responseLhs.content)
                 hashRhs.combine(responseRhs.content)
                 return hashLhs.finalize() == hashRhs.finalize()
             default:
                 return false
             }
+        default:
+            return false
         }
     }
 }
