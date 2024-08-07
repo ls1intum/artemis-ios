@@ -57,13 +57,7 @@ struct MessageCell: View {
         .overlay(alignment: .trailing) {
             swipeToReplyOverlay
         }
-        .background(
-            useFullWidth ?
-                .clear :
-                resolvesPost ? .green.opacity(0.2) : Color(uiColor: .secondarySystemBackground),
-                isPinned ? .orange.opacity(0.25) : Color(uiColor: .secondarySystemBackground),
-            in: .rect(cornerRadii: viewModel.roundedCorners)
-        )
+        .background(messageBackground, in: .rect(cornerRadii: viewModel.roundedCorners))
         .padding(.top, viewModel.isHeaderVisible ? .m : 0)
         .id(message.value?.id.description)
         .padding(.horizontal, useFullWidth ? 0 : (.m + .l) / 2)
@@ -135,6 +129,13 @@ private extension MessageCell {
 
     var backgroundOnPress: Color {
         (viewModel.isDetectingLongPress || viewModel.isActionSheetPresented) ? Color.primary.opacity(0.1) : Color.clear
+    }
+
+    var messageBackground: Color {
+        useFullWidth ? .clear :
+        isPinned ? .orange.opacity(0.25) :
+        resolvesPost ? .green.opacity(0.2) :
+        Color(uiColor: .secondarySystemBackground)
     }
 
     @ViewBuilder var roleBadge: some View {
