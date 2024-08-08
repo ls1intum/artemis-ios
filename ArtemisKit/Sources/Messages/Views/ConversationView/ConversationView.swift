@@ -81,13 +81,13 @@ public struct ConversationView: View {
             }
         }
         .toolbar {
-            ToolbarItem(placement: .principal) {
+            ToolbarItem(placement: .topBarLeading) {
                 Button {
                     viewModel.isConversationInfoSheetPresented = true
                 } label: {
                     Text(viewModel.conversation.baseConversation.conversationName)
-                        .foregroundColor(.Artemis.primaryLabel)
-                        .frame(width: UIScreen.main.bounds.size.width * 0.6)
+                        .foregroundStyle(Color.Artemis.primaryLabel)
+                        .fontWeight(.semibold)
                 }
             }
         }
