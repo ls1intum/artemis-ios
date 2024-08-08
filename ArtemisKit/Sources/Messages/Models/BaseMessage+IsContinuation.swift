@@ -29,6 +29,14 @@ extension BaseMessage {
             return false
         }
 
+        // Don't merge resolving answers
+        if (message as? AnswerMessage)?.resolvesPost ?? false {
+            return false
+        }
+        if (self as? AnswerMessage)?.resolvesPost ?? false {
+            return false
+        }
+
         return lhs < rhs.addingTimeInterval(TimeInterval(MAX_MINUTES_FOR_GROUPING_MESSAGES * 60))
     }
 }

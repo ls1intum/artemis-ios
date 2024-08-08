@@ -68,6 +68,8 @@
 "deleteMessage" = "Delete Message";
 "confirmDeletionTitle" = "Please confirm that you want to delete this post!";
 "deletionErrorLabel" = "Could not delete message. Try again later.";
+"markAsResolving" = "Resolves Post";
+"unmarkAsResolving" = "Doesn't Resolve Post";
 
 // MARK: ConversationView
 "noMessages" = "No Messages";
@@ -75,6 +77,8 @@
 "reply" = "reply";
 "new" = "New";
 "pinned" = "Pinned";
+"resolved" = "Resolved";
+"resolvesPost" = "Resolves Post";
 
 // MARK: CreateChannelView
 "channelNameLabel" = "Name";

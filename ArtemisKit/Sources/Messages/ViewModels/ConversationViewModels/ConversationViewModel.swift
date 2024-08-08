@@ -234,6 +234,33 @@ extension ConversationViewModel {
             return false
         }
     }
+
+    // MARK: Mark as Resolving
+
+    func toggleResolving(for message: AnswerMessage) async -> Bool {
+        isLoading = true
+
+        var message = message
+        message.resolvesPost = !(message.resolvesPost ?? false)
+
+        let result = await messagesService.editAnswerMessage(for: course.id, answerMessage: message)
+        isLoading = false
+        switch result {
+        case .failure(let error):
+            if let apiClientError = error as? APIClientError {
+                let userFacingError = UserFacingError(error: apiClientError)
+                presentError(userFacingError: userFacingError)
+            } else {
+                let userFacingError = UserFacingError(title: error.localizedDescription)
+                presentError(userFacingError: userFacingError)
+            }
+        case .success:
+            return true
+        default:
+            break
+        }
+        return false
+    }
 }
 
 // MARK: - Fileprivate
