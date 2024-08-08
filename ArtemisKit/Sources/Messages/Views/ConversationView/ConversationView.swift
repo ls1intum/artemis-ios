@@ -85,9 +85,18 @@ public struct ConversationView: View {
                 Button {
                     viewModel.isConversationInfoSheetPresented = true
                 } label: {
-                    Text(viewModel.conversation.baseConversation.conversationName)
-                        .foregroundStyle(Color.Artemis.primaryLabel)
-                        .fontWeight(.semibold)
+                    HStack(alignment: .center, spacing: .m) {
+                        viewModel.conversation.baseConversation.icon?
+                            .renderingMode(.template)
+                            .resizable()
+                            .scaledToFit()
+                            .padding(.vertical, .m * 1.5)
+                            .containerRelativeFrame(.vertical)
+                        Text(viewModel.conversation.baseConversation.conversationName)
+                            .fontWeight(.semibold)
+                    }
+                    .padding(.horizontal, .l)
+                    .foregroundStyle(Color.Artemis.primaryLabel)
                 }
             }
         }
