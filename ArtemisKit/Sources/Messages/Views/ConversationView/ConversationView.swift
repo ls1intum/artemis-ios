@@ -95,8 +95,15 @@ public struct ConversationView: View {
                         Text(viewModel.conversation.baseConversation.conversationName)
                             .fontWeight(.semibold)
                     }
-                    .padding(.horizontal, .l)
+                    .padding(.horizontal, .m)
                     .foregroundStyle(Color.Artemis.primaryLabel)
+                }
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    viewModel.isConversationInfoSheetPresented = true
+                } label: {
+                    Image(systemName: "info.circle")
                 }
             }
         }
