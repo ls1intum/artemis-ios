@@ -90,8 +90,7 @@ public struct ConversationView: View {
                             .renderingMode(.template)
                             .resizable()
                             .scaledToFit()
-                            .padding(.vertical, .m * 1.5)
-                            .containerRelativeFrame(.vertical)
+                            .frame(height: 20)
                         Text(viewModel.conversation.baseConversation.conversationName)
                             .fontWeight(.semibold)
                     }
