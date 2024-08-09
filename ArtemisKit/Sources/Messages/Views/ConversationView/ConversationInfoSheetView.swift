@@ -17,6 +17,7 @@ private var PAGINATION_SIZE = 20
 
 struct ConversationInfoSheetView: View {
     @EnvironmentObject var navigationController: NavigationController
+    @Environment(\.dismiss) var dismiss
 
     @StateObject private var viewModel: ConversationInfoSheetViewModel
 
@@ -39,6 +40,13 @@ struct ConversationInfoSheetView: View {
                 await viewModel.loadMembers()
             }
             .navigationTitle(conversation.baseConversation.conversationName)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(R.string.localizable.done()) {
+                        dismiss()
+                    }
+                }
+            }
             .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
             .loadingIndicator(isLoading: $viewModel.isLoading)
         }
@@ -153,7 +161,7 @@ private extension ConversationInfoSheetView {
             if (conversation.baseConversation.numberOfMembers ?? 0) > PAGINATION_SIZE || viewModel.page > 0 {
                 HStack(spacing: .l) {
                     Spacer()
-                    Text("< \(R.string.localizable.previous())")
+                    Text("\(Image(systemName: "chevron.backward")) \(R.string.localizable.previous())")
                         .onTapGesture {
                             Task {
                                 await viewModel.loadPreviousMemberPage()
@@ -162,7 +170,7 @@ private extension ConversationInfoSheetView {
                         .disabled(viewModel.page == 0)
                         .foregroundColor(viewModel.page == 0 ? .Artemis.buttonDisabledColor : .Artemis.artemisBlue)
                     Text("\(viewModel.page + 1)")
-                    Text("\(R.string.localizable.next()) >")
+                    Text("\(R.string.localizable.next()) \(Image(systemName: "chevron.forward"))")
                         .onTapGesture {
                             Task {
                                 await viewModel.loadNextMemberPage()
