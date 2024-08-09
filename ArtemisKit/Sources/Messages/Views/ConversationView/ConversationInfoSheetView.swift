@@ -17,6 +17,7 @@ private var PAGINATION_SIZE = 20
 
 struct ConversationInfoSheetView: View {
     @EnvironmentObject var navigationController: NavigationController
+    @Environment(\.dismiss) var dismiss
 
     @StateObject private var viewModel: ConversationInfoSheetViewModel
 
@@ -39,6 +40,13 @@ struct ConversationInfoSheetView: View {
                 await viewModel.loadMembers()
             }
             .navigationTitle(conversation.baseConversation.conversationName)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(R.string.localizable.done()) {
+                        dismiss()
+                    }
+                }
+            }
             .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
             .loadingIndicator(isLoading: $viewModel.isLoading)
         }
