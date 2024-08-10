@@ -55,7 +55,22 @@ struct MessageDetailView: View {
                 }
             }
         }
-        .navigationTitle(R.string.localizable.thread() + " (\(viewModel.conversation.baseConversation.conversationName))")
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(R.string.localizable.thread())
+                        .fontWeight(.semibold)
+                    HStack(spacing: .s) {
+                        viewModel.conversation.baseConversation.icon?
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: .m * 1.5)
+                        Text(viewModel.conversation.baseConversation.conversationName)
+                    }
+                    .font(.footnote)
+                }.padding(.leading, .m)
+            }
+        }
         .task {
             if message.value == nil {
                 await reloadMessage()
