@@ -93,6 +93,9 @@ public struct ConversationView: View {
                             .frame(height: 20)
                         Text(viewModel.conversation.baseConversation.conversationName)
                             .fontWeight(.semibold)
+                        Image(systemName: "chevron.forward")
+                            .font(.caption2)
+                            .offset(x: -5, y: 1)
                     }
                     .padding(.horizontal, .m)
                     .foregroundStyle(Color.Artemis.primaryLabel)
