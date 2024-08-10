@@ -148,6 +148,7 @@ private extension MessageDetailView {
                         }
                     }
             }
+            .environment(\.isOriginalMessageAuthor, message.isCurrentUserAuthor)
         }
     }
 

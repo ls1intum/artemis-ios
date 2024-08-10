@@ -205,6 +205,55 @@ struct MessageActions: View {
             .presentationDetents([.height(200), .medium])
         }
     }
+
+    struct MarkResolvingButton: View {
+        @Environment(\.allowAutoDismiss) var allowDismiss
+        @Environment(\.dismiss) var dismiss
+        @EnvironmentObject var navigationController: NavigationController
+        @ObservedObject var viewModel: ConversationViewModel
+        @Binding var message: DataState<BaseMessage>
+
+        @Environment(\.isOriginalMessageAuthor) var isOriginalMessageAuthor
+
+        var isAbleToMarkResolving: Bool {
+            guard let message = message.value, message is AnswerMessage else {
+                return false
+            }
+            guard viewModel.conversation.baseConversation is Channel else {
+                return false
+            }
+
+            // Author as well as Tutors and higher level can mark as resolving
+            if viewModel.course.isAtLeastTutorInCourse || isOriginalMessageAuthor {
+                return true
+            }
+
+            return false
+        }
+
+        var body: some View {
+            Group {
+                if isAbleToMarkResolving {
+                    Divider()
+
+                    if (message.value as? AnswerMessage)?.resolvesPost ?? false {
+                        Button(R.string.localizable.unmarkAsResolving(), systemImage: "xmark", action: toggleResolved)
+                    } else {
+                        Button(R.string.localizable.markAsResolving(), systemImage: "checkmark", action: toggleResolved)
+                    }
+                }
+            }
+        }
+
+        func toggleResolved() {
+            guard let message = message.value as? AnswerMessage else { return }
+            Task {
+                if await viewModel.toggleResolving(for: message) && allowDismiss {
+                    dismiss()
+                }
+            }
+        }
+    }
 }
 
 struct MessageActionSheet: View {
@@ -238,6 +287,9 @@ struct MessageActionSheet: View {
                     .padding(.horizontal)
 
                 MessageActions.EditDeleteSection(viewModel: viewModel, message: $message)
+                    .padding(.horizontal)
+
+                MessageActions.MarkResolvingButton(viewModel: viewModel, message: $message)
                     .padding(.horizontal)
 
                 Spacer()
@@ -339,6 +391,23 @@ extension EnvironmentValues {
         }
         set {
             self[SheetAutoDismissEnvironmentKey.self] = newValue
+        }
+    }
+}
+
+// MARK: - Environment+OriginalPostAuthor
+
+private enum OriginalPostAuthorEnvironmentKey: EnvironmentKey {
+    static let defaultValue = false
+}
+
+extension EnvironmentValues {
+    var isOriginalMessageAuthor: Bool {
+        get {
+            self[OriginalPostAuthorEnvironmentKey.self]
+        }
+        set {
+            self[OriginalPostAuthorEnvironmentKey.self] = newValue
         }
     }
 }

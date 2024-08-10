@@ -28,11 +28,13 @@ struct MessageCell: View {
             HStack {
                 VStack(alignment: .leading, spacing: .s) {
                     pinnedIndicator
+                    resolvesPostIndicator
                     headerIfVisible
                     ArtemisMarkdownView(string: content)
                         .opacity(isMessageOffline ? 0.5 : 1)
                         .environment(\.openURL, OpenURLAction(handler: handle))
                     editedLabel
+                    resolvedIndicator
                 }
                 Spacer()
             }
@@ -55,12 +57,7 @@ struct MessageCell: View {
         .overlay(alignment: .trailing) {
             swipeToReplyOverlay
         }
-        .background(
-            useFullWidth ?
-                .clear :
-                isPinned ? .orange.opacity(0.25) : Color(uiColor: .secondarySystemBackground),
-            in: .rect(cornerRadii: viewModel.roundedCorners)
-        )
+        .background(messageBackground, in: .rect(cornerRadii: viewModel.roundedCorners))
         .padding(.top, viewModel.isHeaderVisible ? .m : 0)
         .id(message.value?.id.description)
         .padding(.horizontal, useFullWidth ? 0 : (.m + .l) / 2)
@@ -119,8 +116,26 @@ private extension MessageCell {
         (message.value as? Message)?.displayPriority == .pinned
     }
 
+    var isResolved: Bool {
+        (message.value as? Message)?.resolved ?? false ||
+        (message.value as? Message)?.answers?.contains { answer in
+            answer.resolvesPost ?? false
+        } ?? false
+    }
+
+    var resolvesPost: Bool {
+        (message.value as? AnswerMessage)?.resolvesPost ?? false
+    }
+
     var backgroundOnPress: Color {
         (viewModel.isDetectingLongPress || viewModel.isActionSheetPresented) ? Color.primary.opacity(0.1) : Color.clear
+    }
+
+    var messageBackground: Color {
+        useFullWidth ? .clear :
+        isPinned ? .orange.opacity(0.25) :
+        resolvesPost ? .green.opacity(0.2) :
+        Color(uiColor: .secondarySystemBackground)
     }
 
     @ViewBuilder var roleBadge: some View {
@@ -138,6 +153,20 @@ private extension MessageCell {
     @ViewBuilder var pinnedIndicator: some View {
         if isPinned {
             Label(R.string.localizable.pinned(), systemImage: "pin")
+                .font(.caption)
+        }
+    }
+
+    @ViewBuilder var resolvedIndicator: some View {
+        if isResolved && viewModel.conversationPath != nil {
+            Label(R.string.localizable.resolved(), systemImage: "checkmark")
+                .font(.caption)
+        }
+    }
+
+    @ViewBuilder var resolvesPostIndicator: some View {
+        if resolvesPost {
+            Label(R.string.localizable.resolvesPost(), systemImage: "checkmark")
                 .font(.caption)
         }
     }
@@ -194,7 +223,7 @@ private extension MessageCell {
     @ViewBuilder var replyButtonIfAvailable: some View {
         if let message = message.value as? Message,
            let answerCount = message.answers?.count, answerCount > 0,
-           let conversationPath = viewModel.conversationPath {
+           viewModel.conversationPath != nil {
             Button {
                 openThread(showErrorOnFailure: true)
             } label: {
