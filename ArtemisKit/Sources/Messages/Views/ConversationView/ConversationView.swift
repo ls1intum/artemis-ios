@@ -81,13 +81,31 @@ public struct ConversationView: View {
             }
         }
         .toolbar {
-            ToolbarItem(placement: .principal) {
+            ToolbarItem(placement: .topBarLeading) {
                 Button {
                     viewModel.isConversationInfoSheetPresented = true
                 } label: {
-                    Text(viewModel.conversation.baseConversation.conversationName)
-                        .foregroundColor(.Artemis.primaryLabel)
-                        .frame(width: UIScreen.main.bounds.size.width * 0.6)
+                    HStack(alignment: .center, spacing: .m) {
+                        viewModel.conversation.baseConversation.icon?
+                            .renderingMode(.template)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 20)
+                        Text(viewModel.conversation.baseConversation.conversationName)
+                            .fontWeight(.semibold)
+                        Image(systemName: "chevron.forward")
+                            .font(.caption2)
+                            .offset(x: -5, y: 1)
+                    }
+                    .padding(.horizontal, .m)
+                    .foregroundStyle(Color.Artemis.primaryLabel)
+                }
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    viewModel.isConversationInfoSheetPresented = true
+                } label: {
+                    Image(systemName: "info.circle")
                 }
             }
         }
