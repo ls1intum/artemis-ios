@@ -64,14 +64,14 @@ private extension ConversationInfoSheetView {
         Group {
             Section(R.string.localizable.settings()) {
                 if viewModel.canAddUsers {
-                    Button(R.string.localizable.addUsers()) {
+                    Button(R.string.localizable.addUsers(), systemImage: "person.fill.badge.plus") {
                         viewModel.isAddMemberSheetPresented = true
                     }
                 }
                 if let channel = conversation.baseConversation as? Channel,
                    channel.hasChannelModerationRights ?? false {
                     if channel.isArchived ?? false {
-                        Button(R.string.localizable.unarchiveChannelButtonLabel()) {
+                        Button(R.string.localizable.unarchiveChannelButtonLabel(), systemImage: "archivebox.fill") {
                             viewModel.isLoading = true
                             Task {
                                 await viewModel.unarchiveChannel()
@@ -80,7 +80,7 @@ private extension ConversationInfoSheetView {
                         }
                         .foregroundColor(.Artemis.badgeWarningColor)
                     } else {
-                        Button(R.string.localizable.archiveChannelButtonLabel()) {
+                        Button(R.string.localizable.archiveChannelButtonLabel(), systemImage: "archivebox.fill") {
                             viewModel.isLoading = true
                             Task {
                                 await viewModel.archiveChannel()
@@ -91,7 +91,7 @@ private extension ConversationInfoSheetView {
                     }
                 }
                 if viewModel.canLeaveConversation {
-                    Button(R.string.localizable.leaveConversationButtonLabel()) {
+                    Button(R.string.localizable.leaveConversationButtonLabel(), systemImage: "rectangle.portrait.and.arrow.forward") {
                         viewModel.isLoading = true
                         Task {
                             let success = await viewModel.leaveConversation()
