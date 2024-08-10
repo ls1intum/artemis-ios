@@ -23,7 +23,6 @@ final class MessageCellModel {
 
     var isActionSheetPresented = false
     var isDetectingLongPress = false
-    var swipeToReplyState = SwipeToReplyState()
 
     private let messagesService: MessagesService
     private let userSession: UserSession
@@ -62,32 +61,6 @@ extension MessageCellModel {
         let top: CGFloat = isHeaderVisible ? .m : 0
         let bottom: CGFloat = roundBottomCorners ? .m : 0
         return .init(topLeading: top, bottomLeading: bottom, bottomTrailing: bottom, topTrailing: top)
-    }
-
-    func swipeToReplyGesture(openThread: @escaping () -> Void) -> some Gesture {
-        DragGesture(minimumDistance: 20)
-            .onChanged { value in
-                // No swiping in Thread View
-                guard self.conversationPath != nil else { return }
-
-                // Only allow swipe to the left
-                let distance = min(value.translation.width, 0)
-
-                self.swipeToReplyState.update(with: distance)
-            }
-            .onEnded { _ in
-                if self.swipeToReplyState.swiped {
-                    openThread()
-                } else {
-                    withAnimation(.easeInOut(duration: 0.2)) {
-                        self.resetSwipeToReply()
-                    }
-                }
-            }
-    }
-
-    func resetSwipeToReply() {
-        swipeToReplyState = .init()
     }
 
     // MARK: Navigation
@@ -140,5 +113,14 @@ class SwipeToReplyState {
             swiped = false
             UIImpactFeedbackGenerator(style: .soft).impactOccurred()
         }
+    }
+
+    /// Sets all values back to default
+    func reset() {
+        swiped = false
+        overlayOffset = 100
+        overlayOpacity = 0
+        overlayScale = 0
+        messageBlur = 0
     }
 }
