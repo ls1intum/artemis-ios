@@ -293,7 +293,6 @@ private struct MixedMessageSection: View {
                         }
                     } label: {
                         SectionDisclosureLabel(
-                            viewModel: viewModel,
                             sectionTitle: sectionTitle,
                             sectionIconName: sectionIconName,
                             sectionUnreadCount: sectionUnreadCount,
@@ -307,8 +306,6 @@ private struct MixedMessageSection: View {
 }
 
 private struct SectionDisclosureLabel: View {
-
-    @ObservedObject var viewModel: MessagesAvailableViewModel
 
     let sectionTitle: String
     let sectionIconName: String
@@ -402,7 +399,6 @@ private struct MessageSection<T: BaseConversation>: View {
                 }
             } label: {
                 SectionDisclosureLabel(
-                    viewModel: viewModel,
                     sectionTitle: sectionTitle,
                     sectionIconName: sectionIconName,
                     sectionUnreadCount: sectionUnreadCount,
