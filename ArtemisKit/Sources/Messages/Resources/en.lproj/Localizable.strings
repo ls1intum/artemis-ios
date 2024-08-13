@@ -55,6 +55,8 @@
 "groupChats" = "Group Chats";
 "directMessages" = "Direct Messages";
 "unread" = "(%i unread)";
+"unreadIn" = "(%i unread in";
+"channelLc" = "channel)";
 
 // MARK: MessageDetailView
 "edited" = "Edited";

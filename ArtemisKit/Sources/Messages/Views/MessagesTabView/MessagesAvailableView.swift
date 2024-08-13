@@ -264,6 +264,10 @@ private struct MixedMessageSection: View {
         }
     }
 
+    var sectionUnreadChannelCount: Int {
+        (conversations.value ?? []).filter { $0.baseConversation.unreadMessagesCount ?? 0 > 0 }.count
+    }
+
     var body: some View {
         DataStateView(data: $conversations) {
             await viewModel.loadConversations()
@@ -293,6 +297,7 @@ private struct MixedMessageSection: View {
                             sectionTitle: sectionTitle,
                             sectionIconName: sectionIconName,
                             sectionUnreadCount: sectionUnreadCount,
+                            sectionUnreadChannelCount: sectionUnreadChannelCount,
                             isUnreadCountVisible: !isExpanded)
                     }
                 }
@@ -308,32 +313,39 @@ private struct SectionDisclosureLabel: View {
     let sectionTitle: String
     let sectionIconName: String
     let sectionUnreadCount: Int
+    let sectionUnreadChannelCount: Int
     let isUnreadCountVisible: Bool
 
     var body: some View {
-        HStack {
-            Label(sectionTitle, systemImage: sectionIconName)
-                .font(.headline)
-                .foregroundStyle(.primary)
-            Spacer()
-            unreadBadge
-        }
-        .padding(.vertical, .m)
-    }
-
-    @ViewBuilder var unreadBadge: some View {
-        if sectionUnreadCount > 0 {
-            HStack {
-                if isUnreadCountVisible {
-                    Text(sectionUnreadCount, format: .number.notation(.compactName))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+        Label {
+            HStack(alignment: .firstTextBaseline) {
+                Text(sectionTitle)
+                if isUnreadCountVisible && sectionUnreadCount > 0 {
+                    ViewThatFits(in: .horizontal) {
+                        Text("\(R.string.localizable.unreadIn(sectionUnreadCount)) ^[\(sectionUnreadChannelCount) \(R.string.localizable.channelLc())](inflect: true)")
+                            .font(.caption)
+                        Text(R.string.localizable.unread(sectionUnreadCount))
+                            .font(.caption)
+                    }
+                    .foregroundStyle(.secondary)
                 }
-                Circle()
-                    .frame(width: .m * 1.5, height: .m * 1.5)
-                    .foregroundStyle(Color.Artemis.artemisBlue)
             }
+        } icon: {
+            Image(systemName: sectionIconName)
+                .overlay(alignment: .top) {
+                    if isUnreadCountVisible && sectionUnreadCount > 0 {
+                        Circle()
+                            .stroke(.background, lineWidth: .s)
+                            .fill(Color.Artemis.artemisBlue)
+                            .frame(width: .m * 1.5, height: .m * 1.5)
+                            .frame(width: 30, alignment: .trailing)
+                            .offset(x: .s, y: .s * -1)
+                    }
+                }
         }
+        .font(.headline)
+        .foregroundStyle(.primary)
+        .padding(.vertical, .m)
     }
 }
 
@@ -352,6 +364,10 @@ private struct MessageSection<T: BaseConversation>: View {
         (conversations.value ?? []).reduce(0) {
             $0 + ($1.unreadMessagesCount ?? 0)
         }
+    }
+
+    var sectionUnreadChannelCount: Int {
+        (conversations.value ?? []).filter { $0.unreadMessagesCount ?? 0 > 0 }.count
     }
 
     init(
@@ -390,6 +406,7 @@ private struct MessageSection<T: BaseConversation>: View {
                     sectionTitle: sectionTitle,
                     sectionIconName: sectionIconName,
                     sectionUnreadCount: sectionUnreadCount,
+                    sectionUnreadChannelCount: sectionUnreadChannelCount,
                     isUnreadCountVisible: !isExpanded)
             }
         }

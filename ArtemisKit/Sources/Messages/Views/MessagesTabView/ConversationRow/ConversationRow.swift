@@ -69,13 +69,13 @@ private extension ConversationRow {
                 .scaledToFit()
                 .frame(height: .extraSmallImage)
                 .frame(maxWidth: .infinity, alignment: .trailing)
-                .overlay(alignment: .bottomTrailing) {
+                .overlay(alignment: .topTrailing) {
                     if let unreadCount = conversation.unreadMessagesCount, unreadCount > 0 {
                         Circle()
                             .stroke(.background, lineWidth: .xs)
                             .fill(Color.Artemis.artemisBlue)
                             .frame(width: .m, height: .m)
-                            .offset(x: .xs, y: .xs)
+                            .offset(x: .s, y: .xs * -1)
                     }
                 }
         }
