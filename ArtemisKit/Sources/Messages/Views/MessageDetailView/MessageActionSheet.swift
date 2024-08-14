@@ -321,7 +321,7 @@ struct MessageActionSheet: View {
     }
 
     var body: some View {
-        HStack {
+        ScrollView {
             VStack(alignment: .leading, spacing: .l) {
                 HStack(spacing: .m) {
                     EmojiTextButton(viewModel: reactionsViewModel, emoji: "😂")
@@ -352,11 +352,9 @@ struct MessageActionSheet: View {
             .font(.headline)
             .symbolVariant(.fill)
             .imageScale(.large)
-            Spacer()
         }
         .fontWeight(.bold)
-        .padding(.vertical, .xl)
-        .frame(maxHeight: .infinity, alignment: .top)
+        .contentMargins(.vertical, .l)
         .loadingIndicator(isLoading: $viewModel.isLoading)
         .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
     }
