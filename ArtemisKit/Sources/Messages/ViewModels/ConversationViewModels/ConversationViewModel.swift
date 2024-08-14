@@ -235,7 +235,7 @@ extension ConversationViewModel {
         }
     }
 
-    // MARK: Mark as Resolving
+    // MARK: Mark as Resolving, Pin
 
     func toggleResolving(for message: AnswerMessage) async -> Bool {
         isLoading = true
@@ -244,6 +244,30 @@ extension ConversationViewModel {
         message.resolvesPost = !(message.resolvesPost ?? false)
 
         let result = await messagesService.editAnswerMessage(for: course.id, answerMessage: message)
+        isLoading = false
+        switch result {
+        case .failure(let error):
+            if let apiClientError = error as? APIClientError {
+                let userFacingError = UserFacingError(error: apiClientError)
+                presentError(userFacingError: userFacingError)
+            } else {
+                let userFacingError = UserFacingError(title: error.localizedDescription)
+                presentError(userFacingError: userFacingError)
+            }
+        case .success:
+            return true
+        default:
+            break
+        }
+        return false
+    }
+
+    func togglePinned(for message: Message) async -> Bool {
+        isLoading = true
+
+        let isPinned = message.displayPriority == .pinned
+
+        let result = await messagesService.updateMessageDisplayPriority(for: course.id, messageId: message.id, displayPriority: isPinned ? .noInformation : .pinned)
         isLoading = false
         switch result {
         case .failure(let error):

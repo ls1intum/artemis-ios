@@ -206,6 +206,50 @@ struct MessageActions: View {
         }
     }
 
+    struct PinButton: View {
+        @Environment(\.allowAutoDismiss) var allowDismiss
+        @Environment(\.dismiss) var dismiss
+        @EnvironmentObject var navigationController: NavigationController
+        @ObservedObject var viewModel: ConversationViewModel
+        @Binding var message: DataState<BaseMessage>
+
+        var isAbleToPin: Bool {
+            guard let message = message.value, message is Message else {
+                return false
+            }
+            let isModerator = (viewModel.conversation.baseConversation as? Channel)?.isChannelModerator ?? false
+            let isCreator = viewModel.conversation.baseConversation.isCreator ?? false
+            guard isModerator || isCreator else {
+                return false
+            }
+
+            return false
+        }
+
+        var body: some View {
+            Group {
+                if isAbleToPin {
+                    Divider()
+
+                    if (message.value as? Message)?.displayPriority == .pinned {
+                        Button(R.string.localizable.unpinMessage(), systemImage: "pin.slash", action: togglePinned)
+                    } else {
+                        Button(R.string.localizable.pinMessage(), systemImage: "pin", action: togglePinned)
+                    }
+                }
+            }
+        }
+
+        func togglePinned() {
+            guard let message = message.value as? Message else { return }
+            Task {
+                if await viewModel.togglePinned(for: message) && allowDismiss {
+                    dismiss()
+                }
+            }
+        }
+    }
+
     struct MarkResolvingButton: View {
         @Environment(\.allowAutoDismiss) var allowDismiss
         @Environment(\.dismiss) var dismiss
