@@ -59,6 +59,11 @@ protocol MessagesService {
     func deleteAnswerMessage(for courseId: Int, anserMessageId: Int64) async -> NetworkResponse
 
     /**
+     * Perform a put request to update a message's display priority in a specific course to the server.
+     */
+    func updateMessageDisplayPriority(for courseId: Int, messageId: Int64, displayPriority: DisplayPriority) async -> NetworkResponse
+
+    /**
      * Perform a put request to update a message in a specific course to the server.
      */
     func editMessage(for courseId: Int, message: Message) async -> NetworkResponse

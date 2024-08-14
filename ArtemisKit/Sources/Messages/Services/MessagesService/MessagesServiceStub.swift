@@ -133,6 +133,10 @@ extension MessagesServiceStub: MessagesService {
         .loading
     }
 
+    func updateMessageDisplayPriority(for courseId: Int, messageId: Int64, displayPriority: DisplayPriority) async -> NetworkResponse {
+        .loading
+    }
+
     func editAnswerMessage(for courseId: Int, answerMessage: AnswerMessage) async -> NetworkResponse {
         .loading
     }
