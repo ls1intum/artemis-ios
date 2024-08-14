@@ -267,7 +267,7 @@ extension ConversationViewModel {
 
         let isPinned = message.displayPriority == .pinned
 
-        let result = await messagesService.updateMessageDisplayPriority(for: course.id, messageId: message.id, displayPriority: isPinned ? .noInformation : .pinned)
+        let result = await messagesService.updateMessageDisplayPriority(for: Int64(course.id), messageId: message.id, displayPriority: isPinned ? .noInformation : .pinned)
         isLoading = false
         switch result {
         case .failure(let error):
