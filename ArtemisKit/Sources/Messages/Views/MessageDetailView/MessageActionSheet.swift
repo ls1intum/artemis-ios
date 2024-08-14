@@ -22,6 +22,7 @@ struct MessageActions: View {
         Group {
             ReplyInThreadButton(viewModel: viewModel, message: $message, conversationPath: conversationPath)
             CopyTextButton(message: $message)
+            PinButton(viewModel: viewModel, message: $message)
             EditDeleteSection(viewModel: viewModel, message: $message)
         }
         .environment(\.allowAutoDismiss, false)
@@ -336,13 +337,13 @@ struct MessageActionSheet: View {
                 MessageActions.CopyTextButton(message: $message)
                     .padding(.horizontal)
 
-                MessageActions.EditDeleteSection(viewModel: viewModel, message: $message)
-                    .padding(.horizontal)
-
                 MessageActions.PinButton(viewModel: viewModel, message: $message)
                     .padding(.horizontal)
 
                 MessageActions.MarkResolvingButton(viewModel: viewModel, message: $message)
+                    .padding(.horizontal)
+
+                MessageActions.EditDeleteSection(viewModel: viewModel, message: $message)
                     .padding(.horizontal)
 
                 Spacer()
