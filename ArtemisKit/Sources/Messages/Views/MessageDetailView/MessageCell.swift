@@ -52,16 +52,11 @@ struct MessageCell: View {
         .padding(.horizontal, .m)
         .padding(viewModel.isHeaderVisible ? .vertical : .bottom, useFullWidth ? 0 : .m)
         .contentShape(.rect)
-        .gesture(viewModel.swipeToReplyGesture(openThread: onSwipePresentMessage))
-        .blur(radius: viewModel.swipeToReplyState.messageBlur)
-        .overlay(alignment: .trailing) {
-            swipeToReplyOverlay
-        }
+        .modifier(SwipeToReply(enabled: viewModel.conversationPath != nil, onSwipe: onSwipePresentMessage))
         .background(messageBackground, in: .rect(cornerRadii: viewModel.roundedCorners))
         .padding(.top, viewModel.isHeaderVisible ? .m : 0)
         .id(message.value?.id.description)
         .padding(.horizontal, useFullWidth ? 0 : (.m + .l) / 2)
-        .onDisappear(perform: viewModel.resetSwipeToReply)
         .sheet(isPresented: $viewModel.isActionSheetPresented) {
             MessageActionSheet(
                 viewModel: conversationViewModel,
@@ -234,20 +229,6 @@ private extension MessageCell {
                 }
             }
         }
-    }
-
-    @ViewBuilder var swipeToReplyOverlay: some View {
-        Image(systemName: "arrowshape.turn.up.left.circle.fill")
-            .resizable()
-            .scaledToFit()
-            .frame(width: 40)
-            .foregroundStyle(viewModel.swipeToReplyState.swiped ? .blue : .gray)
-            .padding(.horizontal)
-            .offset(x: viewModel.swipeToReplyState.overlayOffset)
-            .scaleEffect(x: viewModel.swipeToReplyState.overlayScale, y: viewModel.swipeToReplyState.overlayScale, anchor: .trailing)
-            .opacity(viewModel.swipeToReplyState.overlayOpacity)
-            .animation(.easeInOut(duration: 0.1), value: viewModel.swipeToReplyState.swiped)
-            .accessibilityHidden(true)
     }
 
     func openThread(showErrorOnFailure: Bool = true, presentKeyboard: Bool = false) {

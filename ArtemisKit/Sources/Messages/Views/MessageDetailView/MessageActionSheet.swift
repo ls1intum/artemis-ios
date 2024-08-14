@@ -22,6 +22,7 @@ struct MessageActions: View {
         Group {
             ReplyInThreadButton(viewModel: viewModel, message: $message, conversationPath: conversationPath)
             CopyTextButton(message: $message)
+            PinButton(viewModel: viewModel, message: $message)
             EditDeleteSection(viewModel: viewModel, message: $message)
         }
         .environment(\.allowAutoDismiss, false)
@@ -206,6 +207,63 @@ struct MessageActions: View {
         }
     }
 
+    struct PinButton: View {
+        @Environment(\.allowAutoDismiss) var allowDismiss
+        @Environment(\.dismiss) var dismiss
+        @EnvironmentObject var navigationController: NavigationController
+        @ObservedObject var viewModel: ConversationViewModel
+        @Binding var message: DataState<BaseMessage>
+
+        var isAbleToPin: Bool {
+            guard let message = message.value, message is Message else {
+                return false
+            }
+
+            // Channel: Only Moderators can pin
+            let isModerator = (viewModel.conversation.baseConversation as? Channel)?.isChannelModerator ?? false
+            if viewModel.conversation.baseConversation is Channel && !isModerator {
+                return false
+            }
+
+            // Group Chat: Only Creator can pin
+            let isCreator = viewModel.conversation.baseConversation.isCreator ?? false
+            if viewModel.conversation.baseConversation is GroupChat && !isCreator {
+                return false
+            }
+
+            return true
+        }
+
+        var body: some View {
+            Group {
+                if isAbleToPin {
+                    Divider()
+
+                    if (message.value as? Message)?.displayPriority == .pinned {
+                        Button(R.string.localizable.unpinMessage(), systemImage: "pin.slash", action: togglePinned)
+                    } else {
+                        Button(R.string.localizable.pinMessage(), systemImage: "pin", action: togglePinned)
+                    }
+                }
+            }
+        }
+
+        func togglePinned() {
+            guard let message = message.value as? Message else { return }
+            Task {
+                var result = await viewModel.togglePinned(for: message)
+                let oldRole = message.authorRole
+                if var newMessageResult = result.value as? Message {
+                    newMessageResult.authorRole = oldRole
+                    self.$message.wrappedValue = .done(response: newMessageResult)
+                    if allowDismiss {
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+
     struct MarkResolvingButton: View {
         @Environment(\.allowAutoDismiss) var allowDismiss
         @Environment(\.dismiss) var dismiss
@@ -270,7 +328,7 @@ struct MessageActionSheet: View {
     }
 
     var body: some View {
-        HStack {
+        ScrollView {
             VStack(alignment: .leading, spacing: .l) {
                 HStack(spacing: .m) {
                     EmojiTextButton(viewModel: reactionsViewModel, emoji: "😂")
@@ -286,10 +344,13 @@ struct MessageActionSheet: View {
                 MessageActions.CopyTextButton(message: $message)
                     .padding(.horizontal)
 
-                MessageActions.EditDeleteSection(viewModel: viewModel, message: $message)
+                MessageActions.PinButton(viewModel: viewModel, message: $message)
                     .padding(.horizontal)
 
                 MessageActions.MarkResolvingButton(viewModel: viewModel, message: $message)
+                    .padding(.horizontal)
+
+                MessageActions.EditDeleteSection(viewModel: viewModel, message: $message)
                     .padding(.horizontal)
 
                 Spacer()
@@ -298,11 +359,9 @@ struct MessageActionSheet: View {
             .font(.headline)
             .symbolVariant(.fill)
             .imageScale(.large)
-            Spacer()
         }
         .fontWeight(.bold)
-        .padding(.vertical, .xl)
-        .frame(maxHeight: .infinity, alignment: .top)
+        .contentMargins(.vertical, .l)
         .loadingIndicator(isLoading: $viewModel.isLoading)
         .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
     }
