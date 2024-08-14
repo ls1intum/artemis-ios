@@ -218,9 +218,16 @@ struct MessageActions: View {
             guard let message = message.value, message is Message else {
                 return false
             }
+
+            // Channel: Only Moderators can pin
             let isModerator = (viewModel.conversation.baseConversation as? Channel)?.isChannelModerator ?? false
+            if viewModel.conversation.baseConversation is Channel && !isModerator {
+                return false
+            }
+
+            // Group Chat: Only Creator can pin
             let isCreator = viewModel.conversation.baseConversation.isCreator ?? false
-            guard isModerator || isCreator else {
+            if viewModel.conversation.baseConversation is GroupChat && !isCreator {
                 return false
             }
 
