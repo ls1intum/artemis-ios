@@ -264,10 +264,6 @@ private struct MixedMessageSection: View {
         }
     }
 
-    var sectionUnreadChannelCount: Int {
-        (conversations.value ?? []).filter { $0.baseConversation.unreadMessagesCount ?? 0 > 0 }.count
-    }
-
     var body: some View {
         DataStateView(data: $conversations) {
             await viewModel.loadConversations()
@@ -296,7 +292,6 @@ private struct MixedMessageSection: View {
                             sectionTitle: sectionTitle,
                             sectionIconName: sectionIconName,
                             sectionUnreadCount: sectionUnreadCount,
-                            sectionUnreadChannelCount: sectionUnreadChannelCount,
                             isUnreadCountVisible: !isExpanded)
                     }
                 }
@@ -310,21 +305,17 @@ private struct SectionDisclosureLabel: View {
     let sectionTitle: String
     let sectionIconName: String
     let sectionUnreadCount: Int
-    let sectionUnreadChannelCount: Int
     let isUnreadCountVisible: Bool
 
     var body: some View {
         Label {
-            HStack(alignment: .firstTextBaseline) {
+            HStack {
                 Text(sectionTitle)
+                Spacer()
                 if isUnreadCountVisible && sectionUnreadCount > 0 {
-                    ViewThatFits(in: .horizontal) {
-                        Text("\(R.string.localizable.unreadIn(sectionUnreadCount)) ^[\(sectionUnreadChannelCount) \(R.string.localizable.channelLc())](inflect: true)")
-                            .font(.caption)
-                        Text(R.string.localizable.unread(sectionUnreadCount))
-                            .font(.caption)
-                    }
-                    .foregroundStyle(.secondary)
+                    Text(sectionUnreadCount, format: .number.notation(.compactName))
+                        .font(.body)
+                        .foregroundStyle(.secondary)
                 }
             }
         } icon: {
@@ -363,10 +354,6 @@ private struct MessageSection<T: BaseConversation>: View {
         }
     }
 
-    var sectionUnreadChannelCount: Int {
-        (conversations.value ?? []).filter { $0.unreadMessagesCount ?? 0 > 0 }.count
-    }
-
     init(
         viewModel: MessagesAvailableViewModel,
         conversations: Binding<DataState<[T]>>,
@@ -402,7 +389,6 @@ private struct MessageSection<T: BaseConversation>: View {
                     sectionTitle: sectionTitle,
                     sectionIconName: sectionIconName,
                     sectionUnreadCount: sectionUnreadCount,
-                    sectionUnreadChannelCount: sectionUnreadChannelCount,
                     isUnreadCountVisible: !isExpanded)
             }
         }
