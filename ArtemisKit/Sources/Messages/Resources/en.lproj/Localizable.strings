@@ -70,6 +70,8 @@
 "deletionErrorLabel" = "Could not delete message. Try again later.";
 "markAsResolving" = "Resolves Post";
 "unmarkAsResolving" = "Doesn't Resolve Post";
+"pinMessage" = "Pin Message";
+"unpinMessage" = "Unpin Message";
 
 // MARK: ConversationView
 "noMessages" = "No Messages";

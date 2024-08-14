@@ -124,6 +124,7 @@ private extension MessageDetailView {
                             .fontWeight(.bold)
                     }
                 }
+                .loadingIndicator(isLoading: $viewModel.isLoading)
             }
             .padding(.horizontal)
             Divider()
