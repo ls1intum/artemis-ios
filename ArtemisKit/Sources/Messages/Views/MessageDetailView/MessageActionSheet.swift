@@ -223,7 +223,7 @@ struct MessageActions: View {
                 return false
             }
 
-            return false
+            return true
         }
 
         var body: some View {
@@ -331,6 +331,9 @@ struct MessageActionSheet: View {
                     .padding(.horizontal)
 
                 MessageActions.EditDeleteSection(viewModel: viewModel, message: $message)
+                    .padding(.horizontal)
+
+                MessageActions.PinButton(viewModel: viewModel, message: $message)
                     .padding(.horizontal)
 
                 MessageActions.MarkResolvingButton(viewModel: viewModel, message: $message)
