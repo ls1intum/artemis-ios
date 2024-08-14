@@ -243,8 +243,14 @@ struct MessageActions: View {
         func togglePinned() {
             guard let message = message.value as? Message else { return }
             Task {
-                if await viewModel.togglePinned(for: message) && allowDismiss {
-                    dismiss()
+                var result = await viewModel.togglePinned(for: message)
+                let oldRole = message.authorRole
+                if var newMessageResult = result.value as? Message {
+                    newMessageResult.authorRole = oldRole
+                    self.$message.wrappedValue = .done(response: newMessageResult)
+                    if allowDismiss {
+                        dismiss()
+                    }
                 }
             }
         }

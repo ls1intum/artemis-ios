@@ -61,7 +61,7 @@ protocol MessagesService {
     /**
      * Perform a put request to update a message's display priority in a specific course to the server.
      */
-    func updateMessageDisplayPriority(for courseId: Int64, messageId: Int64, displayPriority: DisplayPriority) async -> NetworkResponse
+    func updateMessageDisplayPriority(for courseId: Int64, messageId: Int64, displayPriority: DisplayPriority) async -> DataState<any BaseMessage>
 
     /**
      * Perform a put request to update a message in a specific course to the server.

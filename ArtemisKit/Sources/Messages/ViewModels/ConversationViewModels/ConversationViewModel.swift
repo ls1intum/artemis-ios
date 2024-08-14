@@ -262,7 +262,7 @@ extension ConversationViewModel {
         return false
     }
 
-    func togglePinned(for message: Message) async -> Bool {
+    func togglePinned(for message: Message) async -> DataState<any BaseMessage> {
         isLoading = true
 
         let isPinned = message.displayPriority == .pinned
@@ -271,19 +271,13 @@ extension ConversationViewModel {
         isLoading = false
         switch result {
         case .failure(let error):
-            if let apiClientError = error as? APIClientError {
-                let userFacingError = UserFacingError(error: apiClientError)
-                presentError(userFacingError: userFacingError)
-            } else {
-                let userFacingError = UserFacingError(title: error.localizedDescription)
-                presentError(userFacingError: userFacingError)
-            }
-        case .success:
-            return true
-        default:
-            break
+            presentError(userFacingError: error)
+            return .failure(error: error)
+        case .done(let message):
+            return .done(response: message)
+        case .loading:
+            return .loading
         }
-        return false
     }
 }
 

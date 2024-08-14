@@ -133,7 +133,7 @@ extension MessagesServiceStub: MessagesService {
         .loading
     }
 
-    func updateMessageDisplayPriority(for courseId: Int64, messageId: Int64, displayPriority: DisplayPriority) async -> NetworkResponse {
+    func updateMessageDisplayPriority(for courseId: Int64, messageId: Int64, displayPriority: DisplayPriority) async -> DataState<any BaseMessage> {
         .loading
     }
 

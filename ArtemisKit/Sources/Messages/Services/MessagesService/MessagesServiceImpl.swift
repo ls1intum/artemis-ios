@@ -312,7 +312,7 @@ struct MessagesServiceImpl: MessagesService {
     }
 
     struct UpdateDisplayPriorityRequest: APIRequest {
-        typealias Response = RawResponse
+        typealias Response = Message
 
         let courseId: Int64
         let messageId: Int64
@@ -331,14 +331,14 @@ struct MessagesServiceImpl: MessagesService {
         }
     }
 
-    func updateMessageDisplayPriority(for courseId: Int64, messageId: Int64, displayPriority: DisplayPriority) async -> NetworkResponse {
+    func updateMessageDisplayPriority(for courseId: Int64, messageId: Int64, displayPriority: DisplayPriority) async -> DataState<any BaseMessage> {
         let result = await client.sendRequest(UpdateDisplayPriorityRequest(courseId: courseId, messageId: messageId, displayPriority: displayPriority))
 
         switch result {
-        case .success:
-            return .success
+        case .success((let message, _)):
+            return .done(response: message)
         case let .failure(error):
-            return .failure(error: error)
+            return .failure(error: .init(error: error))
         }
     }
 
