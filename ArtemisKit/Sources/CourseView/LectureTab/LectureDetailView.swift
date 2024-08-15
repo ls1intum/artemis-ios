@@ -10,6 +10,7 @@ import Common
 import SharedModels
 import ArtemisMarkdown
 import DesignLibrary
+import Navigation
 
 public struct LectureDetailView: View {
 
@@ -58,10 +59,22 @@ public struct LectureDetailView: View {
                                 AttachmentCell(attachment: attachment)
                             }
                         }
+                        if let channel = viewModel.channel.value {
+                            Text(R.string.localizable.discussion())
+                                .font(.headline)
+                            ChannelCell(courseId: viewModel.courseId, channel: channel)
+                        }
                         Spacer()
                     }
                     Spacer()
                 }.padding(.l)
+            }
+            .onChange(of: viewModel.course.value, initial: true) { _, newValue in
+                if newValue != nil {
+                    Task {
+                        await viewModel.loadAssociatedChannel()
+                    }
+                }
             }
         }
             .navigationTitle(viewModel.lecture.value?.title ?? R.string.localizable.loading())
@@ -70,6 +83,40 @@ public struct LectureDetailView: View {
                 await viewModel.loadLecture()
             }
             .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
+    }
+}
+
+private struct ChannelCell: View {
+
+    @EnvironmentObject var navigationController: NavigationController
+    let courseId: Int
+    let channel: Channel
+
+    var body: some View {
+        Button {
+            navigationController.path.append(ConversationPath(id: channel.id, coursePath: CoursePath(id: courseId)))
+        } label: {
+            HStack {
+                VStack(alignment: .leading, spacing: .l) {
+                    Label {
+                        Text(channel.conversationName)
+                    } icon: {
+                        channel.icon
+                    }
+                    .font(.title3)
+
+                    if let description = channel.description {
+                        Text(description)
+                    }
+                }
+                .foregroundColor(Color.Artemis.primaryLabel)
+                Spacer()
+                Image(systemName: "chevron.forward")
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.l)
+            .cardModifier(backgroundColor: .Artemis.exerciseCardBackgroundColor, cornerRadius: .m)
+        }
     }
 }
 
