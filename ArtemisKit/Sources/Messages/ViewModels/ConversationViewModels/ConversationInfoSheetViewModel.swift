@@ -10,6 +10,7 @@ import Common
 import UserStore
 import SharedModels
 import SwiftUI
+import APIClient
 
 @MainActor
 class ConversationInfoSheetViewModel: BaseViewModel {
@@ -225,5 +226,24 @@ extension ConversationInfoSheetViewModel {
         case .done(let response):
             conversation = response
         }
+    }
+
+    func setIsConversationFavorite(isFavorite: Bool) async -> Bool {
+        isLoading = true
+        let result = await messagesService.updateIsConversationFavorite(for: course.id, and: conversation.id, isFavorite: isFavorite)
+        isLoading = false
+        switch result {
+        case .notStarted, .loading:
+            break
+        case .success:
+            return true
+        case .failure(let error):
+            if let apiClientError = error as? APIClientError {
+                presentError(userFacingError: UserFacingError(error: apiClientError))
+            } else {
+                presentError(userFacingError: UserFacingError(title: error.localizedDescription))
+            }
+        }
+        return false
     }
 }
