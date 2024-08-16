@@ -145,16 +145,7 @@ private extension ConversationInfoSheetView {
                                     }
                                 }
                                 Divider()
-                                if UserSessionFactory.shared.user?.login != member.login,
-                                   viewModel.canRemoveUsers {
-                                    Button(R.string.localizable.removeUserButtonLabel(), systemImage: "person.badge.minus", role: .destructive) {
-                                        viewModel.isLoading = true
-                                        Task {
-                                            await viewModel.removeMemberFromConversation(member: member)
-                                            viewModel.isLoading = false
-                                        }
-                                    }
-                                }
+                                removeUserButton(member: member)
                             } label: {
                                 HStack {
                                     Text(name)
@@ -163,7 +154,10 @@ private extension ConversationInfoSheetView {
                                         Chip(text: R.string.localizable.youLabel(), backgroundColor: .Artemis.artemisBlue)
                                     }
                                 }
-                                .foregroundStyle(.primary)
+                            }
+                            .buttonStyle(.plain)
+                            .swipeActions(edge: .trailing) {
+                                removeUserButton(member: member)
                             }
                         }
                     }
@@ -172,6 +166,20 @@ private extension ConversationInfoSheetView {
                 Text(R.string.localizable.membersLabel(conversation.baseConversation.numberOfMembers ?? 0))
             } footer: {
                 pageActions
+            }
+        }
+    }
+
+    @ViewBuilder
+    func removeUserButton(member: ConversationUser) -> some View {
+        if UserSessionFactory.shared.user?.login != member.login,
+           viewModel.canRemoveUsers {
+            Button(R.string.localizable.removeUserButtonLabel(), systemImage: "person.badge.minus", role: .destructive) {
+                viewModel.isLoading = true
+                Task {
+                    await viewModel.removeMemberFromConversation(member: member)
+                    viewModel.isLoading = false
+                }
             }
         }
     }
