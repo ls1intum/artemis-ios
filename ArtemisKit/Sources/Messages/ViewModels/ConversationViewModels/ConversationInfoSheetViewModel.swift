@@ -228,7 +228,7 @@ extension ConversationInfoSheetViewModel {
         }
     }
 
-    func setIsConversationFavorite(isFavorite: Bool) async -> Bool {
+    func setIsConversationFavorite(isFavorite: Bool) async {
         isLoading = true
         let result = await messagesService.updateIsConversationFavorite(for: course.id, and: conversation.id, isFavorite: isFavorite)
         isLoading = false
@@ -236,7 +236,7 @@ extension ConversationInfoSheetViewModel {
         case .notStarted, .loading:
             break
         case .success:
-            return true
+            toggleChannelIsFavorite()
         case .failure(let error):
             if let apiClientError = error as? APIClientError {
                 presentError(userFacingError: UserFacingError(error: apiClientError))
@@ -244,6 +244,18 @@ extension ConversationInfoSheetViewModel {
                 presentError(userFacingError: UserFacingError(title: error.localizedDescription))
             }
         }
-        return false
+    }
+
+    private func toggleChannelIsFavorite() {
+        if var convo = conversation.baseConversation as? Channel {
+            convo.isFavorite?.toggle()
+            conversation = .channel(conversation: convo)
+        } else if var convo = conversation.baseConversation as? GroupChat {
+            convo.isFavorite?.toggle()
+            conversation = .groupChat(conversation: convo)
+        } else if var convo = conversation.baseConversation as? OneToOneChat {
+            convo.isFavorite?.toggle()
+            conversation = .oneToOneChat(conversation: convo)
+        }
     }
 }

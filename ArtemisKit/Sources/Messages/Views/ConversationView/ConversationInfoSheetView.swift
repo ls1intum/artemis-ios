@@ -72,9 +72,7 @@ private extension ConversationInfoSheetView {
                 let isFavorite = conversation.baseConversation.isFavorite ?? false
                 Button(isFavorite ? R.string.localizable.removeFavorite() : R.string.localizable.addFavorite(), systemImage: "heart") {
                     Task {
-                        if await viewModel.setIsConversationFavorite(isFavorite: !isFavorite) {
-                            toggleChannelFavorite()
-                        }
+                        await viewModel.setIsConversationFavorite(isFavorite: !isFavorite)
                     }
                 }
                 .symbolVariant(isFavorite ? .slash.fill : .fill)
@@ -127,19 +125,6 @@ private extension ConversationInfoSheetView {
             } content: {
                 CreateOrAddToChatView(courseId: viewModel.course.id, configuration: .addToChat(conversation))
             }
-        }
-    }
-
-    func toggleChannelFavorite() {
-        if var convo = conversation.baseConversation as? Channel {
-            convo.isFavorite?.toggle()
-            conversation = .channel(conversation: convo)
-        } else if var convo = conversation.baseConversation as? GroupChat {
-            convo.isFavorite?.toggle()
-            conversation = .groupChat(conversation: convo)
-        } else if var convo = conversation.baseConversation as? OneToOneChat {
-            convo.isFavorite?.toggle()
-            conversation = .oneToOneChat(conversation: convo)
         }
     }
 
