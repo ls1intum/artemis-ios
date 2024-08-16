@@ -136,17 +136,18 @@ private extension ConversationInfoSheetView {
                 } content: { members in
                     ForEach(members, id: \.id) { member in
                         if let name = member.name {
-                            HStack {
-                                Text(name)
-                                Spacer()
-                                if UserSessionFactory.shared.user?.login == member.login {
-                                    Chip(text: R.string.localizable.youLabel(), backgroundColor: .Artemis.artemisBlue)
+                            Menu {
+                                if let login = member.login {
+                                    Button(R.string.localizable.sendMessage(), systemImage: "bubble.left.fill") {
+                                        viewModel.sendMessageToUser(with: login, navigationController: navigationController) {
+                                            dismiss()
+                                        }
+                                    }
                                 }
-                            }
-                            .contextMenu {
+                                Divider()
                                 if UserSessionFactory.shared.user?.login != member.login,
                                    viewModel.canRemoveUsers {
-                                    Button(R.string.localizable.removeUserButtonLabel()) {
+                                    Button(R.string.localizable.removeUserButtonLabel(), systemImage: "person.badge.minus", role: .destructive) {
                                         viewModel.isLoading = true
                                         Task {
                                             await viewModel.removeMemberFromConversation(member: member)
@@ -154,6 +155,15 @@ private extension ConversationInfoSheetView {
                                         }
                                     }
                                 }
+                            } label: {
+                                HStack {
+                                    Text(name)
+                                    Spacer()
+                                    if UserSessionFactory.shared.user?.login == member.login {
+                                        Chip(text: R.string.localizable.youLabel(), backgroundColor: .Artemis.artemisBlue)
+                                    }
+                                }
+                                .foregroundStyle(.primary)
                             }
                         }
                     }

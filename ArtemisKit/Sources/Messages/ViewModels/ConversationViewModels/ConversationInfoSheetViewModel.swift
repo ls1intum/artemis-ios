@@ -11,6 +11,7 @@ import UserStore
 import SharedModels
 import SwiftUI
 import APIClient
+import Navigation
 
 @MainActor
 class ConversationInfoSheetViewModel: BaseViewModel {
@@ -256,6 +257,18 @@ extension ConversationInfoSheetViewModel {
         } else if var convo = conversation.baseConversation as? OneToOneChat {
             convo.isFavorite?.toggle()
             conversation = .oneToOneChat(conversation: convo)
+        }
+    }
+
+    func sendMessageToUser(with login: String, navigationController: NavigationController, completion: @escaping () -> Void) {
+        isLoading = true
+        Task {
+            let messageCellModel = MessageCellModel(course: course, conversationPath: nil, isHeaderVisible: false, roundBottomCorners: false, retryButtonAction: {})
+            if let conversation = await messageCellModel.getOneToOneChatOrCreate(login: login) {
+                navigationController.path.append(ConversationPath(conversation: conversation, coursePath: CoursePath(course: course)))
+                completion()
+            }
+            isLoading = false
         }
     }
 }
