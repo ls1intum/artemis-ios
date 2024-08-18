@@ -47,6 +47,7 @@ public struct ExerciseDetailView: View {
         }
         .task {
             await viewModel.loadExercise()
+            await viewModel.loadAssociatedChannel()
         }
         .refreshable {
             await viewModel.refreshExercise()
@@ -215,6 +216,19 @@ private extension ExerciseDetailView {
                 ExerciseDetailCell(descriptionText: R.string.localizable.categories()) {
                     ForEach(categories, id: \.category) { category in
                         Chip(text: category.category, backgroundColor: UIColor(hexString: category.colorCode).suColor, padding: .s)
+                    }
+                }
+            }
+
+            if let channel = viewModel.channel.value {
+                Divider()
+                    .frame(height: 1.0)
+                    .overlay(Color.Artemis.artemisBlue)
+
+                ExerciseDetailCell(descriptionText: R.string.localizable.discussion() + ":") {
+                    NavigationLink(value: ConversationPath(conversation: .channel(conversation: channel),
+                                                           coursePath: .init(id: viewModel.courseId))) {
+                        Text("\(channel.conversationName) \(Image(systemName: "chevron.forward"))")
                     }
                 }
             }
