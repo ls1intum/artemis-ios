@@ -60,7 +60,7 @@ public struct LectureDetailView: View {
                             }
                         }
                         if let channel = viewModel.channel.value {
-                            Text(R.string.localizable.discussion())
+                            Text(R.string.localizable.communication())
                                 .font(.headline)
                             ChannelCell(courseId: viewModel.courseId, channel: channel)
                         }

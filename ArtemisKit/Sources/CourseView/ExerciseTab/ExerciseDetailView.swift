@@ -225,7 +225,7 @@ private extension ExerciseDetailView {
                     .frame(height: 1.0)
                     .overlay(Color.Artemis.artemisBlue)
 
-                ExerciseDetailCell(descriptionText: R.string.localizable.discussion() + ":") {
+                ExerciseDetailCell(descriptionText: R.string.localizable.communication() + ":") {
                     NavigationLink(value: ConversationPath(conversation: .channel(conversation: channel),
                                                            coursePath: .init(id: viewModel.courseId))) {
                         Text("\(channel.conversationName) \(Image(systemName: "chevron.forward"))")
