@@ -308,28 +308,28 @@ private struct SectionDisclosureLabel: View {
     let isUnreadCountVisible: Bool
 
     var body: some View {
-        Label {
-            HStack {
+        HStack {
+            Label {
                 Text(sectionTitle)
-                Spacer()
-                if isUnreadCountVisible && sectionUnreadCount > 0 {
-                    Text(sectionUnreadCount, format: .number.notation(.compactName))
-                        .font(.body)
-                        .foregroundStyle(.secondary)
-                }
-            }
-        } icon: {
-            Image(systemName: sectionIconName)
-                .overlay(alignment: .top) {
-                    if isUnreadCountVisible && sectionUnreadCount > 0 {
-                        Circle()
-                            .stroke(.background, lineWidth: .s)
-                            .fill(Color.Artemis.artemisBlue)
-                            .frame(width: .m * 1.5, height: .m * 1.5)
-                            .frame(width: 30, alignment: .trailing)
-                            .offset(x: .s, y: .s * -1)
+            } icon: {
+                Image(systemName: sectionIconName)
+                    .overlay(alignment: .top) {
+                        if isUnreadCountVisible && sectionUnreadCount > 0 {
+                            Circle()
+                                .stroke(.background, lineWidth: .s)
+                                .fill(Color.Artemis.artemisBlue)
+                                .frame(width: .m * 1.5, height: .m * 1.5)
+                                .frame(width: 30, alignment: .trailing)
+                                .offset(x: .s, y: .s * -1)
+                        }
                     }
-                }
+            }
+            Spacer()
+            if isUnreadCountVisible && sectionUnreadCount > 0 {
+                Text(sectionUnreadCount, format: .number.notation(.compactName))
+                    .font(.body)
+                    .foregroundStyle(.secondary)
+            }
         }
         .font(.headline)
         .foregroundStyle(.primary)
