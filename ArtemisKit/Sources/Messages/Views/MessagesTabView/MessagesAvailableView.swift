@@ -289,7 +289,6 @@ private struct MixedMessageSection: View {
                         }
                     } label: {
                         SectionDisclosureLabel(
-                            viewModel: viewModel,
                             sectionTitle: sectionTitle,
                             sectionIconName: sectionIconName,
                             sectionUnreadCount: sectionUnreadCount,
@@ -303,8 +302,6 @@ private struct MixedMessageSection: View {
 
 private struct SectionDisclosureLabel: View {
 
-    @ObservedObject var viewModel: MessagesAvailableViewModel
-
     let sectionTitle: String
     let sectionIconName: String
     let sectionUnreadCount: Int
@@ -312,14 +309,30 @@ private struct SectionDisclosureLabel: View {
 
     var body: some View {
         HStack {
-            Label(sectionTitle, systemImage: sectionIconName)
-                .font(.headline)
-                .foregroundStyle(.primary)
+            Label {
+                Text(sectionTitle)
+            } icon: {
+                Image(systemName: sectionIconName)
+                    .overlay(alignment: .top) {
+                        if isUnreadCountVisible && sectionUnreadCount > 0 {
+                            Circle()
+                                .stroke(.background, lineWidth: .s)
+                                .fill(Color.Artemis.artemisBlue)
+                                .frame(width: .m * 1.5, height: .m * 1.5)
+                                .frame(width: 30, alignment: .trailing)
+                                .offset(x: .s, y: .s * -1)
+                        }
+                    }
+            }
             Spacer()
-            if isUnreadCountVisible {
-                Badge(count: sectionUnreadCount)
+            if isUnreadCountVisible && sectionUnreadCount > 0 {
+                Text(sectionUnreadCount, format: .number.notation(.compactName))
+                    .font(.body)
+                    .foregroundStyle(.secondary)
             }
         }
+        .font(.headline)
+        .foregroundStyle(.primary)
         .padding(.vertical, .m)
     }
 }
@@ -373,7 +386,6 @@ private struct MessageSection<T: BaseConversation>: View {
                 }
             } label: {
                 SectionDisclosureLabel(
-                    viewModel: viewModel,
                     sectionTitle: sectionTitle,
                     sectionIconName: sectionIconName,
                     sectionUnreadCount: sectionUnreadCount,
