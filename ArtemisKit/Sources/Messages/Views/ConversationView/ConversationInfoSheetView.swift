@@ -137,7 +137,8 @@ private extension ConversationInfoSheetView {
                     ForEach(members, id: \.id) { member in
                         if let name = member.name {
                             Menu {
-                                if let login = member.login {
+                                if let login = member.login,
+                                   !(conversation.baseConversation is OneToOneChat) {
                                     Button(R.string.localizable.sendMessage(), systemImage: "bubble.left.fill") {
                                         viewModel.sendMessageToUser(with: login, navigationController: navigationController) {
                                             dismiss()
