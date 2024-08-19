@@ -135,6 +135,9 @@
 "moreInfoLabel" = "More info";
 "createdByLabel" = "Created by: %s";
 "createdOnLabel" = "Created on: %s";
+"addFavorite" = "Add to Favorites";
+"removeFavorite" = "Remove from Favorites";
+"sendMessage" = "Send Message";
 
 // MARK: Errors
 "detailViewCantBeOpened" = "Detail View can not be opened. Please try again later.";
