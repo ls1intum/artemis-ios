@@ -68,6 +68,16 @@ private extension ConversationInfoSheetView {
                         viewModel.isAddMemberSheetPresented = true
                     }
                 }
+
+                let isFavorite = conversation.baseConversation.isFavorite ?? false
+                Button(isFavorite ? R.string.localizable.removeFavorite() : R.string.localizable.addFavorite(), systemImage: "heart") {
+                    Task {
+                        await viewModel.setIsConversationFavorite(isFavorite: !isFavorite)
+                    }
+                }
+                .symbolVariant(isFavorite ? .slash.fill : .fill)
+                .foregroundStyle(.orange)
+
                 if let channel = conversation.baseConversation as? Channel,
                    channel.hasChannelModerationRights ?? false {
                     if channel.isArchived ?? false {
@@ -126,24 +136,29 @@ private extension ConversationInfoSheetView {
                 } content: { members in
                     ForEach(members, id: \.id) { member in
                         if let name = member.name {
-                            HStack {
-                                Text(name)
-                                Spacer()
-                                if UserSessionFactory.shared.user?.login == member.login {
-                                    Chip(text: R.string.localizable.youLabel(), backgroundColor: .Artemis.artemisBlue)
-                                }
-                            }
-                            .contextMenu {
-                                if UserSessionFactory.shared.user?.login != member.login,
-                                   viewModel.canRemoveUsers {
-                                    Button(R.string.localizable.removeUserButtonLabel()) {
-                                        viewModel.isLoading = true
-                                        Task {
-                                            await viewModel.removeMemberFromConversation(member: member)
-                                            viewModel.isLoading = false
+                            Menu {
+                                if let login = member.login,
+                                   !(conversation.baseConversation is OneToOneChat) {
+                                    Button(R.string.localizable.sendMessage(), systemImage: "bubble.left.fill") {
+                                        viewModel.sendMessageToUser(with: login, navigationController: navigationController) {
+                                            dismiss()
                                         }
                                     }
                                 }
+                                Divider()
+                                removeUserButton(member: member)
+                            } label: {
+                                HStack {
+                                    Text(name)
+                                    Spacer()
+                                    if UserSessionFactory.shared.user?.login == member.login {
+                                        Chip(text: R.string.localizable.youLabel(), backgroundColor: .Artemis.artemisBlue)
+                                    }
+                                }
+                            }
+                            .buttonStyle(.plain)
+                            .swipeActions(edge: .trailing) {
+                                removeUserButton(member: member)
                             }
                         }
                     }
@@ -152,6 +167,20 @@ private extension ConversationInfoSheetView {
                 Text(R.string.localizable.membersLabel(conversation.baseConversation.numberOfMembers ?? 0))
             } footer: {
                 pageActions
+            }
+        }
+    }
+
+    @ViewBuilder
+    func removeUserButton(member: ConversationUser) -> some View {
+        if UserSessionFactory.shared.user?.login != member.login,
+           viewModel.canRemoveUsers {
+            Button(R.string.localizable.removeUserButtonLabel(), systemImage: "person.badge.minus", role: .destructive) {
+                viewModel.isLoading = true
+                Task {
+                    await viewModel.removeMemberFromConversation(member: member)
+                    viewModel.isLoading = false
+                }
             }
         }
     }
