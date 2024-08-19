@@ -28,10 +28,14 @@ struct ConversationRow<T: BaseConversation>: View {
                 Label {
                     HStack(alignment: .firstTextBaseline) {
                         Text(conversation.conversationName)
+                        Spacer()
                         if let unreadCount = conversation.unreadMessagesCount, unreadCount > 0 {
-                            Text(R.string.localizable.unread(unreadCount))
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                            Text(unreadCount, format: .number.notation(.compactName))
+                                .font(.footnote)
+                                .foregroundStyle(.white)
+                                .padding(.vertical, .s)
+                                .padding(.horizontal, .m)
+                                .background(Color.Artemis.artemisBlue, in: .capsule)
                         }
                     }
                 } icon: {
