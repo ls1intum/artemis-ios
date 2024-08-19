@@ -17,6 +17,7 @@ final class ExerciseDetailViewModel {
     let exerciseId: Int
 
     var exercise: DataState<Exercise>
+    var channel: DataState<Channel> = .loading
 
     var isFeedbackPresented = false
     var latestResultId: Int?
@@ -75,6 +76,10 @@ final class ExerciseDetailViewModel {
         }
         // Force WebView to reload
         webViewId = UUID()
+    }
+
+    func loadAssociatedChannel() async {
+        channel = await ExerciseChannelServiceFactory.shared.getAssociatedChannel(for: exerciseId, in: courseId)
     }
 
     private func setParticipationAndResultId(from exercise: Exercise) {
