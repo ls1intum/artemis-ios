@@ -54,7 +54,6 @@
 "exams" = "Exams";
 "groupChats" = "Group Chats";
 "directMessages" = "Direct Messages";
-"unread" = "(%i unread)";
 
 // MARK: MessageDetailView
 "edited" = "Edited";
