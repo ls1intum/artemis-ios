@@ -305,6 +305,28 @@ enum ConversationFilter: FilterPicker {
         }
     }
 
+    var iconName: String {
+        return switch self {
+        case .all:
+            "eye"
+        case .unread:
+            "app.badge"
+        case .favorite:
+            "heart"
+        }
+    }
+
+    var selectedColor: Color {
+        return switch self {
+        case .all:
+            Color.blue
+        case .unread:
+            Color.purple
+        case .favorite:
+            Color.orange
+        }
+    }
+
     var id: Int {
         hashValue
     }
