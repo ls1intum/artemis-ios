@@ -41,6 +41,7 @@ struct FilterBarPicker<Filter: FilterPicker>: View {
                     .font(.headline)
             }
         }
+        .accessibilityLabel(filter.displayName)
         .padding(.horizontal, .l + .s)
         .frame(maxWidth: filter == selectedFilter ? .infinity : nil, maxHeight: .infinity)
         .background(
