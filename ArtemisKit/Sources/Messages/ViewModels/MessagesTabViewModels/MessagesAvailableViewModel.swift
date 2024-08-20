@@ -8,6 +8,7 @@
 import Foundation
 import Common
 import SharedModels
+import SwiftUI
 import APIClient
 import UserStore
 
@@ -22,7 +23,9 @@ class MessagesAvailableViewModel: BaseViewModel {
 
     @Published var filter: ConversationFilter = .all {
         didSet {
-            updateFilteredConversations()
+            withAnimation {
+                updateFilteredConversations()
+            }
         }
     }
 

@@ -130,7 +130,6 @@ public struct MessagesAvailableView: View {
                     .listRowBackground(Color.clear)
             }
         }
-        .animation(.smooth, value: viewModel.filter)
         .scrollContentBackground(.hidden)
         .listRowSpacing(0.01)
         .listSectionSpacing(.compact)
@@ -352,6 +351,7 @@ private struct MessageSection<T: BaseConversation>: View {
     @Binding var conversations: DataState<[T]>
 
     @State private var isExpanded = true
+    @State private var isFiltering = false
 
     let sectionTitle: String
     let sectionIconName: String
@@ -377,28 +377,42 @@ private struct MessageSection<T: BaseConversation>: View {
     }
 
     var body: some View {
-        Section {
-            DisclosureGroup(isExpanded: $isExpanded) {
-                DataStateView(data: $conversations) {
-                    await viewModel.loadConversations()
-                } content: { conversations in
-                    ForEach(
-                        conversations.sorted {
-                            // Show non-muted conversations above muted ones
-                            ($0.isMuted ?? false ? 0 : 1) > ($1.isMuted ?? false ? 0 : 1)
-                        },
-                        id: \.id
-                    ) { conversation in
-                        ConversationRow(viewModel: viewModel, conversation: conversation)
+        DataStateView(data: $conversations) {
+            await viewModel.loadConversations()
+        } content: { conversations in
+            if isFiltering && conversations.isEmpty {
+                EmptyView()
+            } else {
+                Section {
+                    DisclosureGroup(isExpanded: Binding(get: {
+                        isExpanded || isFiltering
+                    }, set: { newValue in
+                        isExpanded = newValue
+                        if !newValue {
+                            isFiltering = false
+                        }
+                    })) {
+                        ForEach(
+                            conversations.sorted {
+                                // Show non-muted conversations above muted ones
+                                ($0.isMuted ?? false ? 0 : 1) > ($1.isMuted ?? false ? 0 : 1)
+                            },
+                            id: \.id
+                        ) { conversation in
+                            ConversationRow(viewModel: viewModel, conversation: conversation)
+                        }
+                    } label: {
+                        SectionDisclosureLabel(
+                            sectionTitle: sectionTitle,
+                            sectionIconName: sectionIconName,
+                            sectionUnreadCount: sectionUnreadCount,
+                            isUnreadCountVisible: !isExpanded)
                     }
                 }
-            } label: {
-                SectionDisclosureLabel(
-                    sectionTitle: sectionTitle,
-                    sectionIconName: sectionIconName,
-                    sectionUnreadCount: sectionUnreadCount,
-                    isUnreadCountVisible: !isExpanded)
             }
+        }
+        .onChange(of: viewModel.filter) {
+            isFiltering = viewModel.filter != .all
         }
     }
 }
