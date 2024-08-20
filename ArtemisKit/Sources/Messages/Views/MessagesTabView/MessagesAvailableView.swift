@@ -380,9 +380,7 @@ private struct MessageSection<T: BaseConversation>: View {
         DataStateView(data: $conversations) {
             await viewModel.loadConversations()
         } content: { conversations in
-            if isFiltering && conversations.isEmpty {
-                EmptyView()
-            } else {
+            if !(isFiltering && conversations.isEmpty) {
                 Section {
                     DisclosureGroup(isExpanded: Binding(get: {
                         isExpanded || isFiltering
@@ -406,7 +404,7 @@ private struct MessageSection<T: BaseConversation>: View {
                             sectionTitle: sectionTitle,
                             sectionIconName: sectionIconName,
                             sectionUnreadCount: sectionUnreadCount,
-                            isUnreadCountVisible: !isExpanded)
+                            isUnreadCountVisible: !isExpanded && !isFiltering)
                     }
                 }
             }
