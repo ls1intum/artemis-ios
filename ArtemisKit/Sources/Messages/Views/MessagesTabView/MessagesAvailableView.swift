@@ -20,7 +20,7 @@ public struct MessagesAvailableView: View {
     @State private var isCodeOfConductPresented = false
 
     private var searchResults: [Conversation] {
-        if searchText.isEmpty {
+        if searchText.isEmpty && viewModel.filter == .all {
             return []
         }
         return (viewModel.allConversations.value ?? []).filter {
@@ -53,6 +53,13 @@ public struct MessagesAvailableView: View {
                     }
                 }.listRowBackground(Color.clear)
             } else {
+                if (viewModel.allConversations.value?.contains {
+                    $0.baseConversation.isFavorite ?? false ||
+                    $0.baseConversation.unreadMessagesCount ?? 0 > 0
+                }) ?? false {
+                    FilterBarPicker(selectedFilter: $viewModel.filter)
+                }
+
                 Group {
                     MixedMessageSection(
                         viewModel: viewModel,
@@ -123,6 +130,7 @@ public struct MessagesAvailableView: View {
                     .listRowBackground(Color.clear)
             }
         }
+        .animation(.smooth, value: viewModel.filter)
         .scrollContentBackground(.hidden)
         .listRowSpacing(0.01)
         .listSectionSpacing(.compact)
