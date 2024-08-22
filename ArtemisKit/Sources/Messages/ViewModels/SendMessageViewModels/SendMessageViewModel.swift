@@ -69,7 +69,8 @@ final class SendMessageViewModel {
     var isMemberPickerSuppressed = false
     var isChannelPickerSuppressed = false
 
-    var wantsToAddMessageMentionContentType: MessageMentionContentType? = nil
+    var wantsToAddMessageMentionContentType: MessageMentionContentType?
+    var presentKeyboardOnAppear: Bool
 
     // MARK: Life cycle
 
@@ -78,6 +79,7 @@ final class SendMessageViewModel {
         conversation: Conversation,
         configuration: Configuration,
         delegate: SendMessageViewModelDelegate,
+        presentKeyboardOnAppear: Bool = false,
         messagesRepository: MessagesRepository = .shared,
         messagesService: MessagesService = MessagesServiceFactory.shared,
         userSession: UserSession = UserSessionFactory.shared
@@ -85,6 +87,7 @@ final class SendMessageViewModel {
         self.course = course
         self.conversation = conversation
         self.configuration = configuration
+        self.presentKeyboardOnAppear = presentKeyboardOnAppear
 
         self.delegate = delegate
         self.messagesRepository = messagesRepository

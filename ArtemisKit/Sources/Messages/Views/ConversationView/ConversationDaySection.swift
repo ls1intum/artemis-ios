@@ -20,20 +20,24 @@ struct ConversationDaySection: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 0) {
             Text(day, formatter: DateFormatter.dateOnly)
                 .font(.headline)
-                .padding(.top, .m)
+                .padding(.vertical, .m)
                 .padding(.horizontal, .l)
             Divider()
                 .padding(.horizontal, .l)
+                .padding(.bottom, .s)
             ForEach(Array(messages.enumerated()), id: \.1.id) { index, message in
+                let needsRoundedCorners = !(messages[safe: index + 1]?.isContinuation(of: message) ?? false)
                 MessageCellWrapper(
                     viewModel: viewModel,
                     day: day,
                     message: message,
                     conversationPath: conversationPath,
-                    isHeaderVisible: index == 0 || !message.isContinuation(of: messages[index - 1]))
+                    isHeaderVisible: !message.isContinuation(of: messages[safe: index - 1]),
+                    roundBottomCorners: needsRoundedCorners)
+                .id(index == messages.count - 1 ? nil : message.id)
             }
         }
     }
@@ -46,6 +50,7 @@ private struct MessageCellWrapper: View {
     let message: Message
     let conversationPath: ConversationPath
     let isHeaderVisible: Bool
+    let roundBottomCorners: Bool
 
     private var messageBinding: Binding<DataState<BaseMessage>> {
         Binding {
@@ -66,7 +71,8 @@ private struct MessageCellWrapper: View {
             conversationViewModel: viewModel,
             message: messageBinding,
             conversationPath: conversationPath,
-            isHeaderVisible: isHeaderVisible)
+            isHeaderVisible: isHeaderVisible,
+            roundBottomCorners: roundBottomCorners)
     }
 }
 

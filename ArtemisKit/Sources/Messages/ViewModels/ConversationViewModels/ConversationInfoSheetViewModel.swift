@@ -10,6 +10,8 @@ import Common
 import UserStore
 import SharedModels
 import SwiftUI
+import APIClient
+import Navigation
 
 @MainActor
 class ConversationInfoSheetViewModel: BaseViewModel {
@@ -224,6 +226,49 @@ extension ConversationInfoSheetViewModel {
             presentError(userFacingError: error)
         case .done(let response):
             conversation = response
+        }
+    }
+
+    func setIsConversationFavorite(isFavorite: Bool) async {
+        isLoading = true
+        let result = await messagesService.updateIsConversationFavorite(for: course.id, and: conversation.id, isFavorite: isFavorite)
+        isLoading = false
+        switch result {
+        case .notStarted, .loading:
+            break
+        case .success:
+            toggleChannelIsFavorite()
+        case .failure(let error):
+            if let apiClientError = error as? APIClientError {
+                presentError(userFacingError: UserFacingError(error: apiClientError))
+            } else {
+                presentError(userFacingError: UserFacingError(title: error.localizedDescription))
+            }
+        }
+    }
+
+    private func toggleChannelIsFavorite() {
+        if var convo = conversation.baseConversation as? Channel {
+            convo.isFavorite?.toggle()
+            conversation = .channel(conversation: convo)
+        } else if var convo = conversation.baseConversation as? GroupChat {
+            convo.isFavorite?.toggle()
+            conversation = .groupChat(conversation: convo)
+        } else if var convo = conversation.baseConversation as? OneToOneChat {
+            convo.isFavorite?.toggle()
+            conversation = .oneToOneChat(conversation: convo)
+        }
+    }
+
+    func sendMessageToUser(with login: String, navigationController: NavigationController, completion: @escaping () -> Void) {
+        isLoading = true
+        Task {
+            let messageCellModel = MessageCellModel(course: course, conversationPath: nil, isHeaderVisible: false, roundBottomCorners: false, retryButtonAction: {})
+            if let conversation = await messageCellModel.getOneToOneChatOrCreate(login: login) {
+                navigationController.path.append(ConversationPath(conversation: conversation, coursePath: CoursePath(course: course)))
+                completion()
+            }
+            isLoading = false
         }
     }
 }
