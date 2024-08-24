@@ -53,12 +53,7 @@ public struct MessagesAvailableView: View {
                     }
                 }.listRowBackground(Color.clear)
             } else {
-                if (viewModel.allConversations.value?.contains {
-                    $0.baseConversation.isFavorite ?? false ||
-                    $0.baseConversation.unreadMessagesCount ?? 0 > 0
-                }) ?? false {
-                    FilterBarPicker(selectedFilter: $viewModel.filter)
-                }
+                filterBar
 
                 Group {
                     MixedMessageSection(
@@ -166,6 +161,19 @@ public struct MessagesAvailableView: View {
                     }
                 }
             }
+        }
+    }
+
+    @ViewBuilder var filterBar: some View {
+        let hasFavorites = viewModel.allConversations.value?.contains {
+            $0.baseConversation.isFavorite ?? false
+        } ?? false
+        let hasUnread = viewModel.allConversations.value?.contains {
+            $0.baseConversation.unreadMessagesCount ?? 0 > 0
+        } ?? false
+        if hasUnread || hasFavorites {
+            FilterBarPicker(selectedFilter: $viewModel.filter,
+                            hiddenFilters: !hasUnread ? [.unread] : !hasFavorites ? [.favorite] : [])
         }
     }
 }

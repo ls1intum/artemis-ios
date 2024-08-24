@@ -9,18 +9,21 @@ import SwiftUI
 
 struct FilterBarPicker<Filter: FilterPicker>: View {
     @Binding var selectedFilter: Filter
+    var hiddenFilters = [Filter]()
 
     var body: some View {
         HStack(spacing: .m) {
             ForEach(Array(Filter.allCases)) { filter in
-                Button {
-                    selectedFilter = filter
-                } label: {
-                    item(for: filter)
-                        .frame(height: 40)
-                        .id(filter)
+                if !hiddenFilters.contains(filter) {
+                    Button {
+                        selectedFilter = filter
+                    } label: {
+                        item(for: filter)
+                            .frame(height: 40)
+                            .id(filter)
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
             }
         }
         .listRowInsets(EdgeInsets())
