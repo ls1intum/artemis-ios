@@ -16,6 +16,18 @@ struct ConversationRow<T: BaseConversation>: View {
     @ObservedObject var viewModel: MessagesAvailableViewModel
 
     let conversation: T
+    var namePrefix: String?
+
+    var conversationDisplayName: String {
+        let conversationName = conversation.conversationName
+        guard let namePrefix, !namePrefix.isEmpty else {
+            return conversationName
+        }
+        if conversationName.hasPrefix(namePrefix) {
+            return String(conversationName.suffix(conversationName.count - namePrefix.count))
+        }
+        return conversationName
+    }
 
     var body: some View {
         Button {
@@ -27,7 +39,7 @@ struct ConversationRow<T: BaseConversation>: View {
             HStack {
                 Label {
                     HStack(alignment: .firstTextBaseline) {
-                        Text(conversation.conversationName)
+                        Text(conversationDisplayName)
                         Spacer()
                         if let unreadCount = conversation.unreadMessagesCount, unreadCount > 0 {
                             Text(unreadCount, format: .number.notation(.compactName))
