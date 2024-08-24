@@ -165,15 +165,14 @@ public struct MessagesAvailableView: View {
     }
 
     @ViewBuilder var filterBar: some View {
-        let hasFavorites = viewModel.allConversations.value?.contains {
-            $0.baseConversation.isFavorite ?? false
-        } ?? false
-        let hasUnread = viewModel.allConversations.value?.contains {
-            $0.baseConversation.unreadMessagesCount ?? 0 > 0
-        } ?? false
-        if hasUnread || hasFavorites {
+        let nonNeededFilters = ConversationFilter.allCases.filter { filter in
+            viewModel.allConversations.value?.contains(where: { conversation in
+                filter.matches(conversation.baseConversation)
+            }) ?? false == false
+        }
+        if nonNeededFilters.count < 2 {
             FilterBarPicker(selectedFilter: $viewModel.filter,
-                            hiddenFilters: !hasUnread ? [.unread] : !hasFavorites ? [.favorite] : [])
+                            hiddenFilters: nonNeededFilters)
         }
     }
 }
