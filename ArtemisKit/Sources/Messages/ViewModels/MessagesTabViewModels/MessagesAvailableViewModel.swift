@@ -175,6 +175,15 @@ class MessagesAvailableViewModel: BaseViewModel {
                 !($0.baseConversation.isHidden ?? false)
             }
 
+            // Turn off filter if no unread/favorites exist
+            if !response.contains(where: { conversation in
+                conversation.baseConversation.unreadMessagesCount ?? 0 > 0
+            }) && !notHiddenConversations.contains(where: { conversation in
+                conversation.baseConversation.isFavorite ?? false
+            }) && filter != .all {
+                filter = .all
+            }
+
             favoriteConversations = .done(response: notHiddenConversations
                 .filter { $0.baseConversation.isFavorite ?? false && filter.matches($0.baseConversation) }
             )
