@@ -84,4 +84,30 @@ class LectureServiceImpl: LectureService {
             return .failure(error: UserFacingError(title: error.localizedDescription))
         }
     }
+
+    struct GetLectureChannelRequest: APIRequest {
+        typealias Response = Channel
+
+        let courseId: Int
+        let lectureId: Int
+
+        var method: HTTPMethod {
+            .get
+        }
+
+        var resourceName: String {
+            "api/courses/\(courseId)/lectures/\(lectureId)/channel"
+        }
+    }
+
+    func getAssociatedChannel(for lectureId: Int, in courseId: Int) async -> DataState<Channel> {
+        let result = await client.sendRequest(GetLectureChannelRequest(courseId: courseId, lectureId: lectureId))
+
+        switch result {
+        case let .success((response, _)):
+            return .done(response: response)
+        case let .failure(error):
+            return .failure(error: UserFacingError(error: error))
+        }
+    }
 }

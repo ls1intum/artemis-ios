@@ -234,6 +234,51 @@ extension ConversationViewModel {
             return false
         }
     }
+
+    // MARK: Mark as Resolving, Pin
+
+    func toggleResolving(for message: AnswerMessage) async -> Bool {
+        isLoading = true
+
+        var message = message
+        message.resolvesPost = !(message.resolvesPost ?? false)
+
+        let result = await messagesService.editAnswerMessage(for: course.id, answerMessage: message)
+        isLoading = false
+        switch result {
+        case .failure(let error):
+            if let apiClientError = error as? APIClientError {
+                let userFacingError = UserFacingError(error: apiClientError)
+                presentError(userFacingError: userFacingError)
+            } else {
+                let userFacingError = UserFacingError(title: error.localizedDescription)
+                presentError(userFacingError: userFacingError)
+            }
+        case .success:
+            return true
+        default:
+            break
+        }
+        return false
+    }
+
+    func togglePinned(for message: Message) async -> DataState<any BaseMessage> {
+        isLoading = true
+
+        let isPinned = message.displayPriority == .pinned
+
+        let result = await messagesService.updateMessageDisplayPriority(for: Int64(course.id), messageId: message.id, displayPriority: isPinned ? .noInformation : .pinned)
+        isLoading = false
+        switch result {
+        case .failure(let error):
+            presentError(userFacingError: error)
+            return .failure(error: error)
+        case .done(let message):
+            return .done(response: message)
+        case .loading:
+            return .loading
+        }
+    }
 }
 
 // MARK: - Fileprivate
@@ -338,7 +383,20 @@ private extension ConversationViewModel {
     func handle(update message: Message) {
         shouldScrollToId = nil
         if messages.contains(.of(id: message.id)) {
-            messages.update(with: .message(message))
+            let oldMessage = messages.first { $0.id == message.id }
+
+            // We do not get `authorRole` via websockets, thus we need to manually keep it
+            var newMessage = message
+            newMessage.authorRole = newMessage.authorRole ?? oldMessage?.rawValue.authorRole
+            // Same for answers
+            newMessage.answers = newMessage.answers?.map { answer in
+                var newAnswer = answer
+                let oldAnswer = oldMessage?.rawValue.answers?.first { $0.id == answer.id }
+                newAnswer.authorRole = newAnswer.authorRole ?? oldAnswer?.authorRole
+                return newAnswer
+            }
+
+            messages.update(with: .message(newMessage))
         }
     }
 

@@ -14,6 +14,7 @@ import SwiftUI
 
 struct MessageCell: View {
     @Environment(\.isMessageOffline) var isMessageOffline: Bool
+    @Environment(\.messageUseFullWidth) var useFullWidth: Bool
     @EnvironmentObject var navigationController: NavigationController
 
     @ObservedObject var conversationViewModel: ConversationViewModel
@@ -23,39 +24,39 @@ struct MessageCell: View {
     @State var viewModel: MessageCellModel
 
     var body: some View {
-        HStack(alignment: .top, spacing: .m) {
-            Image(systemName: "person")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 40, height: viewModel.isHeaderVisible ? 40 : 0)
-                .padding(.top, .s)
-            VStack(alignment: .leading, spacing: .xs) {
-                HStack {
-                    VStack(alignment: .leading, spacing: .xs) {
-                        headerIfVisible
-                        ArtemisMarkdownView(string: content)
-                            .opacity(isMessageOffline ? 0.5 : 1)
-                            .environment(\.openURL, OpenURLAction(handler: handle))
-                    }
-                    Spacer()
+        VStack(alignment: .leading, spacing: .s) {
+            HStack {
+                VStack(alignment: .leading, spacing: .s) {
+                    pinnedIndicator
+                    resolvesPostIndicator
+                    headerIfVisible
+                    ArtemisMarkdownView(string: content)
+                        .opacity(isMessageOffline ? 0.5 : 1)
+                        .environment(\.openURL, OpenURLAction(handler: handle))
+                    editedLabel
+                    resolvedIndicator
                 }
-                .background {
-                    RoundedRectangle(cornerRadius: .m)
-                        .foregroundStyle(backgroundOnPress)
-                }
-                .contentShape(.rect)
-                .onTapGesture(perform: onTapPresentMessage)
-                .onLongPressGesture(perform: onLongPressPresentActionSheet) { changed in
-                    viewModel.isDetectingLongPress = changed
-                }
-
-                ReactionsView(viewModel: conversationViewModel, message: $message)
-                retryButtonIfAvailable
-                replyButtonIfAvailable
+                Spacer()
             }
-            .id(message.value?.id.description)
+            .background(backgroundOnPress, in: .rect(cornerRadius: .m))
+            .contentShape(.rect)
+            .onTapGesture(perform: onTapPresentMessage)
+            .onLongPressGesture(perform: onLongPressPresentActionSheet) { changed in
+                viewModel.isDetectingLongPress = changed
+            }
+
+            ReactionsView(viewModel: conversationViewModel, message: $message)
+            retryButtonIfAvailable
+            replyButtonIfAvailable
         }
-        .padding(.horizontal, .l)
+        .padding(.horizontal, .m)
+        .padding(viewModel.isHeaderVisible ? .vertical : .bottom, useFullWidth ? 0 : .m)
+        .contentShape(.rect)
+        .modifier(SwipeToReply(enabled: viewModel.conversationPath != nil, onSwipe: onSwipePresentMessage))
+        .background(messageBackground, in: .rect(cornerRadii: viewModel.roundedCorners))
+        .padding(.top, viewModel.isHeaderVisible ? .m : 0)
+        .id(message.value?.id.description)
+        .padding(.horizontal, useFullWidth ? 0 : (.m + .l) / 2)
         .sheet(isPresented: $viewModel.isActionSheetPresented) {
             MessageActionSheet(
                 viewModel: conversationViewModel,
@@ -73,6 +74,7 @@ extension MessageCell {
         message: Binding<DataState<BaseMessage>>,
         conversationPath: ConversationPath?,
         isHeaderVisible: Bool,
+        roundBottomCorners: Bool,
         retryButtonAction: (() -> Void)? = nil
     ) {
         self.init(
@@ -82,6 +84,7 @@ extension MessageCell {
                 course: conversationViewModel.course,
                 conversationPath: conversationPath,
                 isHeaderVisible: isHeaderVisible,
+                roundBottomCorners: roundBottomCorners,
                 retryButtonAction: retryButtonAction)
         )
     }
@@ -92,6 +95,10 @@ private extension MessageCell {
         message.value?.author?.name ?? ""
     }
 
+    private var authorRole: UserRole? {
+        message.value?.authorRole
+    }
+
     var creationDate: Date? {
         message.value?.creationDate
     }
@@ -100,37 +107,98 @@ private extension MessageCell {
         message.value?.content ?? ""
     }
 
+    var isPinned: Bool {
+        (message.value as? Message)?.displayPriority == .pinned
+    }
+
+    var isResolved: Bool {
+        (message.value as? Message)?.resolved ?? false ||
+        (message.value as? Message)?.answers?.contains { answer in
+            answer.resolvesPost ?? false
+        } ?? false
+    }
+
+    var resolvesPost: Bool {
+        (message.value as? AnswerMessage)?.resolvesPost ?? false
+    }
+
     var backgroundOnPress: Color {
-        (viewModel.isDetectingLongPress || viewModel.isActionSheetPresented) ? Color.Artemis.messsageCellPressed : Color.clear
+        (viewModel.isDetectingLongPress || viewModel.isActionSheetPresented) ? Color.primary.opacity(0.1) : Color.clear
+    }
+
+    var messageBackground: Color {
+        useFullWidth ? .clear :
+        isPinned ? .orange.opacity(0.25) :
+        resolvesPost ? .green.opacity(0.2) :
+        Color(uiColor: .secondarySystemBackground)
+    }
+
+    @ViewBuilder var roleBadge: some View {
+        if let authorRole {
+            Chip(
+                text: authorRole.displayName,
+                backgroundColor: authorRole.badgeColor,
+                horizontalPadding: .m,
+                verticalPadding: .s
+            )
+            .font(.footnote)
+        }
+    }
+
+    @ViewBuilder var pinnedIndicator: some View {
+        if isPinned {
+            Label(R.string.localizable.pinned(), systemImage: "pin")
+                .font(.caption)
+        }
+    }
+
+    @ViewBuilder var resolvedIndicator: some View {
+        if isResolved && viewModel.conversationPath != nil {
+            Label(R.string.localizable.resolved(), systemImage: "checkmark")
+                .font(.caption)
+        }
+    }
+
+    @ViewBuilder var resolvesPostIndicator: some View {
+        if resolvesPost {
+            Label(R.string.localizable.resolvesPost(), systemImage: "checkmark")
+                .font(.caption)
+        }
     }
 
     @ViewBuilder var headerIfVisible: some View {
         if viewModel.isHeaderVisible {
             HStack(alignment: .firstTextBaseline, spacing: .m) {
+                roleBadge
                 Text(isMessageOffline ? "Redacted" : author)
                     .bold()
                     .redacted(reason: isMessageOffline ? .placeholder : [])
                 if let creationDate {
-                    Group {
-                        Text(creationDate, formatter: DateFormatter.timeOnly)
-
-                        if message.value?.updatedDate != nil {
-                            Text(R.string.localizable.edited())
-                                .foregroundColor(.Artemis.secondaryLabel)
-                        }
+                    let formatter: DateFormatter = viewModel.conversationPath == nil ? .superShortDateAndTime : .timeOnly
+                    Text(creationDate, formatter: formatter)
+                        .font(.caption)
+                    if viewModel.isChipVisible(creationDate: creationDate, authorId: message.value?.author?.id) {
+                        Chip(
+                            text: R.string.localizable.new(),
+                            backgroundColor: .Artemis.artemisBlue,
+                            padding: .s
+                        )
+                        .font(.footnote)
                     }
-                    .font(.caption)
-                    Chip(
-                        text: R.string.localizable.new(),
-                        backgroundColor: .Artemis.artemisBlue,
-                        padding: .s
-                    )
-                    .font(.footnote)
-                    .opacity(
-                        viewModel.isChipVisible(creationDate: creationDate, authorId: message.value?.author?.id) ? 1 : 0
-                    )
                 }
             }
+        }
+    }
+
+    @ViewBuilder var editedLabel: some View {
+        if let updatedDate = message.value?.updatedDate {
+            Group {
+                Text(R.string.localizable.edited() + " (") +
+                Text(updatedDate, formatter: DateFormatter.superShortDateAndTime) +
+                Text(")")
+            }
+            .font(.caption)
+            .foregroundColor(.Artemis.secondaryLabel)
         }
     }
 
@@ -150,17 +218,9 @@ private extension MessageCell {
     @ViewBuilder var replyButtonIfAvailable: some View {
         if let message = message.value as? Message,
            let answerCount = message.answers?.count, answerCount > 0,
-           let conversationPath = viewModel.conversationPath {
+           viewModel.conversationPath != nil {
             Button {
-                if let messagePath = MessagePath(
-                    message: self.$message,
-                    conversationPath: conversationPath,
-                    conversationViewModel: conversationViewModel
-                ) {
-                    navigationController.path.append(messagePath)
-                } else {
-                    conversationViewModel.presentError(userFacingError: UserFacingError(title: R.string.localizable.detailViewCantBeOpened()))
-                }
+                openThread(showErrorOnFailure: true)
             } label: {
                 Label {
                     Text("^[\(answerCount) \(R.string.localizable.reply())](inflect: true)")
@@ -171,17 +231,29 @@ private extension MessageCell {
         }
     }
 
+    func openThread(showErrorOnFailure: Bool = true, presentKeyboard: Bool = false) {
+        // We cannot navigate to details if conversation path is nil, e.g. in the message detail view.
+        if let conversationPath = viewModel.conversationPath,
+           let messagePath = MessagePath(
+            message: $message,
+            conversationPath: conversationPath,
+            conversationViewModel: conversationViewModel,
+            presentKeyboardOnAppear: presentKeyboard
+        ) {
+            navigationController.path.append(messagePath)
+        } else if showErrorOnFailure {
+            conversationViewModel.presentError(userFacingError: UserFacingError(title: R.string.localizable.detailViewCantBeOpened()))
+        }
+    }
+
     // MARK: Gestures
 
     func onTapPresentMessage() {
-        // Tap is disabled, if conversation path is nil, e.g., in the message detail view.
-        if let conversationPath = viewModel.conversationPath, let messagePath = MessagePath(
-            message: $message,
-            conversationPath: conversationPath,
-            conversationViewModel: conversationViewModel
-        ) {
-            navigationController.path.append(messagePath)
-        }
+        openThread(showErrorOnFailure: false)
+    }
+
+    func onSwipePresentMessage() {
+        openThread(presentKeyboard: true)
     }
 
     func onLongPressPresentActionSheet() {
@@ -257,6 +329,9 @@ private extension MessageCell {
 private enum IsMessageOfflineEnvironmentKey: EnvironmentKey {
     static let defaultValue = false
 }
+private enum MessageFullWidthEnvironmentKey: EnvironmentKey {
+    static let defaultValue = false
+}
 
 extension EnvironmentValues {
     var isMessageOffline: Bool {
@@ -265,6 +340,14 @@ extension EnvironmentValues {
         }
         set {
             self[IsMessageOfflineEnvironmentKey.self] = newValue
+        }
+    }
+    var messageUseFullWidth: Bool {
+        get {
+            self[MessageFullWidthEnvironmentKey.self]
+        }
+        set {
+            self[MessageFullWidthEnvironmentKey.self] = newValue
         }
     }
 }
@@ -279,6 +362,7 @@ extension EnvironmentValues {
             conversation: MessagesServiceStub.conversation,
             coursePath: CoursePath(course: MessagesServiceStub.course)
         ),
-        isHeaderVisible: true
+        isHeaderVisible: true,
+        roundBottomCorners: true
     )
 }

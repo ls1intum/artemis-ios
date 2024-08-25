@@ -14,6 +14,7 @@ class LectureDetailViewModel: BaseViewModel {
 
     @Published var lecture: DataState<Lecture> = .loading
     @Published var course: DataState<Course> = .loading
+    @Published var channel: DataState<Channel> = .loading
 
     let lectureId: Int
     let courseId: Int
@@ -53,6 +54,13 @@ class LectureDetailViewModel: BaseViewModel {
         case .done(let response):
             course = .done(response: response.course)
         }
+    }
+
+    func loadAssociatedChannel() async {
+        // We only have a channel if communication is enabled
+        guard course.value?.courseInformationSharingConfiguration != .disabled else { return }
+
+        channel = await LectureServiceFactory.shared.getAssociatedChannel(for: lectureId, in: courseId)
     }
 
     func updateLectureUnitCompletion(lectureUnit: LectureUnit, completed: Bool) async -> LectureUnit {

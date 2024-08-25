@@ -21,13 +21,13 @@ struct MessageDetailView: View {
     @State private var viewRerenderWorkaround = false
 
     private let messageId: Int64?
+    private let presentKeyboardOnAppear: Bool
 
-    @State private var internalMessage: BaseMessage?
-
-    init(viewModel: ConversationViewModel, message: Binding<DataState<BaseMessage>>) {
+    init(viewModel: ConversationViewModel, message: Binding<DataState<BaseMessage>>, presentKeyboardOnAppear: Bool = false) {
         self.viewModel = viewModel
         self.messageId = message.wrappedValue.value?.id
         self._message = message
+        self.presentKeyboardOnAppear = presentKeyboardOnAppear
     }
 
     var body: some View {
@@ -48,13 +48,29 @@ struct MessageDetailView: View {
                             course: viewModel.course,
                             conversation: viewModel.conversation,
                             configuration: .answerMessage(message, reloadMessage),
-                            delegate: SendMessageViewModelDelegate(viewModel)
+                            delegate: SendMessageViewModelDelegate(viewModel),
+                            presentKeyboardOnAppear: presentKeyboardOnAppear
                         )
                     )
                 }
             }
         }
-        .navigationTitle(R.string.localizable.thread())
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(R.string.localizable.thread())
+                        .fontWeight(.semibold)
+                    HStack(spacing: .s) {
+                        viewModel.conversation.baseConversation.icon?
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: .m * 1.5)
+                        Text(viewModel.conversation.baseConversation.conversationName)
+                    }
+                    .font(.footnote)
+                }.padding(.leading, .m)
+            }
+        }
         .task {
             if message.value == nil {
                 await reloadMessage()
@@ -70,9 +86,11 @@ private extension MessageDetailView {
             conversationViewModel: viewModel,
             message: Binding.constant(DataState<BaseMessage>.done(response: message)),
             conversationPath: nil,
-            isHeaderVisible: true
+            isHeaderVisible: true,
+            roundBottomCorners: true
         )
         .environment(\.isEmojiPickerButtonVisible, true)
+        .environment(\.messageUseFullWidth, true)
         .onLongPressGesture(maximumDistance: 30) {
             let impactMed = UIImpactFeedbackGenerator(style: .heavy)
             impactMed.impactOccurred()
@@ -84,19 +102,54 @@ private extension MessageDetailView {
         }
     }
 
+    @ViewBuilder var divider: some View {
+        VStack {
+            Divider()
+            HStack {
+                let replies = (message.value as? Message)?.answers?.count ?? 0
+                Text("^[\(replies) \(R.string.localizable.replies())](inflect:true)")
+                    .foregroundStyle(.secondary)
+                    .padding(.top, .s)
+
+                Spacer()
+
+                // Only display labels if we have enough space
+                ViewThatFits(in: .horizontal) {
+                    HStack {
+                        MessageActions(viewModel: viewModel, message: $message, conversationPath: nil)
+                    }
+                    HStack(spacing: .l) {
+                        MessageActions(viewModel: viewModel, message: $message, conversationPath: nil)
+                            .labelStyle(.iconOnly)
+                            .fontWeight(.bold)
+                    }
+                }
+                .loadingIndicator(isLoading: $viewModel.isLoading)
+            }
+            .padding(.horizontal)
+            Divider()
+        }.padding(.top, .s)
+    }
+
     @ViewBuilder
     func answers(of message: BaseMessage, proxy: ScrollViewProxy) -> some View {
         if let message = message as? Message {
-            Divider()
-            VStack {
+            divider
+
+            VStack(spacing: 0) {
                 let sortedArray = (message.answers ?? []).sorted {
                     $0.creationDate ?? .tomorrow < $1.creationDate ?? .yesterday
                 }
+                let totalMessages = sortedArray.count
                 ForEach(Array(sortedArray.enumerated()), id: \.1) { index, answerMessage in
+                    let isHeaderVisible = !answerMessage.isContinuation(of: sortedArray[safe: index - 1])
+                    let needsRoundedCorners = !(sortedArray[safe: index + 1]?.isContinuation(of: answerMessage) ?? false)
                     MessageCellWrapper(
                         viewModel: viewModel,
                         answerMessage: answerMessage,
-                        isHeaderVisible: index == 0 || !answerMessage.isContinuation(of: sortedArray[index - 1]))
+                        isHeaderVisible: isHeaderVisible,
+                        roundBottomCorners: needsRoundedCorners)
+                    .id(index == totalMessages - 1 ? nil : answerMessage)
                 }
                 Spacer()
                     .id("bottom")
@@ -111,6 +164,7 @@ private extension MessageDetailView {
                         }
                     }
             }
+            .environment(\.isOriginalMessageAuthor, message.isCurrentUserAuthor)
         }
     }
 
@@ -136,6 +190,7 @@ private struct MessageCellWrapper: View {
 
     let answerMessage: AnswerMessage
     let isHeaderVisible: Bool
+    let roundBottomCorners: Bool
 
     private var answerMessageBinding: Binding<DataState<BaseMessage>> {
 
@@ -168,7 +223,8 @@ private struct MessageCellWrapper: View {
             conversationViewModel: viewModel,
             message: answerMessageBinding,
             conversationPath: nil,
-            isHeaderVisible: isHeaderVisible)
+            isHeaderVisible: isHeaderVisible,
+            roundBottomCorners: roundBottomCorners)
     }
 }
 

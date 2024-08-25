@@ -17,6 +17,7 @@ private var PAGINATION_SIZE = 20
 
 struct ConversationInfoSheetView: View {
     @EnvironmentObject var navigationController: NavigationController
+    @Environment(\.dismiss) var dismiss
 
     @StateObject private var viewModel: ConversationInfoSheetViewModel
 
@@ -39,6 +40,13 @@ struct ConversationInfoSheetView: View {
                 await viewModel.loadMembers()
             }
             .navigationTitle(conversation.baseConversation.conversationName)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(R.string.localizable.done()) {
+                        dismiss()
+                    }
+                }
+            }
             .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
             .loadingIndicator(isLoading: $viewModel.isLoading)
         }
@@ -56,14 +64,24 @@ private extension ConversationInfoSheetView {
         Group {
             Section(R.string.localizable.settings()) {
                 if viewModel.canAddUsers {
-                    Button(R.string.localizable.addUsers()) {
+                    Button(R.string.localizable.addUsers(), systemImage: "person.fill.badge.plus") {
                         viewModel.isAddMemberSheetPresented = true
                     }
                 }
+
+                let isFavorite = conversation.baseConversation.isFavorite ?? false
+                Button(isFavorite ? R.string.localizable.removeFavorite() : R.string.localizable.addFavorite(), systemImage: "heart") {
+                    Task {
+                        await viewModel.setIsConversationFavorite(isFavorite: !isFavorite)
+                    }
+                }
+                .symbolVariant(isFavorite ? .slash.fill : .fill)
+                .foregroundStyle(.orange)
+
                 if let channel = conversation.baseConversation as? Channel,
                    channel.hasChannelModerationRights ?? false {
                     if channel.isArchived ?? false {
-                        Button(R.string.localizable.unarchiveChannelButtonLabel()) {
+                        Button(R.string.localizable.unarchiveChannelButtonLabel(), systemImage: "archivebox.fill") {
                             viewModel.isLoading = true
                             Task {
                                 await viewModel.unarchiveChannel()
@@ -72,7 +90,7 @@ private extension ConversationInfoSheetView {
                         }
                         .foregroundColor(.Artemis.badgeWarningColor)
                     } else {
-                        Button(R.string.localizable.archiveChannelButtonLabel()) {
+                        Button(R.string.localizable.archiveChannelButtonLabel(), systemImage: "archivebox.fill") {
                             viewModel.isLoading = true
                             Task {
                                 await viewModel.archiveChannel()
@@ -83,7 +101,7 @@ private extension ConversationInfoSheetView {
                     }
                 }
                 if viewModel.canLeaveConversation {
-                    Button(R.string.localizable.leaveConversationButtonLabel()) {
+                    Button(R.string.localizable.leaveConversationButtonLabel(), systemImage: "rectangle.portrait.and.arrow.forward") {
                         viewModel.isLoading = true
                         Task {
                             let success = await viewModel.leaveConversation()
@@ -118,24 +136,29 @@ private extension ConversationInfoSheetView {
                 } content: { members in
                     ForEach(members, id: \.id) { member in
                         if let name = member.name {
-                            HStack {
-                                Text(name)
-                                Spacer()
-                                if UserSessionFactory.shared.user?.login == member.login {
-                                    Chip(text: R.string.localizable.youLabel(), backgroundColor: .Artemis.artemisBlue)
-                                }
-                            }
-                            .contextMenu {
-                                if UserSessionFactory.shared.user?.login != member.login,
-                                   viewModel.canRemoveUsers {
-                                    Button(R.string.localizable.removeUserButtonLabel()) {
-                                        viewModel.isLoading = true
-                                        Task {
-                                            await viewModel.removeMemberFromConversation(member: member)
-                                            viewModel.isLoading = false
+                            Menu {
+                                if let login = member.login,
+                                   !(conversation.baseConversation is OneToOneChat) {
+                                    Button(R.string.localizable.sendMessage(), systemImage: "bubble.left.fill") {
+                                        viewModel.sendMessageToUser(with: login, navigationController: navigationController) {
+                                            dismiss()
                                         }
                                     }
                                 }
+                                Divider()
+                                removeUserButton(member: member)
+                            } label: {
+                                HStack {
+                                    Text(name)
+                                    Spacer()
+                                    if UserSessionFactory.shared.user?.login == member.login {
+                                        Chip(text: R.string.localizable.youLabel(), backgroundColor: .Artemis.artemisBlue)
+                                    }
+                                }
+                            }
+                            .buttonStyle(.plain)
+                            .swipeActions(edge: .trailing) {
+                                removeUserButton(member: member)
                             }
                         }
                     }
@@ -148,12 +171,26 @@ private extension ConversationInfoSheetView {
         }
     }
 
+    @ViewBuilder
+    func removeUserButton(member: ConversationUser) -> some View {
+        if UserSessionFactory.shared.user?.login != member.login,
+           viewModel.canRemoveUsers {
+            Button(R.string.localizable.removeUserButtonLabel(), systemImage: "person.badge.minus", role: .destructive) {
+                viewModel.isLoading = true
+                Task {
+                    await viewModel.removeMemberFromConversation(member: member)
+                    viewModel.isLoading = false
+                }
+            }
+        }
+    }
+
     var pageActions: some View {
         Group {
             if (conversation.baseConversation.numberOfMembers ?? 0) > PAGINATION_SIZE || viewModel.page > 0 {
                 HStack(spacing: .l) {
                     Spacer()
-                    Text("< \(R.string.localizable.previous())")
+                    Text("\(Image(systemName: "chevron.backward")) \(R.string.localizable.previous())")
                         .onTapGesture {
                             Task {
                                 await viewModel.loadPreviousMemberPage()
@@ -162,7 +199,7 @@ private extension ConversationInfoSheetView {
                         .disabled(viewModel.page == 0)
                         .foregroundColor(viewModel.page == 0 ? .Artemis.buttonDisabledColor : .Artemis.artemisBlue)
                     Text("\(viewModel.page + 1)")
-                    Text("\(R.string.localizable.next()) >")
+                    Text("\(R.string.localizable.next()) \(Image(systemName: "chevron.forward"))")
                         .onTapGesture {
                             Task {
                                 await viewModel.loadNextMemberPage()
