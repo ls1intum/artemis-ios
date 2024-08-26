@@ -331,7 +331,7 @@ enum ConversationFilter: FilterPicker {
         case .all:
             Color.blue
         case .unread:
-            Color.purple
+            Color.indigo
         case .favorite:
             Color.orange
         }
