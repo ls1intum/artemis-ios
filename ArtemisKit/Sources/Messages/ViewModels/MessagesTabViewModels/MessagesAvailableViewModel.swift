@@ -318,7 +318,7 @@ enum ConversationFilter: FilterPicker {
     var iconName: String {
         return switch self {
         case .all:
-            "eye"
+            "tray.2"
         case .unread:
             "app.badge"
         case .favorite:
