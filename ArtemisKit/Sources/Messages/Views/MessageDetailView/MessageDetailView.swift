@@ -164,6 +164,7 @@ private extension MessageDetailView {
                         }
                     }
             }
+            .id(message.answers)
             .environment(\.isOriginalMessageAuthor, message.isCurrentUserAuthor)
         }
     }

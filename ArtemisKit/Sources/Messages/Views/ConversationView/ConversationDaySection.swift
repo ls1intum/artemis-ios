@@ -40,6 +40,7 @@ struct ConversationDaySection: View {
                 .id(index == messages.count - 1 ? nil : message.id)
             }
         }
+        .id(messages)
     }
 }
 
