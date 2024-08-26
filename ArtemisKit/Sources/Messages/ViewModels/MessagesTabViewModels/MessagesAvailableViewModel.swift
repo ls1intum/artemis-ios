@@ -5,10 +5,12 @@
 //  Created by Sven Andabaka on 03.04.23.
 //
 
-import Foundation
-import Common
-import SharedModels
 import APIClient
+import Common
+import DesignLibrary
+import Foundation
+import SharedModels
+import SwiftUI
 import UserStore
 
 @MainActor
@@ -17,6 +19,14 @@ class MessagesAvailableViewModel: BaseViewModel {
     @Published var allConversations: DataState<[Conversation]> = .loading {
         didSet {
             updateFilteredConversations()
+        }
+    }
+
+    @Published var filter: ConversationFilter = .all {
+        didSet {
+            withAnimation {
+                updateFilteredConversations()
+            }
         }
     }
 
@@ -166,9 +176,30 @@ class MessagesAvailableViewModel: BaseViewModel {
                 !($0.baseConversation.isHidden ?? false)
             }
 
+            // Turn off filter if no unread/favorites exist
+            if !response.contains(where: { conversation in
+                conversation.baseConversation.unreadMessagesCount ?? 0 > 0
+            }) && !notHiddenConversations.contains(where: { conversation in
+                conversation.baseConversation.isFavorite ?? false
+            }) && filter != .all {
+                filter = .all
+            }
+
             favoriteConversations = .done(response: notHiddenConversations
-                .filter { $0.baseConversation.isFavorite ?? false }
+                .filter { $0.baseConversation.isFavorite ?? false && filter.matches($0.baseConversation) }
             )
+
+            // If we only show favorites, we can skip all other filtering
+            if filter == .favorite {
+                channels = .done(response: [])
+                exercises = .done(response: [])
+                lectures = .done(response: [])
+                exams = .done(response: [])
+                groupChats = .done(response: [])
+                oneToOneChats = .done(response: [])
+                hiddenConversations = .done(response: [])
+                return
+            }
 
             let notHiddenNotFavoriteConversations = notHiddenConversations.filter {
                 !($0.baseConversation.isFavorite ?? false)
@@ -176,28 +207,30 @@ class MessagesAvailableViewModel: BaseViewModel {
 
             channels = .done(response: notHiddenNotFavoriteConversations
                 .compactMap { $0.baseConversation as? Channel }
-                .filter { ($0.subType ?? .general) == .general }
+                .filter { ($0.subType ?? .general) == .general && filter.matches($0) }
             )
             exercises = .done(response: notHiddenNotFavoriteConversations
                 .compactMap { $0.baseConversation as? Channel }
-                .filter { ($0.subType ?? .general) == .exercise }
+                .filter { ($0.subType ?? .general) == .exercise && filter.matches($0) }
             )
             lectures = .done(response: notHiddenNotFavoriteConversations
                 .compactMap { $0.baseConversation as? Channel }
-                .filter { ($0.subType ?? .general) == .lecture }
+                .filter { ($0.subType ?? .general) == .lecture && filter.matches($0) }
             )
             exams = .done(response: notHiddenNotFavoriteConversations
                 .compactMap { $0.baseConversation as? Channel }
-                .filter { ($0.subType ?? .general) == .exam }
+                .filter { ($0.subType ?? .general) == .exam && filter.matches($0) }
             )
             groupChats = .done(response: notHiddenNotFavoriteConversations
                 .compactMap { $0.baseConversation as? GroupChat }
+                .filter { filter.matches($0) }
             )
             oneToOneChats = .done(response: notHiddenNotFavoriteConversations
                 .compactMap { $0.baseConversation as? OneToOneChat }
+                .filter { filter.matches($0) }
             )
             hiddenConversations = .done(response: response
-                .filter { $0.baseConversation.isHidden ?? false }
+                .filter { $0.baseConversation.isHidden ?? false && filter.matches($0.baseConversation) }
             )
         }
     }
@@ -264,5 +297,58 @@ private extension MessagesAvailableViewModel {
         conversations[conversationIndex] = updatedConversation
 
         allConversations = .done(response: conversations)
+    }
+}
+
+enum ConversationFilter: FilterPicker {
+
+    case all, unread, favorite
+
+    var displayName: String {
+        return switch self {
+        case .all:
+            R.string.localizable.allFilter()
+        case .unread:
+            R.string.localizable.unreadFilter()
+        case .favorite:
+            R.string.localizable.favoritesSection()
+        }
+    }
+
+    var iconName: String {
+        return switch self {
+        case .all:
+            "tray.2"
+        case .unread:
+            "app.badge"
+        case .favorite:
+            "heart"
+        }
+    }
+
+    var selectedColor: Color {
+        return switch self {
+        case .all:
+            Color.blue
+        case .unread:
+            Color.indigo
+        case .favorite:
+            Color.orange
+        }
+    }
+
+    var id: Int {
+        hashValue
+    }
+
+    func matches(_ conversation: BaseConversation) -> Bool {
+        switch self {
+        case .all:
+            true
+        case .unread:
+            conversation.unreadMessagesCount ?? 0 > 0
+        case .favorite:
+            conversation.isFavorite ?? false
+        }
     }
 }
