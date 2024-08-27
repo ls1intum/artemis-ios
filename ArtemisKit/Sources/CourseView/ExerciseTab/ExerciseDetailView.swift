@@ -228,7 +228,10 @@ private extension ExerciseDetailView {
                 ExerciseDetailCell(descriptionText: R.string.localizable.communication() + ":") {
                     NavigationLink(value: ConversationPath(conversation: .channel(conversation: channel),
                                                            coursePath: .init(id: viewModel.courseId))) {
-                        Text("\(channel.conversationName) \(Image(systemName: "chevron.forward"))")
+                        let name = channel.conversationName
+                        let displayName = name
+                            .suffix(name.starts(with: "exercise-") ? name.count - 9 : name.count)
+                        Text("\(String(displayName)) \(Image(systemName: "chevron.forward"))")
                     }
                 }
             }
