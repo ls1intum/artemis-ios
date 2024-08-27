@@ -334,7 +334,9 @@ private struct MessageSection<T: BaseConversation>: View {
                             },
                             id: \.id
                         ) { conversation in
-                            ConversationRow(viewModel: viewModel, conversation: conversation)
+                            ConversationRow(viewModel: viewModel,
+                                            conversation: conversation,
+                                            namePrefix: namePrefix(of: conversation))
                         }
                     } label: {
                         SectionDisclosureLabel(
@@ -349,5 +351,12 @@ private struct MessageSection<T: BaseConversation>: View {
         .onChange(of: viewModel.filter) {
             isFiltering = viewModel.filter != .all
         }
+    }
+
+    /// Returns prefix used for channels of certain SubType if applicable
+    func namePrefix(of conversation: T) -> String? {
+        guard let channel = conversation as? Channel else { return nil }
+        guard let subType = channel.subType?.rawValue else { return nil }
+        return "\(subType)-"
     }
 }

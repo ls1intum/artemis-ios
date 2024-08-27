@@ -99,7 +99,10 @@ private struct ChannelCell: View {
             HStack {
                 VStack(alignment: .leading, spacing: .l) {
                     Label {
-                        Text(channel.conversationName)
+                        let name = channel.conversationName
+                        let displayName = name
+                            .suffix(name.starts(with: "lecture-") ? name.count - 8 : name.count)
+                        Text(String(displayName))
                     } icon: {
                         channel.icon
                     }
