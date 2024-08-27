@@ -203,6 +203,7 @@ struct MessageActions: View {
                     }
                 }
             }
+            .fontWeight(.regular)
             .presentationDetents([.height(200), .medium])
         }
     }
