@@ -228,7 +228,7 @@ private extension MessageCell {
     @ViewBuilder var replyButtonIfAvailable: some View {
         if let message = message.value as? Message,
            let answerCount = message.answers?.count, answerCount > 0,
-           viewModel.conversationPath != nil {
+           viewModel.conversationPath != nil, !isSelected {
             Button {
                 openThread(showErrorOnFailure: true)
             } label: {
