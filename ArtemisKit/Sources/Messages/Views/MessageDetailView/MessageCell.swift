@@ -248,7 +248,7 @@ private extension MessageCell {
                                conversationPath: viewModel.conversationPath)
             .frame(maxWidth: .infinity)
             .padding(.bottom, 5)
-            .transition(.scale)
+            .transition(.scale(0, anchor: .top))
         }
     }
 
@@ -361,7 +361,7 @@ struct ReactionsPopoverModifier: ViewModifier {
     let viewModel: MessageCellModel
     let conversationViewModel: ConversationViewModel
     @Binding var message: DataState<BaseMessage>
-    
+
     func body(content: Content) -> some View {
         content
             .popover(
