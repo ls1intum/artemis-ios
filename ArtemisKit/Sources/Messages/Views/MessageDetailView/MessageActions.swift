@@ -1,5 +1,5 @@
 //
-//  SwiftUIView.swift
+//  MessageActions.swift
 //
 //
 //  Created by Sven Andabaka on 08.04.23.
@@ -23,6 +23,7 @@ struct MessageActions: View {
             ReplyInThreadButton(viewModel: viewModel, message: $message, conversationPath: conversationPath)
             CopyTextButton(message: $message)
             PinButton(viewModel: viewModel, message: $message)
+            MarkResolvingButton(viewModel: viewModel, message: $message)
             EditDeleteSection(viewModel: viewModel, message: $message)
         }
         .environment(\.allowAutoDismiss, false)
@@ -42,7 +43,6 @@ struct MessageActions: View {
         var body: some View {
             if message.value is Message,
                let conversationPath {
-                Divider()
                 Button(R.string.localizable.replyInThread(), systemImage: "text.bubble") {
                     if let messagePath = MessagePath(
                         message: $message,
@@ -129,14 +129,19 @@ struct MessageActions: View {
                     Divider()
 
                     Button(R.string.localizable.editMessage(), systemImage: "pencil") {
+                        viewModel.isPerformingMessageAction = true
                         showEditSheet = true
                     }
                     .sheet(isPresented: $showEditSheet) {
+                        viewModel.isPerformingMessageAction = false
+                        viewModel.selectedMessageId = nil
+                    } content: {
                         editMessage
                             .font(nil)
                     }
 
                     Button(R.string.localizable.deleteMessage(), systemImage: "trash", role: .destructive) {
+                        viewModel.isPerformingMessageAction = true
                         showDeleteAlert = true
                     }
                     .alert(R.string.localizable.confirmDeletionTitle(), isPresented: $showDeleteAlert) {
@@ -151,6 +156,8 @@ struct MessageActions: View {
                                     success = await viewModel.deleteMessage(messageId: message.value?.id)
                                 }
                                 viewModel.isLoading = false
+                                viewModel.isPerformingMessageAction = false
+                                viewModel.selectedMessageId = nil
                                 if success {
                                     if allowDismiss {
                                         dismiss()
@@ -162,7 +169,10 @@ struct MessageActions: View {
                                 }
                             }
                         }
-                        Button(R.string.localizable.cancel(), role: .cancel) { }
+                        Button(R.string.localizable.cancel(), role: .cancel) {
+                            viewModel.isPerformingMessageAction = false
+                            viewModel.selectedMessageId = nil
+                        }
                     }
                 }
             }
@@ -315,56 +325,70 @@ struct MessageActions: View {
     }
 }
 
-struct MessageActionSheet: View {
+struct MessageReactionsPopover: View {
     @ObservedObject var viewModel: ConversationViewModel
     @Binding var message: DataState<BaseMessage>
-    let conversationPath: ConversationPath?
     @State var reactionsViewModel: ReactionsViewModel
 
     init(viewModel: ConversationViewModel, message: Binding<DataState<BaseMessage>>, conversationPath: ConversationPath?) {
         self.viewModel = viewModel
         self._message = message
-        self.conversationPath = conversationPath
         self._reactionsViewModel = State(initialValue: ReactionsViewModel(conversationViewModel: viewModel, message: message))
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: .l) {
-                HStack(spacing: .m) {
-                    EmojiTextButton(viewModel: reactionsViewModel, emoji: "😂")
-                    EmojiTextButton(viewModel: reactionsViewModel, emoji: "👍")
-                    EmojiTextButton(viewModel: reactionsViewModel, emoji: "➕")
-                    EmojiTextButton(viewModel: reactionsViewModel, emoji: "🚀")
-                    EmojiPickerButton(viewModel: reactionsViewModel)
-                }
-                .padding(.l)
-                MessageActions.ReplyInThreadButton(viewModel: viewModel, message: $message, conversationPath: conversationPath)
-                    .padding(.horizontal)
-                Divider()
-                MessageActions.CopyTextButton(message: $message)
-                    .padding(.horizontal)
-
-                MessageActions.PinButton(viewModel: viewModel, message: $message)
-                    .padding(.horizontal)
-
-                MessageActions.MarkResolvingButton(viewModel: viewModel, message: $message)
-                    .padding(.horizontal)
-
-                MessageActions.EditDeleteSection(viewModel: viewModel, message: $message)
-                    .padding(.horizontal)
-
-                Spacer()
-            }
-            .buttonStyle(.plain)
-            .font(.headline)
-            .symbolVariant(.fill)
-            .imageScale(.large)
+        HStack(spacing: .m) {
+            EmojiTextButton(viewModel: reactionsViewModel, emoji: "😂")
+            EmojiTextButton(viewModel: reactionsViewModel, emoji: "👍")
+            EmojiTextButton(viewModel: reactionsViewModel, emoji: "➕")
+            EmojiTextButton(viewModel: reactionsViewModel, emoji: "🚀")
+            EmojiPickerButton(viewModel: reactionsViewModel)
         }
+        .padding(.l)
+        .buttonStyle(.plain)
+        .font(.headline)
+        .symbolVariant(.fill)
+        .imageScale(.large)
         .fontWeight(.bold)
-        .contentMargins(.vertical, .l)
+        .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
+    }
+}
+
+struct MessageActionsMenu: View {
+    @ObservedObject var viewModel: ConversationViewModel
+    @Binding var message: DataState<BaseMessage>
+    let conversationPath: ConversationPath?
+
+    init(viewModel: ConversationViewModel, message: Binding<DataState<BaseMessage>>, conversationPath: ConversationPath?) {
+        self.viewModel = viewModel
+        self._message = message
+        self.conversationPath = conversationPath
+    }
+
+    var body: some View {
+        VStack {
+            MessageActions(viewModel: viewModel, message: $message, conversationPath: conversationPath)
+        }
+        .padding(.vertical, .s)
+        .background(.bar, in: .rect(cornerRadius: 10))
+        .fontWeight(.semibold)
+        .symbolVariant(.fill)
+        .labelStyle(ContextMenuLabelStyle())
+        .buttonStyle(.plain)
         .loadingIndicator(isLoading: $viewModel.isLoading)
         .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
+    }
+}
+
+private struct ContextMenuLabelStyle: LabelStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        HStack {
+            configuration.title
+            Spacer()
+            configuration.icon
+        }
+        .padding(.horizontal)
+        .padding(.vertical, .s)
     }
 }
 
@@ -381,7 +405,7 @@ private struct EmojiTextButton: View {
             .font(.title3)
             .foregroundColor(Color.Artemis.primaryLabel)
             .frame(width: .mediumImage, height: .mediumImage)
-            .padding(.m)
+            .padding(.s)
             .background(
                 Capsule().fill(Color.Artemis.reactionCapsuleColor)
             )
@@ -415,7 +439,7 @@ private struct EmojiPickerButton: View {
                 .scaledToFit()
                 .foregroundColor(Color.Artemis.secondaryLabel)
                 .frame(width: .smallImage, height: .smallImage)
-                .padding(20)
+                .padding(.l)
                 .background(Capsule().fill(Color.Artemis.reactionCapsuleColor))
         }
         .sheet(isPresented: $showEmojiPicker) {

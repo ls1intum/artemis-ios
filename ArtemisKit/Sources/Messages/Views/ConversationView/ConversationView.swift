@@ -59,6 +59,7 @@ public struct ConversationView: View {
                         }
                     }
                     .coordinateSpace(name: "pullToRefresh")
+                    .defaultScrollAnchor(.bottom)
                     .onChange(of: viewModel.messages, initial: true) {
                         #warning("does not work correctly when loadFurtherMessages is called -> is called to early")
                         if let id = viewModel.shouldScrollToId {
@@ -67,6 +68,7 @@ public struct ConversationView: View {
                             }
                         }
                     }
+                    .animation(.default, value: viewModel.selectedMessageId)
                 }
             }
             if viewModel.isAllowedToPost {

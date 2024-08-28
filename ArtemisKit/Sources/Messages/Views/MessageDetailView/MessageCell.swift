@@ -48,23 +48,50 @@ struct MessageCell: View {
             ReactionsView(viewModel: conversationViewModel, message: $message)
             retryButtonIfAvailable
             replyButtonIfAvailable
+
+            if isSelected {
+                MessageActionsMenu(viewModel: conversationViewModel,
+                                   message: $message,
+                                   conversationPath: viewModel.conversationPath)
+                .frame(maxWidth: .infinity)
+                .padding(.bottom, 5)
+                .transition(.scale)
+            }
         }
         .padding(.horizontal, .m)
         .padding(viewModel.isHeaderVisible ? .vertical : .bottom, useFullWidth ? 0 : .m)
         .contentShape(.rect)
         .modifier(SwipeToReply(enabled: viewModel.conversationPath != nil, onSwipe: onSwipePresentMessage))
-        .background(messageBackground, in: .rect(cornerRadii: viewModel.roundedCorners))
-        .padding(.top, viewModel.isHeaderVisible ? .m : 0)
-        .id(message.value?.id.description)
-        .padding(.horizontal, useFullWidth ? 0 : (.m + .l) / 2)
-        .sheet(isPresented: $viewModel.isActionSheetPresented) {
-            MessageActionSheet(
+        .background(messageBackground,
+                    in: .rect(cornerRadii: viewModel.roundedCorners(isSelected: isSelected)))
+        .popover(
+            isPresented: Binding(get: {
+                (isSelected || useFullWidth)
+                && viewModel.showReactionsPopover
+            }, set: { value, _ in
+                if !value {
+                    if !conversationViewModel.isPerformingMessageAction {
+                        conversationViewModel.selectedMessageId = nil
+                    }
+                    viewModel.showReactionsPopover = false
+                }
+            }),
+            attachmentAnchor: .point(useFullWidth ? .bottom : .top),
+            arrowEdge: useFullWidth ? .top : .bottom
+        ) {
+            MessageReactionsPopover(
                 viewModel: conversationViewModel,
                 message: $message,
                 conversationPath: viewModel.conversationPath
             )
-            .presentationDetents([.height(350), .large])
+            .presentationCompactAdaptation(.popover)
+            .presentationBackgroundInteraction(.enabled)
+            .presentationBackground(.bar)
         }
+        .padding(.top, viewModel.isHeaderVisible ? .m : 0)
+        .id(message.value?.id.description)
+        .padding(.horizontal, useFullWidth ? 0 : (.m + .l) / 2)
+        .opacity(opacity)
     }
 }
 
@@ -122,8 +149,18 @@ private extension MessageCell {
         (message.value as? AnswerMessage)?.resolvesPost ?? false
     }
 
+    var isSelected: Bool {
+        guard let selectedId = conversationViewModel.selectedMessageId else { return false }
+        return selectedId == message.value?.id
+    }
+
+    var opacity: CGFloat {
+        guard conversationViewModel.selectedMessageId != nil else { return 1 }
+        return isSelected ? 1 : 0.25
+    }
+
     var backgroundOnPress: Color {
-        (viewModel.isDetectingLongPress || viewModel.isActionSheetPresented) ? Color.primary.opacity(0.1) : Color.clear
+        viewModel.isDetectingLongPress ? Color.primary.opacity(0.1) : Color.clear
     }
 
     var messageBackground: Color {
@@ -249,6 +286,7 @@ private extension MessageCell {
     // MARK: Gestures
 
     func onTapPresentMessage() {
+        guard conversationViewModel.selectedMessageId == nil else { return }
         openThread(showErrorOnFailure: false)
     }
 
@@ -263,7 +301,15 @@ private extension MessageCell {
 
         let feedback = UIImpactFeedbackGenerator(style: .heavy)
         feedback.impactOccurred()
-        viewModel.isActionSheetPresented = true
+        if useFullWidth {
+            viewModel.showReactionsPopover = true
+        } else {
+            withAnimation {
+                conversationViewModel.selectedMessageId = message.value?.id
+            } completion: {
+                viewModel.showReactionsPopover = true
+            }
+        }
         viewModel.isDetectingLongPress = false
     }
 
