@@ -389,6 +389,7 @@ private struct ContextMenuLabelStyle: LabelStyle {
         }
         .padding(.horizontal)
         .padding(.vertical, .s)
+        .contentShape(.rect)
     }
 }
 
