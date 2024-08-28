@@ -158,6 +158,14 @@ private extension MessageDetailView {
             // to ensure that continuing messages are correctly (un)merged
             .id(message.answers)
             .animation(.default, value: viewModel.selectedMessageId)
+            .onChange(of: viewModel.selectedMessageId) { _, newValue in
+                if let newValue {
+                    // Make sure context menu is on screen
+                    withAnimation {
+                        proxy.scrollTo(newValue)
+                    }
+                }
+            }
             .environment(\.isOriginalMessageAuthor, message.isCurrentUserAuthor)
         }
     }

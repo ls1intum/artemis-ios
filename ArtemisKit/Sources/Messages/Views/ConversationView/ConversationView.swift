@@ -69,6 +69,14 @@ public struct ConversationView: View {
                         }
                     }
                     .animation(.default, value: viewModel.selectedMessageId)
+                    .onChange(of: viewModel.selectedMessageId) { _, newValue in
+                        if let newValue {
+                            // Make sure context menu is on screen
+                            withAnimation {
+                                value.scrollTo(newValue)
+                            }
+                        }
+                    }
                 }
             }
             if viewModel.isAllowedToPost {
