@@ -40,6 +40,9 @@ struct ConversationDaySection: View {
                 .id(index == messages.count - 1 ? nil : message.id)
             }
         }
+        // We have to reload this view when a message is deleted
+        // to ensure that continuing messages are correctly (un)merged
+        .id(messages)
     }
 }
 
