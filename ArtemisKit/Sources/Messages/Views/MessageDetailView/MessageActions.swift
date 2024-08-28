@@ -262,7 +262,7 @@ struct MessageActions: View {
         func togglePinned() {
             guard let message = message.value as? Message else { return }
             Task {
-                var result = await viewModel.togglePinned(for: message)
+                let result = await viewModel.togglePinned(for: message)
                 let oldRole = message.authorRole
                 if var newMessageResult = result.value as? Message {
                     newMessageResult.authorRole = oldRole
