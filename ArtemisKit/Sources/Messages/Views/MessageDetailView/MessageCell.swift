@@ -49,14 +49,7 @@ struct MessageCell: View {
             retryButtonIfAvailable
             replyButtonIfAvailable
 
-            if isSelected {
-                MessageActionsMenu(viewModel: conversationViewModel,
-                                   message: $message,
-                                   conversationPath: viewModel.conversationPath)
-                .frame(maxWidth: .infinity)
-                .padding(.bottom, 5)
-                .transition(.scale)
-            }
+            actionsMenuIfAvailable
         }
         .padding(.horizontal, .m)
         .padding(viewModel.isHeaderVisible ? .vertical : .bottom, useFullWidth ? 0 : .m)
@@ -64,30 +57,10 @@ struct MessageCell: View {
         .modifier(SwipeToReply(enabled: viewModel.conversationPath != nil, onSwipe: onSwipePresentMessage))
         .background(messageBackground,
                     in: .rect(cornerRadii: viewModel.roundedCorners(isSelected: isSelected)))
-        .popover(
-            isPresented: Binding(get: {
-                (isSelected || useFullWidth)
-                && viewModel.showReactionsPopover
-            }, set: { value, _ in
-                if !value {
-                    if !conversationViewModel.isPerformingMessageAction {
-                        conversationViewModel.selectedMessageId = nil
-                    }
-                    viewModel.showReactionsPopover = false
-                }
-            }),
-            attachmentAnchor: .point(useFullWidth ? .bottom : .top),
-            arrowEdge: useFullWidth ? .top : .bottom
-        ) {
-            MessageReactionsPopover(
-                viewModel: conversationViewModel,
-                message: $message,
-                conversationPath: viewModel.conversationPath
-            )
-            .presentationCompactAdaptation(.popover)
-            .presentationBackgroundInteraction(.enabled)
-            .presentationBackground(.bar)
-        }
+        .modifier(ReactionsPopoverModifier(isSelected: isSelected,
+                                           viewModel: viewModel,
+                                           conversationViewModel: conversationViewModel,
+                                           message: $message))
         .padding(.top, viewModel.isHeaderVisible ? .m : 0)
         .id(message.value?.id.description)
         .padding(.horizontal, useFullWidth ? 0 : (.m + .l) / 2)
@@ -268,6 +241,17 @@ private extension MessageCell {
         }
     }
 
+    @ViewBuilder var actionsMenuIfAvailable: some View {
+        if isSelected {
+            MessageActionsMenu(viewModel: conversationViewModel,
+                               message: $message,
+                               conversationPath: viewModel.conversationPath)
+            .frame(maxWidth: .infinity)
+            .padding(.bottom, 5)
+            .transition(.scale)
+        }
+    }
+
     func openThread(showErrorOnFailure: Bool = true, presentKeyboard: Bool = false) {
         // We cannot navigate to details if conversation path is nil, e.g. in the message detail view.
         if let conversationPath = viewModel.conversationPath,
@@ -367,6 +351,43 @@ private extension MessageCell {
             return .handled
         }
         return .systemAction
+    }
+}
+
+// MARK: - ReactionsPopover
+struct ReactionsPopoverModifier: ViewModifier {
+    @Environment(\.messageUseFullWidth) var useFullWidth
+    let isSelected: Bool
+    let viewModel: MessageCellModel
+    let conversationViewModel: ConversationViewModel
+    @Binding var message: DataState<BaseMessage>
+    
+    func body(content: Content) -> some View {
+        content
+            .popover(
+                isPresented: Binding(get: {
+                    (isSelected || useFullWidth)
+                    && viewModel.showReactionsPopover
+                }, set: { value, _ in
+                    if !value {
+                        if !conversationViewModel.isPerformingMessageAction {
+                            conversationViewModel.selectedMessageId = nil
+                        }
+                        viewModel.showReactionsPopover = false
+                    }
+                }),
+                attachmentAnchor: .point(useFullWidth ? .bottom : .top),
+                arrowEdge: useFullWidth ? .top : .bottom
+            ) {
+                MessageReactionsPopover(
+                    viewModel: conversationViewModel,
+                    message: $message,
+                    conversationPath: viewModel.conversationPath
+                )
+                .presentationCompactAdaptation(.popover)
+                .presentationBackgroundInteraction(.enabled)
+                .presentationBackground(.bar)
+            }
     }
 }
 
