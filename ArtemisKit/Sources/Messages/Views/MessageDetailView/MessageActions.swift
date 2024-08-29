@@ -348,8 +348,6 @@ struct MessageReactionsPopover: View {
         .buttonStyle(.plain)
         .font(.headline)
         .symbolVariant(.fill)
-        .imageScale(.large)
-        .fontWeight(.bold)
         .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
     }
 }
