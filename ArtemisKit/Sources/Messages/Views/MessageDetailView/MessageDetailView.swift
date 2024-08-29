@@ -39,6 +39,7 @@ struct MessageDetailView: View {
                         top(message: message)
                         answers(of: message, proxy: proxy)
                     }
+                    .defaultScrollAnchor(.bottom)
                 }
                 if !((viewModel.conversation.baseConversation as? Channel)?.isArchived ?? false),
                    let message = message as? Message {
@@ -131,7 +132,7 @@ private extension MessageDetailView {
                     $0.creationDate ?? .tomorrow < $1.creationDate ?? .yesterday
                 }
                 let totalMessages = sortedArray.count
-                ForEach(Array(sortedArray.enumerated()), id: \.1) { index, answerMessage in
+                ForEach(Array(sortedArray.enumerated()), id: \.1.id) { index, answerMessage in
                     let isHeaderVisible = !answerMessage.isContinuation(of: sortedArray[safe: index - 1])
                     let needsRoundedCorners = !(sortedArray[safe: index + 1]?.isContinuation(of: answerMessage) ?? false)
                     MessageCellWrapper(
@@ -139,7 +140,7 @@ private extension MessageDetailView {
                         answerMessage: answerMessage,
                         isHeaderVisible: isHeaderVisible,
                         roundBottomCorners: needsRoundedCorners)
-                    .id(index == totalMessages - 1 ? nil : answerMessage)
+                    .id(index == totalMessages - 1 ? nil : answerMessage.id)
                 }
                 Spacer()
                     .id("bottom")
@@ -162,7 +163,7 @@ private extension MessageDetailView {
                 if let newValue {
                     // Make sure context menu is on screen
                     withAnimation {
-                        proxy.scrollTo(newValue)
+                        proxy.scrollTo(newValue.description)
                     }
                 }
             }
