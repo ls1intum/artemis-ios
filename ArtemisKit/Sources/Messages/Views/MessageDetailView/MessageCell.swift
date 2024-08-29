@@ -248,7 +248,7 @@ private extension MessageCell {
                                conversationPath: viewModel.conversationPath)
             .frame(maxWidth: .infinity)
             .padding(.bottom, 5)
-            .transition(.scale(0, anchor: .top))
+            .transition(.scale(0, anchor: .top).combined(with: .opacity))
         }
     }
 
