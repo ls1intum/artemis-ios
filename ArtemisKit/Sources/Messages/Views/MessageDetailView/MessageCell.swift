@@ -62,9 +62,11 @@ struct MessageCell: View {
                                            conversationViewModel: conversationViewModel,
                                            message: $message))
         .padding(.top, viewModel.isHeaderVisible ? .m : 0)
-        .id(message.value?.id.description)
         .padding(.horizontal, useFullWidth ? 0 : (.m + .l) / 2)
         .opacity(opacity)
+        /// Ensure the message is fully visible when selected, space for reactions popover
+        .padding(.top, isSelected ? 100 : 0)
+        .id(message.value?.id.description)
     }
 }
 
