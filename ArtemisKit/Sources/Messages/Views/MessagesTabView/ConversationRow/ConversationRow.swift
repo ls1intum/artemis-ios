@@ -40,6 +40,7 @@ struct ConversationRow<T: BaseConversation>: View {
                 Label {
                     HStack(alignment: .firstTextBaseline) {
                         Text(conversationDisplayName)
+                            .fontWeight(conversation.unreadMessagesCount ?? 0 > 0 ? .semibold : .regular)
                         Spacer()
                         if let unreadCount = conversation.unreadMessagesCount, unreadCount > 0 {
                             Text(unreadCount, format: .number.notation(.compactName))
