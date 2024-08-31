@@ -150,7 +150,7 @@ struct ExerciseListCell: View {
 
     var body: some View {
         Button {
-            navigationController.path.append(ExercisePath(exercise: exercise, coursePath: CoursePath(course: course)))
+            navigationController.outerPath.append(ExercisePath(exercise: exercise, coursePath: CoursePath(course: course)))
         } label: {
             HStack(alignment: .top, spacing: 0) {
                 if let difficulty = exercise.baseExercise.difficulty {

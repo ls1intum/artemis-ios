@@ -265,7 +265,7 @@ extension ConversationInfoSheetViewModel {
         Task {
             let messageCellModel = MessageCellModel(course: course, conversationPath: nil, isHeaderVisible: false, roundBottomCorners: false, retryButtonAction: {})
             if let conversation = await messageCellModel.getOneToOneChatOrCreate(login: login) {
-                navigationController.path.append(ConversationPath(conversation: conversation, coursePath: CoursePath(course: course)))
+                navigationController.outerPath.append(ConversationPath(conversation: conversation, coursePath: CoursePath(course: course)))
                 completion()
             }
             isLoading = false

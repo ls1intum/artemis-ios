@@ -4,7 +4,8 @@ import SwiftUI
 @MainActor
 public class NavigationController: ObservableObject {
 
-    @Published public var path: NavigationPath
+    @Published public var outerPath: NavigationPath
+    @Published public var tabPath: NavigationPath
 
     @Published public var courseTab = TabIdentifier.exercise
 
@@ -13,7 +14,8 @@ public class NavigationController: ObservableObject {
     public var notSupportedUrl: URL?
 
     public init() {
-        self.path = NavigationPath()
+        self.outerPath = NavigationPath()
+        self.tabPath = NavigationPath()
 
         DeeplinkHandler.shared.setup(navigationController: self)
     }
@@ -21,27 +23,28 @@ public class NavigationController: ObservableObject {
 
 public extension NavigationController {
     func popToRoot() {
-        path = NavigationPath()
+        outerPath = NavigationPath()
+        tabPath = NavigationPath()
     }
 
     func goToCourse(id: Int) {
         popToRoot()
 
-        path.append(CoursePath(id: id))
+        outerPath.append(CoursePath(id: id))
         log.debug("CoursePath was appended to queue")
     }
 
     func goToExercise(courseId: Int, exerciseId: Int) {
         courseTab = .exercise
         goToCourse(id: courseId)
-        path.append(ExercisePath(id: exerciseId, coursePath: CoursePath(id: courseId)))
+        outerPath.append(ExercisePath(id: exerciseId, coursePath: CoursePath(id: courseId)))
         log.debug("ExercisePath was appended to queue")
     }
 
     func goToLecture(courseId: Int, lectureId: Int) {
         courseTab = .lecture
         goToCourse(id: courseId)
-        path.append(LecturePath(id: lectureId, coursePath: CoursePath(id: courseId)))
+        outerPath.append(LecturePath(id: lectureId, coursePath: CoursePath(id: courseId)))
         log.debug("LecturePath was appended to queue")
     }
 
@@ -56,7 +59,7 @@ public extension NavigationController {
 
     func goToCourseConversation(courseId: Int, conversationId: Int64) {
         goToCourseConversations(courseId: courseId)
-        path.append(ConversationPath(id: conversationId, coursePath: CoursePath(id: courseId)))
+        outerPath.append(ConversationPath(id: conversationId, coursePath: CoursePath(id: courseId)))
     }
 
     func showDeeplinkNotSupported(url: URL) {

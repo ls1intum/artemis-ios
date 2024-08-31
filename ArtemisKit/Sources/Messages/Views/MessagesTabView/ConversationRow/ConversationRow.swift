@@ -11,6 +11,7 @@ import SwiftUI
 
 struct ConversationRow<T: BaseConversation>: View {
 
+    @Environment(\.horizontalSizeClass) var sizeClass
     @EnvironmentObject var navigationController: NavigationController
 
     @ObservedObject var viewModel: MessagesAvailableViewModel
@@ -30,50 +31,53 @@ struct ConversationRow<T: BaseConversation>: View {
     }
 
     var body: some View {
-        Button {
-            // should always be non-optional
-            if let conversation = Conversation(conversation: conversation) {
-                navigationController.path.append(ConversationPath(conversation: conversation, coursePath: CoursePath(course: viewModel.course)))
-            }
-        } label: {
-            HStack {
-                Label {
-                    HStack(alignment: .firstTextBaseline) {
-                        Text(conversationDisplayName)
-                            .fontWeight(conversation.unreadMessagesCount ?? 0 > 0 ? .semibold : .regular)
-                        Spacer()
-                        if let unreadCount = conversation.unreadMessagesCount, unreadCount > 0 {
-                            Text(unreadCount, format: .number.notation(.compactName))
-                                .font(.footnote)
-                                .foregroundStyle(.white)
-                                .padding(.vertical, .s)
-                                .padding(.horizontal, .m)
-                                .background(Color.Artemis.artemisBlue, in: .capsule)
+        // should always be non-optional
+        if let conversationForPath = Conversation(conversation: conversation) {
+            NavigationLink(value: ConversationPath(conversation: conversationForPath, coursePath: CoursePath(course: viewModel.course))) {
+                HStack {
+                    Label {
+                        HStack(alignment: .firstTextBaseline) {
+                            Text(conversationDisplayName)
+                                .fontWeight(conversation.unreadMessagesCount ?? 0 > 0 ? .semibold : .regular)
+                            Spacer()
+                            if let unreadCount = conversation.unreadMessagesCount, unreadCount > 0 {
+                                Text(unreadCount, format: .number.notation(.compactName))
+                                    .font(.footnote)
+                                    .foregroundStyle(.white)
+                                    .padding(.vertical, .s)
+                                    .padding(.horizontal, .m)
+                                    .background(Color.Artemis.artemisBlue, in: .capsule)
+                            }
                         }
+                    } icon: {
+                        conversationIcon
                     }
-                } icon: {
-                    conversationIcon
+                    Spacer()
+                    Menu {
+                        contextMenuItems
+                    } label: {
+                        Image(systemName: "ellipsis")
+                            .padding(.m)
+                    }
                 }
-                Spacer()
-                Menu {
+                .opacity((conversation.unreadMessagesCount ?? 0) > 0 ? 1 : 0.7)
+                .contextMenu {
                     contextMenuItems
-                } label: {
-                    Image(systemName: "ellipsis")
-                        .padding(.m)
                 }
             }
-            .opacity((conversation.unreadMessagesCount ?? 0) > 0 ? 1 : 0.7)
-            .contextMenu {
-                contextMenuItems
+            .tag(ConversationPath(conversation: conversationForPath, coursePath: CoursePath(course: viewModel.course)))
+            .foregroundStyle((conversation.isMuted ?? false) ? .secondary : .primary)
+            .listRowInsets(EdgeInsets(top: 0,
+                                      leading: .s * -1,
+                                      bottom: 0,
+                                      // We need to move the chevron off screen if it exists
+                                      trailing: .m * (sizeClass == .compact ? -1 : 1)))
+            .swipeActions(edge: .leading) {
+                favoriteButton
             }
-        }
-        .foregroundStyle((conversation.isMuted ?? false) ? .secondary : .primary)
-        .listRowInsets(EdgeInsets(top: 0, leading: .s * -1, bottom: 0, trailing: .m))
-        .swipeActions(edge: .leading) {
-            favoriteButton
-        }
-        .swipeActions(edge: .trailing) {
-            hideAndMuteButtons
+            .swipeActions(edge: .trailing) {
+                hideAndMuteButtons
+            }
         }
     }
 }

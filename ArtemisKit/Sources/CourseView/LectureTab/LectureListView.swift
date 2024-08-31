@@ -165,7 +165,7 @@ private struct LectureListCellView: View {
         .padding(.l)
         .cardModifier(backgroundColor: .Artemis.exerciseCardBackgroundColor, cornerRadius: .m)
         .onTapGesture {
-            navigationController.path.append(LecturePath(lecture: lecture, coursePath: CoursePath(course: course)))
+            navigationController.outerPath.append(LecturePath(lecture: lecture, coursePath: CoursePath(course: course)))
         }
     }
 }

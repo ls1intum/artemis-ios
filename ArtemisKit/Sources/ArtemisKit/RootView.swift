@@ -26,12 +26,12 @@ public struct RootView: View {
             } else {
                 if viewModel.isLoggedIn {
                     if viewModel.didSetupNotifications {
-                        NavigationStack(path: $navigationController.path) {
+                        NavigationStack(path: $navigationController.outerPath) {
                             DashboardView()
                                 .modifier(NavigationDestinationRootViewModifier())
                         }
-                        .onChange(of: navigationController.path) {
-                            log.debug("NavigationController count: \(navigationController.path.count)")
+                        .onChange(of: navigationController.outerPath) {
+                            log.debug("NavigationController count: \(navigationController.outerPath.count)")
                         }
                         .environmentObject(navigationController)
                         .onOpenURL { url in

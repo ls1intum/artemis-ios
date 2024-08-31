@@ -94,7 +94,7 @@ private struct ChannelCell: View {
 
     var body: some View {
         Button {
-            navigationController.path.append(ConversationPath(id: channel.id, coursePath: CoursePath(id: courseId)))
+            navigationController.outerPath.append(ConversationPath(id: channel.id, coursePath: CoursePath(id: courseId)))
         } label: {
             HStack {
                 VStack(alignment: .leading, spacing: .l) {

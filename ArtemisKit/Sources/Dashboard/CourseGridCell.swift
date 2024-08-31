@@ -31,7 +31,7 @@ struct CourseGridCell: View {
 
     var body: some View {
         Button {
-            navigationController.path.append(CoursePath(id: courseForDashboard.id))
+            navigationController.outerPath.append(CoursePath(id: courseForDashboard.id))
         } label: {
             VStack(alignment: .leading, spacing: 0) {
                 header

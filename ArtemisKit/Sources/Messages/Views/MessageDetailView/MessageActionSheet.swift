@@ -52,7 +52,7 @@ struct MessageActions: View {
                         if allowDismiss {
                             dismiss()
                         }
-                        navigationController.path.append(messagePath)
+                        navigationController.outerPath.append(messagePath)
                     } else {
                         viewModel.presentError(userFacingError: UserFacingError(title: R.string.localizable.detailViewCantBeOpened()))
                     }
@@ -156,8 +156,8 @@ struct MessageActions: View {
                                         dismiss()
                                     }
                                     // if we deleted a Message and are in the MessageDetailView we pop it
-                                    if navigationController.path.count == 3 && tempMessage is Message {
-                                        navigationController.path.removeLast()
+                                    if navigationController.outerPath.count == 3 && tempMessage is Message {
+                                        navigationController.outerPath.removeLast()
                                     }
                                 }
                             }

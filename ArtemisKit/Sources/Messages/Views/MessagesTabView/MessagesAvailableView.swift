@@ -13,7 +13,11 @@ import SwiftUI
 
 public struct MessagesAvailableView: View {
 
+    @EnvironmentObject var navController: NavigationController
     @StateObject private var viewModel: MessagesAvailableViewModel
+
+    @State var selectedConversation: ConversationPath?
+    @State var columnVisibilty: NavigationSplitViewVisibility = .doubleColumn
 
     @Binding private var searchText: String
 
@@ -34,133 +38,169 @@ public struct MessagesAvailableView: View {
     }
 
     public var body: some View {
-        List {
-            if !searchText.isEmpty {
-                if searchResults.isEmpty {
-                    Text(R.string.localizable.noResultForSearch())
-                        .padding(.l)
-                        .listRowSeparator(.hidden)
-                }
-                ForEach(searchResults) { conversation in
-                    if let channel = conversation.baseConversation as? Channel {
-                        ConversationRow(viewModel: viewModel, conversation: channel)
+        NavigationSplitView(columnVisibility: $columnVisibilty) {
+            List(selection: $selectedConversation) {
+                if !searchText.isEmpty {
+                    if searchResults.isEmpty {
+                        Text(R.string.localizable.noResultForSearch())
+                            .padding(.l)
+                            .listRowSeparator(.hidden)
                     }
-                    if let groupChat = conversation.baseConversation as? GroupChat {
-                        ConversationRow(viewModel: viewModel, conversation: groupChat)
-                    }
-                    if let oneToOneChat = conversation.baseConversation as? OneToOneChat {
-                        ConversationRow(viewModel: viewModel, conversation: oneToOneChat)
-                    }
-                }.listRowBackground(Color.clear)
-            } else {
-                filterBar
+                    ForEach(searchResults) { conversation in
+                        if let channel = conversation.baseConversation as? Channel {
+                            ConversationRow(viewModel: viewModel, conversation: channel)
+                        }
+                        if let groupChat = conversation.baseConversation as? GroupChat {
+                            ConversationRow(viewModel: viewModel, conversation: groupChat)
+                        }
+                        if let oneToOneChat = conversation.baseConversation as? OneToOneChat {
+                            ConversationRow(viewModel: viewModel, conversation: oneToOneChat)
+                        }
+                    }.listRowBackground(Color.clear)
+                } else {
+                    filterBar
 
-                Group {
-                    MixedMessageSection(
-                        viewModel: viewModel,
-                        conversations: $viewModel.favoriteConversations,
-                        sectionTitle: R.string.localizable.favoritesSection(),
-                        sectionIconName: "heart.fill")
-                    MessageSection(
-                        viewModel: viewModel,
-                        conversations: $viewModel.channels,
-                        sectionTitle: R.string.localizable.generalTopics(),
-                        sectionIconName: "bubble.left.fill")
-                    MessageSection(
-                        viewModel: viewModel,
-                        conversations: $viewModel.exercises,
-                        sectionTitle: R.string.localizable.exercises(),
-                        sectionIconName: "list.bullet",
-                        isExpanded: false)
-                    MessageSection(
-                        viewModel: viewModel,
-                        conversations: $viewModel.lectures,
-                        sectionTitle: R.string.localizable.lectures(),
-                        sectionIconName: "doc.fill",
-                        isExpanded: false)
-                    MessageSection(
-                        viewModel: viewModel,
-                        conversations: $viewModel.exams,
-                        sectionTitle: R.string.localizable.exams(),
-                        sectionIconName: "graduationcap.fill",
-                        isExpanded: false)
-                    if viewModel.isDirectMessagingEnabled {
+                    Group {
+                        MixedMessageSection(
+                            viewModel: viewModel,
+                            conversations: $viewModel.favoriteConversations,
+                            sectionTitle: R.string.localizable.favoritesSection(),
+                            sectionIconName: "heart.fill")
                         MessageSection(
                             viewModel: viewModel,
-                            conversations: $viewModel.groupChats,
-                            sectionTitle: R.string.localizable.groupChats(),
-                            sectionIconName: "bubble.left.and.bubble.right.fill")
-                        MessageSection(
-                            viewModel: viewModel,
-                            conversations: $viewModel.oneToOneChats,
-                            sectionTitle: R.string.localizable.directMessages(),
+                            conversations: $viewModel.channels,
+                            sectionTitle: R.string.localizable.generalTopics(),
                             sectionIconName: "bubble.left.fill")
-                    }
-                    MixedMessageSection(
-                        viewModel: viewModel,
-                        conversations: $viewModel.hiddenConversations,
-                        sectionTitle: R.string.localizable.hiddenSection(),
-                        sectionIconName: "nosign",
-                        isExpanded: false)
-                }
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets(top: 0, leading: .s, bottom: 0, trailing: .s))
-
-                HStack {
-                    Spacer()
-                    Button {
-                        isCodeOfConductPresented = true
-                    } label: {
-                        HStack {
-                            Image(systemName: "info.circle")
-                            Text(R.string.localizable.codeOfConduct())
+                        MessageSection(
+                            viewModel: viewModel,
+                            conversations: $viewModel.exercises,
+                            sectionTitle: R.string.localizable.exercises(),
+                            sectionIconName: "list.bullet",
+                            isExpanded: false)
+                        MessageSection(
+                            viewModel: viewModel,
+                            conversations: $viewModel.lectures,
+                            sectionTitle: R.string.localizable.lectures(),
+                            sectionIconName: "doc.fill",
+                            isExpanded: false)
+                        MessageSection(
+                            viewModel: viewModel,
+                            conversations: $viewModel.exams,
+                            sectionTitle: R.string.localizable.exams(),
+                            sectionIconName: "graduationcap.fill",
+                            isExpanded: false)
+                        if viewModel.isDirectMessagingEnabled {
+                            MessageSection(
+                                viewModel: viewModel,
+                                conversations: $viewModel.groupChats,
+                                sectionTitle: R.string.localizable.groupChats(),
+                                sectionIconName: "bubble.left.and.bubble.right.fill")
+                            MessageSection(
+                                viewModel: viewModel,
+                                conversations: $viewModel.oneToOneChats,
+                                sectionTitle: R.string.localizable.directMessages(),
+                                sectionIconName: "bubble.left.fill")
                         }
+                        MixedMessageSection(
+                            viewModel: viewModel,
+                            conversations: $viewModel.hiddenConversations,
+                            sectionTitle: R.string.localizable.hiddenSection(),
+                            sectionIconName: "nosign",
+                            isExpanded: false)
                     }
-                    Spacer()
-                }
-                .listRowBackground(Color.clear)
-
-                // Empty row so that there is always space for floating button
-                Spacer()
                     .listRowBackground(Color.clear)
-            }
-        }
-        .scrollContentBackground(.hidden)
-        .listRowSpacing(0.01)
-        .listSectionSpacing(.compact)
-        .refreshable {
-            await viewModel.loadConversations()
-        }
-        .task {
-            await viewModel.loadConversations()
-        }
-        .task {
-            await viewModel.subscribeToConversationMembershipTopic()
-        }
-        .overlay(alignment: .bottomTrailing) {
-            CreateOrAddChannelButton(viewModel: viewModel)
-                .padding()
-        }
-        .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
-        .loadingIndicator(isLoading: $viewModel.isLoading)
-        .sheet(isPresented: $isCodeOfConductPresented) {
-            NavigationStack {
-                ScrollView {
-                    CodeOfConductView(course: viewModel.course)
-                }
-                .contentMargins(.l, for: .scrollContent)
-                .navigationTitle(R.string.localizable.codeOfConduct())
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .confirmationAction) {
+                    .listRowInsets(EdgeInsets(top: 0, leading: .s, bottom: 0, trailing: .s))
+
+                    HStack {
+                        Spacer()
                         Button {
-                            isCodeOfConductPresented = false
+                            isCodeOfConductPresented = true
                         } label: {
-                            Text(R.string.localizable.done())
+                            HStack {
+                                Image(systemName: "info.circle")
+                                Text(R.string.localizable.codeOfConduct())
+                            }
+                        }
+                        Spacer()
+                    }
+                    .listRowBackground(Color.clear)
+
+                    // Empty row so that there is always space for floating button
+                    Spacer()
+                        .listRowBackground(Color.clear)
+                }
+            }
+            .scrollContentBackground(.hidden)
+            .listRowSpacing(0.01)
+            .listSectionSpacing(.compact)
+            .refreshable {
+                await viewModel.loadConversations()
+            }
+            .task {
+                await viewModel.loadConversations()
+            }
+            .task {
+                await viewModel.subscribeToConversationMembershipTopic()
+            }
+            .overlay(alignment: .bottomTrailing) {
+                CreateOrAddChannelButton(viewModel: viewModel)
+                    .padding()
+            }
+            .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
+            .loadingIndicator(isLoading: $viewModel.isLoading)
+            .sheet(isPresented: $isCodeOfConductPresented) {
+                NavigationStack {
+                    ScrollView {
+                        CodeOfConductView(course: viewModel.course)
+                    }
+                    .contentMargins(.l, for: .scrollContent)
+                    .navigationTitle(R.string.localizable.codeOfConduct())
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button {
+                                isCodeOfConductPresented = false
+                            } label: {
+                                Text(R.string.localizable.done())
+                            }
                         }
                     }
                 }
             }
+            .navigationTitle(viewModel.course.title ?? R.string.localizable.loading())
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        navController.popToRoot()
+                    } label: {
+                        HStack(spacing: .s) {
+                            Image(systemName: "chevron.backward")
+                                .fontWeight(.semibold)
+                            Text("Back")
+                        }
+                        .offset(x: -8)
+                    }
+                }
+            }
+        } detail: {
+            NavigationStack(path: $navController.tabPath) {
+                Group {
+                    if let selectedConversation {
+                        ConversationPathView(path: selectedConversation)
+                            .id(selectedConversation.id)
+                    } else {
+                        #warning("TODO: Localize")
+                        Text("Select a Conversation")
+                    }
+                }
+                .navigationDestination(for: ConversationPath.self, destination: ConversationPathView.init)
+                .modifier(NavigationDestinationThreadViewModifier())
+            }
+        }
+        .toolbar(.hidden, for: .navigationBar)
+        .onChange(of: selectedConversation) { _, newVal in
+            print("Selected \(newVal)")
         }
     }
 
