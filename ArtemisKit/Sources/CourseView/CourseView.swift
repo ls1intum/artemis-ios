@@ -49,6 +49,12 @@ public struct CourseView: View {
         .onChange(of: navigationController.courseTab) {
             searchText = ""
         }
+        .onDisappear {
+            if navigationController.outerPath.count < 2 {
+                // Reset selection if navigating back
+                navigationController.selectedPath = nil
+            }
+        }
     }
 }
 
