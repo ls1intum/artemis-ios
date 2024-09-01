@@ -123,6 +123,7 @@ public struct ConversationView: View {
             }
         }
         .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 

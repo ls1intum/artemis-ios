@@ -6,6 +6,7 @@ public class NavigationController: ObservableObject {
 
     @Published public var outerPath: NavigationPath
     @Published public var tabPath: NavigationPath
+    @Published public var selectedPath: (any Hashable)?
 
     @Published public var courseTab = TabIdentifier.exercise
 
@@ -18,6 +19,23 @@ public class NavigationController: ObservableObject {
         self.tabPath = NavigationPath()
 
         DeeplinkHandler.shared.setup(navigationController: self)
+    }
+
+    /// Converts ``selectedPath`` into a `Binding` for use in a List Selection.
+    /// Usage:
+    /// ```swift
+    /// private var selectedConversation: Binding<ConversationPath?> {
+    ///     navController.selectedPathBinding($navController.selectedPath)
+    /// }
+    /// …
+    /// List(selection: selectedConversation, …)
+    /// ```
+    public func selectedPathBinding<T: Hashable>(_ selectedPath: Binding<(any Hashable)?>) -> Binding<T?> {
+        Binding {
+            selectedPath.wrappedValue as? T
+        } set: { newValue in
+            selectedPath.wrappedValue = newValue
+        }
     }
 }
 
@@ -59,7 +77,7 @@ public extension NavigationController {
 
     func goToCourseConversation(courseId: Int, conversationId: Int64) {
         goToCourseConversations(courseId: courseId)
-        outerPath.append(ConversationPath(id: conversationId, coursePath: CoursePath(id: courseId)))
+        selectedPath = ConversationPath(id: conversationId, coursePath: CoursePath(id: courseId))
     }
 
     func showDeeplinkNotSupported(url: URL) {

@@ -16,7 +16,6 @@ public struct MessagesAvailableView: View {
     @EnvironmentObject var navController: NavigationController
     @StateObject private var viewModel: MessagesAvailableViewModel
 
-    @State var selectedConversation: ConversationPath?
     @State var columnVisibilty: NavigationSplitViewVisibility = .doubleColumn
 
     @Binding private var searchText: String
@@ -32,6 +31,10 @@ public struct MessagesAvailableView: View {
         }
     }
 
+    private var selectedConversation: Binding<ConversationPath?> {
+        navController.selectedPathBinding($navController.selectedPath)
+    }
+
     public init(course: Course, searchText: Binding<String>) {
         self._viewModel = StateObject(wrappedValue: MessagesAvailableViewModel(course: course))
         self._searchText = searchText
@@ -39,7 +42,7 @@ public struct MessagesAvailableView: View {
 
     public var body: some View {
         NavigationSplitView(columnVisibility: $columnVisibilty) {
-            List(selection: $selectedConversation) {
+            List(selection: selectedConversation) {
                 if !searchText.isEmpty {
                     if searchResults.isEmpty {
                         Text(R.string.localizable.noResultForSearch())
@@ -186,9 +189,9 @@ public struct MessagesAvailableView: View {
         } detail: {
             NavigationStack(path: $navController.tabPath) {
                 Group {
-                    if let selectedConversation {
-                        ConversationPathView(path: selectedConversation)
-                            .id(selectedConversation.id)
+                    if let path = navController.selectedPath as? ConversationPath {
+                        ConversationPathView(path: path)
+                            .id(path.id)
                     } else {
                         #warning("TODO: Localize")
                         Text("Select a Conversation")
@@ -199,9 +202,6 @@ public struct MessagesAvailableView: View {
             }
         }
         .toolbar(.hidden, for: .navigationBar)
-        .onChange(of: selectedConversation) { _, newVal in
-            print("Selected \(newVal)")
-        }
     }
 
     @ViewBuilder var filterBar: some View {
