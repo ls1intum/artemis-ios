@@ -14,6 +14,7 @@ import UserStore
 
 public struct ExerciseDetailView: View {
     @EnvironmentObject var navigationController: NavigationController
+    @Environment(\.horizontalSizeClass) var sizeClass
 
     @State private var viewModel: ExerciseDetailViewModel
 
@@ -52,6 +53,9 @@ public struct ExerciseDetailView: View {
         .refreshable {
             await viewModel.refreshExercise()
         }
+        .navigationBarTitleDisplayMode(.inline)
+        // Hide the course Tab Bar when inside an exercise on iPhone
+        .toolbar(sizeClass == .compact ? .hidden : .automatic, for: .tabBar)
     }
 }
 
