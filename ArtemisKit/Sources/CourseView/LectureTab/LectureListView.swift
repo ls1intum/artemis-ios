@@ -211,7 +211,8 @@ private struct LectureListCellView: View {
                 }
             }
             .frame(maxWidth: .infinity)
-            .padding(.m)
+            .padding(.horizontal, .m)
+            .padding(.vertical, .l)
         }
         .foregroundColor(Color.Artemis.primaryLabel)
         .listRowInsets(EdgeInsets(top: 0, leading: .m * -1, bottom: 0, trailing: .m * -1))
