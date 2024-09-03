@@ -17,7 +17,6 @@ struct MessageDetailView: View {
     @ObservedObject var viewModel: ConversationViewModel
     @Binding private var message: DataState<BaseMessage>
 
-    @State private var isMessageActionSheetPresented = false
     @State private var viewRerenderWorkaround = false
 
     private let messageId: Int64?
@@ -40,6 +39,7 @@ struct MessageDetailView: View {
                         top(message: message)
                         answers(of: message, proxy: proxy)
                     }
+                    .defaultScrollAnchor(.bottom)
                 }
                 if !((viewModel.conversation.baseConversation as? Channel)?.isArchived ?? false),
                    let message = message as? Message {
@@ -91,15 +91,6 @@ private extension MessageDetailView {
         )
         .environment(\.isEmojiPickerButtonVisible, true)
         .environment(\.messageUseFullWidth, true)
-        .onLongPressGesture(maximumDistance: 30) {
-            let impactMed = UIImpactFeedbackGenerator(style: .heavy)
-            impactMed.impactOccurred()
-            isMessageActionSheetPresented = true
-        }
-        .sheet(isPresented: $isMessageActionSheetPresented) {
-            MessageActionSheet(viewModel: viewModel, message: $message, conversationPath: nil)
-                .presentationDetents([.height(350), .large])
-        }
     }
 
     @ViewBuilder var divider: some View {
@@ -141,7 +132,7 @@ private extension MessageDetailView {
                     $0.creationDate ?? .tomorrow < $1.creationDate ?? .yesterday
                 }
                 let totalMessages = sortedArray.count
-                ForEach(Array(sortedArray.enumerated()), id: \.1) { index, answerMessage in
+                ForEach(Array(sortedArray.enumerated()), id: \.1.id) { index, answerMessage in
                     let isHeaderVisible = !answerMessage.isContinuation(of: sortedArray[safe: index - 1])
                     let needsRoundedCorners = !(sortedArray[safe: index + 1]?.isContinuation(of: answerMessage) ?? false)
                     MessageCellWrapper(
@@ -149,7 +140,7 @@ private extension MessageDetailView {
                         answerMessage: answerMessage,
                         isHeaderVisible: isHeaderVisible,
                         roundBottomCorners: needsRoundedCorners)
-                    .id(index == totalMessages - 1 ? nil : answerMessage)
+                    .id(index == totalMessages - 1 ? nil : answerMessage.id)
                 }
                 Spacer()
                     .id("bottom")
@@ -167,6 +158,15 @@ private extension MessageDetailView {
             // We have to reload this view when a message is deleted
             // to ensure that continuing messages are correctly (un)merged
             .id(message.answers)
+            .animation(.default, value: viewModel.selectedMessageId)
+            .onChange(of: viewModel.selectedMessageId) { _, newValue in
+                if let newValue {
+                    // Make sure context menu is on screen
+                    withAnimation {
+                        proxy.scrollTo(newValue.description)
+                    }
+                }
+            }
             .environment(\.isOriginalMessageAuthor, message.isCurrentUserAuthor)
         }
     }
