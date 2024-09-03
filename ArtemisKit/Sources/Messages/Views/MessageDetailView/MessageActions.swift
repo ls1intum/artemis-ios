@@ -26,16 +26,12 @@ struct MessageActions: View {
             MarkResolvingButton(viewModel: viewModel, message: $message)
             EditDeleteSection(viewModel: viewModel, message: $message)
         }
-        .environment(\.allowAutoDismiss, false)
         .lineLimit(1)
         .font(.title3)
     }
 
     struct ReplyInThreadButton: View {
         @EnvironmentObject var navigationController: NavigationController
-        @Environment(\.dismiss) var dismiss
-        @Environment(\.allowAutoDismiss) var allowDismiss
-
         @ObservedObject var viewModel: ConversationViewModel
         @Binding var message: DataState<BaseMessage>
         let conversationPath: ConversationPath?
@@ -49,9 +45,6 @@ struct MessageActions: View {
                         conversationPath: conversationPath,
                         conversationViewModel: viewModel
                     ) {
-                        if allowDismiss {
-                            dismiss()
-                        }
                         navigationController.path.append(messagePath)
                     } else {
                         viewModel.presentError(userFacingError: UserFacingError(title: R.string.localizable.detailViewCantBeOpened()))
@@ -62,17 +55,15 @@ struct MessageActions: View {
     }
 
     struct CopyTextButton: View {
-        @Environment(\.allowAutoDismiss) var allowDismiss
-        @Environment(\.dismiss) var dismiss
+        @EnvironmentObject var navController: NavigationController
         @Binding var message: DataState<BaseMessage>
         @State private var showSuccess = false
 
         var body: some View {
             Button(R.string.localizable.copyText(), systemImage: "doc.on.doc") {
                 UIPasteboard.general.string = message.value?.content
-                if allowDismiss {
-                    dismiss()
-                } else {
+                // TODO: Update this for split view ;)
+                if !navController.path.isEmpty && message.value is Message {
                     showSuccess = true
                 }
             }
@@ -95,8 +86,6 @@ struct MessageActions: View {
     }
 
     struct EditDeleteSection: View {
-        @Environment(\.allowAutoDismiss) var allowDismiss
-        @Environment(\.dismiss) var dismiss
         @EnvironmentObject var navigationController: NavigationController
         @ObservedObject var viewModel: ConversationViewModel
         @Binding var message: DataState<BaseMessage>
@@ -159,9 +148,6 @@ struct MessageActions: View {
                                 viewModel.isPerformingMessageAction = false
                                 viewModel.selectedMessageId = nil
                                 if success {
-                                    if allowDismiss {
-                                        dismiss()
-                                    }
                                     // if we deleted a Message and are in the MessageDetailView we pop it
                                     if navigationController.path.count == 3 && tempMessage is Message {
                                         navigationController.path.removeLast()
@@ -186,7 +172,7 @@ struct MessageActions: View {
                             viewModel: SendMessageViewModel(
                                 course: viewModel.course,
                                 conversation: viewModel.conversation,
-                                configuration: .editMessage(message, { self.dismiss() }),
+                                configuration: .editMessage(message, { self.showEditSheet = false }),
                                 delegate: SendMessageViewModelDelegate(viewModel)
                             )
                         )
@@ -195,7 +181,7 @@ struct MessageActions: View {
                             viewModel: SendMessageViewModel(
                                 course: viewModel.course,
                                 conversation: viewModel.conversation,
-                                configuration: .editAnswerMessage(answerMessage, { self.dismiss() }),
+                                configuration: .editAnswerMessage(answerMessage, { self.showEditSheet = false }),
                                 delegate: SendMessageViewModelDelegate(viewModel)
                             )
                         )
@@ -219,8 +205,6 @@ struct MessageActions: View {
     }
 
     struct PinButton: View {
-        @Environment(\.allowAutoDismiss) var allowDismiss
-        @Environment(\.dismiss) var dismiss
         @EnvironmentObject var navigationController: NavigationController
         @ObservedObject var viewModel: ConversationViewModel
         @Binding var message: DataState<BaseMessage>
@@ -261,23 +245,21 @@ struct MessageActions: View {
 
         func togglePinned() {
             guard let message = message.value as? Message else { return }
+            viewModel.isPerformingMessageAction = true
             Task {
                 let result = await viewModel.togglePinned(for: message)
                 let oldRole = message.authorRole
                 if var newMessageResult = result.value as? Message {
                     newMessageResult.authorRole = oldRole
                     self.$message.wrappedValue = .done(response: newMessageResult)
-                    if allowDismiss {
-                        dismiss()
-                    }
+                    viewModel.isPerformingMessageAction = false
+                    viewModel.selectedMessageId = nil
                 }
             }
         }
     }
 
     struct MarkResolvingButton: View {
-        @Environment(\.allowAutoDismiss) var allowDismiss
-        @Environment(\.dismiss) var dismiss
         @EnvironmentObject var navigationController: NavigationController
         @ObservedObject var viewModel: ConversationViewModel
         @Binding var message: DataState<BaseMessage>
@@ -316,9 +298,11 @@ struct MessageActions: View {
 
         func toggleResolved() {
             guard let message = message.value as? AnswerMessage else { return }
+            viewModel.isPerformingMessageAction = true
             Task {
-                if await viewModel.toggleResolving(for: message) && allowDismiss {
-                    dismiss()
+                if await viewModel.toggleResolving(for: message) {
+                    viewModel.isPerformingMessageAction = false
+                    viewModel.selectedMessageId = nil
                 }
             }
         }
