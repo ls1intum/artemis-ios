@@ -445,23 +445,6 @@ private struct EmojiPickerButton: View {
     }
 }
 
-// MARK: - Environment+AutoDismiss
-
-private enum SheetAutoDismissEnvironmentKey: EnvironmentKey {
-    static let defaultValue = true
-}
-
-extension EnvironmentValues {
-    var allowAutoDismiss: Bool {
-        get {
-            self[SheetAutoDismissEnvironmentKey.self]
-        }
-        set {
-            self[SheetAutoDismissEnvironmentKey.self] = newValue
-        }
-    }
-}
-
 // MARK: - Environment+OriginalPostAuthor
 
 private enum OriginalPostAuthorEnvironmentKey: EnvironmentKey {
