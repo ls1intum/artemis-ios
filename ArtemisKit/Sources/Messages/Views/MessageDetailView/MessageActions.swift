@@ -45,7 +45,7 @@ struct MessageActions: View {
                         conversationPath: conversationPath,
                         conversationViewModel: viewModel
                     ) {
-                        navigationController.outerPath.append(messagePath)
+                        navigationController.tabPath.append(messagePath)
                     } else {
                         viewModel.presentError(userFacingError: UserFacingError(title: R.string.localizable.detailViewCantBeOpened()))
                     }
