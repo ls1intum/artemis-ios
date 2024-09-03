@@ -390,6 +390,12 @@ struct ReactionsPopoverModifier: ViewModifier {
                 .presentationBackgroundInteraction(.enabled)
                 .presentationBackground(.bar)
             }
+            .onChange(of: conversationViewModel.selectedMessageId) {
+                // Reset recations popover presentation when message is no longer selected
+                if conversationViewModel.selectedMessageId == nil && viewModel.showReactionsPopover {
+                    viewModel.showReactionsPopover = false
+                }
+            }
     }
 }
 
