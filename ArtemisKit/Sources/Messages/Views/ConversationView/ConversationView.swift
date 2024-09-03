@@ -59,11 +59,21 @@ public struct ConversationView: View {
                         }
                     }
                     .coordinateSpace(name: "pullToRefresh")
+                    .defaultScrollAnchor(.bottom)
                     .onChange(of: viewModel.messages, initial: true) {
                         #warning("does not work correctly when loadFurtherMessages is called -> is called to early")
                         if let id = viewModel.shouldScrollToId {
                             withAnimation {
                                 value.scrollTo(id, anchor: .bottom)
+                            }
+                        }
+                    }
+                    .animation(.default, value: viewModel.selectedMessageId)
+                    .onChange(of: viewModel.selectedMessageId) { _, newValue in
+                        if let newValue {
+                            // Make sure context menu is on screen
+                            withAnimation {
+                                value.scrollTo(newValue)
                             }
                         }
                     }

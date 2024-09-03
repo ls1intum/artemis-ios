@@ -21,7 +21,7 @@ final class MessageCellModel {
     let roundBottomCorners: Bool
     let retryButtonAction: (() -> Void)?
 
-    var isActionSheetPresented = false
+    var showReactionsPopover = false
     var isDetectingLongPress = false
 
     private let messagesService: MessagesService
@@ -57,9 +57,9 @@ extension MessageCellModel {
         return lastReadDate < creationDate && userSession.user?.id != authorId
     }
 
-    var roundedCorners: RectangleCornerRadii {
-        let top: CGFloat = isHeaderVisible ? .m : 0
-        let bottom: CGFloat = roundBottomCorners ? .m : 0
+    func roundedCorners(isSelected: Bool) -> RectangleCornerRadii {
+        let top: CGFloat = isHeaderVisible || isSelected ? .m : 0
+        let bottom: CGFloat = roundBottomCorners || isSelected ? .m : 0
         return .init(topLeading: top, bottomLeading: bottom, bottomTrailing: bottom, topTrailing: top)
     }
 
