@@ -306,7 +306,7 @@ private extension MessageCell {
             case let .attachment(id, lectureId):
                 navigationController.outerPath.append(LecturePath(id: lectureId, coursePath: coursePath))
             case let .channel(id):
-                navigationController.outerPath.append(ConversationPath(id: id, coursePath: coursePath))
+                navigationController.tabPath.append(ConversationPath(id: id, coursePath: coursePath))
             case let .exercise(id):
                 navigationController.outerPath.append(ExercisePath(id: id, coursePath: coursePath))
             case let .lecture(id):
@@ -325,7 +325,7 @@ private extension MessageCell {
             case let .member(login):
                 Task {
                     if let conversation = await viewModel.getOneToOneChatOrCreate(login: login) {
-                        navigationController.outerPath.append(ConversationPath(conversation: conversation, coursePath: coursePath))
+                        navigationController.tabPath.append(ConversationPath(conversation: conversation, coursePath: coursePath))
                     }
                 }
             case let .message(id):
@@ -337,7 +337,7 @@ private extension MessageCell {
                     break
                 }
 
-                navigationController.outerPath.append(messagePath)
+                navigationController.tabPath.append(messagePath)
             case let .slide(number, attachmentUnit):
                 Task {
                     let delegate = SendMessageLecturePickerViewModel(course: conversationViewModel.course)
