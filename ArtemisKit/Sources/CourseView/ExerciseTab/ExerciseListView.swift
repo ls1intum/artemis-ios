@@ -59,16 +59,7 @@ struct ExerciseListView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        navController.popToRoot()
-                    } label: {
-                        HStack(spacing: .s) {
-                            Image(systemName: "chevron.backward")
-                                .fontWeight(.semibold)
-                            Text("Back")
-                        }
-                        .offset(x: -8)
-                    }
+                    BackToRootButton()
                 }
             }
         } detail: {
