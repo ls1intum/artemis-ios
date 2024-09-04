@@ -76,8 +76,7 @@ struct ExerciseListView: View {
                         }
                         .id(path.id)
                     } else {
-                        #warning("TODO: Localize")
-                        Text("Select an Exercise")
+                        SelectDetailView()
                     }
                 }
                 .navigationDestination(for: ExercisePath.self) { exercisePath in

@@ -82,8 +82,7 @@ struct LectureListView: View {
                         }
                         .id(path.id)
                     } else {
-                        #warning("TODO: Localize")
-                        Text("Select a Lecture")
+                        SelectDetailView()
                     }
                 }
                 .navigationDestination(for: LecturePath.self) { lecturePath in

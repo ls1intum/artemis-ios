@@ -184,8 +184,7 @@ public struct MessagesAvailableView: View {
                         ConversationPathView(path: path)
                             .id(path.id)
                     } else {
-                        #warning("TODO: Localize")
-                        Text("Select a Conversation")
+                        SelectDetailView()
                     }
                 }
                 .navigationDestination(for: ConversationPath.self, destination: ConversationPathView.init)
