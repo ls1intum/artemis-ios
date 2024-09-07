@@ -45,7 +45,7 @@ struct MessageActions: View {
                         conversationPath: conversationPath,
                         conversationViewModel: viewModel
                     ) {
-                        navigationController.path.append(messagePath)
+                        navigationController.tabPath.append(messagePath)
                     } else {
                         viewModel.presentError(userFacingError: UserFacingError(title: R.string.localizable.detailViewCantBeOpened()))
                     }
@@ -62,8 +62,7 @@ struct MessageActions: View {
         var body: some View {
             Button(R.string.localizable.copyText(), systemImage: "doc.on.doc") {
                 UIPasteboard.general.string = message.value?.content
-                // TODO: Update this for split view ;)
-                if !navController.path.isEmpty && message.value is Message {
+                if !navController.tabPath.isEmpty && message.value is Message {
                     showSuccess = true
                 }
             }
@@ -149,8 +148,8 @@ struct MessageActions: View {
                                 viewModel.selectedMessageId = nil
                                 if success {
                                     // if we deleted a Message and are in the MessageDetailView we pop it
-                                    if navigationController.path.count == 3 && tempMessage is Message {
-                                        navigationController.path.removeLast()
+                                    if navigationController.outerPath.count == 3 && tempMessage is Message {
+                                        navigationController.outerPath.removeLast()
                                     }
                                 }
                             }

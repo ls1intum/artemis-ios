@@ -6,46 +6,90 @@ import Navigation
 import DesignLibrary
 
 struct ExerciseListView: View {
+    @EnvironmentObject var navController: NavigationController
     @ObservedObject var viewModel: CourseViewModel
+    @State private var columnVisibilty: NavigationSplitViewVisibility = .doubleColumn
 
     @Binding var searchText: String
 
+    private var selectedExercise: Binding<ExercisePath?> {
+        navController.selectedPathBinding($navController.selectedPath)
+    }
+
     var body: some View {
-        ScrollViewReader { value in
-            List {
-                if searchText.isEmpty {
-                    if weeklyExercises.isEmpty {
-                        ContentUnavailableView(R.string.localizable.exercisesUnavailable(), systemImage: "list.bullet.clipboard")
-                            .listRowSeparator(.hidden)
+        NavigationSplitView(columnVisibility: $columnVisibilty) {
+            ScrollViewReader { value in
+                List(selection: selectedExercise) {
+                    if searchText.isEmpty {
+                        if weeklyExercises.isEmpty {
+                            ContentUnavailableView(R.string.localizable.exercisesUnavailable(), systemImage: "list.bullet.clipboard")
+                                .listRowSeparator(.hidden)
+                        } else {
+                            ForEach(weeklyExercises) { weeklyExercise in
+                                ExerciseListSection(course: viewModel.course, weeklyExercise: weeklyExercise)
+                                    .id(weeklyExercise.id)
+                            }
+                        }
                     } else {
-                        ForEach(weeklyExercises) { weeklyExercise in
-                            ExerciseListSection(course: viewModel.course, weeklyExercise: weeklyExercise)
-                                .id(weeklyExercise.id)
+                        if searchResults.isEmpty {
+                            ContentUnavailableView.search(text: searchText)
+                                .listRowSeparator(.hidden)
+                        } else {
+                            ForEach(searchResults) { exercise in
+                                ExerciseListCell(course: viewModel.course, exercise: exercise)
+                            }
                         }
                     }
-                } else {
-                    if searchResults.isEmpty {
-                        ContentUnavailableView.search(text: searchText)
-                            .listRowSeparator(.hidden)
-                    } else {
-                        ForEach(searchResults) { exercise in
-                            ExerciseListCell(course: viewModel.course, exercise: exercise)
+                }
+                .listStyle(.insetGrouped)
+                .scrollContentBackground(.hidden)
+                .listRowSpacing(.m)
+                .refreshable {
+                    await viewModel.refreshCourse()
+                }
+                .onChange(of: weeklyExercises) { _, newValue in
+                    withAnimation {
+                        if let id = newValue.first(where: { $0.exercises.first?.baseExercise.dueDate ?? .tomorrow > .now })?.id {
+                            value.scrollTo(id, anchor: .top)
                         }
                     }
                 }
             }
-            .listStyle(.plain)
-            .refreshable {
-                await viewModel.refreshCourse()
+            .navigationTitle(viewModel.course.title ?? R.string.localizable.loading())
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    BackToRootButton()
+                }
             }
-            .onChange(of: weeklyExercises) { _, newValue in
-                withAnimation {
-                    if let id = newValue.first(where: { $0.exercises.first?.baseExercise.dueDate ?? .tomorrow > .now })?.id {
-                        value.scrollTo(id, anchor: .top)
+        } detail: {
+            NavigationStack(path: $navController.tabPath) {
+                Group {
+                    if let path = navController.selectedPath as? ExercisePath {
+                        Group {
+                            if let course = path.coursePath.course,
+                               let exercise = path.exercise {
+                                ExerciseDetailView(course: course, exercise: exercise)
+                            } else {
+                                ExerciseDetailView(courseId: path.coursePath.id, exerciseId: path.id)
+                            }
+                        }
+                        .id(path.id)
+                    } else {
+                        SelectDetailView()
+                    }
+                }
+                .navigationDestination(for: ExercisePath.self) { exercisePath in
+                    if let course = exercisePath.coursePath.course,
+                       let exercise = exercisePath.exercise {
+                        ExerciseDetailView(course: course, exercise: exercise)
+                    } else {
+                        ExerciseDetailView(courseId: exercisePath.coursePath.id, exerciseId: exercisePath.id)
                     }
                 }
             }
         }
+        .toolbar(.hidden, for: .navigationBar)
     }
 }
 
@@ -119,15 +163,12 @@ struct ExerciseListSection: View {
             "\(weeklyExercise.id.description) (Exercises: \(weeklyExercise.exercises.count))",
             isExpanded: $isExpanded
         ) {
-            LazyVStack(spacing: .m) {
-                ForEach(weeklyExercise.exercises) { exercise in
-                    ExerciseListCell(course: course, exercise: exercise)
-                }
+            ForEach(weeklyExercise.exercises) { exercise in
+                ExerciseListCell(course: course, exercise: exercise)
             }
-            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: .l))
         }
         .listRowSeparator(.hidden)
-        .listRowInsets(EdgeInsets(top: .m, leading: .l, bottom: .m, trailing: .l))
+        .listRowInsets(EdgeInsets(top: .m, leading: 0, bottom: .m, trailing: 0))
     }
 }
 
@@ -149,9 +190,7 @@ struct ExerciseListCell: View {
     }
 
     var body: some View {
-        Button {
-            navigationController.path.append(ExercisePath(exercise: exercise, coursePath: CoursePath(course: course)))
-        } label: {
+        NavigationLink(value: ExercisePath(exercise: exercise, coursePath: CoursePath(course: course))) {
             HStack(alignment: .top, spacing: 0) {
                 if let difficulty = exercise.baseExercise.difficulty {
                     Rectangle()
@@ -165,7 +204,6 @@ struct ExerciseListCell: View {
                             .renderingMode(.template)
                             .resizable()
                             .scaledToFit()
-                            .foregroundColor(Color.Artemis.primaryLabel)
                             .frame(width: .smallImage)
                         Text(exercise.baseExercise.title ?? "")
                             .font(.title3)
@@ -202,10 +240,11 @@ struct ExerciseListCell: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.l)
             }
-            .cardModifier(backgroundColor: .Artemis.exerciseCardBackgroundColor, cornerRadius: .m)
+            .foregroundColor(Color.Artemis.primaryLabel)
         }
-        // Make button style explicit, otherwise, multiple cells may activate a navigation link.
-        .buttonStyle(.plain)
+        .tag(ExercisePath(exercise: exercise, coursePath: CoursePath(course: course)))
+        .listRowInsets(EdgeInsets(top: 0, leading: -20, bottom: 0, trailing: .m * -1))
+        .listRowBackground(Color.Artemis.exerciseCardBackgroundColor)
     }
 }
 

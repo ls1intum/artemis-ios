@@ -11,48 +11,90 @@ import SharedModels
 import SwiftUI
 
 struct LectureListView: View {
+    @EnvironmentObject var navController: NavigationController
     @ObservedObject var viewModel: CourseViewModel
+    @State private var columnVisibilty: NavigationSplitViewVisibility = .doubleColumn
 
     @Binding var searchText: String
 
+    private var selectedLecture: Binding<LecturePath?> {
+        navController.selectedPathBinding($navController.selectedPath)
+    }
+
     var body: some View {
-        ScrollViewReader { value in
-            List {
-                if searchText.isEmpty {
-                    if weeklyLectures.isEmpty {
-                        ContentUnavailableView(R.string.localizable.lecturesUnavailable(), systemImage: "character.book.closed")
-                            .listRowSeparator(.hidden)
+        NavigationSplitView(columnVisibility: $columnVisibilty) {
+            ScrollViewReader { value in
+                List(selection: selectedLecture) {
+                    if searchText.isEmpty {
+                        if weeklyLectures.isEmpty {
+                            ContentUnavailableView(R.string.localizable.lecturesUnavailable(), systemImage: "character.book.closed")
+                                .listRowSeparator(.hidden)
+                        } else {
+                            ForEach(weeklyLectures) { weeklyLecture in
+                                LectureListSectionView(course: viewModel.course, weeklyLecture: weeklyLecture)
+                            }
+                        }
                     } else {
-                        ForEach(weeklyLectures) { weeklyLecture in
-                            LectureListSectionView(course: viewModel.course, weeklyLecture: weeklyLecture)
+                        if searchResults.isEmpty {
+                            ContentUnavailableView.search(text: searchText)
+                                .listRowSeparator(.hidden)
+                        } else {
+                            ForEach(searchResults) { lecture in
+                                LectureListCellView(course: viewModel.course, lecture: lecture)
+                            }
                         }
                     }
-                } else {
-                    if searchResults.isEmpty {
-                        ContentUnavailableView.search(text: searchText)
-                            .listRowSeparator(.hidden)
-                    } else {
-                        ForEach(searchResults) { lecture in
-                            LectureListCellView(course: viewModel.course, lecture: lecture)
+                }
+                .listRowSpacing(.m)
+                .listStyle(.insetGrouped)
+                .scrollContentBackground(.hidden)
+                .refreshable {
+                    await viewModel.refreshCourse()
+                }
+                .onChange(of: weeklyLectures) { _, newValue in
+                    withAnimation {
+                        let lecture = newValue.first {
+                            $0.lectures.first?.startDate ?? .tomorrow > .now
+                        }
+                        if let id = lecture?.id {
+                            value.scrollTo(id, anchor: .top)
                         }
                     }
                 }
             }
-            .listStyle(.plain)
-            .refreshable {
-                await viewModel.refreshCourse()
+            .navigationTitle(viewModel.course.title ?? R.string.localizable.loading())
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    BackToRootButton()
+                }
             }
-            .onChange(of: weeklyLectures) { _, newValue in
-                withAnimation {
-                    let lecture = newValue.first {
-                        $0.lectures.first?.startDate ?? .tomorrow > .now
+        } detail: {
+            NavigationStack(path: $navController.tabPath) {
+                Group {
+                    if let path = navController.selectedPath as? LecturePath {
+                        Group {
+                            if let course = path.coursePath.course {
+                                LectureDetailView(course: course, lectureId: path.id)
+                            } else {
+                                LectureDetailView(courseId: path.coursePath.id, lectureId: path.id)
+                            }
+                        }
+                        .id(path.id)
+                    } else {
+                        SelectDetailView()
                     }
-                    if let id = lecture?.id {
-                        value.scrollTo(id, anchor: .top)
+                }
+                .navigationDestination(for: LecturePath.self) { lecturePath in
+                    if let course = lecturePath.coursePath.course {
+                        LectureDetailView(course: course, lectureId: lecturePath.id)
+                    } else {
+                        LectureDetailView(courseId: lecturePath.coursePath.id, lectureId: lecturePath.id)
                     }
                 }
             }
         }
+        .toolbar(.hidden, for: .navigationBar)
     }
 }
 
@@ -120,15 +162,12 @@ private struct LectureListSectionView: View {
             R.string.localizable.lecturesGroupTitle(weeklyLecture.id.description, weeklyLecture.lectures.count),
             isExpanded: $isExpanded
         ) {
-            LazyVStack(spacing: .m) {
-                ForEach(weeklyLecture.lectures, id: \.id) { lecture in
-                    LectureListCellView(course: course, lecture: lecture)
-                }
+            ForEach(weeklyLecture.lectures, id: \.id) { lecture in
+                LectureListCellView(course: course, lecture: lecture)
             }
-            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: .l))
         }
         .listRowSeparator(.hidden)
-        .listRowInsets(EdgeInsets(top: .m, leading: .l, bottom: .m, trailing: .l))
+        .listRowInsets(EdgeInsets())
     }
 }
 
@@ -143,30 +182,32 @@ private struct LectureListCellView: View {
     ]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: .m) {
-            HStack(spacing: .l) {
-                lecture.image
-                    .renderingMode(.template)
-                    .resizable()
-                    .scaledToFit()
-                    .foregroundColor(Color.Artemis.primaryLabel)
-                    .frame(width: .smallImage)
-                Text(lecture.title ?? "Unknown")
-                    .font(.title3)
-                Spacer()
+        NavigationLink(value: LecturePath(lecture: lecture, coursePath: CoursePath(course: course))) {
+            VStack(alignment: .leading, spacing: .m) {
+                HStack(spacing: .l) {
+                    lecture.image
+                        .renderingMode(.template)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: .smallImage)
+                    Text(lecture.title ?? "Unknown")
+                        .font(.title3)
+                    Spacer()
+                }
+                if let startDate = lecture.startDate {
+                    Text("\(startDate.dateOnly) (\(startDate.relative ?? "?"))")
+                } else {
+                    Text(R.string.localizable.noDateAssociated())
+                }
             }
-            if let startDate = lecture.startDate {
-                Text("\(startDate.dateOnly) (\(startDate.relative ?? "?"))")
-            } else {
-                Text(R.string.localizable.noDateAssociated())
-            }
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, .m)
+            .padding(.vertical, .l)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.l)
-        .cardModifier(backgroundColor: .Artemis.exerciseCardBackgroundColor, cornerRadius: .m)
-        .onTapGesture {
-            navigationController.path.append(LecturePath(lecture: lecture, coursePath: CoursePath(course: course)))
-        }
+        .foregroundColor(Color.Artemis.primaryLabel)
+        .listRowInsets(EdgeInsets(top: 0, leading: .m * -1, bottom: 0, trailing: .m * -1))
+        .listRowBackground(Color.Artemis.exerciseCardBackgroundColor)
+        .tag(LecturePath(lecture: lecture, coursePath: CoursePath(course: course)))
     }
 }
 

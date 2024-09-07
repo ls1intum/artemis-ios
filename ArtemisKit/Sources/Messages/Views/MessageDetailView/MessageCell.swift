@@ -263,7 +263,7 @@ private extension MessageCell {
             conversationViewModel: conversationViewModel,
             presentKeyboardOnAppear: presentKeyboard
         ) {
-            navigationController.path.append(messagePath)
+            navigationController.tabPath.append(messagePath)
         } else if showErrorOnFailure {
             conversationViewModel.presentError(userFacingError: UserFacingError(title: R.string.localizable.detailViewCantBeOpened()))
         }
@@ -304,13 +304,13 @@ private extension MessageCell {
             let coursePath = CoursePath(course: conversationViewModel.course)
             switch mention {
             case let .attachment(id, lectureId):
-                navigationController.path.append(LecturePath(id: lectureId, coursePath: coursePath))
+                navigationController.outerPath.append(LecturePath(id: lectureId, coursePath: coursePath))
             case let .channel(id):
-                navigationController.path.append(ConversationPath(id: id, coursePath: coursePath))
+                navigationController.tabPath.append(ConversationPath(id: id, coursePath: coursePath))
             case let .exercise(id):
-                navigationController.path.append(ExercisePath(id: id, coursePath: coursePath))
+                navigationController.outerPath.append(ExercisePath(id: id, coursePath: coursePath))
             case let .lecture(id):
-                navigationController.path.append(LecturePath(id: id, coursePath: coursePath))
+                navigationController.outerPath.append(LecturePath(id: id, coursePath: coursePath))
             case let .lectureUnit(id, attachmentUnit):
                 Task {
                     let delegate = SendMessageLecturePickerViewModel(course: conversationViewModel.course)
@@ -318,14 +318,14 @@ private extension MessageCell {
                     await delegate.loadLecturesWithSlides()
 
                     if let lecture = delegate.firstLectureContains(attachmentUnit: attachmentUnit) {
-                        navigationController.path.append(LecturePath(id: lecture.id, coursePath: coursePath))
+                        navigationController.outerPath.append(LecturePath(id: lecture.id, coursePath: coursePath))
                         return
                     }
                 }
             case let .member(login):
                 Task {
                     if let conversation = await viewModel.getOneToOneChatOrCreate(login: login) {
-                        navigationController.path.append(ConversationPath(conversation: conversation, coursePath: coursePath))
+                        navigationController.tabPath.append(ConversationPath(conversation: conversation, coursePath: coursePath))
                     }
                 }
             case let .message(id):
@@ -337,7 +337,7 @@ private extension MessageCell {
                     break
                 }
 
-                navigationController.path.append(messagePath)
+                navigationController.tabPath.append(messagePath)
             case let .slide(number, attachmentUnit):
                 Task {
                     let delegate = SendMessageLecturePickerViewModel(course: conversationViewModel.course)
@@ -345,7 +345,7 @@ private extension MessageCell {
                     await delegate.loadLecturesWithSlides()
 
                     if let lecture = delegate.firstLectureContains(attachmentUnit: attachmentUnit) {
-                        navigationController.path.append(LecturePath(id: lecture.id, coursePath: coursePath))
+                        navigationController.outerPath.append(LecturePath(id: lecture.id, coursePath: coursePath))
                         return
                     }
                 }

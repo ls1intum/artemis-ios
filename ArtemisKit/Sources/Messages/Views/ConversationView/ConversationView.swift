@@ -127,12 +127,13 @@ public struct ConversationView: View {
             await viewModel.loadMessages()
         }
         .onDisappear {
-            if navigationController.path.count < 2 {
+            if navigationController.outerPath.count < 2 {
                 // only cancel task if we navigate back
                 viewModel.subscription?.cancel()
             }
         }
         .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 

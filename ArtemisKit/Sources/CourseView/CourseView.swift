@@ -49,6 +49,21 @@ public struct CourseView: View {
         .onChange(of: navigationController.courseTab) {
             searchText = ""
         }
+        .onDisappear {
+            if navigationController.outerPath.count < 2 {
+                // Reset selection if navigating back
+                navigationController.selectedPath = nil
+            }
+        }
+        .onAppear {
+            // On iPad, always make Tab Bar opaque
+            // This prevents an issue where the tab bar has content behind it but is transparent
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                let appearance = UITabBarAppearance()
+                appearance.configureWithDefaultBackground()
+                UITabBar.appearance().scrollEdgeAppearance = appearance
+            }
+        }
     }
 }
 

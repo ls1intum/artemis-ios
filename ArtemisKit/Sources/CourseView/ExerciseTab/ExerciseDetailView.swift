@@ -14,6 +14,7 @@ import UserStore
 
 public struct ExerciseDetailView: View {
     @EnvironmentObject var navigationController: NavigationController
+    @Environment(\.horizontalSizeClass) var sizeClass
 
     @State private var viewModel: ExerciseDetailViewModel
 
@@ -52,6 +53,9 @@ public struct ExerciseDetailView: View {
         .refreshable {
             await viewModel.refreshExercise()
         }
+        .navigationBarTitleDisplayMode(.inline)
+        // Hide the course Tab Bar when inside an exercise on iPhone
+        .toolbar(sizeClass == .compact ? .hidden : .automatic, for: .tabBar)
     }
 }
 
@@ -220,14 +224,19 @@ private extension ExerciseDetailView {
                 }
             }
 
+            // Communication
             if let channel = viewModel.channel.value {
                 Divider()
                     .frame(height: 1.0)
                     .overlay(Color.Artemis.artemisBlue)
 
                 ExerciseDetailCell(descriptionText: R.string.localizable.communication() + ":") {
-                    NavigationLink(value: ConversationPath(conversation: .channel(conversation: channel),
-                                                           coursePath: .init(id: viewModel.courseId))) {
+                    Button {
+                        navigationController.outerPath.append(
+                            ConversationPath(conversation: .channel(conversation: channel),
+                                             coursePath: .init(id: viewModel.courseId))
+                        )
+                    } label: {
                         let name = channel.conversationName
                         let displayName = name
                             .suffix(name.starts(with: "exercise-") ? name.count - 9 : name.count)

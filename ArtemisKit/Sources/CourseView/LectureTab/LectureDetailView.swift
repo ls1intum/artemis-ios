@@ -15,6 +15,7 @@ import Navigation
 public struct LectureDetailView: View {
 
     @StateObject private var viewModel: LectureDetailViewModel
+    @Environment(\.horizontalSizeClass) var sizeClass
 
     public init(course: Course, lectureId: Int) {
         self._viewModel = StateObject(wrappedValue: LectureDetailViewModel(course: course, lectureId: lectureId))
@@ -77,12 +78,14 @@ public struct LectureDetailView: View {
                 }
             }
         }
-            .navigationTitle(viewModel.lecture.value?.title ?? R.string.localizable.loading())
-            .navigationBarTitleDisplayMode(.inline)
-            .task {
-                await viewModel.loadLecture()
-            }
-            .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
+        .navigationTitle(viewModel.lecture.value?.title ?? R.string.localizable.loading())
+        .navigationBarTitleDisplayMode(.inline)
+        .task {
+            await viewModel.loadLecture()
+        }
+        .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
+        // Hide the course Tab Bar when inside a lecture on iPhone
+        .toolbar(sizeClass == .compact ? .hidden : .automatic, for: .tabBar)
     }
 }
 
@@ -94,7 +97,7 @@ private struct ChannelCell: View {
 
     var body: some View {
         Button {
-            navigationController.path.append(ConversationPath(id: channel.id, coursePath: CoursePath(id: courseId)))
+            navigationController.outerPath.append(ConversationPath(id: channel.id, coursePath: CoursePath(id: courseId)))
         } label: {
             HStack {
                 VStack(alignment: .leading, spacing: .l) {
