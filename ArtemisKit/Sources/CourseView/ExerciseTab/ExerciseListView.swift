@@ -21,13 +21,13 @@ struct ExerciseListView: View {
             ScrollViewReader { value in
                 List(selection: selectedExercise) {
                     if searchText.isEmpty {
-                        if weeklyExercises.isEmpty {
+                        if exerciseGroups.isEmpty {
                             ContentUnavailableView(R.string.localizable.exercisesUnavailable(), systemImage: "list.bullet.clipboard")
                                 .listRowSeparator(.hidden)
                         } else {
-                            ForEach(weeklyExercises) { weeklyExercise in
-                                ExerciseListSection(course: viewModel.course, weeklyExercise: weeklyExercise)
-                                    .id(weeklyExercise.id)
+                            ForEach(exerciseGroups) { exerciseGroup in
+                                ExerciseListSection(course: viewModel.course, exerciseGroup: exerciseGroup)
+                                    .id(exerciseGroup.id)
                             }
                         }
                     } else {
@@ -42,12 +42,13 @@ struct ExerciseListView: View {
                     }
                 }
                 .listStyle(.insetGrouped)
+                .listSectionSpacing(.compact)
                 .scrollContentBackground(.hidden)
                 .listRowSpacing(.m)
                 .refreshable {
                     await viewModel.refreshCourse()
                 }
-                .onChange(of: weeklyExercises) { _, newValue in
+                .onChange(of: exerciseGroups) { _, newValue in
                     withAnimation {
                         if let id = newValue.first(where: { $0.exercises.first?.baseExercise.dueDate ?? .tomorrow > .now })?.id {
                             value.scrollTo(id, anchor: .top)
@@ -104,71 +105,86 @@ private extension ExerciseListView {
         }
     }
 
-    var weeklyExercises: [WeeklyExercise] {
+    var exerciseGroups: [ExerciseGroup] {
         guard let exercises = viewModel.course.exercises else {
             return []
         }
-        let groupedDates = exercises.reduce(into: [WeeklyExerciseId: [Exercise]]()) { partialResult, exercise in
-            var week: Int?
-            var year: Int?
-            if let dueDate = exercise.baseExercise.dueDate {
-                week = Calendar.current.component(.weekOfYear, from: dueDate)
-                year = Calendar.current.component(.year, from: dueDate)
+
+        let groupedDates = exercises.reduce(into: [ExerciseGroup.GroupType: [Exercise]]()) { partialResult, exercise in
+            let start = exercise.baseExercise.releaseDate
+            let end = exercise.baseExercise.dueDate
+            let type: ExerciseGroup.GroupType
+
+            if start == nil || start ?? .now < .now {
+                if end == nil {
+                    type = .noDate
+                } else if end ?? .now < .now {
+                    type = .past
+                } else if end?.distance(to: .now) ?? 0 > 3 * 24 * 60 * 60 {
+                    type = .dueSoon
+                } else {
+                    type = .current
+                }
+            } else {
+                type = .future
             }
 
-            let weeklyExerciseId = WeeklyExerciseId(week: week, year: year)
-
-            if partialResult[weeklyExerciseId] == nil {
-                partialResult[weeklyExerciseId] = [exercise]
+            if partialResult[type] == nil {
+                partialResult[type] = [exercise]
             } else {
-                partialResult[weeklyExerciseId]?.append(exercise)
+                partialResult[type]?.append(exercise)
             }
         }
-        let weeklyExercises = groupedDates.map { week in
-            let exercises = week.value.sorted {
+
+        let groups = groupedDates.map { group in
+            let exercises = group.value.sorted {
                 let lhs = $0.baseExercise.title?.lowercased() ?? ""
                 let rhs = $1.baseExercise.title?.lowercased() ?? ""
                 return lhs.compare(rhs) == .orderedAscending
             }
-            return WeeklyExercise(id: week.key, exercises: exercises)
+            return ExerciseGroup(type: group.key, exercises: exercises)
         }
-        return weeklyExercises.sorted {
-            let lhs = $0.id.startOfWeek ?? .distantFuture
-            let rhs = $1.id.startOfWeek ?? .distantFuture
-            return lhs.compare(rhs) == .orderedAscending
-        }
+        return groups.sorted(by: <)
     }
 }
 
 struct ExerciseListSection: View {
 
     private let course: Course
-    private let weeklyExercise: WeeklyExercise
+    private let exerciseGroup: ExerciseGroup
 
     @State private var isExpanded: Bool
 
-    fileprivate init(course: Course, weeklyExercise: WeeklyExercise) {
+    fileprivate init(course: Course, exerciseGroup: ExerciseGroup) {
         self.course = course
-        self.weeklyExercise = weeklyExercise
+        self.exerciseGroup = exerciseGroup
 
-        var isExpanded = false
-        if let exercise = self.weeklyExercise.exercises.first {
-            isExpanded = Date.now <= exercise.baseExercise.dueDate ?? .now
-        }
-        _isExpanded = State(wrappedValue: isExpanded)
+        let isCurrentOrDue = exerciseGroup.type == .current || exerciseGroup.type == .dueSoon
+        _isExpanded = State(wrappedValue: isCurrentOrDue)
     }
 
     var body: some View {
         DisclosureGroup(
-            "\(weeklyExercise.id.description) (Exercises: \(weeklyExercise.exercises.count))",
+            "\(exerciseGroup.type.description) (Exercises: \(exerciseGroup.exercises.count))",
             isExpanded: $isExpanded
         ) {
-            ForEach(weeklyExercise.exercises) { exercise in
-                ExerciseListCell(course: course, exercise: exercise)
+            ForEach(exerciseGroup.weeklyExercises) { exercise in
+                WeeklyExerciseView(weeklyExercise: exercise, course: course)
             }
         }
         .listRowSeparator(.hidden)
         .listRowInsets(EdgeInsets(top: .m, leading: 0, bottom: .m, trailing: 0))
+    }
+}
+
+struct WeeklyExerciseView: View {
+    fileprivate let weeklyExercise: WeeklyExercise
+    let course: Course
+
+    var body: some View {
+        ForEach(weeklyExercise.exercises) { exercise in
+            ExerciseListCell(course: course, exercise: exercise)
+        }
     }
 }
 
@@ -288,4 +304,68 @@ private struct WeeklyExerciseId: Identifiable, Hashable {
 private struct WeeklyExercise: Identifiable, Hashable {
     let id: WeeklyExerciseId
     var exercises: [Exercise]
+}
+
+private struct ExerciseGroup: Identifiable, Hashable, Comparable {
+    static func < (lhs: ExerciseGroup, rhs: ExerciseGroup) -> Bool {
+        lhs.type < rhs.type
+    }
+
+    var id: Int {
+        type.hashValue
+    }
+
+    let type: GroupType
+    var exercises: [Exercise]
+
+    var weeklyExercises: [WeeklyExercise] {
+        let groupedDates = exercises.reduce(into: [WeeklyExerciseId: [Exercise]]()) { partialResult, exercise in
+            var week: Int?
+            var year: Int?
+            if let dueDate = exercise.baseExercise.dueDate {
+                week = Calendar.current.component(.weekOfYear, from: dueDate)
+                year = Calendar.current.component(.year, from: dueDate)
+            }
+
+            let weeklyExerciseId = WeeklyExerciseId(week: week, year: year)
+
+            if partialResult[weeklyExerciseId] == nil {
+                partialResult[weeklyExerciseId] = [exercise]
+            } else {
+                partialResult[weeklyExerciseId]?.append(exercise)
+            }
+        }
+        let weeklyExercises = groupedDates.map { week in
+            let exercises = week.value.sorted {
+                let lhs = $0.baseExercise.title?.lowercased() ?? ""
+                let rhs = $1.baseExercise.title?.lowercased() ?? ""
+                return lhs.compare(rhs) == .orderedAscending
+            }
+            return WeeklyExercise(id: week.key, exercises: exercises)
+        }
+        return weeklyExercises.sorted {
+            let lhs = $0.id.startOfWeek ?? .distantFuture
+            let rhs = $1.id.startOfWeek ?? .distantFuture
+            return lhs.compare(rhs) == .orderedAscending
+        }
+    }
+
+    enum GroupType: Hashable, Comparable {
+        case past, dueSoon, current, future, noDate
+
+        var description: String {
+            return switch self {
+            case .noDate:
+                R.string.localizable.noDateAssociated()
+            case .past:
+                R.string.localizable.past()
+            case .current:
+                R.string.localizable.current()
+            case .dueSoon:
+                R.string.localizable.dueSoon()
+            case .future:
+                R.string.localizable.future()
+            }
+        }
+    }
 }
