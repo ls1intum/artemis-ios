@@ -18,17 +18,21 @@ public struct CourseView: View {
 
     public var body: some View {
         TabView(selection: $navigationController.courseTab) {
-            ExerciseListView(viewModel: viewModel, searchText: $searchText)
-                .tabItem {
-                    Label(R.string.localizable.exercisesTabLabel(), systemImage: "list.bullet.clipboard.fill")
-                }
-                .tag(TabIdentifier.exercise)
+            FixBlankScreenView {
+                ExerciseListView(viewModel: viewModel, searchText: $searchText)
+            }
+            .tabItem {
+                Label(R.string.localizable.exercisesTabLabel(), systemImage: "list.bullet.clipboard.fill")
+            }
+            .tag(TabIdentifier.exercise)
 
-            LectureListView(viewModel: viewModel, searchText: $searchText)
-                .tabItem {
-                    Label(R.string.localizable.lectureTabLabel(), systemImage: "character.book.closed.fill")
-                }
-                .tag(TabIdentifier.lecture)
+            FixBlankScreenView {
+                LectureListView(viewModel: viewModel, searchText: $searchText)
+            }
+            .tabItem {
+                Label(R.string.localizable.lectureTabLabel(), systemImage: "character.book.closed.fill")
+            }
+            .tag(TabIdentifier.lecture)
 
             if viewModel.isMessagesVisible {
                 MessagesTabView(course: viewModel.course, searchText: $searchText)
