@@ -325,7 +325,7 @@ private extension MessageCell {
             case let .member(login):
                 Task {
                     if let conversation = await viewModel.getOneToOneChatOrCreate(login: login) {
-                        navigationController.tabPath.append(ConversationPath(conversation: conversation, coursePath: coursePath))
+                        navigationController.goToCourseConversation(courseId: coursePath.id, conversation: conversation)
                     }
                 }
             case let .message(id):

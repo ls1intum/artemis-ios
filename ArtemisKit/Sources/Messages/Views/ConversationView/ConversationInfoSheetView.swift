@@ -342,9 +342,7 @@ private extension InfoSection {
                                         await viewModel.editDescription(newDescription: newDescription)
                                     }
                                 }
-                                Button(R.string.localizable.cancel(), role: .cancel) { 
-                                    //
-                                }
+                                Button(R.string.localizable.cancel(), role: .cancel) {}
                             }
                             .textCase(nil)
                         }

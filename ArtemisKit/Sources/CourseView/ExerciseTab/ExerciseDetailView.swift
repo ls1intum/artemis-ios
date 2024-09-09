@@ -14,7 +14,6 @@ import UserStore
 
 public struct ExerciseDetailView: View {
     @EnvironmentObject var navigationController: NavigationController
-    @Environment(\.horizontalSizeClass) var sizeClass
 
     @State private var viewModel: ExerciseDetailViewModel
 
@@ -54,8 +53,6 @@ public struct ExerciseDetailView: View {
             await viewModel.refreshExercise()
         }
         .navigationBarTitleDisplayMode(.inline)
-        // Hide the course Tab Bar when inside an exercise on iPhone
-        .toolbar(sizeClass == .compact ? .hidden : .automatic, for: .tabBar)
     }
 }
 
@@ -232,7 +229,8 @@ private extension ExerciseDetailView {
 
                 ExerciseDetailCell(descriptionText: R.string.localizable.communication() + ":") {
                     Button {
-                        navigationController.outerPath.append(
+                        navigationController.outerPath = NavigationPath()
+                        navigationController.tabPath.append(
                             ConversationPath(conversation: .channel(conversation: channel),
                                              coursePath: .init(id: viewModel.courseId))
                         )

@@ -187,8 +187,7 @@ public struct MessagesAvailableView: View {
                         SelectDetailView()
                     }
                 }
-                .navigationDestination(for: ConversationPath.self, destination: ConversationPathView.init)
-                .modifier(NavigationDestinationThreadViewModifier())
+                .modifier(NavigationDestinationMessagesModifier())
             }
         }
         .toolbar(.hidden, for: .navigationBar)
