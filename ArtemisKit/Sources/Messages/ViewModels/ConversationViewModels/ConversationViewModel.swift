@@ -57,7 +57,7 @@ class ConversationViewModel: BaseViewModel {
     init(
         course: Course,
         conversation: Conversation,
-        messagesRepository: MessagesRepository = .shared,
+        messagesRepository: MessagesRepository? = nil,
         messagesService: MessagesService = MessagesServiceFactory.shared,
         stompClient: ArtemisStompClient = .shared,
         userSession: UserSession = UserSessionFactory.shared
@@ -65,7 +65,7 @@ class ConversationViewModel: BaseViewModel {
         self.course = course
         self.conversation = conversation
 
-        self.messagesRepository = messagesRepository
+        self.messagesRepository = messagesRepository ?? .shared
         self.messagesService = messagesService
         self.stompClient = stompClient
         self.userSession = userSession
@@ -78,6 +78,11 @@ class ConversationViewModel: BaseViewModel {
 
     deinit {
         subscription?.cancel()
+    }
+
+    /// Saves changes to offline saved data. Call this whenever the view is dismissed.
+    func saveContext() {
+        messagesRepository.save()
     }
 }
 

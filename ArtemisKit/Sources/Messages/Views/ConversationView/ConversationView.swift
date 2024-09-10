@@ -12,6 +12,7 @@ import Navigation
 import SharedModels
 import SwiftUI
 
+@MainActor
 public struct ConversationView: View {
 
     @EnvironmentObject var navigationController: NavigationController
@@ -131,6 +132,7 @@ public struct ConversationView: View {
                 // only cancel task if we navigate back
                 viewModel.subscription?.cancel()
             }
+            viewModel.saveContext()
         }
         .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
         .navigationBarTitleDisplayMode(.inline)
