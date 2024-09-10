@@ -38,7 +38,6 @@ struct MessageCell: View {
                 }
                 Spacer()
             }
-            .background(backgroundOnPress, in: .rect(cornerRadius: .m))
             .contentShape(.rect)
             .onTapGesture(perform: onTapPresentMessage)
             .onLongPressGesture(perform: onLongPressPresentActionSheet) { changed in
@@ -55,6 +54,7 @@ struct MessageCell: View {
         .padding(viewModel.isHeaderVisible ? .vertical : .bottom, useFullWidth ? 0 : .m)
         .contentShape(.rect)
         .modifier(SwipeToReply(enabled: viewModel.conversationPath != nil, onSwipe: onSwipePresentMessage))
+        .background(backgroundOnPress, in: .rect(cornerRadius: .m))
         .background(messageBackground,
                     in: .rect(cornerRadii: viewModel.roundedCorners(isSelected: isSelected)))
         .modifier(ReactionsPopoverModifier(isSelected: isSelected,
