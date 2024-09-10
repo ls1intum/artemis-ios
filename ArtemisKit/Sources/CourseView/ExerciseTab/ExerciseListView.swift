@@ -1,4 +1,5 @@
 import Foundation
+import Messages
 import SwiftUI
 import SharedModels
 import Common
@@ -79,6 +80,7 @@ struct ExerciseListView: View {
                         SelectDetailView()
                     }
                 }
+                .modifier(NavigationDestinationMessagesModifier())
                 .navigationDestination(for: ExercisePath.self) { exercisePath in
                     if let course = exercisePath.coursePath.course,
                        let exercise = exercisePath.exercise {
