@@ -1,10 +1,12 @@
 import Common
+import SharedModels
 import SwiftUI
 
 @MainActor
 public class NavigationController: ObservableObject {
 
     @Published public var outerPath: NavigationPath
+    @Published public var selectedCourse: CoursePath?
     @Published public var tabPath: NavigationPath
     @Published public var selectedPath: (any Hashable)?
 
@@ -43,12 +45,13 @@ public extension NavigationController {
     func popToRoot() {
         outerPath = NavigationPath()
         tabPath = NavigationPath()
+        selectedCourse = nil
     }
 
     func goToCourse(id: Int) {
         popToRoot()
 
-        outerPath.append(CoursePath(id: id))
+        selectedCourse = CoursePath(id: id)
         log.debug("CoursePath was appended to queue")
     }
 
@@ -78,6 +81,13 @@ public extension NavigationController {
     func goToCourseConversation(courseId: Int, conversationId: Int64) {
         goToCourseConversations(courseId: courseId)
         selectedPath = ConversationPath(id: conversationId, coursePath: CoursePath(id: courseId))
+        tabPath = NavigationPath()
+    }
+
+    func goToCourseConversation(courseId: Int, conversation: Conversation) {
+        goToCourseConversations(courseId: courseId)
+        selectedPath = ConversationPath(conversation: conversation, coursePath: CoursePath(id: courseId))
+        tabPath = NavigationPath()
     }
 
     func showDeeplinkNotSupported(url: URL) {

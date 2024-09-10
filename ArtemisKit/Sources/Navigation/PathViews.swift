@@ -23,6 +23,8 @@ public struct CoursePathView<Content: View>: View {
         .task {
             await viewModel.loadCourse()
         }
+        .containerRelativeFrame(.horizontal)
+        .background(.background)
     }
 }
 

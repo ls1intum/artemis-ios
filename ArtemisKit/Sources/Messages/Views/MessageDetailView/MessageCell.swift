@@ -38,7 +38,6 @@ struct MessageCell: View {
                 }
                 Spacer()
             }
-            .background(backgroundOnPress, in: .rect(cornerRadius: .m))
             .contentShape(.rect)
             .onTapGesture(perform: onTapPresentMessage)
             .onLongPressGesture(perform: onLongPressPresentActionSheet) { changed in
@@ -55,6 +54,7 @@ struct MessageCell: View {
         .padding(viewModel.isHeaderVisible ? .vertical : .bottom, useFullWidth ? 0 : .m)
         .contentShape(.rect)
         .modifier(SwipeToReply(enabled: viewModel.conversationPath != nil, onSwipe: onSwipePresentMessage))
+        .background(backgroundOnPress, in: .rect(cornerRadius: .m))
         .background(messageBackground,
                     in: .rect(cornerRadii: viewModel.roundedCorners(isSelected: isSelected)))
         .modifier(ReactionsPopoverModifier(isSelected: isSelected,
@@ -325,7 +325,7 @@ private extension MessageCell {
             case let .member(login):
                 Task {
                     if let conversation = await viewModel.getOneToOneChatOrCreate(login: login) {
-                        navigationController.tabPath.append(ConversationPath(conversation: conversation, coursePath: coursePath))
+                        navigationController.goToCourseConversation(courseId: coursePath.id, conversation: conversation)
                     }
                 }
             case let .message(id):

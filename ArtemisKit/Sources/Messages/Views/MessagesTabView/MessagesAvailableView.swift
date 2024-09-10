@@ -187,8 +187,7 @@ public struct MessagesAvailableView: View {
                         SelectDetailView()
                     }
                 }
-                .navigationDestination(for: ConversationPath.self, destination: ConversationPathView.init)
-                .modifier(NavigationDestinationThreadViewModifier())
+                .modifier(NavigationDestinationMessagesModifier())
             }
         }
         .toolbar(.hidden, for: .navigationBar)
@@ -347,7 +346,7 @@ private struct MessageSection<T: BaseConversation>: View {
         DataStateView(data: $conversations) {
             await viewModel.loadConversations()
         } content: { conversations in
-            if !(isFiltering && conversations.isEmpty) {
+            if !conversations.isEmpty {
                 Section {
                     DisclosureGroup(isExpanded: Binding(get: {
                         isExpanded || isFiltering

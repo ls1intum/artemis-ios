@@ -10,10 +10,10 @@ import Navigation
 import SharedModels
 import SwiftUI
 
+@MainActor
 public struct ConversationPathView<Content: View>: View {
     @State var viewModel: ConversationPathViewModel
     let content: (Course, Conversation) -> Content
-    @Environment(\.horizontalSizeClass) var sizeClass
 
     public var body: some View {
         DataStateView(data: $viewModel.conversation) {
@@ -26,8 +26,6 @@ public struct ConversationPathView<Content: View>: View {
         .task {
             await viewModel.loadConversation()
         }
-        // Hide the course Tab Bar when inside a conversation on iPhone
-        .toolbar(sizeClass == .compact ? .hidden : .automatic, for: .tabBar)
     }
 }
 
