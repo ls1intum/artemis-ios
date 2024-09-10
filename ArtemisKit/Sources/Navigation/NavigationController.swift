@@ -10,7 +10,6 @@ public class NavigationController: ObservableObject {
     @Published public var tabPath: NavigationPath
     @Published public var selectedPath: (any Hashable)?
 
-    @Published public var showTabBar = 0
     @Published public var courseTab = TabIdentifier.exercise
 
     @Published public var showDeeplinkNotSupported = false
