@@ -31,10 +31,11 @@ struct ProfilePictureView: View {
             Circle()
                 .fill(backgroundColor)
             Text(initials)
-                .font(.title3.bold())
+                .font(.headline.bold())
                 .fontDesign(.rounded)
                 .foregroundStyle(.white)
         }
+        .accessibilityHidden(true)
     }
 
     private var initials: String {
