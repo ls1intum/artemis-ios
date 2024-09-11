@@ -31,7 +31,7 @@ struct ProfilePictureView: View {
             Circle()
                 .fill(backgroundColor)
             Text(initials)
-                .font(.title2)
+                .font(.title3.bold())
                 .fontDesign(.rounded)
                 .foregroundStyle(.white)
         }
