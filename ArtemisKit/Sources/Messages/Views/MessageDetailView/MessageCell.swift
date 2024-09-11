@@ -94,11 +94,15 @@ extension MessageCell {
 
 private extension MessageCell {
     var author: String {
-        message.value?.author?.name ?? ""
+        authorUser?.name ?? ""
     }
 
     private var authorRole: UserRole? {
         message.value?.authorRole
+    }
+
+    private var authorUser: ConversationUser? {
+        return message.value?.author
     }
 
     var creationDate: Date? {
@@ -180,23 +184,31 @@ private extension MessageCell {
 
     @ViewBuilder var headerIfVisible: some View {
         if viewModel.isHeaderVisible {
-            HStack(alignment: .firstTextBaseline, spacing: .m) {
-                roleBadge
-                Text(isMessageOffline ? "Redacted" : author)
-                    .bold()
-                    .redacted(reason: isMessageOffline ? .placeholder : [])
-                if let creationDate {
-                    let formatter: DateFormatter = viewModel.conversationPath == nil ? .superShortDateAndTime : .timeOnly
-                    Text(creationDate, formatter: formatter)
-                        .font(.caption)
-                    if viewModel.isChipVisible(creationDate: creationDate, authorId: message.value?.author?.id) {
-                        Chip(
-                            text: R.string.localizable.new(),
-                            backgroundColor: .Artemis.artemisBlue,
-                            padding: .s
-                        )
-                        .font(.footnote)
+            HStack(alignment: .center, spacing: .m) {
+                if let authorUser {
+                    ProfilePictureView(user: authorUser)
+                }
+                VStack(alignment: .leading, spacing: .xs) {
+                    HStack(alignment: .firstTextBaseline, spacing: .m) {
+                        roleBadge
+                        Spacer()
+                        if let creationDate {
+                            let formatter: DateFormatter = viewModel.conversationPath == nil ? .superShortDateAndTime : .timeOnly
+                            Text(creationDate, formatter: formatter)
+                                .font(.caption)
+                            if viewModel.isChipVisible(creationDate: creationDate, authorId: message.value?.author?.id) {
+                                Chip(
+                                    text: R.string.localizable.new(),
+                                    backgroundColor: .Artemis.artemisBlue,
+                                    padding: .s
+                                )
+                                .font(.footnote)
+                            }
+                        }
                     }
+                    Text(isMessageOffline ? "Redacted" : author)
+                        .bold()
+                        .redacted(reason: isMessageOffline ? .placeholder : [])
                 }
             }
         }
