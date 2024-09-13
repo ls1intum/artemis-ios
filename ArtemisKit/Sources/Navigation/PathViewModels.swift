@@ -25,7 +25,19 @@ final class CoursePathViewModel {
     }
 
     func loadCourse() async {
+        let start = Date().timeIntervalSince1970
+
         let result = await courseService.getCourse(courseId: path.id)
-        self.course = result.map(\.course)
+        defer {
+            self.course = result.map(\.course)
+        }
+
+        // Ensure 0.3s for animation has passed
+        let end = Date().timeIntervalSince1970
+        let durationNanoSeconds = (end - start) * 1_000_000_000
+        let timeToWait = max(0, 300_000_000 - durationNanoSeconds)
+        do {
+            try await Task.sleep(nanoseconds: UInt64(timeToWait))
+        } catch {}
     }
 }

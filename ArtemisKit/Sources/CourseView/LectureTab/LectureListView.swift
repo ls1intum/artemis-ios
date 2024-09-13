@@ -9,6 +9,7 @@ import DesignLibrary
 import Navigation
 import SharedModels
 import SwiftUI
+import Messages
 
 struct LectureListView: View {
     @EnvironmentObject var navController: NavigationController
@@ -85,6 +86,7 @@ struct LectureListView: View {
                         SelectDetailView()
                     }
                 }
+                .modifier(NavigationDestinationMessagesModifier())
                 .navigationDestination(for: LecturePath.self) { lecturePath in
                     if let course = lecturePath.coursePath.course {
                         LectureDetailView(course: course, lectureId: lecturePath.id)

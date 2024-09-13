@@ -54,13 +54,25 @@ extension ConversationInfoSheetViewModel {
         if conversation.baseConversation is OneToOneChat {
             return false
         }
+        // cannot leave course wide channel
+        if (conversation.baseConversation as? Channel)?.isCourseWide ?? false {
+            return false
+        }
         return true
     }
 
     var canAddUsers: Bool {
         switch conversation {
         case .channel(let conversation):
-            return conversation.hasChannelModerationRights ?? false
+            if conversation.isCourseWide ?? false {
+                return false
+            }
+            switch conversation.subType ?? .general {
+            case .general:
+                return conversation.hasChannelModerationRights ?? false
+            case .exercise, .lecture, .exam:
+                return false
+            }
         case .groupChat(let conversation):
             return conversation.isMember ?? false
         case .oneToOneChat:
@@ -265,7 +277,7 @@ extension ConversationInfoSheetViewModel {
         Task {
             let messageCellModel = MessageCellModel(course: course, conversationPath: nil, isHeaderVisible: false, roundBottomCorners: false, retryButtonAction: {})
             if let conversation = await messageCellModel.getOneToOneChatOrCreate(login: login) {
-                navigationController.outerPath.append(ConversationPath(conversation: conversation, coursePath: CoursePath(course: course)))
+                navigationController.goToCourseConversation(courseId: course.id, conversation: conversation)
                 completion()
             }
             isLoading = false

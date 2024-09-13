@@ -80,7 +80,7 @@ final class SendMessageViewModel {
         configuration: Configuration,
         delegate: SendMessageViewModelDelegate,
         presentKeyboardOnAppear: Bool = false,
-        messagesRepository: MessagesRepository = .shared,
+        messagesRepository: MessagesRepository? = nil,
         messagesService: MessagesService = MessagesServiceFactory.shared,
         userSession: UserSession = UserSessionFactory.shared
     ) {
@@ -90,7 +90,7 @@ final class SendMessageViewModel {
         self.presentKeyboardOnAppear = presentKeyboardOnAppear
 
         self.delegate = delegate
-        self.messagesRepository = messagesRepository
+        self.messagesRepository = messagesRepository ?? .shared
         self.messagesService = messagesService
         self.userSession = userSession
     }
