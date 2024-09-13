@@ -93,6 +93,10 @@
 "version" = "Version";
 "date" = "Date";
 "noDateAssociated" = "No date associated";
+"current" = "Current";
+"future" = "Future";
+"dueSoon" = "Due soon";
+"past" = "Past";
 "lectureUnits" = "Lecture Units";
 "lecturesGroupTitle" = "%s (Lectures: %i)";
 "attachments" = "Attachments";
