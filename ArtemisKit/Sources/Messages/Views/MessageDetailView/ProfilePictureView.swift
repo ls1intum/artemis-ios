@@ -23,12 +23,12 @@ struct ProfilePictureView: View {
             }
         }
         .frame(width: 42, height: 42)
-        .clipShape(.circle)
+        .clipShape(.rect(cornerRadius: .m))
     }
 
     @ViewBuilder var defaultProfilePicture: some View {
         ZStack {
-            Circle()
+            Rectangle()
                 .fill(backgroundColor)
             Text(initials)
                 .font(.headline.bold())
