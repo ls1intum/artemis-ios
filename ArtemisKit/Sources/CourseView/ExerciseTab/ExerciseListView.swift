@@ -138,6 +138,10 @@ private extension ExerciseListView {
 
         let groups = groupedDates.map { group in
             let exercises = group.value.sorted {
+                if let lhsDue = $0.baseExercise.dueDate,
+                   let rhsDue = $1.baseExercise.dueDate {
+                    return lhsDue.compare(rhsDue) == .orderedAscending
+                }
                 let lhs = $0.baseExercise.title?.lowercased() ?? ""
                 let rhs = $1.baseExercise.title?.lowercased() ?? ""
                 return lhs.compare(rhs) == .orderedAscending
