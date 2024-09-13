@@ -175,12 +175,20 @@ struct ExerciseListSection: View {
             isExpanded: $isExpanded
         ) {
             ForEach(exerciseGroup.weeklyExercises) { exercise in
-                WeeklyExerciseView(weeklyExercise: exercise, course: course)
+                /// If more than 5 exercises, group by week as well
+                if exerciseGroup.type != .noDate && exerciseGroup.exercises.count > 5 {
+                    Section(exercise.id.description) {
+                        WeeklyExerciseView(weeklyExercise: exercise, course: course)
+                    }
+                } else {
+                    WeeklyExerciseView(weeklyExercise: exercise, course: course)
+                }
             }
         }
         .listRowSeparator(.hidden)
         .listRowInsets(EdgeInsets(top: .m, leading: 0, bottom: .m, trailing: .s))
         .listRowBackground(Color.clear)
+        .listSectionSpacing(.compact)
     }
 }
 
@@ -343,12 +351,7 @@ private struct ExerciseGroup: Identifiable, Hashable, Comparable {
             }
         }
         let weeklyExercises = groupedDates.map { week in
-            let exercises = week.value.sorted {
-                let lhs = $0.baseExercise.title?.lowercased() ?? ""
-                let rhs = $1.baseExercise.title?.lowercased() ?? ""
-                return lhs.compare(rhs) == .orderedAscending
-            }
-            return WeeklyExercise(id: week.key, exercises: exercises)
+            WeeklyExercise(id: week.key, exercises: week.value)
         }
         return weeklyExercises.sorted {
             let lhs = $0.id.startOfWeek ?? .distantFuture
