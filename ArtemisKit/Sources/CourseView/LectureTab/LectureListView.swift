@@ -27,12 +27,12 @@ struct LectureListView: View {
             ScrollViewReader { value in
                 List(selection: selectedLecture) {
                     if searchText.isEmpty {
-                        if weeklyLectures.isEmpty {
+                        if lectureGroups.isEmpty {
                             ContentUnavailableView(R.string.localizable.lecturesUnavailable(), systemImage: "character.book.closed")
                                 .listRowSeparator(.hidden)
                         } else {
-                            ForEach(weeklyLectures) { weeklyLecture in
-                                LectureListSectionView(course: viewModel.course, weeklyLecture: weeklyLecture)
+                            ForEach(lectureGroups) { lectureGroup in
+                                LectureListSectionView(course: viewModel.course, lectureGroup: lectureGroup)
                             }
                         }
                     } else {
@@ -52,7 +52,7 @@ struct LectureListView: View {
                 .refreshable {
                     await viewModel.refreshCourse()
                 }
-                .onChange(of: weeklyLectures) { _, newValue in
+                .onChange(of: lectureGroups) { _, newValue in
                     withAnimation {
                         let lecture = newValue.first {
                             $0.lectures.first?.startDate ?? .tomorrow > .now
@@ -111,65 +111,95 @@ private extension LectureListView {
         }
     }
 
-    var weeklyLectures: [WeeklyLecture] {
+    var lectureGroups: [LectureGroup] {
         guard let lectures = viewModel.course.lectures else {
             return []
         }
-        let groupedDates = Dictionary(grouping: lectures) { lecture in
-            var week: Int?
-            var year: Int?
-            if let dueDate = lecture.startDate {
-                week = Calendar.current.component(.weekOfYear, from: dueDate)
-                year = Calendar.current.component(.year, from: dueDate)
-            }
-            return WeeklyLectureId(week: week, year: year)
-        }
-        let weeklyLectures = groupedDates
-            .map { week in
-                let lectures = week.value.sorted {
-                    let lhs = $0.startDate ?? .now
-                    let rhs = $1.startDate ?? .now
-                    return lhs.compare(rhs) == .orderedAscending
+
+        let groupedDates = lectures.reduce(into: [LectureGroup.GroupType: [Lecture]]()) { partialResult, lecture in
+            let start = lecture.startDate
+            let end = lecture.endDate
+            let type: LectureGroup.GroupType
+
+            if start == nil || start ?? .now < .now {
+                if end == nil {
+                    type = .noDate
+                } else if end ?? .now < .now {
+                    type = .past
+                } else {
+                    type = .current
                 }
-                return WeeklyLecture(id: week.key, lectures: lectures)
+            } else {
+                type = .future
             }
-            .sorted {
-                let lhs = $0.id.startOfWeek ?? .distantFuture
-                let rhs = $1.id.startOfWeek ?? .distantFuture
+
+            if partialResult[type] == nil {
+                partialResult[type] = [lecture]
+            } else {
+                partialResult[type]?.append(lecture)
+            }
+        }
+
+        let groups = groupedDates.map { group in
+            let lectures = group.value.sorted {
+                if let lhsDue = $0.endDate,
+                   let rhsDue = $1.endDate {
+                    return lhsDue.compare(rhsDue) == .orderedAscending
+                }
+                let lhs = $0.title?.lowercased() ?? ""
+                let rhs = $1.title?.lowercased() ?? ""
                 return lhs.compare(rhs) == .orderedAscending
             }
-        return weeklyLectures
+            return LectureGroup(type: group.key, lectures: lectures)
+        }
+        return groups.sorted(by: <)
     }
 }
 
 private struct LectureListSectionView: View {
     private let course: Course
-    private let weeklyLecture: WeeklyLecture
+    private let lectureGroup: LectureGroup
 
     @State private var isExpanded: Bool
 
-    init(course: Course, weeklyLecture: WeeklyLecture) {
+    init(course: Course, lectureGroup: LectureGroup) {
         self.course = course
-        self.weeklyLecture = weeklyLecture
+        self.lectureGroup = lectureGroup
 
-        var isExpanded = false
-        if let lecture = self.weeklyLecture.lectures.first {
-            isExpanded = Date.now <= lecture.startDate ?? .now
-        }
-        _isExpanded = State(wrappedValue: isExpanded)
+        let isCurrentOrDue = lectureGroup.type == .current || lectureGroup.type == .dueSoon
+        _isExpanded = State(wrappedValue: isCurrentOrDue)
     }
 
     var body: some View {
         DisclosureGroup(
-            R.string.localizable.lecturesGroupTitle(weeklyLecture.id.description, weeklyLecture.lectures.count),
+            R.string.localizable.lecturesGroupTitle(lectureGroup.type.description, lectureGroup.lectures.count),
             isExpanded: $isExpanded
         ) {
-            ForEach(weeklyLecture.lectures, id: \.id) { lecture in
-                LectureListCellView(course: course, lecture: lecture)
+            ForEach(lectureGroup.weeklyLectures, id: \.id) { weeklyLecture in
+                /// If more than 5 lectures, group by week as well
+                if lectureGroup.type != .noDate && lectureGroup.lectures.count > 5 {
+                    Section(weeklyLecture.id.description) {
+                        WeeklyLectureView(weeklyLecture: weeklyLecture, course: course)
+                    }
+                } else {
+                    WeeklyLectureView(weeklyLecture: weeklyLecture, course: course)
+                }
             }
         }
         .listRowSeparator(.hidden)
-        .listRowInsets(EdgeInsets())
+        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: .s))
+        .listRowBackground(Color.clear)
+    }
+}
+
+struct WeeklyLectureView: View {
+    fileprivate let weeklyLecture: WeeklyLecture
+    let course: Course
+
+    var body: some View {
+        ForEach(weeklyLecture.lectures) { lecture in
+            LectureListCellView(course: course, lecture: lecture)
+        }
     }
 }
 
@@ -255,5 +285,62 @@ private struct WeeklyLectureId: Hashable, Identifiable {
             return nil
         }
         return Calendar.current.date(byAdding: .day, value: 6, to: startOfWeek)
+    }
+}
+
+private struct LectureGroup: Identifiable, Hashable, Comparable {
+    static func < (lhs: LectureGroup, rhs: LectureGroup) -> Bool {
+        lhs.type < rhs.type
+    }
+
+    var id: Int {
+        type.hashValue
+    }
+
+    let type: GroupType
+    var lectures: [Lecture]
+
+    var weeklyLectures: [WeeklyLecture] {
+        let groupedDates = lectures.reduce(into: [WeeklyLectureId: [Lecture]]()) { partialResult, lecture in
+            var week: Int?
+            var year: Int?
+            if let dueDate = lecture.endDate {
+                week = Calendar.current.component(.weekOfYear, from: dueDate)
+                year = Calendar.current.component(.year, from: dueDate)
+            }
+
+            let weeklyLectureId = WeeklyLectureId(week: week, year: year)
+
+            if partialResult[weeklyLectureId] == nil {
+                partialResult[weeklyLectureId] = [lecture]
+            } else {
+                partialResult[weeklyLectureId]?.append(lecture)
+            }
+        }
+        let weeklyLectures = groupedDates.map { week in
+            WeeklyLecture(id: week.key, lectures: week.value)
+        }
+        return weeklyLectures.sorted {
+            let lhs = $0.id.startOfWeek ?? .distantFuture
+            let rhs = $1.id.startOfWeek ?? .distantFuture
+            return lhs.compare(rhs) == .orderedAscending
+        }
+    }
+
+    enum GroupType: Hashable, Comparable {
+        case past, current, future, noDate
+
+        var description: String {
+            return switch self {
+            case .noDate:
+                R.string.localizable.noDateAssociated()
+            case .past:
+                R.string.localizable.past()
+            case .current:
+                R.string.localizable.current()
+            case .future:
+                R.string.localizable.future()
+            }
+        }
     }
 }
