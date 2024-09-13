@@ -177,7 +177,8 @@ struct ExerciseListSection: View {
             }
         }
         .listRowSeparator(.hidden)
-        .listRowInsets(EdgeInsets(top: .m, leading: 0, bottom: .m, trailing: 0))
+        .listRowInsets(EdgeInsets(top: .m, leading: 0, bottom: .m, trailing: .s))
+        .listRowBackground(Color.clear)
     }
 }
 
