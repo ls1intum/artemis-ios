@@ -166,8 +166,8 @@ private struct LectureListSectionView: View {
         self.course = course
         self.lectureGroup = lectureGroup
 
-        let isCurrentOrDue = lectureGroup.type == .current || lectureGroup.type == .dueSoon
-        _isExpanded = State(wrappedValue: isCurrentOrDue)
+        let isCurrent = lectureGroup.type == .current
+        _isExpanded = State(wrappedValue: isCurrent)
     }
 
     var body: some View {
