@@ -184,7 +184,7 @@ private extension MessageCell {
 
     @ViewBuilder var headerIfVisible: some View {
         if viewModel.isHeaderVisible {
-            HStack(alignment: .center, spacing: .m) {
+            HStack(alignment: .top, spacing: .m) {
                 if let authorUser {
                     ProfilePictureView(user: authorUser)
                 }

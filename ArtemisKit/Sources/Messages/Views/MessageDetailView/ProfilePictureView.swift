@@ -22,7 +22,7 @@ struct ProfilePictureView: View {
                 defaultProfilePicture
             }
         }
-        .frame(width: 42, height: 42)
+        .frame(width: 44, height: 44)
         .clipShape(.rect(cornerRadius: .m))
     }
 
