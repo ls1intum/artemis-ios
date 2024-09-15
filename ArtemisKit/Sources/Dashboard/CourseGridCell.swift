@@ -35,11 +35,11 @@ struct CourseGridCell: View {
         } label: {
             VStack(alignment: .leading, spacing: 0) {
                 header
-                statistics
-                footer
+                content
             }
             .cardModifier(backgroundColor: .clear, hasBorder: true)
         }
+        .buttonStyle(.plain)
     }
 }
 
@@ -67,50 +67,65 @@ private extension CourseGridCell {
         .background(courseForDashboard.course.courseColor)
     }
 
-    var statistics: some View {
-        HStack {
-            Spacer()
-            if let totalScore = courseForDashboard.totalScores {
-                ProgressBar(
-                    value: Int(totalScore.studentScores.absoluteScore),
-                    total: Int(totalScore.reachablePoints)
-                )
-                .frame(height: .xxxl)
-            } else {
-                Text(R.string.localizable.dashboardNoStatisticsAvailable())
-            }
-            Spacer()
+    var content: some View {
+        HStack(alignment: .center, spacing: .m) {
+            information
+            statisticsChart
         }
-        .foregroundStyle(Color.Artemis.secondaryLabel)
-        .padding(.vertical, .m)
+        .frame(height: .xxxl)
+        .padding(.l)
+        .background(Color(uiColor: .secondarySystemGroupedBackground))
     }
 
-    var footer: some View {
-        HStack {
-            if let nextExercise,
-               let nextExerciseTitle = nextExercise.baseExercise.title {
-                HStack {
-                    Text(R.string.localizable.dashboardNextExerciseLabel())
-                        .padding(.trailing, .m)
-                    nextExercise.image
-                        .renderingMode(.template)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: .extraSmallImage)
-                    Text(nextExerciseTitle)
-                        .bold()
-                        .lineLimit(1)
+    var information: some View {
+        VStack(alignment: .leading) {
+            Text(R.string.localizable.dashboardScoreTitle())
+                .foregroundStyle(.secondary)
+                .fontWeight(.medium)
+            Group {
+                if let totalScore = courseForDashboard.totalScores,
+                   totalScore.studentScores.absoluteScore > 0 {
+                    let achieved = Int(totalScore.studentScores.absoluteScore)
+                    let possible = Int(totalScore.reachablePoints)
+                    Text(R.string.localizable.dashboardScoreLabel(achieved, possible))
+                } else {
+                    Text(R.string.localizable.dashboardNoStatisticsAvailable())
                 }
-                .padding(.l)
-            } else {
-                Text(R.string.localizable.dashboardNoExercisePlannedLabel())
-                    .padding(.l)
             }
-            Spacer()
+            .fontWeight(.semibold)
+
+            Divider()
+                .frame(height: .xxs)
+                .overlay(.gray)
+                .padding(.vertical, .s)
+
+            Text(R.string.localizable.dashboardNextExerciseLabel())
+                .foregroundStyle(.secondary)
+                .fontWeight(.medium)
+            Group {
+                if let nextExercise,
+                   let nextExerciseTitle = nextExercise.baseExercise.title {
+                    Text(nextExerciseTitle)
+                        .lineLimit(1)
+                } else {
+                    Text(R.string.localizable.dashboardNoExercisePlannedLabel())
+                }
+            }
+            .fontWeight(.semibold)
         }
-        .frame(maxWidth: .infinity)
-        .background(Color.Artemis.dashboardCardBackgroundColor)
-        .foregroundStyle(Color.Artemis.secondaryLabel)
+    }
+
+    @ViewBuilder var statisticsChart: some View {
+        if let totalScore = courseForDashboard.totalScores,
+           totalScore.studentScores.absoluteScore > 0 {
+            ProgressBar(
+                value: Int(totalScore.studentScores.absoluteScore),
+                total: Int(totalScore.reachablePoints)
+            )
+            .foregroundStyle(Color.Artemis.secondaryLabel)
+            .frame(width: .xxxl)
+            .padding(.leading)
+        }
     }
 }
 
