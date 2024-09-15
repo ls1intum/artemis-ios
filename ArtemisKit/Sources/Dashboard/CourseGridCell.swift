@@ -107,6 +107,9 @@ private extension CourseGridCell {
                    let nextExerciseTitle = nextExercise.baseExercise.title {
                     Text(nextExerciseTitle)
                         .lineLimit(1)
+                        .onTapGesture {
+                            navigationController.goToExercise(courseId: courseForDashboard.id, exerciseId: nextExercise.id)
+                        }
                 } else {
                     Text(R.string.localizable.dashboardNoExercisePlannedLabel())
                 }
