@@ -128,9 +128,11 @@ public struct ConversationView: View {
             await viewModel.loadMessages()
         }
         .onDisappear {
-            if navigationController.outerPath.count < 2 {
-                // only cancel task if we navigate back
-                viewModel.subscription?.cancel()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                if navigationController.selectedCourse == nil {
+                    // only cancel task if we navigate back
+                    viewModel.subscription?.cancel()
+                }
             }
             viewModel.saveContext()
         }

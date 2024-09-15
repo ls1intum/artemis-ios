@@ -18,11 +18,9 @@ let package = Package(
             ])
     ],
     dependencies: [
-        // Starscream 4.0.6 does not build
-        .package(url: "https://github.com/daltoniam/Starscream.git", exact: "4.0.4"),
         .package(url: "https://github.com/Kelvas09/EmojiPicker.git", from: "1.0.0"),
         .package(url: "https://github.com/ls1intum/apollon-ios-module", .upToNextMajor(from: "1.0.2")),
-        .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", .upToNextMajor(from: "14.2.0")),
+        .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", .upToNextMajor(from: "14.3.0")),
         .package(url: "https://github.com/mac-cain13/R.swift.git", from: "7.0.0")
     ],
     targets: [
