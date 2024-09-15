@@ -45,31 +45,24 @@ struct CourseGridCell: View {
 
 private extension CourseGridCell {
     var header: some View {
-        HStack(alignment: .center) {
-            VStack {
-                if let imageURL = courseForDashboard.course.courseIconURL {
-                    ArtemisAsyncImage(imageURL: imageURL) {
-                        EmptyView()
-                    }
-                    .clipShape(.circle)
-                    .frame(width: .extraLargeImage)
+        HStack(alignment: .center, spacing: .m) {
+            if let imageURL = courseForDashboard.course.courseIconURL {
+                ArtemisAsyncImage(imageURL: imageURL) {
+                    EmptyView()
                 }
+                .clipShape(.circle)
+                .frame(width: .largeImage * 1.25)
             }
-            .frame(height: .extraLargeImage)
-            .padding([.leading, .vertical], .m)
-            VStack(alignment: .leading, spacing: 0) {
-                Text(courseForDashboard.course.title ?? "")
-                    .font(.system(size: UIFontMetrics.default.scaledValue(for: 21)))
-                    .multilineTextAlignment(.leading)
-                    .lineLimit(2)
-                Text(R.string.localizable.dashboardExercisesLabel(courseForDashboard.course.exercises?.count ?? 0))
-                let numberOfLectures = courseForDashboard.course.numberOfLectures ?? courseForDashboard.course.lectures?.count ?? 0
-                Text(R.string.localizable.dashboardLecturesLabel(numberOfLectures))
-            }
-            .foregroundStyle(.white)
-            .padding(.m)
+            Spacer()
+            Text(courseForDashboard.course.title ?? "")
+                .font(.title3)
+                .multilineTextAlignment(.leading)
+                .lineLimit(2)
+                .foregroundStyle(.white)
             Spacer()
         }
+        .frame(height: .largeImage * 1.25)
+        .padding(.m)
         .frame(maxWidth: .infinity)
         .background(courseForDashboard.course.courseColor)
     }
