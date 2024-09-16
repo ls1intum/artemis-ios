@@ -54,11 +54,23 @@ private extension CourseGridCell {
                 .frame(width: .largeImage * 1.25)
             }
             Spacer()
-            Text(courseForDashboard.course.title ?? "")
-                .font(.title3)
-                .multilineTextAlignment(.leading)
-                .lineLimit(2)
-                .foregroundStyle(.white)
+
+            // If title spans multiple lines, push it to the leading edge
+            // Otherwise it looks stupid
+            let title = courseForDashboard.course.title ?? ""
+            ViewThatFits(in: .horizontal) {
+                Text(title)
+                    .font(.title3)
+                    .lineLimit(1)
+
+                Text(title)
+                    .font(.title3)
+                    .multilineTextAlignment(.leading)
+                    .lineLimit(2)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .foregroundStyle(.white)
+
             Spacer()
         }
         .frame(height: .largeImage * 1.25)
