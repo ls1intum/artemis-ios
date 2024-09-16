@@ -134,8 +134,8 @@ private extension CourseGridCell {
         if let totalScore = courseForDashboard.totalScores,
            totalScore.studentScores.absoluteScore > 0 {
             ProgressBar(
-                value: Int(totalScore.studentScores.absoluteScore),
-                total: Int(totalScore.reachablePoints)
+                value: totalScore.studentScores.absoluteScore,
+                total: totalScore.reachablePoints
             )
             .foregroundStyle(Color.Artemis.secondaryLabel)
             .frame(width: .xxxl)
