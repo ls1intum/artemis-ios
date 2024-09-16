@@ -49,6 +49,16 @@ struct ConversationInfoSheetView: View {
             }
             .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
             .loadingIndicator(isLoading: $viewModel.isLoading)
+            .sheet(isPresented: $viewModel.isAddMemberSheetPresented) {
+                viewModel.isLoading = true
+                Task {
+                    await viewModel.refreshConversation()
+                    await viewModel.loadMembers()
+                    viewModel.isLoading = false
+                }
+            } content: {
+                CreateOrAddToChatView(courseId: viewModel.course.id, configuration: .addToChat(conversation))
+            }
         }
     }
 }
@@ -61,69 +71,57 @@ extension ConversationInfoSheetView {
 
 private extension ConversationInfoSheetView {
     var actionsSection: some View {
-        Group {
-            Section(R.string.localizable.settings()) {
-                if viewModel.canAddUsers {
-                    Button(R.string.localizable.addUsers(), systemImage: "person.fill.badge.plus") {
-                        viewModel.isAddMemberSheetPresented = true
-                    }
-                }
-
-                let isFavorite = conversation.baseConversation.isFavorite ?? false
-                Button(isFavorite ? R.string.localizable.removeFavorite() : R.string.localizable.addFavorite(), systemImage: "heart") {
-                    Task {
-                        await viewModel.setIsConversationFavorite(isFavorite: !isFavorite)
-                    }
-                }
-                .symbolVariant(isFavorite ? .slash.fill : .fill)
-                .foregroundStyle(.orange)
-
-                if let channel = conversation.baseConversation as? Channel,
-                   channel.hasChannelModerationRights ?? false {
-                    if channel.isArchived ?? false {
-                        Button(R.string.localizable.unarchiveChannelButtonLabel(), systemImage: "archivebox.fill") {
-                            viewModel.isLoading = true
-                            Task {
-                                await viewModel.unarchiveChannel()
-                                viewModel.isLoading = false
-                            }
-                        }
-                        .foregroundColor(.Artemis.badgeWarningColor)
-                    } else {
-                        Button(R.string.localizable.archiveChannelButtonLabel(), systemImage: "archivebox.fill") {
-                            viewModel.isLoading = true
-                            Task {
-                                await viewModel.archiveChannel()
-                                viewModel.isLoading = false
-                            }
-                        }
-                        .foregroundColor(.Artemis.badgeWarningColor)
-                    }
-                }
-                if viewModel.canLeaveConversation {
-                    Button(R.string.localizable.leaveConversationButtonLabel(), systemImage: "rectangle.portrait.and.arrow.forward") {
-                        viewModel.isLoading = true
-                        Task {
-                            let success = await viewModel.leaveConversation()
-                            if success {
-                                navigationController.goToCourseConversations(courseId: viewModel.course.id)
-                            } else {
-                                viewModel.isLoading = false
-                            }
-                        }
-                    }
-                    .foregroundColor(.Artemis.badgeDangerColor)
+        Section(R.string.localizable.settings()) {
+            if viewModel.canAddUsers {
+                Button(R.string.localizable.addUsers(), systemImage: "person.fill.badge.plus") {
+                    viewModel.isAddMemberSheetPresented = true
                 }
             }
-            .sheet(isPresented: $viewModel.isAddMemberSheetPresented) {
-                viewModel.isLoading = true
+
+            let isFavorite = conversation.baseConversation.isFavorite ?? false
+            Button(isFavorite ? R.string.localizable.removeFavorite() : R.string.localizable.addFavorite(), systemImage: "heart") {
                 Task {
-                    await viewModel.refreshConversation()
-                    await viewModel.loadMembers()
-                    viewModel.isLoading = false
+                    await viewModel.setIsConversationFavorite(isFavorite: !isFavorite)
                 }
-            } content: {
-                CreateOrAddToChatView(courseId: viewModel.course.id, configuration: .addToChat(conversation))
+            }
+            .symbolVariant(isFavorite ? .slash.fill : .fill)
+            .foregroundStyle(.orange)
+
+            if let channel = conversation.baseConversation as? Channel,
+               channel.hasChannelModerationRights ?? false {
+                if channel.isArchived ?? false {
+                    Button(R.string.localizable.unarchiveChannelButtonLabel(), systemImage: "archivebox.fill") {
+                        viewModel.isLoading = true
+                        Task {
+                            await viewModel.unarchiveChannel()
+                            viewModel.isLoading = false
+                        }
+                    }
+                    .foregroundColor(.Artemis.badgeWarningColor)
+                } else {
+                    Button(R.string.localizable.archiveChannelButtonLabel(), systemImage: "archivebox.fill") {
+                        viewModel.isLoading = true
+                        Task {
+                            await viewModel.archiveChannel()
+                            viewModel.isLoading = false
+                        }
+                    }
+                    .foregroundColor(.Artemis.badgeWarningColor)
+                }
+            }
+            if viewModel.canLeaveConversation {
+                Button(R.string.localizable.leaveConversationButtonLabel(), systemImage: "rectangle.portrait.and.arrow.forward") {
+                    viewModel.isLoading = true
+                    Task {
+                        let success = await viewModel.leaveConversation()
+                        if success {
+                            navigationController.goToCourseConversations(courseId: viewModel.course.id)
+                        } else {
+                            viewModel.isLoading = false
+                        }
+                    }
+                }
+                .foregroundColor(.Artemis.badgeDangerColor)
             }
         }
     }
