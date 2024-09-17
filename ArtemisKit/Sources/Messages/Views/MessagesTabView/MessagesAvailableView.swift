@@ -13,6 +13,7 @@ import SwiftUI
 
 public struct MessagesAvailableView: View {
 
+    @Environment(\.horizontalSizeClass) var sizeClass
     @EnvironmentObject var navController: NavigationController
     @StateObject private var viewModel: MessagesAvailableViewModel
 
@@ -174,7 +175,7 @@ public struct MessagesAvailableView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    BackToRootButton()
+                    BackToRootButton(placement: .navBar, sizeClass: sizeClass)
                 }
             }
         } detail: {
