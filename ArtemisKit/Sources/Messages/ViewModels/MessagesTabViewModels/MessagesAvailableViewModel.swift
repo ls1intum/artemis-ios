@@ -67,7 +67,10 @@ class MessagesAvailableViewModel: BaseViewModel {
 
         super.init()
 
-        NotificationCenter.default.addObserver(self, selector: #selector(reloadConversations), name: .reloadConversationList, object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(updateFavorites(notification:)),
+                                               name: .favoriteConversationChanged,
+                                               object: nil)
     }
 
     func subscribeToConversationMembershipTopic() async {
@@ -92,10 +95,33 @@ class MessagesAvailableViewModel: BaseViewModel {
         allConversations = result
     }
 
-    @objc func reloadConversations() {
-        allConversations = .loading
-        Task {
-            await loadConversations()
+    @objc
+    private func updateFavorites(notification: Foundation.Notification) {
+        // User Info contains:
+        // - Key: Conversation ID
+        // - Value: New Value for isFavorite
+        notification.userInfo?.forEach { id, isFavorite in
+            guard let id = id as? Int64,
+                  let isFavorite = isFavorite as? Bool else { return }
+
+            // Find and update the corresponding conversation
+            let updatedConversations = allConversations.value?.map { conversation in
+                var newConversation = conversation
+                if conversation.id == id {
+                    if var convo = conversation.baseConversation as? Channel {
+                        convo.isFavorite = isFavorite
+                        newConversation = .channel(conversation: convo)
+                    } else if var convo = conversation.baseConversation as? GroupChat {
+                        convo.isFavorite = isFavorite
+                        newConversation = .groupChat(conversation: convo)
+                    } else if var convo = conversation.baseConversation as? OneToOneChat {
+                        convo.isFavorite = isFavorite
+                        newConversation = .oneToOneChat(conversation: convo)
+                    }
+                }
+                return newConversation
+            }
+            allConversations = .done(response: updatedConversations ?? [])
         }
     }
 
@@ -106,7 +132,9 @@ class MessagesAvailableViewModel: BaseViewModel {
         case .notStarted, .loading:
             isLoading = false
         case .success:
-            await loadConversations()
+            NotificationCenter.default.post(name: .favoriteConversationChanged,
+                                            object: nil,
+                                            userInfo: [conversationId: isFavorite])
             isLoading = false
         case .failure(let error):
             isLoading = false
@@ -366,6 +394,6 @@ enum ConversationFilter: FilterPicker {
 
 extension Foundation.Notification.Name {
     // Sending a notification of this type causes the Notification List to be reloaded,
-    // for example when favorites are changed from elsewhere.
-    static let reloadConversationList = Foundation.Notification.Name("ReloadConversationList")
+    // when favorites are changed from elsewhere.
+    static let favoriteConversationChanged = Foundation.Notification.Name("FavoriteConversationChanged")
 }
