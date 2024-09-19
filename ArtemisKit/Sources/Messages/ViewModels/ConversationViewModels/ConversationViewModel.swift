@@ -74,6 +74,11 @@ class ConversationViewModel: BaseViewModel {
 
         subscribeToConversationTopic()
         fetchOfflineMessages()
+
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(updateFavorites(notification:)),
+                                               name: .favoriteConversationChanged,
+                                               object: nil)
     }
 
     deinit {
@@ -412,6 +417,22 @@ private extension ConversationViewModel {
         let equal = messages.remove(.message(message))
         if equal != nil {
             diff -= 1
+        }
+    }
+
+    // Change favorites
+    @objc
+    private func updateFavorites(notification: Foundation.Notification) {
+        let isFavorite = notification.userInfo?[conversation.id] as? Bool ?? conversation.baseConversation.isFavorite
+        if var convo = conversation.baseConversation as? Channel {
+            convo.isFavorite = isFavorite
+            conversation = .channel(conversation: convo)
+        } else if var convo = conversation.baseConversation as? GroupChat {
+            convo.isFavorite = isFavorite
+            conversation = .groupChat(conversation: convo)
+        } else if var convo = conversation.baseConversation as? OneToOneChat {
+            convo.isFavorite = isFavorite
+            conversation = .oneToOneChat(conversation: convo)
         }
     }
 }
