@@ -66,6 +66,8 @@ class MessagesAvailableViewModel: BaseViewModel {
         self.userSession = userSession
 
         super.init()
+
+        NotificationCenter.default.addObserver(self, selector: #selector(reloadConversations), name: .reloadConversationList, object: nil)
     }
 
     func subscribeToConversationMembershipTopic() async {
@@ -88,6 +90,13 @@ class MessagesAvailableViewModel: BaseViewModel {
     func loadConversations() async {
         let result = await messagesService.getConversations(for: courseId)
         allConversations = result
+    }
+
+    @objc func reloadConversations() {
+        allConversations = .loading
+        Task {
+            await loadConversations()
+        }
     }
 
     func setIsConversationFavorite(conversationId: Int64, isFavorite: Bool) async {
@@ -351,4 +360,12 @@ enum ConversationFilter: FilterPicker {
             conversation.isFavorite ?? false
         }
     }
+}
+
+// MARK: Reload Notification
+
+extension Foundation.Notification.Name {
+    // Sending a notification of this type causes the Notification List to be reloaded,
+    // for example when favorites are changed from elsewhere.
+    static let reloadConversationList = Foundation.Notification.Name("ReloadConversationList")
 }
