@@ -1,7 +1,7 @@
-"dashboardExercisesLabel" = "Exercises: %d";
-"dashboardLecturesLabel" = "Lectures: %d";
 "dashboardRegisterForCourseButton" = "Course Enrollment";
 "dashboardTitle" = "Courses";
-"dashboardNextExerciseLabel" = "Next Exercise:";
+"dashboardNextExerciseLabel" = "Next Exercise";
 "dashboardNoExercisePlannedLabel" = "No exercise planned";
 "dashboardNoStatisticsAvailable" = "No statistics available";
+"dashboardScoreLabel" = "%d / %d Points";
+"dashboardScoreTitle" = "Score";

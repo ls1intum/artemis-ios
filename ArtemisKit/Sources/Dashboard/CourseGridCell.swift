@@ -35,89 +35,112 @@ struct CourseGridCell: View {
         } label: {
             VStack(alignment: .leading, spacing: 0) {
                 header
-                statistics
-                footer
+                content
             }
             .cardModifier(backgroundColor: .clear, hasBorder: true)
         }
+        .buttonStyle(.plain)
     }
 }
 
 private extension CourseGridCell {
     var header: some View {
-        HStack(alignment: .center) {
-            VStack {
-                if let imageURL = courseForDashboard.course.courseIconURL {
-                    ArtemisAsyncImage(imageURL: imageURL) {
-                        EmptyView()
-                    }
-                    .clipShape(.circle)
-                    .frame(width: .extraLargeImage)
+        HStack(alignment: .center, spacing: .m) {
+            if let imageURL = courseForDashboard.course.courseIconURL {
+                ArtemisAsyncImage(imageURL: imageURL) {
+                    EmptyView()
                 }
+                .clipShape(.circle)
+                .frame(width: .largeImage * 1.25)
             }
-            .frame(height: .extraLargeImage)
-            .padding([.leading, .vertical], .m)
-            VStack(alignment: .leading, spacing: 0) {
-                Text(courseForDashboard.course.title ?? "")
-                    .font(.system(size: UIFontMetrics.default.scaledValue(for: 21)))
+            Spacer()
+
+            // If title spans multiple lines, push it to the leading edge
+            // Otherwise it looks stupid
+            let title = courseForDashboard.course.title ?? ""
+            ViewThatFits(in: .horizontal) {
+                Text(title)
+                    .font(.title3)
+                    .lineLimit(1)
+
+                Text(title)
+                    .font(.title3)
                     .multilineTextAlignment(.leading)
                     .lineLimit(2)
-                Text(R.string.localizable.dashboardExercisesLabel(courseForDashboard.course.exercises?.count ?? 0))
-                let numberOfLectures = courseForDashboard.course.numberOfLectures ?? courseForDashboard.course.lectures?.count ?? 0
-                Text(R.string.localizable.dashboardLecturesLabel(numberOfLectures))
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
             .foregroundStyle(.white)
-            .padding(.m)
+
             Spacer()
         }
+        .frame(height: .largeImage * 1.25)
+        .padding(.m)
         .frame(maxWidth: .infinity)
         .background(courseForDashboard.course.courseColor)
     }
 
-    var statistics: some View {
-        HStack {
-            Spacer()
-            if let totalScore = courseForDashboard.totalScores {
-                ProgressBar(
-                    value: Int(totalScore.studentScores.absoluteScore),
-                    total: Int(totalScore.reachablePoints)
-                )
-                .frame(height: .xxxl)
-            } else {
-                Text(R.string.localizable.dashboardNoStatisticsAvailable())
-            }
-            Spacer()
+    var content: some View {
+        HStack(alignment: .center, spacing: .m) {
+            information
+            statisticsChart
         }
-        .foregroundStyle(Color.Artemis.secondaryLabel)
-        .padding(.vertical, .m)
+        .frame(height: .xxxl)
+        .padding(.l)
+        .background(Color(uiColor: .secondarySystemGroupedBackground))
     }
 
-    var footer: some View {
-        HStack {
-            if let nextExercise,
-               let nextExerciseTitle = nextExercise.baseExercise.title {
-                HStack {
-                    Text(R.string.localizable.dashboardNextExerciseLabel())
-                        .padding(.trailing, .m)
-                    nextExercise.image
-                        .renderingMode(.template)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: .extraSmallImage)
-                    Text(nextExerciseTitle)
-                        .bold()
-                        .lineLimit(1)
+    var information: some View {
+        VStack(alignment: .leading) {
+            Text(R.string.localizable.dashboardScoreTitle())
+                .foregroundStyle(.secondary)
+                .fontWeight(.medium)
+            Group {
+                if let totalScore = courseForDashboard.totalScores,
+                   totalScore.studentScores.absoluteScore > 0 {
+                    let achieved = Int(totalScore.studentScores.absoluteScore)
+                    let possible = Int(totalScore.reachablePoints)
+                    Text(R.string.localizable.dashboardScoreLabel(achieved, possible))
+                } else {
+                    Text(R.string.localizable.dashboardNoStatisticsAvailable())
                 }
-                .padding(.l)
-            } else {
-                Text(R.string.localizable.dashboardNoExercisePlannedLabel())
-                    .padding(.l)
             }
-            Spacer()
+            .fontWeight(.semibold)
+
+            Divider()
+                .frame(height: .xxs)
+                .overlay(.gray)
+                .padding(.vertical, .s)
+
+            Text(R.string.localizable.dashboardNextExerciseLabel())
+                .foregroundStyle(.secondary)
+                .fontWeight(.medium)
+            Group {
+                if let nextExercise,
+                   let nextExerciseTitle = nextExercise.baseExercise.title {
+                    Text(nextExerciseTitle)
+                        .lineLimit(1)
+                        .onTapGesture {
+                            navigationController.goToExercise(courseId: courseForDashboard.id, exerciseId: nextExercise.id)
+                        }
+                } else {
+                    Text(R.string.localizable.dashboardNoExercisePlannedLabel())
+                }
+            }
+            .fontWeight(.semibold)
         }
-        .frame(maxWidth: .infinity)
-        .background(Color.Artemis.dashboardCardBackgroundColor)
-        .foregroundStyle(Color.Artemis.secondaryLabel)
+    }
+
+    @ViewBuilder var statisticsChart: some View {
+        if let totalScore = courseForDashboard.totalScores,
+           totalScore.studentScores.absoluteScore > 0 {
+            ProgressBar(
+                value: totalScore.studentScores.absoluteScore,
+                total: totalScore.reachablePoints
+            )
+            .foregroundStyle(Color.Artemis.secondaryLabel)
+            .frame(width: .xxxl)
+            .padding(.leading)
+        }
     }
 }
 
