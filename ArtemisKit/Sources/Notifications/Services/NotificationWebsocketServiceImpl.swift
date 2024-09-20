@@ -64,10 +64,11 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
             await subscribeToTutorialGroupNotificationUpdates()
         }
         addTask(subscribeToTutorialGroupNotificationUpdatesTask)
-        let subscribeToConversationNotificationUpdatesTask = Task {
-            await subscribeToConversationNotificationUpdates()
-        }
-        addTask(subscribeToConversationNotificationUpdatesTask)
+#warning("We can't subscribe to this here and in the conversation simultaneously")
+//        let subscribeToConversationNotificationUpdatesTask = Task {
+//            await subscribeToConversationNotificationUpdates()
+//        }
+//        addTask(subscribeToConversationNotificationUpdatesTask)
 
         return stream
     }
