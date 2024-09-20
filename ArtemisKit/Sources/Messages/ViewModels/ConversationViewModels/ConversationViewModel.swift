@@ -323,7 +323,9 @@ private extension ConversationViewModel {
 
     func subscribeToConversationTopic() {
         let topic: String
-        if conversation.baseConversation.type == .channel {
+        if conversation.baseConversation.type == .channel,
+           let channel = conversation.baseConversation as? Channel,
+           channel.isCourseWide == true {
             topic = WebSocketTopic.makeChannelNotifications(courseId: course.id)
         } else if let id = userSession.user?.id {
             topic = WebSocketTopic.makeConversationNotifications(userId: id)
