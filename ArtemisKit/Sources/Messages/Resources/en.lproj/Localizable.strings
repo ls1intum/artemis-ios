@@ -75,6 +75,11 @@
 "pinMessage" = "Pin Message";
 "unpinMessage" = "Unpin Message";
 
+// MARK: ProfileView
+"profile" = "Profile";
+"actions" = "Actions";
+"name" = "Name";
+
 // MARK: ConversationView
 "noMessages" = "No Messages";
 "noMessagesDescription" = "Write the first message to kickstart this conversation.";

@@ -186,7 +186,7 @@ private extension MessageCell {
         if viewModel.isHeaderVisible {
             HStack(alignment: .top, spacing: .m) {
                 if let authorUser {
-                    ProfilePictureView(user: authorUser)
+                    ProfilePictureView(user: authorUser, course: viewModel.course)
                 }
                 VStack(alignment: .leading, spacing: .xs) {
                     HStack(alignment: .firstTextBaseline, spacing: .m) {
