@@ -77,12 +77,12 @@ public struct LectureDetailView: View {
                 }
             }
         }
-            .navigationTitle(viewModel.lecture.value?.title ?? R.string.localizable.loading())
-            .navigationBarTitleDisplayMode(.inline)
-            .task {
-                await viewModel.loadLecture()
-            }
-            .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
+        .navigationTitle(viewModel.lecture.value?.title ?? R.string.localizable.loading())
+        .navigationBarTitleDisplayMode(.inline)
+        .task {
+            await viewModel.loadLecture()
+        }
+        .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
     }
 }
 
@@ -94,12 +94,16 @@ private struct ChannelCell: View {
 
     var body: some View {
         Button {
-            navigationController.path.append(ConversationPath(id: channel.id, coursePath: CoursePath(id: courseId)))
+            navigationController.outerPath = NavigationPath()
+            navigationController.tabPath.append(ConversationPath(id: channel.id, coursePath: CoursePath(id: courseId)))
         } label: {
             HStack {
                 VStack(alignment: .leading, spacing: .l) {
                     Label {
-                        Text(channel.conversationName)
+                        let name = channel.conversationName
+                        let displayName = name
+                            .suffix(name.starts(with: "lecture-") ? name.count - 8 : name.count)
+                        Text(String(displayName))
                     } icon: {
                         channel.icon
                     }

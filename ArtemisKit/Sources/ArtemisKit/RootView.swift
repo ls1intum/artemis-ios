@@ -26,24 +26,21 @@ public struct RootView: View {
             } else {
                 if viewModel.isLoggedIn {
                     if viewModel.didSetupNotifications {
-                        NavigationStack(path: $navigationController.path) {
-                            DashboardView()
-                                .modifier(NavigationDestinationRootViewModifier())
-                        }
-                        .onChange(of: navigationController.path) {
-                            log.debug("NavigationController count: \(navigationController.path.count)")
-                        }
-                        .environmentObject(navigationController)
-                        .onOpenURL { url in
-                            DeeplinkHandler.shared.handle(url: url)
-                        }
-                        .environment(\.openURL, OpenURLAction { url in
-                            if DeeplinkHandler.shared.handle(url: url) {
-                                return .handled
-                            } else {
-                                return .systemAction
+                        contentView
+                            .onChange(of: navigationController.outerPath) {
+                                log.debug("NavigationController count: \(navigationController.outerPath.count)")
                             }
-                        })
+                            .environmentObject(navigationController)
+                            .onOpenURL { url in
+                                DeeplinkHandler.shared.handle(url: url)
+                            }
+                            .environment(\.openURL, OpenURLAction { url in
+                                if DeeplinkHandler.shared.handle(url: url) {
+                                    return .handled
+                                } else {
+                                    return .systemAction
+                                }
+                            })
                     } else {
                         PushNotificationSetupView()
                     }
@@ -65,8 +62,35 @@ public struct RootView: View {
     }
 }
 
-private struct NavigationDestinationRootViewModifier: ViewModifier {
-    func body(content: Content) -> some View {
+extension RootView {
+    @ViewBuilder var contentView: some View {
+        ZStack {
+            NavigationStack {
+                DashboardView()
+            }
+            .zIndex(0)
+
+            if let selectedCourse = navigationController.selectedCourse {
+                CoursePathView(path: selectedCourse)
+                    .transition(.move(edge: .trailing))
+                    .id(selectedCourse.id)
+                    .zIndex(1)
+            }
+
+            NavigationStack(path: $navigationController.outerPath) {
+                Color.clear
+                    .modifier(NavigationDestinationRootViewModifier())
+            }
+            .toolbarBackground(.hidden)
+            .opacity(navigationController.outerPath.isEmpty ? 0 : 1)
+            .zIndex(2)
+        }
+        .animation(.easeOut(duration: 0.3), value: navigationController.selectedCourse)
+    }
+}
+
+public struct NavigationDestinationRootViewModifier: ViewModifier {
+    public func body(content: Content) -> some View {
         content
             .navigationDestination(for: CoursePath.self, destination: CoursePathView.init)
             .navigationDestination(for: ExercisePath.self) { exercisePath in
@@ -84,7 +108,6 @@ private struct NavigationDestinationRootViewModifier: ViewModifier {
                     LectureDetailView(courseId: lecturePath.coursePath.id, lectureId: lecturePath.id)
                 }
             }
-            .navigationDestination(for: ConversationPath.self, destination: ConversationPathView.init)
-            .modifier(NavigationDestinationThreadViewModifier())
+            .modifier(NavigationDestinationMessagesModifier())
     }
 }

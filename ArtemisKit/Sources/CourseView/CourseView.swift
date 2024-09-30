@@ -18,17 +18,21 @@ public struct CourseView: View {
 
     public var body: some View {
         TabView(selection: $navigationController.courseTab) {
-            ExerciseListView(viewModel: viewModel, searchText: $searchText)
-                .tabItem {
-                    Label(R.string.localizable.exercisesTabLabel(), systemImage: "list.bullet.clipboard.fill")
-                }
-                .tag(TabIdentifier.exercise)
+            FixBlankScreenView {
+                ExerciseListView(viewModel: viewModel, searchText: $searchText)
+            }
+            .tabItem {
+                Label(R.string.localizable.exercisesTabLabel(), systemImage: "list.bullet.clipboard.fill")
+            }
+            .tag(TabIdentifier.exercise)
 
-            LectureListView(viewModel: viewModel, searchText: $searchText)
-                .tabItem {
-                    Label(R.string.localizable.lectureTabLabel(), systemImage: "character.book.closed.fill")
-                }
-                .tag(TabIdentifier.lecture)
+            FixBlankScreenView {
+                LectureListView(viewModel: viewModel, searchText: $searchText)
+            }
+            .tabItem {
+                Label(R.string.localizable.lectureTabLabel(), systemImage: "character.book.closed.fill")
+            }
+            .tag(TabIdentifier.lecture)
 
             if viewModel.isMessagesVisible {
                 MessagesTabView(course: viewModel.course, searchText: $searchText)
@@ -48,6 +52,21 @@ public struct CourseView: View {
         )
         .onChange(of: navigationController.courseTab) {
             searchText = ""
+        }
+        .onDisappear {
+            if navigationController.outerPath.count < 2 {
+                // Reset selection if navigating back
+                navigationController.selectedPath = nil
+            }
+        }
+        .onAppear {
+            // On iPad, always make Tab Bar opaque
+            // This prevents an issue where the tab bar has content behind it but is transparent
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                let appearance = UITabBarAppearance()
+                appearance.configureWithDefaultBackground()
+                UITabBar.appearance().scrollEdgeAppearance = appearance
+            }
         }
     }
 }

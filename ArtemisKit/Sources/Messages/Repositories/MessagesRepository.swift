@@ -20,20 +20,21 @@ final class MessagesRepository {
         }
     }()
 
-    private let context: ModelContext
+    private let container: ModelContainer
     private let seconds: Int
 
     init(timeoutInSeconds: Int = 24 * 60 * 60) throws {
         let schema = Schema(versionedSchema: SchemaV1.self)
         let configuration = ModelConfiguration(schema: schema)
-        let container = try ModelContainer(for: schema, configurations: configuration)
-        self.context = container.mainContext
+        self.container = try ModelContainer(for: schema, configurations: configuration)
         self.seconds = timeoutInSeconds
     }
 
-    deinit {
+    /// Saves the current starte of the ModelContext/Container.
+    /// Call this method before dismissing the View.
+    func save() {
         do {
-            try context.save()
+            try container.mainContext.save()
         } catch {
             log.error(error)
         }
@@ -48,7 +49,7 @@ extension MessagesRepository {
     func insertServer(host: String) -> ServerModel {
         log.verbose("begin")
         let server = ServerModel(host: host, lastAccessDate: .now)
-        context.insert(server)
+        container.mainContext.insert(server)
         return server
     }
 
@@ -58,7 +59,7 @@ extension MessagesRepository {
         let predicate = #Predicate<ServerModel> { server in
             server.host == host
         }
-        return try context.fetch(FetchDescriptor(predicate: predicate)).first
+        return try container.mainContext.fetch(FetchDescriptor(predicate: predicate)).first
     }
 
     // MARK: - Course
@@ -69,7 +70,7 @@ extension MessagesRepository {
         let server = try fetchServer(host: host) ?? insertServer(host: host)
         try touch(server: server)
         let course = CourseModel(server: server, courseId: courseId)
-        context.insert(course)
+        container.mainContext.insert(course)
         return course
     }
 
@@ -80,7 +81,7 @@ extension MessagesRepository {
             course.server.host == host
             && course.courseId == courseId
         }
-        return try context.fetch(FetchDescriptor(predicate: predicate)).first
+        return try container.mainContext.fetch(FetchDescriptor(predicate: predicate)).first
     }
 
     // MARK: - Conversation
@@ -91,7 +92,7 @@ extension MessagesRepository {
         let course = try fetchCourse(host: host, courseId: courseId) ?? insertCourse(host: host, courseId: courseId)
         try touch(server: course.server)
         let conversation = ConversationModel(course: course, conversationId: conversationId, messageDraft: messageDraft)
-        context.insert(conversation)
+        container.mainContext.insert(conversation)
         return conversation
     }
 
@@ -103,7 +104,7 @@ extension MessagesRepository {
             && conversation.course.courseId == courseId
             && conversation.conversationId == conversationId
         }
-        return try context.fetch(FetchDescriptor(predicate: predicate)).first
+        return try container.mainContext.fetch(FetchDescriptor(predicate: predicate)).first
     }
 
     // MARK: Conversation Offline Message
@@ -117,7 +118,7 @@ extension MessagesRepository {
             ?? insertConversation(host: host, courseId: courseId, conversationId: conversationId, messageDraft: "")
         try touch(server: conversation.course.server)
         let message = ConversationOfflineMessageModel(conversation: conversation, date: date, text: text)
-        context.insert(message)
+        container.mainContext.insert(message)
         return message
     }
 
@@ -131,11 +132,11 @@ extension MessagesRepository {
             && message.conversation.course.courseId == courseId
             && message.conversation.conversationId == conversationId
         }
-        return try context.fetch(FetchDescriptor(predicate: predicate, sortBy: [SortDescriptor(\.date)]))
+        return try container.mainContext.fetch(FetchDescriptor(predicate: predicate, sortBy: [SortDescriptor(\.date)]))
     }
 
     func delete(conversationOfflineMessage: ConversationOfflineMessageModel) {
-        context.delete(conversationOfflineMessage)
+        container.mainContext.delete(conversationOfflineMessage)
     }
 
     // MARK: - Message
@@ -147,7 +148,7 @@ extension MessagesRepository {
             ?? insertConversation(host: host, courseId: courseId, conversationId: conversationId, messageDraft: "")
         try touch(server: conversation.course.server)
         let message = MessageModel(conversation: conversation, messageId: messageId, answerMessageDraft: answerMessageDraft)
-        context.insert(message)
+        container.mainContext.insert(message)
         return message
     }
 
@@ -160,7 +161,7 @@ extension MessagesRepository {
             && message.conversation.conversationId == conversationId
             && message.messageId == messageId
         }
-        return try context.fetch(FetchDescriptor(predicate: predicate)).first
+        return try container.mainContext.fetch(FetchDescriptor(predicate: predicate)).first
     }
 
     // MARK: Message Offline Answer
@@ -175,7 +176,7 @@ extension MessagesRepository {
             ?? insertMessage(host: host, courseId: courseId, conversationId: conversationId, messageId: messageId, answerMessageDraft: "")
         try touch(server: message.conversation.course.server)
         let answer = MessageOfflineAnswerModel(message: message, date: date, text: text)
-        context.insert(answer)
+        container.mainContext.insert(answer)
         return answer
     }
 
@@ -190,11 +191,11 @@ extension MessagesRepository {
             && answer.message.conversation.conversationId == conversationId
             && answer.message.messageId == messageId
         }
-        return try context.fetch(FetchDescriptor(predicate: predicate, sortBy: [SortDescriptor(\.date)]))
+        return try container.mainContext.fetch(FetchDescriptor(predicate: predicate, sortBy: [SortDescriptor(\.date)]))
     }
 
     func delete(messageOfflineAnswer: MessageOfflineAnswerModel) {
-        context.delete(messageOfflineAnswer)
+        container.mainContext.delete(messageOfflineAnswer)
     }
 
     // - Cache Invalidation
@@ -206,15 +207,15 @@ extension MessagesRepository {
 
     func purge(host: String) throws {
         log.verbose("begin")
-        try context.enumerate(FetchDescriptor<ServerModel>()) { server in
+        try container.mainContext.enumerate(FetchDescriptor<ServerModel>()) { server in
             if server.host == host {
                 let date = Calendar.current.date(byAdding: .second, value: seconds, to: server.lastAccessDate) ?? .now
 
                 if date < .now {
-                    context.delete(server)
+                    container.mainContext.delete(server)
                 }
             } else {
-                context.delete(server)
+                container.mainContext.delete(server)
             }
         }
     }

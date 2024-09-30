@@ -38,7 +38,6 @@ struct MessageCell: View {
                 }
                 Spacer()
             }
-            .background(backgroundOnPress, in: .rect(cornerRadius: .m))
             .contentShape(.rect)
             .onTapGesture(perform: onTapPresentMessage)
             .onLongPressGesture(perform: onLongPressPresentActionSheet) { changed in
@@ -48,23 +47,26 @@ struct MessageCell: View {
             ReactionsView(viewModel: conversationViewModel, message: $message)
             retryButtonIfAvailable
             replyButtonIfAvailable
+
+            actionsMenuIfAvailable
         }
         .padding(.horizontal, .m)
         .padding(viewModel.isHeaderVisible ? .vertical : .bottom, useFullWidth ? 0 : .m)
         .contentShape(.rect)
         .modifier(SwipeToReply(enabled: viewModel.conversationPath != nil, onSwipe: onSwipePresentMessage))
-        .background(messageBackground, in: .rect(cornerRadii: viewModel.roundedCorners))
+        .background(backgroundOnPress, in: .rect(cornerRadius: .m))
+        .background(messageBackground,
+                    in: .rect(cornerRadii: viewModel.roundedCorners(isSelected: isSelected)))
+        .modifier(ReactionsPopoverModifier(isSelected: isSelected,
+                                           viewModel: viewModel,
+                                           conversationViewModel: conversationViewModel,
+                                           message: $message))
         .padding(.top, viewModel.isHeaderVisible ? .m : 0)
-        .id(message.value?.id.description)
         .padding(.horizontal, useFullWidth ? 0 : (.m + .l) / 2)
-        .sheet(isPresented: $viewModel.isActionSheetPresented) {
-            MessageActionSheet(
-                viewModel: conversationViewModel,
-                message: $message,
-                conversationPath: viewModel.conversationPath
-            )
-            .presentationDetents([.height(350), .large])
-        }
+        .opacity(opacity)
+        /// Ensure the message is fully visible when selected, space for reactions popover
+        .padding(.top, isSelected ? 100 : 0)
+        .id(message.value?.id.description)
     }
 }
 
@@ -92,11 +94,15 @@ extension MessageCell {
 
 private extension MessageCell {
     var author: String {
-        message.value?.author?.name ?? ""
+        authorUser?.name ?? ""
     }
 
     private var authorRole: UserRole? {
         message.value?.authorRole
+    }
+
+    private var authorUser: ConversationUser? {
+        return message.value?.author
     }
 
     var creationDate: Date? {
@@ -122,8 +128,18 @@ private extension MessageCell {
         (message.value as? AnswerMessage)?.resolvesPost ?? false
     }
 
+    var isSelected: Bool {
+        guard let selectedId = conversationViewModel.selectedMessageId else { return false }
+        return selectedId == message.value?.id
+    }
+
+    var opacity: CGFloat {
+        guard conversationViewModel.selectedMessageId != nil else { return 1 }
+        return isSelected ? 1 : 0.25
+    }
+
     var backgroundOnPress: Color {
-        (viewModel.isDetectingLongPress || viewModel.isActionSheetPresented) ? Color.primary.opacity(0.1) : Color.clear
+        viewModel.isDetectingLongPress ? Color.primary.opacity(0.1) : Color.clear
     }
 
     var messageBackground: Color {
@@ -168,23 +184,31 @@ private extension MessageCell {
 
     @ViewBuilder var headerIfVisible: some View {
         if viewModel.isHeaderVisible {
-            HStack(alignment: .firstTextBaseline, spacing: .m) {
-                roleBadge
-                Text(isMessageOffline ? "Redacted" : author)
-                    .bold()
-                    .redacted(reason: isMessageOffline ? .placeholder : [])
-                if let creationDate {
-                    let formatter: DateFormatter = viewModel.conversationPath == nil ? .superShortDateAndTime : .timeOnly
-                    Text(creationDate, formatter: formatter)
-                        .font(.caption)
-                    if viewModel.isChipVisible(creationDate: creationDate, authorId: message.value?.author?.id) {
-                        Chip(
-                            text: R.string.localizable.new(),
-                            backgroundColor: .Artemis.artemisBlue,
-                            padding: .s
-                        )
-                        .font(.footnote)
+            HStack(alignment: .top, spacing: .m) {
+                if let authorUser {
+                    ProfilePictureView(user: authorUser)
+                }
+                VStack(alignment: .leading, spacing: .xs) {
+                    HStack(alignment: .firstTextBaseline, spacing: .m) {
+                        roleBadge
+                        Spacer()
+                        if let creationDate {
+                            let formatter: DateFormatter = viewModel.conversationPath == nil ? .superShortDateAndTime : .timeOnly
+                            Text(creationDate, formatter: formatter)
+                                .font(.caption)
+                            if viewModel.isChipVisible(creationDate: creationDate, authorId: message.value?.author?.id) {
+                                Chip(
+                                    text: R.string.localizable.new(),
+                                    backgroundColor: .Artemis.artemisBlue,
+                                    padding: .s
+                                )
+                                .font(.footnote)
+                            }
+                        }
                     }
+                    Text(isMessageOffline ? "Redacted" : author)
+                        .bold()
+                        .redacted(reason: isMessageOffline ? .placeholder : [])
                 }
             }
         }
@@ -218,7 +242,7 @@ private extension MessageCell {
     @ViewBuilder var replyButtonIfAvailable: some View {
         if let message = message.value as? Message,
            let answerCount = message.answers?.count, answerCount > 0,
-           viewModel.conversationPath != nil {
+           viewModel.conversationPath != nil, !isSelected {
             Button {
                 openThread(showErrorOnFailure: true)
             } label: {
@@ -231,6 +255,17 @@ private extension MessageCell {
         }
     }
 
+    @ViewBuilder var actionsMenuIfAvailable: some View {
+        if isSelected {
+            MessageActionsMenu(viewModel: conversationViewModel,
+                               message: $message,
+                               conversationPath: viewModel.conversationPath)
+            .frame(maxWidth: .infinity)
+            .padding(.bottom, 5)
+            .transition(.scale(0, anchor: .top).combined(with: .opacity))
+        }
+    }
+
     func openThread(showErrorOnFailure: Bool = true, presentKeyboard: Bool = false) {
         // We cannot navigate to details if conversation path is nil, e.g. in the message detail view.
         if let conversationPath = viewModel.conversationPath,
@@ -240,7 +275,7 @@ private extension MessageCell {
             conversationViewModel: conversationViewModel,
             presentKeyboardOnAppear: presentKeyboard
         ) {
-            navigationController.path.append(messagePath)
+            navigationController.tabPath.append(messagePath)
         } else if showErrorOnFailure {
             conversationViewModel.presentError(userFacingError: UserFacingError(title: R.string.localizable.detailViewCantBeOpened()))
         }
@@ -249,6 +284,7 @@ private extension MessageCell {
     // MARK: Gestures
 
     func onTapPresentMessage() {
+        guard conversationViewModel.selectedMessageId == nil else { return }
         openThread(showErrorOnFailure: false)
     }
 
@@ -263,7 +299,15 @@ private extension MessageCell {
 
         let feedback = UIImpactFeedbackGenerator(style: .heavy)
         feedback.impactOccurred()
-        viewModel.isActionSheetPresented = true
+        if useFullWidth {
+            viewModel.showReactionsPopover = true
+        } else {
+            withAnimation {
+                conversationViewModel.selectedMessageId = message.value?.id
+            } completion: {
+                viewModel.showReactionsPopover = true
+            }
+        }
         viewModel.isDetectingLongPress = false
     }
 
@@ -272,13 +316,13 @@ private extension MessageCell {
             let coursePath = CoursePath(course: conversationViewModel.course)
             switch mention {
             case let .attachment(id, lectureId):
-                navigationController.path.append(LecturePath(id: lectureId, coursePath: coursePath))
+                navigationController.outerPath.append(LecturePath(id: lectureId, coursePath: coursePath))
             case let .channel(id):
-                navigationController.path.append(ConversationPath(id: id, coursePath: coursePath))
+                navigationController.tabPath.append(ConversationPath(id: id, coursePath: coursePath))
             case let .exercise(id):
-                navigationController.path.append(ExercisePath(id: id, coursePath: coursePath))
+                navigationController.outerPath.append(ExercisePath(id: id, coursePath: coursePath))
             case let .lecture(id):
-                navigationController.path.append(LecturePath(id: id, coursePath: coursePath))
+                navigationController.outerPath.append(LecturePath(id: id, coursePath: coursePath))
             case let .lectureUnit(id, attachmentUnit):
                 Task {
                     let delegate = SendMessageLecturePickerViewModel(course: conversationViewModel.course)
@@ -286,14 +330,14 @@ private extension MessageCell {
                     await delegate.loadLecturesWithSlides()
 
                     if let lecture = delegate.firstLectureContains(attachmentUnit: attachmentUnit) {
-                        navigationController.path.append(LecturePath(id: lecture.id, coursePath: coursePath))
+                        navigationController.outerPath.append(LecturePath(id: lecture.id, coursePath: coursePath))
                         return
                     }
                 }
             case let .member(login):
                 Task {
                     if let conversation = await viewModel.getOneToOneChatOrCreate(login: login) {
-                        navigationController.path.append(ConversationPath(conversation: conversation, coursePath: coursePath))
+                        navigationController.goToCourseConversation(courseId: coursePath.id, conversation: conversation)
                     }
                 }
             case let .message(id):
@@ -305,7 +349,7 @@ private extension MessageCell {
                     break
                 }
 
-                navigationController.path.append(messagePath)
+                navigationController.tabPath.append(messagePath)
             case let .slide(number, attachmentUnit):
                 Task {
                     let delegate = SendMessageLecturePickerViewModel(course: conversationViewModel.course)
@@ -313,7 +357,7 @@ private extension MessageCell {
                     await delegate.loadLecturesWithSlides()
 
                     if let lecture = delegate.firstLectureContains(attachmentUnit: attachmentUnit) {
-                        navigationController.path.append(LecturePath(id: lecture.id, coursePath: coursePath))
+                        navigationController.outerPath.append(LecturePath(id: lecture.id, coursePath: coursePath))
                         return
                     }
                 }
@@ -321,6 +365,49 @@ private extension MessageCell {
             return .handled
         }
         return .systemAction
+    }
+}
+
+// MARK: - ReactionsPopover
+struct ReactionsPopoverModifier: ViewModifier {
+    @Environment(\.messageUseFullWidth) var useFullWidth
+    let isSelected: Bool
+    let viewModel: MessageCellModel
+    let conversationViewModel: ConversationViewModel
+    @Binding var message: DataState<BaseMessage>
+
+    func body(content: Content) -> some View {
+        content
+            .popover(
+                isPresented: Binding(get: {
+                    (isSelected || useFullWidth)
+                    && viewModel.showReactionsPopover
+                }, set: { value, _ in
+                    if !value {
+                        if !conversationViewModel.isPerformingMessageAction {
+                            conversationViewModel.selectedMessageId = nil
+                        }
+                        viewModel.showReactionsPopover = false
+                    }
+                }),
+                attachmentAnchor: .point(useFullWidth ? .bottom : .top),
+                arrowEdge: useFullWidth ? .top : .bottom
+            ) {
+                MessageReactionsPopover(
+                    viewModel: conversationViewModel,
+                    message: $message,
+                    conversationPath: viewModel.conversationPath
+                )
+                .presentationCompactAdaptation(.popover)
+                .presentationBackgroundInteraction(.enabled)
+                .presentationBackground(.bar)
+            }
+            .onChange(of: conversationViewModel.selectedMessageId) {
+                // Reset recations popover presentation when message is no longer selected
+                if conversationViewModel.selectedMessageId == nil && viewModel.showReactionsPopover {
+                    viewModel.showReactionsPopover = false
+                }
+            }
     }
 }
 

@@ -52,6 +52,7 @@ public struct ExerciseDetailView: View {
         .refreshable {
             await viewModel.refreshExercise()
         }
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
@@ -220,15 +221,24 @@ private extension ExerciseDetailView {
                 }
             }
 
+            // Communication
             if let channel = viewModel.channel.value {
                 Divider()
                     .frame(height: 1.0)
                     .overlay(Color.Artemis.artemisBlue)
 
                 ExerciseDetailCell(descriptionText: R.string.localizable.communication() + ":") {
-                    NavigationLink(value: ConversationPath(conversation: .channel(conversation: channel),
-                                                           coursePath: .init(id: viewModel.courseId))) {
-                        Text("\(channel.conversationName) \(Image(systemName: "chevron.forward"))")
+                    Button {
+                        navigationController.outerPath = NavigationPath()
+                        navigationController.tabPath.append(
+                            ConversationPath(conversation: .channel(conversation: channel),
+                                             coursePath: .init(id: viewModel.courseId))
+                        )
+                    } label: {
+                        let name = channel.conversationName
+                        let displayName = name
+                            .suffix(name.starts(with: "exercise-") ? name.count - 9 : name.count)
+                        Text("\(String(displayName)) \(Image(systemName: "chevron.forward"))")
                     }
                 }
             }

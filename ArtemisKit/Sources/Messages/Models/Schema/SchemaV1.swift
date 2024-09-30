@@ -29,7 +29,7 @@ enum SchemaV1: VersionedSchema {
 
         var lastAccessDate: Date
 
-        @Relationship(deleteRule: .cascade, inverse: \Course.server)
+        @Relationship(deleteRule: .cascade)
         var courses: [Course]
 
         init(host: String, lastAccessDate: Date, courses: [Course] = []) {
@@ -46,7 +46,7 @@ enum SchemaV1: VersionedSchema {
         @Attribute(.unique)
         var courseId: Int
 
-        @Relationship(deleteRule: .cascade, inverse: \Conversation.course)
+        @Relationship(deleteRule: .cascade)
         var conversations: [Conversation]
 
         init(server: Server, courseId: Int, conversations: [Conversation] = []) {

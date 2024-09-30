@@ -12,6 +12,7 @@ import Navigation
 import SharedModels
 import SwiftUI
 
+@MainActor
 public struct ConversationView: View {
 
     @EnvironmentObject var navigationController: NavigationController
@@ -59,11 +60,21 @@ public struct ConversationView: View {
                         }
                     }
                     .coordinateSpace(name: "pullToRefresh")
+                    .defaultScrollAnchor(.bottom)
                     .onChange(of: viewModel.messages, initial: true) {
                         #warning("does not work correctly when loadFurtherMessages is called -> is called to early")
                         if let id = viewModel.shouldScrollToId {
                             withAnimation {
                                 value.scrollTo(id, anchor: .bottom)
+                            }
+                        }
+                    }
+                    .animation(.default, value: viewModel.selectedMessageId)
+                    .onChange(of: viewModel.selectedMessageId) { _, newValue in
+                        if let newValue {
+                            // Make sure context menu is on screen
+                            withAnimation {
+                                value.scrollTo(newValue)
                             }
                         }
                     }
@@ -117,12 +128,16 @@ public struct ConversationView: View {
             await viewModel.loadMessages()
         }
         .onDisappear {
-            if navigationController.path.count < 2 {
-                // only cancel task if we navigate back
-                viewModel.subscription?.cancel()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                if navigationController.selectedCourse == nil {
+                    // only cancel task if we navigate back
+                    viewModel.subscription?.cancel()
+                }
             }
+            viewModel.saveContext()
         }
         .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 

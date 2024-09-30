@@ -32,7 +32,7 @@
 "emojis" = "Emojis";
 "all" = "All (%i)";
 
-// MARK: MessagesTabView
+// MARK: MessagesAvailableView
 "browseChannels" = "Browse Channels";
 "createChannel" = "Create Channel";
 "createGroupChat" = "Create Group Chat";
@@ -54,6 +54,8 @@
 "exams" = "Exams";
 "groupChats" = "Group Chats";
 "directMessages" = "Direct Messages";
+"unreadFilter" = "Unread";
+"allFilter" = "All";
 
 // MARK: MessageDetailView
 "edited" = "Edited";

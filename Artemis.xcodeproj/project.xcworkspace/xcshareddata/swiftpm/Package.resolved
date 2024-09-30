@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ls1intum/artemis-ios-core-modules",
       "state" : {
-        "revision" : "b6456ffac746054f34e53a3ea42987b3c06e7c70",
-        "version" : "14.0.3"
+        "revision" : "e10992600af821dab51ef29b5f28db7ae457c78c",
+        "version" : "14.4.0"
       }
     },
     {
@@ -77,8 +77,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ashleymills/Reachability.swift",
       "state" : {
-        "revision" : "98e968e7b6c1318fb61df23e347bc319761e8acb",
-        "version" : "5.0.0"
+        "revision" : "7cbd73f46a7dfaeca079e18df7324c6de6d1834a",
+        "version" : "5.2.3"
       }
     },
     {
@@ -97,15 +97,6 @@
       "state" : {
         "revision" : "fd4df99170f5e9d7cf9aa8312aa8506e0e7a44e7",
         "version" : "0.35.0"
-      }
-    },
-    {
-      "identity" : "starscream",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/daltoniam/Starscream.git",
-      "state" : {
-        "revision" : "df8d82047f6654d8e4b655d1b1525c64e1059d21",
-        "version" : "4.0.4"
       }
     },
     {
@@ -149,8 +140,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Romixery/SwiftStomp.git",
       "state" : {
-        "revision" : "99dcfa7f428485b92de2359c9df9c778fd2d5599",
-        "version" : "1.1.1"
+        "revision" : "f25926d2ab67ec0391de9a706cf71dfb08d36bbc",
+        "version" : "1.2.1"
       }
     },
     {

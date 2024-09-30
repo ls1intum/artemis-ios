@@ -33,6 +33,12 @@ struct SendMessageView: View {
             }
             textField
                 .padding(isFocused ? [.horizontal, .bottom] : .all, .l)
+            if isFocused {
+                keyboardToolbarContent
+                    .padding(.horizontal, .l)
+                    .padding(.vertical, .m)
+                    .background(.bar)
+            }
         }
         .onAppear {
             viewModel.performOnAppear()
@@ -95,11 +101,6 @@ private extension SendMessageView {
             .textFieldStyle(.roundedBorder)
             .lineLimit(10)
             .focused($isFocused)
-            .toolbar {
-                ToolbarItem(placement: .keyboard) {
-                    keyboardToolbarContent
-                }
-            }
             if !isFocused {
                 sendButton
             }
