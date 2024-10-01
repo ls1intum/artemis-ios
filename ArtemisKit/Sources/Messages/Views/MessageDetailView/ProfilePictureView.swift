@@ -75,44 +75,43 @@ struct ProfileInfoSheet: View {
         @Bindable var viewModel = viewModel
         NavigationStack {
             List {
-                if let profileUrl = viewModel.user.imagePath {
-                    VStack(alignment: .leading) {
-                        ArtemisAsyncImage(imageURL: profileUrl) {}
-                            .frame(width: 100, height: 100)
-                            .clipShape(.rect(cornerRadius: .m))
-                        if let name = viewModel.user.name {
+                Group {
+                    if let profileUrl = viewModel.user.imagePath {
+                        VStack(alignment: .leading) {
+                            ArtemisAsyncImage(imageURL: profileUrl) {}
+                                .frame(width: 100, height: 100)
+                                .clipShape(.rect(cornerRadius: .m))
+                            if let name = viewModel.user.name {
+                                Text(name)
+                                    .font(.title)
+                                    .multilineTextAlignment(.leading)
+                            }
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .listRowInsets(EdgeInsets())
+                        .listRowBackground(Color.clear)
+                    } else if let name = viewModel.user.name {
+                        Section(R.string.localizable.name()) {
                             Text(name)
-                                .font(.title)
-                                .multilineTextAlignment(.leading)
                         }
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .listRowInsets(EdgeInsets())
-                    .listRowBackground(Color.clear)
-                } else if let name = viewModel.user.name {
-                    Section(R.string.localizable.name()) {
-                        Text(name)
-                    }
-                }
-
-                if viewModel.canSendMessage {
-                    Section(R.string.localizable.actions()) {
-                        Button(R.string.localizable.sendMessage(), systemImage: "bubble.fill") {
-                            viewModel.openConversation(navigationController: navController) {
-                                dismiss()
+                    
+                    if viewModel.canSendMessage {
+                        Section(R.string.localizable.actions()) {
+                            Button(R.string.localizable.sendMessage(), systemImage: "bubble.fill") {
+                                viewModel.openConversation(navigationController: navController) {
+                                    dismiss()
+                                }
                             }
                         }
                     }
                 }
+                .listRowBackground(
+                    Spacer()
+                        .background(.primary.opacity(0.15))
+                        .background(.thinMaterial)
+                )
             }
-            .loadingIndicator(isLoading: $viewModel.isLoading)
-            .alert(isPresented: Binding(get: {
-                viewModel.error != nil
-            }, set: { newValue in
-                if !newValue {
-                    viewModel.error = nil
-                }
-            }), error: viewModel.error, actions: {})
             .navigationTitle(viewModel.user.name ?? R.string.localizable.profile())
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -122,9 +121,29 @@ struct ProfileInfoSheet: View {
                     }
                 }
             }
-            .task {
-                await viewModel.loadUserLogin()
+            .scrollContentBackground(.hidden)
+            .background(backgroundImage)
+        }
+        .task {
+            await viewModel.loadUserLogin()
+        }
+        .loadingIndicator(isLoading: $viewModel.isLoading)
+        .alert(isPresented: Binding(get: {
+            viewModel.error != nil
+        }, set: { newValue in
+            if !newValue {
+                viewModel.error = nil
             }
+        }), error: viewModel.error, actions: {})
+    }
+
+    @ViewBuilder private var backgroundImage: some View {
+        if let profileUrl = viewModel.user.imagePath {
+            ArtemisAsyncImage(imageURL: profileUrl) {}
+                .scaledToFill()
+                .ignoresSafeArea()
+                .blur(radius: .l, opaque: true)
+                .opacity(0.15)
         }
     }
 }
