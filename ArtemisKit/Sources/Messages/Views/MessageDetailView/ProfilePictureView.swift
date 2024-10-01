@@ -95,7 +95,7 @@ struct ProfileInfoSheet: View {
                             Text(name)
                         }
                     }
-                    
+
                     if viewModel.canSendMessage {
                         Section(R.string.localizable.actions()) {
                             Button(R.string.localizable.sendMessage(), systemImage: "bubble.fill") {

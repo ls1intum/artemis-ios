@@ -10,6 +10,7 @@ import Foundation
 import Navigation
 import SharedModels
 import SharedServices
+import UserStore
 
 @Observable
 class ProfileViewModel {
@@ -27,8 +28,10 @@ class ProfileViewModel {
     }
 
     // We can only create a conversation if we have the user's login
+    // Don't allow sending messages to oneself
     var canSendMessage: Bool {
-        user.login != nil || login != nil
+        (user.login != nil || login != nil)
+        && UserSessionFactory.shared.user?.id != user.id
     }
 
     func loadUserLogin() async {
