@@ -19,12 +19,14 @@ class ProfileViewModel {
     var showProfileSheet = false
 
     let user: ConversationUser
+    let role: UserRole?
     private var login: String?
     let course: Course
 
-    init(course: Course, user: ConversationUser) {
+    init(course: Course, user: ConversationUser, role: UserRole?) {
         self.course = course
         self.user = user
+        self.role = role
     }
 
     // We can only create a conversation if we have the user's login

@@ -13,8 +13,8 @@ import SwiftUI
 struct ProfilePictureView: View {
     @State private var viewModel: ProfileViewModel
 
-    init(user: ConversationUser, course: Course) {
-        self._viewModel = State(initialValue: ProfileViewModel(course: course, user: user))
+    init(user: ConversationUser, role: UserRole?, course: Course) {
+        self._viewModel = State(initialValue: ProfileViewModel(course: course, user: user, role: role))
     }
 
     var body: some View {
@@ -23,10 +23,10 @@ struct ProfilePictureView: View {
         } label: {
             if let url = viewModel.user.imagePath {
                 ArtemisAsyncImage(imageURL: url) {
-                    defaultProfilePicture
+                    DefaultProfilePictureView(viewModel: viewModel)
                 }
             } else {
-                defaultProfilePicture
+                DefaultProfilePictureView(viewModel: viewModel)
             }
         }
         .frame(width: 44, height: 44)
@@ -35,13 +35,18 @@ struct ProfilePictureView: View {
             ProfileInfoSheet(viewModel: viewModel)
         }
     }
+}
 
-    @ViewBuilder var defaultProfilePicture: some View {
+private struct DefaultProfilePictureView: View {
+    let viewModel: ProfileViewModel
+    var font: Font = .headline.bold()
+
+    var body: some View {
         ZStack {
             Rectangle()
                 .fill(backgroundColor)
             Text(initials)
-                .font(.headline.bold())
+                .font(font)
                 .fontDesign(.rounded)
                 .foregroundStyle(.white)
         }
@@ -76,12 +81,29 @@ struct ProfileInfoSheet: View {
         NavigationStack {
             List {
                 Group {
-                    if let profileUrl = viewModel.user.imagePath {
-                        VStack(alignment: .leading) {
-                            ArtemisAsyncImage(imageURL: profileUrl) {}
-                                .frame(width: 100, height: 100)
-                                .clipShape(.rect(cornerRadius: .m))
-                            if let name = viewModel.user.name {
+                    if let name = viewModel.user.name {
+                        HStack(alignment: .center, spacing: .l) {
+                            Group {
+                                if let profileUrl = viewModel.user.imagePath {
+                                    ArtemisAsyncImage(imageURL: profileUrl) {}
+                                } else {
+                                    DefaultProfilePictureView(viewModel: viewModel, font: .largeTitle)
+                                }
+                            }
+                            .frame(width: 100, height: 100)
+                            .clipShape(.rect(cornerRadius: 8))
+
+                            VStack(alignment: .leading, spacing: .m) {
+                                if let role = viewModel.role {
+                                    Chip(text: role.displayName,
+                                         backgroundColor: role.badgeColor,
+                                         horizontalPadding: .m,
+                                         verticalPadding: .s)
+                                    .font(.body)
+                                    // For visual alignment
+                                    .padding(.top, .m)
+                                }
+
                                 Text(name)
                                     .font(.title)
                                     .multilineTextAlignment(.leading)
@@ -90,10 +112,6 @@ struct ProfileInfoSheet: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .listRowInsets(EdgeInsets())
                         .listRowBackground(Color.clear)
-                    } else if let name = viewModel.user.name {
-                        Section(R.string.localizable.name()) {
-                            Text(name)
-                        }
                     }
 
                     if viewModel.canSendMessage {
@@ -112,7 +130,7 @@ struct ProfileInfoSheet: View {
                         .background(.thinMaterial)
                 )
             }
-            .navigationTitle(viewModel.user.name ?? R.string.localizable.profile())
+            .navigationTitle(R.string.localizable.profile())
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
