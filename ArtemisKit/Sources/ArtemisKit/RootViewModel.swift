@@ -62,6 +62,9 @@ private extension RootViewModel {
                 userSession.setTokenExpired(expired: false)
             case .done:
                 isLoggedIn = userSession.isLoggedIn
+                if isLoggedIn, let user = user.value {
+                    userSession.user = user
+                }
                 didSetupNotifications = userSession.getCurrentNotificationDeviceConfiguration() != nil
             }
             isLoading = false
