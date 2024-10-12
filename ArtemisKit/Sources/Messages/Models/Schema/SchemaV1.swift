@@ -65,7 +65,7 @@ enum SchemaV1: VersionedSchema {
         @Attribute(.unique)
         var conversationId: Int
 
-        @Relationship(deleteRule: .cascade)
+        @Relationship(deleteRule: .cascade, inverse: \ConversationOfflineMessage.conversation)
         var offlineMessages: [ConversationOfflineMessage]
 
         /// A user's draft of a message, which they began to compose.
@@ -107,7 +107,7 @@ enum SchemaV1: VersionedSchema {
         @Attribute(.unique)
         var messageId: Int
 
-        @Relationship(deleteRule: .cascade)
+        @Relationship(deleteRule: .cascade, inverse: \MessageOfflineAnswer.message)
         var offlineAnswers: [MessageOfflineAnswer]
 
         /// A user's draft of an answer message, which they began to compose.
