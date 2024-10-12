@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ls1intum/artemis-ios-core-modules",
       "state" : {
-        "revision" : "91fc38d0050f4e928efadc50c017a9fcbee08de2",
-        "version" : "14.5.1"
+        "revision" : "dc9ddaf88a726ed1fc454e865b21bc1b4fb0c343",
+        "version" : "14.5.2"
       }
     },
     {
@@ -77,8 +77,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ashleymills/Reachability.swift",
       "state" : {
-        "revision" : "7cbd73f46a7dfaeca079e18df7324c6de6d1834a",
-        "version" : "5.2.3"
+        "revision" : "21d1dc412cfecbe6e34f1f4c4eb88d3f912654a6",
+        "version" : "5.2.4"
       }
     },
     {
