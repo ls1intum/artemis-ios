@@ -102,11 +102,22 @@ public struct ConversationView: View {
                             .resizable()
                             .scaledToFit()
                             .frame(height: 20)
-                        Text(viewModel.conversation.baseConversation.conversationName)
-                            .fontWeight(.semibold)
-                        Image(systemName: "chevron.forward")
-                            .font(.caption2)
-                            .offset(x: -5, y: 1)
+                        VStack(alignment: .leading, spacing: .xxs) {
+                            HStack(alignment: .center, spacing: .m) {
+                                Text(viewModel.conversation.baseConversation.conversationName)
+                                    .lineLimit(1)
+                                    .fontWeight(.semibold)
+                                    .frame(maxWidth: 200)
+                                Image(systemName: "chevron.forward")
+                                    .font(.caption2)
+                                    .offset(x: -4, y: 1)
+                            }
+                            if let memberCount = viewModel.conversation.baseConversation.numberOfMembers,
+                               !(viewModel.conversation.baseConversation is OneToOneChat) {
+                                Text(R.string.localizable.numberOfMembers(memberCount))
+                                    .font(.caption2)
+                            }
+                        }
                     }
                     .padding(.horizontal, .m)
                     .foregroundStyle(Color.Artemis.primaryLabel)
