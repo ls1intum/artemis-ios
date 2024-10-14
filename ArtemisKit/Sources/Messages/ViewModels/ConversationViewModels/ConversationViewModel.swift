@@ -74,6 +74,11 @@ class ConversationViewModel: BaseViewModel {
 
         subscribeToConversationTopic()
         fetchOfflineMessages()
+
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(updateFavorites(notification:)),
+                                               name: .favoriteConversationChanged,
+                                               object: nil)
     }
 
     deinit {
@@ -318,7 +323,9 @@ private extension ConversationViewModel {
 
     func subscribeToConversationTopic() {
         let topic: String
-        if conversation.baseConversation.type == .channel {
+        if conversation.baseConversation.type == .channel,
+           let channel = conversation.baseConversation as? Channel,
+           channel.isCourseWide == true {
             topic = WebSocketTopic.makeChannelNotifications(courseId: course.id)
         } else if let id = userSession.user?.id {
             topic = WebSocketTopic.makeConversationNotifications(userId: id)
@@ -326,6 +333,14 @@ private extension ConversationViewModel {
             return
         }
         if stompClient.didSubscribeTopic(topic) {
+            /// These web socket topics are the same across multiple channels.
+            /// We might need to wait until a previously open conversation has unsubscribed
+            /// before we can subscribe again
+            Timer.scheduledTimer(withTimeInterval: 5, repeats: false) { [weak self] _ in
+                DispatchQueue.main.async { [weak self] in
+                    self?.subscribeToConversationTopic()
+                }
+            }
             return
         }
         subscription = Task { [weak self] in
@@ -412,6 +427,22 @@ private extension ConversationViewModel {
         let equal = messages.remove(.message(message))
         if equal != nil {
             diff -= 1
+        }
+    }
+
+    // Change favorites
+    @objc
+    private func updateFavorites(notification: Foundation.Notification) {
+        let isFavorite = notification.userInfo?[conversation.id] as? Bool ?? conversation.baseConversation.isFavorite
+        if var convo = conversation.baseConversation as? Channel {
+            convo.isFavorite = isFavorite
+            conversation = .channel(conversation: convo)
+        } else if var convo = conversation.baseConversation as? GroupChat {
+            convo.isFavorite = isFavorite
+            conversation = .groupChat(conversation: convo)
+        } else if var convo = conversation.baseConversation as? OneToOneChat {
+            convo.isFavorite = isFavorite
+            conversation = .oneToOneChat(conversation: convo)
         }
     }
 }

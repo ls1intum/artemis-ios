@@ -41,12 +41,12 @@ enum SchemaV1: VersionedSchema {
 
     @Model
     final class Course {
-        var server: Server
+        var server: Server?
 
         @Attribute(.unique)
         var courseId: Int
 
-        @Relationship(deleteRule: .cascade, inverse: \Conversation.course)
+        @Relationship(deleteRule: .cascade)
         var conversations: [Conversation]
 
         init(server: Server, courseId: Int, conversations: [Conversation] = []) {
@@ -60,7 +60,7 @@ enum SchemaV1: VersionedSchema {
 
     @Model
     final class Conversation {
-        var course: Course
+        var course: Course?
 
         @Attribute(.unique)
         var conversationId: Int

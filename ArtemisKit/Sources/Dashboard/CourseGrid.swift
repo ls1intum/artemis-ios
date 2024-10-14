@@ -10,7 +10,7 @@ import DesignLibrary
 import SwiftUI
 
 struct CourseGrid: View {
-    private static let layout = [GridItem(.adaptive(minimum: 400, maximum: .infinity), spacing: .l, alignment: .center)]
+    private static let layout = [GridItem(.adaptive(minimum: 380, maximum: .infinity), spacing: .l, alignment: .center)]
 
     @ObservedObject var viewModel: DashboardViewModel
     @State private var isCourseRegistrationPresented = false

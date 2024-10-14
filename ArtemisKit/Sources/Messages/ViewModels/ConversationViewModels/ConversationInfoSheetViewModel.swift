@@ -270,6 +270,11 @@ extension ConversationInfoSheetViewModel {
             convo.isFavorite?.toggle()
             conversation = .oneToOneChat(conversation: convo)
         }
+        NotificationCenter.default.post(name: .favoriteConversationChanged,
+                                        object: nil,
+                                        userInfo: [
+                                            conversation.id: conversation.baseConversation.isFavorite as Any
+                                        ])
     }
 
     func sendMessageToUser(with login: String, navigationController: NavigationController, completion: @escaping () -> Void) {
