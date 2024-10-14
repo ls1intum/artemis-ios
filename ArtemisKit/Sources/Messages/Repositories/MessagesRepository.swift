@@ -78,7 +78,7 @@ extension MessagesRepository {
         log.verbose("begin")
         try purge(host: host)
         let predicate = #Predicate<CourseModel> { course in
-            course.server.host == host
+            course.server?.host == host
             && course.courseId == courseId
         }
         return try container.mainContext.fetch(FetchDescriptor(predicate: predicate)).first
@@ -100,9 +100,13 @@ extension MessagesRepository {
         log.verbose("begin")
         try purge(host: host)
         let predicate = #Predicate<ConversationModel> { conversation in
-            conversation.course.server.host == host
-            && conversation.course.courseId == courseId
-            && conversation.conversationId == conversationId
+            if let course = conversation.course {
+                course.server?.host == host
+                && course.courseId == courseId
+                && conversation.conversationId == conversationId
+            } else {
+                false
+            }
         }
         return try container.mainContext.fetch(FetchDescriptor(predicate: predicate)).first
     }
@@ -116,7 +120,7 @@ extension MessagesRepository {
         log.verbose("begin")
         let conversation = try fetchConversation(host: host, courseId: courseId, conversationId: conversationId)
             ?? insertConversation(host: host, courseId: courseId, conversationId: conversationId, messageDraft: "")
-        try touch(server: conversation.course.server)
+        try touch(server: conversation.course?.server)
         let message = ConversationOfflineMessageModel(conversation: conversation, date: date, text: text)
         container.mainContext.insert(message)
         return message
@@ -128,9 +132,13 @@ extension MessagesRepository {
         log.verbose("begin")
         try purge(host: host)
         let predicate = #Predicate<ConversationOfflineMessageModel> { message in
-            message.conversation.course.server.host == host
-            && message.conversation.course.courseId == courseId
-            && message.conversation.conversationId == conversationId
+            if let course = message.conversation.course {
+                course.server?.host == host
+                && course.courseId == courseId
+                && message.conversation.conversationId == conversationId
+            } else {
+                false
+            }
         }
         return try container.mainContext.fetch(FetchDescriptor(predicate: predicate, sortBy: [SortDescriptor(\.date)]))
     }
@@ -146,7 +154,7 @@ extension MessagesRepository {
         log.verbose("begin")
         let conversation = try fetchConversation(host: host, courseId: courseId, conversationId: conversationId)
             ?? insertConversation(host: host, courseId: courseId, conversationId: conversationId, messageDraft: "")
-        try touch(server: conversation.course.server)
+        try touch(server: conversation.course?.server)
         let message = MessageModel(conversation: conversation, messageId: messageId, answerMessageDraft: answerMessageDraft)
         container.mainContext.insert(message)
         return message
@@ -156,10 +164,14 @@ extension MessagesRepository {
         log.verbose("begin")
         try purge(host: host)
         let predicate = #Predicate<MessageModel> { message in
-            message.conversation.course.server.host == host
-            && message.conversation.course.courseId == courseId
-            && message.conversation.conversationId == conversationId
-            && message.messageId == messageId
+            if let course = message.conversation.course {
+                course.server?.host == host
+                && course.courseId == courseId
+                && message.conversation.conversationId == conversationId
+                && message.messageId == messageId
+            } else {
+                false
+            }
         }
         return try container.mainContext.fetch(FetchDescriptor(predicate: predicate)).first
     }
@@ -174,7 +186,7 @@ extension MessagesRepository {
         log.verbose("begin")
         let message = try fetchMessage(host: host, courseId: courseId, conversationId: conversationId, messageId: messageId)
             ?? insertMessage(host: host, courseId: courseId, conversationId: conversationId, messageId: messageId, answerMessageDraft: "")
-        try touch(server: message.conversation.course.server)
+        try touch(server: message.conversation.course?.server)
         let answer = MessageOfflineAnswerModel(message: message, date: date, text: text)
         container.mainContext.insert(answer)
         return answer
@@ -186,10 +198,14 @@ extension MessagesRepository {
         log.verbose("begin")
         try purge(host: host)
         let predicate = #Predicate<MessageOfflineAnswerModel> { answer in
-            answer.message.conversation.course.server.host == host
-            && answer.message.conversation.course.courseId == courseId
-            && answer.message.conversation.conversationId == conversationId
-            && answer.message.messageId == messageId
+            if let course = answer.message.conversation.course {
+                course.server?.host == host
+                && course.courseId == courseId
+                && answer.message.conversation.conversationId == conversationId
+                && answer.message.messageId == messageId
+            } else {
+                false
+            }
         }
         return try container.mainContext.fetch(FetchDescriptor(predicate: predicate, sortBy: [SortDescriptor(\.date)]))
     }
@@ -200,9 +216,9 @@ extension MessagesRepository {
 
     // - Cache Invalidation
 
-    func touch(server: ServerModel) throws {
+    func touch(server: ServerModel?) throws {
         log.verbose("begin")
-        server.lastAccessDate = .now
+        server?.lastAccessDate = .now
     }
 
     func purge(host: String) throws {
