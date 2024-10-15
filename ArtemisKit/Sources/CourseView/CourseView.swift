@@ -18,7 +18,7 @@ public struct CourseView: View {
 
     public var body: some View {
         TabView(selection: $navigationController.courseTab) {
-            FixBlankScreenView {
+            TabBarIpad {
                 ExerciseListView(viewModel: viewModel, searchText: $searchText)
             }
             .tabItem {
@@ -26,7 +26,7 @@ public struct CourseView: View {
             }
             .tag(TabIdentifier.exercise)
 
-            FixBlankScreenView {
+            TabBarIpad {
                 LectureListView(viewModel: viewModel, searchText: $searchText)
             }
             .tabItem {
@@ -35,12 +35,14 @@ public struct CourseView: View {
             .tag(TabIdentifier.lecture)
 
             if viewModel.isMessagesVisible {
-                MessagesTabView(course: viewModel.course, searchText: $searchText)
-                    .environmentObject(messagesPreferences)
-                    .tabItem {
-                        Label(R.string.localizable.messagesTabLabel(), systemImage: "bubble.right.fill")
-                    }
-                    .tag(TabIdentifier.communication)
+                TabBarIpad {
+                    MessagesTabView(course: viewModel.course, searchText: $searchText)
+                        .environmentObject(messagesPreferences)
+                }
+                .tabItem {
+                    Label(R.string.localizable.messagesTabLabel(), systemImage: "bubble.right.fill")
+                }
+                .tag(TabIdentifier.communication)
             }
         }
         .navigationTitle(viewModel.course.title ?? R.string.localizable.loading())
@@ -57,15 +59,6 @@ public struct CourseView: View {
             if navigationController.outerPath.count < 2 {
                 // Reset selection if navigating back
                 navigationController.selectedPath = nil
-            }
-        }
-        .onAppear {
-            // On iPad, always make Tab Bar opaque
-            // This prevents an issue where the tab bar has content behind it but is transparent
-            if UIDevice.current.userInterfaceIdiom == .pad {
-                let appearance = UITabBarAppearance()
-                appearance.configureWithDefaultBackground()
-                UITabBar.appearance().scrollEdgeAppearance = appearance
             }
         }
     }
