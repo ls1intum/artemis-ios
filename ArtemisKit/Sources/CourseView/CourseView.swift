@@ -61,15 +61,6 @@ public struct CourseView: View {
                 navigationController.selectedPath = nil
             }
         }
-        .onAppear {
-            // On iPad, always make Tab Bar opaque
-            // This prevents an issue where the tab bar has content behind it but is transparent
-            if UIDevice.current.userInterfaceIdiom == .pad {
-                let appearance = UITabBarAppearance()
-                appearance.configureWithDefaultBackground()
-                UITabBar.appearance().scrollEdgeAppearance = appearance
-            }
-        }
     }
 }
 
