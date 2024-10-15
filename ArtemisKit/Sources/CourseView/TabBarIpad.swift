@@ -15,7 +15,7 @@ struct TabBarIpad<Content: View>: View {
     @Environment(\.horizontalSizeClass) var sizeClass
 
     var body: some View {
-        if sizeClass == .compact {
+        if sizeClass == .compact || UIDevice.current.userInterfaceIdiom != .pad {
             // Old Tab Bar is shown
             content()
         } else {

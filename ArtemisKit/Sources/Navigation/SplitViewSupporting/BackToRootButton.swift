@@ -25,7 +25,7 @@ public struct BackToRootButton: View {
     public var body: some View {
         // Only show this button in the NavBar if we are on compact width,
         // Otherwise we have a separate bar with a back button
-        if placement != .navBar || sizeClass == .compact {
+        if placement != .navBar || sizeClass == .compact || !iPad {
             Button {
                 navController.popToRoot()
             } label: {
@@ -37,5 +37,9 @@ public struct BackToRootButton: View {
                 .offset(x: placement == .navBar ? -8 : 0)
             }
         }
+    }
+
+    private var iPad: Bool {
+        UIDevice.current.userInterfaceIdiom == .pad
     }
 }
