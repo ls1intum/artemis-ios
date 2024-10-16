@@ -15,7 +15,16 @@ struct SendMessageMentionContentView: View {
     var body: some View {
         NavigationStack {
             let delegate = SendMessageMentionContentDelegate { [weak viewModel] mention in
-                viewModel?.text.append(mention)
+                if let selection = viewModel?.selection {
+                    switch selection.indices {
+                    case .selection(let range):
+                        viewModel?.text.insert(contentsOf: mention, at: range.upperBound)
+                    default:
+                        viewModel?.text.append(mention)
+                    }
+                } else {
+                    viewModel?.text.append(mention)
+                }
                 viewModel?.wantsToAddMessageMentionContentType = nil
             }
             Group {

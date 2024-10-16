@@ -96,6 +96,7 @@ private extension SendMessageView {
             TextField(
                 R.string.localizable.messageAction(viewModel.conversation.baseConversation.conversationName),
                 text: $viewModel.text,
+                selection: $viewModel.selection,
                 axis: .vertical
             )
             .textFieldStyle(.roundedBorder)
@@ -184,6 +185,7 @@ private extension SendMessageView {
                             .labelStyle(.iconOnly)
                     }
                 }
+                .font(.title3)
             }
             Spacer()
             sendButton
