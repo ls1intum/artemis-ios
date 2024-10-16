@@ -172,7 +172,7 @@ private struct LectureListSectionView: View {
 
     var body: some View {
         DisclosureGroup(
-            R.string.localizable.lecturesGroupTitle(lectureGroup.type.description, lectureGroup.lectures.count),
+            "\(lectureGroup.type.description) (^[\(lectureGroup.lectures.count) \(R.string.localizable.lecture())](inflect:true))",
             isExpanded: $isExpanded
         ) {
             ForEach(lectureGroup.weeklyLectures, id: \.id) { weeklyLecture in
