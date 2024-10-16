@@ -1,4 +1,5 @@
 {
+  "originHash" : "8eb0e3c715c0eaa17ff6603b1eae1965a5a0666609384d9087b9c335356d3826",
   "pins" : [
     {
       "identity" : "apollon-ios-module",
@@ -68,8 +69,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/mac-cain13/R.swift.git",
       "state" : {
-        "revision" : "384eab88d1a0b98ac96f4819e50a4308ecd5359f",
-        "version" : "7.5.0"
+        "revision" : "4ac2eb7e6157887c9f59dc5ccc5978d51546be6d",
+        "version" : "7.7.0"
       }
     },
     {
@@ -176,8 +177,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/tomlokhorst/XcodeEdit",
       "state" : {
-        "revision" : "b6b67389a0f1a6fdd9c6457a8ab5b02eaab13c5c",
-        "version" : "2.9.2"
+        "revision" : "017d23f71fa8d025989610db26d548c44cacefae",
+        "version" : "2.10.2"
       }
     },
     {
@@ -190,5 +191,5 @@
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }

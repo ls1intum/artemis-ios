@@ -1,4 +1,4 @@
-// swift-tools-version: 5.9
+// swift-tools-version: 6.0
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -7,7 +7,7 @@ let package = Package(
     name: "ArtemisKit",
     defaultLocalization: "en",
     platforms: [
-        .iOS(.v17)
+        .iOS(.v18)
     ],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
@@ -21,7 +21,7 @@ let package = Package(
         .package(url: "https://github.com/Kelvas09/EmojiPicker.git", from: "1.0.0"),
         .package(url: "https://github.com/ls1intum/apollon-ios-module", .upToNextMajor(from: "1.0.2")),
         .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", .upToNextMajor(from: "14.5.2")),
-        .package(url: "https://github.com/mac-cain13/R.swift.git", from: "7.0.0")
+        .package(url: "https://github.com/mac-cain13/R.swift.git", from: "7.7.0")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
