@@ -171,7 +171,7 @@ struct ExerciseListSection: View {
 
     var body: some View {
         DisclosureGroup(
-            "\(exerciseGroup.type.description) (^[\(exerciseGroup.exercises.count) Exercise](inflect:true))",
+            "\(exerciseGroup.type.description) (^[\(exerciseGroup.exercises.count) \(R.string.localizable.exercise())](inflect:true))",
             isExpanded: $isExpanded
         ) {
             ForEach(exerciseGroup.weeklyExercises) { exercise in
