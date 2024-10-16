@@ -185,6 +185,7 @@ private extension SendMessageView {
                             .labelStyle(.iconOnly)
                     }
                 }
+                .font(.title3)
             }
             Spacer()
             sendButton
