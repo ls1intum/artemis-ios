@@ -192,7 +192,7 @@ extension SendMessageViewModel {
             isMemberPickerSuppressed = true
         } else {
             isMemberPickerSuppressed = false
-            text += "@"
+            appendToSelection(before: "@", after: " ", placeholder: " ")
         }
     }
 
@@ -201,7 +201,7 @@ extension SendMessageViewModel {
             isChannelPickerSuppressed = true
         } else {
             isChannelPickerSuppressed = false
-            text += "#"
+            appendToSelection(before: "#", after: " ", placeholder: " ")
         }
     }
 
