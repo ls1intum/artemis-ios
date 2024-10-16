@@ -137,5 +137,7 @@ let package = Package(
             dependencies: [
                 "Messages"
             ])
-    ]
+    ],
+    // TODO: Eventually upgrade
+    swiftLanguageModes: [.v5]
 )
