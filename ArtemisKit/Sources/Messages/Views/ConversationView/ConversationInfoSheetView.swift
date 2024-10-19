@@ -256,10 +256,12 @@ private struct InfoSection: View {
             if conversation.baseConversation.creator?.name != nil || conversation.baseConversation.creationDate != nil {
                 Section(R.string.localizable.moreInfoLabel()) {
                     if let creator = conversation.baseConversation.creator?.name {
-                        Text(R.string.localizable.createdByLabel(creator))
+                        Text(R.string.localizable.createdByLabel())
+                            .badge(creator)
                     }
                     if let creationDate = conversation.baseConversation.creationDate {
-                        Text(R.string.localizable.createdOnLabel(creationDate.mediumDateShortTime))
+                        Text(R.string.localizable.createdOnLabel())
+                            .badge(creationDate.mediumDateShortTime)
                     }
                 }
             }

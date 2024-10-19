@@ -140,8 +140,8 @@
 "editDescriptionLabel" = "Edit Description";
 "newDescriptionLabel" = "New Description";
 "moreInfoLabel" = "More info";
-"createdByLabel" = "Created by: %s";
-"createdOnLabel" = "Created on: %s";
+"createdByLabel" = "Created by";
+"createdOnLabel" = "Created on";
 "addFavorite" = "Add to Favorites";
 "removeFavorite" = "Remove from Favorites";
 "sendMessage" = "Send Message";
