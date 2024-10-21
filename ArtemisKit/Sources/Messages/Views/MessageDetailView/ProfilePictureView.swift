@@ -12,9 +12,11 @@ import SwiftUI
 
 struct ProfilePictureView: View {
     @State private var viewModel: ProfileViewModel
+    let size: CGFloat
 
-    init(user: ConversationUser, role: UserRole?, course: Course) {
+    init(user: ConversationUser, role: UserRole?, course: Course, size: CGFloat = 44) {
         self._viewModel = State(initialValue: ProfileViewModel(course: course, user: user, role: role))
+        self.size = size
     }
 
     var body: some View {
@@ -26,10 +28,10 @@ struct ProfilePictureView: View {
                     DefaultProfilePictureView(viewModel: viewModel)
                 }
             } else {
-                DefaultProfilePictureView(viewModel: viewModel)
+                DefaultProfilePictureView(viewModel: viewModel, font: size < 35 ? .caption.bold() : .headline.bold())
             }
         }
-        .frame(width: 44, height: 44)
+        .frame(width: size, height: size)
         .clipShape(.rect(cornerRadius: .m))
         .sheet(isPresented: $viewModel.showProfileSheet) {
             ProfileInfoSheet(viewModel: viewModel)

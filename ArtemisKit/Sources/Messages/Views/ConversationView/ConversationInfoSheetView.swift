@@ -147,6 +147,10 @@ private extension ConversationInfoSheetView {
                                 removeUserButton(member: member)
                             } label: {
                                 HStack {
+                                    ProfilePictureView(user: member,
+                                                       role: nil,
+                                                       course: viewModel.course,
+                                                       size: 25)
                                     Text(name)
                                     Spacer()
                                     if UserSessionFactory.shared.user?.login == member.login {
