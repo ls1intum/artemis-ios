@@ -35,7 +35,7 @@ public struct FaqListView: View {
                 List(selection: selectedFaq) {
                     if viewModel.searchText.isEmpty {
                         if faqs.isEmpty {
-                            ContentUnavailableView(R.string.localizable.noFaqs(), systemImage: "character.book.closed")
+                            ContentUnavailableView(R.string.localizable.noFaqs(), systemImage: "questionmark.circle.dashed")
                                 .listRowSeparator(.hidden)
                         } else {
                             ForEach(faqs) { faq in
