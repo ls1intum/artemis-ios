@@ -110,7 +110,7 @@ private struct FaqListCell: View {
             Button {
                 navController.selectedPath = FaqPath(faq: faq, namespace: namespace)
             } label: {
-                Text("Read more \(Image(systemName: "chevron.forward"))")
+                Text("\(R.string.localizable.readMore()) \(Image(systemName: "chevron.forward"))")
                     .padding(.m)
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
