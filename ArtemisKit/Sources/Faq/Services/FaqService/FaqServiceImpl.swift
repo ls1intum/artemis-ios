@@ -37,4 +37,30 @@ struct FaqServiceImpl: FaqService {
             return .failure(error: UserFacingError(error: error))
         }
     }
+
+    struct GetFaqRequest: APIRequest {
+        typealias Response = FaqDTO
+
+        let courseId: Int
+        let faqId: Int64
+
+        var method: HTTPMethod {
+            return .get
+        }
+
+        var resourceName: String {
+            return "api/courses/\(courseId)/faqs/\(faqId)"
+        }
+    }
+
+    func getFaq(with faqId: Int64, for courseId: Int) async -> DataState<FaqDTO> {
+        let result = await client.sendRequest(GetFaqRequest(courseId: courseId, faqId: faqId))
+
+        switch result {
+        case .success((let response, _)):
+            return .done(response: response)
+        case .failure(let error):
+            return .failure(error: UserFacingError(error: error))
+        }
+    }
 }

@@ -10,6 +10,7 @@ import SharedModels
 
 protocol FaqService {
     func getFaqs(for courseId: Int) async -> DataState<[FaqDTO]>
+    func getFaq(with faqId: Int64, for courseId: Int) async -> DataState<FaqDTO>
 }
 
 enum FaqServiceFactory {
