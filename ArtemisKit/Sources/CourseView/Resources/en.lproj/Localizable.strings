@@ -6,6 +6,7 @@
 "exercisesTabLabel" = "Exercises";
 "lectureTabLabel" = "Lectures";
 "messagesTabLabel" = "Messages";
+"faqTabLabel" = "FAQ";
 "exercisesUnavailable" = "No Exercises";
 "lecturesUnavailable" = "No Lectures";
 "exercise" = "Exercise";
