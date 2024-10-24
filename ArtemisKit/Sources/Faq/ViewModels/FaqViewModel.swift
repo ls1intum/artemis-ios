@@ -23,7 +23,15 @@ class FaqViewModel {
     }
 
     func loadFaq() async {
-        faqs = await faqService.getFaqs(for: course.id)
+        let allFaqs = await faqService.getFaqs(for: course.id)
+        switch allFaqs {
+        case .loading:
+            faqs = .loading
+        case .failure(let error):
+            faqs = .failure(error: error)
+        case .done(let response):
+            faqs = .done(response: response.filter { $0.faqState == .accepted })
+        }
     }
 }
 
