@@ -20,6 +20,20 @@ struct FaqDetailView: View {
                 .padding(.horizontal, .l)
         }
         .navigationTitle(faq.questionTitle)
-        .navigationTransition(.zoom(sourceID: faq.id, in: namespace ?? Namespace().wrappedValue))
+        .modifier(TransitionIfAvailable(id: faq.id, namespace: namespace))
+    }
+}
+
+private struct TransitionIfAvailable: ViewModifier {
+    let id: Int64
+    let namespace: Namespace.ID?
+
+    func body(content: Content) -> some View {
+        if let namespace {
+            content
+                .navigationTransition(.zoom(sourceID: id, in: namespace))
+        } else {
+            content
+        }
     }
 }

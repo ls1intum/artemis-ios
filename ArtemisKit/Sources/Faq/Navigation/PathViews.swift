@@ -8,14 +8,14 @@
 import DesignLibrary
 import SwiftUI
 
-struct FaqPathView: View {
+public struct FaqPathView: View {
     @State private var viewModel: FaqPathViewModel
 
-    init(path: FaqPath) {
+    public init(path: FaqPath) {
         self._viewModel = State(initialValue: FaqPathViewModel(path: path))
     }
 
-    var body: some View {
+    public var body: some View {
         DataStateView(data: $viewModel.faq) {
             await viewModel.loadFaq()
         } content: { faq in
