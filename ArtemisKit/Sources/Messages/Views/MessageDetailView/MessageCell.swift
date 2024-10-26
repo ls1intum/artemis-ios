@@ -25,6 +25,8 @@ struct MessageCell: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: .s) {
+            reactionMenuIfAvailable
+
             HStack {
                 VStack(alignment: .leading, spacing: .s) {
                     pinnedIndicator
@@ -57,15 +59,9 @@ struct MessageCell: View {
         .background(backgroundOnPress, in: .rect(cornerRadius: .m))
         .background(messageBackground,
                     in: .rect(cornerRadii: viewModel.roundedCorners(isSelected: isSelected)))
-        .modifier(ReactionsPopoverModifier(isSelected: isSelected,
-                                           viewModel: viewModel,
-                                           conversationViewModel: conversationViewModel,
-                                           message: $message))
         .padding(.top, viewModel.isHeaderVisible ? .m : 0)
         .padding(.horizontal, useFullWidth ? 0 : (.m + .l) / 2)
         .opacity(opacity)
-        /// Ensure the message is fully visible when selected, space for reactions popover
-        .padding(.top, isSelected ? 100 : 0)
         .id(message.value?.id.description)
     }
 }
@@ -256,13 +252,24 @@ private extension MessageCell {
     }
 
     @ViewBuilder var actionsMenuIfAvailable: some View {
-        if isSelected {
+        if isSelected && !useFullWidth {
             MessageActionsMenu(viewModel: conversationViewModel,
                                message: $message,
                                conversationPath: viewModel.conversationPath)
             .frame(maxWidth: .infinity)
             .padding(.bottom, 5)
             .transition(.scale(0, anchor: .top).combined(with: .opacity))
+        }
+    }
+
+    @ViewBuilder var reactionMenuIfAvailable: some View {
+        if isSelected {
+            MessageReactionsPopover(viewModel: conversationViewModel,
+                                    message: $message,
+                                    conversationPath: viewModel.conversationPath)
+            .frame(maxWidth: .infinity)
+            .padding(.bottom, 5)
+            .transition(.scale(0, anchor: .bottom).combined(with: .opacity))
         }
     }
 
@@ -284,8 +291,10 @@ private extension MessageCell {
     // MARK: Gestures
 
     func onTapPresentMessage() {
-        guard conversationViewModel.selectedMessageId == nil else { return }
-        openThread(showErrorOnFailure: false)
+        if conversationViewModel.selectedMessageId == nil || isSelected {
+            openThread(showErrorOnFailure: false)
+        }
+        conversationViewModel.selectedMessageId = nil
     }
 
     func onSwipePresentMessage() {
@@ -299,14 +308,8 @@ private extension MessageCell {
 
         let feedback = UIImpactFeedbackGenerator(style: .heavy)
         feedback.impactOccurred()
-        if useFullWidth {
-            viewModel.showReactionsPopover = true
-        } else {
-            withAnimation {
-                conversationViewModel.selectedMessageId = message.value?.id
-            } completion: {
-                viewModel.showReactionsPopover = true
-            }
+        withAnimation {
+            conversationViewModel.selectedMessageId = message.value?.id
         }
         viewModel.isDetectingLongPress = false
     }
@@ -365,49 +368,6 @@ private extension MessageCell {
             return .handled
         }
         return .systemAction
-    }
-}
-
-// MARK: - ReactionsPopover
-struct ReactionsPopoverModifier: ViewModifier {
-    @Environment(\.messageUseFullWidth) var useFullWidth
-    let isSelected: Bool
-    let viewModel: MessageCellModel
-    let conversationViewModel: ConversationViewModel
-    @Binding var message: DataState<BaseMessage>
-
-    func body(content: Content) -> some View {
-        content
-            .popover(
-                isPresented: Binding(get: {
-                    (isSelected || useFullWidth)
-                    && viewModel.showReactionsPopover
-                }, set: { value, _ in
-                    if !value {
-                        if !conversationViewModel.isPerformingMessageAction {
-                            conversationViewModel.selectedMessageId = nil
-                        }
-                        viewModel.showReactionsPopover = false
-                    }
-                }),
-                attachmentAnchor: .point(useFullWidth ? .bottom : .top),
-                arrowEdge: useFullWidth ? .top : .bottom
-            ) {
-                MessageReactionsPopover(
-                    viewModel: conversationViewModel,
-                    message: $message,
-                    conversationPath: viewModel.conversationPath
-                )
-                .presentationCompactAdaptation(.popover)
-                .presentationBackgroundInteraction(.enabled)
-                .presentationBackground(.bar)
-            }
-            .onChange(of: conversationViewModel.selectedMessageId) {
-                // Reset recations popover presentation when message is no longer selected
-                if conversationViewModel.selectedMessageId == nil && viewModel.showReactionsPopover {
-                    viewModel.showReactionsPopover = false
-                }
-            }
     }
 }
 
