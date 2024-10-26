@@ -9,4 +9,5 @@ public enum TabIdentifier {
     case exercise
     case lecture
     case communication
+    case faq
 }

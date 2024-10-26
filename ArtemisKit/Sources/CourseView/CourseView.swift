@@ -1,4 +1,5 @@
 import SwiftUI
+import Faq
 import Common
 import SharedModels
 import Navigation
@@ -44,12 +45,23 @@ public struct CourseView: View {
                 }
                 .tag(TabIdentifier.communication)
             }
+
+            if viewModel.course.faqEnabled ?? false {
+                TabBarIpad {
+                    FaqListView(course: viewModel.course)
+                }
+                .tabItem {
+                    Label(R.string.localizable.faqTabLabel(), systemImage: "questionmark.circle")
+                }
+                .tag(TabIdentifier.faq)
+            }
         }
         .navigationTitle(viewModel.course.title ?? R.string.localizable.loading())
         .navigationBarTitleDisplayMode(.inline)
         .modifier(
+            // TODO: Move search into each tab, why is this even here?
             SearchableIf(
-                condition: navigationController.courseTab != .communication || messagesPreferences.isSearchable,
+                condition: (navigationController.courseTab != .communication || messagesPreferences.isSearchable) && navigationController.courseTab != .faq,
                 text: $searchText)
         )
         .onChange(of: navigationController.courseTab) {
