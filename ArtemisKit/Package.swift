@@ -20,7 +20,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/Kelvas09/EmojiPicker.git", from: "1.0.0"),
         .package(url: "https://github.com/ls1intum/apollon-ios-module", .upToNextMajor(from: "1.0.2")),
-        .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", .upToNextMajor(from: "14.6.0")),
+        .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", .upToNextMajor(from: "14.7.0")),
         .package(url: "https://github.com/mac-cain13/R.swift.git", from: "7.7.0")
     ],
     targets: [
