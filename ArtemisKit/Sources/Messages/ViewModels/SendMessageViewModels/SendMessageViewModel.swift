@@ -273,6 +273,7 @@ extension SendMessageViewModel {
             }
             switch result {
             case .success:
+                selection = nil
                 text = ""
             default:
                 return
