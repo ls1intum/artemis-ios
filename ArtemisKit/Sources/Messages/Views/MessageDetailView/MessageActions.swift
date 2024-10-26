@@ -21,7 +21,7 @@ struct MessageActions: View {
     var body: some View {
         Group {
             ReplyInThreadButton(viewModel: viewModel, message: $message, conversationPath: conversationPath)
-            CopyTextButton(message: $message)
+            CopyTextButton(viewModel: viewModel, message: $message)
             PinButton(viewModel: viewModel, message: $message)
             MarkResolvingButton(viewModel: viewModel, message: $message)
             EditDeleteSection(viewModel: viewModel, message: $message)
@@ -46,6 +46,7 @@ struct MessageActions: View {
                         conversationViewModel: viewModel
                     ) {
                         navigationController.tabPath.append(messagePath)
+                        viewModel.selectedMessageId = nil
                     } else {
                         viewModel.presentError(userFacingError: UserFacingError(title: R.string.localizable.detailViewCantBeOpened()))
                     }
@@ -56,6 +57,7 @@ struct MessageActions: View {
 
     struct CopyTextButton: View {
         @EnvironmentObject var navController: NavigationController
+        @ObservedObject var viewModel: ConversationViewModel
         @Binding var message: DataState<BaseMessage>
         @State private var showSuccess = false
 
@@ -65,6 +67,7 @@ struct MessageActions: View {
                 if !navController.tabPath.isEmpty && message.value is Message {
                     showSuccess = true
                 }
+                viewModel.selectedMessageId = nil
             }
             .opacity(showSuccess ? 0 : 1)
             .overlay {
@@ -117,11 +120,9 @@ struct MessageActions: View {
                     Divider()
 
                     Button(R.string.localizable.editMessage(), systemImage: "pencil") {
-                        viewModel.isPerformingMessageAction = true
                         showEditSheet = true
                     }
                     .sheet(isPresented: $showEditSheet) {
-                        viewModel.isPerformingMessageAction = false
                         viewModel.selectedMessageId = nil
                     } content: {
                         editMessage
@@ -129,7 +130,6 @@ struct MessageActions: View {
                     }
 
                     Button(R.string.localizable.deleteMessage(), systemImage: "trash", role: .destructive) {
-                        viewModel.isPerformingMessageAction = true
                         showDeleteAlert = true
                     }
                     .alert(R.string.localizable.confirmDeletionTitle(), isPresented: $showDeleteAlert) {
@@ -144,18 +144,16 @@ struct MessageActions: View {
                                     success = await viewModel.deleteMessage(messageId: message.value?.id)
                                 }
                                 viewModel.isLoading = false
-                                viewModel.isPerformingMessageAction = false
                                 viewModel.selectedMessageId = nil
                                 if success {
                                     // if we deleted a Message and are in the MessageDetailView we pop it
-                                    if navigationController.outerPath.count == 3 && tempMessage is Message {
-                                        navigationController.outerPath.removeLast()
+                                    if !navigationController.tabPath.isEmpty && tempMessage is Message {
+                                        navigationController.tabPath.removeLast()
                                     }
                                 }
                             }
                         }
                         Button(R.string.localizable.cancel(), role: .cancel) {
-                            viewModel.isPerformingMessageAction = false
                             viewModel.selectedMessageId = nil
                         }
                     }
@@ -244,14 +242,12 @@ struct MessageActions: View {
 
         func togglePinned() {
             guard let message = message.value as? Message else { return }
-            viewModel.isPerformingMessageAction = true
             Task {
                 let result = await viewModel.togglePinned(for: message)
                 let oldRole = message.authorRole
                 if var newMessageResult = result.value as? Message {
                     newMessageResult.authorRole = oldRole
                     self.$message.wrappedValue = .done(response: newMessageResult)
-                    viewModel.isPerformingMessageAction = false
                     viewModel.selectedMessageId = nil
                 }
             }
@@ -297,10 +293,8 @@ struct MessageActions: View {
 
         func toggleResolved() {
             guard let message = message.value as? AnswerMessage else { return }
-            viewModel.isPerformingMessageAction = true
             Task {
                 if await viewModel.toggleResolving(for: message) {
-                    viewModel.isPerformingMessageAction = false
                     viewModel.selectedMessageId = nil
                 }
             }
@@ -320,18 +314,29 @@ struct MessageReactionsPopover: View {
     }
 
     var body: some View {
-        HStack(spacing: .m) {
-            EmojiTextButton(viewModel: reactionsViewModel, emoji: "😂")
-            EmojiTextButton(viewModel: reactionsViewModel, emoji: "👍")
-            EmojiTextButton(viewModel: reactionsViewModel, emoji: "➕")
-            EmojiTextButton(viewModel: reactionsViewModel, emoji: "🚀")
-            EmojiPickerButton(viewModel: reactionsViewModel)
+        HStack(alignment: .center) {
+            HStack(spacing: .m) {
+                EmojiTextButton(viewModel: reactionsViewModel, emoji: "😂")
+                EmojiTextButton(viewModel: reactionsViewModel, emoji: "👍")
+                EmojiTextButton(viewModel: reactionsViewModel, emoji: "➕")
+                EmojiTextButton(viewModel: reactionsViewModel, emoji: "🚀")
+                EmojiPickerButton(viewModel: reactionsViewModel)
+            }
+            .padding(.m)
+            .buttonStyle(.plain)
+            .font(.headline)
+            .symbolVariant(.fill)
+            .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
+            .background(.bar, in: .rect(cornerRadius: 10))
+
+            Button {
+                viewModel.selectedMessageId = nil
+            } label: {
+                Image(systemName: "xmark.circle")
+            }
+            .font(.title2)
+            .frame(maxWidth: .infinity, alignment: .center)
         }
-        .padding(.l)
-        .buttonStyle(.plain)
-        .font(.headline)
-        .symbolVariant(.fill)
-        .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
     }
 }
 
@@ -376,8 +381,6 @@ private struct ContextMenuLabelStyle: LabelStyle {
 
 private struct EmojiTextButton: View {
 
-    @Environment(\.dismiss) var dismiss
-
     var viewModel: ReactionsViewModel
 
     let emoji: String
@@ -386,7 +389,7 @@ private struct EmojiTextButton: View {
         Text("\(emoji)")
             .font(.title3)
             .foregroundColor(Color.Artemis.primaryLabel)
-            .frame(width: .mediumImage, height: .mediumImage)
+            .frame(width: .mediumImage * 0.75, height: .mediumImage * 0.75)
             .padding(.s)
             .background(
                 Capsule().fill(Color.Artemis.reactionCapsuleColor)
@@ -395,7 +398,6 @@ private struct EmojiTextButton: View {
                 if let emojiId = Smile.alias(emoji: emoji) {
                     Task {
                         await viewModel.addReaction(emojiId: emojiId)
-                        dismiss()
                     }
                 }
             }
@@ -403,8 +405,6 @@ private struct EmojiTextButton: View {
 }
 
 private struct EmojiPickerButton: View {
-
-    @Environment(\.dismiss) var dismiss
 
     var viewModel: ReactionsViewModel
 
@@ -420,8 +420,8 @@ private struct EmojiPickerButton: View {
                 .resizable()
                 .scaledToFit()
                 .foregroundColor(Color.Artemis.secondaryLabel)
-                .frame(width: .smallImage, height: .smallImage)
-                .padding(.l)
+                .frame(width: .smallImage * 0.75, height: .smallImage * 0.75)
+                .padding(.m * 1.5)
                 .background(Capsule().fill(Color.Artemis.reactionCapsuleColor))
         }
         .sheet(isPresented: $showEmojiPicker) {
@@ -437,7 +437,6 @@ private struct EmojiPickerButton: View {
                 Task {
                     await viewModel.addReaction(emojiId: emojiId)
                     selectedEmoji = nil
-                    dismiss()
                 }
             }
         }
