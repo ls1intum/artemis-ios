@@ -20,6 +20,7 @@ struct FaqDetailView: View {
                 .padding(.horizontal, .l)
         }
         .navigationTitle(faq.questionTitle)
+        .navigationBarTitleDisplayMode(.large)
         .modifier(TransitionIfAvailable(id: faq.id, namespace: namespace))
     }
 }
