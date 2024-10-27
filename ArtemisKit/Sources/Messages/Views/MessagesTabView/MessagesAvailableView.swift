@@ -7,6 +7,7 @@
 
 import Common
 import DesignLibrary
+import Faq
 import Navigation
 import SharedModels
 import SwiftUI
@@ -189,6 +190,9 @@ public struct MessagesAvailableView: View {
                     }
                 }
                 .modifier(NavigationDestinationMessagesModifier())
+                .navigationDestination(for: FaqPath.self) { path in
+                    FaqPathView(path: path)
+                }
             }
         }
         .toolbar(.hidden, for: .navigationBar)
