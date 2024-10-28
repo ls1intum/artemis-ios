@@ -6,8 +6,11 @@
 "exercisesTabLabel" = "Exercises";
 "lectureTabLabel" = "Lectures";
 "messagesTabLabel" = "Messages";
+"faqTabLabel" = "FAQ";
 "exercisesUnavailable" = "No Exercises";
 "lecturesUnavailable" = "No Lectures";
+"exercise" = "Exercise";
+"lecture" = "Lecture";
 
 // MARK: SubmissionResultStatusView
 "userNotAssignedToTeam" = "You have not been assigned to a team yet.";
@@ -98,6 +101,5 @@
 "dueSoon" = "Due soon";
 "past" = "Past";
 "lectureUnits" = "Lecture Units";
-"lecturesGroupTitle" = "%s (Lectures: %i)";
 "attachments" = "Attachments";
 "communication" = "Communication";

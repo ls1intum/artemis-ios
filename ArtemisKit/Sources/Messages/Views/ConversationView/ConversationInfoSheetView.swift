@@ -134,27 +134,32 @@ private extension ConversationInfoSheetView {
                 } content: { members in
                     ForEach(members, id: \.id) { member in
                         if let name = member.name {
-                            Menu {
-                                if let login = member.login,
-                                   !(conversation.baseConversation is OneToOneChat) {
-                                    Button(R.string.localizable.sendMessage(), systemImage: "bubble.left.fill") {
-                                        viewModel.sendMessageToUser(with: login, navigationController: navigationController) {
-                                            dismiss()
-                                        }
-                                    }
-                                }
-                                Divider()
-                                removeUserButton(member: member)
-                            } label: {
-                                HStack {
-                                    Text(name)
-                                    Spacer()
-                                    if UserSessionFactory.shared.user?.login == member.login {
-                                        Chip(text: R.string.localizable.youLabel(), backgroundColor: .Artemis.artemisBlue)
-                                    }
+                            HStack {
+                                ProfilePictureView(
+                                    user: member,
+                                    role: nil,
+                                    course: viewModel.course,
+                                    size: 25,
+                                    actions: [
+                                        ProfileInfoSheetAction(
+                                            title: R.string.localizable.removeUserButtonLabel(),
+                                            iconName: "person.badge.minus",
+                                            isDestructive: true,
+                                            isEnabled: UserSessionFactory.shared.user?.login != member.login && viewModel.canRemoveUsers,
+                                            action: {
+                                                viewModel.isLoading = true
+                                                Task {
+                                                    await viewModel.removeMemberFromConversation(member: member)
+                                                    viewModel.isLoading = false
+                                                }
+                                            })
+                                    ])
+                                Text(name)
+                                Spacer()
+                                if UserSessionFactory.shared.user?.login == member.login {
+                                    Chip(text: R.string.localizable.youLabel(), backgroundColor: .Artemis.artemisBlue)
                                 }
                             }
-                            .buttonStyle(.plain)
                             .swipeActions(edge: .trailing) {
                                 removeUserButton(member: member)
                             }
@@ -180,6 +185,7 @@ private extension ConversationInfoSheetView {
                     viewModel.isLoading = false
                 }
             }
+            .foregroundStyle(.red)
         }
     }
 
@@ -256,10 +262,12 @@ private struct InfoSection: View {
             if conversation.baseConversation.creator?.name != nil || conversation.baseConversation.creationDate != nil {
                 Section(R.string.localizable.moreInfoLabel()) {
                     if let creator = conversation.baseConversation.creator?.name {
-                        Text(R.string.localizable.createdByLabel(creator))
+                        Text(R.string.localizable.createdByLabel())
+                            .badge(creator)
                     }
                     if let creationDate = conversation.baseConversation.creationDate {
-                        Text(R.string.localizable.createdOnLabel(creationDate.mediumDateShortTime))
+                        Text(R.string.localizable.createdOnLabel())
+                            .badge(creationDate.mediumDateShortTime)
                     }
                 }
             }

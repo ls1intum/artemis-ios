@@ -39,7 +39,6 @@ struct MessageDetailView: View {
                         top(message: message)
                         answers(of: message, proxy: proxy)
                     }
-                    .defaultScrollAnchor(.bottom)
                 }
                 if !((viewModel.conversation.baseConversation as? Channel)?.isArchived ?? false),
                    let message = message as? Message {
@@ -92,6 +91,7 @@ private extension MessageDetailView {
         )
         .environment(\.isEmojiPickerButtonVisible, true)
         .environment(\.messageUseFullWidth, true)
+        .animation(.default, value: viewModel.selectedMessageId)
     }
 
     @ViewBuilder var divider: some View {

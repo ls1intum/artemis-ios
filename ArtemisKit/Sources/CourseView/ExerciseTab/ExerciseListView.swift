@@ -8,6 +8,7 @@ import DesignLibrary
 
 struct ExerciseListView: View {
     @EnvironmentObject var navController: NavigationController
+    @Environment(\.horizontalSizeClass) var sizeClass
     @ObservedObject var viewModel: CourseViewModel
     @State private var columnVisibilty: NavigationSplitViewVisibility = .doubleColumn
 
@@ -61,7 +62,7 @@ struct ExerciseListView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    BackToRootButton()
+                    BackToRootButton(placement: .navBar, sizeClass: sizeClass)
                 }
             }
         } detail: {
@@ -92,7 +93,6 @@ struct ExerciseListView: View {
                 }
             }
         }
-        .toolbar(.hidden, for: .navigationBar)
     }
 }
 
@@ -171,7 +171,7 @@ struct ExerciseListSection: View {
 
     var body: some View {
         DisclosureGroup(
-            "\(exerciseGroup.type.description) (^[\(exerciseGroup.exercises.count) Exercise](inflect:true))",
+            "\(exerciseGroup.type.description) (^[\(exerciseGroup.exercises.count) \(R.string.localizable.exercise())](inflect:true))",
             isExpanded: $isExpanded
         ) {
             ForEach(exerciseGroup.weeklyExercises) { exercise in

@@ -12,9 +12,11 @@ import SwiftUI
 
 struct ProfilePictureView: View {
     @State private var viewModel: ProfileViewModel
+    let size: CGFloat
 
-    init(user: ConversationUser, role: UserRole?, course: Course) {
-        self._viewModel = State(initialValue: ProfileViewModel(course: course, user: user, role: role))
+    init(user: ConversationUser, role: UserRole?, course: Course, size: CGFloat = 44, actions: [ProfileInfoSheetAction] = []) {
+        self._viewModel = State(initialValue: ProfileViewModel(course: course, user: user, role: role, actions: actions))
+        self.size = size
     }
 
     var body: some View {
@@ -26,10 +28,10 @@ struct ProfilePictureView: View {
                     DefaultProfilePictureView(viewModel: viewModel)
                 }
             } else {
-                DefaultProfilePictureView(viewModel: viewModel)
+                DefaultProfilePictureView(viewModel: viewModel, font: size < 35 ? .caption.bold() : .headline.bold())
             }
         }
-        .frame(width: 44, height: 44)
+        .frame(width: size, height: size)
         .clipShape(.rect(cornerRadius: .m))
         .sheet(isPresented: $viewModel.showProfileSheet) {
             ProfileInfoSheet(viewModel: viewModel)
@@ -121,6 +123,15 @@ struct ProfileInfoSheet: View {
                                     dismiss()
                                 }
                             }
+                            ForEach(viewModel.actions, id: \.hashValue) { action in
+                                if action.isEnabled {
+                                    Button(action.title, systemImage: action.iconName) {
+                                        action.action()
+                                        dismiss()
+                                    }
+                                    .foregroundStyle(action.isDestructive ? Color.red : Color.blue)
+                                }
+                            }
                         }
                     }
                 }
@@ -163,5 +174,22 @@ struct ProfileInfoSheet: View {
                 .blur(radius: .l, opaque: true)
                 .opacity(0.15)
         }
+    }
+}
+
+struct ProfileInfoSheetAction: Hashable, Equatable {
+    static func == (lhs: ProfileInfoSheetAction, rhs: ProfileInfoSheetAction) -> Bool {
+        lhs.hashValue == rhs.hashValue
+    }
+
+    let title: String
+    let iconName: String
+    let isDestructive: Bool
+    let isEnabled: Bool
+    let action: () -> Void
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(title)
+        hasher.combine(iconName)
     }
 }

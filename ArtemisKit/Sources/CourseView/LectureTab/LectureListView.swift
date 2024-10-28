@@ -12,6 +12,7 @@ import SwiftUI
 import Messages
 
 struct LectureListView: View {
+    @Environment(\.horizontalSizeClass) var sizeClass
     @EnvironmentObject var navController: NavigationController
     @ObservedObject var viewModel: CourseViewModel
     @State private var columnVisibilty: NavigationSplitViewVisibility = .doubleColumn
@@ -67,7 +68,7 @@ struct LectureListView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    BackToRootButton()
+                    BackToRootButton(placement: .navBar, sizeClass: sizeClass)
                 }
             }
         } detail: {
@@ -96,7 +97,6 @@ struct LectureListView: View {
                 }
             }
         }
-        .toolbar(.hidden, for: .navigationBar)
     }
 }
 
@@ -172,7 +172,7 @@ private struct LectureListSectionView: View {
 
     var body: some View {
         DisclosureGroup(
-            R.string.localizable.lecturesGroupTitle(lectureGroup.type.description, lectureGroup.lectures.count),
+            "\(lectureGroup.type.description) (^[\(lectureGroup.lectures.count) \(R.string.localizable.lecture())](inflect:true))",
             isExpanded: $isExpanded
         ) {
             ForEach(lectureGroup.weeklyLectures, id: \.id) { weeklyLecture in

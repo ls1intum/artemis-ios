@@ -67,6 +67,7 @@ class ReactionsViewModel {
                 self.messageBinding.wrappedValue = .done(response: response)
             }
         }
+        conversationViewModel.selectedMessageId = nil
     }
 
     func isMyReaction(_ emoji: String) -> Bool {

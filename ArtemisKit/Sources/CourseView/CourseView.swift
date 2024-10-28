@@ -1,4 +1,5 @@
 import SwiftUI
+import Faq
 import Common
 import SharedModels
 import Navigation
@@ -18,7 +19,7 @@ public struct CourseView: View {
 
     public var body: some View {
         TabView(selection: $navigationController.courseTab) {
-            FixBlankScreenView {
+            TabBarIpad {
                 ExerciseListView(viewModel: viewModel, searchText: $searchText)
             }
             .tabItem {
@@ -26,7 +27,7 @@ public struct CourseView: View {
             }
             .tag(TabIdentifier.exercise)
 
-            FixBlankScreenView {
+            TabBarIpad {
                 LectureListView(viewModel: viewModel, searchText: $searchText)
             }
             .tabItem {
@@ -35,19 +36,32 @@ public struct CourseView: View {
             .tag(TabIdentifier.lecture)
 
             if viewModel.isMessagesVisible {
-                MessagesTabView(course: viewModel.course, searchText: $searchText)
-                    .environmentObject(messagesPreferences)
-                    .tabItem {
-                        Label(R.string.localizable.messagesTabLabel(), systemImage: "bubble.right.fill")
-                    }
-                    .tag(TabIdentifier.communication)
+                TabBarIpad {
+                    MessagesTabView(course: viewModel.course, searchText: $searchText)
+                        .environmentObject(messagesPreferences)
+                }
+                .tabItem {
+                    Label(R.string.localizable.messagesTabLabel(), systemImage: "bubble.right.fill")
+                }
+                .tag(TabIdentifier.communication)
+            }
+
+            if viewModel.course.faqEnabled ?? false {
+                TabBarIpad {
+                    FaqListView(course: viewModel.course)
+                }
+                .tabItem {
+                    Label(R.string.localizable.faqTabLabel(), systemImage: "questionmark.circle")
+                }
+                .tag(TabIdentifier.faq)
             }
         }
         .navigationTitle(viewModel.course.title ?? R.string.localizable.loading())
         .navigationBarTitleDisplayMode(.inline)
         .modifier(
+            // TODO: Move search into each tab, why is this even here?
             SearchableIf(
-                condition: navigationController.courseTab != .communication || messagesPreferences.isSearchable,
+                condition: (navigationController.courseTab != .communication || messagesPreferences.isSearchable) && navigationController.courseTab != .faq,
                 text: $searchText)
         )
         .onChange(of: navigationController.courseTab) {
@@ -57,15 +71,6 @@ public struct CourseView: View {
             if navigationController.outerPath.count < 2 {
                 // Reset selection if navigating back
                 navigationController.selectedPath = nil
-            }
-        }
-        .onAppear {
-            // On iPad, always make Tab Bar opaque
-            // This prevents an issue where the tab bar has content behind it but is transparent
-            if UIDevice.current.userInterfaceIdiom == .pad {
-                let appearance = UITabBarAppearance()
-                appearance.configureWithDefaultBackground()
-                UITabBar.appearance().scrollEdgeAppearance = appearance
             }
         }
     }

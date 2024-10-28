@@ -9,6 +9,7 @@ import APIClient
 import Common
 import Foundation
 import SharedModels
+import SwiftUI
 import UserStore
 
 extension SendMessageViewModel {
@@ -44,6 +45,7 @@ final class SendMessageViewModel {
     // MARK: Text
 
     var text = ""
+    var selection: TextSelection?
 
     var isEditing: Bool {
         switch configuration {
@@ -158,35 +160,31 @@ extension SendMessageViewModel {
     // MARK: Toolbar
 
     func didTapBoldButton() {
-        text.append("****")
+        appendToSelection(before: "**", after: "**", placeholder: "bold")
     }
 
     func didTapItalicButton() {
-        text.append("**")
+        appendToSelection(before: "*", after: "*", placeholder: "italic")
     }
 
     func didTapUnderlineButton() {
-        text.append("<ins></ins>")
+        appendToSelection(before: "<ins>", after: "</ins>", placeholder: "underlined")
     }
 
     func didTapBlockquoteButton() {
-        text.append("> Reference")
+        appendToSelection(before: "> ", after: "", placeholder: "Reference")
     }
 
     func didTapCodeButton() {
-        text.append("``")
+        appendToSelection(before: "`", after: "`", placeholder: "Code")
     }
 
     func didTapCodeBlockButton() {
-        text.append("""
-                    ```java
-                    Source Code
-                    ```
-                    """)
+        appendToSelection(before: "```java\n", after: "\n```", placeholder: "Source Code")
     }
 
     func didTapLinkButton() {
-        text.append("[](http://)")
+        appendToSelection(before: "[", after: "](https://)", placeholder: "Display Text")
     }
 
     func didTapAtButton() {
@@ -194,7 +192,7 @@ extension SendMessageViewModel {
             isMemberPickerSuppressed = true
         } else {
             isMemberPickerSuppressed = false
-            text += "@"
+            appendToSelection(before: "@", after: " ", placeholder: " ")
         }
     }
 
@@ -203,7 +201,43 @@ extension SendMessageViewModel {
             isChannelPickerSuppressed = true
         } else {
             isChannelPickerSuppressed = false
-            text += "#"
+            appendToSelection(before: "#", after: " ", placeholder: " ")
+        }
+    }
+
+    /// Prepends/Appends the given snippets to text the user has selected.
+    private func appendToSelection(before: String, after: String, placeholder: String) {
+        let placeholderText = "\(before)\(placeholder)\(after)"
+        var shouldSelectPlaceholder = false
+
+        if let selection {
+            switch selection.indices {
+            case .selection(let range):
+                let newText: String
+                if text[range].isEmpty {
+                    newText = placeholderText
+                    shouldSelectPlaceholder = true
+                } else {
+                    newText = "\(before)\(text[range])\(after)"
+                }
+                text.replaceSubrange(range, with: newText)
+                if !shouldSelectPlaceholder, let endIndex = text.range(of: newText)?.upperBound {
+                    self.selection = TextSelection(insertionPoint: endIndex)
+                }
+            default:
+                break
+            }
+        } else {
+            text.append(placeholderText)
+            shouldSelectPlaceholder = true
+        }
+
+        if shouldSelectPlaceholder {
+            for range in text.ranges(of: placeholderText) {
+                if let placeholderRange = text[range].range(of: placeholder) {
+                    selection = TextSelection(range: range.clamped(to: placeholderRange))
+                }
+            }
         }
     }
 
@@ -239,6 +273,7 @@ extension SendMessageViewModel {
             }
             switch result {
             case .success:
+                selection = nil
                 text = ""
             default:
                 return
