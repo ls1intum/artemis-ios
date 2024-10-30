@@ -16,6 +16,9 @@ struct ArtemisApp: App {
                     if newPhase == .background {
                         delegate.applicationDidEnterBackground(UIApplication.shared)
                     }
+                    if newPhase == .active {
+                        delegate.reloadLoginStatus()
+                    }
                 }
         }
     }

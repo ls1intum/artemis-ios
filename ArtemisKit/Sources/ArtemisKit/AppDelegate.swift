@@ -98,6 +98,12 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         // maybe add as param in handle above
         completionHandler()
     }
+
+    /// Workaround for login screen being shown too often
+    /// Forces RootViewModel to refresh its login status
+    public func reloadLoginStatus() {
+        UserSessionFactory.shared.objectWillChange.send()
+    }
 }
 
 // Define initializer
