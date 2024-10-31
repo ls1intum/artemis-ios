@@ -9,4 +9,4 @@ jobs:
     runs-on: macOS
     steps:
       - uses: actions/checkout@v2
-      - run: fastlane build
+      - run: bundle exec fastlane build
