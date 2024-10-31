@@ -1,0 +1,12 @@
+name: build-ios-app
+on:
+  push:
+    branches-ignore:
+      - main
+      - develop
+jobs:
+  build:
+    runs-on: macOS
+    steps:
+      - uses: actions/checkout@v2
+      - run: fastlane build
