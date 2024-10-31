@@ -10,5 +10,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: |
-          bundle update --bundler
+          gem install bundler:2.5.18
+          bundle update
           bundle exec fastlane build
