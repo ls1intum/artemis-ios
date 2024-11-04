@@ -67,7 +67,7 @@ platform :ios do
       type: "appstore",
       api_key: api_key, 
       git_branch: "main", # branch to store and get certificates from
-      git_full_name: "fastlane_match", 
+      git_full_name: "Artemis IOS", 
       clone_branch_directly: true, # optional
       git_user_email: "ls1.itg@in.tum.de",
       git_url: "https://gitlab.lrz.de/ase/ipraktikum/match-code-signing",
@@ -116,7 +116,7 @@ platform :ios do
       cloned_source_packages_path: ".SwiftPackages", # Custom path for cloning source packages to
       derived_data_path: ".DerivedData", # Custom derived data path
       output_directory: "./build", # Directory where the output artifacts are generated
-      scheme: "Artemis", # We want to build the "HallOfFame" scheme
+      scheme: "Artemis",
       xcargs: "-skipMacroValidation -skipPackagePluginValidation"
     )
   end

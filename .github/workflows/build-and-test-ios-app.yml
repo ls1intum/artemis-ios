@@ -1,0 +1,37 @@
+name: build-and-test-ios-app
+
+on:
+  push:
+    branches-ignore:
+      - main
+      - develop
+  workflow_call:
+  workflow_dispatch:
+    
+jobs:
+  build:
+    permissions:
+      contents: read
+    runs-on: [self-hosted, macOS]
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Update Bundler
+        run: bundle update
+
+      - name: Check static code quality of iOS App
+        run: bundle exec fastlane swift_lint
+
+      - name: Run Unit and UI Tests
+        run: bundle exec fastlane test
+
+      - name: Build iOS App 
+        run: bundle exec fastlane build
+        env: 
+          BUILD_NUMBER: ${{ github.run_number }}
+          IOS_MATCH_GITLAB_AUTH: ${{ secrets.IOS_MATCH_GITLAB_AUTH }}
+          IOS_KEYCHAIN_PASSWORD: ${{ secrets.IOS_KEYCHAIN_PASSWORD }}
+          IOS_APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.IOS_APP_STORE_CONNECT_API_KEY_KEY_ID }}
+          IOS_APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.IOS_APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
+          IOS_APP_STORE_CONNECT_API_KEY_PASSWORD: ${{ secrets.IOS_APP_STORE_CONNECT_API_KEY_PASSWORD }}
+          MATCH_PASSWORD: ${{ secrets.IOS_MATCH_PASSWORD }}

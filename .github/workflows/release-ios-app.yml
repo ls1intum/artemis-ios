@@ -1,0 +1,26 @@
+name: release-ios-app
+
+on:
+  push:
+    branches:
+      - develop
+  workflow_dispatch:
+
+jobs:
+  build:
+    permissions:
+      contents: read
+    uses: ./.github/workflows/build-and-test-ios-app.yml
+
+  release:
+    needs: build
+    runs-on: [self-hosted, macOS]
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Upload iOS App to TestFlight
+        run: bundle exec fastlane upload_to_testflight
+        env: 
+          IOS_APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.IOS_APP_STORE_CONNECT_API_KEY_KEY_ID }}
+          IOS_APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.IOS_APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
+          IOS_APP_STORE_CONNECT_API_KEY_PASSWORD: ${{ secrets.IOS_APP_STORE_CONNECT_API_KEY_PASSWORD }}
