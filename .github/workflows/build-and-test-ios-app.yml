@@ -10,9 +10,6 @@ on:
     
 jobs:
   build:
-    defaults:
-      run:
-        shell: bash -le {0}
     permissions:
       contents: read
     runs-on: [self-hosted, macOS]
