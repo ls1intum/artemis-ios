@@ -10,18 +10,18 @@ on:
     
 jobs:
   build:
-    defaults:
-      run:
-        shell: /bin/bash -e {0}
-        working-directory: /Users/github-runner
     permissions:
       contents: read
     runs-on: [self-hosted, macOS]
     steps:
       - uses: actions/checkout@v2
 
+      - name: Set Path
+        run: |
+          echo "/Users/github-runner/.rbenv/shims" >> $GITHUB_PATH
+
       - name: Update Bundler
-        run: whoami && echo $PATH && source .bashrc && bundle update
+        run: bundle update
 
       - name: Check static code quality of iOS App
         run: bundle exec fastlane swift_lint
