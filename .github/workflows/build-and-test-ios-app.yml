@@ -16,10 +16,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.3.4' # Not needed with a `.ruby-version` or `.tool-versions`
-          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+      - name: Setup Ruby
+        run: export PATH="$HOME/.rbenv/bin:$PATH" && eval "$(rbenv init -)"
 
       - name: Update Bundler
         run: bundle update
