@@ -16,12 +16,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Setup Ruby
-        run: |
-          echo "$HOME/.rbenv/bin" >> "$GITHUB_PATH"
-          echo "/opt/homebrew/bin" >> "$GITHUB_PATH"
-          eval "$(rbenv init -)" && ruby --version
-
       - name: Update Bundler
         run: ruby --version && bundle update
 
