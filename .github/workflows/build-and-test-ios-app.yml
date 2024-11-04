@@ -18,7 +18,7 @@ jobs:
 
       - name: Set Path
         run: |
-          echo "/Users/github-runner/.rbenv/shims" >> $GITHUB_PATH
+          echo "/opt/homebrew/bin:/Users/github-runner/.rbenv/shims:$PATH" >> $GITHUB_PATH
 
       - name: Update Bundler
         run: bundle update
