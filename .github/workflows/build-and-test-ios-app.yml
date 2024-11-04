@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Update Bundler
-        run: echo $PATH && eval "$(rbenv init -)" && bundle update
+        run: bundle update
 
       - name: Check static code quality of iOS App
         run: bundle exec fastlane swift_lint
