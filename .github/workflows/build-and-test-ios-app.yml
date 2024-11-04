@@ -12,7 +12,7 @@ jobs:
   build:
     defaults:
       run:
-        shell: bash -leo {0}
+        shell: bash -e {0}
     permissions:
       contents: read
     runs-on: [self-hosted, macOS]
@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Update Bundler
-        run: ruby --version && bundle update
+        run: echo $PATH && echo $GITHUB_PATH && bundle update
 
       - name: Check static code quality of iOS App
         run: bundle exec fastlane swift_lint
