@@ -110,6 +110,7 @@ let package = Package(
             name: "Messages",
             dependencies: [
                 "Extensions",
+                "Faq",
                 "Navigation",
                 .product(name: "EmojiPicker", package: "EmojiPicker"),
                 .product(name: "APIClient", package: "artemis-ios-core-modules"),
