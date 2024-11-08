@@ -11,6 +11,7 @@ import DesignLibrary
 import Navigation
 import SharedModels
 import SwiftUI
+import Faq
 
 struct MessageCell: View {
     @Environment(\.isMessageOffline) var isMessageOffline: Bool
@@ -364,6 +365,8 @@ private extension MessageCell {
                         return
                     }
                 }
+            case let .faq(id):
+                navigationController.tabPath.append(FaqPath(id: id, courseId: viewModel.course.id))
             }
             return .handled
         }

@@ -16,6 +16,7 @@ enum MentionScheme {
     case member(login: String)
     case message(id: Int64)
     case slide(number: Int, attachmentUnit: Int)
+    case faq(id: Int64)
 
     init?(_ url: URL) {
         guard url.scheme == "mention" else {
@@ -62,6 +63,13 @@ enum MentionScheme {
             // E.g., mention://slide/attachment-unit/10/slide/1
             if url.pathComponents.count >= 4, let attachmentUnit = Int(url.pathComponents[2]), let id = Int(url.lastPathComponent) {
                 self = .slide(number: id, attachmentUnit: attachmentUnit)
+                return
+            }
+        case "faq":
+            // E.g., mention://faq/faqId=20
+            if let idString = url.absoluteString.split(separator: "=").last,
+               let id = Int64(idString) {
+                self = .faq(id: id)
                 return
             }
         default:

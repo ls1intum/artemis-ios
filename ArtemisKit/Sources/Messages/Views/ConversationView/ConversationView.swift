@@ -12,7 +12,6 @@ import Navigation
 import SharedModels
 import SwiftUI
 
-@MainActor
 public struct ConversationView: View {
 
     @EnvironmentObject var navigationController: NavigationController
