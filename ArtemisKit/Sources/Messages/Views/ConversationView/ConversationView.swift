@@ -97,8 +97,6 @@ public struct ConversationView: View {
                 } label: {
                     HStack(alignment: .center, spacing: .m) {
                         viewModel.conversation.baseConversation.icon?
-                            .renderingMode(.template)
-                            .resizable()
                             .scaledToFit()
                             .frame(height: 20)
                         VStack(alignment: .leading, spacing: .xxs) {
