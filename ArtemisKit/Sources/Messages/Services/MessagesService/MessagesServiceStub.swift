@@ -204,4 +204,8 @@ extension MessagesServiceStub: MessagesService {
     func unarchiveChannel(for courseId: Int, channelId: Int64) async -> NetworkResponse {
         .loading
     }
+
+    func uploadImage(for courseId: Int, and conversationId: Int64, image: Data) async -> DataState<String> {
+        .loading
+    }
 }
