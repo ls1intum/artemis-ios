@@ -61,7 +61,6 @@ struct MessageDetailView: View {
                         .fontWeight(.semibold)
                     HStack(spacing: .s) {
                         viewModel.conversation.baseConversation.icon?
-                            .resizable()
                             .scaledToFit()
                             .frame(height: .m * 1.5)
                         Text(viewModel.conversation.baseConversation.conversationName)

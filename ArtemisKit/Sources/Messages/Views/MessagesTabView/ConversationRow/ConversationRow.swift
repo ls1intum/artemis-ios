@@ -86,7 +86,6 @@ private extension ConversationRow {
     @ViewBuilder var conversationIcon: some View {
         if let icon = conversation.icon {
             icon
-                .resizable()
                 .scaledToFit()
                 .frame(height: .extraSmallImage)
                 .frame(maxWidth: .infinity, alignment: .trailing)

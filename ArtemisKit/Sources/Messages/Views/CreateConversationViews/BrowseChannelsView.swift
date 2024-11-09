@@ -75,7 +75,6 @@ private struct ChannelRow: View {
                 HStack {
                     if let icon = channel.icon {
                         icon
-                            .resizable()
                             .scaledToFit()
                             .frame(width: .extraSmallImage, height: .extraSmallImage)
                     }
