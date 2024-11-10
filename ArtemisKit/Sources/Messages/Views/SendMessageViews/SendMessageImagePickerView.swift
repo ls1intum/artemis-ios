@@ -23,18 +23,17 @@ struct SendMessageImagePickerView: View {
         PhotosPicker(selection: $viewModel.selection,
                      matching: .images,
                      preferredItemEncoding: .compatible) {
-            // TODO: Localize
-            Label("Upload Image", systemImage: "photo.fill")
+            Label(R.string.localizable.uploadImage(), systemImage: "photo.fill")
         }
-                     .onChange(of: viewModel.selection) {
-                         viewModel.onChange()
-                     }
-                     .sheet(isPresented: viewModel.showUploadScreen) {
-                         if let path = viewModel.imagePath {
-                             sendViewModel.insertImageMention(path: path)
-                         }
-                     } content: {
-                         Text("Uploading: \(viewModel.uploadState)")
-                     }
+         .onChange(of: viewModel.selection) {
+             viewModel.onChange()
+         }
+         .sheet(isPresented: viewModel.showUploadScreen) {
+             if let path = viewModel.imagePath {
+                 sendViewModel.insertImageMention(path: path)
+             }
+         } content: {
+             Text("Uploading: \(viewModel.uploadState)")
+         }
     }
 }
