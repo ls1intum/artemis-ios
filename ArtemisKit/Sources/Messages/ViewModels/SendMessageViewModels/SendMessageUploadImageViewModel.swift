@@ -77,9 +77,9 @@ final class SendMessageUploadImageViewModel {
         uploadState = .compressing
         imagePath = nil
 
-        Task { [weak self] in
+        Task {
             if let transferable = try? await item.loadTransferable(type: Data.self) {
-                self?.upload(image: UIImage(data: transferable))
+                upload(image: UIImage(data: transferable))
             }
         }
     }
