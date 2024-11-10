@@ -23,6 +23,7 @@
 "codeBlock" = "Code block";
 "code" = "Code";
 "link" = "Link";
+"uploadImage" = "Upload Image";
 
 // MARK: SendMessageMentionContentView
 "members" = "Members";
@@ -155,6 +156,7 @@
 "ok" = "OK";
 "loading" = "Loading...";
 "cancel" = "Cancel";
+"uploading" = "Uploading";
 "previous" = "Previous";
 "next" = "Next";
 "confirm" = "Confirm";

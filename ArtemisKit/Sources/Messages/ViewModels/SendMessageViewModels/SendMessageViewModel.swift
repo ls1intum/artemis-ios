@@ -205,6 +205,10 @@ extension SendMessageViewModel {
         }
     }
 
+    func insertImageMention(path: String) {
+        appendToSelection(before: "![", after: "](\(path))", placeholder: "image")
+    }
+
     /// Prepends/Appends the given snippets to text the user has selected.
     private func appendToSelection(before: String, after: String, placeholder: String) {
         let placeholderText = "\(before)\(placeholder)\(after)"

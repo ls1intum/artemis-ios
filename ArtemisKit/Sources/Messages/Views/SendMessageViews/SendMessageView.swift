@@ -135,7 +135,6 @@ private extension SendMessageView {
                         }
                     } label: {
                         Label(R.string.localizable.mention(), systemImage: "plus.circle.fill")
-                            .labelStyle(.iconOnly)
                     }
                     Menu {
                         Button {
@@ -155,13 +154,11 @@ private extension SendMessageView {
                         }
                     } label: {
                         Label(R.string.localizable.style(), systemImage: "bold.italic.underline")
-                            .labelStyle(.iconOnly)
                     }
                     Button {
                         viewModel.didTapBlockquoteButton()
                     } label: {
                         Label(R.string.localizable.quote(), systemImage: "quote.opening")
-                            .labelStyle(.iconOnly)
                     }
                     Menu {
                         Button {
@@ -176,15 +173,15 @@ private extension SendMessageView {
                         }
                     } label: {
                         Label(R.string.localizable.code(), systemImage: "curlybraces")
-                            .labelStyle(.iconOnly)
                     }
                     Button {
                         viewModel.didTapLinkButton()
                     } label: {
                         Label(R.string.localizable.link(), systemImage: "link")
-                            .labelStyle(.iconOnly)
                     }
+                    SendMessageImagePickerView(sendMessageViewModel: viewModel)
                 }
+                .labelStyle(.iconOnly)
                 .font(.title3)
             }
             Spacer()
