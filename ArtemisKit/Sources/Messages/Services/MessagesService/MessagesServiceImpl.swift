@@ -240,7 +240,7 @@ struct MessagesServiceImpl: MessagesService {
 
         let request = MultipartFormDataRequest(path: "api/files/courses/\(courseId)/conversations/\(conversationId)")
         request.addDataField(named: "file",
-                             filename: UUID().uuidString,
+                             filename: "\(UUID().uuidString).jpg",
                              data: image,
                              mimeType: "image/jpeg")
 

@@ -184,6 +184,7 @@ private extension SendMessageView {
                         Label(R.string.localizable.link(), systemImage: "link")
                             .labelStyle(.iconOnly)
                     }
+                    SendMessageImagePickerView(sendMessageViewModel: viewModel)
                 }
                 .font(.title3)
             }
