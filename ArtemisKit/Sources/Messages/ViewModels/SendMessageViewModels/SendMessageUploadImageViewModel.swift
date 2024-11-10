@@ -25,8 +25,10 @@ final class SendMessageUploadImageViewModel {
     let conversationId: Int64
 
     var selection: PhotosPickerItem?
+    var image: UIImage?
     var uploadState = UploadState.selectImage
     var imagePath: String?
+    private var uploadTask: Task<(), Never>?
 
     var showUploadScreen: Binding<Bool> {
         .init {
@@ -37,18 +39,27 @@ final class SendMessageUploadImageViewModel {
             }
         }
     }
-    var showError: Binding<Bool> {
-        .init {
-            switch self.uploadState {
-            case .failed:
-                return true
-            default:
-                return false
-            }
-        } set: { newValue in
-            if !newValue {
-                self.uploadState = .selectImage
-            }
+    var error: UserFacingError? {
+        switch uploadState {
+        case .failed(let error):
+            return error
+        default:
+            return nil
+        }
+    }
+
+    var statusLabel: String {
+        switch uploadState {
+        case .selectImage:
+            ""
+        case .compressing:
+            R.string.localizable.loading()
+        case .uploading:
+            R.string.localizable.uploading()
+        case .done:
+            R.string.localizable.done()
+        case .failed(let error):
+            error.localizedDescription
         }
     }
 
@@ -79,7 +90,8 @@ final class SendMessageUploadImageViewModel {
 
         Task {
             if let transferable = try? await item.loadTransferable(type: Data.self) {
-                upload(image: UIImage(data: transferable))
+                image = UIImage(data: transferable)
+                upload(image: image)
             }
         }
     }
@@ -88,14 +100,17 @@ final class SendMessageUploadImageViewModel {
         guard let image else { return }
 
         guard let imageData = compressImageBelow5MB(image) else {
-            uploadState = .failed(error: .init(title: "Image too big to upload. Plese select a smaller image."))
+            uploadState = .failed(error: .init(title: "Image too large. Plese select a smaller image."))
             return
         }
 
         uploadState = .uploading
 
-        Task {
+        uploadTask = Task {
             let result = await messagesService.uploadImage(for: courseId, and: conversationId, image: imageData)
+            if Task.isCancelled {
+                return
+            }
 
             switch result {
             case .loading:
@@ -125,5 +140,13 @@ final class SendMessageUploadImageViewModel {
         } else {
             return imageData
         }
+    }
+
+    func cancel() {
+        uploadTask?.cancel()
+        uploadTask = nil
+        selection = nil
+        image = nil
+        uploadState = .selectImage
     }
 }

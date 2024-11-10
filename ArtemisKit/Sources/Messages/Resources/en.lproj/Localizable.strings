@@ -156,6 +156,7 @@
 "ok" = "OK";
 "loading" = "Loading...";
 "cancel" = "Cancel";
+"uploading" = "Uploading";
 "previous" = "Previous";
 "next" = "Next";
 "confirm" = "Confirm";
