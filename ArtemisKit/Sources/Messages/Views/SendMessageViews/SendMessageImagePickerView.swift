@@ -46,35 +46,10 @@ private struct UploadImageView: View {
 
     var body: some View {
         ZStack {
-            if let image = viewModel.image {
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .ignoresSafeArea()
-                    .blur(radius: 10, opaque: true)
-                    .opacity(0.2)
-            }
+            backgroundImage
 
             VStack {
-                Group {
-                    if viewModel.uploadState != .done && viewModel.error == nil {
-                        ProgressView()
-                            .progressViewStyle(.circular)
-                            .scaleEffect(1.5)
-                    }
-                    if viewModel.uploadState == .done {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(.green)
-                    }
-                    if viewModel.error != nil {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundStyle(.red)
-                    }
-                }
-                .font(.largeTitle)
-                .frame(height: 60)
-                .transition(.blurReplace)
+                statusIcon
 
                 Text(viewModel.statusLabel)
                     .frame(maxWidth: 300)
@@ -101,6 +76,39 @@ private struct UploadImageView: View {
                     dismiss()
                 }
             }
+        }
+    }
+
+    @ViewBuilder var statusIcon: some View {
+        Group {
+            if viewModel.uploadState != .done && viewModel.error == nil {
+                ProgressView()
+                    .progressViewStyle(.circular)
+                    .scaleEffect(1.5)
+            }
+            if viewModel.uploadState == .done {
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundStyle(.green)
+            }
+            if viewModel.error != nil {
+                Image(systemName: "xmark.circle.fill")
+                    .foregroundStyle(.red)
+            }
+        }
+        .font(.largeTitle)
+        .frame(height: 60)
+        .transition(.blurReplace)
+    }
+
+    @ViewBuilder var backgroundImage: some View {
+        if let image = viewModel.image {
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFill()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .ignoresSafeArea()
+                .blur(radius: 10, opaque: true)
+                .opacity(0.2)
         }
     }
 }
