@@ -70,7 +70,7 @@ platform :ios do
     create_keychain(
       name: keychain_name,
       password: keychain_password,
-      default_keychain: true,
+      default_keychain: false,
       unlock: true,
       timeout: 3600
     )
