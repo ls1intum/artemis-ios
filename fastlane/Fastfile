@@ -49,9 +49,7 @@ platform :ios do
   lane :build do
     app_identifier = CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier)
     team_id = CredentialsManager::AppfileConfig.try_fetch_value(:team_id)
-    keychain_name = "signing"
-    keychain_password = "temp"
-
+  
     ##########################################
     # Environment Setup
     ##########################################   
@@ -64,19 +62,11 @@ platform :ios do
       value: ENV['BUILD_NUMBER']
     )
 
-    delete_keychain(
-      name: keychain_name
-    ) if File.exist? File.expand_path("~/Library/Keychains/#{keychain_name}-db")
-
-    create_keychain(
-      name: keychain_name,
-      password: keychain_password,
-      default_keychain: true,
-      unlock: true,
-      timeout: 3600,
-      add_to_search_list: true
+    unlock_keychain(
+      path: "~/Library/Keychains/login.keychain-db",
+      password: ENV['IOS_KEYCHAIN_PASSWORD']
     )
-
+  
     ##########################################
     # Configure Code Signing via Match
     ##########################################
@@ -84,32 +74,30 @@ platform :ios do
     match(
       type: "appstore",
       api_key: api_key, 
-      app_identifier: app_identifier,
-      git_branch: "main", # branch to store and get certificates from
       git_full_name: "Artemis IOS", 
+      git_branch: "main", # branch to store and get certificates from
       clone_branch_directly: true, # optional
       git_user_email: "ls1.itg@in.tum.de",
       git_url: "https://gitlab.lrz.de/ase/ipraktikum/match-code-signing",
       readonly: false,
-      force: true,
+      keychain_name: "login.keychain",
+      keychain_password: ENV['IOS_KEYCHAIN_PASSWORD'],
       git_basic_authorization: ENV['IOS_MATCH_GITLAB_AUTH'], # Base-64 encoded, format gitlab_auth_token_name:gitlab_auth_token
-      keychain_name: keychain_name,
-      keychain_password: keychain_password, # Keychain password to store cert (using the default login keychain)
       verbose: true # optional but very helpful
     )
 
     ##########################################
-    # Project Setup
+    # Build
     ##########################################
 
-    # Update AppID for publishing
-    update_app_identifier(
-      plist_path: info_plist_path
+
+    profile_mapping = Actions.lane_context[SharedValues::MATCH_PROVISIONING_PROFILE_MAPPING]
+    update_code_signing_settings(
+      use_automatic_signing: false,
+      code_sign_identity: 'iPhone Distribution',
+      profile_name: profile_mapping[app_identifier],
     )
 
-    ##########################################
-    # Code sign and Build
-    ##########################################
 
     # Build the app
     build_ios_app(
