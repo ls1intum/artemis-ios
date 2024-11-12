@@ -94,16 +94,6 @@ platform :ios do
     )
 
     ##########################################
-    # Provisioning Profile
-    ##########################################
-
-    # Download the latest provisioning profile
-    # from the apple developer portal
-    get_provisioning_profile(
-      api_key: api_key
-    )
-
-    ##########################################
     # Project Setup
     ##########################################
 
