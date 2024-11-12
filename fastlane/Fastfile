@@ -47,6 +47,10 @@ platform :ios do
 
   desc "[CI] Default build configuration"
   lane :build do
+    team_id = CredentialsManager::AppfileConfig.try_fetch_value(:team_id)
+    keychain_name = "signing"
+    keychain_password = "temp"
+
     ##########################################
     # Environment Setup
     ##########################################   
@@ -57,6 +61,18 @@ platform :ios do
       path: info_plist_path,
       key: "CFBundleVersion",
       value: ENV['BUILD_NUMBER']
+    )
+
+    delete_keychain(
+      name: keychain_name
+    ) if File.exist? File.expand_path("~/Library/Keychains/#{keychain_name}-db")
+
+    create_keychain(
+      name: keychain_name,
+      password: keychain_password,
+      default_keychain: true,
+      unlock: true,
+      timeout: 3600
     )
 
     ##########################################
