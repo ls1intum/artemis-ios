@@ -88,7 +88,8 @@ platform :ios do
       git_user_email: "ls1.itg@in.tum.de",
       git_url: "https://gitlab.lrz.de/ase/ipraktikum/match-code-signing",
       git_basic_authorization: ENV['IOS_MATCH_GITLAB_AUTH'], # Base-64 encoded, format gitlab_auth_token_name:gitlab_auth_token
-      keychain_password: ENV['IOS_KEYCHAIN_PASSWORD'], # Keychain password to store cert (using the default login keychain)
+      keychain_name: keychain_name,
+      keychain_password: keychain_password, # Keychain password to store cert (using the default login keychain)
       verbose: true # optional but very helpful
     )
 
