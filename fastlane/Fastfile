@@ -47,6 +47,7 @@ platform :ios do
 
   desc "[CI] Default build configuration"
   lane :build do
+    app_identifier = CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier)
     team_id = CredentialsManager::AppfileConfig.try_fetch_value(:team_id)
     keychain_name = "signing"
     keychain_password = "temp"
@@ -70,22 +71,20 @@ platform :ios do
     create_keychain(
       name: keychain_name,
       password: keychain_password,
-      default_keychain: false,
+      default_keychain: true,
       unlock: true,
-      timeout: 3600
+      timeout: 3600,
+      add_to_search_list: true
     )
 
     ##########################################
     # Configure Code Signing via Match
     ##########################################
 
-    disable_automatic_code_signing(
-      team_id: team_id
-    )
-
     match(
       type: "appstore",
       api_key: api_key, 
+      app_identifier: app_identifier,
       git_branch: "main", # branch to store and get certificates from
       git_full_name: "Artemis IOS", 
       clone_branch_directly: true, # optional
