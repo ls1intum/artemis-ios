@@ -17,6 +17,7 @@ struct CreateOrAddToChatView: View {
         case addToChat(Conversation)
     }
 
+    @FocusState private var focused
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var navigationController: NavigationController
 
@@ -30,6 +31,7 @@ struct CreateOrAddToChatView: View {
                 selectedUsers
                 TextField(R.string.localizable.searchUsersLabel(), text: $viewModel.searchText)
                     .textFieldStyle(.roundedBorder)
+                    .focused($focused)
                     .padding(.horizontal, .l)
                 searchResults
             }
@@ -64,6 +66,9 @@ struct CreateOrAddToChatView: View {
                         }
                     }.disabled(viewModel.selectedUsers.isEmpty)
                 }
+            }
+            .onAppear {
+                focused = true
             }
             .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
         }
