@@ -95,11 +95,17 @@ private extension CreateOrAddToChatView {
             HStack {
                 ForEach(viewModel.selectedUsers.reversed(), id: \.id) { user in
                     if let name = user.name {
-                        Button(role: .destructive) {
+                        Button {
                             viewModel.unstage(user: user)
                         } label: {
-                            Chip(text: name, backgroundColor: .Artemis.artemisBlue)
-                        }
+                            HStack {
+                                ProfilePictureView(user: user, role: nil, course: .mock, size: 25)
+                                    .allowsHitTesting(false)
+                                Text(name)
+                            }
+                            .padding(.m)
+                            .background(Color.Artemis.artemisBlue, in: .rect(cornerRadius: .m))
+                        }.buttonStyle(.plain)
                     }
                 }
             }
@@ -126,7 +132,11 @@ private extension CreateOrAddToChatView {
                             Button {
                                 viewModel.stage(user: user)
                             } label: {
-                                Text(name)
+                                HStack {
+                                    ProfilePictureView(user: user, role: nil, course: .mock, size: 25)
+                                        .allowsHitTesting(false)
+                                    Text(name)
+                                }
                             }
                         }
                     }
