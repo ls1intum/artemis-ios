@@ -330,6 +330,12 @@ private extension ConversationViewModel {
         } else {
             return
         }
+
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(onOwnMessageSent(notification:)),
+                                               name: .newMessageSent,
+                                               object: nil)
+
         if stompClient.didSubscribeTopic(topic) {
             /// These web socket topics are the same across multiple channels.
             /// We might need to wait until a previously open conversation has unsubscribed
@@ -389,6 +395,15 @@ private extension ConversationViewModel {
             handle(delete: messageWebsocketDTO.post)
         default:
             return
+        }
+    }
+
+    @objc
+    func onOwnMessageSent(notification: Foundation.Notification) {
+        if let message = notification.userInfo?["message"] as? Message {
+            DispatchQueue.main.async {
+                self.onMessageReceived(messageWebsocketDTO: .init(post: message, action: .create, notification: nil))
+            }
         }
     }
 
