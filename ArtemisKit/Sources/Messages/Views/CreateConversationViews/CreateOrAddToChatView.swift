@@ -115,20 +115,28 @@ private extension CreateOrAddToChatView {
         DataStateView(data: $viewModel.searchResults) {
             await viewModel.loadUsers()
         } content: { users in
-            List {
-                ForEach(
-                    users.filter({ user in !viewModel.selectedUsers.contains(where: { $0.id == user.id }) }), id: \.id
-                ) { user in
-                    if let name = user.name {
-                        Button {
-                            viewModel.stage(user: user)
-                        } label: {
-                            Text(name)
+            if viewModel.searchText.count < 3 {
+                ContentUnavailableView(R.string.localizable.enterAtLeast3Characters(),
+                                       systemImage: "magnifyingglass")
+            } else {
+                List {
+                    let displayedUsers = users.filter({ user in !viewModel.selectedUsers.contains(where: { $0.id == user.id }) })
+                    ForEach(displayedUsers, id: \.id) { user in
+                        if let name = user.name {
+                            Button {
+                                viewModel.stage(user: user)
+                            } label: {
+                                Text(name)
+                            }
                         }
                     }
+                    if displayedUsers.isEmpty {
+                        ContentUnavailableView(R.string.localizable.noMatchingUsers(),
+                                               systemImage: "person.slash.fill")
+                    }
                 }
+                .listStyle(.plain)
             }
-            .listStyle(.plain)
         }
     }
 }
