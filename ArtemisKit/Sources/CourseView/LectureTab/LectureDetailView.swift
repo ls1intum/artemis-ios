@@ -105,7 +105,9 @@ private struct ChannelCell: View {
                             .suffix(name.starts(with: "lecture-") ? name.count - 8 : name.count)
                         Text(String(displayName))
                     } icon: {
-                        channel.icon
+                        channel.icon?
+                            .scaledToFit()
+                            .frame(height: 22)
                     }
                     .font(.title3)
 
