@@ -39,6 +39,7 @@ struct MessageCell: View {
                 editedLabel
                 resolvedIndicator
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(.rect)
             .onTapGesture(perform: onTapPresentMessage)
             .onLongPressGesture(perform: onLongPressPresentActionSheet) { changed in
