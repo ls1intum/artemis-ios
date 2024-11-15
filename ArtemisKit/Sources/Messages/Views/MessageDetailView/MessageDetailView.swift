@@ -60,9 +60,15 @@ struct MessageDetailView: View {
                     Text(R.string.localizable.thread())
                         .fontWeight(.semibold)
                     HStack(spacing: .s) {
-                        viewModel.conversation.baseConversation.icon?
-                            .scaledToFit()
-                            .frame(height: .m * 1.5)
+                        ViewThatFits(in: .horizontal) {
+                            viewModel.conversation.baseConversation.icon?
+                                .scaledToFit()
+                                .frame(height: .m * 1.5)
+                            viewModel.conversation.baseConversation.icon?
+                                .scaleEffect(0.5)
+                                .frame(height: .m * 1.5)
+                        }
+                        .frame(maxWidth: 25)
                         Text(viewModel.conversation.baseConversation.conversationName)
                     }
                     .font(.footnote)
