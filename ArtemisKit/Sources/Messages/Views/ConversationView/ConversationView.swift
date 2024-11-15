@@ -39,6 +39,7 @@ public struct ConversationView: View {
                     R.string.localizable.noMessages(),
                     systemImage: "bubble.right",
                     description: Text(R.string.localizable.noMessagesDescription()))
+                .loadingIndicator(isLoading: $viewModel.isLoadingMessages)
             } else {
                 ScrollViewReader { value in
                     ScrollView {
@@ -131,16 +132,10 @@ public struct ConversationView: View {
         .sheet(isPresented: $viewModel.isConversationInfoSheetPresented) {
             ConversationInfoSheetView(course: viewModel.course, conversation: $viewModel.conversation)
         }
-        .task {
-            viewModel.shouldScrollToId = "bottom"
-            await viewModel.loadMessages()
-        }
         .onDisappear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                if navigationController.selectedCourse == nil {
-                    // only cancel task if we navigate back
-                    viewModel.subscription?.cancel()
-                }
+            if navigationController.courseTab != .communication && navigationController.tabPath.isEmpty {
+                // only cancel task if we leave communication
+                SocketConnectionHandler.shared.cancelSubscriptions()
             }
             viewModel.saveContext()
         }

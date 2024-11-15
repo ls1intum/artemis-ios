@@ -169,7 +169,7 @@ struct MessagesServiceImpl: MessagesService {
     }
 
     struct SendMessageRequest: APIRequest {
-        typealias Response = RawResponse
+        typealias Response = Message
 
         let courseId: Int
         let visibleForStudents: Bool
@@ -192,7 +192,10 @@ struct MessagesServiceImpl: MessagesService {
         )
 
         switch result {
-        case .success:
+        case .success(let response):
+            NotificationCenter.default.post(name: .newMessageSent,
+                                            object: nil,
+                                            userInfo: ["message": response.0])
             return .success
         case let .failure(error):
             return .failure(error: error)
@@ -924,4 +927,12 @@ private extension ConversationType {
             return nil
         }
     }
+}
+
+// MARK: Reload Notification
+
+extension Foundation.Notification.Name {
+    // Sending a notification of this type causes the Notification List to be reloaded,
+    // when favorites are changed from elsewhere.
+    static let newMessageSent = Foundation.Notification.Name("NewMessageSent")
 }

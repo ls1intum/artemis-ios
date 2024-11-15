@@ -16,7 +16,7 @@ public struct CoursePathView<Content: View>: View {
 
     public var body: some View {
         DataStateView(data: $viewModel.course) {
-            await viewModel.loadCourse()
+            await viewModel.reloadCourse()
         } content: { course in
             content(course)
         }

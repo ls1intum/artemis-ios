@@ -17,6 +17,7 @@ struct CreateOrAddToChatView: View {
         case addToChat(Conversation)
     }
 
+    @FocusState private var focused
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var navigationController: NavigationController
 
@@ -30,6 +31,7 @@ struct CreateOrAddToChatView: View {
                 selectedUsers
                 TextField(R.string.localizable.searchUsersLabel(), text: $viewModel.searchText)
                     .textFieldStyle(.roundedBorder)
+                    .focused($focused)
                     .padding(.horizontal, .l)
                 searchResults
             }
@@ -65,6 +67,9 @@ struct CreateOrAddToChatView: View {
                     }.disabled(viewModel.selectedUsers.isEmpty)
                 }
             }
+            .onAppear {
+                focused = true
+            }
             .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
         }
     }
@@ -95,11 +100,17 @@ private extension CreateOrAddToChatView {
             HStack {
                 ForEach(viewModel.selectedUsers.reversed(), id: \.id) { user in
                     if let name = user.name {
-                        Button(role: .destructive) {
+                        Button {
                             viewModel.unstage(user: user)
                         } label: {
-                            Chip(text: name, backgroundColor: .Artemis.artemisBlue)
-                        }
+                            HStack {
+                                ProfilePictureView(user: user, role: nil, course: .mock, size: 25)
+                                    .allowsHitTesting(false)
+                                Text(name)
+                            }
+                            .padding(.m)
+                            .background(Color.Artemis.artemisBlue, in: .rect(cornerRadius: .m))
+                        }.buttonStyle(.plain)
                     }
                 }
             }
@@ -115,20 +126,32 @@ private extension CreateOrAddToChatView {
         DataStateView(data: $viewModel.searchResults) {
             await viewModel.loadUsers()
         } content: { users in
-            List {
-                ForEach(
-                    users.filter({ user in !viewModel.selectedUsers.contains(where: { $0.id == user.id }) }), id: \.id
-                ) { user in
-                    if let name = user.name {
-                        Button {
-                            viewModel.stage(user: user)
-                        } label: {
-                            Text(name)
+            if viewModel.searchText.count < 3 {
+                ContentUnavailableView(R.string.localizable.enterAtLeast3Characters(),
+                                       systemImage: "magnifyingglass")
+            } else {
+                List {
+                    let displayedUsers = users.filter({ user in !viewModel.selectedUsers.contains(where: { $0.id == user.id }) })
+                    ForEach(displayedUsers, id: \.id) { user in
+                        if let name = user.name {
+                            Button {
+                                viewModel.stage(user: user)
+                            } label: {
+                                HStack {
+                                    ProfilePictureView(user: user, role: nil, course: .mock, size: 25)
+                                        .allowsHitTesting(false)
+                                    Text(name)
+                                }
+                            }
                         }
                     }
+                    if displayedUsers.isEmpty {
+                        ContentUnavailableView(R.string.localizable.noMatchingUsers(),
+                                               systemImage: "person.slash.fill")
+                    }
                 }
+                .listStyle(.plain)
             }
-            .listStyle(.plain)
         }
     }
 }

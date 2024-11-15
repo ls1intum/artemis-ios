@@ -8,6 +8,7 @@
 import APIClient
 import Foundation
 import Common
+import Combine
 import Extensions
 import SharedModels
 import SharedServices
@@ -28,6 +29,7 @@ class ConversationViewModel: BaseViewModel {
 
     @Published var isConversationInfoSheetPresented = false
     @Published var selectedMessageId: Int64?
+    @Published var isLoadingMessages = true
 
     var isAllowedToPost: Bool {
         guard let channel = conversation.baseConversation as? Channel else {
@@ -45,11 +47,10 @@ class ConversationViewModel: BaseViewModel {
     }
 
     var shouldScrollToId: String?
-    var subscription: Task<(), Never>?
+    var subscription: AnyCancellable?
 
     fileprivate let messagesRepository: MessagesRepository
     private let messagesService: MessagesService
-    private let stompClient: ArtemisStompClient
     private let userSession: UserSession
 
     init(
@@ -57,7 +58,6 @@ class ConversationViewModel: BaseViewModel {
         conversation: Conversation,
         messagesRepository: MessagesRepository? = nil,
         messagesService: MessagesService = MessagesServiceFactory.shared,
-        stompClient: ArtemisStompClient = .shared,
         userSession: UserSession = UserSessionFactory.shared
     ) {
         self.course = course
@@ -65,7 +65,6 @@ class ConversationViewModel: BaseViewModel {
 
         self.messagesRepository = messagesRepository ?? .shared
         self.messagesService = messagesService
-        self.stompClient = stompClient
         self.userSession = userSession
 
         super.init()
@@ -77,6 +76,10 @@ class ConversationViewModel: BaseViewModel {
                                                selector: #selector(updateFavorites(notification:)),
                                                name: .favoriteConversationChanged,
                                                object: nil)
+
+        Task {
+            await loadMessages()
+        }
     }
 
     deinit {
@@ -102,6 +105,10 @@ extension ConversationViewModel {
     }
 
     func loadMessages() async {
+        defer {
+            isLoadingMessages = false
+        }
+
         let result = await messagesService.getMessages(for: course.id, and: conversation.id, page: page)
         switch result {
         case .loading:
@@ -320,43 +327,28 @@ private extension ConversationViewModel {
     // MARK: Initializer
 
     func subscribeToConversationTopic() {
-        let topic: String
-        if conversation.baseConversation.type == .channel,
-           let channel = conversation.baseConversation as? Channel,
-           channel.isCourseWide == true {
-            topic = WebSocketTopic.makeChannelNotifications(courseId: course.id)
-        } else if let id = userSession.user?.id {
-            topic = WebSocketTopic.makeConversationNotifications(userId: id)
-        } else {
-            return
-        }
-        if stompClient.didSubscribeTopic(topic) {
-            /// These web socket topics are the same across multiple channels.
-            /// We might need to wait until a previously open conversation has unsubscribed
-            /// before we can subscribe again
-            Timer.scheduledTimer(withTimeInterval: 5, repeats: false) { [weak self] _ in
-                DispatchQueue.main.async { [weak self] in
-                    self?.subscribeToConversationTopic()
-                }
-            }
-            return
-        }
-        subscription = Task { [weak self] in
-            guard let stream = self?.stompClient.subscribe(to: topic) else {
-                return
-            }
-
-            for await message in stream {
-                guard let messageWebsocketDTO = JSONDecoder.getTypeFromSocketMessage(type: MessageWebsocketDTO.self, message: message) else {
-                    continue
-                }
-
+        let socketConnection = SocketConnectionHandler.shared
+        subscription = socketConnection
+            .messagePublisher
+            .sink { [weak self] messageWebsocketDTO in
                 guard let self else {
                     return
                 }
                 onMessageReceived(messageWebsocketDTO: messageWebsocketDTO)
             }
+
+        if conversation.baseConversation.type == .channel,
+           let channel = conversation.baseConversation as? Channel,
+           channel.isCourseWide == true {
+            socketConnection.subscribeToChannelNotifications(courseId: course.id)
+        } else if let id = userSession.user?.id {
+            socketConnection.subscribeToConversationNotifications(userId: id)
         }
+
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(onOwnMessageSent(notification:)),
+                                               name: .newMessageSent,
+                                               object: nil)
     }
 
     func fetchOfflineMessages() {
@@ -380,15 +372,26 @@ private extension ConversationViewModel {
         guard messageWebsocketDTO.post.conversation?.id == conversation.id else {
             return
         }
-        switch messageWebsocketDTO.action {
-        case .create:
-            handle(new: messageWebsocketDTO.post)
-        case .update:
-            handle(update: messageWebsocketDTO.post)
-        case .delete:
-            handle(delete: messageWebsocketDTO.post)
-        default:
-            return
+        DispatchQueue.main.async {
+            switch messageWebsocketDTO.action {
+            case .create:
+                self.handle(new: messageWebsocketDTO.post)
+            case .update:
+                self.handle(update: messageWebsocketDTO.post)
+            case .delete:
+                self.handle(delete: messageWebsocketDTO.post)
+            default:
+                return
+            }
+        }
+    }
+
+    @objc
+    func onOwnMessageSent(notification: Foundation.Notification) {
+        if let message = notification.userInfo?["message"] as? Message {
+            DispatchQueue.main.async {
+                self.onMessageReceived(messageWebsocketDTO: .init(post: message, action: .create, notification: nil))
+            }
         }
     }
 
