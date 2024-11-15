@@ -69,7 +69,9 @@ struct MessageDetailView: View {
                                 .frame(height: .m * 1.5)
                         }
                         .frame(maxWidth: 25)
-                        Text(viewModel.conversation.baseConversation.conversationName)
+                        // Workaround: Trailing spaces, otherwise SwiftUI shortens this prematurely
+                        Text(viewModel.conversation.baseConversation.conversationName + "    ")
+                            .frame(maxWidth: 220)
                     }
                     .font(.footnote)
                 }.padding(.leading, .m)
