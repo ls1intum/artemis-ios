@@ -6,6 +6,7 @@
 //
 
 import APIClient
+import Combine
 import Common
 import DesignLibrary
 import Foundation
@@ -49,20 +50,19 @@ class MessagesAvailableViewModel: BaseViewModel {
     let courseId: Int
 
     private let messagesService: MessagesService
-    private let stompClient: ArtemisStompClient
     private let userSession: UserSession
+
+    private var subscription: AnyCancellable?
 
     init(
         course: Course,
         messagesService: MessagesService = MessagesServiceFactory.shared,
-        stompClient: ArtemisStompClient = ArtemisStompClient.shared,
         userSession: UserSession = UserSessionFactory.shared
     ) {
         self.course = course
         self.courseId = course.id
 
         self.messagesService = messagesService
-        self.stompClient = stompClient
         self.userSession = userSession
 
         super.init()
@@ -73,21 +73,29 @@ class MessagesAvailableViewModel: BaseViewModel {
                                                object: nil)
     }
 
+    deinit {
+        SocketConnectionHandler.shared.cancelSubscriptions()
+        subscription?.cancel()
+    }
+
     func subscribeToConversationMembershipTopic() async {
         guard let userId = userSession.user?.id else {
             log.debug("User could not be found. Subscribe to Conversation not possible")
             return
         }
 
-        let topic = WebSocketTopic.makeConversationMembershipNotifications(courseId: courseId, userId: userId)
-        let stream = stompClient.subscribe(to: topic)
+        let socketConnection = SocketConnectionHandler.shared
 
-        for await message in stream {
-            guard let conversationWebsocketDTO = JSONDecoder.getTypeFromSocketMessage(type: ConversationWebsocketDTO.self, message: message) else {
-                continue
+        subscription = socketConnection
+            .conversationPublisher
+            .sink { [weak self] conversationWebsocketDTO in
+                guard let self else {
+                    return
+                }
+                onConversationMembershipMessageReceived(conversationWebsocketDTO: conversationWebsocketDTO)
             }
-            onConversationMembershipMessageReceived(conversationWebsocketDTO: conversationWebsocketDTO)
-        }
+
+        socketConnection.subscribeToMembershipNotifications(courseId: courseId, userId: userId)
     }
 
     func loadConversations() async {
