@@ -60,10 +60,18 @@ struct MessageDetailView: View {
                     Text(R.string.localizable.thread())
                         .fontWeight(.semibold)
                     HStack(spacing: .s) {
-                        viewModel.conversation.baseConversation.icon?
-                            .scaledToFit()
-                            .frame(height: .m * 1.5)
-                        Text(viewModel.conversation.baseConversation.conversationName)
+                        ViewThatFits(in: .horizontal) {
+                            viewModel.conversation.baseConversation.icon?
+                                .scaledToFit()
+                                .frame(height: .m * 1.5)
+                            viewModel.conversation.baseConversation.icon?
+                                .scaleEffect(0.5)
+                                .frame(height: .m * 1.5)
+                        }
+                        .frame(maxWidth: 25)
+                        // Workaround: Trailing spaces, otherwise SwiftUI shortens this prematurely
+                        Text(viewModel.conversation.baseConversation.conversationName + "    ")
+                            .frame(maxWidth: 220)
                     }
                     .font(.footnote)
                 }.padding(.leading, .m)

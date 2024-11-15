@@ -136,11 +136,9 @@ public struct ConversationView: View {
             await viewModel.loadMessages()
         }
         .onDisappear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                if navigationController.selectedCourse == nil {
-                    // only cancel task if we navigate back
-                    viewModel.subscription?.cancel()
-                }
+            if navigationController.courseTab != .communication && navigationController.tabPath.isEmpty {
+                // only cancel task if we leave communication
+                SocketConnectionHandler.shared.cancelSubscriptions()
             }
             viewModel.saveContext()
         }
