@@ -24,7 +24,20 @@ final class CoursePathViewModel {
         self.courseService = courseService
     }
 
+    func reloadCourse() async {
+        let result = await courseService.getCourse(courseId: path.id)
+        self.course = result.map(\.course)
+    }
+
     func loadCourse() async {
+        // If course is already loaded, skip this
+        switch course {
+        case .done:
+            return
+        default:
+            break
+        }
+
         let start = Date().timeIntervalSince1970
 
         let result = await courseService.getCourse(courseId: path.id)
