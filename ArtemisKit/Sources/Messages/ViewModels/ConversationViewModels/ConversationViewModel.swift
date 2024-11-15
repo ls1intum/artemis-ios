@@ -29,6 +29,7 @@ class ConversationViewModel: BaseViewModel {
 
     @Published var isConversationInfoSheetPresented = false
     @Published var selectedMessageId: Int64?
+    @Published var isLoadingMessages = true
 
     var isAllowedToPost: Bool {
         guard let channel = conversation.baseConversation as? Channel else {
@@ -75,6 +76,10 @@ class ConversationViewModel: BaseViewModel {
                                                selector: #selector(updateFavorites(notification:)),
                                                name: .favoriteConversationChanged,
                                                object: nil)
+
+        Task {
+            await loadMessages()
+        }
     }
 
     deinit {
@@ -100,6 +105,10 @@ extension ConversationViewModel {
     }
 
     func loadMessages() async {
+        defer {
+            isLoadingMessages = false
+        }
+
         let result = await messagesService.getMessages(for: course.id, and: conversation.id, page: page)
         switch result {
         case .loading:

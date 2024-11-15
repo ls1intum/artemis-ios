@@ -39,6 +39,7 @@ public struct ConversationView: View {
                     R.string.localizable.noMessages(),
                     systemImage: "bubble.right",
                     description: Text(R.string.localizable.noMessagesDescription()))
+                .loadingIndicator(isLoading: $viewModel.isLoadingMessages)
             } else {
                 ScrollViewReader { value in
                     ScrollView {
@@ -130,10 +131,6 @@ public struct ConversationView: View {
         }
         .sheet(isPresented: $viewModel.isConversationInfoSheetPresented) {
             ConversationInfoSheetView(course: viewModel.course, conversation: $viewModel.conversation)
-        }
-        .task {
-            viewModel.shouldScrollToId = "bottom"
-            await viewModel.loadMessages()
         }
         .onDisappear {
             if navigationController.courseTab != .communication && navigationController.tabPath.isEmpty {
