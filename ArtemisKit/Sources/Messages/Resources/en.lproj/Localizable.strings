@@ -101,6 +101,8 @@
 "announcementChannelDescription" = "Only instructors and channel moderators can create new messages in an announcement channel. Students can only read the messages and answer to them.";
 "createChannelButtonLabel" = "Create Channel";
 "createChannelNavTitel" = "Create Channel";
+"noMatchingUsers" = "No matching users found";
+"enterAtLeast3Characters" = "Please enter at least three characters to start your search.";
 
 // MARK: BrowseChannelsView
 "joinedLabel" = "Joined";
