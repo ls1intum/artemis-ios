@@ -56,14 +56,13 @@ struct FilterOption: Codable, Hashable {
     let enabled: Bool
 
     var displayName: String {
-        // TODO: Localize
         switch name {
         case "filterToAnsweredOrReacted":
-            return "Reacted"
+            return R.string.localizable.messageFilterReacted()
         case "filterToUnresolved":
-            return "Unresolved"
+            return R.string.localizable.messageFilterUnresolved()
         case "filterToOwn":
-            return "Own"
+            return R.string.localizable.messageFilterOwn()
         default:
             return ""
         }

@@ -91,6 +91,9 @@
 "resolvesPost" = "Resolves Post";
 "filterMessages" = "Filter Messages";
 "details" = "Details";
+"messageFilterReacted" = "Reacted";
+"messageFilterUnresolved" = "Unresolved";
+"messageFilterOwn" = "Own";
 
 // MARK: CreateChannelView
 "channelNameLabel" = "Name";
