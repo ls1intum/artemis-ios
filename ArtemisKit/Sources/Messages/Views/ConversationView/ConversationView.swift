@@ -38,7 +38,11 @@ public struct ConversationView: View {
                 ContentUnavailableView(
                     R.string.localizable.noMessages(),
                     systemImage: "bubble.right",
-                    description: Text(R.string.localizable.noMessagesDescription()))
+                    description:
+                        viewModel.filter.selectedFilter == "all" ?
+                            Text(R.string.localizable.noMessagesDescription()) :
+                            Text(R.string.localizable.noMatchingMessages())
+                )
             } else {
                 ScrollViewReader { value in
                     ScrollView {
