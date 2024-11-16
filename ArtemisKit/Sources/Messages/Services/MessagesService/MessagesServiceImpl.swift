@@ -136,6 +136,7 @@ struct MessagesServiceImpl: MessagesService {
         let courseId: Int
         let conversationId: Int64
         let page: Int
+        let filter: MessageRequestFilter
 
         var method: HTTPMethod {
             return .get
@@ -149,7 +150,7 @@ struct MessagesServiceImpl: MessagesService {
                 .init(name: "pagingEnabled", value: "true"),
                 .init(name: "page", value: String(describing: page)),
                 .init(name: "size", value: String(describing: Self.size))
-            ]
+            ] + filter.queryItems
         }
 
         var resourceName: String {
@@ -157,8 +158,8 @@ struct MessagesServiceImpl: MessagesService {
         }
     }
 
-    func getMessages(for courseId: Int, and conversationId: Int64, page: Int) async -> DataState<[Message]> {
-        let result = await client.sendRequest(GetMessagesRequest(courseId: courseId, conversationId: conversationId, page: page))
+    func getMessages(for courseId: Int, and conversationId: Int64, filter: MessageRequestFilter = .init(), page: Int) async -> DataState<[Message]> {
+        let result = await client.sendRequest(GetMessagesRequest(courseId: courseId, conversationId: conversationId, page: page, filter: filter))
 
         switch result {
         case let .success((messages, _)):

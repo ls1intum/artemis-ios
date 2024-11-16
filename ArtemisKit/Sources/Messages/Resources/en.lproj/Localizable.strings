@@ -89,6 +89,8 @@
 "pinned" = "Pinned";
 "resolved" = "Resolved";
 "resolvesPost" = "Resolves Post";
+"filterMessages" = "Filter Messages";
+"details" = "Details";
 
 // MARK: CreateChannelView
 "channelNameLabel" = "Name";

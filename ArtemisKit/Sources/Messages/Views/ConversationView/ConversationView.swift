@@ -39,7 +39,6 @@ public struct ConversationView: View {
                     R.string.localizable.noMessages(),
                     systemImage: "bubble.right",
                     description: Text(R.string.localizable.noMessagesDescription()))
-                .loadingIndicator(isLoading: $viewModel.isLoadingMessages)
             } else {
                 ScrollViewReader { value in
                     ScrollView {
@@ -91,6 +90,7 @@ public struct ConversationView: View {
                 )
             }
         }
+        .loadingIndicator(isLoading: $viewModel.isLoadingMessages)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 Button {
@@ -122,10 +122,26 @@ public struct ConversationView: View {
                 }
             }
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    viewModel.isConversationInfoSheetPresented = true
+                Menu {
+                    Button {
+                        viewModel.isConversationInfoSheetPresented = true
+                    } label: {
+                        Label(R.string.localizable.details(), systemImage: "info")
+                    }
+                    Picker(selection: $viewModel.filter.selectedFilter) {
+                        ForEach(viewModel.filter.filters, id: \.self) { filter in
+                            Text(filter.displayName)
+                                .tag(filter.name)
+                        }
+                        Text(R.string.localizable.allFilter())
+                            .tag("all")
+                    } label: {
+                        Label(R.string.localizable.filterMessages(),
+                              systemImage: "line.3.horizontal.decrease")
+                    }
+                    .pickerStyle(.menu)
                 } label: {
-                    Image(systemName: "info.circle")
+                    Image(systemName: "ellipsis.circle")
                 }
             }
         }
