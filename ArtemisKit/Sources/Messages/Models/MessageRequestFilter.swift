@@ -6,7 +6,9 @@
 //
 
 import Foundation
+import SharedModels
 import SwiftUI
+import UserStore
 
 class MessageRequestFilter: Codable {
     var filters: [FilterOption]
@@ -15,9 +17,9 @@ class MessageRequestFilter: Codable {
          filterToOwn: Bool = false,
          filterToAnsweredOrReacted: Bool = false) {
         self.filters = [
-            .init(name: "filterToUnresolved", enabled: filterToUnresolved),
-            .init(name: "filterToOwn", enabled: filterToOwn),
-            .init(name: "filterToAnsweredOrReacted", enabled: filterToAnsweredOrReacted)
+            .init(name: .filterToUnresolved, enabled: filterToUnresolved),
+            .init(name: .filterToOwn, enabled: filterToOwn),
+            .init(name: .filterToAnsweredOrReacted, enabled: filterToAnsweredOrReacted)
         ]
     }
 
@@ -36,11 +38,29 @@ class MessageRequestFilter: Codable {
                 }
             }
         }
+    }
 
+    func messageMatchesSelectedFilter(_ message: Message) -> Bool {
+        guard let activeFilter = filters.first(where: { $0.enabled })?.name else {
+            return true
+        }
+
+        switch activeFilter {
+        case .filterToAnsweredOrReacted:
+            let answered = message.answers?.contains(where: { $0.isCurrentUserAuthor }) ?? false
+            let reacted = message.reactions?.contains(where: { $0.user?.id == UserSessionFactory.shared.user?.id }) ?? false
+            return answered || reacted
+        case .filterToOwn:
+            return message.isCurrentUserAuthor
+        case .filterToUnresolved:
+            return !(message.resolved ?? false)
+        default:
+            return true
+        }
     }
 
     var queryItems: [URLQueryItem] {
-        var items: [URLQueryItem] = filters.compactMap { filter in
+        let items: [URLQueryItem] = filters.compactMap { filter in
             if filter.enabled {
                 return .init(name: filter.name, value: "true")
             } else {
@@ -57,14 +77,21 @@ struct FilterOption: Codable, Hashable {
 
     var displayName: String {
         switch name {
-        case "filterToAnsweredOrReacted":
+        case .filterToAnsweredOrReacted:
             return R.string.localizable.messageFilterReacted()
-        case "filterToUnresolved":
+        case .filterToUnresolved:
             return R.string.localizable.messageFilterUnresolved()
-        case "filterToOwn":
+        case .filterToOwn:
             return R.string.localizable.messageFilterOwn()
         default:
             return ""
         }
     }
+}
+
+// MARK: String+Filter
+fileprivate extension String {
+    static let filterToAnsweredOrReacted = "filterToAnsweredOrReacted"
+    static let filterToUnresolved = "filterToUnresolved"
+    static let filterToOwn = "filterToOwn"
 }

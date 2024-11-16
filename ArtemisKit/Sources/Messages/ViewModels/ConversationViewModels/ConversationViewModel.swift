@@ -407,6 +407,10 @@ private extension ConversationViewModel {
     }
 
     func handle(new message: Message) {
+        // Only insert message if it matches current filter
+        guard filter.messageMatchesSelectedFilter(message) else {
+            return
+        }
         shouldScrollToId = message.id.description
         let (inserted, _) = messages.insert(.message(message))
         if inserted {
@@ -428,6 +432,12 @@ private extension ConversationViewModel {
                 let oldAnswer = oldMessage?.rawValue.answers?.first { $0.id == answer.id }
                 newAnswer.authorRole = newAnswer.authorRole ?? oldAnswer?.authorRole
                 return newAnswer
+            }
+
+            // If message no longer matches filter, remove it
+            if !filter.messageMatchesSelectedFilter(newMessage) {
+                handle(delete: message)
+                return
             }
 
             messages.update(with: .message(newMessage))
