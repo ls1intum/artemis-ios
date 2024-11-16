@@ -129,12 +129,12 @@ public struct ConversationView: View {
                         Label(R.string.localizable.details(), systemImage: "info")
                     }
                     Picker(selection: $viewModel.filter.selectedFilter) {
+                        Text(R.string.localizable.allFilter())
+                            .tag("all")
                         ForEach(viewModel.filter.filters, id: \.self) { filter in
                             Text(filter.displayName)
                                 .tag(filter.name)
                         }
-                        Text(R.string.localizable.allFilter())
-                            .tag("all")
                     } label: {
                         Label(R.string.localizable.filterMessages(),
                               systemImage: "line.3.horizontal.decrease")
