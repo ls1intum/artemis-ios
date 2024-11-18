@@ -10,9 +10,11 @@ import Foundation
 import Common
 import Combine
 import Extensions
+import PushNotifications
 import SharedModels
 import SharedServices
 import UserStore
+import UserNotifications
 
 class ConversationViewModel: BaseViewModel {
 
@@ -79,6 +81,7 @@ class ConversationViewModel: BaseViewModel {
 
         Task {
             await loadMessages()
+            await removeAssociatedNotifications()
         }
     }
 
@@ -295,6 +298,21 @@ extension ConversationViewModel {
         case .loading:
             return .loading
         }
+    }
+
+    /// Removes all push notifications corresponding to this conversation
+    func removeAssociatedNotifications() async {
+        let notifications = await UNUserNotificationCenter.current().deliveredNotifications()
+            .filter {
+                guard let conversationId = PushNotificationResponseHandler.getConversationId(from: $0.request.content.userInfo) else {
+                    return false
+                }
+                return conversationId == conversation.id
+            }
+            .map {
+                $0.request.identifier
+            }
+        UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: notifications)
     }
 }
 
