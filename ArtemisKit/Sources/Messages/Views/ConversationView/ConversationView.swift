@@ -158,6 +158,9 @@ public struct ConversationView: View {
                 SocketConnectionHandler.shared.cancelSubscriptions()
             }
             viewModel.saveContext()
+            Task {
+                await viewModel.removeAssociatedNotifications()
+            }
         }
         .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
         .navigationBarTitleDisplayMode(.inline)
