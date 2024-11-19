@@ -63,7 +63,7 @@ platform :ios do
     )
 
     unlock_keychain(
-      path: "~/Library/Keychains/login.keychain-db",
+      path: "~/Library/Keychains/ios-db",
       password: ENV['IOS_KEYCHAIN_PASSWORD']
     )
   
@@ -73,6 +73,7 @@ platform :ios do
 
     match(
       type: "appstore",
+      generate_apple_certs: "true",
       api_key: api_key, 
       git_full_name: "Artemis IOS", 
       git_branch: "main", # branch to store and get certificates from
@@ -80,7 +81,7 @@ platform :ios do
       git_user_email: "ls1.itg@in.tum.de",
       git_url: "https://gitlab.lrz.de/ase/ipraktikum/match-code-signing",
       readonly: false,
-      keychain_name: "login.keychain",
+      keychain_name: "ios",
       keychain_password: ENV['IOS_KEYCHAIN_PASSWORD'],
       git_basic_authorization: ENV['IOS_MATCH_GITLAB_AUTH'], # Base-64 encoded, format gitlab_auth_token_name:gitlab_auth_token
       verbose: true # optional but very helpful
