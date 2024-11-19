@@ -51,7 +51,9 @@ class MessageRequestFilter: Codable {
             let reacted = message.reactions?.contains(where: { $0.user?.id == UserSessionFactory.shared.user?.id }) ?? false
             return answered || reacted
         case .filterToOwn:
-            return message.isCurrentUserAuthor
+            let isOwn = message.isCurrentUserAuthor
+            let didReply = message.answers?.contains { $0.isCurrentUserAuthor } ?? false
+            return isOwn || didReply
         case .filterToUnresolved:
             return !(message.resolved ?? false)
         default:
