@@ -73,7 +73,6 @@ platform :ios do
 
     match(
       type: "appstore",
-      generate_apple_certs: "true",
       api_key: api_key, 
       git_full_name: "Artemis IOS", 
       git_branch: "main", # branch to store and get certificates from
@@ -106,6 +105,7 @@ platform :ios do
       cloned_source_packages_path: ".SwiftPackages", # Custom path for cloning source packages to
       derived_data_path: ".DerivedData", # Custom derived data path
       output_directory: "./build", # Directory where the output artifacts are generated
+      codesigning_identity: "Apple Distribution: Technische Universitaet Muenchen (Edu) (T7PP2KY2B6)",
       scheme: "Artemis",
       xcargs: "-skipMacroValidation -skipPackagePluginValidation"
     )
