@@ -36,7 +36,7 @@ protocol MessagesService {
     /**
      * Perform a get request for Messages of a specific conversation in a specific course to the server.
      */
-    func getMessages(for courseId: Int, and conversationId: Int64, page: Int) async -> DataState<[Message]>
+    func getMessages(for courseId: Int, and conversationId: Int64, filter: MessageRequestFilter, page: Int) async -> DataState<[Message]>
 
     /**
      * Perform a post request for a new message for a specific conversation in a specific course to the server.

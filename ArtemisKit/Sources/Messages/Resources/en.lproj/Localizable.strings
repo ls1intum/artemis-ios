@@ -84,11 +84,17 @@
 // MARK: ConversationView
 "noMessages" = "No Messages";
 "noMessagesDescription" = "Write the first message to kickstart this conversation.";
+"noMatchingMessages" = "No messages match the selected filter.";
 "reply" = "reply";
 "new" = "New";
 "pinned" = "Pinned";
 "resolved" = "Resolved";
 "resolvesPost" = "Resolves Post";
+"filterMessages" = "Filter Messages";
+"details" = "Details";
+"messageFilterReacted" = "Reacted";
+"messageFilterUnresolved" = "Unresolved";
+"messageFilterOwn" = "Own";
 
 // MARK: CreateChannelView
 "channelNameLabel" = "Name";
