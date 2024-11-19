@@ -38,8 +38,11 @@ public struct ConversationView: View {
                 ContentUnavailableView(
                     R.string.localizable.noMessages(),
                     systemImage: "bubble.right",
-                    description: Text(R.string.localizable.noMessagesDescription()))
-                .loadingIndicator(isLoading: $viewModel.isLoadingMessages)
+                    description:
+                        viewModel.filter.selectedFilter == "all" ?
+                            Text(R.string.localizable.noMessagesDescription()) :
+                            Text(R.string.localizable.noMatchingMessages())
+                )
             } else {
                 ScrollViewReader { value in
                     ScrollView {
@@ -91,6 +94,7 @@ public struct ConversationView: View {
                 )
             }
         }
+        .loadingIndicator(isLoading: $viewModel.isLoadingMessages)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 Button {
@@ -122,10 +126,26 @@ public struct ConversationView: View {
                 }
             }
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    viewModel.isConversationInfoSheetPresented = true
+                Menu {
+                    Button {
+                        viewModel.isConversationInfoSheetPresented = true
+                    } label: {
+                        Label(R.string.localizable.details(), systemImage: "info")
+                    }
+                    Picker(selection: $viewModel.filter.selectedFilter) {
+                        Text(R.string.localizable.allFilter())
+                            .tag("all")
+                        ForEach(viewModel.filter.filters, id: \.self) { filter in
+                            Text(filter.displayName)
+                                .tag(filter.name)
+                        }
+                    } label: {
+                        Label(R.string.localizable.filterMessages(),
+                              systemImage: "line.3.horizontal.decrease")
+                    }
+                    .pickerStyle(.menu)
                 } label: {
-                    Image(systemName: "info.circle")
+                    Image(systemName: "ellipsis.circle")
                 }
             }
         }
