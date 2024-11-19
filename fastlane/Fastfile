@@ -64,7 +64,6 @@ platform :ios do
 
     unlock_keychain(
       path: "~/Library/Keychains/ios-db",
-
       password: ENV['IOS_KEYCHAIN_PASSWORD']
     )
   
@@ -96,7 +95,7 @@ platform :ios do
     update_code_signing_settings(
       use_automatic_signing: false,
       code_sign_identity: 'iPhone Distribution',
-      profile_name: profile_mapping[app_identifier],
+      profile_name: "match AppStore de.tum.cit.ase.artemis",
     )
 
     # Build the app
@@ -109,10 +108,6 @@ platform :ios do
       derived_data_path: ".DerivedData", # Custom derived data path
       output_directory: "./build", # Directory where the output artifacts are generated
       scheme: "Artemis",
-      export_options: {
-        compileBitcode: false,
-        provisioningProfiles: SharedValues::MATCH_PROVISIONING_PROFILE_MAPPING
-      },
       xcargs: "-skipMacroValidation -skipPackagePluginValidation"
     )
   end
