@@ -14,6 +14,7 @@ import SwiftUI
 
 struct MessageDetailView: View {
 
+    @EnvironmentObject var navController: NavigationController
     @ObservedObject var viewModel: ConversationViewModel
     @Binding private var message: DataState<BaseMessage>
 
@@ -80,6 +81,17 @@ struct MessageDetailView: View {
         .task {
             if message.value == nil {
                 await reloadMessage()
+            }
+        }
+        .onChange(of: message) {
+            switch message {
+            case .loading:
+                // Message was deleted
+                if !navController.tabPath.isEmpty {
+                    navController.tabPath.removeLast()
+                }
+            default:
+                break
             }
         }
         .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
