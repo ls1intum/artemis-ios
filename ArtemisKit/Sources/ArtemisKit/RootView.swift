@@ -12,9 +12,11 @@ public struct RootView: View {
 
     @StateObject private var viewModel = RootViewModel()
 
-    @StateObject private var navigationController = NavigationController()
+    @ObservedObject private var navigationController: NavigationController
 
-    public init() {}
+    public init(navigationController: NavigationController) {
+        self.navigationController = navigationController
+    }
 
     public var body: some View {
         Group {
