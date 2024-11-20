@@ -107,7 +107,7 @@ platform :ios do
       output_directory: "./build", # Directory where the output artifacts are generated
       codesigning_identity: "Apple Distribution: Technische Universitaet Muenchen (Edu) (T7PP2KY2B6)",
       scheme: "Artemis",
-      xcargs: "-skipMacroValidation -skipPackagePluginValidation"
+      xcargs: "DEVELOPMENT_TEAM=T7PP2KY2B6 -skipMacroValidation -skipPackagePluginValidation"
     )
   end
 
