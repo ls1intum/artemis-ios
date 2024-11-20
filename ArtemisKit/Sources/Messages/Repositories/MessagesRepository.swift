@@ -51,7 +51,7 @@ extension MessagesRepository {
         let server = (try? fetchServer(host: host)) ?? ServerModel(host: host, lastAccessDate: .now)
         server.lastAccessDate = .now
         container.mainContext.insert(server)
-        try? container.mainContext.save()
+        save()
         return server
     }
 
@@ -74,7 +74,7 @@ extension MessagesRepository {
         let course = try fetchCourse(host: host, courseId: courseId)
         ?? CourseModel(server: server, courseId: courseId)
         container.mainContext.insert(course)
-        try container.mainContext.save()
+        save()
         return course
     }
 
@@ -103,7 +103,7 @@ extension MessagesRepository {
                              messageDraft: "")
         conversation.messageDraft = messageDraft
         container.mainContext.insert(conversation)
-        try container.mainContext.save()
+        save()
         return conversation
     }
 
@@ -174,8 +174,9 @@ extension MessagesRepository {
                         messageId: messageId,
                         answerMessageDraft: "")
         message.answerMessageDraft = answerMessageDraft
+        container.mainContext.insert(conversation)
         container.mainContext.insert(message)
-        try container.mainContext.save()
+        save()
         return message
     }
 
@@ -183,10 +184,11 @@ extension MessagesRepository {
         log.verbose("begin")
         try purge(host: host)
         let predicate = #Predicate<MessageModel> { message in
-            if let course = message.conversation.course {
+            if let conversation = message.conversation,
+               let course = conversation.course {
                 course.server?.host == host
                 && course.courseId == courseId
-                && message.conversation.conversationId == conversationId
+                && conversation.conversationId == conversationId
                 && message.messageId == messageId
             } else {
                 false
@@ -205,7 +207,7 @@ extension MessagesRepository {
         log.verbose("begin")
         let message = try fetchMessage(host: host, courseId: courseId, conversationId: conversationId, messageId: messageId)
             ?? insertMessage(host: host, courseId: courseId, conversationId: conversationId, messageId: messageId, answerMessageDraft: "")
-        try touch(server: message.conversation.course?.server)
+        try touch(server: message.conversation?.course?.server)
         let answer = MessageOfflineAnswerModel(message: message, date: date, text: text)
         container.mainContext.insert(answer)
         return answer
@@ -217,10 +219,11 @@ extension MessagesRepository {
         log.verbose("begin")
         try purge(host: host)
         let predicate = #Predicate<MessageOfflineAnswerModel> { answer in
-            if let course = answer.message.conversation.course {
+            if let conversation = answer.message.conversation,
+               let course = conversation.course {
                 course.server?.host == host
                 && course.courseId == courseId
-                && answer.message.conversation.conversationId == conversationId
+                && conversation.conversationId == conversationId
                 && answer.message.messageId == messageId
             } else {
                 false
@@ -253,5 +256,9 @@ extension MessagesRepository {
                 container.mainContext.delete(server)
             }
         }
+        try container.mainContext.delete(model: MessageModel.self, where: #Predicate { message in
+            message.conversation == nil
+        })
+        save()
     }
 }
