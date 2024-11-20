@@ -48,8 +48,10 @@ extension MessagesRepository {
     @discardableResult
     func insertServer(host: String) -> ServerModel {
         log.verbose("begin")
-        let server = ServerModel(host: host, lastAccessDate: .now)
+        let server = (try? fetchServer(host: host)) ?? ServerModel(host: host, lastAccessDate: .now)
+        server.lastAccessDate = .now
         container.mainContext.insert(server)
+        try? container.mainContext.save()
         return server
     }
 
@@ -69,8 +71,10 @@ extension MessagesRepository {
         log.verbose("begin")
         let server = try fetchServer(host: host) ?? insertServer(host: host)
         try touch(server: server)
-        let course = CourseModel(server: server, courseId: courseId)
+        let course = try fetchCourse(host: host, courseId: courseId)
+        ?? CourseModel(server: server, courseId: courseId)
         container.mainContext.insert(course)
+        try container.mainContext.save()
         return course
     }
 
