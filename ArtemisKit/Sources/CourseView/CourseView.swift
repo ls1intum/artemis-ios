@@ -20,7 +20,7 @@ public struct CourseView: View {
     public var body: some View {
         TabView(selection: $navigationController.courseTab) {
             TabBarIpad {
-                ExerciseListView(viewModel: viewModel, searchText: $searchText)
+                ExerciseListView(viewModel: viewModel)
             }
             .tabItem {
                 Label(R.string.localizable.exercisesTabLabel(), systemImage: "list.bullet.clipboard.fill")
