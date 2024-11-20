@@ -91,8 +91,15 @@ extension MessagesRepository {
         log.verbose("begin")
         let course = try fetchCourse(host: host, courseId: courseId) ?? insertCourse(host: host, courseId: courseId)
         try touch(server: course.server)
-        let conversation = ConversationModel(course: course, conversationId: conversationId, messageDraft: messageDraft)
+        let conversation = try fetchConversation(host: host,
+                                                 courseId: courseId,
+                                                 conversationId: conversationId)
+        ?? ConversationModel(course: course,
+                             conversationId: conversationId,
+                             messageDraft: "")
+        conversation.messageDraft = messageDraft
         container.mainContext.insert(conversation)
+        try container.mainContext.save()
         return conversation
     }
 
