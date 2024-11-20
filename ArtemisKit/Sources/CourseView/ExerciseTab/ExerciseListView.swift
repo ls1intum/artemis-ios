@@ -12,7 +12,7 @@ struct ExerciseListView: View {
     @ObservedObject var viewModel: CourseViewModel
     @State private var columnVisibilty: NavigationSplitViewVisibility = .doubleColumn
 
-    @Binding var searchText: String
+    @State private var searchText = ""
 
     private var selectedExercise: Binding<ExercisePath?> {
         navController.selectedPathBinding($navController.selectedPath)
@@ -47,6 +47,7 @@ struct ExerciseListView: View {
                 .listSectionSpacing(.compact)
                 .scrollContentBackground(.hidden)
                 .listRowSpacing(.m)
+                .searchable(text: $searchText)
                 .refreshable {
                     await viewModel.refreshCourse()
                 }
