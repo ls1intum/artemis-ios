@@ -256,6 +256,7 @@ extension MessagesRepository {
                 container.mainContext.delete(server)
             }
         }
+        // Remove messages that don't belong to any conversation anymore
         try container.mainContext.delete(model: MessageModel.self, where: #Predicate { message in
             message.conversation == nil
         })
