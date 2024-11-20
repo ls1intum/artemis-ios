@@ -28,7 +28,7 @@ public struct CourseView: View {
             .tag(TabIdentifier.exercise)
 
             TabBarIpad {
-                LectureListView(viewModel: viewModel, searchText: $searchText)
+                LectureListView(viewModel: viewModel)
             }
             .tabItem {
                 Label(R.string.localizable.lectureTabLabel(), systemImage: "character.book.closed.fill")
