@@ -155,8 +155,16 @@ extension MessagesRepository {
         let conversation = try fetchConversation(host: host, courseId: courseId, conversationId: conversationId)
             ?? insertConversation(host: host, courseId: courseId, conversationId: conversationId, messageDraft: "")
         try touch(server: conversation.course?.server)
-        let message = MessageModel(conversation: conversation, messageId: messageId, answerMessageDraft: answerMessageDraft)
+        let message = try fetchMessage(host: host,
+                                       courseId: courseId,
+                                       conversationId: conversationId,
+                                       messageId: messageId)
+        ?? MessageModel(conversation: conversation,
+                        messageId: messageId,
+                        answerMessageDraft: "")
+        message.answerMessageDraft = answerMessageDraft
         container.mainContext.insert(message)
+        try container.mainContext.save()
         return message
     }
 
