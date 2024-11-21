@@ -146,6 +146,7 @@ struct MessageActions: View {
                     Button(R.string.localizable.deleteMessage(), systemImage: "trash", role: .destructive) {
                         showDeleteAlert = true
                     }
+                    .foregroundStyle(.red)
                     .alert(R.string.localizable.confirmDeletionTitle(), isPresented: $showDeleteAlert) {
                         Button(R.string.localizable.confirm(), role: .destructive) {
                             viewModel.isLoading = true
