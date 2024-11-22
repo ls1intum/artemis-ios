@@ -28,6 +28,11 @@ jobs:
 
       # - name: Run Unit and UI Tests
       #   run: bundle exec fastlane test
+      - name: Run Fastlane match
+        run: bundle exec fastlane match appstore
+
+      - name: Debug code signing identities after match
+        run: security find-identity -v -p codesigning || echo "No identities found"
         
       - name: Build iOS App 
         run: bundle exec fastlane build
