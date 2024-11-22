@@ -28,8 +28,6 @@ jobs:
 
       # - name: Run Unit and UI Tests
       #   run: bundle exec fastlane test
-      - name: Debug Helper
-        run: security find-provisioning-profile
         
       - name: Build iOS App 
         run: bundle exec fastlane build
