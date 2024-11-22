@@ -73,6 +73,7 @@ platform :ios do
 
     match(
       type: "appstore",
+      team_id: team_id,
       api_key: api_key, 
       git_full_name: "Artemis IOS", 
       git_branch: "main", # branch to store and get certificates from
@@ -107,7 +108,7 @@ platform :ios do
       output_directory: "./build", # Directory where the output artifacts are generated
       codesigning_identity: "Apple Distribution: Technische Universitaet Muenchen (Edu) (T7PP2KY2B6)",
       scheme: "Artemis",
-      xcargs: "DEVELOPMENT_TEAM=T7PP2KY2B6 -skipMacroValidation -skipPackagePluginValidation"
+      xcargs: "-skipMacroValidation -skipPackagePluginValidation"
     )
   end
 
