@@ -29,7 +29,7 @@ jobs:
       # - name: Run Unit and UI Tests
       #   run: bundle exec fastlane test
       - name: Run Fastlane match
-        run: bundle exec fastlane match appstore
+        run: bundle exec fastlane match appstore --git_url https://gitlab.lrz.de/ase/ipraktikum/match-code-signing
         env: 
           BUILD_NUMBER: ${{ github.run_number }}
           IOS_MATCH_GITLAB_AUTH: ${{ secrets.IOS_MATCH_GITLAB_AUTH }}
