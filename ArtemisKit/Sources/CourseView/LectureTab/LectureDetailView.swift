@@ -347,33 +347,3 @@ struct OnlineUnitSheetContent: View {
         }
     }
 }
-
-struct VideoUnitSheetContent: View {
-
-    let videoUnit: VideoUnit
-
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading) {
-                if let description = videoUnit.description {
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text(R.string.localizable.description())
-                                .font(.headline)
-                            Text(description)
-                        }
-                        Spacer()
-                    }
-                }
-                if let source = videoUnit.source,
-                   let url = URL(string: source) {
-                    Link(R.string.localizable.openVideo(), destination: url)
-                        .buttonStyle(ArtemisButton())
-                } else {
-                    Text(R.string.localizable.videoCouldNotBeLoaded())
-                        .foregroundColor(.red)
-                }
-            }.padding(.l)
-        }
-    }
-}
