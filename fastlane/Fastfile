@@ -90,11 +90,6 @@ platform :ios do
     # Build
     ##########################################
 
-    # Debug help
-    sh "security find-identity -v -p codesigning"
-    echo "sec profiles" 
-
-
     profile_mapping = Actions.lane_context[SharedValues::MATCH_PROVISIONING_PROFILE_MAPPING]
     update_code_signing_settings(
       use_automatic_signing: false,
