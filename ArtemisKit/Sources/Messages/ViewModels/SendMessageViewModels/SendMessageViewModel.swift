@@ -45,7 +45,18 @@ final class SendMessageViewModel {
     // MARK: Text
 
     var text = ""
-    var selection: TextSelection?
+    private var _selection: TextSelection?
+    var selection: Binding<TextSelection?> {
+        Binding {
+            return self._selection
+        } set: { newValue in
+            // Ignore updates if text field is not focused
+            if !self.keyboardVisible && newValue != nil {
+                return
+            }
+            self._selection = newValue
+        }
+    }
 
     var isEditing: Bool {
         switch configuration {
@@ -73,6 +84,7 @@ final class SendMessageViewModel {
 
     var wantsToAddMessageMentionContentType: MessageMentionContentType?
     var presentKeyboardOnAppear: Bool
+    var keyboardVisible = false
 
     // MARK: Life cycle
 
@@ -214,7 +226,7 @@ extension SendMessageViewModel {
         let placeholderText = "\(before)\(placeholder)\(after)"
         var shouldSelectPlaceholder = false
 
-        if let selection {
+        if let selection = _selection {
             switch selection.indices {
             case .selection(let range):
                 let newText: String
@@ -226,7 +238,7 @@ extension SendMessageViewModel {
                 }
                 text.replaceSubrange(range, with: newText)
                 if !shouldSelectPlaceholder, let endIndex = text.range(of: newText)?.upperBound {
-                    self.selection = TextSelection(insertionPoint: endIndex)
+                    self._selection = TextSelection(insertionPoint: endIndex)
                 }
             default:
                 break
@@ -239,7 +251,7 @@ extension SendMessageViewModel {
         if shouldSelectPlaceholder {
             for range in text.ranges(of: placeholderText) {
                 if let placeholderRange = text[range].range(of: placeholder) {
-                    selection = TextSelection(range: range.clamped(to: placeholderRange))
+                    _selection = TextSelection(range: range.clamped(to: placeholderRange))
                 }
             }
         }
@@ -277,7 +289,7 @@ extension SendMessageViewModel {
             }
             switch result {
             case .success:
-                selection = nil
+                _selection = nil
                 text = ""
             default:
                 return

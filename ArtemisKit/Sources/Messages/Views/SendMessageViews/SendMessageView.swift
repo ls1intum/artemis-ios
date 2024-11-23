@@ -40,6 +40,9 @@ struct SendMessageView: View {
                     .background(.bar)
             }
         }
+        .onChange(of: isFocused, initial: true) {
+            viewModel.keyboardVisible = isFocused
+        }
         .onAppear {
             viewModel.performOnAppear()
             if viewModel.presentKeyboardOnAppear {
@@ -96,7 +99,7 @@ private extension SendMessageView {
             TextField(
                 R.string.localizable.messageAction(viewModel.conversation.baseConversation.conversationName),
                 text: $viewModel.text,
-                selection: $viewModel.selection,
+                selection: viewModel.selection,
                 axis: .vertical
             )
             .textFieldStyle(.roundedBorder)
