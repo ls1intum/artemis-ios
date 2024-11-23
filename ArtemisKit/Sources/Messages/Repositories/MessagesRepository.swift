@@ -94,6 +94,7 @@ extension MessagesRepository {
     func insertConversation(host: String, courseId: Int, conversationId: Int, messageDraft: String) throws -> ConversationModel {
         log.verbose("begin")
         let course = try fetchCourse(host: host, courseId: courseId) ?? insertCourse(host: host, courseId: courseId)
+        container.mainContext.insert(course)
         try touch(server: course.server)
         let conversation = try fetchConversation(host: host,
                                                  courseId: courseId,
@@ -165,6 +166,7 @@ extension MessagesRepository {
         log.verbose("begin")
         let conversation = try fetchConversation(host: host, courseId: courseId, conversationId: conversationId)
             ?? insertConversation(host: host, courseId: courseId, conversationId: conversationId, messageDraft: "")
+        container.mainContext.insert(conversation)
         try touch(server: conversation.course?.server)
         let message = try fetchMessage(host: host,
                                        courseId: courseId,
@@ -174,7 +176,6 @@ extension MessagesRepository {
                         messageId: messageId,
                         answerMessageDraft: "")
         message.answerMessageDraft = answerMessageDraft
-        container.mainContext.insert(conversation)
         container.mainContext.insert(message)
         save()
         return message
