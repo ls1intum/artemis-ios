@@ -131,7 +131,7 @@ private struct FaqListCell: View {
             )
             .frame(maxHeight: .infinity, alignment: .bottom)
         }
-        .listRowBackground(Color.Artemis.exerciseCardBackgroundColor)
+        .listRowBackground(Color.Artemis.exerciseCardBackgroundColor.opacity(0.5))
         .listRowInsets(EdgeInsets())
         .id(FaqPath(faq: faq, namespace: namespace))
         .matchedTransitionSource(id: faq.id, in: namespace)
