@@ -15,12 +15,16 @@ struct FaqDetailView: View {
 
     var body: some View {
         ScrollView {
-            ArtemisMarkdownView(string: faq.questionAnswer)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, .l)
+            VStack(alignment: .leading, spacing: .m) {
+                Text(faq.questionTitle)
+                    .font(.title2.bold())
+                ArtemisMarkdownView(string: faq.questionAnswer)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
+        .contentMargins(.l)
         .navigationTitle(faq.questionTitle)
-        .navigationBarTitleDisplayMode(.large)
+        .navigationBarTitleDisplayMode(.inline)
         .modifier(TransitionIfAvailable(id: faq.id, namespace: namespace))
     }
 }
