@@ -10,9 +10,11 @@ import Foundation
 import Common
 import Combine
 import Extensions
+import PushNotifications
 import SharedModels
 import SharedServices
 import UserStore
+import UserNotifications
 
 class ConversationViewModel: BaseViewModel {
 
@@ -27,6 +29,16 @@ class ConversationViewModel: BaseViewModel {
 
     @Published var offlineMessages: [ConversationOfflineMessageModel] = []
 
+    @Published var filter: MessageRequestFilter = .init() {
+        didSet {
+            isLoadingMessages = true
+            diff = 0
+            page = 0
+            Task {
+                await loadMessages(keepingOldMessages: false)
+            }
+        }
+    }
     @Published var isConversationInfoSheetPresented = false
     @Published var selectedMessageId: Int64?
     @Published var isLoadingMessages = true
@@ -79,6 +91,7 @@ class ConversationViewModel: BaseViewModel {
 
         Task {
             await loadMessages()
+            await removeAssociatedNotifications()
         }
     }
 
@@ -104,18 +117,19 @@ extension ConversationViewModel {
         await loadMessages()
     }
 
-    func loadMessages() async {
+    func loadMessages(keepingOldMessages: Bool = true) async {
         defer {
             isLoadingMessages = false
         }
 
-        let result = await messagesService.getMessages(for: course.id, and: conversation.id, page: page)
+        let result = await messagesService.getMessages(for: course.id, and: conversation.id, filter: filter, page: page)
         switch result {
         case .loading:
             break
         case let .done(response: response):
             // Keep existing members in new, i.e., update existing members in messages.
-            messages = Set(response.map(IdentifiableMessage.init)).union(messages)
+            messages = Set(response.map(IdentifiableMessage.init))
+                .union(keepingOldMessages ? messages : [])
             if page > 0, response.count < MessagesServiceImpl.GetMessagesRequest.size {
                 page -= 1
             }
@@ -127,7 +141,7 @@ extension ConversationViewModel {
 
     func loadMessage(messageId: Int64) async -> DataState<Message> {
         // TODO: add API to only load one single message
-        let result = await messagesService.getMessages(for: course.id, and: conversation.id, page: page)
+        let result = await messagesService.getMessages(for: course.id, and: conversation.id, filter: filter, page: page)
         return result.flatMap { messages in
             guard let message = messages.first(where: { $0.id == messageId }) else {
                 return .failure(UserFacingError(title: R.string.localizable.messageCouldNotBeLoadedError()))
@@ -138,7 +152,7 @@ extension ConversationViewModel {
 
     func loadAnswerMessage(answerMessageId: Int64) async -> DataState<AnswerMessage> {
         // TODO: add API to only load one single answer message
-        let result = await messagesService.getMessages(for: course.id, and: conversation.id, page: page)
+        let result = await messagesService.getMessages(for: course.id, and: conversation.id, filter: filter, page: page)
         return result.flatMap { messages in
             guard let message = messages.first(where: { $0.answers?.contains(where: { $0.id == answerMessageId }) ?? false }),
                   let answerMessage = message.answers?.first(where: { $0.id == answerMessageId }) else {
@@ -296,6 +310,21 @@ extension ConversationViewModel {
             return .loading
         }
     }
+
+    /// Removes all push notifications corresponding to this conversation
+    func removeAssociatedNotifications() async {
+        let notifications = await UNUserNotificationCenter.current().deliveredNotifications()
+            .filter {
+                guard let conversationId = PushNotificationResponseHandler.getConversationId(from: $0.request.content.userInfo) else {
+                    return false
+                }
+                return conversationId == conversation.id
+            }
+            .map {
+                $0.request.identifier
+            }
+        UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: notifications)
+    }
 }
 
 // MARK: - Fileprivate
@@ -396,6 +425,10 @@ private extension ConversationViewModel {
     }
 
     func handle(new message: Message) {
+        // Only insert message if it matches current filter
+        guard filter.messageMatchesSelectedFilter(message) else {
+            return
+        }
         shouldScrollToId = message.id.description
         let (inserted, _) = messages.insert(.message(message))
         if inserted {
@@ -417,6 +450,12 @@ private extension ConversationViewModel {
                 let oldAnswer = oldMessage?.rawValue.answers?.first { $0.id == answer.id }
                 newAnswer.authorRole = newAnswer.authorRole ?? oldAnswer?.authorRole
                 return newAnswer
+            }
+
+            // If message no longer matches filter, remove it
+            if !filter.messageMatchesSelectedFilter(newMessage) {
+                handle(delete: message)
+                return
             }
 
             messages.update(with: .message(newMessage))

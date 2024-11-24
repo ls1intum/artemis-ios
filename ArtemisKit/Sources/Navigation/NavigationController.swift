@@ -46,6 +46,7 @@ public extension NavigationController {
         outerPath = NavigationPath()
         tabPath = NavigationPath()
         selectedCourse = nil
+        selectedPath = nil
     }
 
     func goToCourse(id: Int) {

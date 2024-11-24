@@ -28,19 +28,18 @@ struct MessageCell: View {
         VStack(alignment: .leading, spacing: .s) {
             reactionMenuIfAvailable
 
-            HStack {
-                VStack(alignment: .leading, spacing: .s) {
-                    pinnedIndicator
-                    resolvesPostIndicator
-                    headerIfVisible
-                    ArtemisMarkdownView(string: content)
-                        .opacity(isMessageOffline ? 0.5 : 1)
-                        .environment(\.openURL, OpenURLAction(handler: handle))
-                    editedLabel
-                    resolvedIndicator
-                }
-                Spacer()
+            VStack(alignment: .leading, spacing: .s) {
+                pinnedIndicator
+                resolvesPostIndicator
+                headerIfVisible
+                ArtemisMarkdownView(string: content.surroundingMarkdownImagesWithNewlines())
+                    .opacity(isMessageOffline ? 0.5 : 1)
+                    .environment(\.openURL, OpenURLAction(handler: handle))
+                    .environment(\.imagePreviewsEnabled, viewModel.conversationPath == nil)
+                editedLabel
+                resolvedIndicator
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(.rect)
             .onTapGesture(perform: onTapPresentMessage)
             .onLongPressGesture(perform: onLongPressPresentActionSheet) { changed in
