@@ -50,8 +50,6 @@ class SocketConnectionHandler {
                 guard let messageWebsocketDTO = JSONDecoder.getTypeFromSocketMessage(type: MessageWebsocketDTO.self, message: message) else {
                     continue
                 }
-                print("Stomp channel")
-
                 messagePublisher.send(messageWebsocketDTO)
             }
         }
@@ -75,7 +73,6 @@ class SocketConnectionHandler {
                 guard let messageWebsocketDTO = JSONDecoder.getTypeFromSocketMessage(type: MessageWebsocketDTO.self, message: message) else {
                     continue
                 }
-                print("Stomp convo")
                 messagePublisher.send(messageWebsocketDTO)
             }
         }
