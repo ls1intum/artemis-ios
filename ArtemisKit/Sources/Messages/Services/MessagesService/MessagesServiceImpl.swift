@@ -933,7 +933,7 @@ private extension ConversationType {
 // MARK: Reload Notification
 
 extension Foundation.Notification.Name {
-    // Sending a notification of this type causes the Notification List to be reloaded,
-    // when favorites are changed from elsewhere.
+    // Sending a notification of this type causes the Conversation
+    // to add the newly sent message in case the web socket fails
     static let newMessageSent = Foundation.Notification.Name("NewMessageSent")
 }
