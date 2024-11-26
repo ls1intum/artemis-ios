@@ -17,7 +17,7 @@ public struct ConversationPathView<Content: View>: View {
 
     public var body: some View {
         DataStateView(data: $viewModel.conversation) {
-            await viewModel.loadConversation()
+            await viewModel.reloadConversation()
         } content: { conversation in
             CoursePathView(path: viewModel.path.coursePath) { course in
                 content(course, conversation)

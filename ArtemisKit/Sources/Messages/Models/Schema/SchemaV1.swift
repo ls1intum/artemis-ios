@@ -102,7 +102,7 @@ enum SchemaV1: VersionedSchema {
 
     @Model
     final class Message {
-        var conversation: Conversation
+        var conversation: Conversation?
 
         @Attribute(.unique)
         var messageId: Int
@@ -114,7 +114,7 @@ enum SchemaV1: VersionedSchema {
         var answerMessageDraft: String
 
         init(
-            conversation: Conversation,
+            conversation: Conversation?,
             messageId: Int,
             offlineAnswers: [MessageOfflineAnswer] = [],
             answerMessageDraft: String = ""

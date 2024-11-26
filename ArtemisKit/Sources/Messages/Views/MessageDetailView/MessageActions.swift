@@ -95,7 +95,7 @@ struct MessageActions: View {
         @State private var showDeleteAlert = false
         @State private var showEditSheet = false
 
-        var isAbleToEditDelete: Bool {
+        var canDelete: Bool {
             guard let message = message.value else {
                 return false
             }
@@ -107,7 +107,19 @@ struct MessageActions: View {
             guard let channel = viewModel.conversation.baseConversation as? Channel else {
                 return false
             }
-            if channel.hasChannelModerationRights ?? false && message is Message {
+            if channel.hasChannelModerationRights ?? false {
+                return true
+            }
+
+            return false
+        }
+
+        var canEdit: Bool {
+            guard let message = message.value else {
+                return false
+            }
+
+            if message.isCurrentUserAuthor {
                 return true
             }
 
@@ -116,9 +128,10 @@ struct MessageActions: View {
 
         var body: some View {
             Group {
-                if isAbleToEditDelete {
+                if canEdit || canDelete {
                     Divider()
-
+                }
+                if canEdit {
                     Button(R.string.localizable.editMessage(), systemImage: "pencil") {
                         showEditSheet = true
                     }
@@ -128,10 +141,12 @@ struct MessageActions: View {
                         editMessage
                             .font(nil)
                     }
-
+                }
+                if canDelete {
                     Button(R.string.localizable.deleteMessage(), systemImage: "trash", role: .destructive) {
                         showDeleteAlert = true
                     }
+                    .foregroundStyle(.red)
                     .alert(R.string.localizable.confirmDeletionTitle(), isPresented: $showDeleteAlert) {
                         Button(R.string.localizable.confirm(), role: .destructive) {
                             viewModel.isLoading = true

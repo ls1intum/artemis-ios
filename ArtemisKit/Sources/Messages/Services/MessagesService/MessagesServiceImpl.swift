@@ -136,6 +136,7 @@ struct MessagesServiceImpl: MessagesService {
         let courseId: Int
         let conversationId: Int64
         let page: Int
+        let filter: MessageRequestFilter
 
         var method: HTTPMethod {
             return .get
@@ -149,7 +150,7 @@ struct MessagesServiceImpl: MessagesService {
                 .init(name: "pagingEnabled", value: "true"),
                 .init(name: "page", value: String(describing: page)),
                 .init(name: "size", value: String(describing: Self.size))
-            ]
+            ] + filter.queryItems
         }
 
         var resourceName: String {
@@ -157,8 +158,8 @@ struct MessagesServiceImpl: MessagesService {
         }
     }
 
-    func getMessages(for courseId: Int, and conversationId: Int64, page: Int) async -> DataState<[Message]> {
-        let result = await client.sendRequest(GetMessagesRequest(courseId: courseId, conversationId: conversationId, page: page))
+    func getMessages(for courseId: Int, and conversationId: Int64, filter: MessageRequestFilter = .init(), page: Int) async -> DataState<[Message]> {
+        let result = await client.sendRequest(GetMessagesRequest(courseId: courseId, conversationId: conversationId, page: page, filter: filter))
 
         switch result {
         case let .success((messages, _)):
@@ -169,7 +170,7 @@ struct MessagesServiceImpl: MessagesService {
     }
 
     struct SendMessageRequest: APIRequest {
-        typealias Response = RawResponse
+        typealias Response = Message
 
         let courseId: Int
         let visibleForStudents: Bool
@@ -192,7 +193,10 @@ struct MessagesServiceImpl: MessagesService {
         )
 
         switch result {
-        case .success:
+        case .success(let response):
+            NotificationCenter.default.post(name: .newMessageSent,
+                                            object: nil,
+                                            userInfo: ["message": response.0])
             return .success
         case let .failure(error):
             return .failure(error: error)
@@ -226,6 +230,31 @@ struct MessagesServiceImpl: MessagesService {
             return .success
         case let .failure(error):
             return .failure(error: error)
+        }
+    }
+
+    struct UploadImageResult: Codable {
+        let path: String
+    }
+
+    func uploadImage(for courseId: Int, and conversationId: Int64, image: Data) async -> DataState<String> {
+        if image.count > 5 * 1024 * 1024 {
+            return .failure(error: .init(title: "File too big to upload"))
+        }
+
+        let request = MultipartFormDataRequest(path: "api/files/courses/\(courseId)/conversations/\(conversationId)")
+        request.addDataField(named: "file",
+                             filename: "\(UUID().uuidString).jpg",
+                             data: image,
+                             mimeType: "image/jpeg")
+
+        let result: Swift.Result<(UploadImageResult, Int), APIClientError> = await client.sendRequest(request)
+
+        switch result {
+        case .success(let response):
+            return .done(response: response.0.path)
+        case .failure(let failure):
+            return .failure(error: .init(error: failure))
         }
     }
 
@@ -899,4 +928,12 @@ private extension ConversationType {
             return nil
         }
     }
+}
+
+// MARK: Reload Notification
+
+extension Foundation.Notification.Name {
+    // Sending a notification of this type causes the Conversation
+    // to add the newly sent message in case the web socket fails
+    static let newMessageSent = Foundation.Notification.Name("NewMessageSent")
 }

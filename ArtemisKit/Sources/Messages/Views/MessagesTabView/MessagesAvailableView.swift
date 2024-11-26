@@ -7,6 +7,7 @@
 
 import Common
 import DesignLibrary
+import Faq
 import Navigation
 import SharedModels
 import SwiftUI
@@ -19,7 +20,7 @@ public struct MessagesAvailableView: View {
 
     @State var columnVisibilty: NavigationSplitViewVisibility = .doubleColumn
 
-    @Binding private var searchText: String
+    @State private var searchText = ""
 
     @State private var isCodeOfConductPresented = false
 
@@ -36,9 +37,8 @@ public struct MessagesAvailableView: View {
         navController.selectedPathBinding($navController.selectedPath)
     }
 
-    public init(course: Course, searchText: Binding<String>) {
+    public init(course: Course) {
         self._viewModel = StateObject(wrappedValue: MessagesAvailableViewModel(course: course))
-        self._searchText = searchText
     }
 
     public var body: some View {
@@ -46,9 +46,7 @@ public struct MessagesAvailableView: View {
             List(selection: selectedConversation) {
                 if !searchText.isEmpty {
                     if searchResults.isEmpty {
-                        Text(R.string.localizable.noResultForSearch())
-                            .padding(.l)
-                            .listRowSeparator(.hidden)
+                        ContentUnavailableView.search
                     }
                     ForEach(searchResults) { conversation in
                         if let channel = conversation.baseConversation as? Channel {
@@ -137,6 +135,7 @@ public struct MessagesAvailableView: View {
             .scrollContentBackground(.hidden)
             .listRowSpacing(0.01)
             .listSectionSpacing(.compact)
+            .searchable(text: $searchText)
             .refreshable {
                 await viewModel.loadConversations()
             }
@@ -189,6 +188,9 @@ public struct MessagesAvailableView: View {
                     }
                 }
                 .modifier(NavigationDestinationMessagesModifier())
+                .navigationDestination(for: FaqPath.self) { path in
+                    FaqPathView(path: path)
+                }
             }
         }
         .toolbar(.hidden, for: .navigationBar)

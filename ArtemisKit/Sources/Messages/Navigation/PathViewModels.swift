@@ -26,7 +26,7 @@ final class ConversationPathViewModel {
         self.messagesService = messagesService
     }
 
-    func loadConversation() async {
+    func reloadConversation() async {
         let result = await messagesService.getConversations(for: path.coursePath.id)
         self.conversation = result.flatMap { conversations in
             if let conversation = conversations.first(where: { $0.id == path.id }) {
@@ -35,5 +35,16 @@ final class ConversationPathViewModel {
                 return .failure(UserFacingError(title: R.string.localizable.conversationNotLoaded()))
             }
         }
+    }
+
+    func loadConversation() async {
+        // If conversation is loaded already, skip
+        switch conversation {
+        case .done:
+            return
+        default:
+            break
+        }
+        await reloadConversation()
     }
 }

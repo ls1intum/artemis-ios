@@ -14,6 +14,7 @@ import SwiftUI
 
 struct MessageDetailView: View {
 
+    @EnvironmentObject var navController: NavigationController
     @ObservedObject var viewModel: ConversationViewModel
     @Binding private var message: DataState<BaseMessage>
 
@@ -60,11 +61,18 @@ struct MessageDetailView: View {
                     Text(R.string.localizable.thread())
                         .fontWeight(.semibold)
                     HStack(spacing: .s) {
-                        viewModel.conversation.baseConversation.icon?
-                            .resizable()
-                            .scaledToFit()
-                            .frame(height: .m * 1.5)
-                        Text(viewModel.conversation.baseConversation.conversationName)
+                        ViewThatFits(in: .horizontal) {
+                            viewModel.conversation.baseConversation.icon?
+                                .scaledToFit()
+                                .frame(height: .m * 1.5)
+                            viewModel.conversation.baseConversation.icon?
+                                .scaleEffect(0.5)
+                                .frame(height: .m * 1.5)
+                        }
+                        .frame(maxWidth: 25)
+                        // Workaround: Trailing spaces, otherwise SwiftUI shortens this prematurely
+                        Text(viewModel.conversation.baseConversation.conversationName + "    ")
+                            .frame(maxWidth: 220)
                     }
                     .font(.footnote)
                 }.padding(.leading, .m)
@@ -73,6 +81,17 @@ struct MessageDetailView: View {
         .task {
             if message.value == nil {
                 await reloadMessage()
+            }
+        }
+        .onChange(of: message) {
+            switch message {
+            case .loading:
+                // Message was deleted
+                if !navController.tabPath.isEmpty {
+                    navController.tabPath.removeLast()
+                }
+            default:
+                break
             }
         }
         .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})

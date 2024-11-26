@@ -36,7 +36,7 @@ protocol MessagesService {
     /**
      * Perform a get request for Messages of a specific conversation in a specific course to the server.
      */
-    func getMessages(for courseId: Int, and conversationId: Int64, page: Int) async -> DataState<[Message]>
+    func getMessages(for courseId: Int, and conversationId: Int64, filter: MessageRequestFilter, page: Int) async -> DataState<[Message]>
 
     /**
      * Perform a post request for a new message for a specific conversation in a specific course to the server.
@@ -47,6 +47,11 @@ protocol MessagesService {
      * Perform a post request for a new message answer for a specific message in a specific course to the server.
      */
     func sendAnswerMessage(for courseId: Int, message: Message, content: String) async -> NetworkResponse
+
+    /**
+     * Perform a post request for uploading a jpeg image in a specific conversation to the server.
+     */
+    func uploadImage(for courseId: Int, and conversationId: Int64, image: Data) async -> DataState<String>
 
     /**
      * Perform a delete request for a message in a specific course to the server.

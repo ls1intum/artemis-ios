@@ -105,7 +105,9 @@ private struct ChannelCell: View {
                             .suffix(name.starts(with: "lecture-") ? name.count - 8 : name.count)
                         Text(String(displayName))
                     } icon: {
-                        channel.icon
+                        channel.icon?
+                            .scaledToFit()
+                            .frame(height: 22)
                     }
                     .font(.title3)
 
@@ -339,36 +341,6 @@ struct OnlineUnitSheetContent: View {
                         .buttonStyle(ArtemisButton())
                 } else {
                     Text(R.string.localizable.linkCouldNotBeLoaded())
-                        .foregroundColor(.red)
-                }
-            }.padding(.l)
-        }
-    }
-}
-
-struct VideoUnitSheetContent: View {
-
-    let videoUnit: VideoUnit
-
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading) {
-                if let description = videoUnit.description {
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text(R.string.localizable.description())
-                                .font(.headline)
-                            Text(description)
-                        }
-                        Spacer()
-                    }
-                }
-                if let source = videoUnit.source,
-                   let url = URL(string: source) {
-                    Link(R.string.localizable.openVideo(), destination: url)
-                        .buttonStyle(ArtemisButton())
-                } else {
-                    Text(R.string.localizable.videoCouldNotBeLoaded())
                         .foregroundColor(.red)
                 }
             }.padding(.l)
