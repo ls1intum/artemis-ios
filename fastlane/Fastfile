@@ -68,7 +68,7 @@ platform :ios do
       # set_default: true
     )
 
-    sh("security default-keychain -s ~/Library/Keychains/ios-db")
+    ENV['KEYCHAIN_PATH'] = "~/Library/Keychains/ios-db"
   
     ##########################################
     # Configure Code Signing via Match
