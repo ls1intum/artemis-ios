@@ -65,7 +65,8 @@ platform :ios do
     unlock_keychain(
       path: "~/Library/Keychains/ios-db",
       password: ENV['IOS_KEYCHAIN_PASSWORD'],
-      set_default: true
+      add_to_search_list: true
+      # set_default: true
     )
   
     ##########################################
