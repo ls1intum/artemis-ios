@@ -22,8 +22,6 @@ private struct NotificationBell: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            // Prevent user from accidentally tapping buttons outside the popover while open
-            .disabled(isNotificationSheetPresented)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button {
