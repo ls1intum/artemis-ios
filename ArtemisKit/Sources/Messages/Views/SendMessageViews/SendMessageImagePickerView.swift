@@ -65,18 +65,6 @@ private struct UploadImageView: View {
             .animation(.smooth(duration: 0.2), value: viewModel.uploadState)
         }
         .interactiveDismissDisabled()
-        .onChange(of: viewModel.uploadState) {
-            if viewModel.uploadState == .done {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    dismiss()
-                }
-            }
-            if viewModel.error != nil {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                    dismiss()
-                }
-            }
-        }
     }
 
     @ViewBuilder var statusIcon: some View {
@@ -89,10 +77,20 @@ private struct UploadImageView: View {
             if viewModel.uploadState == .done {
                 Image(systemName: "checkmark.circle.fill")
                     .foregroundStyle(.green)
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            dismiss()
+                        }
+                    }
             }
             if viewModel.error != nil {
                 Image(systemName: "xmark.circle.fill")
                     .foregroundStyle(.red)
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                            dismiss()
+                        }
+                    }
             }
         }
         .font(.largeTitle)
