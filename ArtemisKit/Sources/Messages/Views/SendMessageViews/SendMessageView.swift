@@ -33,7 +33,7 @@ struct SendMessageView: View {
             }
             textField
                 .padding(isFocused ? [.horizontal, .bottom] : .all, .l)
-            if isFocused {
+            if isFocused || viewModel.keyboardVisible {
                 keyboardToolbarContent
                     .padding(.horizontal, .l)
                     .padding(.vertical, .m)
@@ -41,7 +41,11 @@ struct SendMessageView: View {
             }
         }
         .onChange(of: isFocused, initial: true) {
-            viewModel.keyboardVisible = isFocused
+            // Don't set keyboardVisible to false automatically on iPad
+            // Focus with hardware keyboard is messed up, this is a workaround
+            if UIDevice.current.userInterfaceIdiom != .pad || isFocused {
+                viewModel.keyboardVisible = isFocused
+            }
         }
         .onAppear {
             viewModel.performOnAppear()
@@ -58,6 +62,7 @@ struct SendMessageView: View {
                     if value.translation.height > 0 {
                         // down
                         isFocused = false
+                        viewModel.keyboardVisible = false
                         let impactMed = UIImpactFeedbackGenerator(style: .medium)
                         impactMed.impactOccurred()
                     }

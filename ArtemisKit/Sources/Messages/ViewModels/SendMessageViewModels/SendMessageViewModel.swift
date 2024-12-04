@@ -144,6 +144,7 @@ extension SendMessageViewModel {
     }
 
     func performOnDisappear() {
+        keyboardVisible = false
         do {
             if let host = userSession.institution?.baseURL?.host() {
                 switch configuration {

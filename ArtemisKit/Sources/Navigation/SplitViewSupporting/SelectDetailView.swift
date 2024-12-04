@@ -48,7 +48,7 @@ public struct SelectDetailView: View {
         case .communication:
             R.string.localizable.selectConversation()
         case .faq:
-            "Select faq" // TODO
+            R.string.localizable.selectFaq()
         }
     }
 }
