@@ -25,7 +25,7 @@ struct SendMessageFAQPicker: View {
                 }
                 .listStyle(.plain)
             } else {
-                ContentUnavailableView(R.string.localizable.lecturesUnavailable(), systemImage: "magnifyingglass")
+                ContentUnavailableView(R.string.localizable.faqsUnavailable(), systemImage: "magnifyingglass")
             }
         }
         .task {
