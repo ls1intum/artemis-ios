@@ -33,6 +33,8 @@ struct SendMessageMentionContentView: View {
                     SendMessageExercisePicker(delegate: delegate, course: viewModel.course)
                 case .lecture:
                     SendMessageLecturePicker(course: viewModel.course, delegate: delegate)
+                case .faq:
+                    SendMessageFAQPicker(course: viewModel.course, delegate: delegate)
                 }
             }
             .toolbar {
@@ -53,4 +55,5 @@ enum MessageMentionContentType: Identifiable {
 
     case exercise
     case lecture
+    case faq
 }

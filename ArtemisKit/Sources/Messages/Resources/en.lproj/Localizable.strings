@@ -11,6 +11,8 @@
 "lecture" = "Lecture";
 "channelsUnavailable" = "No Channels";
 "lecturesUnavailable" = "No Lectures";
+"faqs" = "FAQs";
+"faqsUnavailable" = "No FAQs";
 "membersUnavailable" = "No Members";
 "messageAction" = "Message %@";
 "mentionSlideNumber" = "Slide %i";

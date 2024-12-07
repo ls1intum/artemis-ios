@@ -8,11 +8,11 @@
 import Common
 import SharedModels
 
-protocol FaqService {
+public protocol FaqService {
     func getFaqs(for courseId: Int) async -> DataState<[FaqDTO]>
     func getFaq(with faqId: Int64, for courseId: Int) async -> DataState<FaqDTO>
 }
 
-enum FaqServiceFactory {
-    static let shared: FaqService = FaqServiceImpl()
+public enum FaqServiceFactory {
+    public static let shared: FaqService = FaqServiceImpl()
 }
