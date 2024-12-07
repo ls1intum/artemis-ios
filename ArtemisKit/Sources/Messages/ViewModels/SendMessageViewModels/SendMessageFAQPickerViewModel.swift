@@ -34,7 +34,9 @@ final class SendMessageFAQPickerViewModel {
         let faqs = await faqService.getFaqs(for: course.id)
 
         if case let .done(faqs) = faqs {
-            self.faqs = faqs
+            self.faqs = faqs.filter {
+                $0.faqState == .accepted
+            }
         }
     }
 
