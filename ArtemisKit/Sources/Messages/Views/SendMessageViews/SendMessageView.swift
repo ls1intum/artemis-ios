@@ -141,6 +141,13 @@ private extension SendMessageView {
                         } label: {
                             Label(R.string.localizable.lectures(), systemImage: "character.book.closed")
                         }
+                        if viewModel.course.faqEnabled == true {
+                            Button {
+                                viewModel.wantsToAddMessageMentionContentType = .faq
+                            } label: {
+                                Label(R.string.localizable.faqs(), systemImage: "questionmark.circle")
+                            }
+                        }
                     } label: {
                         Label(R.string.localizable.mention(), systemImage: "plus.circle.fill")
                     }
