@@ -1,53 +1,60 @@
-//
-//  SendMessageImagePickerView.swift
-//  ArtemisKit
-//
-//  Created by Anian Schleyer on 09.11.24.
-//
-
-import PhotosUI
 import SwiftUI
+import UniformTypeIdentifiers
 
-struct SendMessageImagePickerView: View {
-
+struct SendMessageFilePickerView: View {
     var sendViewModel: SendMessageViewModel
-    @State private var viewModel: SendMessageUploadImageViewModel
+    @State private var viewModel: SendMessageUploadFileViewModel
+    @State private var showFileImporter = false
+    @State private var showUploadSheet = false
 
     init(sendMessageViewModel: SendMessageViewModel) {
-        self._viewModel = State(initialValue: .init(courseId: sendMessageViewModel.course.id,
-                                                    conversationId: sendMessageViewModel.conversation.id))
+        self._viewModel = State(initialValue: .init(
+            courseId: sendMessageViewModel.course.id,
+            conversationId: sendMessageViewModel.conversation.id
+        ))
         self.sendViewModel = sendMessageViewModel
     }
 
     var body: some View {
-        PhotosPicker(selection: $viewModel.selection,
-                     matching: .images,
-                     preferredItemEncoding: .compatible) {
-            Label(R.string.localizable.uploadImage(), systemImage: "photo.fill")
-        }
-        .onChange(of: viewModel.selection) {
-            viewModel.onChange()
-        }
-        .sheet(isPresented: viewModel.showUploadScreen) {
-            if let path = viewModel.filePath {
-                sendViewModel.insertImageMention(path: path)
+        VStack {
+            Button {
+                showFileImporter = true
+            } label: {
+                Label("Upload File", systemImage: "doc.fill")
             }
-            viewModel.selection = nil
-            viewModel.image = nil
-        } content: {
-            UploadImageView(viewModel: viewModel)
+        }
+        .fileImporter(
+            isPresented: $showFileImporter,
+            allowedContentTypes: viewModel.allowedFileTypes,
+            allowsMultipleSelection: false
+        ) { result in
+            switch result {
+            case .success(let urls):
+                if let url = urls.first {
+                    viewModel.onChange(fileUrl: url)
+                    showUploadSheet = true
+                }
+            case .failure(let error):
+                print("File selection error: \(error)")
+            }
+        }
+        .sheet(isPresented: $showUploadSheet, onDismiss: {
+            if let path = viewModel.filePath, viewModel.uploadState == .done {
+                sendViewModel.insertFileMention(path: path, fileName: viewModel.fileName ?? "file")
+            }
+            viewModel.resetFileSelection()
+        }) {
+            UploadFileView(viewModel: viewModel)
         }
     }
 }
 
-private struct UploadImageView: View {
-    var viewModel: SendMessageUploadImageViewModel
+private struct UploadFileView: View {
+    var viewModel: SendMessageUploadFileViewModel
     @Environment(\.dismiss) var dismiss
 
     var body: some View {
         ZStack {
-            backgroundImage
-
             VStack {
                 statusIcon
 
@@ -56,13 +63,13 @@ private struct UploadImageView: View {
                     .font(.title)
 
                 if viewModel.uploadState == .uploading {
-                    Button(R.string.localizable.cancel()) {
+                    Button("Cancel") {
                         viewModel.cancel()
                     }
                     .buttonStyle(.bordered)
                 }
             }
-            .animation(.smooth(duration: 0.2), value: viewModel.uploadState)
+            .animation(.easeInOut, value: viewModel.uploadState)
         }
         .interactiveDismissDisabled()
     }
@@ -74,6 +81,7 @@ private struct UploadImageView: View {
                     .progressViewStyle(.circular)
                     .scaleEffect(1.5)
             }
+
             if viewModel.uploadState == .done {
                 Image(systemName: "checkmark.circle.fill")
                     .foregroundStyle(.green)
@@ -83,6 +91,7 @@ private struct UploadImageView: View {
                         }
                     }
             }
+
             if viewModel.error != nil {
                 Image(systemName: "xmark.circle.fill")
                     .foregroundStyle(.red)
@@ -95,18 +104,6 @@ private struct UploadImageView: View {
         }
         .font(.largeTitle)
         .frame(height: 60)
-        .transition(.blurReplace)
-    }
-
-    @ViewBuilder var backgroundImage: some View {
-        if let image = viewModel.image {
-            Image(uiImage: image)
-                .resizable()
-                .scaledToFill()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .ignoresSafeArea()
-                .blur(radius: 10, opaque: true)
-                .opacity(0.2)
-        }
+        .transition(.opacity)
     }
 }

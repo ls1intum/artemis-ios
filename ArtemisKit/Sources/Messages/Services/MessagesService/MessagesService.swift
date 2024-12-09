@@ -54,6 +54,11 @@ protocol MessagesService {
     func uploadImage(for courseId: Int, and conversationId: Int64, image: Data) async -> DataState<String>
 
     /**
+      * Perform a post request for uploading a file  in a specific conversation to the server.
+      */
+     func uploadFile(for courseId: Int, and conversationId: Int64, file: Data, filename: String, mimeType: String) async -> DataState<String>
+
+    /**
      * Perform a delete request for a message in a specific course to the server.
      */
     func deleteMessage(for courseId: Int, messageId: Int64) async -> NetworkResponse

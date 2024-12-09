@@ -195,6 +195,7 @@ private extension SendMessageView {
                         Label(R.string.localizable.link(), systemImage: "link")
                     }
                     SendMessageImagePickerView(sendMessageViewModel: viewModel)
+                    SendMessageFilePickerView(sendMessageViewModel: viewModel)
                 }
                 .labelStyle(.iconOnly)
                 .font(.title3)

@@ -258,6 +258,33 @@ struct MessagesServiceImpl: MessagesService {
         }
     }
 
+    struct UploadFileResult: Codable {
+           let path: String
+       }
+
+       func uploadFile(for courseId: Int, and conversationId: Int64, file: Data, filename: String, mimeType: String) async -> DataState<String> {
+           // Check file size limit
+           let maxFileSize = 5 * 1024 * 1024
+           if file.count > maxFileSize {
+               return .failure(error: .init(title: "File too big to upload"))
+           }
+
+           let request = MultipartFormDataRequest(path: "api/files/courses/\(courseId)/conversations/\(conversationId)")
+           request.addDataField(named: "file",
+                                filename: filename,
+                                data: file,
+                                mimeType: mimeType)
+
+           let result: Swift.Result<(UploadFileResult, Int), APIClientError> = await client.sendRequest(request)
+
+           switch result {
+           case .success(let response):
+               return .done(response: response.0.path)
+           case .failure(let failure):
+               return .failure(error: .init(error: failure))
+           }
+       }
+
     struct DeleteMessageRequest: APIRequest {
         typealias Response = RawResponse
 

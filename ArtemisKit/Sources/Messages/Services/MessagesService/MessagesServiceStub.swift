@@ -208,4 +208,8 @@ extension MessagesServiceStub: MessagesService {
     func uploadImage(for courseId: Int, and conversationId: Int64, image: Data) async -> DataState<String> {
         .loading
     }
+  
+    func uploadFile(for courseId: Int, and conversationId: Int64, file: Data, filename: String, mimeType: String) async -> DataState<String> {
+        .loading
+    }
 }
