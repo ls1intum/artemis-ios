@@ -18,15 +18,6 @@ final class SendMessageUploadFileViewModel: UploadViewModel {
 
     private let messagesService: MessagesService
 
-    var error: UserFacingError? {
-        switch uploadState {
-        case .failed(let error):
-            return error
-        default:
-            return nil
-        }
-    }
-
     let allowedFileTypes: [UTType] = [
         .png,
         .jpeg,
@@ -57,6 +48,7 @@ final class SendMessageUploadFileViewModel: UploadViewModel {
 
     /// Handles changes to the selected file URL
     func onChange(from url: URL?, displayPath: @escaping () -> Void) {
+        uploadState = .compressing
         loadFileData(from: url, displayPath: displayPath)
     }
 

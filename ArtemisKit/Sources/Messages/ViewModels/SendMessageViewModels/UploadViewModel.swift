@@ -19,9 +19,9 @@ enum UploadState: Equatable {
 
 @Observable
 class UploadViewModel {
-     var uploadState: UploadState = .idle
-     var filePath: String?
- 
+    var uploadState: UploadState = .idle
+    var filePath: String?
+
     private(set) var courseId: Int
     private(set) var conversationId: Int64
 
@@ -42,6 +42,15 @@ class UploadViewModel {
         }
     }
 
+    var error: UserFacingError? {
+        switch uploadState {
+        case .failed(let error):
+            return error
+        default:
+            return nil
+        }
+    }
+
     var statusLabel: String {
         switch uploadState {
         case .idle:
@@ -56,12 +65,11 @@ class UploadViewModel {
             return error.localizedDescription
         }
     }
-   
+
     func cancel() {
         uploadTask?.cancel()
         uploadTask = nil
         uploadState = .idle
         filePath = nil
     }
-    
 }

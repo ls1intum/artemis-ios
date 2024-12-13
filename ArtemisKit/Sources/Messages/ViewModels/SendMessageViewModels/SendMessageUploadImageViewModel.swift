@@ -18,15 +18,6 @@ final class SendMessageUploadImageViewModel: UploadViewModel {
 
     private let messagesService: MessagesService
 
-    var error: UserFacingError? {
-        switch uploadState {
-        case .failed(let error):
-            return error
-        default:
-            return nil
-        }
-    }
-
     init(
         courseId: Int,
         conversationId: Int64,
