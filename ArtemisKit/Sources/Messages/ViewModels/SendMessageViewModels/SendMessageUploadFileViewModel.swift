@@ -60,7 +60,11 @@ final class SendMessageUploadFileViewModel: UploadViewModel {
 
         Task {
             do {
+                guard url.startAccessingSecurityScopedResource() else {
+                    throw NSFileProviderError(.notAuthenticated)
+                }
                 let fileData = try Data(contentsOf: url)
+                url.stopAccessingSecurityScopedResource()
                 let fileName = url.lastPathComponent
                 handleFileSelection(fileData: fileData, fileName: fileName)
             } catch {
