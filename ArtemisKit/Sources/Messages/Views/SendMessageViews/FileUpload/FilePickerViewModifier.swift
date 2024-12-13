@@ -33,7 +33,7 @@ private struct AddFilePickerViewModifier: ViewModifier {
         content
             .environment(\.filePickerManager, manager)
             .fileImporter(isPresented: $manager.isPresented,
-                          allowedContentTypes: [.pdf],
+                          allowedContentTypes: SendMessageUploadFileViewModel.allowedFileTypes,
                           allowsMultipleSelection: false) { result in
                 switch result {
                 case .success(let success):

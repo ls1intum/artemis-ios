@@ -19,7 +19,7 @@ final class SendMessageUploadFileViewModel: UploadViewModel {
 
     private let messagesService: MessagesService
 
-    let allowedFileTypes: [UTType] = [
+    static let allowedFileTypes: [UTType] = [
         .png,
         .jpeg,
         .gif,
@@ -86,7 +86,7 @@ final class SendMessageUploadFileViewModel: UploadViewModel {
         }
 
         let fileExtension = (fileName as NSString).pathExtension.lowercased()
-        guard allowedFileTypes.contains(where: { $0.preferredFilenameExtension == fileExtension }) else {
+        guard Self.allowedFileTypes.contains(where: { $0.preferredFilenameExtension == fileExtension }) else {
             uploadState = .failed(
                 error: .init(title: "The file type '\(fileExtension)' is not supported.")
             )
