@@ -13,6 +13,8 @@ import SwiftUI
 struct SendMessageView: View {
 
     @State var viewModel: SendMessageViewModel
+    /// This has to be in here, otherwise it gets deinitialized while file picker is open,
+    /// due to the textfield losing focus and the toolbar disappearing
     @State private var uploadFileViewModel: SendMessageUploadFileViewModel
 
     @FocusState private var isFocused: Bool
