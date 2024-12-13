@@ -4,8 +4,6 @@ import UniformTypeIdentifiers
 struct SendMessageFilePickerView: View {
     var sendViewModel: SendMessageViewModel
     @State private var viewModel: SendMessageUploadFileViewModel
-    @State private var isFilePickerPresented = false
-    @State private var delegateHandler: DelegateHandler?
 
     init(sendMessageViewModel: SendMessageViewModel) {
         self._viewModel = State(initialValue: .init(
@@ -16,10 +14,13 @@ struct SendMessageFilePickerView: View {
     }
 
     var body: some View {
-        Button(action: {
-            openFilePicker()
-        }) {
+        Button {
+            viewModel.isFilePickerPresented = true
+        } label: {
             Label("Upload File", systemImage: "doc.fill")
+        }
+        .sheet(isPresented: $viewModel.isFilePickerPresented) {
+            FilePickerView(viewModel: viewModel)
         }
         .sheet(isPresented: viewModel.showUploadScreen) {
             if let path = viewModel.filePath {
@@ -30,45 +31,39 @@ struct SendMessageFilePickerView: View {
             UploadFileProgressView(viewModel: viewModel)
         }
     }
-
-    private func openFilePicker() {
-        let documentPicker = UIDocumentPickerViewController(forOpeningContentTypes: viewModel.allowedFileTypes, asCopy: true)
-        documentPicker.allowsMultipleSelection = false
-        
-        let handler = DelegateHandler(
-            onFileSelected: { url in
-                viewModel.onChange(from: url)
-            },
-            onCancel: {
-                print("File selection canceled")
-            }
-        )
-        delegateHandler = handler // Retain the handler
-
-        documentPicker.delegate = handler
-
-        if let rootVC = UIApplication.shared.windows.first?.rootViewController {
-            rootVC.present(documentPicker, animated: true)
-        }
-    }
 }
 
-class DelegateHandler: NSObject, UIDocumentPickerDelegate {
-    private let onFileSelected: (URL) -> Void
-    private let onCancel: () -> Void
+/// SwiftUI wrapper for `UIDocumentPickerViewController`
+private struct FilePickerView: UIViewControllerRepresentable {
+    let viewModel: SendMessageUploadFileViewModel
 
-    init(onFileSelected: @escaping (URL) -> Void, onCancel: @escaping () -> Void) {
-        self.onFileSelected = onFileSelected
-        self.onCancel = onCancel
+    func makeUIViewController(context: Context) -> UIDocumentPickerViewController {
+        let documentPicker = UIDocumentPickerViewController(forOpeningContentTypes: viewModel.allowedFileTypes, asCopy: true)
+        documentPicker.allowsMultipleSelection = false
+        documentPicker.delegate = context.coordinator
+        return documentPicker
     }
 
-    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-        if let url = urls.first {
-            onFileSelected(url)
+    func updateUIViewController(_ uiViewController: UIDocumentPickerViewController, context: Context) {
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(viewModel: viewModel)
+    }
+
+    class Coordinator: NSObject, UIDocumentPickerDelegate {
+        private let viewModel: SendMessageUploadFileViewModel
+
+        init(viewModel: SendMessageUploadFileViewModel) {
+            self.viewModel = viewModel
         }
-    }
 
-    func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
-        onCancel()
+        func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+            if let url = urls.first {
+                viewModel.filePicked(at: url)
+            } else {
+                viewModel.uploadState = .failed(error: .init(title: "Failed to pick file"))
+            }
+        }
     }
 }

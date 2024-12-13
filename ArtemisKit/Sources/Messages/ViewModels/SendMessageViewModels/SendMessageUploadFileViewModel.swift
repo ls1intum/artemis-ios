@@ -15,6 +15,7 @@ final class SendMessageUploadFileViewModel: UploadViewModel {
 
     var fileData: Data?
     var fileName: String?
+    var isFilePickerPresented = false
 
     private let messagesService: MessagesService
 
@@ -47,18 +48,13 @@ final class SendMessageUploadFileViewModel: UploadViewModel {
     }
 
     /// Handles changes to the selected file URL
-    func onChange(from url: URL?) {
-        uploadState = .compressing
+    func filePicked(at url: URL) {
+        isFilePickerPresented = false
         loadFileData(from: url)
     }
 
     /// Reads the file data from the provided URL
-    private func loadFileData(from url: URL?) {
-        guard let url else {
-            uploadState = .failed(error: .init(title: "No file selected. Please select a valid file."))
-            return
-        }
-
+    private func loadFileData(from url: URL) {
         uploadState = .compressing
         filePath = nil
 
