@@ -21,6 +21,14 @@ struct SendMessageFilePickerView: View {
         }) {
             Label("Upload File", systemImage: "doc.fill")
         }
+        .sheet(isPresented: viewModel.showUploadScreen) {
+            if let path = viewModel.filePath {
+                sendViewModel.insertImageMention(path: path)
+            }
+            viewModel.cancel()
+        } content: {
+            UploadFileProgressView(viewModel: viewModel)
+        }
     }
 
     private func openFilePicker() {
