@@ -3,14 +3,11 @@ import UniformTypeIdentifiers
 
 struct SendMessageFilePickerView: View {
     var sendViewModel: SendMessageViewModel
-    @State private var viewModel: SendMessageUploadFileViewModel
+    @Bindable private var viewModel: SendMessageUploadFileViewModel
 
-    init(sendMessageViewModel: SendMessageViewModel) {
-        self._viewModel = State(initialValue: .init(
-            courseId: sendMessageViewModel.course.id,
-            conversationId: sendMessageViewModel.conversation.id
-        ))
-        self.sendViewModel = sendMessageViewModel
+    init(sendViewModel: SendMessageViewModel, viewModel: SendMessageUploadFileViewModel) {
+        self.viewModel = viewModel
+        self.sendViewModel = sendViewModel
     }
 
     var body: some View {
