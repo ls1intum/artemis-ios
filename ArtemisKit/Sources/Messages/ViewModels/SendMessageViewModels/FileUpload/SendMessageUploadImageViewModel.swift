@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  SendMessageUploadImageViewModel.swift
 //  ArtemisKit
 //
 //  Created by Anian Schleyer on 09.11.24.
