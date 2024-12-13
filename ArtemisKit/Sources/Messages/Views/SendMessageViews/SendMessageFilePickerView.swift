@@ -23,9 +23,9 @@ struct SendMessageFilePickerView: View {
         }
         .sheet(isPresented: viewModel.showUploadScreen) {
             if let path = viewModel.filePath {
-                sendViewModel.insertImageMention(path: path)
+                sendViewModel.insertFileMention(path: path, fileName: viewModel.fileName ?? "file")
             }
-            viewModel.cancel()
+            viewModel.resetFileSelection()
         } content: {
             UploadFileProgressView(viewModel: viewModel)
         }
@@ -37,12 +37,7 @@ struct SendMessageFilePickerView: View {
         
         let handler = DelegateHandler(
             onFileSelected: { url in
-                viewModel.onChange(from: url, displayPath: {
-                    if let filePath = viewModel.filePath {
-                        sendViewModel.insertFileMention(path: filePath, fileName: viewModel.fileName ?? "filename")
-                    }
-                    viewModel.resetFileSelection()
-                })
+                viewModel.onChange(from: url)
             },
             onCancel: {
                 print("File selection canceled")

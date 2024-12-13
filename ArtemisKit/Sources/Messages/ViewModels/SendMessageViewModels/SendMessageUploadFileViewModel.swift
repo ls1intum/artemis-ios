@@ -47,13 +47,13 @@ final class SendMessageUploadFileViewModel: UploadViewModel {
     }
 
     /// Handles changes to the selected file URL
-    func onChange(from url: URL?, displayPath: @escaping () -> Void) {
+    func onChange(from url: URL?) {
         uploadState = .compressing
-        loadFileData(from: url, displayPath: displayPath)
+        loadFileData(from: url)
     }
 
     /// Reads the file data from the provided URL
-    private func loadFileData(from url: URL?, displayPath: @escaping () -> Void) {
+    private func loadFileData(from url: URL?) {
         guard let url else {
             uploadState = .failed(error: .init(title: "No file selected. Please select a valid file."))
             return
@@ -66,7 +66,7 @@ final class SendMessageUploadFileViewModel: UploadViewModel {
             do {
                 let fileData = try Data(contentsOf: url)
                 let fileName = url.lastPathComponent
-                handleFileSelection(fileData: fileData, fileName: fileName,displayPath: displayPath)
+                handleFileSelection(fileData: fileData, fileName: fileName)
             } catch {
                 uploadState = .failed(error: .init(title: "Failed to read the selected file. Please try again."))
             }
@@ -74,7 +74,7 @@ final class SendMessageUploadFileViewModel: UploadViewModel {
     }
 
     /// Validates and handles the selected file data
-    private func handleFileSelection(fileData: Data, fileName: String, displayPath: @escaping () -> Void) {
+    private func handleFileSelection(fileData: Data, fileName: String) {
         self.fileData = fileData
         self.fileName = fileName
 
@@ -93,12 +93,10 @@ final class SendMessageUploadFileViewModel: UploadViewModel {
             return
         }
 
-        Task {
-            upload(data: fileData, fileName: fileName, mimeType: fileExtension, displayPath: displayPath)
-        }
+        upload(data: fileData, fileName: fileName, mimeType: fileExtension)
     }
 
-    private func upload(data: Data, fileName: String, mimeType: String, displayPath: @escaping () -> Void) {
+    private func upload(data: Data, fileName: String, mimeType: String) {
         uploadState = .uploading
 
         uploadTask = Task {
@@ -112,7 +110,6 @@ final class SendMessageUploadFileViewModel: UploadViewModel {
                 uploadState = .failed(error: error)
             case .done(let response):
                 filePath = response
-                displayPath()
                 uploadState = .done
             }
         }
