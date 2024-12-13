@@ -4,8 +4,8 @@ import UniformTypeIdentifiers
 struct SendMessageFilePickerView: View {
     var sendViewModel: SendMessageViewModel
     @State private var viewModel: SendMessageUploadFileViewModel
-    @State private var showFileImporter = false
-    @State private var showUploadSheet = false
+    @State private var isFilePickerPresented = false
+    @State private var delegateHandler: DelegateHandler?
 
     init(sendMessageViewModel: SendMessageViewModel) {
         self._viewModel = State(initialValue: .init(
@@ -16,94 +16,56 @@ struct SendMessageFilePickerView: View {
     }
 
     var body: some View {
-        VStack {
-            Button {
-                showFileImporter = true
-            } label: {
-                Label("Upload File", systemImage: "doc.fill")
-            }
-        }
-        .fileImporter(
-            isPresented: $showFileImporter,
-            allowedContentTypes: viewModel.allowedFileTypes,
-            allowsMultipleSelection: false
-        ) { result in
-            switch result {
-            case .success(let urls):
-                if let url = urls.first {
-                    viewModel.onChange(fileUrl: url)
-                    showUploadSheet = true
-                }
-            case .failure(let error):
-                print("File selection error: \(error)")
-            }
-        }
-        .sheet(isPresented: $showUploadSheet, onDismiss: {
-            if let path = viewModel.filePath, viewModel.uploadState == .done {
-                sendViewModel.insertFileMention(path: path, fileName: viewModel.fileName ?? "file")
-            }
-            viewModel.resetFileSelection()
+        Button(action: {
+            openFilePicker()
         }) {
-            UploadFileView(viewModel: viewModel)
+            Label("Upload File", systemImage: "doc.fill")
+        }
+    }
+
+    private func openFilePicker() {
+        let documentPicker = UIDocumentPickerViewController(forOpeningContentTypes: viewModel.allowedFileTypes, asCopy: true)
+        documentPicker.allowsMultipleSelection = false
+        
+        let handler = DelegateHandler(
+            onFileSelected: { url in
+                viewModel.onChange(from: url, displayPath: {
+                    if let filePath = viewModel.filePath {
+                        sendViewModel.insertFileMention(path: filePath, fileName: viewModel.fileName ?? "filename")
+                    }
+                    viewModel.resetFileSelection()
+                })
+            },
+            onCancel: {
+                print("File selection canceled")
+            }
+        )
+        delegateHandler = handler // Retain the handler
+
+        documentPicker.delegate = handler
+
+        if let rootVC = UIApplication.shared.windows.first?.rootViewController {
+            rootVC.present(documentPicker, animated: true)
         }
     }
 }
 
-private struct UploadFileView: View {
-    var viewModel: SendMessageUploadFileViewModel
-    @Environment(\.dismiss) var dismiss
+class DelegateHandler: NSObject, UIDocumentPickerDelegate {
+    private let onFileSelected: (URL) -> Void
+    private let onCancel: () -> Void
 
-    var body: some View {
-        ZStack {
-            VStack {
-                statusIcon
-
-                Text(viewModel.statusLabel)
-                    .frame(maxWidth: 300)
-                    .font(.title)
-
-                if viewModel.uploadState == .uploading {
-                    Button("Cancel") {
-                        viewModel.cancel()
-                    }
-                    .buttonStyle(.bordered)
-                }
-            }
-            .animation(.easeInOut, value: viewModel.uploadState)
-        }
-        .interactiveDismissDisabled()
+    init(onFileSelected: @escaping (URL) -> Void, onCancel: @escaping () -> Void) {
+        self.onFileSelected = onFileSelected
+        self.onCancel = onCancel
     }
 
-    @ViewBuilder var statusIcon: some View {
-        Group {
-            if viewModel.uploadState != .done && viewModel.error == nil {
-                ProgressView()
-                    .progressViewStyle(.circular)
-                    .scaleEffect(1.5)
-            }
-
-            if viewModel.uploadState == .done {
-                Image(systemName: "checkmark.circle.fill")
-                    .foregroundStyle(.green)
-                    .onAppear {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            dismiss()
-                        }
-                    }
-            }
-
-            if viewModel.error != nil {
-                Image(systemName: "xmark.circle.fill")
-                    .foregroundStyle(.red)
-                    .onAppear {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                            dismiss()
-                        }
-                    }
-            }
+    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+        if let url = urls.first {
+            onFileSelected(url)
         }
-        .font(.largeTitle)
-        .frame(height: 60)
-        .transition(.opacity)
+    }
+
+    func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+        onCancel()
     }
 }
