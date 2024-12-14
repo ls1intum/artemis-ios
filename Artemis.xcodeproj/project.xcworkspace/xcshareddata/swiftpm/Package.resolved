@@ -1,5 +1,5 @@
 {
-  "originHash" : "5c8626acffff005e2642c0e07e1f755598c39323b3bb020fb01711f64303781e",
+  "originHash" : "d98f8b8207dd2f669664cadc42e7d9f386e6aa80a1ad0c3e37c5b13e2081ecc9",
   "pins" : [
     {
       "identity" : "apollon-ios-module",
@@ -8,15 +8,6 @@
       "state" : {
         "revision" : "5e4b1223bf33b542bcef2b844f7c451ac0ed7a9e",
         "version" : "1.0.9"
-      }
-    },
-    {
-      "identity" : "artemis-ios-core-modules",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/ls1intum/artemis-ios-core-modules",
-      "state" : {
-        "revision" : "83a8eafae4d7b098e303aa0c06b392c505852b7f",
-        "version" : "15.1.2"
       }
     },
     {
@@ -85,10 +76,10 @@
     {
       "identity" : "smile",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/onmyway133/Smile",
+      "location" : "https://github.com/onmyway133/Smile.git",
       "state" : {
-        "revision" : "40604722a7a56f735124e069fcbb58307637744b",
-        "version" : "2.1.0"
+        "branch" : "6bacbf7",
+        "revision" : "6bacbf74638eb725fb0dd3e728341bc17acf8958"
       }
     },
     {
