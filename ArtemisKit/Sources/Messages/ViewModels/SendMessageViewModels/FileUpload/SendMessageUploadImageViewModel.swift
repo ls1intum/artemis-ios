@@ -59,7 +59,7 @@ final class SendMessageUploadImageViewModel: UploadViewModel {
         uploadState = .uploading
 
         uploadTask = Task {
-            let result = await messagesService.uploadImage(for: courseId, and: conversationId, image: imageData)
+            let result = await messagesService.uploadFile(for: courseId, and: conversationId, file: imageData, filename: "\(UUID().uuidString).jpg", mimeType: "image/jpeg")
             if Task.isCancelled {
                 return
             }

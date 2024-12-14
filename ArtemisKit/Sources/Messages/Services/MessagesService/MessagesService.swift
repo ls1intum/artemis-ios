@@ -49,11 +49,6 @@ protocol MessagesService {
     func sendAnswerMessage(for courseId: Int, message: Message, content: String) async -> NetworkResponse
 
     /**
-     * Perform a post request for uploading a jpeg image in a specific conversation to the server.
-     */
-    func uploadImage(for courseId: Int, and conversationId: Int64, image: Data) async -> DataState<String>
-
-    /**
       * Perform a post request for uploading a file  in a specific conversation to the server.
       */
      func uploadFile(for courseId: Int, and conversationId: Int64, file: Data, filename: String, mimeType: String) async -> DataState<String>

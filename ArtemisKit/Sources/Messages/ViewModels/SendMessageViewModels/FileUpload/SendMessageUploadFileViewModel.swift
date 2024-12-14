@@ -57,19 +57,17 @@ final class SendMessageUploadFileViewModel: UploadViewModel {
     private func loadFileData(from url: URL) {
         uploadState = .compressing
         filePath = nil
-
-        Task {
-            do {
-                guard url.startAccessingSecurityScopedResource() else {
-                    throw NSFileProviderError(.notAuthenticated)
-                }
-                let fileData = try Data(contentsOf: url)
-                url.stopAccessingSecurityScopedResource()
-                let fileName = url.lastPathComponent
-                handleFileSelection(fileData: fileData, fileName: fileName)
-            } catch {
-                uploadState = .failed(error: .init(title: "Failed to read the selected file. Please try again."))
+        
+        do {
+            guard url.startAccessingSecurityScopedResource() else {
+                throw NSFileProviderError(.notAuthenticated)
             }
+            let fileData = try Data(contentsOf: url)
+            url.stopAccessingSecurityScopedResource()
+            let fileName = url.lastPathComponent
+            handleFileSelection(fileData: fileData, fileName: fileName)
+        } catch {
+            uploadState = .failed(error: .init(title: "Failed to read the selected file. Please try again."))
         }
     }
 
