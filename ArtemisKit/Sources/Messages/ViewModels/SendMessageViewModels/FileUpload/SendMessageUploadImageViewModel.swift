@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  SendMessageUploadImageViewModel.swift
 //  ArtemisKit
 //
 //  Created by Anian Schleyer on 09.11.24.
@@ -10,58 +10,11 @@ import Foundation
 import PhotosUI
 import SwiftUI
 
-enum UploadState: Equatable {
-    case selectImage
-    case compressing
-    case uploading
-    case done
-    case failed(error: UserFacingError)
-}
-
 @Observable
-final class SendMessageUploadImageViewModel {
-
-    let courseId: Int
-    let conversationId: Int64
+final class SendMessageUploadImageViewModel: UploadViewModel {
 
     var selection: PhotosPickerItem?
     var image: UIImage?
-    var uploadState = UploadState.selectImage
-    var imagePath: String?
-    private var uploadTask: Task<(), Never>?
-
-    var showUploadScreen: Binding<Bool> {
-        .init {
-            self.uploadState != .selectImage
-        } set: { newValue in
-            if !newValue {
-                self.uploadState = .selectImage
-            }
-        }
-    }
-    var error: UserFacingError? {
-        switch uploadState {
-        case .failed(let error):
-            return error
-        default:
-            return nil
-        }
-    }
-
-    var statusLabel: String {
-        switch uploadState {
-        case .selectImage:
-            ""
-        case .compressing:
-            R.string.localizable.loading()
-        case .uploading:
-            R.string.localizable.uploading()
-        case .done:
-            R.string.localizable.done()
-        case .failed(let error):
-            error.localizedDescription
-        }
-    }
 
     private let messagesService: MessagesService
 
@@ -70,9 +23,8 @@ final class SendMessageUploadImageViewModel {
         conversationId: Int64,
         messagesService: MessagesService = MessagesServiceFactory.shared
     ) {
-        self.courseId = courseId
-        self.conversationId = conversationId
         self.messagesService = messagesService
+        super.init(courseId: courseId, conversationId: conversationId)
     }
 
     /// Register as change handler for selection on View
@@ -86,7 +38,7 @@ final class SendMessageUploadImageViewModel {
         }
 
         uploadState = .compressing
-        imagePath = nil
+        filePath = nil
 
         Task {
             if let transferable = try? await item.loadTransferable(type: Data.self) {
@@ -107,7 +59,7 @@ final class SendMessageUploadImageViewModel {
         uploadState = .uploading
 
         uploadTask = Task {
-            let result = await messagesService.uploadImage(for: courseId, and: conversationId, image: imageData)
+            let result = await messagesService.uploadFile(for: courseId, and: conversationId, file: imageData, filename: "\(UUID().uuidString).jpg", mimeType: "image/jpeg")
             if Task.isCancelled {
                 return
             }
@@ -118,7 +70,7 @@ final class SendMessageUploadImageViewModel {
             case .failure(let error):
                 uploadState = .failed(error: error)
             case .done(let response):
-                imagePath = response
+                filePath = response
                 uploadState = .done
             }
             selection = nil
@@ -140,13 +92,5 @@ final class SendMessageUploadImageViewModel {
         } else {
             return imageData
         }
-    }
-
-    func cancel() {
-        uploadTask?.cancel()
-        uploadTask = nil
-        selection = nil
-        image = nil
-        uploadState = .selectImage
     }
 }

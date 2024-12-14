@@ -26,6 +26,7 @@
 "code" = "Code";
 "link" = "Link";
 "uploadImage" = "Upload Image";
+"uploadFile" = "Upload File";
 
 // MARK: SendMessageMentionContentView
 "members" = "Members";

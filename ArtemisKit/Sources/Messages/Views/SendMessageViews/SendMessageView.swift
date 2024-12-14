@@ -13,8 +13,16 @@ import SwiftUI
 struct SendMessageView: View {
 
     @State var viewModel: SendMessageViewModel
+    /// This has to be in here, otherwise it gets deinitialized while file picker is open,
+    /// due to the textfield losing focus and the toolbar disappearing
+    @State private var uploadFileViewModel: SendMessageUploadFileViewModel
 
     @FocusState private var isFocused: Bool
+
+    init(viewModel: SendMessageViewModel) {
+        self._viewModel = State(initialValue: viewModel)
+        self._uploadFileViewModel = State(initialValue: .init(courseId: viewModel.course.id, conversationId: viewModel.conversation.id))
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -195,6 +203,7 @@ private extension SendMessageView {
                         Label(R.string.localizable.link(), systemImage: "link")
                     }
                     SendMessageImagePickerView(sendMessageViewModel: viewModel)
+                    SendMessageFilePickerView(sendViewModel: viewModel, viewModel: uploadFileViewModel)
                 }
                 .labelStyle(.iconOnly)
                 .font(.title3)
