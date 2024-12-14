@@ -193,7 +193,8 @@ public struct MessagesAvailableView: View {
                 }
             }
         }
-        .toolbar(.hidden, for: .navigationBar)
+        // Add a file picker here, inside the navigation it doesn't work sometimes
+        .supportsFilePicker()
     }
 
     @ViewBuilder var filterBar: some View {
