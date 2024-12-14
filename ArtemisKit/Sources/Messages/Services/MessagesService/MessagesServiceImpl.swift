@@ -259,8 +259,8 @@ struct MessagesServiceImpl: MessagesService {
     }
 
     struct UploadFileResult: Codable {
-           let path: String
-       }
+        let path: String
+    }
 
        func uploadFile(for courseId: Int, and conversationId: Int64, file: Data, filename: String, mimeType: String) async -> DataState<String> {
            // Check file size limit
