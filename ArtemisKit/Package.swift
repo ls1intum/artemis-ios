@@ -18,6 +18,7 @@ let package = Package(
             ])
     ],
     dependencies: [
+        .package(url: "https://github.com/onmyway133/Smile.git", revision: "6bacbf7"),
         .package(url: "https://github.com/Kelvas09/EmojiPicker.git", from: "1.0.0"),
         .package(url: "https://github.com/ls1intum/apollon-ios-module", .upToNextMajor(from: "1.0.2")),
         .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", .upToNextMajor(from: "15.1.2")),
