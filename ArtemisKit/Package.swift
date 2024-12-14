@@ -114,6 +114,7 @@ let package = Package(
                 "Faq",
                 "Navigation",
                 .product(name: "EmojiPicker", package: "EmojiPicker"),
+                .product(name: "Smile", package: "Smile"),
                 .product(name: "APIClient", package: "artemis-ios-core-modules"),
                 .product(name: "ArtemisMarkdown", package: "artemis-ios-core-modules"),
                 .product(name: "DesignLibrary", package: "artemis-ios-core-modules"),
