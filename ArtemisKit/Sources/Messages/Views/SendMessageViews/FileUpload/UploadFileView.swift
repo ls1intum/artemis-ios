@@ -1,47 +1,14 @@
 //
-//  SendMessageImagePickerView.swift
+//  UploadFileView.swift
 //  ArtemisKit
 //
-//  Created by Anian Schleyer on 09.11.24.
+//  Created by Anian Schleyer on 13.12.24.
 //
 
-import PhotosUI
 import SwiftUI
 
-struct SendMessageImagePickerView: View {
-
-    var sendViewModel: SendMessageViewModel
-    @State private var viewModel: SendMessageUploadImageViewModel
-
-    init(sendMessageViewModel: SendMessageViewModel) {
-        self._viewModel = State(initialValue: .init(courseId: sendMessageViewModel.course.id,
-                                                    conversationId: sendMessageViewModel.conversation.id))
-        self.sendViewModel = sendMessageViewModel
-    }
-
-    var body: some View {
-        PhotosPicker(selection: $viewModel.selection,
-                     matching: .images,
-                     preferredItemEncoding: .compatible) {
-            Label(R.string.localizable.uploadImage(), systemImage: "photo.fill")
-        }
-        .onChange(of: viewModel.selection) {
-            viewModel.onChange()
-        }
-        .sheet(isPresented: viewModel.showUploadScreen) {
-            if let path = viewModel.imagePath {
-                sendViewModel.insertImageMention(path: path)
-            }
-            viewModel.selection = nil
-            viewModel.image = nil
-        } content: {
-            UploadImageView(viewModel: viewModel)
-        }
-    }
-}
-
-private struct UploadImageView: View {
-    var viewModel: SendMessageUploadImageViewModel
+struct UploadFileProgressView: View {
+    var viewModel: UploadViewModel
     @Environment(\.dismiss) var dismiss
 
     var body: some View {
@@ -99,7 +66,8 @@ private struct UploadImageView: View {
     }
 
     @ViewBuilder var backgroundImage: some View {
-        if let image = viewModel.image {
+        if let vm = viewModel as? SendMessageUploadImageViewModel,
+           let image = vm.image {
             Image(uiImage: image)
                 .resizable()
                 .scaledToFill()
@@ -110,3 +78,4 @@ private struct UploadImageView: View {
         }
     }
 }
+
