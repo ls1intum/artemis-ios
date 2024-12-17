@@ -100,10 +100,10 @@ class SwipeToReplyState {
 
     /// Update all view properies associated with swiping to reply
     func update(with distance: CGFloat) {
-        overlayOffset = 200 * exp((distance - 10) / 30)
-        messageBlur = max((-distance - 25) * 0.2 * blurIntensity, 0)
-        overlayOpacity = max(0, min(-(distance + 40) * 0.05, 1))
-        overlayScale = max(0, min(-(distance + 40) * 0.03, 1))
+        overlayOffset = 200 * exp((distance - 15) / 30)
+        messageBlur = max((-distance - 30) * 0.2 * blurIntensity, 0)
+        overlayOpacity = max(0, min(-(distance + 35) * 0.05, 1))
+        overlayScale = max(0, min(-(distance + 35) * 0.03, 1))
 
         // If user dragged far enough to activate reply, let them know
         if !swiped && distance < -70 {
