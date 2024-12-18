@@ -8,7 +8,6 @@
 import APIClient
 import Combine
 import Common
-import DesignLibrary
 import Foundation
 import SharedModels
 import SwiftUI
@@ -232,84 +231,6 @@ private extension MessagesAvailableViewModel {
         conversations[conversationIndex] = updatedConversation
 
         allConversations = .done(response: conversations)
-    }
-}
-
-enum ConversationFilter: FilterPicker {
-
-    case all, unread, recent
-
-    var displayName: String {
-        return switch self {
-        case .all:
-            R.string.localizable.allFilter()
-        case .unread:
-            R.string.localizable.unreadFilter()
-        case .recent:
-            R.string.localizable.recentFilter()
-        }
-    }
-
-    var iconName: String {
-        return switch self {
-        case .all:
-            "tray.2"
-        case .unread:
-            "app.badge"
-        case .recent:
-            "clock"
-        }
-    }
-
-    var selectedColor: Color {
-        return switch self {
-        case .all:
-            Color.blue
-        case .unread:
-            Color.indigo
-        case .recent:
-            Color.orange
-        }
-    }
-
-    var id: Int {
-        hashValue
-    }
-
-    func matches(_ conversation: BaseConversation, course: Course) -> Bool {
-        switch self {
-        case .all:
-            true
-        case .unread:
-            conversation.unreadMessagesCount ?? 0 > 0
-        case .recent:
-            isRecent(channel: conversation, course: course)
-        }
-    }
-
-    private func isRecent(channel: BaseConversation, course: Course) -> Bool {
-        guard let channel = channel as? Channel else {
-            return false
-        }
-
-        let exercise = course.exercises?.first { $0.id == channel.subTypeReferenceId }
-        let lecture = course.lectures?.first { $0.id == channel.subTypeReferenceId }
-        let dateStart = Date.now.addingTimeInterval(-5 * 24 * 60 * 60)
-        let dateEnd = Date.now.addingTimeInterval(10 * 24 * 60 * 60)
-        let range = dateStart...dateEnd
-
-        if let exercise {
-            let start = exercise.baseExercise.releaseDate ?? .distantPast
-            let end = exercise.baseExercise.dueDate ?? .distantFuture
-            return range.contains(start) || range.contains(end)
-        }
-        if let lecture {
-            let start = lecture.startDate ?? .distantPast
-            let end = lecture.endDate ?? .distantFuture
-            return range.contains(start) || range.contains(end)
-        }
-
-        return false
     }
 }
 
