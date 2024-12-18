@@ -64,6 +64,8 @@ struct EmojiPicker: View {
                 }
             }
         }
+        .navigationTitle(R.string.localizable.emojis())
+        .navigationBarTitleDisplayMode(.inline)
     }
 
     @ViewBuilder
