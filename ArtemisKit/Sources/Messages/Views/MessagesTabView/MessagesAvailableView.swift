@@ -200,7 +200,7 @@ public struct MessagesAvailableView: View {
     @ViewBuilder var filterBar: some View {
         let nonNeededFilters = ConversationFilter.allCases.filter { filter in
             viewModel.allConversations.value?.contains(where: { conversation in
-                filter.matches(conversation.baseConversation)
+                filter.matches(conversation.baseConversation, course: viewModel.course)
             }) ?? false == false
         }
         if nonNeededFilters.count < 2 {

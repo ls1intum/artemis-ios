@@ -60,6 +60,7 @@
 "directMessages" = "Direct Messages";
 "unreadFilter" = "Unread";
 "allFilter" = "All";
+"recentFilter" = "Recent";
 
 // MARK: MessageDetailView
 "edited" = "Edited";

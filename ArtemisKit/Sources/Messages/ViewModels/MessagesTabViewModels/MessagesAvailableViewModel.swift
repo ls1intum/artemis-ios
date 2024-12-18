@@ -231,51 +231,35 @@ class MessagesAvailableViewModel: BaseViewModel {
             }
 
             favoriteConversations = .done(response: notHiddenConversations
-                .filter { $0.baseConversation.isFavorite ?? false && filter.matches($0.baseConversation) }
+                .filter { $0.baseConversation.isFavorite ?? false && filter.matches($0.baseConversation, course: course) }
             )
 
-            // If we only show favorites, we can skip all other filtering
-            if filter == .favorite {
-                channels = .done(response: [])
-                exercises = .done(response: [])
-                lectures = .done(response: [])
-                exams = .done(response: [])
-                groupChats = .done(response: [])
-                oneToOneChats = .done(response: [])
-                hiddenConversations = .done(response: [])
-                return
-            }
-
-            let notHiddenNotFavoriteConversations = notHiddenConversations.filter {
-                !($0.baseConversation.isFavorite ?? false)
-            }
-
-            channels = .done(response: notHiddenNotFavoriteConversations
+            channels = .done(response: notHiddenConversations
                 .compactMap { $0.baseConversation as? Channel }
-                .filter { ($0.subType ?? .general) == .general && filter.matches($0) }
+                .filter { ($0.subType ?? .general) == .general && filter.matches($0, course: course) }
             )
-            exercises = .done(response: notHiddenNotFavoriteConversations
+            exercises = .done(response: notHiddenConversations
                 .compactMap { $0.baseConversation as? Channel }
-                .filter { ($0.subType ?? .general) == .exercise && filter.matches($0) }
+                .filter { ($0.subType ?? .general) == .exercise && filter.matches($0, course: course) }
             )
-            lectures = .done(response: notHiddenNotFavoriteConversations
+            lectures = .done(response: notHiddenConversations
                 .compactMap { $0.baseConversation as? Channel }
-                .filter { ($0.subType ?? .general) == .lecture && filter.matches($0) }
+                .filter { ($0.subType ?? .general) == .lecture && filter.matches($0, course: course) }
             )
-            exams = .done(response: notHiddenNotFavoriteConversations
+            exams = .done(response: notHiddenConversations
                 .compactMap { $0.baseConversation as? Channel }
-                .filter { ($0.subType ?? .general) == .exam && filter.matches($0) }
+                .filter { ($0.subType ?? .general) == .exam && filter.matches($0, course: course) }
             )
-            groupChats = .done(response: notHiddenNotFavoriteConversations
+            groupChats = .done(response: notHiddenConversations
                 .compactMap { $0.baseConversation as? GroupChat }
-                .filter { filter.matches($0) }
+                .filter { filter.matches($0, course: course) }
             )
-            oneToOneChats = .done(response: notHiddenNotFavoriteConversations
+            oneToOneChats = .done(response: notHiddenConversations
                 .compactMap { $0.baseConversation as? OneToOneChat }
-                .filter { filter.matches($0) }
+                .filter { filter.matches($0, course: course) }
             )
             hiddenConversations = .done(response: response
-                .filter { $0.baseConversation.isHidden ?? false && filter.matches($0.baseConversation) }
+                .filter { $0.baseConversation.isHidden ?? false && filter.matches($0.baseConversation, course: course) }
             )
         }
     }
@@ -347,7 +331,7 @@ private extension MessagesAvailableViewModel {
 
 enum ConversationFilter: FilterPicker {
 
-    case all, unread, favorite
+    case all, unread, recent
 
     var displayName: String {
         return switch self {
@@ -355,8 +339,8 @@ enum ConversationFilter: FilterPicker {
             R.string.localizable.allFilter()
         case .unread:
             R.string.localizable.unreadFilter()
-        case .favorite:
-            R.string.localizable.favoritesSection()
+        case .recent:
+            R.string.localizable.recentFilter()
         }
     }
 
@@ -366,8 +350,8 @@ enum ConversationFilter: FilterPicker {
             "tray.2"
         case .unread:
             "app.badge"
-        case .favorite:
-            "heart"
+        case .recent:
+            "clock"
         }
     }
 
@@ -377,7 +361,7 @@ enum ConversationFilter: FilterPicker {
             Color.blue
         case .unread:
             Color.indigo
-        case .favorite:
+        case .recent:
             Color.orange
         }
     }
@@ -386,15 +370,40 @@ enum ConversationFilter: FilterPicker {
         hashValue
     }
 
-    func matches(_ conversation: BaseConversation) -> Bool {
+    func matches(_ conversation: BaseConversation, course: Course) -> Bool {
         switch self {
         case .all:
             true
         case .unread:
             conversation.unreadMessagesCount ?? 0 > 0
-        case .favorite:
-            conversation.isFavorite ?? false
+        case .recent:
+            isRecent(channel: conversation, course: course)
         }
+    }
+
+    private func isRecent(channel: BaseConversation, course: Course) -> Bool {
+        guard let channel = channel as? Channel else {
+            return false
+        }
+
+        let exercise = course.exercises?.first { $0.id == channel.subTypeReferenceId }
+        let lecture = course.lectures?.first { $0.id == channel.subTypeReferenceId }
+        let dateStart = Date.now.addingTimeInterval(-5 * 24 * 60 * 60)
+        let dateEnd = Date.now.addingTimeInterval(10 * 24 * 60 * 60)
+        let range = dateStart...dateEnd
+
+        if let exercise {
+            let start = exercise.baseExercise.releaseDate ?? .distantPast
+            let end = exercise.baseExercise.dueDate ?? .distantFuture
+            return range.contains(start) || range.contains(end)
+        }
+        if let lecture {
+            let start = lecture.startDate ?? .distantPast
+            let end = lecture.endDate ?? .distantFuture
+            return range.contains(start) || range.contains(end)
+        }
+
+        return false
     }
 }
 
