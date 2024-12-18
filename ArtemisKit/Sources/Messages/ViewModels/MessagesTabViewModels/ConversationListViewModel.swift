@@ -36,17 +36,10 @@ class ConversationListViewModel {
     func updateConversations() {
         let course = parentViewModel.course
 
+        updateFilter()
+
         let notHiddenConversations = conversations.filter {
             !($0.baseConversation.isHidden ?? false)
-        }
-
-        // Turn off filter if no unread/favorites exist
-        if !conversations.contains(where: { conversation in
-            conversation.baseConversation.unreadMessagesCount ?? 0 > 0
-        }) && !notHiddenConversations.contains(where: { conversation in
-            conversation.baseConversation.isFavorite ?? false
-        }) && filter != .all {
-            filter = .all
         }
 
         favoriteConversations = notHiddenConversations
@@ -80,5 +73,15 @@ class ConversationListViewModel {
 
         hiddenConversations = conversations
             .filter { $0.baseConversation.isHidden ?? false && filter.matches($0.baseConversation, course: course) }
+    }
+
+    func updateFilter() {
+        let course = parentViewModel.course
+        // Turn off filter if no matches exist
+        if filter != .all && !conversations.contains(where: { conversation in
+            filter.matches(conversation.baseConversation, course: course)
+        }) {
+            filter = .all
+        }
     }
 }

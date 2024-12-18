@@ -22,10 +22,8 @@ public struct MessagesAvailableView: View {
 
     @State private var searchText = ""
 
-    @State private var isCodeOfConductPresented = false
-
     private var searchResults: [Conversation] {
-        if searchText.isEmpty /*&& viewModel.filter == .all*/ {
+        if searchText.isEmpty {
             return []
         }
         return (viewModel.allConversations.value ?? []).filter {
@@ -70,7 +68,7 @@ public struct MessagesAvailableView: View {
                     HStack {
                         Spacer()
                         Button {
-                            isCodeOfConductPresented = true
+                            viewModel.isCodeOfConductPresented = true
                         } label: {
                             HStack {
                                 Image(systemName: "info.circle")
@@ -105,7 +103,7 @@ public struct MessagesAvailableView: View {
             }
             .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
             .loadingIndicator(isLoading: $viewModel.isLoading)
-            .sheet(isPresented: $isCodeOfConductPresented) {
+            .sheet(isPresented: $viewModel.isCodeOfConductPresented) {
                 NavigationStack {
                     ScrollView {
                         CodeOfConductView(course: viewModel.course)
@@ -116,7 +114,7 @@ public struct MessagesAvailableView: View {
                     .toolbar {
                         ToolbarItem(placement: .confirmationAction) {
                             Button {
-                                isCodeOfConductPresented = false
+                                viewModel.isCodeOfConductPresented = false
                             } label: {
                                 Text(R.string.localizable.done())
                             }

@@ -18,6 +18,7 @@ import UserStore
 class MessagesAvailableViewModel: BaseViewModel {
 
     @Published var allConversations: DataState<[Conversation]> = .loading
+    @Published var isCodeOfConductPresented = false
 
     var isDirectMessagingEnabled: Bool {
         course.courseInformationSharingConfiguration == .communicationAndMessaging
