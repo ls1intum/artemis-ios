@@ -19,7 +19,6 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/onmyway133/Smile.git", revision: "6bacbf7"),
-        .package(url: "https://github.com/Kelvas09/EmojiPicker.git", from: "1.0.0"),
         .package(url: "https://github.com/ls1intum/apollon-ios-module", .upToNextMajor(from: "1.0.2")),
         .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", .upToNextMajor(from: "15.2.0")),
         .package(url: "https://github.com/mac-cain13/R.swift.git", from: "7.7.0")
@@ -113,7 +112,6 @@ let package = Package(
                 "Extensions",
                 "Faq",
                 "Navigation",
-                .product(name: "EmojiPicker", package: "EmojiPicker"),
                 .product(name: "Smile", package: "Smile"),
                 .product(name: "APIClient", package: "artemis-ios-core-modules"),
                 .product(name: "ArtemisMarkdown", package: "artemis-ios-core-modules"),
@@ -121,8 +119,7 @@ let package = Package(
                 .product(name: "SharedModels", package: "artemis-ios-core-modules"),
                 .product(name: "SharedServices", package: "artemis-ios-core-modules"),
                 .product(name: "UserStore", package: "artemis-ios-core-modules"),
-                .product(name: "RswiftLibrary", package: "R.swift"),
-                .product(name: "Smile", package: "Smile")
+                .product(name: "RswiftLibrary", package: "R.swift")
             ],
             plugins: [
                 .plugin(name: "RswiftGeneratePublicResources", package: "R.swift")

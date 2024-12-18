@@ -6,7 +6,6 @@
 //
 
 import Common
-import EmojiPicker
 import Navigation
 import SharedModels
 import Smile
@@ -424,7 +423,6 @@ private struct EmojiPickerButton: View {
     var viewModel: ReactionsViewModel
 
     @State private var showEmojiPicker = false
-    @State var selectedEmoji: Emoji?
 
     var body: some View {
         Button {
@@ -440,19 +438,8 @@ private struct EmojiPickerButton: View {
                 .background(Capsule().fill(Color.Artemis.reactionCapsuleColor))
         }
         .sheet(isPresented: $showEmojiPicker) {
-            NavigationView {
-                EmojiPickerView(selectedEmoji: $selectedEmoji, selectedColor: Color.Artemis.artemisBlue)
-                    .navigationTitle(R.string.localizable.emojis())
-                    .navigationBarTitleDisplayMode(.inline)
-            }
-        }
-        .onChange(of: selectedEmoji) { _, newEmoji in
-            if let newEmoji,
-               let emojiId = Smile.alias(emoji: newEmoji.value) {
-                Task {
-                    await viewModel.addReaction(emojiId: emojiId)
-                    selectedEmoji = nil
-                }
+            NavigationStack {
+                EmojiPicker(viewModel: viewModel)
             }
         }
     }
