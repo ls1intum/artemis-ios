@@ -17,30 +17,7 @@ import UserStore
 @MainActor
 class MessagesAvailableViewModel: BaseViewModel {
 
-    @Published var allConversations: DataState<[Conversation]> = .loading {
-        didSet {
-            updateFilteredConversations()
-        }
-    }
-
-    @Published var filter: ConversationFilter = .all {
-        didSet {
-            withAnimation {
-                updateFilteredConversations()
-            }
-        }
-    }
-
-    @Published var favoriteConversations: DataState<[Conversation]> = .loading
-
-    @Published var channels: DataState<[Channel]> = .loading
-    @Published var exercises: DataState<[Channel]> = .loading
-    @Published var lectures: DataState<[Channel]> = .loading
-    @Published var exams: DataState<[Channel]> = .loading
-    @Published var groupChats: DataState<[GroupChat]> = .loading
-    @Published var oneToOneChats: DataState<[OneToOneChat]> = .loading
-
-    @Published var hiddenConversations: DataState<[Conversation]> = .loading
+    @Published var allConversations: DataState<[Conversation]> = .loading
 
     var isDirectMessagingEnabled: Bool {
         course.courseInformationSharingConfiguration == .communicationAndMessaging
@@ -189,78 +166,6 @@ class MessagesAvailableViewModel: BaseViewModel {
             } else {
                 presentError(userFacingError: UserFacingError(title: error.localizedDescription))
             }
-        }
-    }
-
-    private func updateFilteredConversations() {
-        switch allConversations {
-        case .loading:
-            favoriteConversations = .loading
-
-            hiddenConversations = .loading
-
-            channels = .loading
-            exercises = .loading
-            lectures = .loading
-            exams = .loading
-            groupChats = .loading
-            oneToOneChats = .loading
-        case .failure(let error):
-            favoriteConversations = .failure(error: error)
-
-            hiddenConversations = .failure(error: error)
-
-            channels = .failure(error: error)
-            exercises = .failure(error: error)
-            lectures = .failure(error: error)
-            exams = .failure(error: error)
-            groupChats = .failure(error: error)
-            oneToOneChats = .failure(error: error)
-        case .done(let response):
-            let notHiddenConversations = response.filter {
-                !($0.baseConversation.isHidden ?? false)
-            }
-
-            // Turn off filter if no unread/favorites exist
-            if !response.contains(where: { conversation in
-                conversation.baseConversation.unreadMessagesCount ?? 0 > 0
-            }) && !notHiddenConversations.contains(where: { conversation in
-                conversation.baseConversation.isFavorite ?? false
-            }) && filter != .all {
-                filter = .all
-            }
-
-            favoriteConversations = .done(response: notHiddenConversations
-                .filter { $0.baseConversation.isFavorite ?? false && filter.matches($0.baseConversation, course: course) }
-            )
-
-            channels = .done(response: notHiddenConversations
-                .compactMap { $0.baseConversation as? Channel }
-                .filter { ($0.subType ?? .general) == .general && filter.matches($0, course: course) }
-            )
-            exercises = .done(response: notHiddenConversations
-                .compactMap { $0.baseConversation as? Channel }
-                .filter { ($0.subType ?? .general) == .exercise && filter.matches($0, course: course) }
-            )
-            lectures = .done(response: notHiddenConversations
-                .compactMap { $0.baseConversation as? Channel }
-                .filter { ($0.subType ?? .general) == .lecture && filter.matches($0, course: course) }
-            )
-            exams = .done(response: notHiddenConversations
-                .compactMap { $0.baseConversation as? Channel }
-                .filter { ($0.subType ?? .general) == .exam && filter.matches($0, course: course) }
-            )
-            groupChats = .done(response: notHiddenConversations
-                .compactMap { $0.baseConversation as? GroupChat }
-                .filter { filter.matches($0, course: course) }
-            )
-            oneToOneChats = .done(response: notHiddenConversations
-                .compactMap { $0.baseConversation as? OneToOneChat }
-                .filter { filter.matches($0, course: course) }
-            )
-            hiddenConversations = .done(response: response
-                .filter { $0.baseConversation.isHidden ?? false && filter.matches($0.baseConversation, course: course) }
-            )
         }
     }
 }
