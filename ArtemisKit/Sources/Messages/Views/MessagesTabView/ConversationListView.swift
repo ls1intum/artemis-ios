@@ -18,11 +18,6 @@ struct ConversationListView: View {
 
     var body: some View {
         filterBar
-            .onChange(of: viewModel.filter) {
-                withAnimation {
-                    viewModel.updateConversations()
-                }
-            }
 
         Group {
             MixedMessageSection(

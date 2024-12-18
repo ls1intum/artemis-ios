@@ -5,8 +5,8 @@
 //  Created by Anian Schleyer on 18.12.24.
 //
 
-import Foundation
 import SharedModels
+import SwiftUI
 
 @Observable
 @MainActor
@@ -30,10 +30,25 @@ class ConversationListViewModel {
     init(parentViewModel: MessagesAvailableViewModel, conversations: [Conversation]) {
         self.parentViewModel = parentViewModel
         self.conversations = conversations
+        registerObservationTracking()
         updateConversations()
     }
 
-    func updateConversations() {
+    /// Track updates to `filter` and call `updateConversations()` on change
+    private func registerObservationTracking() {
+        withObservationTracking {
+            _ = filter
+        } onChange: { [weak self] in
+            DispatchQueue.main.async { [weak self] in
+                withAnimation { [weak self] in
+                    self?.updateConversations()
+                }
+                self?.registerObservationTracking()
+            }
+        }
+    }
+
+    private func updateConversations() {
         let course = parentViewModel.course
 
         updateFilter()
@@ -75,7 +90,7 @@ class ConversationListViewModel {
             .filter { $0.baseConversation.isHidden ?? false && filter.matches($0.baseConversation, course: course) }
     }
 
-    func updateFilter() {
+    private func updateFilter() {
         let course = parentViewModel.course
         // Turn off filter if no matches exist
         if filter != .all && !conversations.contains(where: { conversation in
