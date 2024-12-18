@@ -6,7 +6,6 @@
 //
 
 import Common
-import EmojiPicker
 import SharedModels
 import Smile
 import SwiftUI
@@ -204,7 +203,6 @@ private struct EmojiPickerButton: View {
     var viewModel: ReactionsViewModel
 
     @State private var isEmojiPickerPresented = false
-    @State var selectedEmoji: Emoji?
 
     var body: some View {
         Button {
@@ -220,19 +218,8 @@ private struct EmojiPickerButton: View {
                 .background(Capsule().fill(Color.Artemis.reactionCapsuleColor))
         }
         .sheet(isPresented: $isEmojiPickerPresented) {
-            NavigationView {
-                EmojiPickerView(selectedEmoji: $selectedEmoji, selectedColor: Color.Artemis.artemisBlue)
-                    .navigationTitle(R.string.localizable.emojis())
-                    .navigationBarTitleDisplayMode(.inline)
-            }
-        }
-        .onChange(of: selectedEmoji) { _, newEmoji in
-            if let newEmoji,
-               let emojiId = Smile.alias(emoji: newEmoji.value) {
-                Task {
-                    await viewModel.addReaction(emojiId: emojiId)
-                    selectedEmoji = nil
-                }
+            NavigationStack {
+                EmojiPicker(viewModel: viewModel)
             }
         }
     }

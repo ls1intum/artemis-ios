@@ -1,5 +1,5 @@
 {
-  "originHash" : "65d5feea92024c72bff54ba2bd921950d359ec88bac673e3ac6317c7f9dc434c",
+  "originHash" : "008193f82a18024045696bb777eb551728aa12ae494d1eb655cdd7ae99cb3cdf",
   "pins" : [
     {
       "identity" : "apollon-ios-module",
@@ -35,15 +35,6 @@
       "state" : {
         "revision" : "678d442c6f7828def400a70ae15968aef67ef52d",
         "version" : "1.8.3"
-      }
-    },
-    {
-      "identity" : "emojipicker",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/Kelvas09/EmojiPicker.git",
-      "state" : {
-        "revision" : "d787591e2121b617209172ad6a8ebf2975f605ae",
-        "version" : "1.0.1"
       }
     },
     {
