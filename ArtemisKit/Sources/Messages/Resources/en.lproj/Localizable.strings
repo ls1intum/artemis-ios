@@ -44,7 +44,6 @@
 "createChat" = "Create Chat";
 "noResultForSearch" = "There is no result for your search.";
 "favoritesSection" = "Favorites";
-"recentsSection" = "Recents";
 "hiddenSection" = "Hidden";
 "favorite" = "Favorite";
 "unfavorite" = "Unfavorite";
@@ -61,6 +60,7 @@
 "directMessages" = "Direct Messages";
 "unreadFilter" = "Unread";
 "allFilter" = "All";
+"recentFilter" = "Recent";
 
 // MARK: MessageDetailView
 "edited" = "Edited";

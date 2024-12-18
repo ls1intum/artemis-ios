@@ -73,11 +73,6 @@ public struct MessagesAvailableView: View {
                             conversations: $viewModel.channels,
                             sectionTitle: R.string.localizable.generalTopics(),
                             sectionIconName: "bubble.left.fill")
-                        MixedMessageSection(
-                            viewModel: viewModel,
-                            conversations: $viewModel.recents,
-                            sectionTitle: R.string.localizable.recentsSection(),
-                            sectionIconName: "clock.fill")
                         MessageSection(
                             viewModel: viewModel,
                             conversations: $viewModel.exercises,
@@ -205,7 +200,7 @@ public struct MessagesAvailableView: View {
     @ViewBuilder var filterBar: some View {
         let nonNeededFilters = ConversationFilter.allCases.filter { filter in
             viewModel.allConversations.value?.contains(where: { conversation in
-                filter.matches(conversation.baseConversation)
+                filter.matches(conversation.baseConversation, course: viewModel.course)
             }) ?? false == false
         }
         if nonNeededFilters.count < 2 {
