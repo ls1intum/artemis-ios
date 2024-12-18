@@ -73,6 +73,11 @@ public struct MessagesAvailableView: View {
                             conversations: $viewModel.channels,
                             sectionTitle: R.string.localizable.generalTopics(),
                             sectionIconName: "bubble.left.fill")
+                        MixedMessageSection(
+                            viewModel: viewModel,
+                            conversations: $viewModel.recents,
+                            sectionTitle: R.string.localizable.recentsSection(),
+                            sectionIconName: "clock.fill")
                         MessageSection(
                             viewModel: viewModel,
                             conversations: $viewModel.exercises,

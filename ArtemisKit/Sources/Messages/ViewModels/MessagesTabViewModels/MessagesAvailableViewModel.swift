@@ -33,6 +33,7 @@ class MessagesAvailableViewModel: BaseViewModel {
 
     @Published var favoriteConversations: DataState<[Conversation]> = .loading
 
+    @Published var recents: DataState<[Conversation]> = .loading
     @Published var channels: DataState<[Channel]> = .loading
     @Published var exercises: DataState<[Channel]> = .loading
     @Published var lectures: DataState<[Channel]> = .loading
@@ -199,6 +200,7 @@ class MessagesAvailableViewModel: BaseViewModel {
 
             hiddenConversations = .loading
 
+            recents = .loading
             channels = .loading
             exercises = .loading
             lectures = .loading
@@ -210,6 +212,7 @@ class MessagesAvailableViewModel: BaseViewModel {
 
             hiddenConversations = .failure(error: error)
 
+            recents = .failure(error: error)
             channels = .failure(error: error)
             exercises = .failure(error: error)
             lectures = .failure(error: error)
@@ -246,31 +249,52 @@ class MessagesAvailableViewModel: BaseViewModel {
                 return
             }
 
-            let notHiddenNotFavoriteConversations = notHiddenConversations.filter {
-                !($0.baseConversation.isFavorite ?? false)
-            }
+            recents = .done(response: notHiddenConversations
+                .compactMap { $0.baseConversation as? Channel }
+                .filter { channel in
+                    let exercise = course.exercises?.first { $0.id == channel.subTypeReferenceId }
+                    let lecture = course.lectures?.first { $0.id == channel.subTypeReferenceId }
+                    let dateStart = Date.now.addingTimeInterval(-3 * 24 * 60 * 60)
+                    let dateEnd = Date.now.addingTimeInterval(10 * 24 * 60 * 60)
+                    let range = dateStart...dateEnd
 
-            channels = .done(response: notHiddenNotFavoriteConversations
+                    if let exercise {
+                        let start = exercise.baseExercise.releaseDate ?? .distantPast
+                        let end = exercise.baseExercise.dueDate ?? .distantFuture
+                        return range.contains(start) || range.contains(end)
+                    }
+                    if let lecture {
+                        let start = lecture.startDate ?? .distantPast
+                        let end = lecture.endDate ?? .distantFuture
+                        return range.contains(start) || range.contains(end)
+                    }
+
+                    return false
+                }
+                .filter { filter.matches($0) }
+                .compactMap { Conversation(conversation: $0) }
+            )
+            channels = .done(response: notHiddenConversations
                 .compactMap { $0.baseConversation as? Channel }
                 .filter { ($0.subType ?? .general) == .general && filter.matches($0) }
             )
-            exercises = .done(response: notHiddenNotFavoriteConversations
+            exercises = .done(response: notHiddenConversations
                 .compactMap { $0.baseConversation as? Channel }
                 .filter { ($0.subType ?? .general) == .exercise && filter.matches($0) }
             )
-            lectures = .done(response: notHiddenNotFavoriteConversations
+            lectures = .done(response: notHiddenConversations
                 .compactMap { $0.baseConversation as? Channel }
                 .filter { ($0.subType ?? .general) == .lecture && filter.matches($0) }
             )
-            exams = .done(response: notHiddenNotFavoriteConversations
+            exams = .done(response: notHiddenConversations
                 .compactMap { $0.baseConversation as? Channel }
                 .filter { ($0.subType ?? .general) == .exam && filter.matches($0) }
             )
-            groupChats = .done(response: notHiddenNotFavoriteConversations
+            groupChats = .done(response: notHiddenConversations
                 .compactMap { $0.baseConversation as? GroupChat }
                 .filter { filter.matches($0) }
             )
-            oneToOneChats = .done(response: notHiddenNotFavoriteConversations
+            oneToOneChats = .done(response: notHiddenConversations
                 .compactMap { $0.baseConversation as? OneToOneChat }
                 .filter { filter.matches($0) }
             )
