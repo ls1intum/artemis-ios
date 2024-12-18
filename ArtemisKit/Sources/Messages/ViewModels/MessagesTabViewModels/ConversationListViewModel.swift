@@ -5,6 +5,7 @@
 //  Created by Anian Schleyer on 18.12.24.
 //
 
+import Combine
 import SharedModels
 import SwiftUI
 
@@ -27,27 +28,47 @@ class ConversationListViewModel {
 
     var hiddenConversations = [Conversation]()
 
+    var cancellables = Set<AnyCancellable>()
+
     init(parentViewModel: MessagesAvailableViewModel, conversations: [Conversation]) {
         self.parentViewModel = parentViewModel
         self.conversations = conversations
-        registerObservationTracking()
+        trackFilterUpdates()
+        trackConversationUpdates()
         updateConversations()
     }
 
     /// Track updates to `filter` and call `updateConversations()` on change
-    private func registerObservationTracking() {
+    private func trackFilterUpdates() {
         withObservationTracking {
             _ = filter
         } onChange: { [weak self] in
             DispatchQueue.main.async { [weak self] in
-                withAnimation { [weak self] in
+                withAnimation {
                     self?.updateConversations()
                 }
-                self?.registerObservationTracking()
+                self?.trackFilterUpdates()
             }
         }
     }
 
+    /// Track updates to `parentViewModel.allConversations` and call `updateConversations()` on change
+    private func trackConversationUpdates() {
+        parentViewModel.$allConversations
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] updated in
+                if let newValue = updated.value,
+                   newValue != self?.conversations {
+                    withAnimation {
+                        self?.conversations = newValue
+                        self?.updateConversations()
+                    }
+                }
+            }.store(in: &cancellables)
+    }
+
+    /// Update list of conversations to show correct ones
     private func updateConversations() {
         let course = parentViewModel.course
 
@@ -90,6 +111,7 @@ class ConversationListViewModel {
             .filter { $0.baseConversation.isHidden ?? false && filter.matches($0.baseConversation, course: course) }
     }
 
+    /// Reset filter to all if there are no more matches
     private func updateFilter() {
         let course = parentViewModel.course
         // Turn off filter if no matches exist
