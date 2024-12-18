@@ -221,7 +221,7 @@ extension SendMessageViewModel {
     func insertImageMention(path: String) {
         appendToSelection(before: "![", after: "](\(path))", placeholder: "image")
     }
-   
+
     func insertFileMention(path: String, fileName: String) {
         appendToSelection(before: "[", after: "](\(path))", placeholder: fileName)
     }

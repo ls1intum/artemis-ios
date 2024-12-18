@@ -35,7 +35,7 @@ class CreateChatViewModel: BaseViewModel {
     func loadUsers() async {
         searchResults = await MessagesServiceFactory.shared.searchForUsers(for: courseId, searchText: searchText)
     }
-    
+
     func stage(user: ConversationUser) {
         if !selectedUsers.contains(user) {
             selectedUsers.append(user)
