@@ -8,67 +8,114 @@
 import DesignLibrary
 import SharedModels
 import SwiftUI
+import Navigation
 
 struct ConversationListView: View {
     @State var viewModel: ConversationListViewModel
+    @Binding var selectedConversation: ConversationPath?
 
-    init(viewModel: MessagesAvailableViewModel, conversations: [Conversation]) {
+    init(viewModel: MessagesAvailableViewModel,
+         conversations: [Conversation],
+         selectedConversation: Binding<ConversationPath?>) {
         _viewModel = State(initialValue: .init(parentViewModel: viewModel, conversations: conversations))
+        _selectedConversation = selectedConversation
     }
 
     var body: some View {
-        filterBar
+        List(selection: $selectedConversation) {
+            if !viewModel.searchText.isEmpty {
+                if viewModel.searchResults.isEmpty {
+                    ContentUnavailableView.search
+                }
+                ForEach(viewModel.searchResults) { conversation in
+                    if let channel = conversation.baseConversation as? Channel {
+                        ConversationRow(viewModel: viewModel.parentViewModel, conversation: channel)
+                    }
+                    if let groupChat = conversation.baseConversation as? GroupChat {
+                        ConversationRow(viewModel: viewModel.parentViewModel, conversation: groupChat)
+                    }
+                    if let oneToOneChat = conversation.baseConversation as? OneToOneChat {
+                        ConversationRow(viewModel: viewModel.parentViewModel, conversation: oneToOneChat)
+                    }
+                }.listRowBackground(Color.clear)
+            } else {
+                filterBar
 
-        Group {
-            MixedMessageSection(
-                viewModel: viewModel.parentViewModel,
-                conversations: viewModel.favoriteConversations,
-                sectionTitle: R.string.localizable.favoritesSection(),
-                sectionIconName: "heart.fill")
-            MessageSection(
-                viewModel: viewModel,
-                conversations: viewModel.channels,
-                sectionTitle: R.string.localizable.generalTopics(),
-                sectionIconName: "bubble.left.fill")
-            MessageSection(
-                viewModel: viewModel,
-                conversations: viewModel.exercises,
-                sectionTitle: R.string.localizable.exercises(),
-                sectionIconName: "list.bullet",
-                isExpanded: false)
-            MessageSection(
-                viewModel: viewModel,
-                conversations: viewModel.lectures,
-                sectionTitle: R.string.localizable.lectures(),
-                sectionIconName: "doc.fill",
-                isExpanded: false)
-            MessageSection(
-                viewModel: viewModel,
-                conversations: viewModel.exams,
-                sectionTitle: R.string.localizable.exams(),
-                sectionIconName: "graduationcap.fill",
-                isExpanded: false)
-            if viewModel.parentViewModel.isDirectMessagingEnabled {
-                MessageSection(
-                    viewModel: viewModel,
-                    conversations: viewModel.groupChats,
-                    sectionTitle: R.string.localizable.groupChats(),
-                    sectionIconName: "bubble.left.and.bubble.right.fill")
-                MessageSection(
-                    viewModel: viewModel,
-                    conversations: viewModel.oneToOneChats,
-                    sectionTitle: R.string.localizable.directMessages(),
-                    sectionIconName: "bubble.left.fill")
+                Group {
+                    MixedMessageSection(
+                        viewModel: viewModel.parentViewModel,
+                        conversations: viewModel.favoriteConversations,
+                        sectionTitle: R.string.localizable.favoritesSection(),
+                        sectionIconName: "heart.fill")
+                    MessageSection(
+                        viewModel: viewModel,
+                        conversations: viewModel.channels,
+                        sectionTitle: R.string.localizable.generalTopics(),
+                        sectionIconName: "bubble.left.fill")
+                    MessageSection(
+                        viewModel: viewModel,
+                        conversations: viewModel.exercises,
+                        sectionTitle: R.string.localizable.exercises(),
+                        sectionIconName: "list.bullet",
+                        isExpanded: false)
+                    MessageSection(
+                        viewModel: viewModel,
+                        conversations: viewModel.lectures,
+                        sectionTitle: R.string.localizable.lectures(),
+                        sectionIconName: "doc.fill",
+                        isExpanded: false)
+                    MessageSection(
+                        viewModel: viewModel,
+                        conversations: viewModel.exams,
+                        sectionTitle: R.string.localizable.exams(),
+                        sectionIconName: "graduationcap.fill",
+                        isExpanded: false)
+                    if viewModel.parentViewModel.isDirectMessagingEnabled {
+                        MessageSection(
+                            viewModel: viewModel,
+                            conversations: viewModel.groupChats,
+                            sectionTitle: R.string.localizable.groupChats(),
+                            sectionIconName: "bubble.left.and.bubble.right.fill")
+                        MessageSection(
+                            viewModel: viewModel,
+                            conversations: viewModel.oneToOneChats,
+                            sectionTitle: R.string.localizable.directMessages(),
+                            sectionIconName: "bubble.left.fill")
+                    }
+                    MixedMessageSection(
+                        viewModel: viewModel.parentViewModel,
+                        conversations: viewModel.hiddenConversations,
+                        sectionTitle: R.string.localizable.hiddenSection(),
+                        sectionIconName: "nosign",
+                        isExpanded: false)
+                }
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets(top: 0, leading: .s, bottom: 0, trailing: .s))
+
+                HStack {
+                    Spacer()
+                    Button {
+                        viewModel.parentViewModel.isCodeOfConductPresented = true
+                    } label: {
+                        HStack {
+                            Image(systemName: "info.circle")
+                            Text(R.string.localizable.codeOfConduct())
+                        }
+                    }
+                    Spacer()
+                }
+                .listRowBackground(Color.clear)
+
+                // Empty row so that there is always space for floating button
+                Spacer()
+                    .listRowBackground(Color.clear)
             }
-            MixedMessageSection(
-                viewModel: viewModel.parentViewModel,
-                conversations: viewModel.hiddenConversations,
-                sectionTitle: R.string.localizable.hiddenSection(),
-                sectionIconName: "nosign",
-                isExpanded: false)
         }
-        .listRowBackground(Color.clear)
-        .listRowInsets(EdgeInsets(top: 0, leading: .s, bottom: 0, trailing: .s))
+        .searchable(text: $viewModel.searchText)
+        .overlay(alignment: .bottomTrailing) {
+            CreateOrAddChannelButton(viewModel: viewModel.parentViewModel)
+                .padding()
+        }
     }
 
     @ViewBuilder var filterBar: some View {

@@ -16,6 +16,7 @@ class ConversationListViewModel {
     let parentViewModel: MessagesAvailableViewModel
 
     var filter: ConversationFilter = .all
+    var searchText = ""
 
     var conversations: [Conversation]
     var favoriteConversations = [Conversation]()
@@ -28,6 +29,12 @@ class ConversationListViewModel {
     var oneToOneChats = [OneToOneChat]()
 
     var hiddenConversations = [Conversation]()
+
+    var searchResults: [Conversation] {
+        conversations.filter {
+            $0.baseConversation.conversationName.localizedStandardContains(searchText)
+        }
+    }
 
     var cancellables = Set<AnyCancellable>()
 

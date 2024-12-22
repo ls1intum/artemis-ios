@@ -20,17 +20,6 @@ public struct MessagesAvailableView: View {
 
     @State var columnVisibilty: NavigationSplitViewVisibility = .doubleColumn
 
-    @State private var searchText = ""
-
-    private var searchResults: [Conversation] {
-        if searchText.isEmpty {
-            return []
-        }
-        return (viewModel.allConversations.value ?? []).filter {
-            $0.baseConversation.conversationName.lowercased().contains(searchText.lowercased())
-        }
-    }
-
     private var selectedConversation: Binding<ConversationPath?> {
         navController.selectedPathBinding($navController.selectedPath)
     }
@@ -41,53 +30,16 @@ public struct MessagesAvailableView: View {
 
     public var body: some View {
         NavigationSplitView(columnVisibility: $columnVisibilty) {
-            List(selection: selectedConversation) {
-                if !searchText.isEmpty {
-                    if searchResults.isEmpty {
-                        ContentUnavailableView.search
-                    }
-                    ForEach(searchResults) { conversation in
-                        if let channel = conversation.baseConversation as? Channel {
-                            ConversationRow(viewModel: viewModel, conversation: channel)
-                        }
-                        if let groupChat = conversation.baseConversation as? GroupChat {
-                            ConversationRow(viewModel: viewModel, conversation: groupChat)
-                        }
-                        if let oneToOneChat = conversation.baseConversation as? OneToOneChat {
-                            ConversationRow(viewModel: viewModel, conversation: oneToOneChat)
-                        }
-                    }.listRowBackground(Color.clear)
-                } else {
-                    DataStateView(data: $viewModel.allConversations) {
-                        await viewModel.loadConversations()
-                    } content: { conversations in
-                        ConversationListView(viewModel: viewModel,
-                                             conversations: conversations)
-                    }
-
-                    HStack {
-                        Spacer()
-                        Button {
-                            viewModel.isCodeOfConductPresented = true
-                        } label: {
-                            HStack {
-                                Image(systemName: "info.circle")
-                                Text(R.string.localizable.codeOfConduct())
-                            }
-                        }
-                        Spacer()
-                    }
-                    .listRowBackground(Color.clear)
-
-                    // Empty row so that there is always space for floating button
-                    Spacer()
-                        .listRowBackground(Color.clear)
-                }
+            DataStateView(data: $viewModel.allConversations) {
+                await viewModel.loadConversations()
+            } content: { conversations in
+                ConversationListView(viewModel: viewModel,
+                                     conversations: conversations,
+                                     selectedConversation: selectedConversation)
             }
             .scrollContentBackground(.hidden)
             .listRowSpacing(0.01)
             .listSectionSpacing(.compact)
-            .searchable(text: $searchText)
             .refreshable {
                 await viewModel.loadConversations()
             }
@@ -96,10 +48,6 @@ public struct MessagesAvailableView: View {
             }
             .task {
                 await viewModel.subscribeToConversationMembershipTopic()
-            }
-            .overlay(alignment: .bottomTrailing) {
-                CreateOrAddChannelButton(viewModel: viewModel)
-                    .padding()
             }
             .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
             .loadingIndicator(isLoading: $viewModel.isLoading)
