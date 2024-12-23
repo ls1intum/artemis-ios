@@ -11,17 +11,18 @@ import SwiftUI
 
 struct ConversationRow<T: BaseConversation>: View {
 
+    @Environment(\.commonChannelNamePrefix) var namePrefix
+    @Environment(\.showFavoriteIcon) var showFavoriteIcon
     @Environment(\.horizontalSizeClass) var sizeClass
     @EnvironmentObject var navigationController: NavigationController
 
     @ObservedObject var viewModel: MessagesAvailableViewModel
 
     let conversation: T
-    var namePrefix: String?
 
     var conversationDisplayName: String {
         let conversationName = conversation.conversationName
-        guard let namePrefix, !namePrefix.isEmpty else {
+        guard !namePrefix.isEmpty else {
             return conversationName
         }
         if conversationName.hasPrefix(namePrefix) {
@@ -98,6 +99,16 @@ private extension ConversationRow {
                             .offset(x: .s, y: .xs * -1)
                     }
                 }
+                .overlay(alignment: .bottomTrailing) {
+                    if conversation.isFavorite ?? false && showFavoriteIcon {
+                        Image(systemName: "heart.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .foregroundStyle(.orange)
+                            .frame(width: .m, height: .m)
+                            .offset(x: .s, y: .s)
+                    }
+                }
         }
     }
 }
@@ -134,5 +145,34 @@ private extension ConversationRow {
     @ViewBuilder var contextMenuItems: some View {
         favoriteButton
         hideAndMuteButtons
+    }
+}
+
+// MARK: Environment Values
+
+private enum ConversationRowPrefixEnvironmentKey: EnvironmentKey {
+    static let defaultValue = ""
+}
+
+private enum ConversationRowFavoriteIconEnvironmentKey: EnvironmentKey {
+    static let defaultValue = true
+}
+
+extension EnvironmentValues {
+    var commonChannelNamePrefix: String {
+        get {
+            self[ConversationRowPrefixEnvironmentKey.self]
+        }
+        set {
+            self[ConversationRowPrefixEnvironmentKey.self] = newValue
+        }
+    }
+    var showFavoriteIcon: Bool {
+        get {
+            self[ConversationRowFavoriteIconEnvironmentKey.self]
+        }
+        set {
+            self[ConversationRowFavoriteIconEnvironmentKey.self] = newValue
+        }
     }
 }
