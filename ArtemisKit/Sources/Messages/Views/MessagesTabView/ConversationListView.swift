@@ -28,15 +28,7 @@ struct ConversationListView: View {
                     ContentUnavailableView.search
                 }
                 ForEach(viewModel.searchResults) { conversation in
-                    if let channel = conversation.baseConversation as? Channel {
-                        ConversationRow(viewModel: viewModel.parentViewModel, conversation: channel)
-                    }
-                    if let groupChat = conversation.baseConversation as? GroupChat {
-                        ConversationRow(viewModel: viewModel.parentViewModel, conversation: groupChat)
-                    }
-                    if let oneToOneChat = conversation.baseConversation as? OneToOneChat {
-                        ConversationRow(viewModel: viewModel.parentViewModel, conversation: oneToOneChat)
-                    }
+                    ConversationRow(viewModel: viewModel.parentViewModel, conversation: conversation.baseConversation)
                 }.listRowBackground(Color.clear)
             } else {
                 filterBar
