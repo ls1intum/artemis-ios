@@ -19,7 +19,7 @@ class ConversationListViewModel {
     var searchText = ""
 
     var conversations: [Conversation]
-    var favoriteConversations = [Conversation]()
+    var favoriteConversations = [BaseConversation]()
 
     var channels = [Channel]()
     var exercises = [Channel]()
@@ -28,7 +28,7 @@ class ConversationListViewModel {
     var groupChats = [GroupChat]()
     var oneToOneChats = [OneToOneChat]()
 
-    var hiddenConversations = [Conversation]()
+    var hiddenConversations = [BaseConversation]()
 
     var searchResults: [Conversation] {
         conversations.filter {
@@ -87,8 +87,9 @@ class ConversationListViewModel {
         }
 
         favoriteConversations = notHiddenConversations
+            .map { $0.baseConversation }
             .filter {
-                $0.baseConversation.isFavorite ?? false && filter.matches($0.baseConversation, course: course)
+                $0.isFavorite ?? false && filter.matches($0, course: course)
             }
 
         channels = notHiddenConversations
@@ -116,7 +117,8 @@ class ConversationListViewModel {
             .filter { filter.matches($0, course: course) }
 
         hiddenConversations = conversations
-            .filter { $0.baseConversation.isHidden ?? false && filter.matches($0.baseConversation, course: course) }
+            .map { $0.baseConversation }
+            .filter { $0.isHidden ?? false && filter.matches($0, course: course) }
     }
 
     /// Reset filter to all if there are no more matches

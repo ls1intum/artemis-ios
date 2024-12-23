@@ -28,25 +28,18 @@ struct ConversationListView: View {
                     ContentUnavailableView.search
                 }
                 ForEach(viewModel.searchResults) { conversation in
-                    if let channel = conversation.baseConversation as? Channel {
-                        ConversationRow(viewModel: viewModel.parentViewModel, conversation: channel)
-                    }
-                    if let groupChat = conversation.baseConversation as? GroupChat {
-                        ConversationRow(viewModel: viewModel.parentViewModel, conversation: groupChat)
-                    }
-                    if let oneToOneChat = conversation.baseConversation as? OneToOneChat {
-                        ConversationRow(viewModel: viewModel.parentViewModel, conversation: oneToOneChat)
-                    }
+                    ConversationRow(viewModel: viewModel.parentViewModel, conversation: conversation.baseConversation)
                 }.listRowBackground(Color.clear)
             } else {
                 filterBar
 
                 Group {
-                    MixedMessageSection(
-                        viewModel: viewModel.parentViewModel,
+                    MessageSection(
+                        viewModel: viewModel,
                         conversations: viewModel.favoriteConversations,
                         sectionTitle: R.string.localizable.favoritesSection(),
-                        sectionIconName: "heart.fill")
+                        sectionIconName: "heart.fill",
+                        hidePrefixes: false)
                     .environment(\.showFavoriteIcon, false)
                     MessageSection(
                         viewModel: viewModel,
@@ -83,12 +76,13 @@ struct ConversationListView: View {
                             sectionTitle: R.string.localizable.directMessages(),
                             sectionIconName: "bubble.left.fill")
                     }
-                    MixedMessageSection(
-                        viewModel: viewModel.parentViewModel,
+                    MessageSection(
+                        viewModel: viewModel,
                         conversations: viewModel.hiddenConversations,
                         sectionTitle: R.string.localizable.hiddenSection(),
                         sectionIconName: "nosign",
-                        isExpanded: false)
+                        isExpanded: false,
+                        hidePrefixes: false)
                 }
                 .listRowBackground(Color.clear)
                 .listRowInsets(EdgeInsets(top: 0, leading: .s, bottom: 0, trailing: .s))
@@ -132,69 +126,6 @@ struct ConversationListView: View {
     }
 }
 
-private struct MixedMessageSection: View {
-
-    @ObservedObject private var viewModel: MessagesAvailableViewModel
-
-    private var conversations: [Conversation]
-
-    @State private var isExpanded = true
-
-    private let sectionTitle: String
-    private let sectionIconName: String
-
-    init(
-        viewModel: MessagesAvailableViewModel,
-        conversations: [Conversation],
-        sectionTitle: String,
-        sectionIconName: String,
-        isExpanded: Bool = true
-    ) {
-        self.viewModel = viewModel
-        self.conversations = conversations
-        self.sectionTitle = sectionTitle
-        self.sectionIconName = sectionIconName
-        self._isExpanded = State(wrappedValue: isExpanded)
-    }
-
-    var sectionUnreadCount: Int {
-        conversations.reduce(0) {
-            $0 + ($1.baseConversation.unreadMessagesCount ?? 0)
-        }
-    }
-
-    var body: some View {
-        if !conversations.isEmpty {
-            Section {
-                DisclosureGroup(isExpanded: $isExpanded) {
-                    ForEach(
-                        conversations.sorted {
-                            // Show non-muted conversations above muted ones
-                            ($0.baseConversation.isMuted ?? false ? 0 : 1) > ($1.baseConversation.isMuted ?? false ? 0 : 1)
-                        }
-                    ) { conversation in
-                        if let channel = conversation.baseConversation as? Channel {
-                            ConversationRow(viewModel: viewModel, conversation: channel)
-                        }
-                        if let groupChat = conversation.baseConversation as? GroupChat {
-                            ConversationRow(viewModel: viewModel, conversation: groupChat)
-                        }
-                        if let oneToOneChat = conversation.baseConversation as? OneToOneChat {
-                            ConversationRow(viewModel: viewModel, conversation: oneToOneChat)
-                        }
-                    }
-                } label: {
-                    SectionDisclosureLabel(
-                        sectionTitle: sectionTitle,
-                        sectionIconName: sectionIconName,
-                        sectionUnreadCount: sectionUnreadCount,
-                        isUnreadCountVisible: !isExpanded)
-                }
-            }
-        }
-    }
-}
-
 private struct SectionDisclosureLabel: View {
 
     let sectionTitle: String
@@ -232,17 +163,18 @@ private struct SectionDisclosureLabel: View {
     }
 }
 
-private struct MessageSection<T: BaseConversation>: View {
+private struct MessageSection: View {
 
     var viewModel: ConversationListViewModel
 
-    private var conversations: [T]
+    private var conversations: [BaseConversation]
 
     @State private var isExpanded = true
     @State private var isFiltering = false
 
     let sectionTitle: String
     let sectionIconName: String
+    let hidePrefixes: Bool
 
     var sectionUnreadCount: Int {
         conversations.reduce(0) {
@@ -252,16 +184,18 @@ private struct MessageSection<T: BaseConversation>: View {
 
     init(
         viewModel: ConversationListViewModel,
-        conversations: [T],
+        conversations: [BaseConversation],
         sectionTitle: String,
         sectionIconName: String,
-        isExpanded: Bool = true
+        isExpanded: Bool = true,
+        hidePrefixes: Bool = true
     ) {
         self.viewModel = viewModel
         self.conversations = conversations
         self.sectionTitle = sectionTitle
         self.sectionIconName = sectionIconName
         self._isExpanded = State(wrappedValue: isExpanded)
+        self.hidePrefixes = hidePrefixes
     }
 
     var body: some View {
@@ -283,8 +217,8 @@ private struct MessageSection<T: BaseConversation>: View {
                         id: \.id
                     ) { conversation in
                         ConversationRow(viewModel: viewModel.parentViewModel,
-                                        conversation: conversation)
-                        .environment(\.commonChannelNamePrefix, namePrefix(of: conversation))
+                                        conversation: conversation,
+                                        namePrefix: namePrefix(of: conversation))
                     }
                 } label: {
                     SectionDisclosureLabel(
@@ -301,9 +235,12 @@ private struct MessageSection<T: BaseConversation>: View {
     }
 
     /// Returns prefix used for channels of certain SubType if applicable
-    func namePrefix(of conversation: T) -> String {
-        guard let channel = conversation as? Channel else { return "" }
-        guard let subType = channel.subType?.rawValue else { return "" }
+    func namePrefix(of conversation: BaseConversation) -> String? {
+        guard hidePrefixes,
+              let channel = conversation as? Channel,
+              let subType = channel.subType?.rawValue else {
+            return nil
+        }
         return "\(subType)-"
     }
 }

@@ -9,20 +9,20 @@ import Navigation
 import SharedModels
 import SwiftUI
 
-struct ConversationRow<T: BaseConversation>: View {
+struct ConversationRow: View {
 
-    @Environment(\.commonChannelNamePrefix) var namePrefix
     @Environment(\.showFavoriteIcon) var showFavoriteIcon
     @Environment(\.horizontalSizeClass) var sizeClass
     @EnvironmentObject var navigationController: NavigationController
 
     @ObservedObject var viewModel: MessagesAvailableViewModel
 
-    let conversation: T
+    let conversation: BaseConversation
+    var namePrefix: String?
 
     var conversationDisplayName: String {
         let conversationName = conversation.conversationName
-        guard !namePrefix.isEmpty else {
+        guard let namePrefix, !namePrefix.isEmpty else {
             return conversationName
         }
         if conversationName.hasPrefix(namePrefix) {
@@ -150,23 +150,11 @@ private extension ConversationRow {
 
 // MARK: Environment Values
 
-private enum ConversationRowPrefixEnvironmentKey: EnvironmentKey {
-    static let defaultValue = ""
-}
-
 private enum ConversationRowFavoriteIconKey: EnvironmentKey {
     static let defaultValue = true
 }
 
 extension EnvironmentValues {
-    var commonChannelNamePrefix: String {
-        get {
-            self[ConversationRowPrefixEnvironmentKey.self]
-        }
-        set {
-            self[ConversationRowPrefixEnvironmentKey.self] = newValue
-        }
-    }
     var showFavoriteIcon: Bool {
         get {
             self[ConversationRowFavoriteIconKey.self]
