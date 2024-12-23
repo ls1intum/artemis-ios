@@ -87,10 +87,10 @@ class ConversationListViewModel {
         }
 
         favoriteConversations = notHiddenConversations
-            .filter {
-                $0.baseConversation.isFavorite ?? false && filter.matches($0.baseConversation, course: course)
-            }
             .map { $0.baseConversation }
+            .filter {
+                $0.isFavorite ?? false && filter.matches($0, course: course)
+            }
 
         channels = notHiddenConversations
             .compactMap { $0.baseConversation as? Channel }
@@ -117,8 +117,8 @@ class ConversationListViewModel {
             .filter { filter.matches($0, course: course) }
 
         hiddenConversations = conversations
-            .filter { $0.baseConversation.isHidden ?? false && filter.matches($0.baseConversation, course: course) }
             .map { $0.baseConversation }
+            .filter { $0.isHidden ?? false && filter.matches($0, course: course) }
     }
 
     /// Reset filter to all if there are no more matches
