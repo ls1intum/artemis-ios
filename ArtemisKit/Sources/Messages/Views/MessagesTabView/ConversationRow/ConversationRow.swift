@@ -154,7 +154,7 @@ private enum ConversationRowPrefixEnvironmentKey: EnvironmentKey {
     static let defaultValue = ""
 }
 
-private enum ConversationRowFavoriteIconEnvironmentKey: EnvironmentKey {
+private enum ConversationRowFavoriteIconKey: EnvironmentKey {
     static let defaultValue = true
 }
 
@@ -169,10 +169,10 @@ extension EnvironmentValues {
     }
     var showFavoriteIcon: Bool {
         get {
-            self[ConversationRowFavoriteIconEnvironmentKey.self]
+            self[ConversationRowFavoriteIconKey.self]
         }
         set {
-            self[ConversationRowFavoriteIconEnvironmentKey.self] = newValue
+            self[ConversationRowFavoriteIconKey.self] = newValue
         }
     }
 }
