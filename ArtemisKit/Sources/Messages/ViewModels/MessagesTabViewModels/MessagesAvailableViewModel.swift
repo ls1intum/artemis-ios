@@ -8,7 +8,6 @@
 import APIClient
 import Combine
 import Common
-import DesignLibrary
 import Foundation
 import SharedModels
 import SwiftUI
@@ -17,30 +16,8 @@ import UserStore
 @MainActor
 class MessagesAvailableViewModel: BaseViewModel {
 
-    @Published var allConversations: DataState<[Conversation]> = .loading {
-        didSet {
-            updateFilteredConversations()
-        }
-    }
-
-    @Published var filter: ConversationFilter = .all {
-        didSet {
-            withAnimation {
-                updateFilteredConversations()
-            }
-        }
-    }
-
-    @Published var favoriteConversations: DataState<[Conversation]> = .loading
-
-    @Published var channels: DataState<[Channel]> = .loading
-    @Published var exercises: DataState<[Channel]> = .loading
-    @Published var lectures: DataState<[Channel]> = .loading
-    @Published var exams: DataState<[Channel]> = .loading
-    @Published var groupChats: DataState<[GroupChat]> = .loading
-    @Published var oneToOneChats: DataState<[OneToOneChat]> = .loading
-
-    @Published var hiddenConversations: DataState<[Conversation]> = .loading
+    @Published var allConversations: DataState<[Conversation]> = .loading
+    @Published var isCodeOfConductPresented = false
 
     var isDirectMessagingEnabled: Bool {
         course.courseInformationSharingConfiguration == .communicationAndMessaging
@@ -191,78 +168,6 @@ class MessagesAvailableViewModel: BaseViewModel {
             }
         }
     }
-
-    private func updateFilteredConversations() {
-        switch allConversations {
-        case .loading:
-            favoriteConversations = .loading
-
-            hiddenConversations = .loading
-
-            channels = .loading
-            exercises = .loading
-            lectures = .loading
-            exams = .loading
-            groupChats = .loading
-            oneToOneChats = .loading
-        case .failure(let error):
-            favoriteConversations = .failure(error: error)
-
-            hiddenConversations = .failure(error: error)
-
-            channels = .failure(error: error)
-            exercises = .failure(error: error)
-            lectures = .failure(error: error)
-            exams = .failure(error: error)
-            groupChats = .failure(error: error)
-            oneToOneChats = .failure(error: error)
-        case .done(let response):
-            let notHiddenConversations = response.filter {
-                !($0.baseConversation.isHidden ?? false)
-            }
-
-            // Turn off filter if no unread/favorites exist
-            if !response.contains(where: { conversation in
-                conversation.baseConversation.unreadMessagesCount ?? 0 > 0
-            }) && !notHiddenConversations.contains(where: { conversation in
-                conversation.baseConversation.isFavorite ?? false
-            }) && filter != .all {
-                filter = .all
-            }
-
-            favoriteConversations = .done(response: notHiddenConversations
-                .filter { $0.baseConversation.isFavorite ?? false && filter.matches($0.baseConversation, course: course) }
-            )
-
-            channels = .done(response: notHiddenConversations
-                .compactMap { $0.baseConversation as? Channel }
-                .filter { ($0.subType ?? .general) == .general && filter.matches($0, course: course) }
-            )
-            exercises = .done(response: notHiddenConversations
-                .compactMap { $0.baseConversation as? Channel }
-                .filter { ($0.subType ?? .general) == .exercise && filter.matches($0, course: course) }
-            )
-            lectures = .done(response: notHiddenConversations
-                .compactMap { $0.baseConversation as? Channel }
-                .filter { ($0.subType ?? .general) == .lecture && filter.matches($0, course: course) }
-            )
-            exams = .done(response: notHiddenConversations
-                .compactMap { $0.baseConversation as? Channel }
-                .filter { ($0.subType ?? .general) == .exam && filter.matches($0, course: course) }
-            )
-            groupChats = .done(response: notHiddenConversations
-                .compactMap { $0.baseConversation as? GroupChat }
-                .filter { filter.matches($0, course: course) }
-            )
-            oneToOneChats = .done(response: notHiddenConversations
-                .compactMap { $0.baseConversation as? OneToOneChat }
-                .filter { filter.matches($0, course: course) }
-            )
-            hiddenConversations = .done(response: response
-                .filter { $0.baseConversation.isHidden ?? false && filter.matches($0.baseConversation, course: course) }
-            )
-        }
-    }
 }
 
 // MARK: Functions to handle new conversation received socket
@@ -326,84 +231,6 @@ private extension MessagesAvailableViewModel {
         conversations[conversationIndex] = updatedConversation
 
         allConversations = .done(response: conversations)
-    }
-}
-
-enum ConversationFilter: FilterPicker {
-
-    case all, unread, recent
-
-    var displayName: String {
-        return switch self {
-        case .all:
-            R.string.localizable.allFilter()
-        case .unread:
-            R.string.localizable.unreadFilter()
-        case .recent:
-            R.string.localizable.recentFilter()
-        }
-    }
-
-    var iconName: String {
-        return switch self {
-        case .all:
-            "tray.2"
-        case .unread:
-            "app.badge"
-        case .recent:
-            "clock"
-        }
-    }
-
-    var selectedColor: Color {
-        return switch self {
-        case .all:
-            Color.blue
-        case .unread:
-            Color.indigo
-        case .recent:
-            Color.orange
-        }
-    }
-
-    var id: Int {
-        hashValue
-    }
-
-    func matches(_ conversation: BaseConversation, course: Course) -> Bool {
-        switch self {
-        case .all:
-            true
-        case .unread:
-            conversation.unreadMessagesCount ?? 0 > 0
-        case .recent:
-            isRecent(channel: conversation, course: course)
-        }
-    }
-
-    private func isRecent(channel: BaseConversation, course: Course) -> Bool {
-        guard let channel = channel as? Channel else {
-            return false
-        }
-
-        let exercise = course.exercises?.first { $0.id == channel.subTypeReferenceId }
-        let lecture = course.lectures?.first { $0.id == channel.subTypeReferenceId }
-        let dateStart = Date.now.addingTimeInterval(-5 * 24 * 60 * 60)
-        let dateEnd = Date.now.addingTimeInterval(10 * 24 * 60 * 60)
-        let range = dateStart...dateEnd
-
-        if let exercise {
-            let start = exercise.baseExercise.releaseDate ?? .distantPast
-            let end = exercise.baseExercise.dueDate ?? .distantFuture
-            return range.contains(start) || range.contains(end)
-        }
-        if let lecture {
-            let start = lecture.startDate ?? .distantPast
-            let end = lecture.endDate ?? .distantFuture
-            return range.contains(start) || range.contains(end)
-        }
-
-        return false
     }
 }
 
