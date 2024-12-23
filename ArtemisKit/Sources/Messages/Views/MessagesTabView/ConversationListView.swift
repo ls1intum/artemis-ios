@@ -47,6 +47,7 @@ struct ConversationListView: View {
                         conversations: viewModel.favoriteConversations,
                         sectionTitle: R.string.localizable.favoritesSection(),
                         sectionIconName: "heart.fill")
+                    .environment(\.showFavoriteIcon, false)
                     MessageSection(
                         viewModel: viewModel,
                         conversations: viewModel.channels,
@@ -282,8 +283,8 @@ private struct MessageSection<T: BaseConversation>: View {
                         id: \.id
                     ) { conversation in
                         ConversationRow(viewModel: viewModel.parentViewModel,
-                                        conversation: conversation,
-                                        namePrefix: namePrefix(of: conversation))
+                                        conversation: conversation)
+                        .environment(\.commonChannelNamePrefix, namePrefix(of: conversation))
                     }
                 } label: {
                     SectionDisclosureLabel(
@@ -300,9 +301,9 @@ private struct MessageSection<T: BaseConversation>: View {
     }
 
     /// Returns prefix used for channels of certain SubType if applicable
-    func namePrefix(of conversation: T) -> String? {
-        guard let channel = conversation as? Channel else { return nil }
-        guard let subType = channel.subType?.rawValue else { return nil }
+    func namePrefix(of conversation: T) -> String {
+        guard let channel = conversation as? Channel else { return "" }
+        guard let subType = channel.subType?.rawValue else { return "" }
         return "\(subType)-"
     }
 }
