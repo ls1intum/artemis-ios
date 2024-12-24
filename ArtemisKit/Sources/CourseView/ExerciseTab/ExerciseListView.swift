@@ -94,6 +94,7 @@ struct ExerciseListView: View {
                 }
             }
         }
+        .supportsFilePicker()
     }
 }
 

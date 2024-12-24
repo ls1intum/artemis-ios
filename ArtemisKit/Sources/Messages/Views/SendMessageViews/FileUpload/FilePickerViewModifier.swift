@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-extension View {
+public extension View {
     /// Add this further up in the view hierarchy to use a file picker somewhere below
     func supportsFilePicker() -> some View {
         modifier(AddFilePickerViewModifier())
