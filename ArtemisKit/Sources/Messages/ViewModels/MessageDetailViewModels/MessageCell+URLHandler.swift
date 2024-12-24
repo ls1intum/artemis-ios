@@ -39,53 +39,77 @@ struct MessageURLAction {
             case let .lecture(id):
                 navigationController.outerPath.append(LecturePath(id: id, coursePath: coursePath))
             case let .lectureUnit(id, attachmentUnit):
-                Task {
-                    let delegate = SendMessageLecturePickerViewModel(course: conversationViewModel.course)
-
-                    await delegate.loadLecturesWithSlides()
-
-                    if let lecture = delegate.firstLectureContains(attachmentUnit: attachmentUnit) {
-                        navigationController.outerPath.append(LecturePath(id: lecture.id, coursePath: coursePath))
-                        return
-                    }
-                }
+                handleLectureUnit(id: id, attachmentUnit: attachmentUnit, coursePath: coursePath)
             case let .member(login):
-                Task {
-                    if let conversation = await cellViewModel.getOneToOneChatOrCreate(login: login) {
-                        navigationController.goToCourseConversation(courseId: coursePath.id, conversation: conversation)
-                    }
-                }
+                handleMember(login: login, coursePath: coursePath)
             case let .message(id):
-                guard let index = conversationViewModel.messages.firstIndex(of: .of(id: id)),
-                      let messagePath = MessagePath(
-                        message: Binding.constant(.done(response: conversationViewModel.messages[index].rawValue)),
-                        conversationPath: ConversationPath(conversation: conversationViewModel.conversation, coursePath: coursePath),
-                        conversationViewModel: conversationViewModel) else {
-                    break
-                }
-
-                navigationController.tabPath.append(messagePath)
+                handleMessage(id: id, coursePath: coursePath)
             case let .slide(number, attachmentUnit):
-                Task {
-                    let delegate = SendMessageLecturePickerViewModel(course: conversationViewModel.course)
-
-                    await delegate.loadLecturesWithSlides()
-
-                    if let lecture = delegate.firstLectureContains(attachmentUnit: attachmentUnit) {
-                        navigationController.outerPath.append(LecturePath(id: lecture.id, coursePath: coursePath))
-                        return
-                    }
-                }
+                handleSlide(number: number, attachmentUnit: attachmentUnit, coursePath: coursePath)
             case let .faq(id):
                 navigationController.tabPath.append(FaqPath(id: id, courseId: conversationViewModel.course.id))
             }
             return .handled
         }
-        if url.scheme == "https" && url.host() == UserSessionFactory.shared.institution?.baseURL?.host() && url.relativePath.starts(with: "/api/files/") {
+        if url.isFileURL {
             cellViewModel.presentingAttachmentURL = url
             return .handled
         }
         return .systemAction
+    }
+
+    private func handleLectureUnit(id: String, attachmentUnit: Int, coursePath: CoursePath) {
+        Task {
+            let delegate = SendMessageLecturePickerViewModel(course: conversationViewModel.course)
+
+            await delegate.loadLecturesWithSlides()
+
+            if let lecture = delegate.firstLectureContains(attachmentUnit: attachmentUnit) {
+                navigationController.outerPath.append(LecturePath(id: lecture.id, coursePath: coursePath))
+                return
+            }
+        }
+    }
+
+    private func handleMember(login: String, coursePath: CoursePath) {
+        Task {
+            if let conversation = await cellViewModel.getOneToOneChatOrCreate(login: login) {
+                navigationController.goToCourseConversation(courseId: coursePath.id, conversation: conversation)
+            }
+        }
+    }
+
+    private func handleMessage(id: Int64, coursePath: CoursePath) {
+        guard let index = conversationViewModel.messages.firstIndex(of: .of(id: id)),
+              let messagePath = MessagePath(
+                message: Binding.constant(.done(response: conversationViewModel.messages[index].rawValue)),
+                conversationPath: ConversationPath(conversation: conversationViewModel.conversation, coursePath: coursePath),
+                conversationViewModel: conversationViewModel) else {
+            return
+        }
+
+        navigationController.tabPath.append(messagePath)
+    }
+
+    private func handleSlide(number: Int, attachmentUnit: Int, coursePath: CoursePath) {
+        Task {
+            let delegate = SendMessageLecturePickerViewModel(course: conversationViewModel.course)
+
+            await delegate.loadLecturesWithSlides()
+
+            if let lecture = delegate.firstLectureContains(attachmentUnit: attachmentUnit) {
+                navigationController.outerPath.append(LecturePath(id: lecture.id, coursePath: coursePath))
+                return
+            }
+        }
+    }
+}
+
+private extension URL {
+    var isFileURL: Bool {
+        scheme == "https" &&
+        host() == UserSessionFactory.shared.institution?.baseURL?.host() &&
+        relativePath.starts(with: "/api/files/")
     }
 }
 
