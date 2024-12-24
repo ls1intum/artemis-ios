@@ -24,6 +24,8 @@ final class MessageCellModel {
     var showReactionsPopover = false
     var isDetectingLongPress = false
 
+    var presentingAttachmentURL: URL?
+
     private let messagesService: MessagesService
     private let userSession: UserSession
 
@@ -83,6 +85,10 @@ extension MessageCellModel {
         }
 
         return nil
+    }
+
+    func presentAttachment(at url: URL) {
+        
     }
 }
 

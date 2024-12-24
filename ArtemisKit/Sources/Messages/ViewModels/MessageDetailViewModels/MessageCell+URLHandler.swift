@@ -5,10 +5,12 @@
 //  Created by Anian Schleyer on 24.12.24.
 //
 
+import DesignLibrary
 import Foundation
 import Faq
 import Navigation
 import SwiftUI
+import UserStore
 
 @MainActor
 struct MessageURLAction {
@@ -24,7 +26,6 @@ struct MessageURLAction {
         self.navigationController = navigationController
     }
 
-    @MainActor
     func handle(url: URL) -> OpenURLAction.Result {
         if let mention = MentionScheme(url) {
             let coursePath = CoursePath(course: conversationViewModel.course)
@@ -80,6 +81,10 @@ struct MessageURLAction {
             }
             return .handled
         }
+        if url.scheme == "https" && url.host() == UserSessionFactory.shared.institution?.baseURL?.host() && url.relativePath.starts(with: "/api/files/") {
+            cellViewModel.presentingAttachmentURL = url
+            return .handled
+        }
         return .systemAction
     }
 }
@@ -108,6 +113,17 @@ private struct MessageURLHandlerViewModifier: ViewModifier {
             .environment(\.openURL, .init(.init(conversationViewModel: conversationViewModel,
                                                 cellViewModel: cellViewModel,
                                                 navigationController: navigationController)))
+            .sheet(isPresented: Binding(get: {
+                cellViewModel.presentingAttachmentURL != nil
+            }, set: { newValue in
+                if !newValue {
+                    cellViewModel.presentingAttachmentURL = nil
+                }
+            })) {
+                if let url = cellViewModel.presentingAttachmentURL {
+                    MessageAttachmentSheet(url: url)
+                }
+            }
     }
 }
 
