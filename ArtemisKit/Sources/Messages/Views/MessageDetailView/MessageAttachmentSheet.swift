@@ -18,26 +18,7 @@ struct MessageAttachmentSheet: View {
     }
 
     var body: some View {
-        DataStateView(data: Binding<DataState<URL>>(get: {
-            guard let url = viewModel.attachmentUrl else {
-                return .loading
-            }
-            switch url {
-            case .success(let value):
-                return .done(response: value)
-            case .failure(let error):
-                return .failure(error: error)
-            }
-        }, set: { newValue in
-            switch newValue {
-            case .done(let response):
-                viewModel.attachmentUrl = .success(response)
-            case .failure(let error):
-                viewModel.attachmentUrl = .failure(error)
-            case .loading:
-                viewModel.attachmentUrl = nil
-            }
-        })) {
+        DataStateView(data: $viewModel.attachmentUrl) {
             await viewModel.loadAttachmentUrl()
         } content: { fileUrl in
             NavigationStack {
@@ -55,7 +36,7 @@ struct MessageAttachmentSheet: View {
             }
         }
         .task {
-            viewModel.attachmentUrl = nil
+            viewModel.attachmentUrl = .loading
             await viewModel.loadAttachmentUrl()
         }
     }
