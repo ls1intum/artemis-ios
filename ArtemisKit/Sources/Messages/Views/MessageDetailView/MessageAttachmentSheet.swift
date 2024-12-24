@@ -18,21 +18,21 @@ struct MessageAttachmentSheet: View {
     }
 
     var body: some View {
-        DataStateView(data: $viewModel.attachmentUrl) {
-            await viewModel.loadAttachmentUrl()
-        } content: { fileUrl in
-            NavigationStack {
+        NavigationStack {
+            DataStateView(data: $viewModel.attachmentUrl) {
+                await viewModel.loadAttachmentUrl()
+            } content: { fileUrl in
                 QuickLookController(url: fileUrl)
-                    .navigationTitle(R.string.localizable.attachment())
-                    .navigationBarTitleDisplayMode(.inline)
-                    .toolbar {
-                        ToolbarItem(placement: .confirmationAction) {
-                            Button(R.string.localizable.done()) {
-                                dismiss()
-                            }
-                        }
-                    }
                     .background(Color(uiColor: .secondarySystemBackground))
+            }
+            .navigationTitle(R.string.localizable.attachment())
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(R.string.localizable.done()) {
+                        dismiss()
+                    }
+                }
             }
         }
         .task {
