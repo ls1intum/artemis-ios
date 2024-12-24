@@ -67,6 +67,7 @@
 "messageCouldNotBeLoadedError" = "Message could not be loaded.";
 "thread" = "Thread";
 "replies" = "Reply";
+"attachment" = "Attachment";
 
 // MARK: MessageActionSheet
 "replyInThread" = "Reply in Thread";
