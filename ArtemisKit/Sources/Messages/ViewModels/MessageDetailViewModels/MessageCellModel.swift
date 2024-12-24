@@ -86,10 +86,6 @@ extension MessageCellModel {
 
         return nil
     }
-
-    func presentAttachment(at url: URL) {
-        
-    }
 }
 
 // MARK: Swipe to Reply
