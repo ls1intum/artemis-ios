@@ -57,8 +57,11 @@ struct MessageURLAction {
         }
         return .systemAction
     }
+}
 
-    private func handleLectureUnit(id: String, attachmentUnit: Int, coursePath: CoursePath) {
+// MARK: Handle Mentions
+private extension MessageURLAction {
+    func handleLectureUnit(id: String, attachmentUnit: Int, coursePath: CoursePath) {
         Task {
             let delegate = SendMessageLecturePickerViewModel(course: conversationViewModel.course)
 
@@ -71,7 +74,7 @@ struct MessageURLAction {
         }
     }
 
-    private func handleMember(login: String, coursePath: CoursePath) {
+    func handleMember(login: String, coursePath: CoursePath) {
         Task {
             if let conversation = await cellViewModel.getOneToOneChatOrCreate(login: login) {
                 navigationController.goToCourseConversation(courseId: coursePath.id, conversation: conversation)
@@ -79,7 +82,7 @@ struct MessageURLAction {
         }
     }
 
-    private func handleMessage(id: Int64, coursePath: CoursePath) {
+    func handleMessage(id: Int64, coursePath: CoursePath) {
         guard let index = conversationViewModel.messages.firstIndex(of: .of(id: id)),
               let messagePath = MessagePath(
                 message: Binding.constant(.done(response: conversationViewModel.messages[index].rawValue)),
@@ -91,7 +94,7 @@ struct MessageURLAction {
         navigationController.tabPath.append(messagePath)
     }
 
-    private func handleSlide(number: Int, attachmentUnit: Int, coursePath: CoursePath) {
+    func handleSlide(number: Int, attachmentUnit: Int, coursePath: CoursePath) {
         Task {
             let delegate = SendMessageLecturePickerViewModel(course: conversationViewModel.course)
 
@@ -137,13 +140,15 @@ private struct MessageURLHandlerViewModifier: ViewModifier {
             .environment(\.openURL, .init(.init(conversationViewModel: conversationViewModel,
                                                 cellViewModel: cellViewModel,
                                                 navigationController: navigationController)))
-            .sheet(isPresented: Binding(get: {
-                cellViewModel.presentingAttachmentURL != nil
-            }, set: { newValue in
-                if !newValue {
-                    cellViewModel.presentingAttachmentURL = nil
+            .sheet(isPresented: Binding(
+                get: {
+                    cellViewModel.presentingAttachmentURL != nil
+                }, set: { newValue in
+                    if !newValue {
+                        cellViewModel.presentingAttachmentURL = nil
+                    }
                 }
-            })) {
+            )) {
                 if let url = cellViewModel.presentingAttachmentURL {
                     MessageAttachmentSheet(url: url)
                 }
