@@ -98,7 +98,6 @@ struct LectureListView: View {
                 }
             }
         }
-        .supportsFilePicker()
     }
 }
 

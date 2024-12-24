@@ -55,6 +55,8 @@ public struct CourseView: View {
         }
         .navigationTitle(viewModel.course.title ?? R.string.localizable.loading())
         .navigationBarTitleDisplayMode(.inline)
+        // Add a file picker here, inside the navigation it doesn't work sometimes
+        .supportsFilePicker()
     }
 }
 

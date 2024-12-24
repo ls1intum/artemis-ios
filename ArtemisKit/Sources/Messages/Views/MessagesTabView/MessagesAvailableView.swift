@@ -93,7 +93,5 @@ public struct MessagesAvailableView: View {
                 }
             }
         }
-        // Add a file picker here, inside the navigation it doesn't work sometimes
-        .supportsFilePicker()
     }
 }
