@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ls1intum/artemis-ios-core-modules",
       "state" : {
-        "revision" : "787cc65dec2df54ca98ff917b30b55b66bb2d9d2",
-        "version" : "15.2.0"
+        "revision" : "23fa0aaf0b16db7643c2589a65bf1e09ff257546",
+        "version" : "15.3.0"
       }
     },
     {
@@ -35,6 +35,15 @@
       "state" : {
         "revision" : "729e01bc9b9dab466ac85f21fb9ee2bc1c61b258",
         "version" : "1.8.4"
+      }
+    },
+    {
+      "identity" : "gzipswift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/1024jp/GzipSwift.git",
+      "state" : {
+        "revision" : "56bf51fdd2fe4b2cf254b2cf34aede3d7caccc6c",
+        "version" : "6.1.0"
       }
     },
     {
