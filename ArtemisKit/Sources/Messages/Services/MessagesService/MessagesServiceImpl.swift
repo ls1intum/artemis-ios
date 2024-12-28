@@ -14,7 +14,7 @@ import UserStore
 // swiftlint:disable file_length type_body_length
 struct MessagesServiceImpl: MessagesService {
 
-    private let client = APIClient()
+    internal let client = APIClient()
 
     struct GetConversationsRequest: APIRequest {
         typealias Response = [Conversation]
