@@ -33,6 +33,12 @@ struct ConversationListView: View {
             } else {
                 filterBar
 
+                if viewModel.filter == .unresolved && viewModel.allChannelsResolved {
+                    ContentUnavailableView("All done",
+                                           image: "checkmark",
+                                           description: Text("All messages are resolved. Good work!"))
+                }
+
                 Group {
                     MessageSection(
                         viewModel: viewModel,
@@ -106,6 +112,12 @@ struct ConversationListView: View {
                     .listRowBackground(Color.clear)
             }
         }
+        .task {
+            if viewModel.filter == .unresolved {
+                await viewModel.loadUnresolvedChannels()
+            }
+        }
+        .loadingIndicator(isLoading: $viewModel.showUnresolvedLoadingIndicator)
         .searchable(text: $viewModel.searchText)
         .overlay(alignment: .bottomTrailing) {
             CreateOrAddChannelButton(viewModel: viewModel.parentViewModel)
@@ -116,10 +128,17 @@ struct ConversationListView: View {
     @ViewBuilder var filterBar: some View {
         let nonNeededFilters = ConversationFilter.allCases.filter { filter in
             viewModel.parentViewModel.allConversations.value?.contains(where: { conversation in
-                filter.matches(conversation.baseConversation, course: viewModel.parentViewModel.course)
+                filter.matches(conversation.baseConversation, viewModel: viewModel)
             }) ?? false == false
+        }.filter {
+            // Tutors should always see the unresolved filter
+            if viewModel.parentViewModel.course.isAtLeastTutorInCourse && $0 == .unresolved {
+                return false
+            } else {
+                return true
+            }
         }
-        if nonNeededFilters.count < 2 {
+        if nonNeededFilters.count < ConversationFilter.allCases.count - 1 {
             FilterBarPicker(selectedFilter: $viewModel.filter.animation(),
                             hiddenFilters: nonNeededFilters)
         }

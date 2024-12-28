@@ -61,6 +61,7 @@
 "unreadFilter" = "Unread";
 "allFilter" = "All";
 "recentFilter" = "Recent";
+"unresolvedFilter" = "Unresolved";
 
 // MARK: MessageDetailView
 "edited" = "Edited";
