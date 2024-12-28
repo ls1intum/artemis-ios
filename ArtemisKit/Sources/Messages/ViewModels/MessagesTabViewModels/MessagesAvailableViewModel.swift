@@ -65,6 +65,7 @@ class MessagesAvailableViewModel: BaseViewModel {
 
         subscription = socketConnection
             .conversationPublisher
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] conversationWebsocketDTO in
                 guard let self else {
                     return
