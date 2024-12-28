@@ -34,9 +34,9 @@ struct ConversationListView: View {
                 filterBar
 
                 if viewModel.filter == .unresolved && viewModel.allChannelsResolved {
-                    ContentUnavailableView("All done",
+                    ContentUnavailableView(R.string.localizable.allDone(),
                                            image: "checkmark",
-                                           description: Text("All messages are resolved. Good work!"))
+                                           description: Text(R.string.localizable.allDoneDescription()))
                 }
 
                 Group {
