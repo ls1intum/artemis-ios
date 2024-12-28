@@ -162,6 +162,11 @@ protocol MessagesService {
      * Perform a put request to edit the name/topic/description of  a specific conversation in a specific course to the server.
      */
     func editConversation(for courseId: Int, conversation: Conversation, newName: String?, newTopic: String?, newDescription: String?) async -> DataState<Conversation>
+
+    /**
+     * Perform a get request to retrieve channels which have unresolved messages
+     */
+    func getUnresolvedChannelIds(for courseId: Int, and channelIds: [Int64]) async -> DataState<[Int64]>
 }
 
 extension MessagesService {

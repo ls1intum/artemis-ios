@@ -208,4 +208,8 @@ extension MessagesServiceStub: MessagesService {
     func uploadFile(for courseId: Int, and conversationId: Int64, file: Data, filename: String, mimeType: String) async -> DataState<String> {
         .loading
     }
+
+    func getUnresolvedChannelIds(for courseId: Int, and channelIds: [Int64]) async -> DataState<[Int64]> {
+        .loading
+    }
 }
