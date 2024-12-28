@@ -12,6 +12,90 @@ import SharedModels
 
 // Requests for Conversation Management
 extension MessagesServiceImpl {
+    struct CreateChannelRequest: APIRequest {
+        typealias Response = Channel
+
+        let courseId: Int
+        var type: ConversationType = .channel
+        let name: String
+        let description: String?
+        let isPublic: Bool
+        let isAnnouncementChannel: Bool
+
+        var method: HTTPMethod {
+            return .post
+        }
+
+        var resourceName: String {
+            return "api/courses/\(courseId)/channels"
+        }
+    }
+
+    func createChannel(for courseId: Int, name: String, description: String?, isPrivate: Bool, isAnnouncement: Bool) async -> DataState<Channel> {
+        let result = await client.sendRequest(
+            CreateChannelRequest(courseId: courseId, name: name, description: description, isPublic: !isPrivate, isAnnouncementChannel: isAnnouncement)
+        )
+
+        switch result {
+        case let .success((channel, _)):
+            return .done(response: channel)
+        case let .failure(error):
+            return .failure(error: UserFacingError(error: error))
+        }
+    }
+
+    struct ArchiveChannelRequest: APIRequest {
+        typealias Response = RawResponse
+
+        let courseId: Int
+        let channelId: Int64
+
+        var method: HTTPMethod {
+            return .post
+        }
+
+        var resourceName: String {
+            return "api/courses/\(courseId)/channels/\(channelId)/archive"
+        }
+    }
+
+    func archiveChannel(for courseId: Int, channelId: Int64) async -> NetworkResponse {
+        let result = await client.sendRequest(ArchiveChannelRequest(courseId: courseId, channelId: channelId))
+
+        switch result {
+        case .success:
+            return .success
+        case let .failure(error):
+            return .failure(error: error)
+        }
+    }
+
+    struct UnarchiveChannelRequest: APIRequest {
+        typealias Response = RawResponse
+
+        let courseId: Int
+        let channelId: Int64
+
+        var method: HTTPMethod {
+            return .post
+        }
+
+        var resourceName: String {
+            return "api/courses/\(courseId)/channels/\(channelId)/unarchive"
+        }
+    }
+
+    func unarchiveChannel(for courseId: Int, channelId: Int64) async -> NetworkResponse {
+        let result = await client.sendRequest(UnarchiveChannelRequest(courseId: courseId, channelId: channelId))
+
+        switch result {
+        case .success:
+            return .success
+        case let .failure(error):
+            return .failure(error: error)
+        }
+    }
+
     struct GetUnresolvedChannelsRequest: APIRequest {
         typealias Response = [UnresolvedChannelsResponse]
         struct UnresolvedChannelsResponse: Codable {
