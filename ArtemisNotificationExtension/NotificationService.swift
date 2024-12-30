@@ -35,6 +35,17 @@ class NotificationService: UNNotificationServiceExtension {
             bestAttemptContent = await PushNotificationHandler
                 .extractNotification(from: payloadString, iv: initVector) ?? bestAttemptContent
 
+            // Add communication notification info
+            if let intent = await PushNotificationHandler.getCommunicationIntent(for: bestAttemptContent) {
+                do {
+                    let content = try bestAttemptContent.updating(from: intent)
+                    contentHandler(content)
+                    return
+                } catch {
+                    // Ignore error in case of failure and use previous best attempt content
+                }
+            }
+
             contentHandler(bestAttemptContent)
         }
     }

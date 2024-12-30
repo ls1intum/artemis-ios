@@ -1,5 +1,5 @@
 {
-  "originHash" : "60201ec1c26be7adad9fdf6611cc7c649da23b2d45f1aa466264a869dc6de3a1",
+  "originHash" : "008193f82a18024045696bb777eb551728aa12ae494d1eb655cdd7ae99cb3cdf",
   "pins" : [
     {
       "identity" : "apollon-ios-module",
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ls1intum/artemis-ios-core-modules",
       "state" : {
-        "revision" : "f28438e6960df1c91bbfa59e53f46670430f509e",
-        "version" : "15.1.4"
+        "revision" : "23fa0aaf0b16db7643c2589a65bf1e09ff257546",
+        "version" : "15.3.0"
       }
     },
     {
@@ -33,17 +33,17 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/krzyzanowskim/CryptoSwift.git",
       "state" : {
-        "revision" : "678d442c6f7828def400a70ae15968aef67ef52d",
-        "version" : "1.8.3"
+        "revision" : "729e01bc9b9dab466ac85f21fb9ee2bc1c61b258",
+        "version" : "1.8.4"
       }
     },
     {
-      "identity" : "emojipicker",
+      "identity" : "gzipswift",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/Kelvas09/EmojiPicker.git",
+      "location" : "https://github.com/1024jp/GzipSwift.git",
       "state" : {
-        "revision" : "d787591e2121b617209172ad6a8ebf2975f605ae",
-        "version" : "1.0.1"
+        "revision" : "56bf51fdd2fe4b2cf254b2cf34aede3d7caccc6c",
+        "version" : "6.1.0"
       }
     },
     {

@@ -57,7 +57,7 @@ final class SendMessageUploadFileViewModel: UploadViewModel {
     private func loadFileData(from url: URL) {
         uploadState = .compressing
         filePath = nil
-        
+
         do {
             guard url.startAccessingSecurityScopedResource() else {
                 throw NSFileProviderError(.notAuthenticated)

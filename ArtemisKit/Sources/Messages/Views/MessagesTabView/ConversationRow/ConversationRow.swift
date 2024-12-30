@@ -9,14 +9,15 @@ import Navigation
 import SharedModels
 import SwiftUI
 
-struct ConversationRow<T: BaseConversation>: View {
+struct ConversationRow: View {
 
+    @Environment(\.showFavoriteIcon) var showFavoriteIcon
     @Environment(\.horizontalSizeClass) var sizeClass
     @EnvironmentObject var navigationController: NavigationController
 
     @ObservedObject var viewModel: MessagesAvailableViewModel
 
-    let conversation: T
+    let conversation: BaseConversation
     var namePrefix: String?
 
     var conversationDisplayName: String {
@@ -98,6 +99,16 @@ private extension ConversationRow {
                             .offset(x: .s, y: .xs * -1)
                     }
                 }
+                .overlay(alignment: .bottomTrailing) {
+                    if conversation.isFavorite ?? false && showFavoriteIcon {
+                        Image(systemName: "heart.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .foregroundStyle(.orange)
+                            .frame(width: .m, height: .m)
+                            .offset(x: .s, y: .s)
+                    }
+                }
         }
     }
 }
@@ -134,5 +145,22 @@ private extension ConversationRow {
     @ViewBuilder var contextMenuItems: some View {
         favoriteButton
         hideAndMuteButtons
+    }
+}
+
+// MARK: Environment Values
+
+private enum ConversationRowFavoriteIconKey: EnvironmentKey {
+    static let defaultValue = true
+}
+
+extension EnvironmentValues {
+    var showFavoriteIcon: Bool {
+        get {
+            self[ConversationRowFavoriteIconKey.self]
+        }
+        set {
+            self[ConversationRowFavoriteIconKey.self] = newValue
+        }
     }
 }

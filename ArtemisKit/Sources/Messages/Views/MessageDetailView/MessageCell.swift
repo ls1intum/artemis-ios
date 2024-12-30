@@ -34,7 +34,8 @@ struct MessageCell: View {
                 headerIfVisible
                 ArtemisMarkdownView(string: content.surroundingMarkdownImagesWithNewlines())
                     .opacity(isMessageOffline ? 0.5 : 1)
-                    .environment(\.openURL, OpenURLAction(handler: handle))
+                    .messageUrlHandler(conversationViewModel: conversationViewModel,
+                                       cellViewModel: viewModel)
                     .environment(\.imagePreviewsEnabled, viewModel.conversationPath == nil)
                 editedLabel
                 resolvedIndicator
@@ -312,64 +313,6 @@ private extension MessageCell {
             conversationViewModel.selectedMessageId = message.value?.id
         }
         viewModel.isDetectingLongPress = false
-    }
-
-    func handle(url: URL) -> OpenURLAction.Result {
-        if let mention = MentionScheme(url) {
-            let coursePath = CoursePath(course: conversationViewModel.course)
-            switch mention {
-            case let .attachment(id, lectureId):
-                navigationController.outerPath.append(LecturePath(id: lectureId, coursePath: coursePath))
-            case let .channel(id):
-                navigationController.tabPath.append(ConversationPath(id: id, coursePath: coursePath))
-            case let .exercise(id):
-                navigationController.outerPath.append(ExercisePath(id: id, coursePath: coursePath))
-            case let .lecture(id):
-                navigationController.outerPath.append(LecturePath(id: id, coursePath: coursePath))
-            case let .lectureUnit(id, attachmentUnit):
-                Task {
-                    let delegate = SendMessageLecturePickerViewModel(course: conversationViewModel.course)
-
-                    await delegate.loadLecturesWithSlides()
-
-                    if let lecture = delegate.firstLectureContains(attachmentUnit: attachmentUnit) {
-                        navigationController.outerPath.append(LecturePath(id: lecture.id, coursePath: coursePath))
-                        return
-                    }
-                }
-            case let .member(login):
-                Task {
-                    if let conversation = await viewModel.getOneToOneChatOrCreate(login: login) {
-                        navigationController.goToCourseConversation(courseId: coursePath.id, conversation: conversation)
-                    }
-                }
-            case let .message(id):
-                guard let index = conversationViewModel.messages.firstIndex(of: .of(id: id)),
-                      let messagePath = MessagePath(
-                        message: Binding.constant(.done(response: conversationViewModel.messages[index].rawValue)),
-                        conversationPath: ConversationPath(conversation: conversationViewModel.conversation, coursePath: coursePath),
-                        conversationViewModel: conversationViewModel) else {
-                    break
-                }
-
-                navigationController.tabPath.append(messagePath)
-            case let .slide(number, attachmentUnit):
-                Task {
-                    let delegate = SendMessageLecturePickerViewModel(course: conversationViewModel.course)
-
-                    await delegate.loadLecturesWithSlides()
-
-                    if let lecture = delegate.firstLectureContains(attachmentUnit: attachmentUnit) {
-                        navigationController.outerPath.append(LecturePath(id: lecture.id, coursePath: coursePath))
-                        return
-                    }
-                }
-            case let .faq(id):
-                navigationController.tabPath.append(FaqPath(id: id, courseId: viewModel.course.id))
-            }
-            return .handled
-        }
-        return .systemAction
     }
 }
 

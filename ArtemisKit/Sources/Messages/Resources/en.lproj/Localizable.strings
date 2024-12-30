@@ -60,12 +60,17 @@
 "directMessages" = "Direct Messages";
 "unreadFilter" = "Unread";
 "allFilter" = "All";
+"recentFilter" = "Recent";
+"unresolvedFilter" = "Unresolved";
+"allDone" = "All done";
+"allDoneDescription" = "All messages are resolved. Good work!";
 
 // MARK: MessageDetailView
 "edited" = "Edited";
 "messageCouldNotBeLoadedError" = "Message could not be loaded.";
 "thread" = "Thread";
 "replies" = "Reply";
+"attachment" = "Attachment";
 
 // MARK: MessageActionSheet
 "replyInThread" = "Reply in Thread";
