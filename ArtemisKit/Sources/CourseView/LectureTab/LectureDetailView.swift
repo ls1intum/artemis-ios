@@ -299,6 +299,7 @@ struct TextUnitSheetContent: View {
         ScrollView {
             ArtemisMarkdownView(string: textUnit.content ?? "")
         }
+        .padding(.l)
     }
 }
 
