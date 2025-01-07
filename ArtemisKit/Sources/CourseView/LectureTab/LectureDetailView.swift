@@ -298,8 +298,8 @@ struct TextUnitSheetContent: View {
     var body: some View {
         ScrollView {
             ArtemisMarkdownView(string: textUnit.content ?? "")
+                .padding(.horizontal)
         }
-        .padding(.l)
     }
 }
 
