@@ -83,6 +83,11 @@ struct MessageDetailView: View {
                 await reloadMessage()
             }
         }
+        .onChange(of: navController.courseTab) { _, newValue in
+            if newValue != .communication {
+                navController.tabPath = .init()
+            }
+        }
         .onChange(of: message) {
             switch message {
             case .loading:
