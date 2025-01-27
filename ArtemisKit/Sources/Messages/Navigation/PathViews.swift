@@ -43,7 +43,7 @@ struct ThreadPathView: View {
             await viewModel.loadMessage()
         } content: { _ in
             CoursePathView(path: viewModel.path.coursePath) { course in
-                MessageDetailView(viewModel: .init(course: course, conversation: viewModel.path.conversation),
+                MessageDetailView(viewModel: .init(course: course, conversation: viewModel.path.conversation, skipLoadingData: true),
                                   message: $viewModel.message)
             }
         }
