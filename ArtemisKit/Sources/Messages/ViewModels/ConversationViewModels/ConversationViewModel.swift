@@ -70,7 +70,8 @@ class ConversationViewModel: BaseViewModel {
         conversation: Conversation,
         messagesRepository: MessagesRepository? = nil,
         messagesService: MessagesService = MessagesServiceFactory.shared,
-        userSession: UserSession = UserSessionFactory.shared
+        userSession: UserSession = UserSessionFactory.shared,
+        skipLoadingData: Bool = false // Used in case we don't need the Conversation itself (Thread view)
     ) {
         self.course = course
         self.conversation = conversation
@@ -83,6 +84,10 @@ class ConversationViewModel: BaseViewModel {
 
         subscribeToConversationTopic()
         fetchOfflineMessages()
+
+        if skipLoadingData {
+            return
+        }
 
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(updateFavorites(notification:)),
