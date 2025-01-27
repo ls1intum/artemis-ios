@@ -140,14 +140,8 @@ extension ConversationViewModel {
     }
 
     func loadMessage(messageId: Int64) async -> DataState<Message> {
-        // TODO: add API to only load one single message
-        let result = await messagesService.getMessages(for: course.id, and: conversation.id, filter: filter, page: page)
-        return result.flatMap { messages in
-            guard let message = messages.first(where: { $0.id == messageId }) else {
-                return .failure(UserFacingError(title: R.string.localizable.messageCouldNotBeLoadedError()))
-            }
-            return .success(message)
-        }
+        let result = await messagesService.getMessage(with: messageId, for: course.id, and: conversation.id)
+        return result
     }
 
     func loadAnswerMessage(answerMessageId: Int64) async -> DataState<AnswerMessage> {
