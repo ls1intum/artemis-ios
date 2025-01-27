@@ -48,3 +48,30 @@ final class ConversationPathViewModel {
         await reloadConversation()
     }
 }
+
+@Observable
+final class ThreadPathViewModel {
+    let path: ThreadPath
+    var message: DataState<BaseMessage>
+
+    private let messagesService: MessagesService
+
+    init(path: ThreadPath, messagesService: MessagesService = MessagesServiceFactory.shared) {
+        self.path = path
+        self.message = .loading
+
+        self.messagesService = messagesService
+    }
+
+    func loadMessage() async {
+        let result = await messagesService.getMessage(with: path.postId, for: path.coursePath.id, and: path.conversation.id)
+        switch result {
+        case .loading:
+            message = .loading
+        case .failure(let error):
+            message = .failure(error: error)
+        case .done(let response):
+            message = .done(response: response)
+        }
+    }
+}

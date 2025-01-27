@@ -113,6 +113,10 @@ extension MessagesServiceStub: MessagesService {
         .done(response: messages)
     }
 
+    func getMessage(with messageId: Int64, for courseId: Int, and conversationId: Int64) async -> DataState<Message> {
+        .loading
+    }
+
     func sendMessage(for courseId: Int, conversation: Conversation, content: String) async -> NetworkResponse {
         .loading
     }

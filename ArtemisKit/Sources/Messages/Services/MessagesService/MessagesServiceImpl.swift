@@ -169,6 +169,44 @@ struct MessagesServiceImpl: MessagesService {
         }
     }
 
+    struct GetMessageRequest: APIRequest {
+        typealias Response = [Message]
+
+        let courseId: Int
+        let conversationId: Int64
+        let messageId: Int64
+
+        var method: HTTPMethod {
+            return .get
+        }
+
+        var params: [URLQueryItem] {
+            [
+                .init(name: "conversationId", value: String(describing: conversationId)),
+                .init(name: "searchText", value: "#\(messageId)")
+            ]
+        }
+
+        var resourceName: String {
+            return "api/courses/\(courseId)/messages"
+        }
+    }
+
+    func getMessage(with messageId: Int64, for courseId: Int, and conversationId: Int64) async -> DataState<Message> {
+        let result = await client.sendRequest(GetMessageRequest(courseId: courseId, conversationId: conversationId, messageId: messageId))
+
+        switch result {
+        case let .success((messages, _)):
+            if let message = messages.first {
+                return .done(response: message)
+            } else {
+                return .failure(error: .init(title: "Message not found"))
+            }
+        case let .failure(error):
+            return DataState(error: error)
+        }
+    }
+
     struct SendMessageRequest: APIRequest {
         typealias Response = Message
 
