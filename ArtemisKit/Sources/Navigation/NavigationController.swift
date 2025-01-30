@@ -91,6 +91,10 @@ public extension NavigationController {
         tabPath = NavigationPath()
     }
 
+    func goToThread(for messageId: Int64, in conversation: Conversation, of course: Course) {
+        tabPath.append(ThreadPath(postId: messageId, conversation: conversation, coursePath: CoursePath(course: course)))
+    }
+
     func showDeeplinkNotSupported(url: URL) {
         notSupportedUrl = url
         showDeeplinkNotSupported = true

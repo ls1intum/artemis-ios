@@ -34,3 +34,27 @@ public extension ConversationPathView where Content == ConversationView {
         self.init(viewModel: ConversationPathViewModel(path: path), content: Content.init)
     }
 }
+
+struct ThreadPathView: View {
+    @State private var viewModel: ThreadPathViewModel
+
+    var body: some View {
+        DataStateView(data: $viewModel.message) {
+            await viewModel.loadMessage()
+        } content: { _ in
+            CoursePathView(path: viewModel.path.coursePath) { course in
+                MessageDetailView(viewModel: .init(course: course, conversation: viewModel.path.conversation, skipLoadingData: true),
+                                  message: $viewModel.message)
+            }
+        }
+        .task {
+            await viewModel.loadMessage()
+        }
+    }
+}
+
+extension ThreadPathView {
+    init(path: ThreadPath) {
+        self.init(viewModel: ThreadPathViewModel(path: path))
+    }
+}

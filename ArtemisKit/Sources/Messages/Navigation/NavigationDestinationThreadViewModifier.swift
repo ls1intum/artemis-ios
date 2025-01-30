@@ -18,5 +18,6 @@ public struct NavigationDestinationMessagesModifier: ViewModifier {
                 MessageDetailView(viewModel: messagePath.conversationViewModel, message: messagePath.message, presentKeyboardOnAppear: messagePath.presentKeyboardOnAppear)
             }
             .navigationDestination(for: ConversationPath.self, destination: ConversationPathView.init)
+            .navigationDestination(for: ThreadPath.self, destination: ThreadPathView.init)
     }
 }

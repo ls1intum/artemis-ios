@@ -75,3 +75,15 @@ public struct ConversationPath: Hashable {
         self.coursePath = coursePath
     }
 }
+
+public struct ThreadPath: Hashable {
+    public let postId: Int64
+    public let conversation: Conversation
+    public let coursePath: CoursePath
+
+    public init(postId: Int64, conversation: Conversation, coursePath: CoursePath) {
+        self.postId = postId
+        self.conversation = conversation
+        self.coursePath = coursePath
+    }
+}

@@ -261,6 +261,12 @@ struct MessageActions: View {
                 let oldRole = message.authorRole
                 if var newMessageResult = result.value as? Message {
                     newMessageResult.authorRole = oldRole
+                    newMessageResult.answers = newMessageResult.answers?.map { answer in
+                        var newAnswer = answer
+                        let oldAnswer = message.answers?.first { $0.id == answer.id }
+                        newAnswer.authorRole = newAnswer.authorRole ?? oldAnswer?.authorRole
+                        return newAnswer
+                    }
                     self.$message.wrappedValue = .done(response: newMessageResult)
                     viewModel.selectedMessageId = nil
                 }
