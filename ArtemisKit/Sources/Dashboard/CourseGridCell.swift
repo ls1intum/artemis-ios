@@ -14,6 +14,7 @@ struct CourseGridCell: View {
     @EnvironmentObject private var navigationController: NavigationController
 
     let courseForDashboard: CourseForDashboardDTO
+    let viewModel: DashboardViewModel
 
     var nextExercise: Exercise? {
         // filters out every already successful (100%) exercise, only exercises left that still need work
@@ -32,6 +33,10 @@ struct CourseGridCell: View {
     var body: some View {
         Button {
             navigationController.selectedCourse = CoursePath(id: courseForDashboard.id)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                // Update recents with a delay to not update grid during navigation transition
+                viewModel.addToRecents(courseId: courseForDashboard.id)
+            }
         } label: {
             VStack(alignment: .leading, spacing: 0) {
                 header
@@ -150,5 +155,5 @@ private extension CourseGridCell {
 }
 
 #Preview {
-    CourseGridCell(courseForDashboard: CourseServiceStub.course)
+    CourseGridCell(courseForDashboard: CourseServiceStub.course, viewModel: .init())
 }
