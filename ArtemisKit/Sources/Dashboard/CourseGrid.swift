@@ -17,7 +17,9 @@ struct CourseGrid: View {
     @State private var isCourseRegistrationPresented = false
 
     private var recentCourses: [CourseForDashboardDTO] {
-        guard let courses = viewModel.coursesForDashboard.value?.courses else { return [] }
+        guard let courses = viewModel.coursesForDashboard.value?.courses, courses.count > 3 else {
+            return []
+        }
         return courses.filter { viewModel.recentCourseIds.contains($0.id) }
     }
 
