@@ -20,7 +20,14 @@ class DashboardViewModel: BaseViewModel {
     }
 
     func loadCourses() async {
-        coursesForDashboard = await courseService.getCourses()
+        coursesForDashboard = await courseService.getCourses().map { coursesDTO in
+            // Sort courses alpabetically
+            var response = coursesDTO
+            response.courses = response.courses?.sorted {
+                $0.course.title ?? "" < $1.course.title ?? ""
+            }
+            return response
+        }
     }
 
     func addToRecents(courseId: Int) {
