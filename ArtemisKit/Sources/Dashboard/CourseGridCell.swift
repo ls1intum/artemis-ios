@@ -51,18 +51,17 @@ struct CourseGridCell: View {
 private extension CourseGridCell {
     var header: some View {
         HStack(alignment: .center, spacing: .m) {
-            if let imageURL = courseForDashboard.course.courseIconURL {
-                ArtemisAsyncImage(imageURL: imageURL) {
-                    if let firstChar = courseForDashboard.course.title?.first {
-                        Text(String(firstChar))
-                            .font(.largeTitle)
-                            .frame(width: .largeImage * 1.25, height: .largeImage * 1.25, alignment: .center)
-                            .background(.regularMaterial, in: .circle)
-                    }
+            ArtemisAsyncImage(imageURL: courseForDashboard.course.courseIconURL) {
+                if let firstChar = courseForDashboard.course.title?.first {
+                    Text(String(firstChar))
+                        .font(.largeTitle)
+                        .frame(width: .largeImage * 1.25, height: .largeImage * 1.25, alignment: .center)
+                        .background(.regularMaterial, in: .circle)
                 }
-                .clipShape(.circle)
-                .frame(width: .largeImage * 1.25)
             }
+            .clipShape(.circle)
+            .frame(width: .largeImage * 1.25)
+
             Spacer()
 
             // If title spans multiple lines, push it to the leading edge
