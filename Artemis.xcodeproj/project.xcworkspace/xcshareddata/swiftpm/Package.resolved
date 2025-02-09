@@ -1,5 +1,5 @@
 {
-  "originHash" : "008193f82a18024045696bb777eb551728aa12ae494d1eb655cdd7ae99cb3cdf",
+  "originHash" : "b9dfcad0fa4fc104a762836dcc42cdf8653307a02d14cb1d7cbe6aae91fc5841",
   "pins" : [
     {
       "identity" : "apollon-ios-module",
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ls1intum/artemis-ios-core-modules",
       "state" : {
-        "revision" : "23fa0aaf0b16db7643c2589a65bf1e09ff257546",
-        "version" : "15.3.0"
+        "revision" : "024124bb1389b899c547f112a04b245a6b157184",
+        "version" : "15.4.0"
       }
     },
     {
@@ -186,8 +186,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/tomlokhorst/XcodeEdit",
       "state" : {
-        "revision" : "1e761a55dd8d73b4e9cc227a297f438413953571",
-        "version" : "2.11.1"
+        "revision" : "9bc684439d16c07d7bede66ae43bb577a25d6bb1",
+        "version" : "2.12.0"
       }
     },
     {
