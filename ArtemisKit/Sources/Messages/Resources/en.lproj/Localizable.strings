@@ -20,6 +20,7 @@
 "bold" = "Bold";
 "italic" = "Italic";
 "underline" = "Underline";
+"strikethrough" = "Strikethrough";
 "quote" = "Quote";
 "inlineCode" = "Inline code";
 "codeBlock" = "Code block";

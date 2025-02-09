@@ -7,6 +7,7 @@
 
 import CourseRegistration
 import DesignLibrary
+import SharedModels
 import SwiftUI
 
 struct CourseGrid: View {
@@ -15,15 +16,39 @@ struct CourseGrid: View {
     @ObservedObject var viewModel: DashboardViewModel
     @State private var isCourseRegistrationPresented = false
 
+    private var recentCourses: [CourseForDashboardDTO] {
+        guard let courses = viewModel.coursesForDashboard.value?.courses, courses.count > 3 else {
+            return []
+        }
+        return courses.filter { viewModel.recentCourseIds.contains($0.id) }
+    }
+
     var body: some View {
         DataStateView(data: $viewModel.coursesForDashboard) {
             await viewModel.loadCourses()
         } content: { coursesForDashboard in
             ScrollView {
-                LazyVGrid(columns: Self.layout, spacing: .l) {
-                    ForEach(coursesForDashboard.courses ?? [], content: CourseGridCell.init)
+                if !recentCourses.isEmpty {
+                    Text(R.string.localizable.recentlyAccessed())
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .font(.title.bold())
+
+                    LazyVGrid(columns: Self.layout, spacing: .l) {
+                        ForEach(recentCourses) { course in
+                            CourseGridCell(courseForDashboard: course, viewModel: viewModel)
+                        }
+                    }
+
+                    Text(R.string.localizable.allCourses())
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .font(.title.bold())
+                        .padding(.top, .l)
                 }
-                .padding(.horizontal, .l)
+                LazyVGrid(columns: Self.layout, spacing: .l) {
+                    ForEach(coursesForDashboard.courses ?? []) { course in
+                        CourseGridCell(courseForDashboard: course, viewModel: viewModel)
+                    }
+                }
 
                 HStack {
                     Spacer()
@@ -34,6 +59,7 @@ struct CourseGrid: View {
                     Spacer()
                 }
             }
+            .contentMargins(.horizontal, .l, for: .scrollContent)
             .refreshable {
                 await viewModel.loadCourses()
             }

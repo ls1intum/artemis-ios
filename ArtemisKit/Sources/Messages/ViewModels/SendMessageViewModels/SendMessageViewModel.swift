@@ -184,6 +184,10 @@ extension SendMessageViewModel {
         appendToSelection(before: "<ins>", after: "</ins>", placeholder: "underlined")
     }
 
+    func didTapStrikethroughButton() {
+        appendToSelection(before: "~~", after: "~~", placeholder: "strikethough")
+    }
+
     func didTapBlockquoteButton() {
         appendToSelection(before: "> ", after: "", placeholder: "Reference")
     }
