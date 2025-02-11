@@ -4,19 +4,47 @@ import SharedModels
 import SharedServices
 import SwiftUI
 
-class DashboardViewModel: BaseViewModel {
+@Observable
+class DashboardViewModel {
 
-    @Published var coursesForDashboard: DataState<CoursesForDashboardDTO> = DataState.loading
+    var searchText = ""
+    var coursesForDashboard: DataState<CoursesForDashboardDTO> = DataState.loading
+    var filteredCourses: [CourseForDashboardDTO] {
+        if searchText.isEmpty {
+            coursesForDashboard.value?.courses ?? []
+        } else {
+            coursesForDashboard.value?.courses?.filter {
+                ($0.course.title ?? "").localizedStandardContains(searchText)
+            } ?? []
+        }
+    }
 
-    @AppStorage("recentCourseIds")
-    var recentCourseIds = [Int]()
+    var recentCourseIds: [Int] {
+        get {
+            access(keyPath: \.recentCourseIds)
+            return UserDefaults.standard.array(forKey: "recentCourseIds") as? [Int] ?? []
+        }
+        set {
+            withMutation(keyPath: \.recentCourseIds) {
+                UserDefaults.standard.setValue(newValue, forKey: "recentCourseIds")
+            }
+        }
+    }
+
+    var recentCourses: [CourseForDashboardDTO] {
+        guard let courses = coursesForDashboard.value?.courses, courses.count > 3 else {
+            return []
+        }
+        return courses.filter { recentCourseIds.contains($0.id) }
+    }
+
+    var error: UserFacingError?
+    var showError = false
 
     private let courseService: CourseService
 
     init(courseService: CourseService = CourseServiceFactory.shared) {
         self.courseService = courseService
-
-        super.init()
     }
 
     func loadCourses() async {
