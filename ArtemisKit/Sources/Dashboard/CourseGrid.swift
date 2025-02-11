@@ -13,28 +13,21 @@ import SwiftUI
 struct CourseGrid: View {
     private static let layout = [GridItem(.adaptive(minimum: 380, maximum: .infinity), spacing: .l, alignment: .center)]
 
-    @ObservedObject var viewModel: DashboardViewModel
+    @Bindable var viewModel: DashboardViewModel
     @State private var isCourseRegistrationPresented = false
-
-    private var recentCourses: [CourseForDashboardDTO] {
-        guard let courses = viewModel.coursesForDashboard.value?.courses, courses.count > 3 else {
-            return []
-        }
-        return courses.filter { viewModel.recentCourseIds.contains($0.id) }
-    }
 
     var body: some View {
         DataStateView(data: $viewModel.coursesForDashboard) {
             await viewModel.loadCourses()
-        } content: { coursesForDashboard in
+        } content: { _ in
             ScrollView {
-                if !recentCourses.isEmpty {
+                if !viewModel.recentCourses.isEmpty && viewModel.searchText.isEmpty {
                     Text(R.string.localizable.recentlyAccessed())
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .font(.title.bold())
 
                     LazyVGrid(columns: Self.layout, spacing: .l) {
-                        ForEach(recentCourses) { course in
+                        ForEach(viewModel.recentCourses) { course in
                             CourseGridCell(courseForDashboard: course, viewModel: viewModel)
                         }
                     }
@@ -45,9 +38,12 @@ struct CourseGrid: View {
                         .padding(.top, .l)
                 }
                 LazyVGrid(columns: Self.layout, spacing: .l) {
-                    ForEach(coursesForDashboard.courses ?? []) { course in
+                    ForEach(viewModel.filteredCourses) { course in
                         CourseGridCell(courseForDashboard: course, viewModel: viewModel)
                     }
+                }
+                if viewModel.filteredCourses.isEmpty && !viewModel.searchText.isEmpty {
+                    ContentUnavailableView.search
                 }
 
                 HStack {
@@ -60,6 +56,7 @@ struct CourseGrid: View {
                 }
             }
             .contentMargins(.horizontal, .l, for: .scrollContent)
+            .searchable(text: $viewModel.searchText)
             .refreshable {
                 await viewModel.loadCourses()
             }
