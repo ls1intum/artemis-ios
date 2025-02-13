@@ -7,7 +7,6 @@
 
 import APIClient
 import Common
-import Foundation
 import SharedModels
 import SwiftUI
 import UserStore
@@ -376,8 +375,13 @@ extension SendMessageViewModel {
     }
 
     func searchMember() -> Substring? {
-        let matches = text.matches(of: #/@(?<candidate>[\w]*)/#)
-        return matches.last?.candidate
+        let matches = text.matches(of: #/@(?<candidate>[\w]*\s?)/#)
+        let candidate = matches.last?.candidate
+        if candidate == " " || candidate?.contains(".") == true {
+            // Either space after @ or a period indicating an email address -> Hide the member picker
+            return nil
+        }
+        return candidate?.filter { $0 != Character(" ") }
     }
 
     func replace(member: UserNameAndLoginDTO) {
@@ -388,7 +392,6 @@ extension SendMessageViewModel {
 
         // Replaces all occurrences. Otherwise, we need to get the match.
         let range = Range<String.Index>?.none
-
         text = text.replacingOccurrences(
             of: "@" + candidate,
             with: "[user]\(name)(\(login))[/user]",
