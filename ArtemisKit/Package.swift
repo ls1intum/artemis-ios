@@ -35,7 +35,11 @@ let package = Package(
                 "Messages",
                 "Navigation",
                 "Notifications",
-                .product(name: "Login", package: "artemis-ios-core-modules")
+                .product(name: "Login", package: "artemis-ios-core-modules"),
+                .product(name: "ProfileInfo", package: "artemis-ios-core-modules")
+            ],
+            plugins: [
+                .plugin(name: "RswiftGeneratePublicResources", package: "R.swift")
             ]),
         .target(
             name: "CourseRegistration",
