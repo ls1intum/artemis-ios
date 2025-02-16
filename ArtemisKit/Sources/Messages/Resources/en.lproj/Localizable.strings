@@ -45,7 +45,7 @@
 "createChat" = "Create Chat";
 "noResultForSearch" = "There is no result for your search.";
 "favoritesSection" = "Favorites";
-"hiddenSection" = "Archive";
+"hiddenSection" = "Archived";
 "favorite" = "Favorite";
 "unfavorite" = "Unfavorite";
 "mute" = "Mute";
