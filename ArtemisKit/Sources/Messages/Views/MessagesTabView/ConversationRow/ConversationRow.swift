@@ -126,8 +126,8 @@ private extension ConversationRow {
 
     @ViewBuilder var hideAndMuteButtons: some View {
         let isHidden = conversation.isHidden ?? false
-        Button(isHidden ? R.string.localizable.show() : R.string.localizable.hide(),
-               systemImage: isHidden ? "eye.fill" : "eye.slash.fill") {
+        Button(isHidden ? R.string.localizable.unarchive() : R.string.localizable.archive(),
+               systemImage: "archivebox.fill") {
             Task(priority: .userInitiated) {
                 await viewModel.setConversationIsHidden(conversationId: conversation.id, isHidden: !(conversation.isHidden ?? false))
             }
