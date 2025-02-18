@@ -1,5 +1,5 @@
 {
-  "originHash" : "7a602fe7dffd9a3059710be75bde0431fed65f7a8b713ae2d4b5dabbe296d9e8",
+  "originHash" : "c6a20b5bee29af2f7d9e5859468f6fab85cc423cfc28d52785acd9a2fc8165ae",
   "pins" : [
     {
       "identity" : "apollon-ios-module",
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ls1intum/artemis-ios-core-modules",
       "state" : {
-        "revision" : "165339709deae862198e061c976ce339e8c9590e",
-        "version" : "15.4.1"
+        "revision" : "6ed532bc24ec5f3ca86ff62c755b6bf3e0df8ab9",
+        "version" : "15.5.0"
       }
     },
     {
@@ -195,8 +195,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/jpsim/Yams.git",
       "state" : {
-        "revision" : "db9ff235cf800bc657c3ed0961078fc231d0f28b",
-        "version" : "5.2.0"
+        "revision" : "2688707e563b44d7d87c29ba6c5ca04ce86ae58b",
+        "version" : "5.3.0"
       }
     }
   ],
