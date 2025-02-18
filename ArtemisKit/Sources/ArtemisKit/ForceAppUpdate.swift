@@ -52,6 +52,15 @@ private struct UpdateAvailableView: View {
 
                 Text(R.string.localizable.updateDescription())
                     .multilineTextAlignment(.center)
+
+                switch updateRequirement {
+                case let .requiresUpdate(current, min):
+                    Text(R.string.localizable.smallestVersion(current, min))
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                default:
+                    EmptyView()
+                }
             }
         }
         .contentMargins(.xl, for: .scrollContent)

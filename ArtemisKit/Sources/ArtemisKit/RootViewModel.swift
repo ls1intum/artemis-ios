@@ -47,8 +47,8 @@ class RootViewModel: ObservableObject {
         }
         let profileService = ProfileInfoServiceFactory.shared
         let response = await profileService.getProfileInfo()
-        let versionString = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
-        let currentVersion = AppVersion(versionString ?? "")
+        let versionString = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+        let currentVersion = AppVersion(versionString)
 
         switch response {
         case .loading, .failure:
@@ -57,7 +57,7 @@ class RootViewModel: ObservableObject {
             lastUpdateCheck = .now
             let supportedVersions = info.compatibleVersions?.ios
             if let min = supportedVersions?.min, currentVersion < AppVersion(min) {
-                updateRequirement = .requiresUpdate
+                updateRequirement = .requiresUpdate(current: versionString, min: min)
             } else if let min = supportedVersions?.recommended, currentVersion < AppVersion(min) {
                 updateRequirement = .recommendsUpdate
             } else {
@@ -129,7 +129,7 @@ private extension RootViewModel {
 
 enum UpdateRequirement: Equatable {
     case upToDate
-    case requiresUpdate
+    case requiresUpdate(current: String, min: String)
     case recommendsUpdate
 }
 
