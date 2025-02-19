@@ -175,6 +175,11 @@ private extension SendMessageView {
                         } label: {
                             Label(R.string.localizable.underline(), systemImage: "underline")
                         }
+                        Button {
+                            viewModel.didTapStrikethroughButton()
+                        } label: {
+                            Label(R.string.localizable.strikethrough(), systemImage: "strikethrough")
+                        }
                     } label: {
                         Label(R.string.localizable.style(), systemImage: "bold.italic.underline")
                     }

@@ -5,6 +5,7 @@
 //  Created by Anian Schleyer on 11.09.24.
 //
 
+import CryptoKit
 import DesignLibrary
 import Navigation
 import SharedModels
@@ -68,7 +69,9 @@ private struct DefaultProfilePictureView: View {
     }
 
     private var backgroundColor: Color {
-        let hash = abs(String(viewModel.user.id).hashValue) % 255
+        var sha = SHA256()
+        sha.update(data: Data(String(viewModel.user.id).utf8))
+        let hash = abs(sha.finalize().reduce(0) { $0 << 8 | Int($1) }) % 255
         return Color(hue: Double(hash) / 255, saturation: 0.5, brightness: 0.5)
     }
 }

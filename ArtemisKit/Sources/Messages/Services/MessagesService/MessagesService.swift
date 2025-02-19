@@ -39,6 +39,11 @@ protocol MessagesService {
     func getMessages(for courseId: Int, and conversationId: Int64, filter: MessageRequestFilter, page: Int) async -> DataState<[Message]>
 
     /**
+     * Perform a get request for a specific Message of a specific conversation in a specific course to the server.
+    */
+    func getMessage(with messageId: Int64, for courseId: Int, and conversationId: Int64) async -> DataState<Message>
+
+    /**
      * Perform a post request for a new message for a specific conversation in a specific course to the server.
      */
     func sendMessage(for courseId: Int, conversation: Conversation, content: String) async -> NetworkResponse

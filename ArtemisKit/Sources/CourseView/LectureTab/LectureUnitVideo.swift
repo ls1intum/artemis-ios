@@ -47,6 +47,7 @@ struct VideoUnitSheetContent: View {
 
                     Link(R.string.localizable.openVideo(), destination: url)
                         .buttonStyle(ArtemisButton())
+                        .padding(.horizontal)
                 } else {
                     Text(R.string.localizable.videoCouldNotBeLoaded())
                         .foregroundColor(.red)

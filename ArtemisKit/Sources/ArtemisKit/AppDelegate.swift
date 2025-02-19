@@ -40,7 +40,8 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
     ) {
         Task {
-            await PushNotificationServiceFactory.shared.register(deviceToken: String(deviceToken: deviceToken))
+            _ = await PushNotificationServiceFactory.shared.register(deviceToken: String(deviceToken: deviceToken))
+            PushNotificationHandler.scheduleNotificationForSessionExpired()
         }
         log.info("Device Token: \(String(deviceToken: deviceToken))")
     }
@@ -75,6 +76,10 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         willPresent notification: UNNotification,
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
+        if notification.request.identifier == LocalNotificationIdentifiers.sessionExpired {
+            UserSessionFactory.shared.setTokenExpired(expired: true)
+            UserSessionFactory.shared.setUserLoggedIn(isLoggedIn: false)
+        }
         completionHandler([.banner, .badge, .sound])
     }
 

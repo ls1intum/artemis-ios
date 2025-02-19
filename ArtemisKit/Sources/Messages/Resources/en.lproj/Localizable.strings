@@ -20,6 +20,7 @@
 "bold" = "Bold";
 "italic" = "Italic";
 "underline" = "Underline";
+"strikethrough" = "Strikethrough";
 "quote" = "Quote";
 "inlineCode" = "Inline code";
 "codeBlock" = "Code block";
@@ -44,13 +45,13 @@
 "createChat" = "Create Chat";
 "noResultForSearch" = "There is no result for your search.";
 "favoritesSection" = "Favorites";
-"hiddenSection" = "Hidden";
+"hiddenSection" = "Archived";
 "favorite" = "Favorite";
 "unfavorite" = "Unfavorite";
 "mute" = "Mute";
 "unmute" = "Unmute";
-"hide" = "Hide";
-"show" = "Show";
+"archive" = "Archive";
+"unarchive" = "Unarchive";
 "channels" = "Channels";
 "generalTopics" = "General Topics";
 "exercises" = "Exercises";

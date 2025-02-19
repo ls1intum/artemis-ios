@@ -14,6 +14,7 @@ struct CourseGridCell: View {
     @EnvironmentObject private var navigationController: NavigationController
 
     let courseForDashboard: CourseForDashboardDTO
+    let viewModel: DashboardViewModel
 
     var nextExercise: Exercise? {
         // filters out every already successful (100%) exercise, only exercises left that still need work
@@ -32,6 +33,10 @@ struct CourseGridCell: View {
     var body: some View {
         Button {
             navigationController.selectedCourse = CoursePath(id: courseForDashboard.id)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                // Update recents with a delay to not update grid during navigation transition
+                viewModel.addToRecents(courseId: courseForDashboard.id)
+            }
         } label: {
             VStack(alignment: .leading, spacing: 0) {
                 header
@@ -46,13 +51,17 @@ struct CourseGridCell: View {
 private extension CourseGridCell {
     var header: some View {
         HStack(alignment: .center, spacing: .m) {
-            if let imageURL = courseForDashboard.course.courseIconURL {
-                ArtemisAsyncImage(imageURL: imageURL) {
-                    EmptyView()
+            ArtemisAsyncImage(imageURL: courseForDashboard.course.courseIconURL) {
+                if let firstChar = courseForDashboard.course.title?.first {
+                    Text(String(firstChar))
+                        .font(.largeTitle)
+                        .frame(width: .largeImage * 1.25, height: .largeImage * 1.25, alignment: .center)
+                        .background(.regularMaterial, in: .circle)
                 }
-                .clipShape(.circle)
-                .frame(width: .largeImage * 1.25)
             }
+            .clipShape(.circle)
+            .frame(width: .largeImage * 1.25)
+
             Spacer()
 
             // If title spans multiple lines, push it to the leading edge
@@ -145,5 +154,5 @@ private extension CourseGridCell {
 }
 
 #Preview {
-    CourseGridCell(courseForDashboard: CourseServiceStub.course)
+    CourseGridCell(courseForDashboard: CourseServiceStub.course, viewModel: .init())
 }

@@ -83,6 +83,11 @@ struct MessageDetailView: View {
                 await reloadMessage()
             }
         }
+        .onChange(of: navController.courseTab) { _, newValue in
+            if newValue != .communication {
+                navController.tabPath = .init()
+            }
+        }
         .onChange(of: message) {
             switch message {
             case .loading:
@@ -157,6 +162,7 @@ private extension MessageDetailView {
                     let needsRoundedCorners = !(sortedArray[safe: index + 1]?.isContinuation(of: answerMessage) ?? false)
                     MessageCellWrapper(
                         viewModel: viewModel,
+                        message: self.$message,
                         answerMessage: answerMessage,
                         isHeaderVisible: isHeaderVisible,
                         roundBottomCorners: needsRoundedCorners)
@@ -211,6 +217,7 @@ private struct MessageCellWrapper: View {
 
     @ObservedObject var viewModel: ConversationViewModel
 
+    let message: Binding<DataState<BaseMessage>>
     let answerMessage: AnswerMessage
     let isHeaderVisible: Bool
     let roundBottomCorners: Bool
@@ -228,6 +235,8 @@ private struct MessageCellWrapper: View {
             if let message = viewModel.messages.first(where: messageContainsAnswer),
                let answer = message.rawValue.answers?.first(where: isAnswerMessage) {
                 return .done(response: answer)
+            } else if let answer = (message.wrappedValue.value as? Message)?.answers?.first(where: isAnswerMessage) {
+                return .done(response: answer)
             } else {
                 return .loading
             }
@@ -235,8 +244,15 @@ private struct MessageCellWrapper: View {
             if var message = viewModel.messages.first(where: messageContainsAnswer)?.rawValue,
                let answer = value.value as? AnswerMessage,
                let index = message.answers?.firstIndex(where: isAnswerMessage) {
+                // Save changes in View model
                 message.answers?[index] = answer
                 viewModel.messages.update(with: .message(message))
+            } else if let answer = value.value as? AnswerMessage,
+                      let index = (message.wrappedValue.value as? Message)?.answers?.firstIndex(where: isAnswerMessage),
+                      var newMessage = message.wrappedValue.value as? Message {
+                // Save changes in message itself
+                newMessage.answers?[index] = answer
+                message.wrappedValue = .done(response: newMessage)
             }
         }
     }

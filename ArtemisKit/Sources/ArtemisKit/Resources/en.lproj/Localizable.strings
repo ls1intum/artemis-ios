@@ -1,0 +1,5 @@
+"updateAvailable" = "New update available";
+"updateDescription" = "Please update Artemis to the latest version to ensure you have a smooth experience.\nYou can download the latest version from the App Store.";
+"smallestVersion" = "You are currently using version %@ while the oldest version currently supported is %@.";
+"download" = "Download";
+"notNow" = "Not now";
