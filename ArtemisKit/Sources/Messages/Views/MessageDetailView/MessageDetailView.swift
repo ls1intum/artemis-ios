@@ -99,6 +99,10 @@ struct MessageDetailView: View {
                 break
             }
         }
+        .onDisappear {
+            // Reset any selection when navigating back
+            viewModel.selectedMessageId = nil
+        }
         .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
         .navigationBarTitleDisplayMode(.inline)
     }
