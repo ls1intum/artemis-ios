@@ -90,8 +90,8 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
-        guard handleResponse(response) else {
-            // If handleResponse returns false, we don't need to perform additional work
+        guard handleNotificationResponse(response) else {
+            // If handleNotificationResponse returns false, we don't need to perform additional work
             log.info("Handled notification action. Not opening deep link.")
             completionHandler()
             return
@@ -115,7 +115,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
 
     /// Handles actions triggered from a user interacting with a notification.
     /// Returns whether the corresponding deep link should be opened.
-    private func handleResponse(_ response: UNNotificationResponse) -> Bool {
+    private func handleNotificationResponse(_ response: UNNotificationResponse) -> Bool {
         if response.actionIdentifier == PushNotificationActionIdentifiers.reply {
             guard
                 let communicationInfoData =
