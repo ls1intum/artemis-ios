@@ -24,11 +24,13 @@ public struct NotificationMessageResponseHandler {
             case .failure:
                 // Save message to try again later in case of failure
                 let host = UserSessionFactory.shared.institution?.baseURL?.host() ?? ""
-                _ = try? await MessagesRepository.shared.insertMessage(host: host,
-                                                                       courseId: courseId,
-                                                                       conversationId: Int(channelId),
-                                                                       messageId: Int(messageId),
-                                                                       answerMessageDraft: responseText)
+                let repository = await MessagesRepository.shared
+                _ = try? await repository.insertMessage(host: host,
+                                                        courseId: courseId,
+                                                        conversationId: Int(channelId),
+                                                        messageId: Int(messageId),
+                                                        answerMessageDraft: responseText)
+                await repository.save()
             default:
                 break
             }
