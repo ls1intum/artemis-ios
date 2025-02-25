@@ -70,7 +70,6 @@ struct SendMessageListUtil {
         return updatedText
     }
 
-
     /// Handles text changes when Enter is pressed to continue a list or remove empty bullets.
     static func handleTextChange(_ newValue: String, text: String) -> String {
         guard !newValue.isEmpty, newValue.hasSuffix("\n") else { return text}

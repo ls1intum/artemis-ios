@@ -407,8 +407,11 @@ extension SendMessageViewModel {
     }
     
     func handleTextChange(_ newValue: String) {
-        text = SendMessageListUtil.handleTextChange(newValue, text: text)
-        moveCursorToEnd()
+        let modifiedText = SendMessageListUtil.handleTextChange(newValue, text: text)
+        if modifiedText != text {
+            text = modifiedText
+            moveCursorToEnd()
+        }
     }
 
     func insertListPrefix(unordered: Bool) {
