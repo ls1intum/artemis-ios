@@ -55,6 +55,9 @@ struct SendMessageView: View {
                 viewModel.keyboardVisible = isFocused
             }
         }
+        .onChange(of: viewModel.text) {
+            viewModel.handleTextChange(viewModel.text)
+        }
         .onAppear {
             viewModel.performOnAppear()
             if viewModel.presentKeyboardOnAppear {
@@ -209,6 +212,20 @@ private extension SendMessageView {
                     }
                     SendMessageImagePickerView(sendMessageViewModel: viewModel)
                     SendMessageFilePickerView(sendViewModel: viewModel, viewModel: uploadFileViewModel)
+                    Menu {
+                        Button {
+                            viewModel.insertListPrefix(unordered: true)
+                        } label: {
+                            Label(R.string.localizable.unorderedList(), systemImage: "list.bullet")
+                        }
+                        Button {
+                            viewModel.insertListPrefix(unordered: false)
+                        } label: {
+                            Label(R.string.localizable.orderedList(), systemImage: "list.number")
+                        }
+                    } label: {
+                        Label(R.string.localizable.listFormatting(), systemImage: "list.triangle")
+                    }
                 }
                 .labelStyle(.iconOnly)
                 .font(.title3)

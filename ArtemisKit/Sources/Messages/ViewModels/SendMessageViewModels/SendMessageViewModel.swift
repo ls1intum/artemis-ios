@@ -397,4 +397,22 @@ extension SendMessageViewModel {
             with: "[user]\(name)(\(login))[/user]",
             range: range)
     }
+    
+    func moveCursorToEnd() {
+        _selection = TextSelection(insertionPoint: text.endIndex)
+    }
+    
+    func makeInsertion(insertionPoint: String.Index) {
+        _selection = TextSelection(insertionPoint: insertionPoint)
+    }
+    
+    func handleTextChange(_ newValue: String) {
+        text = SendMessageListUtil.handleTextChange(newValue, text: text)
+        moveCursorToEnd()
+    }
+
+    func insertListPrefix(unordered: Bool) {
+        text = SendMessageListUtil.insertListPrefix(text: text, unordered: unordered)
+        moveCursorToEnd()
+    }
 }
