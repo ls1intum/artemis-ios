@@ -44,16 +44,16 @@ final class SendMessageViewModel {
     // MARK: Text
 
     var text = ""
-    private var _selection: TextSelection?
-    var selection: Binding<TextSelection?> {
+    internal var selection: TextSelection?
+    var textSelection: Binding<TextSelection?> {
         Binding {
-            return self._selection
+            return self.selection
         } set: { newValue in
             // Ignore updates if text field is not focused
             if !self.keyboardVisible && newValue != nil {
                 return
             }
-            self._selection = newValue
+            self.selection = newValue
         }
     }
 
@@ -234,7 +234,7 @@ extension SendMessageViewModel {
         let placeholderText = "\(before)\(placeholder)\(after)"
         var shouldSelectPlaceholder = false
 
-        if let selection = _selection {
+        if let selection = selection {
             switch selection.indices {
             case .selection(let range):
                 let newText: String
@@ -246,7 +246,7 @@ extension SendMessageViewModel {
                 }
                 text.replaceSubrange(range, with: newText)
                 if !shouldSelectPlaceholder, let endIndex = text.range(of: newText)?.upperBound {
-                    self._selection = TextSelection(insertionPoint: endIndex)
+                    self.selection = TextSelection(insertionPoint: endIndex)
                 }
             default:
                 break
@@ -259,7 +259,7 @@ extension SendMessageViewModel {
         if shouldSelectPlaceholder {
             for range in text.ranges(of: placeholderText) {
                 if let placeholderRange = text[range].range(of: placeholder) {
-                    _selection = TextSelection(range: range.clamped(to: placeholderRange))
+                    selection = TextSelection(range: range.clamped(to: placeholderRange))
                 }
             }
         }
@@ -297,7 +297,7 @@ extension SendMessageViewModel {
             }
             switch result {
             case .success:
-                _selection = nil
+                selection = nil
                 text = ""
             default:
                 return
@@ -396,25 +396,5 @@ extension SendMessageViewModel {
             of: "@" + candidate,
             with: "[user]\(name)(\(login))[/user]",
             range: range)
-    }
-    
-    func moveCursorToEnd() {
-        _selection = TextSelection(insertionPoint: text.endIndex)
-    }
-    
-    func makeInsertion(insertionPoint: String.Index) {
-        _selection = TextSelection(insertionPoint: insertionPoint)
-    }
-    func handleTextChange(_ newValue: String) {
-        let modifiedText = SendMessageListUtil.handleTextChange(newValue, text: text)
-        if modifiedText != text {
-            text = modifiedText
-            moveCursorToEnd()
-        }
-    }
-
-    func insertListPrefix(unordered: Bool) {
-        text = SendMessageListUtil.insertListPrefix(text: text, unordered: unordered)
-        moveCursorToEnd()
     }
 }

@@ -56,7 +56,7 @@ struct SendMessageView: View {
             }
         }
         .onChange(of: viewModel.text) {
-            viewModel.handleTextChange(viewModel.text)
+            viewModel.handleListFormatting(viewModel.text)
         }
         .onAppear {
             viewModel.performOnAppear()
@@ -115,7 +115,7 @@ private extension SendMessageView {
             TextField(
                 R.string.localizable.messageAction(viewModel.conversation.baseConversation.conversationName),
                 text: $viewModel.text,
-                selection: viewModel.selection,
+                selection: viewModel.textSelection,
                 axis: .vertical
             )
             .textFieldStyle(.roundedBorder)

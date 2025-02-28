@@ -8,7 +8,7 @@
 import Foundation
 
 struct SendMessageListUtil {
-   
+ 
     enum BulletInfo {
         case unordered          // For lines starting with "- "
         case ordered(Int)       // For lines like "1. ", "2. ", etc.
@@ -19,7 +19,7 @@ struct SendMessageListUtil {
     /// where the second value is the remaining text after the prefix.
     static func parseBulletPrefix(in line: String) -> (BulletInfo, String)? {
         let trimmed = line
-      
+     
         // 1) Unordered bullet check: "- "
         if trimmed.hasPrefix("- ") {
             let content = trimmed.dropFirst(2)
