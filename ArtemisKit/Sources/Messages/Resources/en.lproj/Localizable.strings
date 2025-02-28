@@ -29,8 +29,8 @@
 "uploadImage" = "Upload Image";
 "uploadFile" = "Upload File";
 "unorderedList" = "Unordered List";
-"orderedList" ="Ordered List";
-"listFormatting" ="List Formatting";
+"orderedList" = "Ordered List";
+"listFormatting" = "List Formatting";
 
 // MARK: SendMessageMentionContentView
 "members" = "Members";
