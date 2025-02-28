@@ -10,6 +10,7 @@ import SwiftUI
 
 public struct RootView: View {
 
+    @Environment(\.scenePhase) var scenePhase
     @StateObject private var viewModel = RootViewModel()
 
     @ObservedObject private var navigationController: NavigationController
@@ -61,6 +62,12 @@ public struct RootView: View {
                 }
             }
         })
+        .modifier(ForceAppUpdateViewModifier(updateRequirement: $viewModel.updateRequirement))
+        .onChange(of: scenePhase) {
+            if scenePhase == .active {
+                Task { await viewModel.checkForUpdates() }
+            }
+        }
     }
 }
 

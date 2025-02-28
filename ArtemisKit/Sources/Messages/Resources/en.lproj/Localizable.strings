@@ -48,13 +48,13 @@
 "createChat" = "Create Chat";
 "noResultForSearch" = "There is no result for your search.";
 "favoritesSection" = "Favorites";
-"hiddenSection" = "Hidden";
+"hiddenSection" = "Archived";
 "favorite" = "Favorite";
 "unfavorite" = "Unfavorite";
 "mute" = "Mute";
 "unmute" = "Unmute";
-"hide" = "Hide";
-"show" = "Show";
+"archive" = "Archive";
+"unarchive" = "Unarchive";
 "channels" = "Channels";
 "generalTopics" = "General Topics";
 "exercises" = "Exercises";
