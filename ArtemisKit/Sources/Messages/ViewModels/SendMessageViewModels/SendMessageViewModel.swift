@@ -405,7 +405,6 @@ extension SendMessageViewModel {
     func makeInsertion(insertionPoint: String.Index) {
         _selection = TextSelection(insertionPoint: insertionPoint)
     }
-    
     func handleTextChange(_ newValue: String) {
         let modifiedText = SendMessageListUtil.handleTextChange(newValue, text: text)
         if modifiedText != text {
