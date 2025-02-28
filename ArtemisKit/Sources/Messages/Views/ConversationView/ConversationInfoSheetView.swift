@@ -108,6 +108,15 @@ private extension ConversationInfoSheetView {
                     }
                     .foregroundColor(.Artemis.badgeWarningColor)
                 }
+                Button(R.string.localizable.deleteChannel(), systemImage: "trash") {
+                    viewModel.isLoading = true
+                    Task {
+                        await viewModel.deleteChannel()
+                        viewModel.isLoading = false
+                    }
+                }
+                .foregroundColor(.Artemis.badgeDangerColor)
+                
             }
             if viewModel.canLeaveConversation {
                 Button(R.string.localizable.leaveConversationButtonLabel(), systemImage: "rectangle.portrait.and.arrow.forward") {
