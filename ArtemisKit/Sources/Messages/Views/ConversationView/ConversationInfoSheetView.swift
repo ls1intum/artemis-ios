@@ -129,7 +129,7 @@ private extension ConversationInfoSheetView {
                 }
                 if viewModel.canDeleteChannel {
                     Button(R.string.localizable.deleteChannel(), systemImage: "trash.fill", role: .destructive) {
-                    showDeleteConfirmation = true
+                        showDeleteConfirmation = true
                     }
                     .foregroundColor(.Artemis.badgeDangerColor)
                 }
