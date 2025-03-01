@@ -69,7 +69,7 @@ struct ConversationInfoSheetView: View {
                         Task {
                             let success = await viewModel.deleteChannel()
                             if success {
-                                navigationController.goToCourseConversations(courseId: viewModel.course.id)
+                                navigationController.selectedPath = nil
                             } else {
                                 viewModel.isLoading = false
                             }
