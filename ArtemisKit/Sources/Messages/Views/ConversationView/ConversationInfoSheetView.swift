@@ -23,6 +23,7 @@ struct ConversationInfoSheetView: View {
 
     // Triggers view update
     @Binding private var conversation: Conversation
+    @State private var showDeleteConfirmation = false
 
     var body: some View {
         NavigationView {
@@ -58,6 +59,24 @@ struct ConversationInfoSheetView: View {
                 }
             } content: {
                 CreateOrAddToChatView(courseId: viewModel.course.id, configuration: .addToChat(conversation))
+            }
+            .alert(isPresented: $showDeleteConfirmation) {
+                Alert(
+                    title: Text(R.string.localizable.confirmDeleteTitle()),
+                    message: Text(String(format: R.string.localizable.confirmDeleteMessage(conversation.baseConversation.conversationName))),
+                    primaryButton: .destructive(Text(R.string.localizable.delete())) {
+                        viewModel.isLoading = true
+                        Task {
+                            let success = await viewModel.deleteChannel()
+                            if success {
+                                navigationController.goToCourseConversations(courseId: viewModel.course.id)
+                            } else {
+                                viewModel.isLoading = false
+                            }
+                        }
+                    },
+                    secondaryButton: .cancel()
+                )
             }
         }
     }
@@ -108,18 +127,12 @@ private extension ConversationInfoSheetView {
                     }
                     .foregroundColor(.Artemis.badgeWarningColor)
                 }
-                Button(R.string.localizable.deleteChannel(), systemImage: "trash.fill") {
-                    viewModel.isLoading = true
-                    Task {
-                        let success = await viewModel.deleteChannel()
-                        if success {
-                            navigationController.goToCourseConversations(courseId: viewModel.course.id)
-                        } else {
-                            viewModel.isLoading = false
-                        }
+                if viewModel.canDeleteChannel {
+                    Button(R.string.localizable.deleteChannel(), systemImage: "trash.fill") {
+                    showDeleteConfirmation = true
                     }
+                    .foregroundColor(.Artemis.badgeDangerColor)
                 }
-                .foregroundColor(.Artemis.badgeDangerColor)
             }
             if viewModel.canLeaveConversation {
                 Button(R.string.localizable.leaveConversationButtonLabel(), systemImage: "rectangle.portrait.and.arrow.forward") {
