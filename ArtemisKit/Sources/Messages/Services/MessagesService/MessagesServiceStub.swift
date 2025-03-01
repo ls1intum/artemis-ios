@@ -216,9 +216,8 @@ extension MessagesServiceStub: MessagesService {
     func getUnresolvedChannelIds(for courseId: Int, and channelIds: [Int64]) async -> DataState<[Int64]> {
         .loading
     }
-    
-    func deleteChannel(for courseId: Int, channelId: Int64) async ->NetworkResponse {
+
+    func deleteChannel(for courseId: Int, channelId: Int64) async -> NetworkResponse {
         .loading
     }
-    
 }

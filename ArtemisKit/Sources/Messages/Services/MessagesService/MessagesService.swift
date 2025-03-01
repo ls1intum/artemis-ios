@@ -172,7 +172,7 @@ protocol MessagesService {
      * Perform a get request to retrieve channels which have unresolved messages
      */
     func getUnresolvedChannelIds(for courseId: Int, and channelIds: [Int64]) async -> DataState<[Int64]>
-   
+
     /**
      * Perform a delete request to delete a specific channel in a specific course to the server.
      */

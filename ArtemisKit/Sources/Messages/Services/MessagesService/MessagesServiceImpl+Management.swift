@@ -95,7 +95,7 @@ extension MessagesServiceImpl {
             return .failure(error: error)
         }
     }
-   
+
     func deleteChannel(for courseId: Int, channelId: Int64) async -> NetworkResponse {
         let result = await client.sendRequest(DeleteChannelRequest(courseId: courseId, channelId: channelId))
 
@@ -112,7 +112,7 @@ extension MessagesServiceImpl {
 
         let courseId: Int
         let channelId: Int64
-        
+
         var method: HTTPMethod {
             return .delete
         }
