@@ -78,7 +78,7 @@ private extension CourseGridCell {
                     .lineLimit(2)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .foregroundStyle(.white)
+            .foregroundStyle(headerTextColor)
 
             Spacer()
         }
@@ -86,6 +86,24 @@ private extension CourseGridCell {
         .padding(.m)
         .frame(maxWidth: .infinity)
         .background(courseForDashboard.course.courseColor)
+    }
+
+    // Ensure contrast between background and title color is big enough
+    var headerTextColor: Color {
+        guard let color = courseForDashboard.course.color,
+              let colorComponents = UIColor(hexString: color).cgColor.components,
+              colorComponents.count >= 3 else {
+            return .white
+        }
+        let r = colorComponents[0]
+        let g = colorComponents[1]
+        let b = colorComponents[2]
+        let brightness = (r * 299 + g * 587 + b * 114) / 3.9
+        if brightness >= 128 {
+            return .black
+        } else {
+            return .white
+        }
     }
 
     var content: some View {
