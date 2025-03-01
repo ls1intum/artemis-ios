@@ -55,7 +55,9 @@ struct SendMessageView: View {
                 viewModel.keyboardVisible = isFocused
             }
         }
-        .onChange(of: viewModel.text) {
+        .onChange(of: viewModel.text) { oldValue, newValue in
+            // Only call change handler if text was entered, not when text was removed
+            guard newValue.count > oldValue.count else { return }
             viewModel.handleListFormatting(viewModel.text)
         }
         .onAppear {
