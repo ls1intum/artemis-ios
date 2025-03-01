@@ -62,7 +62,7 @@ struct ConversationInfoSheetView: View {
             }
             .alert(isPresented: $showDeleteConfirmation) {
                 Alert(
-                    title: Text(R.string.localizable.confirmDeleteTitle()),
+                    title: Text(R.string.localizable.deleteChannel()),
                     message: Text(R.string.localizable.confirmDeleteMessage(conversation.baseConversation.conversationName)),
                     primaryButton: .destructive(Text(R.string.localizable.delete())) {
                         viewModel.isLoading = true

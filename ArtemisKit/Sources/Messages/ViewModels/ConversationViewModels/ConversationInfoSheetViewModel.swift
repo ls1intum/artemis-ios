@@ -85,14 +85,14 @@ extension ConversationInfoSheetViewModel {
     var canRemoveUsers: Bool {
         canAddUsers
     }
-    
+
     var canDeleteChannel: Bool {
         guard let channel = conversation.baseConversation as? Channel else { return false }
         let isTutorialGroupChannel = channel.tutorialGroupId != nil || channel.tutorialGroupTitle != nil
         let hasChannelModerationRights = channel.hasChannelModerationRights ?? false
         let isChannelModerator = channel.isChannelModerator ?? false
         let isCreator = channel.isCreator ?? false
-    
+
         return !isTutorialGroupChannel && hasChannelModerationRights && isChannelModerator && isCreator
     }
 }
@@ -298,7 +298,7 @@ extension ConversationInfoSheetViewModel {
             isLoading = false
         }
     }
-  
+
     func deleteChannel() async -> Bool {
         let result = await messagesService.deleteChannel(for: course.id, channelId: conversation.id)
 

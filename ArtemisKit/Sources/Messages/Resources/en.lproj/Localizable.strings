@@ -164,7 +164,6 @@
 "removeFavorite" = "Remove from Favorites";
 "sendMessage" = "Send Message";
 "deleteChannel" = "Delete Channel";
-"confirmDeleteTitle" = "Delete Channel";
 "confirmDeleteMessage" = "Are you sure you want to delete the channel with name '%@'? This is a permanent action and cannot be undone.";
 "delete" = "Delete";
 
