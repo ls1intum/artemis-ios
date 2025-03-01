@@ -163,6 +163,9 @@
 "addFavorite" = "Add to Favorites";
 "removeFavorite" = "Remove from Favorites";
 "sendMessage" = "Send Message";
+"deleteChannel" = "Delete Channel";
+"confirmDeleteMessage" = "Are you sure you want to delete the channel with name '%@'? This is a permanent action and cannot be undone.";
+"delete" = "Delete";
 
 // MARK: Errors
 "detailViewCantBeOpened" = "Detail View can not be opened. Please try again later.";
