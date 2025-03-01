@@ -96,6 +96,32 @@ extension MessagesServiceImpl {
         }
     }
 
+    func deleteChannel(for courseId: Int, channelId: Int64) async -> NetworkResponse {
+        let result = await client.sendRequest(DeleteChannelRequest(courseId: courseId, channelId: channelId))
+
+        switch result {
+        case .success:
+            return .success
+        case let .failure(error):
+            return .failure(error: error)
+        }
+    }
+
+    struct DeleteChannelRequest: APIRequest {
+        typealias Response = RawResponse
+
+        let courseId: Int
+        let channelId: Int64
+
+        var method: HTTPMethod {
+            return .delete
+        }
+
+        var resourceName: String {
+            return "api/courses/\(courseId)/channels/\(channelId)"
+        }
+    }
+
     struct GetUnresolvedChannelsRequest: APIRequest {
         typealias Response = [UnresolvedChannelsResponse]
         struct UnresolvedChannelsResponse: Codable {
