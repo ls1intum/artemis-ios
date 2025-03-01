@@ -128,7 +128,7 @@ private extension ConversationInfoSheetView {
                     .foregroundColor(.Artemis.badgeWarningColor)
                 }
                 if viewModel.canDeleteChannel {
-                    Button(R.string.localizable.deleteChannel(), systemImage: "trash.fill") {
+                    Button(R.string.localizable.deleteChannel(), systemImage: "trash.fill", role: .destructive) {
                     showDeleteConfirmation = true
                     }
                     .foregroundColor(.Artemis.badgeDangerColor)
