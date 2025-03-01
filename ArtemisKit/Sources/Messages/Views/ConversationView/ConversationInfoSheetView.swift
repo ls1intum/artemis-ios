@@ -108,15 +108,18 @@ private extension ConversationInfoSheetView {
                     }
                     .foregroundColor(.Artemis.badgeWarningColor)
                 }
-                Button(R.string.localizable.deleteChannel(), systemImage: "trash") {
+                Button(R.string.localizable.deleteChannel(), systemImage: "trash.fill") {
                     viewModel.isLoading = true
                     Task {
-                        await viewModel.deleteChannel()
-                        viewModel.isLoading = false
+                        let success = await viewModel.deleteChannel()
+                        if success {
+                            navigationController.goToCourseConversations(courseId: viewModel.course.id)
+                        } else {
+                            viewModel.isLoading = false
+                        }
                     }
                 }
                 .foregroundColor(.Artemis.badgeDangerColor)
-                
             }
             if viewModel.canLeaveConversation {
                 Button(R.string.localizable.leaveConversationButtonLabel(), systemImage: "rectangle.portrait.and.arrow.forward") {

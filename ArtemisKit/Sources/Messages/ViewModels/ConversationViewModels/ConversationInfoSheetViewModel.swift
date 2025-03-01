@@ -289,16 +289,18 @@ extension ConversationInfoSheetViewModel {
         }
     }
     
-    func deleteChannel() async {
+    func deleteChannel() async -> Bool {
         let result = await messagesService.deleteChannel(for: course.id, channelId: conversation.id)
 
         switch result {
         case .notStarted, .loading:
-            break
+            return false
         case .success:
-            await refreshConversation()
+            return true
         case .failure(let error):
             presentError(userFacingError: UserFacingError(title: error.localizedDescription))
+            return false
         }
+        
     }
 }
