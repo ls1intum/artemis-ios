@@ -21,7 +21,6 @@ struct CreateChannelView: View {
     @State private var name = ""
     @State private var description = ""
 
-    @State private var isPrivate = false
     @State private var isAnnouncement = false
 
     let courseId: Int
@@ -55,9 +54,12 @@ struct CreateChannelView: View {
                 Divider()
                 Group {
                     VStack(alignment: .leading) {
-                        Toggle(R.string.localizable.privateChannelLabel(), isOn: $isPrivate)
-                            .tint(.Artemis.toggleColor)
-                        Text(R.string.localizable.privateChannelDescription())
+                        Picker("Channel Type", selection: $viewModel.channelType) {
+                            ForEach(ChannelType.allCases, id: \.self) { type in
+                                Text(type.title)
+                            }
+                        }
+                        Text(viewModel.channelType.description)
                             .font(.caption2)
                             .foregroundColor(.Artemis.secondaryLabel)
                     }
@@ -76,7 +78,6 @@ struct CreateChannelView: View {
                         let newChannelId = await viewModel.createChannel(for: courseId,
                                                                          name: name,
                                                                          description: description.isEmpty ? nil : description,
-                                                                         isPrivate: isPrivate,
                                                                          isAnnouncement: isAnnouncement)
 
                         if let newChannelId {

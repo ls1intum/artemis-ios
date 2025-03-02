@@ -181,7 +181,7 @@ extension MessagesServiceStub: MessagesService {
         .loading
     }
 
-    func createChannel(for courseId: Int, name: String, description: String?, isPrivate: Bool, isAnnouncement: Bool) async -> DataState<Channel> {
+    func createChannel(for courseId: Int, name: String, description: String?, isPrivate: Bool, isAnnouncement: Bool, isCourseWide: Bool) async -> DataState<Channel> {
         .loading
     }
 

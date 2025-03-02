@@ -21,6 +21,7 @@ extension MessagesServiceImpl {
         let description: String?
         let isPublic: Bool
         let isAnnouncementChannel: Bool
+        let isCourseWide: Bool
 
         var method: HTTPMethod {
             return .post
@@ -31,9 +32,9 @@ extension MessagesServiceImpl {
         }
     }
 
-    func createChannel(for courseId: Int, name: String, description: String?, isPrivate: Bool, isAnnouncement: Bool) async -> DataState<Channel> {
+    func createChannel(for courseId: Int, name: String, description: String?, isPrivate: Bool, isAnnouncement: Bool, isCourseWide: Bool) async -> DataState<Channel> {
         let result = await client.sendRequest(
-            CreateChannelRequest(courseId: courseId, name: name, description: description, isPublic: !isPrivate, isAnnouncementChannel: isAnnouncement)
+            CreateChannelRequest(courseId: courseId, name: name, description: description, isPublic: !isPrivate, isAnnouncementChannel: isAnnouncement, isCourseWide: isCourseWide)
         )
 
         switch result {

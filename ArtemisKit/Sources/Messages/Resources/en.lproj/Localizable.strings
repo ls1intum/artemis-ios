@@ -113,8 +113,12 @@
 "channelNameWarningText" = "Names can only contain lowercase letters, numbers, and dashes. Only Artemis can create channels that start with a $.";
 "descriptionOptional" = "Description (Optional)";
 "description" = "Description";
-"privateChannelLabel" = "Private Channel?";
-"privateChannelDescription" = "Every user except instructors will need an invitation to join a private channel. Everybody can join a public channel.";
+"privateChannelLabel" = "Private";
+"publicChannelLabel" = "Public";
+"courseWideChannelLabel" = "Course-wide";
+"privateChannelDescription" = "Every user except instructors will need an invitation to join a private channel.";
+"publicChannelDescription" = "Everybody can join a public channel.";
+"courseWideChannelDescription" = "All users of this course will be added to a course-wide channel.";
 "announcementChannelLabel" = "Announcement Channel?";
 "announcementChannelDescription" = "Only instructors and channel moderators can create new messages in an announcement channel. Students can only read the messages and answer to them.";
 "createChannelButtonLabel" = "Create Channel";
