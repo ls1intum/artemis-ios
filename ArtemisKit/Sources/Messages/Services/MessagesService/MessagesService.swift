@@ -131,7 +131,7 @@ protocol MessagesService {
     /**
      * Perform a post request to create a specific channels in a specific course to the server.
      */
-    func createChannel(for courseId: Int, name: String, description: String?, isPrivate: Bool, isAnnouncement: Bool) async -> DataState<Channel>
+    func createChannel(for courseId: Int, name: String, description: String?, isPrivate: Bool, isAnnouncement: Bool, isCourseWide: Bool) async -> DataState<Channel>
 
     /**
      * Perform a get request to find users in a specific course to the server.
