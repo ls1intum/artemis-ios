@@ -55,6 +55,11 @@ struct SendMessageView: View {
                 viewModel.keyboardVisible = isFocused
             }
         }
+        .onChange(of: viewModel.text) { oldValue, newValue in
+            // Only call change handler if text was entered, not when text was removed
+            guard newValue.count > oldValue.count else { return }
+            viewModel.handleListFormatting(newValue)
+        }
         .onAppear {
             viewModel.performOnAppear()
             if viewModel.presentKeyboardOnAppear {
@@ -182,6 +187,20 @@ private extension SendMessageView {
                         }
                     } label: {
                         Label(R.string.localizable.style(), systemImage: "bold.italic.underline")
+                    }
+                    Menu {
+                        Button {
+                            viewModel.insertListPrefix(unordered: true)
+                        } label: {
+                            Label(R.string.localizable.unorderedList(), systemImage: "list.bullet")
+                        }
+                        Button {
+                            viewModel.insertListPrefix(unordered: false)
+                        } label: {
+                            Label(R.string.localizable.orderedList(), systemImage: "list.number")
+                        }
+                    } label: {
+                        Label(R.string.localizable.listFormatting(), systemImage: "list.triangle")
                     }
                     Button {
                         viewModel.didTapBlockquoteButton()
