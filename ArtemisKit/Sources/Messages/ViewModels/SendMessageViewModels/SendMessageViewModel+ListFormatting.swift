@@ -25,10 +25,10 @@ extension SendMessageViewModel {
     }
 
     func moveCursorToEnd() {
-        selection = TextSelection(insertionPoint: text.endIndex)
+        _selection = TextSelection(insertionPoint: text.endIndex)
     }
 
     func makeInsertion(insertionPoint: String.Index) {
-        selection = TextSelection(insertionPoint: insertionPoint)
+        _selection = TextSelection(insertionPoint: insertionPoint)
     }
 }

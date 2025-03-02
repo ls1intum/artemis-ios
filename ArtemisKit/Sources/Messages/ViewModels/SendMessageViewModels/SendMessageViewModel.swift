@@ -44,16 +44,16 @@ final class SendMessageViewModel {
     // MARK: Text
 
     var text = ""
-    internal var selection: TextSelection?
-    var textSelection: Binding<TextSelection?> {
+    internal var _selection: TextSelection? // swiftlint:disable:this identifier_name
+    var selection: Binding<TextSelection?> {
         Binding {
-            return self.selection
+            return self._selection
         } set: { newValue in
             // Ignore updates if text field is not focused
             if !self.keyboardVisible && newValue != nil {
                 return
             }
-            self.selection = newValue
+            self._selection = newValue
         }
     }
 
@@ -234,7 +234,7 @@ extension SendMessageViewModel {
         let placeholderText = "\(before)\(placeholder)\(after)"
         var shouldSelectPlaceholder = false
 
-        if let selection = selection {
+        if let selection = _selection {
             switch selection.indices {
             case .selection(let range):
                 let newText: String
@@ -246,7 +246,7 @@ extension SendMessageViewModel {
                 }
                 text.replaceSubrange(range, with: newText)
                 if !shouldSelectPlaceholder, let endIndex = text.range(of: newText)?.upperBound {
-                    self.selection = TextSelection(insertionPoint: endIndex)
+                    self._selection = TextSelection(insertionPoint: endIndex)
                 }
             default:
                 break
@@ -259,7 +259,7 @@ extension SendMessageViewModel {
         if shouldSelectPlaceholder {
             for range in text.ranges(of: placeholderText) {
                 if let placeholderRange = text[range].range(of: placeholder) {
-                    selection = TextSelection(range: range.clamped(to: placeholderRange))
+                    _selection = TextSelection(range: range.clamped(to: placeholderRange))
                 }
             }
         }
@@ -297,7 +297,7 @@ extension SendMessageViewModel {
             }
             switch result {
             case .success:
-                selection = nil
+                _selection = nil
                 text = ""
             default:
                 return
