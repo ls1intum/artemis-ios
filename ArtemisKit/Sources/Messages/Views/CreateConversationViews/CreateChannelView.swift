@@ -58,7 +58,6 @@ struct CreateChannelView: View {
 
                     VStack(alignment: .leading) {
                         Toggle(R.string.localizable.announcementChannelLabel(), isOn: $viewModel.isAnnouncement)
-                            .tint(.Artemis.toggleColor)
                         Text(R.string.localizable.announcementChannelDescription())
                             .font(.caption2)
                             .foregroundColor(.Artemis.secondaryLabel)
