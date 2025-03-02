@@ -7,31 +7,49 @@
 
 import Foundation
 import Common
+import SwiftUI
 
 @MainActor
-class CreateChannelViewModel: BaseViewModel {
+@Observable
+class CreateChannelViewModel {
 
-    @Published var nameFormatText: String?
+    var error: UserFacingError?
+    var showError: Binding<Bool> {
+        Binding(get: {
+            self.error != nil
+        }, set: { newValue in
+            if !newValue {
+                self.error = nil
+            }
+        })
+    }
 
-    @Published var channelType: ChannelType = .public
+    var nameFormatText: String?
 
-    func createChannel(for courseId: Int, name: String, description: String?, isAnnouncement: Bool) async -> Int64? {
+    var name = ""
+    var description = ""
+    var channelType: ChannelType = .public
+    var isAnnouncement = false
+
+    func createChannel(for courseId: Int) async -> Int64? {
         if !validateChannelName(name: name) {
             return nil
         }
 
-        let result = await MessagesServiceFactory.shared.createChannel(for: courseId,
-                                                                       name: name,
-                                                                       description: description,
-                                                                       isPrivate: channelType.isPrivate,
-                                                                       isAnnouncement: isAnnouncement,
-                                                                       isCourseWide: channelType.isCourseWide)
+        let channelDescription = description.isEmpty ? nil : description
+        let messagesService = MessagesServiceFactory.shared
+        let result = await messagesService.createChannel(for: courseId,
+                                                         name: name,
+                                                         description: channelDescription,
+                                                         isPrivate: channelType.isPrivate,
+                                                         isAnnouncement: isAnnouncement,
+                                                         isCourseWide: channelType.isCourseWide)
 
         switch result {
         case .loading:
             return nil
         case .failure(let error):
-            presentError(userFacingError: error)
+            self.error = error
             return nil
         case .done(let response):
             return response.id
