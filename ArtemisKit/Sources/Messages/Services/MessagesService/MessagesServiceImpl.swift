@@ -282,8 +282,7 @@ struct MessagesServiceImpl: MessagesService {
                return .failure(error: .init(title: "File too big to upload"))
            }
 
-           // TODO
-           let request = MultipartFormDataRequest(path: "api/files/courses/\(courseId)/conversations/\(conversationId)")
+           let request = MultipartFormDataRequest(path: "api/core/files/courses/\(courseId)/conversations/\(conversationId)")
            request.addDataField(named: "file",
                                 filename: filename,
                                 data: file,
