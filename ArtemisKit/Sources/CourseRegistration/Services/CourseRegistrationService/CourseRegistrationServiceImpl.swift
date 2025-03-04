@@ -15,7 +15,7 @@ class CourseRegistrationServiceImpl: CourseRegistrationService {
         }
 
         var resourceName: String {
-            return "api/courses/for-enrollment"
+            return "api/core/courses/for-enrollment"
         }
     }
 
@@ -40,7 +40,7 @@ class CourseRegistrationServiceImpl: CourseRegistrationService {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/enroll"
+            return "api/core/courses/\(courseId)/enroll"
         }
     }
 

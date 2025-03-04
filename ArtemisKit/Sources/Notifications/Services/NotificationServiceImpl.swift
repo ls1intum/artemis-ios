@@ -24,7 +24,7 @@ class NotificationServiceImpl: NotificationService {
         }
 
         var resourceName: String {
-            return "api/notifications?page=\(page)&size=\(size)&sort=notificationDate,desc"
+            return "api/communication/notifications?page=\(page)&size=\(size)&sort=notificationDate,desc"
         }
     }
 
@@ -47,7 +47,7 @@ class NotificationServiceImpl: NotificationService {
         }
 
         var resourceName: String {
-            return "api/users/notification-date"
+            return "api/core/users/notification-date"
         }
     }
 

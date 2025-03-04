@@ -25,7 +25,7 @@ class LectureServiceImpl: LectureService {
         }
 
         var resourceName: String {
-            return "api/lectures/\(lectureId)/details"
+            return "api/lecture/lectures/\(lectureId)/details"
         }
     }
 
@@ -52,7 +52,7 @@ class LectureServiceImpl: LectureService {
         }
 
         var resourceName: String {
-            return "api/lectures/\(lectureId)/lecture-units/\(lectureUnitId)/completion?completed=\(completed)"
+            return "api/lecture/lectures/\(lectureId)/lecture-units/\(lectureUnitId)/completion?completed=\(completed)"
         }
     }
 
@@ -96,7 +96,7 @@ class LectureServiceImpl: LectureService {
         }
 
         var resourceName: String {
-            "api/courses/\(courseId)/lectures/\(lectureId)/channel"
+            "api/communication/courses/\(courseId)/lectures/\(lectureId)/channel"
         }
     }
 

@@ -23,7 +23,7 @@ struct FaqServiceImpl: FaqService {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/faqs"
+            return "api/communication/courses/\(courseId)/faqs"
         }
     }
 
@@ -49,7 +49,7 @@ struct FaqServiceImpl: FaqService {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/faqs/\(faqId)"
+            return "api/communication/courses/\(courseId)/faqs/\(faqId)"
         }
     }
 

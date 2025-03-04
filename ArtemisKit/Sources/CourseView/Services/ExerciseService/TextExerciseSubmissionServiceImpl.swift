@@ -21,7 +21,7 @@ struct TextExerciseSubmissionServiceImpl: ExerciseSubmissionService {
         }
 
         var resourceName: String {
-            "api/exercises/\(exerciseId)/participations"
+            "api/exercise/exercises/\(exerciseId)/participations"
         }
     }
 
@@ -53,7 +53,7 @@ struct TextExerciseSubmissionServiceImpl: ExerciseSubmissionService {
         }
 
         var resourceName: String {
-            "api/exercises/\(exerciseId)/text-submissions"
+            "api/text/exercises/\(exerciseId)/text-submissions"
         }
     }
 
@@ -79,7 +79,7 @@ struct TextExerciseSubmissionServiceImpl: ExerciseSubmissionService {
         }
 
         var resourceName: String {
-            "api/exercises/\(exerciseId)/text-submissions"
+            "api/text/exercises/\(exerciseId)/text-submissions"
         }
     }
 

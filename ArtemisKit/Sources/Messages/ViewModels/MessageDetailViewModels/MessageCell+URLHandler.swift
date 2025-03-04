@@ -112,7 +112,7 @@ private extension URL {
     var isFileURL: Bool {
         scheme == "https" &&
         host() == UserSessionFactory.shared.institution?.baseURL?.host() &&
-        relativePath.starts(with: "/api/files/")
+        relativePath.starts(with: "/api/core/files/")
     }
 }
 

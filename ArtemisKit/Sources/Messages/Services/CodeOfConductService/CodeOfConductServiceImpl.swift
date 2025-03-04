@@ -18,7 +18,7 @@ struct CodeOfConductServiceImpl: CodeOfConductService {
         let courseId: Int
 
         var method: HTTPMethod { .patch }
-        var resourceName: String { "api/courses/\(courseId)/code-of-conduct/agreement" }
+        var resourceName: String { "api/communication/courses/\(courseId)/code-of-conduct/agreement" }
     }
 
     func acceptCodeOfConduct(for courseId: Int) async -> NetworkResponse {
@@ -37,7 +37,7 @@ struct CodeOfConductServiceImpl: CodeOfConductService {
         let courseId: Int
 
         var method: HTTPMethod { .get }
-        var resourceName: String { "api/courses/\(courseId)/code-of-conduct/agreement" }
+        var resourceName: String { "api/communication/courses/\(courseId)/code-of-conduct/agreement" }
     }
 
     func getAgreement(for courseId: Int) async -> DataState<Bool> {
@@ -56,7 +56,7 @@ struct CodeOfConductServiceImpl: CodeOfConductService {
         let courseId: Int
 
         var method: HTTPMethod { .get }
-        var resourceName: String { "api/courses/\(courseId)/code-of-conduct/responsible-users" }
+        var resourceName: String { "api/communication/courses/\(courseId)/code-of-conduct/responsible-users" }
     }
 
     func getResponsibleUsers(for courseId: Int) async -> DataState<[ResponsibleUserDTO]> {
@@ -74,7 +74,7 @@ struct CodeOfConductServiceImpl: CodeOfConductService {
 
         var method: HTTPMethod { .get }
 
-        var resourceName: String { "api/files/templates/code-of-conduct" }
+        var resourceName: String { "api/core/files/templates/code-of-conduct" }
     }
 
     func getTemplate() async -> DataState<String> {
