@@ -272,7 +272,7 @@ extension NotificationWebsocketServiceImpl {
         }
 
         var resourceName: String {
-            return "api/courses/for-notifications"
+            return "api/core/courses/for-notifications"
         }
     }
 
