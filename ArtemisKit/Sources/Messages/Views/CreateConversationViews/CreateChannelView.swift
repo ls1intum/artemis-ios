@@ -16,55 +16,48 @@ struct CreateChannelView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var navigationController: NavigationController
 
-    @StateObject private var viewModel = CreateChannelViewModel()
-
-    @State private var name = ""
-    @State private var description = ""
-
-    @State private var isPrivate = false
-    @State private var isAnnouncement = false
+    @State private var viewModel = CreateChannelViewModel()
 
     let courseId: Int
 
     var body: some View {
-        NavigationView {
-            VStack(alignment: .leading, spacing: .l) {
-                Text(R.string.localizable.channelNameLabel())
-                    .font(.headline)
-                HStack {
-                    Text("#")
-                    TextField(R.string.localizable.channelNameLabel(), text: $name)
-                        .textFieldStyle(ArtemisTextField())
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled(true)
+        NavigationStack {
+            Form {
+                Section(R.string.localizable.channelNameLabel()) {
+                    VStack {
+                        HStack {
+                            Text("#")
+                            TextField(R.string.localizable.channelNameLabel(), text: $viewModel.name)
+                                .textInputAutocapitalization(.never)
+                                .autocorrectionDisabled(true)
+                        }
+
+                        if let warningText = viewModel.nameFormatText {
+                            Text(warningText)
+                                .foregroundColor(.Artemis.badgeDangerColor)
+                                .font(.caption)
+                        }
+                    }
                 }
 
-                if let warningText = viewModel.nameFormatText {
-                    Text(warningText)
-                        .foregroundColor(.Artemis.badgeDangerColor)
-                        .font(.caption)
+                Section(R.string.localizable.descriptionOptional()) {
+                    TextField(R.string.localizable.description(), text: $viewModel.description)
                 }
 
-                Divider()
-
-                Text(R.string.localizable.descriptionOptional())
-                    .font(.headline)
-                TextField(R.string.localizable.description(), text: $description)
-                    .textFieldStyle(ArtemisTextField())
-
-                Divider()
-                Group {
+                Section {
                     VStack(alignment: .leading) {
-                        Toggle(R.string.localizable.privateChannelLabel(), isOn: $isPrivate)
-                            .tint(.Artemis.toggleColor)
-                        Text(R.string.localizable.privateChannelDescription())
+                        Picker(R.string.localizable.channelType(), selection: $viewModel.channelType) {
+                            ForEach(ChannelType.allCases, id: \.self) { type in
+                                Text(type.title)
+                            }
+                        }
+                        Text(viewModel.channelType.description)
                             .font(.caption2)
                             .foregroundColor(.Artemis.secondaryLabel)
                     }
 
                     VStack(alignment: .leading) {
-                        Toggle(R.string.localizable.announcementChannelLabel(), isOn: $isAnnouncement)
-                            .tint(.Artemis.toggleColor)
+                        Toggle(R.string.localizable.announcementChannelLabel(), isOn: $viewModel.isAnnouncement)
                         Text(R.string.localizable.announcementChannelDescription())
                             .font(.caption2)
                             .foregroundColor(.Artemis.secondaryLabel)
@@ -73,31 +66,28 @@ struct CreateChannelView: View {
 
                 Button(R.string.localizable.createChannelButtonLabel()) {
                     Task(priority: .userInitiated) {
-                        let newChannelId = await viewModel.createChannel(for: courseId,
-                                                                         name: name,
-                                                                         description: description.isEmpty ? nil : description,
-                                                                         isPrivate: isPrivate,
-                                                                         isAnnouncement: isAnnouncement)
+                        let newChannelId = await viewModel.createChannel(for: courseId)
 
                         if let newChannelId {
                             dismiss()
                             navigationController.goToCourseConversation(courseId: courseId, conversationId: newChannelId)
                         }
                     }
-                }.buttonStyle(ArtemisButton())
-
-                Spacer()
+                }
+                .buttonStyle(ArtemisButton())
+                .frame(maxWidth: .infinity, alignment: .trailing)
+                .listRowBackground(Color.clear)
             }
-                .padding(.horizontal, .l)
-                .navigationTitle(R.string.localizable.createChannelNavTitel())
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        Button(R.string.localizable.cancel()) {
-                            dismiss()
-                        }
+            .listRowSpacing(0)
+            .navigationTitle(R.string.localizable.createChannelNavTitel())
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(R.string.localizable.cancel()) {
+                        dismiss()
                     }
                 }
-                .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
+            }
+            .alert(isPresented: viewModel.showError, error: viewModel.error, actions: {})
         }
     }
 }

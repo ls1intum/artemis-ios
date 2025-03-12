@@ -44,7 +44,7 @@ final class SendMessageViewModel {
     // MARK: Text
 
     var text = ""
-    private var _selection: TextSelection?
+    internal var _selection: TextSelection? // swiftlint:disable:this identifier_name
     var selection: Binding<TextSelection?> {
         Binding {
             return self._selection

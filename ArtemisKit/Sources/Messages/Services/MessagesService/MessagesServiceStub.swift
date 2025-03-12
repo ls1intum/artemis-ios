@@ -181,7 +181,7 @@ extension MessagesServiceStub: MessagesService {
         .loading
     }
 
-    func createChannel(for courseId: Int, name: String, description: String?, isPrivate: Bool, isAnnouncement: Bool) async -> DataState<Channel> {
+    func createChannel(for courseId: Int, name: String, description: String?, isPrivate: Bool, isAnnouncement: Bool, isCourseWide: Bool) async -> DataState<Channel> {
         .loading
     }
 
@@ -214,6 +214,10 @@ extension MessagesServiceStub: MessagesService {
     }
 
     func getUnresolvedChannelIds(for courseId: Int, and channelIds: [Int64]) async -> DataState<[Int64]> {
+        .loading
+    }
+
+    func deleteChannel(for courseId: Int, channelId: Int64) async -> NetworkResponse {
         .loading
     }
 }

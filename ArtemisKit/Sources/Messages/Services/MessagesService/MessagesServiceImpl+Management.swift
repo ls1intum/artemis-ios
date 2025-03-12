@@ -21,6 +21,7 @@ extension MessagesServiceImpl {
         let description: String?
         let isPublic: Bool
         let isAnnouncementChannel: Bool
+        let isCourseWide: Bool
 
         var method: HTTPMethod {
             return .post
@@ -31,9 +32,9 @@ extension MessagesServiceImpl {
         }
     }
 
-    func createChannel(for courseId: Int, name: String, description: String?, isPrivate: Bool, isAnnouncement: Bool) async -> DataState<Channel> {
+    func createChannel(for courseId: Int, name: String, description: String?, isPrivate: Bool, isAnnouncement: Bool, isCourseWide: Bool) async -> DataState<Channel> {
         let result = await client.sendRequest(
-            CreateChannelRequest(courseId: courseId, name: name, description: description, isPublic: !isPrivate, isAnnouncementChannel: isAnnouncement)
+            CreateChannelRequest(courseId: courseId, name: name, description: description, isPublic: !isPrivate, isAnnouncementChannel: isAnnouncement, isCourseWide: isCourseWide)
         )
 
         switch result {
@@ -93,6 +94,32 @@ extension MessagesServiceImpl {
             return .success
         case let .failure(error):
             return .failure(error: error)
+        }
+    }
+
+    func deleteChannel(for courseId: Int, channelId: Int64) async -> NetworkResponse {
+        let result = await client.sendRequest(DeleteChannelRequest(courseId: courseId, channelId: channelId))
+
+        switch result {
+        case .success:
+            return .success
+        case let .failure(error):
+            return .failure(error: error)
+        }
+    }
+
+    struct DeleteChannelRequest: APIRequest {
+        typealias Response = RawResponse
+
+        let courseId: Int
+        let channelId: Int64
+
+        var method: HTTPMethod {
+            return .delete
+        }
+
+        var resourceName: String {
+            return "api/courses/\(courseId)/channels/\(channelId)"
         }
     }
 

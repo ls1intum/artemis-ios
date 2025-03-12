@@ -131,7 +131,7 @@ protocol MessagesService {
     /**
      * Perform a post request to create a specific channels in a specific course to the server.
      */
-    func createChannel(for courseId: Int, name: String, description: String?, isPrivate: Bool, isAnnouncement: Bool) async -> DataState<Channel>
+    func createChannel(for courseId: Int, name: String, description: String?, isPrivate: Bool, isAnnouncement: Bool, isCourseWide: Bool) async -> DataState<Channel>
 
     /**
      * Perform a get request to find users in a specific course to the server.
@@ -172,6 +172,11 @@ protocol MessagesService {
      * Perform a get request to retrieve channels which have unresolved messages
      */
     func getUnresolvedChannelIds(for courseId: Int, and channelIds: [Int64]) async -> DataState<[Int64]>
+
+    /**
+     * Perform a delete request to delete a specific channel in a specific course to the server.
+     */
+    func deleteChannel(for courseId: Int, channelId: Int64) async -> NetworkResponse
 }
 
 extension MessagesService {
