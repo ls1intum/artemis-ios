@@ -220,4 +220,8 @@ extension MessagesServiceStub: MessagesService {
     func deleteChannel(for courseId: Int, channelId: Int64) async -> NetworkResponse {
         .loading
     }
+
+    func getSavedPosts(for courseId: Int, status: SavedPostStatus) async -> NetworkResponse {
+        .loading
+    }
 }
