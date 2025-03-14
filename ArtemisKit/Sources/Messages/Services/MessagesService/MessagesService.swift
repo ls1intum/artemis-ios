@@ -182,7 +182,7 @@ protocol MessagesService {
     /**
      * Perform a get request to find all saved posts in a course that have the given status..
      */
-    func getSavedPosts(for courseId: Int, status: SavedPostStatus) async -> NetworkResponse
+    func getSavedPosts(for courseId: Int, status: SavedPostStatus) async -> DataState<[SavedPostDTO]>
 }
 
 extension MessagesService {
