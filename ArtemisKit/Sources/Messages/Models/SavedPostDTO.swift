@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  SavedPostDTO.swift
 //  ArtemisKit
 //
 //  Created by Anian Schleyer on 15.03.25.
@@ -19,6 +19,10 @@ struct SavedPostDTO: Codable {
     let conversation: ConversationDTO
     // short postingType
     let referencePostId: Int
+}
+
+enum SavedPostStatus: Int, Codable {
+    case inProgress, completed, archived
 }
 
 struct AuthorDTO: Codable {
