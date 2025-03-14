@@ -33,6 +33,17 @@ struct ConversationListView: View {
             } else {
                 filterBar
 
+                Section {
+                    NavigationLink {
+                        SavedMessagesContainerView(courseId: viewModel.parentViewModel.courseId)
+                    } label: {
+                        Label("Saved Messages", systemImage: "bookmark.fill")
+                            .font(.headline)
+                            .foregroundStyle(.primary)
+                    }
+                    .listRowInsets(EdgeInsets(top: 0, leading: .s, bottom: 0, trailing: .s))
+                }
+
                 if viewModel.filter == .unresolved && viewModel.allChannelsResolved {
                     ContentUnavailableView(R.string.localizable.allDone(),
                                            image: "checkmark",
