@@ -177,6 +177,12 @@ protocol MessagesService {
      * Perform a delete request to delete a specific channel in a specific course to the server.
      */
     func deleteChannel(for courseId: Int, channelId: Int64) async -> NetworkResponse
+
+    // MARK: Saved Messages
+    /**
+     * Perform a get request to find all saved posts in a course that have the given status..
+     */
+    func getSavedPosts(for courseId: Int, status: SavedPostStatus) async -> NetworkResponse
 }
 
 extension MessagesService {
