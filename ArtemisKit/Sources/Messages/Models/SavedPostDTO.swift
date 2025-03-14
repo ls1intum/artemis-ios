@@ -10,12 +10,12 @@ import SharedModels
 struct SavedPostDTO: Codable {
     let id: Int
     let author: AuthorDTO
-    let role: UserRole
+    let role: UserRole?
     // ZonedDateTime creationDate, ZonedDateTime updatedDate,
     let content: String
     let isSaved: Bool
     // short savedPostStatus,
-    let reactions: [ReactionDTO]
+    let reactions: [ReactionDTO]?
     let conversation: ConversationDTO
     // short postingType
     let referencePostId: Int
@@ -28,7 +28,7 @@ enum SavedPostStatus: Int, Codable {
 struct AuthorDTO: Codable {
     let id: Int
     let name: String
-    let imageUrl: String
+    let imageUrl: String?
 }
 
 struct ReactionDTO: Codable {
