@@ -221,7 +221,7 @@ extension MessagesServiceStub: MessagesService {
         .loading
     }
 
-    func getSavedPosts(for courseId: Int, status: SavedPostStatus) async -> NetworkResponse {
+    func getSavedPosts(for courseId: Int, status: SavedPostStatus) async -> DataState<[SavedPostDTO]> {
         .loading
     }
 }
