@@ -34,4 +34,31 @@ extension MessagesServiceImpl {
             return .failure(error: .init(error: error))
         }
     }
+
+    struct UpdateSavedPostStatusRequest: APIRequest {
+        typealias Response = RawResponse
+
+        let postId: Int
+        let postType: PostType
+        let status: SavedPostStatus
+
+        var method: HTTPMethod {
+            return .put
+        }
+
+        var resourceName: String {
+            return "api/communication/saved-posts/\(postId)/\(postType.rawValue)?status=\(status.rawValue)"
+        }
+    }
+
+    func updateSavedPostStatus(for postId: Int, with type: PostType, status: SavedPostStatus) async -> NetworkResponse {
+        let result = await client.sendRequest(UpdateSavedPostStatusRequest(postId: postId, postType: type, status: status))
+
+        switch result {
+        case .success:
+            return .success
+        case let .failure(error):
+            return .failure(error: error)
+        }
+    }
 }

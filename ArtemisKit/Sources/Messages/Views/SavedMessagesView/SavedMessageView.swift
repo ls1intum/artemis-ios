@@ -57,12 +57,10 @@ struct SavedMessageView: View {
 
     @ViewBuilder var roleBadge: some View {
         if let authorRole = post.role {
-            Chip(
-                text: authorRole.displayName,
-                backgroundColor: authorRole.badgeColor,
-                horizontalPadding: .m,
-                verticalPadding: .s
-            )
+            Chip(text: authorRole.displayName,
+                 backgroundColor: authorRole.badgeColor,
+                 horizontalPadding: .m,
+                 verticalPadding: .s)
             .font(.footnote)
         }
     }
@@ -71,7 +69,9 @@ struct SavedMessageView: View {
         HStack {
             if viewModel.selectedType != .inProgress {
                 Button {
-                    // TODO
+                    Task {
+                        await viewModel.updatePostStatus(of: post, to: .inProgress)
+                    }
                 } label: {
                     Label("In Progress", systemImage: "bookmark")
                         .padding(.vertical, .m)
@@ -82,7 +82,9 @@ struct SavedMessageView: View {
 
             if viewModel.selectedType != .completed {
                 Button {
-                    // TODO
+                    Task {
+                        await viewModel.updatePostStatus(of: post, to: .completed)
+                    }
                 } label: {
                     Label("Done", systemImage: "checkmark")
                         .padding(.vertical, .m)
@@ -93,7 +95,9 @@ struct SavedMessageView: View {
 
             if viewModel.selectedType != .archived {
                 Button {
-                    // TODO
+                    Task {
+                        await viewModel.updatePostStatus(of: post, to: .archived)
+                    }
                 } label: {
                     Label("Archive", systemImage: "archivebox")
                         .padding(.vertical, .m)
