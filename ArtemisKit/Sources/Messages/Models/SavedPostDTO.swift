@@ -17,10 +17,10 @@ struct SavedPostDTO: Codable, Identifiable, Hashable, Comparable {
     let id: Int
     let author: AuthorDTO
     let role: UserRole?
-    // ZonedDateTime creationDate, ZonedDateTime updatedDate,
+    let creationDate: Date
     let content: String
     let isSaved: Bool
-    // short savedPostStatus,
+    let savedPostStatus: SavedPostStatus
     let reactions: [ReactionDTO]?
     let conversation: ConversationDTO
     let postingType: PostType
@@ -35,14 +35,13 @@ enum SavedPostStatus: Int, Codable, FilterPicker {
     case inProgress, completed, archived
 
     var displayName: String {
-        // TODO: Localize
         switch self {
         case .inProgress:
-            "In Progress"
+            R.string.localizable.inProgress()
         case .completed:
-            "Done"
+            R.string.localizable.done()
         case .archived:
-            "Archived"
+            R.string.localizable.archived()
         }
     }
 
@@ -82,7 +81,7 @@ struct AuthorDTO: Codable, Identifiable, Hashable {
 struct ReactionDTO: Codable, Identifiable, Hashable {
     let id: Int
     let user: AuthorDTO
-    // ZonedDateTime creationDate
+    let creationDate: Date
     let emojiId: String
 }
 

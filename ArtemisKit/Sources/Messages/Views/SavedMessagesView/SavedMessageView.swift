@@ -7,7 +7,6 @@
 
 import ArtemisMarkdown
 import DesignLibrary
-import Navigation
 import SharedModels
 import SwiftUI
 
@@ -41,27 +40,25 @@ struct SavedMessageView: View {
         HStack(alignment: .top, spacing: .m) {
             ProfilePictureView(user: ConversationUser(postAuthor: post.author), role: post.role, course: viewModel.course)
             VStack(alignment: .leading, spacing: .xs) {
-                HStack(alignment: .firstTextBaseline, spacing: .m) {
-                    roleBadge
-                    Spacer()
-//                    if let creationDate {
-//                        Text(creationDate, formatter: .superShortDateAndTime)
-//                            .font(.caption)
-//                    }
+                HStack(alignment: .firstTextBaseline) {
+                    Text(post.author.name)
+                        .bold()
+                        .lineLimit(1)
+                    Spacer(minLength: .s)
+                    Text(post.creationDate, formatter: DateFormatter.superShortDateAndTime)
+                        .font(.caption)
+                        .offset(x: .m * 1.5)
                 }
-                Text(post.author.name)
-                    .bold()
+                conversationName
             }
         }
     }
 
-    @ViewBuilder var roleBadge: some View {
-        if let authorRole = post.role {
-            Chip(text: authorRole.displayName,
-                 backgroundColor: authorRole.badgeColor,
-                 horizontalPadding: .m,
-                 verticalPadding: .s)
-            .font(.footnote)
+    @ViewBuilder var conversationName: some View {
+        if let name = post.conversation.title {
+            // TODO: Only add # for channels
+            Text("#\(name)")
+                .foregroundStyle(.secondary)
         }
     }
 
@@ -73,7 +70,7 @@ struct SavedMessageView: View {
                         await viewModel.updatePostStatus(of: post, to: .inProgress)
                     }
                 } label: {
-                    Label("In Progress", systemImage: "bookmark")
+                    Label(R.string.localizable.inProgress(), systemImage: "bookmark")
                         .padding(.vertical, .m)
                         .frame(maxWidth: .infinity, alignment: .center)
                         .background(.blue.opacity(0.3), in: .rect(cornerRadius: .l))
@@ -86,7 +83,7 @@ struct SavedMessageView: View {
                         await viewModel.updatePostStatus(of: post, to: .completed)
                     }
                 } label: {
-                    Label("Done", systemImage: "checkmark")
+                    Label(R.string.localizable.done(), systemImage: "checkmark")
                         .padding(.vertical, .m)
                         .frame(maxWidth: .infinity, alignment: .center)
                         .background(.green.opacity(0.3), in: .rect(cornerRadius: .l))
@@ -99,7 +96,7 @@ struct SavedMessageView: View {
                         await viewModel.updatePostStatus(of: post, to: .archived)
                     }
                 } label: {
-                    Label("Archive", systemImage: "archivebox")
+                    Label(R.string.localizable.archive(), systemImage: "archivebox")
                         .padding(.vertical, .m)
                         .frame(maxWidth: .infinity, alignment: .center)
                         .background(.gray.opacity(0.3), in: .rect(cornerRadius: .l))
