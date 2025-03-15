@@ -88,6 +88,9 @@
 "pinMessage" = "Pin Message";
 "unpinMessage" = "Unpin Message";
 
+// MARK: Saved Messages
+"savedMessages" = "Saved Messages";
+
 // MARK: ProfileView
 "profile" = "Profile";
 "actions" = "Actions";
