@@ -18,6 +18,7 @@ struct SavedMessageView: View {
     var body: some View {
         Section {
             NavigationLink {
+                // TODO: Correct conversations
                 let path = ThreadPath(postId: post.referencePostId,
                                       conversation: getConversationForPath(),
                                       coursePath: CoursePath(course: viewModel.course))
