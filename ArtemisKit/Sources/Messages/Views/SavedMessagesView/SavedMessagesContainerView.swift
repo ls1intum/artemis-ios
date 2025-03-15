@@ -25,7 +25,7 @@ struct SavedMessagesContainerView: View {
             SavedMessagesView(viewModel: viewModel)
                 .listSectionSpacing(.compact)
         }
-        .loadingIndicator(isLoading: $viewModel.isLoading)
+        .loadingIndicator(isLoading: $viewModel.isLoading.animation())
         .refreshable {
             await viewModel.loadPostsForSelectedCategory()
         }

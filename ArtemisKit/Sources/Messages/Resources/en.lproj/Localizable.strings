@@ -90,6 +90,7 @@
 
 // MARK: Saved Messages
 "savedMessages" = "Saved Messages";
+"inProgress" = "In Progress";
 
 // MARK: ProfileView
 "profile" = "Profile";
