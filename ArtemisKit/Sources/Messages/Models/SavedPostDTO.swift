@@ -20,7 +20,7 @@ struct SavedPostDTO: Codable, Identifiable, Hashable {
     let reactions: [ReactionDTO]?
     let conversation: ConversationDTO
     // short postingType
-    let referencePostId: Int
+    let referencePostId: Int64
 }
 
 enum SavedPostStatus: Int, Codable, FilterPicker {
@@ -66,7 +66,7 @@ enum SavedPostStatus: Int, Codable, FilterPicker {
 }
 
 struct AuthorDTO: Codable, Identifiable, Hashable {
-    let id: Int
+    let id: Int64
     let name: String
     let imageUrl: String?
 }
@@ -79,7 +79,7 @@ struct ReactionDTO: Codable, Identifiable, Hashable {
 }
 
 struct ConversationDTO: Codable, Identifiable, Hashable {
-    let id: Int
-    let title: String
+    let id: Int64
+    let title: String?
     // ConversationType type
 }
