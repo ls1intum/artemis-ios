@@ -22,11 +22,15 @@ struct SavedMessagesView: View {
         DataStateView(data: postsBinding) {
             await viewModel.loadPostsForSelectedCategory()
         } content: { posts in
+            if posts.isEmpty {
+                Section {
+                    ContentUnavailableView(R.string.localizable.noMessages(), systemImage: viewModel.selectedType.iconName)
+                }
+            }
             ForEach(posts) { post in
-                Text(post.content)
+                SavedMessageView(viewModel: viewModel, post: post)
             }
         }
-        .animation(.default, value: viewModel.displayedPosts.value)
         .task {
             await viewModel.loadPostsForSelectedCategory()
         }

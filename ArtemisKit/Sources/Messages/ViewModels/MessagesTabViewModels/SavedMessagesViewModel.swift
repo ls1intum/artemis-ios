@@ -7,12 +7,14 @@
 
 import Common
 import Foundation
+import SharedModels
+import SwiftUI
 
 @Observable
 class SavedMessagesViewModel {
     let service = MessagesServiceFactory.shared
 
-    let courseId: Int
+    let course: Course
 
     var selectedType: SavedPostStatus = .inProgress
 
@@ -30,21 +32,23 @@ class SavedMessagesViewModel {
         }
     }
 
-    init(courseId: Int) {
-        self.courseId = courseId
+    init(course: Course) {
+        self.course = course
     }
 
     @MainActor
     func loadPostsForSelectedCategory() async {
         let selectedType = self.selectedType // We are dealing with async, user might change while waiting
-        let result = await service.getSavedPosts(for: courseId, status: selectedType)
-        switch selectedType {
-        case .inProgress:
-            inProgressPosts = result
-        case .completed:
-            completedPosts = result
-        case .archived:
-            archivedPosts = result
+        let result = await service.getSavedPosts(for: course.id, status: selectedType)
+        withAnimation {
+            switch selectedType {
+            case .inProgress:
+                inProgressPosts = result
+            case .completed:
+                completedPosts = result
+            case .archived:
+                archivedPosts = result
+            }
         }
     }
 }
