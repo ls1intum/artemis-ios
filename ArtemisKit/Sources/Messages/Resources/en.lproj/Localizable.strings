@@ -48,7 +48,7 @@
 "createChat" = "Create Chat";
 "noResultForSearch" = "There is no result for your search.";
 "favoritesSection" = "Favorites";
-"hiddenSection" = "Archived";
+"archivedSection" = "Archived";
 "favorite" = "Favorite";
 "unfavorite" = "Unfavorite";
 "mute" = "Mute";
@@ -91,6 +91,7 @@
 // MARK: Saved Messages
 "savedMessages" = "Saved Messages";
 "inProgress" = "In Progress";
+"completed" = "Completed";
 
 // MARK: ProfileView
 "profile" = "Profile";
