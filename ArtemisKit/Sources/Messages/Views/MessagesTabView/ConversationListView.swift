@@ -37,7 +37,7 @@ struct ConversationListView: View {
                     NavigationLink {
                         SavedMessagesContainerView(courseId: viewModel.parentViewModel.courseId)
                     } label: {
-                        Label("Saved Messages", systemImage: "bookmark.fill")
+                        Label(R.string.localizable.savedMessages(), systemImage: "bookmark.fill")
                             .font(.headline)
                             .foregroundStyle(.primary)
                     }

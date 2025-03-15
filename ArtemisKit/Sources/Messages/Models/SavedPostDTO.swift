@@ -5,9 +5,11 @@
 //  Created by Anian Schleyer on 15.03.25.
 //
 
+import DesignLibrary
 import SharedModels
+import SwiftUI
 
-struct SavedPostDTO: Codable {
+struct SavedPostDTO: Codable, Identifiable, Hashable {
     let id: Int
     let author: AuthorDTO
     let role: UserRole?
@@ -21,24 +23,62 @@ struct SavedPostDTO: Codable {
     let referencePostId: Int
 }
 
-enum SavedPostStatus: Int, Codable {
+enum SavedPostStatus: Int, Codable, FilterPicker {
     case inProgress, completed, archived
+
+    var displayName: String {
+        // TODO: Localize
+        switch self {
+        case .inProgress:
+            "In Progress"
+        case .completed:
+            "Done"
+        case .archived:
+            "Archived"
+        }
+    }
+
+    var selectedColor: Color {
+        switch self {
+        case .inProgress:
+            .blue
+        case .completed:
+            .green
+        case .archived:
+            .gray
+        }
+    }
+
+    var iconName: String {
+        switch self {
+        case .inProgress:
+            "bookmark"
+        case .completed:
+            "checkmark.rectangle.stack"
+        case .archived:
+            "archivebox"
+        }
+    }
+
+    var id: Int {
+        hashValue
+    }
 }
 
-struct AuthorDTO: Codable {
+struct AuthorDTO: Codable, Identifiable, Hashable {
     let id: Int
     let name: String
     let imageUrl: String?
 }
 
-struct ReactionDTO: Codable {
+struct ReactionDTO: Codable, Identifiable, Hashable {
     let id: Int
     let user: AuthorDTO
     // ZonedDateTime creationDate
     let emojiId: String
 }
 
-struct ConversationDTO: Codable {
+struct ConversationDTO: Codable, Identifiable, Hashable {
     let id: Int
     let title: String
     // ConversationType type

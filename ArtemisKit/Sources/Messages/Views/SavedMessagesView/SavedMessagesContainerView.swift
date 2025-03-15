@@ -10,23 +10,24 @@ import DesignLibrary
 import SwiftUI
 
 struct SavedMessagesContainerView: View {
-    @State var posts: DataState<[SavedPostDTO]> = .loading
-    let courseId: Int
+    @State private var viewModel: SavedMessagesViewModel
+
+    init(courseId: Int) {
+        _viewModel = State(initialValue: SavedMessagesViewModel(courseId: courseId))
+    }
 
     var body: some View {
-        DataStateView(data: $posts) {
-            
-        } content: { posts in
-            List {
-                ForEach(posts, id: \.id) { post in
-                    Text(post.content)
-                }
+        List {
+            FilterBarPicker(selectedFilter: $viewModel.selectedType, hiddenFilters: [])
+
+            Section {
+                SavedMessagesView(viewModel: viewModel)
             }
         }
-        .task {
-            if posts.value == nil {
-                posts = await MessagesServiceFactory.shared.getSavedPosts(for: courseId, status: .inProgress)
-            }
+        .refreshable {
+            await viewModel.loadPostsForSelectedCategory()
         }
+        .navigationTitle(R.string.localizable.savedMessages())
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
