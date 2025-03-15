@@ -38,7 +38,11 @@ struct SavedMessageView: View {
 
     @ViewBuilder var header: some View {
         HStack(alignment: .top, spacing: .m) {
-            ProfilePictureView(user: ConversationUser(postAuthor: post.author), role: post.role, course: viewModel.course)
+            ProfilePictureView(user: ConversationUser(id: post.author.id,
+                                                      name: post.author.name,
+                                                      imageUrl: post.author.imageUrl),
+                               role: post.role,
+                               course: viewModel.course)
             VStack(alignment: .leading, spacing: .xs) {
                 HStack(alignment: .firstTextBaseline) {
                     Text(post.author.name)
@@ -122,13 +126,5 @@ private extension SavedMessageView {
             conversation.isPublic = false
         }
         return .channel(conversation: conversation)
-    }
-}
-
-// TODO: Move into Core Modules + add image url
-extension ConversationUser {
-    init(postAuthor: AuthorDTO) {
-        self.init(id: postAuthor.id)
-        self.name = postAuthor.name
     }
 }
