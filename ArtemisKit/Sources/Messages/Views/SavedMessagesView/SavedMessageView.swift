@@ -7,17 +7,18 @@
 
 import ArtemisMarkdown
 import DesignLibrary
+import Navigation
 import SharedModels
 import SwiftUI
 
 struct SavedMessageView: View {
-    @EnvironmentObject var navController: NavigationController
     let viewModel: SavedMessagesViewModel
     let post: SavedPostDTO
 
     var body: some View {
         Section {
             NavigationLink {
+                // TODO: Correct conversations
                 let path = ThreadPath(postId: post.referencePostId,
                                       conversation: .channel(conversation: .init(id: post.conversation.id)),
                                       coursePath: CoursePath(course: viewModel.course))
@@ -56,9 +57,11 @@ struct SavedMessageView: View {
 
     @ViewBuilder var conversationName: some View {
         if let name = post.conversation.title {
-            // TODO: Only add # for channels
-            Text("#\(name)")
+            let namePrefix = post.conversation.type == .channel ? "#" : ""
+            let threadSuffix = post.referencePostId == post.id ? "" : " > \(R.string.localizable.thread())"
+            Text("\(namePrefix)\(name)\(threadSuffix)")
                 .foregroundStyle(.secondary)
+                .lineLimit(1)
         }
     }
 

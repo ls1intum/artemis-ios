@@ -39,9 +39,9 @@ enum SavedPostStatus: Int, Codable, FilterPicker {
         case .inProgress:
             R.string.localizable.inProgress()
         case .completed:
-            R.string.localizable.done()
+            R.string.localizable.completed()
         case .archived:
-            R.string.localizable.archived()
+            R.string.localizable.archivedSection()
         }
     }
 
@@ -88,5 +88,11 @@ struct ReactionDTO: Codable, Identifiable, Hashable {
 struct ConversationDTO: Codable, Identifiable, Hashable {
     let id: Int64
     let title: String?
-    // ConversationType type
+    let type: ConversationDTOType
+}
+
+enum ConversationDTOType: String, ConstantsEnum {
+    case channel = "CHANNEL"
+    case direct = "DIRECT"
+    case unknown
 }

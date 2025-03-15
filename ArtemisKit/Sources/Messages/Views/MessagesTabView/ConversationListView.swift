@@ -96,7 +96,7 @@ struct ConversationListView: View {
                     MessageSection(
                         viewModel: viewModel,
                         conversations: viewModel.hiddenConversations,
-                        sectionTitle: R.string.localizable.hiddenSection(),
+                        sectionTitle: R.string.localizable.archivedSection(),
                         sectionIconName: "archivebox.fill",
                         isExpanded: false,
                         hidePrefixes: false)
