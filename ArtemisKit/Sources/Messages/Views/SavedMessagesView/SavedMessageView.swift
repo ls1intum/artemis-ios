@@ -18,9 +18,8 @@ struct SavedMessageView: View {
     var body: some View {
         Section {
             NavigationLink {
-                // TODO: Correct conversations
                 let path = ThreadPath(postId: post.referencePostId,
-                                      conversation: .channel(conversation: .init(id: post.conversation.id)),
+                                      conversation: getConversationForPath(),
                                       coursePath: CoursePath(course: viewModel.course))
                 ThreadPathView(path: path)
             } label: {
@@ -109,6 +108,20 @@ struct SavedMessageView: View {
         .foregroundStyle(.primary)
         .buttonStyle(.plain)
         .listRowInsets(EdgeInsets(top: .s, leading: .m, bottom: .m, trailing: .m))
+    }
+}
+
+private extension SavedMessageView {
+    func getConversationForPath() -> Conversation {
+        var conversation = Channel(id: post.conversation.id)
+        if post.conversation.type == .channel {
+            conversation.name = post.conversation.title
+            conversation.isPublic = true
+        } else {
+            conversation.name = post.conversation.title ?? R.string.localizable.privateChannelLabel()
+            conversation.isPublic = false
+        }
+        return .channel(conversation: conversation)
     }
 }
 
