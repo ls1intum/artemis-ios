@@ -27,7 +27,7 @@ struct SavedMessagesView: View {
                     ContentUnavailableView(R.string.localizable.noMessages(), systemImage: viewModel.selectedType.iconName)
                 }
             }
-            ForEach(posts) { post in
+            ForEach(posts.sorted()) { post in
                 SavedMessageView(viewModel: viewModel, post: post)
             }
         }

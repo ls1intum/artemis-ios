@@ -9,7 +9,11 @@ import DesignLibrary
 import SharedModels
 import SwiftUI
 
-struct SavedPostDTO: Codable, Identifiable, Hashable {
+struct SavedPostDTO: Codable, Identifiable, Hashable, Comparable {
+    static func < (lhs: SavedPostDTO, rhs: SavedPostDTO) -> Bool {
+        lhs.id < rhs.id
+    }
+
     let id: Int
     let author: AuthorDTO
     let role: UserRole?
@@ -19,8 +23,12 @@ struct SavedPostDTO: Codable, Identifiable, Hashable {
     // short savedPostStatus,
     let reactions: [ReactionDTO]?
     let conversation: ConversationDTO
-    // short postingType
+    let postingType: PostType
     let referencePostId: Int64
+}
+
+enum PostType: Int, Codable {
+    case post, answer
 }
 
 enum SavedPostStatus: Int, Codable, FilterPicker {
