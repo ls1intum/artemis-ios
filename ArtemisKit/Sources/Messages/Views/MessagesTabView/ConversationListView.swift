@@ -33,17 +33,6 @@ struct ConversationListView: View {
             } else {
                 filterBar
 
-                Section {
-                    NavigationLink {
-                        SavedMessagesContainerView(course: viewModel.parentViewModel.course)
-                    } label: {
-                        Label(R.string.localizable.savedMessages(), systemImage: "bookmark.fill")
-                            .font(.headline)
-                            .foregroundStyle(.primary)
-                    }
-                    .listRowInsets(EdgeInsets(top: 0, leading: .s, bottom: 0, trailing: .s))
-                }
-
                 if viewModel.filter == .unresolved && viewModel.allChannelsResolved {
                     ContentUnavailableView(R.string.localizable.allDone(),
                                            image: "checkmark",
@@ -103,6 +92,17 @@ struct ConversationListView: View {
                 }
                 .listRowBackground(Color.clear)
                 .listRowInsets(EdgeInsets(top: 0, leading: .s, bottom: 0, trailing: .s))
+
+                Section {
+                    NavigationLink {
+                        SavedMessagesContainerView(course: viewModel.parentViewModel.course)
+                    } label: {
+                        Label(R.string.localizable.savedMessages(), systemImage: "bookmark.fill")
+                            .font(.headline)
+                            .foregroundStyle(.primary)
+                    }
+                    .listRowInsets(EdgeInsets(top: 0, leading: .s, bottom: 0, trailing: .s))
+                }
 
                 HStack {
                     Spacer()
