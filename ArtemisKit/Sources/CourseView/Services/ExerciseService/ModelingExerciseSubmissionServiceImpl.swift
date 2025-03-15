@@ -21,7 +21,7 @@ class ModelingExerciseSubmissionServiceImpl: ExerciseSubmissionService {
         }
 
         var resourceName: String {
-            "api/exercises/\(exerciseId)/participations"
+            "api/exercise/exercises/\(exerciseId)/participations"
         }
     }
 
@@ -39,7 +39,7 @@ class ModelingExerciseSubmissionServiceImpl: ExerciseSubmissionService {
         }
 
         var resourceName: String {
-            "api/participations/\(participationId)/latest-modeling-submission"
+            "api/modeling/participations/\(participationId)/latest-modeling-submission"
         }
     }
 
@@ -62,7 +62,7 @@ class ModelingExerciseSubmissionServiceImpl: ExerciseSubmissionService {
         }
 
         var resourceName: String {
-            "api/exercises/\(exerciseId)/modeling-submissions"
+            "api/modeling/exercises/\(exerciseId)/modeling-submissions"
         }
     }
 
@@ -88,7 +88,7 @@ class ModelingExerciseSubmissionServiceImpl: ExerciseSubmissionService {
         }
 
         var resourceName: String {
-            "api/exercises/\(exerciseId)/modeling-submissions"
+            "api/modeling/exercises/\(exerciseId)/modeling-submissions"
         }
     }
 

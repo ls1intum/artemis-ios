@@ -12,6 +12,7 @@ import Navigation
 import SharedModels
 import SwiftUI
 
+@MainActor
 struct MessageDetailView: View {
 
     @EnvironmentObject var navController: NavigationController
