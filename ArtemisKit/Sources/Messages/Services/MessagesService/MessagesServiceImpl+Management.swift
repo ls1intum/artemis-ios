@@ -28,7 +28,7 @@ extension MessagesServiceImpl {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/channels"
+            return "api/communication/courses/\(courseId)/channels"
         }
     }
 
@@ -56,7 +56,7 @@ extension MessagesServiceImpl {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/channels/\(channelId)/archive"
+            return "api/communication/courses/\(courseId)/channels/\(channelId)/archive"
         }
     }
 
@@ -82,7 +82,7 @@ extension MessagesServiceImpl {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/channels/\(channelId)/unarchive"
+            return "api/communication/courses/\(courseId)/channels/\(channelId)/unarchive"
         }
     }
 
@@ -119,7 +119,7 @@ extension MessagesServiceImpl {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/channels/\(channelId)"
+            return "api/communication/courses/\(courseId)/channels/\(channelId)"
         }
     }
 
@@ -151,7 +151,7 @@ extension MessagesServiceImpl {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/messages"
+            return "api/communication/courses/\(courseId)/messages"
         }
     }
 

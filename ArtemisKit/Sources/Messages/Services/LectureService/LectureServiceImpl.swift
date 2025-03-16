@@ -23,7 +23,7 @@ class LectureServiceImpl: LectureService {
         }
 
         var resourceName: String {
-            "api/courses/\(courseId)/lectures-with-slides"
+            "api/lecture/courses/\(courseId)/lectures-with-slides"
         }
     }
 
