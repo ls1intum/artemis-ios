@@ -76,7 +76,7 @@
 "replies" = "Reply";
 "attachment" = "Attachment";
 
-// MARK: MessageActionSheet
+// MARK: Message Actions
 "replyInThread" = "Reply in Thread";
 "copyText" = "Copy Text";
 "editMessage" = "Edit Message";
@@ -87,6 +87,7 @@
 "unmarkAsResolving" = "Doesn't Resolve Post";
 "pinMessage" = "Pin Message";
 "unpinMessage" = "Unpin Message";
+"removeBookmark" = "Remove bookmark";
 
 // MARK: Saved Messages
 "savedMessages" = "Saved Messages";
