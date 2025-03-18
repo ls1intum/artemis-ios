@@ -87,87 +87,39 @@ struct MessageActions: View {
 
     struct EditDeleteSection: View {
         @EnvironmentObject var navigationController: NavigationController
-        @ObservedObject var viewModel: ConversationViewModel
-        @Binding var message: DataState<BaseMessage>
+        @State private var viewModel: MessageActionsViewModel
 
-        @State private var showDeleteAlert = false
-        @State private var showEditSheet = false
-
-        var canDelete: Bool {
-            guard let message = message.value else {
-                return false
-            }
-
-            if message.isCurrentUserAuthor {
-                return true
-            }
-
-            guard let channel = viewModel.conversation.baseConversation as? Channel else {
-                return false
-            }
-            if channel.hasChannelModerationRights ?? false {
-                return true
-            }
-
-            return false
-        }
-
-        var canEdit: Bool {
-            guard let message = message.value else {
-                return false
-            }
-
-            if message.isCurrentUserAuthor {
-                return true
-            }
-
-            return false
+        init(viewModel: ConversationViewModel, message: Binding<DataState<BaseMessage>>) {
+            _viewModel = State(initialValue: MessageActionsViewModel(conversationViewModel: viewModel, message: message))
         }
 
         var body: some View {
             Group {
-                if canEdit || canDelete {
+                if viewModel.canEdit || viewModel.canDelete {
                     Divider()
                 }
-                if canEdit {
+                if viewModel.canEdit {
                     Button(R.string.localizable.editMessage(), systemImage: "pencil") {
-                        showEditSheet = true
+                        viewModel.showEditSheet = true
                     }
-                    .sheet(isPresented: $showEditSheet) {
-                        viewModel.selectedMessageId = nil
+                    .sheet(isPresented: $viewModel.showEditSheet) {
+                        viewModel.conversationViewModel.selectedMessageId = nil
                     } content: {
                         editMessage
                             .font(nil)
                     }
                 }
-                if canDelete {
+                if viewModel.canDelete {
                     Button(R.string.localizable.deleteMessage(), systemImage: "trash", role: .destructive) {
-                        showDeleteAlert = true
+                        viewModel.showDeleteAlert = true
                     }
                     .foregroundStyle(.red)
-                    .alert(R.string.localizable.confirmDeletionTitle(), isPresented: $showDeleteAlert) {
+                    .alert(R.string.localizable.confirmDeletionTitle(), isPresented: $viewModel.showDeleteAlert) {
                         Button(R.string.localizable.confirm(), role: .destructive) {
-                            viewModel.isLoading = true
-                            Task(priority: .userInitiated) {
-                                let success: Bool
-                                let tempMessage = message.value
-                                if message.value is AnswerMessage {
-                                    success = await viewModel.deleteAnswerMessage(messageId: message.value?.id)
-                                } else {
-                                    success = await viewModel.deleteMessage(messageId: message.value?.id)
-                                }
-                                viewModel.isLoading = false
-                                viewModel.selectedMessageId = nil
-                                if success {
-                                    // if we deleted a Message and are in the MessageDetailView we pop it
-                                    if !navigationController.tabPath.isEmpty && tempMessage is Message {
-                                        navigationController.tabPath.removeLast()
-                                    }
-                                }
-                            }
+                            viewModel.deleteMessage(navController: navigationController)
                         }
                         Button(R.string.localizable.cancel(), role: .cancel) {
-                            viewModel.selectedMessageId = nil
+                            viewModel.conversationViewModel.selectedMessageId = nil
                         }
                     }
                 }
@@ -177,22 +129,22 @@ struct MessageActions: View {
         var editMessage: some View {
             NavigationView {
                 Group {
-                    if let message = message.value as? Message {
+                    if let message = viewModel.message.value as? Message {
                         SendMessageView(
                             viewModel: SendMessageViewModel(
-                                course: viewModel.course,
-                                conversation: viewModel.conversation,
-                                configuration: .editMessage(message, { self.showEditSheet = false }),
-                                delegate: SendMessageViewModelDelegate(viewModel)
+                                course: viewModel.conversationViewModel.course,
+                                conversation: viewModel.conversationViewModel.conversation,
+                                configuration: .editMessage(message, { viewModel.showEditSheet = false }),
+                                delegate: SendMessageViewModelDelegate(viewModel.conversationViewModel)
                             )
                         )
-                    } else if let answerMessage = message.value as? AnswerMessage {
+                    } else if let answerMessage = viewModel.message.value as? AnswerMessage {
                         SendMessageView(
                             viewModel: SendMessageViewModel(
-                                course: viewModel.course,
-                                conversation: viewModel.conversation,
-                                configuration: .editAnswerMessage(answerMessage, { self.showEditSheet = false }),
-                                delegate: SendMessageViewModelDelegate(viewModel)
+                                course: viewModel.conversationViewModel.course,
+                                conversation: viewModel.conversationViewModel.conversation,
+                                configuration: .editAnswerMessage(answerMessage, { viewModel.showEditSheet = false }),
+                                delegate: SendMessageViewModelDelegate(viewModel.conversationViewModel)
                             )
                         )
                     } else {
@@ -204,7 +156,7 @@ struct MessageActions: View {
                 .toolbar {
                     ToolbarItem(placement: .navigationBarLeading) {
                         Button(R.string.localizable.cancel()) {
-                            showEditSheet = false
+                            viewModel.showEditSheet = false
                         }
                     }
                 }
