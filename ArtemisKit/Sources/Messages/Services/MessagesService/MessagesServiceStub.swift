@@ -225,15 +225,15 @@ extension MessagesServiceStub: MessagesService {
         .loading
     }
 
-    func updateSavedPostStatus(for postId: Int, with type: PostType, status: SavedPostStatus) async -> NetworkResponse {
+    func updateSavedPostStatus(for postId: Int64, with type: PostType, status: SavedPostStatus) async -> NetworkResponse {
         .loading
     }
 
-    func deleteSavedPost(with postId: Int, of type: PostType) async -> NetworkResponse {
+    func deleteSavedPost(with postId: Int64, of type: PostType) async -> NetworkResponse {
         .loading
     }
 
-    func addSavedPost(with postId: Int, of type: PostType) async -> NetworkResponse {
+    func addSavedPost(with postId: Int64, of type: PostType) async -> NetworkResponse {
         .loading
     }
 }
