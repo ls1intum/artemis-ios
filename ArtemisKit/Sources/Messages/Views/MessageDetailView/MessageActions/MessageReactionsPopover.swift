@@ -13,12 +13,10 @@ import SwiftUI
 
 struct MessageReactionsPopover: View {
     @ObservedObject var viewModel: ConversationViewModel
-    @Binding var message: DataState<BaseMessage>
     @State var reactionsViewModel: ReactionsViewModel
 
     init(viewModel: ConversationViewModel, message: Binding<DataState<BaseMessage>>, conversationPath: ConversationPath?) {
         self.viewModel = viewModel
-        self._message = message
         self._reactionsViewModel = State(initialValue: ReactionsViewModel(conversationViewModel: viewModel, message: message))
     }
 
