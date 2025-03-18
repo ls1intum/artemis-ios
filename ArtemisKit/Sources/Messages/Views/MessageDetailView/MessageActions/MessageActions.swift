@@ -99,11 +99,11 @@ struct MessageActions: View {
             Group {
                 Divider()
                 if message.value?.isBookmarked ?? false {
-                    Button("Remove bookmark", systemImage: "bookmark.slash") {
+                    Button(R.string.localizable.removeBookmark(), systemImage: "bookmark.slash") {
                         viewModel.toggleBookmark()
                     }
                 } else {
-                    Button("Add bookmark", systemImage: "bookmark") {
+                    Button(R.string.localizable.addBookmark(), systemImage: "bookmark") {
                         viewModel.toggleBookmark()
                     }
                 }
