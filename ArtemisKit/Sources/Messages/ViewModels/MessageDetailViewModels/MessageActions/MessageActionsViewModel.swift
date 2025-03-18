@@ -15,6 +15,7 @@ import SwiftUI
 class MessageActionsViewModel {
     @ObservationIgnored @ObservedObject var conversationViewModel: ConversationViewModel
     @ObservationIgnored @Binding var message: DataState<BaseMessage>
+    let service = MessagesServiceFactory.shared
 
     var showDeleteAlert = false
     @MainActor var canDelete: Bool {
@@ -113,5 +114,52 @@ class MessageActionsViewModel {
                 conversationViewModel.selectedMessageId = nil
             }
         }
+    }
+
+    func toggleBookmark() {
+        conversationViewModel.isLoading = true
+        defer {
+            conversationViewModel.isLoading = false
+        }
+        guard let message = message.value else { return }
+        let post = message as? Message
+        let answerPost = message as? AnswerMessage
+        let postType: PostType = post != nil ? .post : .answer
+
+        Task {
+            let result: NetworkResponse
+            if message.isBookmarked {
+                result = await service.deleteSavedPost(with: message.id, of: postType)
+            } else {
+                result = await service.addSavedPost(with: message.id, of: postType)
+            }
+
+            switch result {
+            case .success:
+                // Toggle isSaved of Post/Answer
+                if var post {
+                    post.isSaved?.toggle()
+                    self.$message.wrappedValue = .done(response: post)
+                }
+                if var answerPost {
+                    answerPost.isSaved?.toggle()
+                    self.$message.wrappedValue = .done(response: answerPost)
+                }
+                conversationViewModel.selectedMessageId = nil
+            case .failure(let error):
+                conversationViewModel.presentError(userFacingError: .init(title: "Failed to update bookmark status. \(error.localizedDescription)"))
+            default:
+                break
+            }
+        }
+    }
+}
+
+// MARK: BaseMessage+isBookmarked
+extension BaseMessage {
+    var isBookmarked: Bool {
+        let post = self as? Message
+        let answerPost = self as? AnswerMessage
+        return (post?.isSaved ?? false) || (answerPost?.isSaved ?? false)
     }
 }

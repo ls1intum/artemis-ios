@@ -20,6 +20,7 @@ struct MessageActions: View {
         Group {
             ReplyInThreadButton(viewModel: viewModel, message: $message, conversationPath: conversationPath)
             CopyTextButton(viewModel: viewModel, message: $message)
+            BookmarkButton(viewModel: viewModel, message: $message)
             PinButton(viewModel: viewModel, message: $message)
             MarkResolvingButton(viewModel: viewModel, message: $message)
             EditDeleteSection(viewModel: viewModel, message: $message)
@@ -85,6 +86,31 @@ struct MessageActions: View {
         }
     }
 
+    struct BookmarkButton: View {
+        @State private var viewModel: MessageActionsViewModel
+        @Binding private var message: DataState<BaseMessage>
+
+        init(viewModel: ConversationViewModel, message: Binding<DataState<BaseMessage>>) {
+            _viewModel = State(initialValue: MessageActionsViewModel(conversationViewModel: viewModel, message: message))
+            _message = message
+        }
+
+        var body: some View {
+            Group {
+                Divider()
+                if message.value?.isBookmarked ?? false {
+                    Button("Remove bookmark", systemImage: "bookmark.slash") {
+                        viewModel.toggleBookmark()
+                    }
+                } else {
+                    Button("Add bookmark", systemImage: "bookmark") {
+                        viewModel.toggleBookmark()
+                    }
+                }
+            }
+        }
+    }
+
     struct EditDeleteSection: View {
         @EnvironmentObject var navigationController: NavigationController
         @State private var viewModel: MessageActionsViewModel
@@ -129,9 +155,11 @@ struct MessageActions: View {
 
     struct PinButton: View {
         @State private var viewModel: MessageActionsViewModel
+        @Binding private var message: DataState<BaseMessage>
 
         init(viewModel: ConversationViewModel, message: Binding<DataState<BaseMessage>>) {
-            self._viewModel = State(initialValue: MessageActionsViewModel(conversationViewModel: viewModel, message: message))
+            _viewModel = State(initialValue: MessageActionsViewModel(conversationViewModel: viewModel, message: message))
+            _message = message
         }
 
         var body: some View {
@@ -139,7 +167,7 @@ struct MessageActions: View {
                 if viewModel.canPin {
                     Divider()
 
-                    if (viewModel.message.value as? Message)?.displayPriority == .pinned {
+                    if (message.value as? Message)?.displayPriority == .pinned {
                         Button(R.string.localizable.unpinMessage(), systemImage: "pin.slash", action: viewModel.togglePinned)
                     } else {
                         Button(R.string.localizable.pinMessage(), systemImage: "pin", action: viewModel.togglePinned)

@@ -20,7 +20,7 @@ extension MessagesServiceImpl {
         }
 
         var resourceName: String {
-            return "api/communication/saved-posts/\(postId)/\(postType)"
+            return "api/communication/saved-posts/\(postId)/\(postType.rawValue)"
         }
     }
 
