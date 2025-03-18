@@ -49,6 +49,26 @@ class MessageActionsViewModel {
         return false
     }
 
+    var canPin: Bool {
+        guard let message = message.value, message is Message else {
+            return false
+        }
+
+        // Channel: Only Moderators can pin
+        let isModerator = (conversationViewModel.conversation.baseConversation as? Channel)?.isChannelModerator ?? false
+        if conversationViewModel.conversation.baseConversation is Channel && !isModerator {
+            return false
+        }
+
+        // Group Chat: Only Creator can pin
+        let isCreator = conversationViewModel.conversation.baseConversation.isCreator ?? false
+        if conversationViewModel.conversation.baseConversation is GroupChat && !isCreator {
+            return false
+        }
+
+        return true
+    }
+
     init(conversationViewModel: ConversationViewModel, message: Binding<DataState<BaseMessage>>) {
         self.conversationViewModel = conversationViewModel
         self._message = message
@@ -72,6 +92,25 @@ class MessageActionsViewModel {
                 if !navController.tabPath.isEmpty && tempMessage is Message {
                     navController.tabPath.removeLast()
                 }
+            }
+        }
+    }
+
+    func togglePinned() {
+        guard let message = message.value as? Message else { return }
+        Task {
+            let result = await conversationViewModel.togglePinned(for: message)
+            let oldRole = message.authorRole
+            if var newMessageResult = result.value as? Message {
+                newMessageResult.authorRole = oldRole
+                newMessageResult.answers = newMessageResult.answers?.map { answer in
+                    var newAnswer = answer
+                    let oldAnswer = message.answers?.first { $0.id == answer.id }
+                    newAnswer.authorRole = newAnswer.authorRole ?? oldAnswer?.authorRole
+                    return newAnswer
+                }
+                self.$message.wrappedValue = .done(response: newMessageResult)
+                conversationViewModel.selectedMessageId = nil
             }
         }
     }

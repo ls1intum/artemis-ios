@@ -167,59 +167,22 @@ struct MessageActions: View {
     }
 
     struct PinButton: View {
-        @EnvironmentObject var navigationController: NavigationController
-        @ObservedObject var viewModel: ConversationViewModel
-        @Binding var message: DataState<BaseMessage>
+        @State private var viewModel: MessageActionsViewModel
 
-        var isAbleToPin: Bool {
-            guard let message = message.value, message is Message else {
-                return false
-            }
-
-            // Channel: Only Moderators can pin
-            let isModerator = (viewModel.conversation.baseConversation as? Channel)?.isChannelModerator ?? false
-            if viewModel.conversation.baseConversation is Channel && !isModerator {
-                return false
-            }
-
-            // Group Chat: Only Creator can pin
-            let isCreator = viewModel.conversation.baseConversation.isCreator ?? false
-            if viewModel.conversation.baseConversation is GroupChat && !isCreator {
-                return false
-            }
-
-            return true
+        init(viewModel: ConversationViewModel, message: Binding<DataState<BaseMessage>>) {
+            self._viewModel = State(initialValue: MessageActionsViewModel(conversationViewModel: viewModel, message: message))
         }
 
         var body: some View {
             Group {
-                if isAbleToPin {
+                if viewModel.canPin {
                     Divider()
 
-                    if (message.value as? Message)?.displayPriority == .pinned {
-                        Button(R.string.localizable.unpinMessage(), systemImage: "pin.slash", action: togglePinned)
+                    if (viewModel.message.value as? Message)?.displayPriority == .pinned {
+                        Button(R.string.localizable.unpinMessage(), systemImage: "pin.slash", action: viewModel.togglePinned)
                     } else {
-                        Button(R.string.localizable.pinMessage(), systemImage: "pin", action: togglePinned)
+                        Button(R.string.localizable.pinMessage(), systemImage: "pin", action: viewModel.togglePinned)
                     }
-                }
-            }
-        }
-
-        func togglePinned() {
-            guard let message = message.value as? Message else { return }
-            Task {
-                let result = await viewModel.togglePinned(for: message)
-                let oldRole = message.authorRole
-                if var newMessageResult = result.value as? Message {
-                    newMessageResult.authorRole = oldRole
-                    newMessageResult.answers = newMessageResult.answers?.map { answer in
-                        var newAnswer = answer
-                        let oldAnswer = message.answers?.first { $0.id == answer.id }
-                        newAnswer.authorRole = newAnswer.authorRole ?? oldAnswer?.authorRole
-                        return newAnswer
-                    }
-                    self.$message.wrappedValue = .done(response: newMessageResult)
-                    viewModel.selectedMessageId = nil
                 }
             }
         }
