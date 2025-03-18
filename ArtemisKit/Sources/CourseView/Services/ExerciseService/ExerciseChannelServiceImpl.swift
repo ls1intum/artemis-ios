@@ -24,7 +24,7 @@ struct ExerciseChannelServiceImpl: ExerciseChannelService {
         }
 
         var resourceName: String {
-            "api/courses/\(courseId)/exercises/\(exerciseId)/channel"
+            "api/communication/courses/\(courseId)/exercises/\(exerciseId)/channel"
         }
     }
 
