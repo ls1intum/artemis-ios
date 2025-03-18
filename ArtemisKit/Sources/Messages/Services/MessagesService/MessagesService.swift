@@ -188,6 +188,11 @@ protocol MessagesService {
      * Perform a put request to update a saved post's status.
      */
     func updateSavedPostStatus(for postId: Int, with type: PostType, status: SavedPostStatus) async -> NetworkResponse
+
+    /**
+     * Perform a delete request to remove the saved post with given id from the list of saved posts..
+     */
+    func deleteSavedPost(with postId: Int, of type: PostType) async -> NetworkResponse
 }
 
 extension MessagesService {

@@ -102,4 +102,24 @@ class SavedMessagesViewModel {
             archivedPosts.value?.append(post)
         }
     }
+
+    func unsave(post: SavedPostDTO) async {
+        isLoading = true
+        defer {
+            isLoading = false
+        }
+        let result = await service.deleteSavedPost(with: post.id, of: post.postingType)
+        switch result {
+        case .success:
+            withAnimation {
+                inProgressPosts.value?.removeAll { $0.id == post.id }
+                completedPosts.value?.removeAll { $0.id == post.id }
+                archivedPosts.value?.removeAll { $0.id == post.id }
+            }
+        case .failure(let error):
+            self.error = .init(title: "Failed to remove bookmark: \(error.localizedDescription)")
+        default:
+            break
+        }
+    }
 }

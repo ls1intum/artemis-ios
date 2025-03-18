@@ -61,4 +61,30 @@ extension MessagesServiceImpl {
             return .failure(error: error)
         }
     }
+
+    struct DeleteSavedPostRequest: APIRequest {
+        typealias Response = RawResponse
+
+        let postId: Int
+        let postType: PostType
+
+        var method: HTTPMethod {
+            return .delete
+        }
+
+        var resourceName: String {
+            return "api/communication/saved-posts/\(postId)/\(postType.rawValue)"
+        }
+    }
+
+    func deleteSavedPost(with postId: Int, of type: PostType) async -> NetworkResponse {
+        let result = await client.sendRequest(DeleteSavedPostRequest(postId: postId, postType: type))
+
+        switch result {
+        case .success:
+            return .success
+        case let .failure(error):
+            return .failure(error: error)
+        }
+    }
 }

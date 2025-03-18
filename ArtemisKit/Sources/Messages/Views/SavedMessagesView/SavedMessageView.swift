@@ -18,7 +18,6 @@ struct SavedMessageView: View {
     var body: some View {
         Section {
             NavigationLink {
-                // TODO: Correct conversations
                 let path = ThreadPath(postId: post.referencePostId,
                                       conversation: getConversationForPath(),
                                       coursePath: CoursePath(course: viewModel.course))
@@ -31,6 +30,15 @@ struct SavedMessageView: View {
                 }
             }
             .listRowInsets(EdgeInsets(top: .m, leading: .m, bottom: .s, trailing: .l))
+            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                Button(R.string.localizable.removeBookmark(), systemImage: "bookmark.slash") {
+                    Task {
+                        await viewModel.unsave(post: post)
+                    }
+                }
+                .labelStyle(.iconOnly)
+                .tint(.red)
+            }
 
             messageActions
         }
