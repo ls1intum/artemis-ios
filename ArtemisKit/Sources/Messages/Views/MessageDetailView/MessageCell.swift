@@ -32,6 +32,11 @@ struct MessageCell: View {
                 pinnedIndicator
                 resolvesPostIndicator
                 headerIfVisible
+                if !title.isEmpty {
+                    Text(title)
+                        .fontWeight(.bold)
+                        .foregroundColor(.Artemis.artemisBlue)
+                }
                 ArtemisMarkdownView(string: content.surroundingMarkdownImagesWithNewlines())
                     .opacity(isMessageOffline ? 0.5 : 1)
                     .messageUrlHandler(conversationViewModel: conversationViewModel,
@@ -108,6 +113,10 @@ private extension MessageCell {
 
     var content: String {
         message.value?.content ?? ""
+    }
+
+    var title: String {
+        (message.value as? Message)?.title ?? ""
     }
 
     var isPinned: Bool {
