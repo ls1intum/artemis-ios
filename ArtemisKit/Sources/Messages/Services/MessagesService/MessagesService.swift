@@ -180,6 +180,11 @@ protocol MessagesService {
 
     // MARK: Saved Messages
     /**
+     * Perform a post request to add the specified post to the list of saved posts..
+     */
+    func addSavedPost(with postId: Int, of type: PostType) async -> NetworkResponse
+
+    /**
      * Perform a get request to find all saved posts in a course that have the given status.
      */
     func getSavedPosts(for courseId: Int, status: SavedPostStatus) async -> DataState<[SavedPostDTO]>

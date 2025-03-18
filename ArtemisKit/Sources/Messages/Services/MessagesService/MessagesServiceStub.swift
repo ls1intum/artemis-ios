@@ -232,4 +232,8 @@ extension MessagesServiceStub: MessagesService {
     func deleteSavedPost(with postId: Int, of type: PostType) async -> NetworkResponse {
         .loading
     }
+
+    func addSavedPost(with postId: Int, of type: PostType) async -> NetworkResponse {
+        .loading
+    }
 }
