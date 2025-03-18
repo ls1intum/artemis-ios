@@ -105,7 +105,7 @@ struct MessageActions: View {
                     .sheet(isPresented: $viewModel.showEditSheet) {
                         viewModel.conversationViewModel.selectedMessageId = nil
                     } content: {
-                        editMessage
+                        EditMessageView(viewModel: viewModel)
                             .font(nil)
                     }
                 }
@@ -124,45 +124,6 @@ struct MessageActions: View {
                     }
                 }
             }
-        }
-
-        var editMessage: some View {
-            NavigationView {
-                Group {
-                    if let message = viewModel.message.value as? Message {
-                        SendMessageView(
-                            viewModel: SendMessageViewModel(
-                                course: viewModel.conversationViewModel.course,
-                                conversation: viewModel.conversationViewModel.conversation,
-                                configuration: .editMessage(message, { viewModel.showEditSheet = false }),
-                                delegate: SendMessageViewModelDelegate(viewModel.conversationViewModel)
-                            )
-                        )
-                    } else if let answerMessage = viewModel.message.value as? AnswerMessage {
-                        SendMessageView(
-                            viewModel: SendMessageViewModel(
-                                course: viewModel.conversationViewModel.course,
-                                conversation: viewModel.conversationViewModel.conversation,
-                                configuration: .editAnswerMessage(answerMessage, { viewModel.showEditSheet = false }),
-                                delegate: SendMessageViewModelDelegate(viewModel.conversationViewModel)
-                            )
-                        )
-                    } else {
-                        Text(R.string.localizable.loading())
-                    }
-                }
-                .navigationTitle(R.string.localizable.editMessage())
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        Button(R.string.localizable.cancel()) {
-                            viewModel.showEditSheet = false
-                        }
-                    }
-                }
-            }
-            .fontWeight(.regular)
-            .presentationDetents([.height(200), .medium])
         }
     }
 
