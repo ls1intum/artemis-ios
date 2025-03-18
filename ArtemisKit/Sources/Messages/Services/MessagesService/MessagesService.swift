@@ -40,7 +40,7 @@ protocol MessagesService {
 
     /**
      * Perform a get request for a specific Message of a specific conversation in a specific course to the server.
-    */
+     */
     func getMessage(with messageId: Int64, for courseId: Int, and conversationId: Int64) async -> DataState<Message>
 
     /**
@@ -54,9 +54,9 @@ protocol MessagesService {
     func sendAnswerMessage(for courseId: Int, message: Message, content: String) async -> NetworkResponse
 
     /**
-      * Perform a post request for uploading a file  in a specific conversation to the server.
-      */
-     func uploadFile(for courseId: Int, and conversationId: Int64, file: Data, filename: String, mimeType: String) async -> DataState<String>
+     * Perform a post request for uploading a file  in a specific conversation to the server.
+     */
+    func uploadFile(for courseId: Int, and conversationId: Int64, file: Data, filename: String, mimeType: String) async -> DataState<String>
 
     /**
      * Perform a delete request for a message in a specific course to the server.
@@ -177,6 +177,17 @@ protocol MessagesService {
      * Perform a delete request to delete a specific channel in a specific course to the server.
      */
     func deleteChannel(for courseId: Int, channelId: Int64) async -> NetworkResponse
+
+    // MARK: Saved Messages
+    /**
+     * Perform a get request to find all saved posts in a course that have the given status.
+     */
+    func getSavedPosts(for courseId: Int, status: SavedPostStatus) async -> DataState<[SavedPostDTO]>
+
+    /**
+     * Perform a put request to update a saved post's status.
+     */
+    func updateSavedPostStatus(for postId: Int, with type: PostType, status: SavedPostStatus) async -> NetworkResponse
 }
 
 extension MessagesService {
