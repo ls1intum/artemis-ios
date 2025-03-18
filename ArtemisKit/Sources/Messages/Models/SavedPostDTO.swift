@@ -14,7 +14,7 @@ struct SavedPostDTO: Codable, Identifiable, Hashable, Comparable {
         lhs.id < rhs.id
     }
 
-    let id: Int
+    let id: Int64
     let author: AuthorDTO
     let role: UserRole?
     let creationDate: Date

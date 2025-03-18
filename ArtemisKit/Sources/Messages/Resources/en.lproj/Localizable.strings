@@ -87,7 +87,8 @@
 "unmarkAsResolving" = "Doesn't Resolve Post";
 "pinMessage" = "Pin Message";
 "unpinMessage" = "Unpin Message";
-"removeBookmark" = "Remove bookmark";
+"addBookmark" = "Save Message";
+"removeBookmark" = "Remove Bookmark";
 
 // MARK: Saved Messages
 "savedMessages" = "Saved Messages";
@@ -106,6 +107,7 @@
 "reply" = "reply";
 "new" = "New";
 "pinned" = "Pinned";
+"savedMessage" = "Saved for later";
 "resolved" = "Resolved";
 "resolvesPost" = "Resolves Post";
 "filterMessages" = "Filter Messages";
