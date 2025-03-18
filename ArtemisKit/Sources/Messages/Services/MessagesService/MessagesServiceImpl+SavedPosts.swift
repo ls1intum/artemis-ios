@@ -78,7 +78,7 @@ extension MessagesServiceImpl {
     }
 
     func deleteSavedPost(with postId: Int, of type: PostType) async -> NetworkResponse {
-        let result = await client.sendRequest(UpdateSavedPostStatusRequest(postId: postId, postType: type, status: status))
+        let result = await client.sendRequest(DeleteSavedPostRequest(postId: postId, postType: type))
 
         switch result {
         case .success:
