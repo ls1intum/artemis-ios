@@ -6,7 +6,6 @@
 //
 
 import DesignLibrary
-import Smile
 import SwiftUI
 
 struct EmojiPicker: View {
@@ -72,21 +71,23 @@ struct EmojiPicker: View {
     func emojiCategory(emojis: [String], reactions: [String]) -> some View {
         LazyVGrid(columns: columns, spacing: 20) {
             ForEach(emojis, id: \.self) { emoji in
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.gray.opacity(0.4))
-                    .stroke(reactions.contains(emoji) && viewModel.isMyReaction(emoji) ? Color.blue : Color.clear,
-                            style: StrokeStyle(lineWidth: 2))
-                    .frame(width: 60, height: 60)
-                    .overlay {
-                        Text(emoji)
-                            .font(.largeTitle)
-                    }
-                    .onTapGesture {
-                        Task {
-                            dismiss()
-                            await viewModel.addReaction(emojiId: Smile.alias(emoji: emoji) ?? "")
+                if let emojiId = Emojis.getEmojiId(for: emoji) {
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color.gray.opacity(0.4))
+                        .stroke(reactions.contains(emoji) && viewModel.isMyReaction(emoji) ? Color.blue : Color.clear,
+                                style: StrokeStyle(lineWidth: 2))
+                        .frame(width: 60, height: 60)
+                        .overlay {
+                            Text(emoji)
+                                .font(.largeTitle)
                         }
-                    }
+                        .onTapGesture {
+                            Task {
+                                dismiss()
+                                await viewModel.addReaction(emojiId: emojiId)
+                            }
+                        }
+                }
             }
         }
     }
