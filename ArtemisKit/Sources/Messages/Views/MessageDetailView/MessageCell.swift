@@ -35,7 +35,6 @@ struct MessageCell: View {
                 if !title.isEmpty {
                     Text(title)
                         .fontWeight(.bold)
-                        .foregroundColor(.Artemis.artemisBlue)
                 }
                 ArtemisMarkdownView(string: content.surroundingMarkdownImagesWithNewlines())
                     .opacity(isMessageOffline ? 0.5 : 1)
