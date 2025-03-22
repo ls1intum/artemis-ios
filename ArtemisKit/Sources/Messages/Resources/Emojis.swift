@@ -16,13 +16,11 @@ struct Emojis {
         "face_with_peeking_eye": "🫣",
         "saluting_face": "🫡",
         "dotted_line_face": "🫥",
-        // "🫨"
         "face_with_diagonal_mouth": "🫤",
         "face_holding_back_tears": "🥹",
         "rightwards_hand": "🫱",
         "palm_up_hand": "🫴",
-        // "🫷"
-        // "🫸"
+        // Unicode 15.0 Emojis: "🫨", "🫷", "🫸"
         "hand_with_index_finger_and_thumb_crossed": "🫰",
         "index_pointing_at_the_viewer": "🫵",
         "heart_hands": "🫶",
@@ -31,44 +29,22 @@ struct Emojis {
         "pregnant_man": "🫃",
         "pregnant_person": "🫄",
         "troll": "🧌",
-        // "🕴"
-        // "🫎"
-        // "🫏"
-        // "🐿"
-        // "🪽"
-        // "🪿"
         "coral": "🪸",
-        // "🪼"
         "lotus": "🪷",
-        // "🪻"
         "empty_nest": "🪹",
         "nest_with_eggs": "🪺",
         "beans": "🫘",
-        // "🫚"
-        // "🫛"
+        // Unicode 15.0 Eat/Nature:"🕴", "🫎", "🫏", "🐿", "🪽", "🪿", "🪼", "🪻", "🫚", "🫛"
         "pouring_liquid": "🫗",
         "jar": "🫙",
-        // "🛝"
-        // "🛞"
-        // "🛟"
         "mirror_ball": "🪩",
-        // "🪭"
-        // "🪮"
-        // "🪇"
-        // "🪈"
         "low_battery": "🪫",
         "crutch": "🩼",
         "x-ray": "🩻",
         "bubbles": "🫧",
-        // "🪬"
         "identification_card": "🪪",
-        // "🩷"
-        // "🩵"
-        // "🩶"
-        // "⚠"
-        // "🪯"
-        // "🛜"
         "heavy_equals_sign": "🟰"
+        // Unicode 15.0 Travel/Objects: "🛝", "🛞", "🛟", "🪭", "🪮", "🪇", "🪈", "🪬", "🩷", "🩵", "🩶", "⚠", "🪯", "🛜"
     ]
 
     static func getEmojiId(for emoji: String) -> String? {
