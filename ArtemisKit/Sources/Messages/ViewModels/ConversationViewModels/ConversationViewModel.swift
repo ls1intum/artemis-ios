@@ -304,6 +304,13 @@ extension ConversationViewModel {
             presentError(userFacingError: error)
             return .failure(error: error)
         case .done(let message):
+            if let message = message as? Message, !filter.messageMatchesSelectedFilter(message) {
+                // Ensure message is removed if no longer matches filter
+                let equal = messages.remove(.of(id: message.id))
+                if equal != nil {
+                    diff -= 1
+                }
+            }
             return .done(response: message)
         case .loading:
             return .loading
