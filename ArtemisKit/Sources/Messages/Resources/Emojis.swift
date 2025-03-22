@@ -20,7 +20,6 @@ struct Emojis {
         "face_holding_back_tears": "🥹",
         "rightwards_hand": "🫱",
         "palm_up_hand": "🫴",
-        // Unicode 15.0 Emojis: "🫨", "🫷", "🫸"
         "hand_with_index_finger_and_thumb_crossed": "🫰",
         "index_pointing_at_the_viewer": "🫵",
         "heart_hands": "🫶",
@@ -28,6 +27,7 @@ struct Emojis {
         "person_with_crown": "🫅",
         "pregnant_man": "🫃",
         "pregnant_person": "🫄",
+        // Unicode 15.0 Emojis: "🫨", "🫷", "🫸"
         "troll": "🧌",
         "coral": "🪸",
         "lotus": "🪷",
