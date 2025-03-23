@@ -38,8 +38,10 @@ public struct CourseNotificationToolbarButton: View {
             Button(R.string.localizable.notificationsTitle(), systemImage: "bell.fill") {
                 showNotificationSheet = true
             }
-            .popover(isPresented: $showNotificationSheet, attachmentAnchor: .point(.topTrailing), arrowEdge: .top) {
+            .labelStyle(.iconOnly)
+            .popover(isPresented: $showNotificationSheet, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
                 CourseNotificationView(courseId: courseId)
+                    .frame(minWidth: 400, minHeight: 600)
             }
         }
     }

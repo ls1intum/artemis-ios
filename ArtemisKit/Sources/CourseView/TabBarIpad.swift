@@ -27,6 +27,7 @@ struct TabBarIpad<Content: View>: View {
                     Spacer()
                     CourseNotificationToolbarButton(placement: .tabBar, sizeClass: sizeClass)
                 }
+                .imageScale(.large)
                 .padding(.horizontal)
                 .frame(height: 50)
                 .frame(maxWidth: .infinity)
