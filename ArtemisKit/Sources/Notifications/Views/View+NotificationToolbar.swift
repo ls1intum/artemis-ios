@@ -5,11 +5,26 @@
 //  Created by Nityananda Zbil on 11.12.23.
 //
 
+import ProfileInfo
 import SwiftUI
 
 public extension View {
     func notificationToolbar() -> some View {
-        modifier(NotificationBell())
+        modifier(NotificationBellContainer())
+    }
+}
+
+// Wrapper to conditionally apply Notification modifier
+private struct NotificationBellContainer: ViewModifier {
+    @FeatureAvailability(.courseNotifications)
+    var disabled
+
+    func body(content: Content) -> some View {
+        if !disabled {
+            content.modifier(NotificationBell())
+        } else {
+            content
+        }
     }
 }
 
