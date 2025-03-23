@@ -45,7 +45,7 @@ enum NotificationFilter: FilterPicker {
     var iconName: String {
         switch self {
         case .general:
-            "app.badge"
+            "bell"
         case .communication:
             "bubble"
         }

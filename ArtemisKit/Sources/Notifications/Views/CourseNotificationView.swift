@@ -29,6 +29,10 @@ struct CourseNotificationView: View {
                     ForEach(viewModel.filteredNotifications) { notification in
                         Text(String(describing: notification.notification))
                     }
+
+                    if viewModel.filteredNotifications.isEmpty {
+                        ContentUnavailableView(R.string.localizable.noNotifications(), systemImage: viewModel.filter.iconName)
+                    }
                 }
                 .animation(.default, value: viewModel.filter)
                 .listRowSpacing(.m)
