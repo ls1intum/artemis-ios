@@ -16,6 +16,8 @@ public struct CourseNotificationToolbarButton: View {
     private let placement: Placement
     private let sizeClass: UserInterfaceSizeClass?
 
+    @State private var showNotificationSheet = false
+
     @EnvironmentObject private var navController: NavigationController
     private var courseId: Int {
         navController.selectedCourse?.id ?? 0
@@ -31,7 +33,10 @@ public struct CourseNotificationToolbarButton: View {
         // Otherwise we have a separate bar (iPad)
         if placement != .navBar || sizeClass == .compact || !iPad {
             Button(R.string.localizable.notificationsTitle(), systemImage: "bell.fill") {
-                // Show notification sheet
+                showNotificationSheet = true
+            }
+            .popover(isPresented: $showNotificationSheet, attachmentAnchor: .point(.topTrailing), arrowEdge: .top) {
+                CourseNotificationView(courseId: courseId)
             }
         }
     }
@@ -40,4 +45,3 @@ public struct CourseNotificationToolbarButton: View {
         UIDevice.current.userInterfaceIdiom == .pad
     }
 }
-

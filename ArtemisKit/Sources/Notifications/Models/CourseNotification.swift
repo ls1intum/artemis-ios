@@ -9,7 +9,7 @@ import Foundation
 import PushNotifications
 import SharedModels
 
-struct CourseNotification: Codable {
+struct CourseNotification: Codable, Identifiable {
     let notificationType: CourseNotificationType
     let notificationId: Int
     let courseId: Int
@@ -34,6 +34,8 @@ struct CourseNotification: Codable {
         case notificationType
         case parameters
     }
+
+    var id: Int { notificationId }
 }
 
 enum CourseNotificationCategory: String, ConstantsEnum {
