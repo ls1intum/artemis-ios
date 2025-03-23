@@ -36,27 +36,27 @@ enum NotificationFilter: FilterPicker {
     var displayName: String {
         switch self {
         case .general:
-            ""
+            "General"
         case .communication:
-            ""
+            "Communication"
         }
     }
 
     var iconName: String {
         switch self {
         case .general:
-            ""
+            "app.badge"
         case .communication:
-            ""
+            "bubble"
         }
     }
 
     var selectedColor: Color {
         switch self {
         case .general:
-            .red
+            .green
         case .communication:
-            .red
+            .blue
         }
     }
 

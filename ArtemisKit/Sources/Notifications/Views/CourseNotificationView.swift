@@ -30,6 +30,7 @@ struct CourseNotificationView: View {
                         Text(String(describing: notification.notification))
                     }
                 }
+                .animation(.default, value: viewModel.filter)
                 .listRowSpacing(.m)
             }
             .navigationTitle(R.string.localizable.notificationsTitle())
