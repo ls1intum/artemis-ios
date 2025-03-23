@@ -6,6 +6,7 @@
 //
 
 import Navigation
+import ProfileInfo
 import SwiftUI
 
 public struct CourseNotificationToolbarButton: View {
@@ -17,6 +18,7 @@ public struct CourseNotificationToolbarButton: View {
     private let sizeClass: UserInterfaceSizeClass?
 
     @State private var showNotificationSheet = false
+    @FeatureAvailability(.courseNotifications) var featureEnabled
 
     @EnvironmentObject private var navController: NavigationController
     private var courseId: Int {
@@ -31,7 +33,7 @@ public struct CourseNotificationToolbarButton: View {
     public var body: some View {
         // Only show this button in the NavBar if we are on compact width,
         // Otherwise we have a separate bar (iPad)
-        if placement != .navBar || sizeClass == .compact || !iPad {
+        if featureEnabled && (placement != .navBar || sizeClass == .compact || !iPad) {
             Button(R.string.localizable.notificationsTitle(), systemImage: "bell.fill") {
                 showNotificationSheet = true
             }
