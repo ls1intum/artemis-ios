@@ -6,6 +6,7 @@
 //
 
 import DesignLibrary
+import PushNotifications
 import SwiftUI
 
 struct CourseNotificationView: View {
@@ -27,7 +28,7 @@ struct CourseNotificationView: View {
                     }
 
                     ForEach(viewModel.filteredNotifications) { notification in
-                        Text(String(describing: notification.notification))
+                        SingleNotificationView(notification: notification)
                     }
 
                     if viewModel.filteredNotifications.isEmpty {
@@ -52,6 +53,35 @@ struct CourseNotificationView: View {
         }
         .task {
             await viewModel.loadNotifications()
+        }
+    }
+}
+
+private struct SingleNotificationView: View {
+    let notification: CourseNotification
+
+    var body: some View {
+        if let notification = notification.notification.displayable {
+            HStack(spacing: .l) {
+                CourseNotificationIconView(notification: self.notification)
+                    .frame(maxWidth: 50)
+
+                VStack(alignment: .leading) {
+                    Text(notification.title)
+                        .font(.title2)
+                        .fontWeight(.semibold)
+
+                    if let subtitle = notification.subtitle {
+                        Text(subtitle)
+                            .font(.headline)
+                    }
+
+                    if let body = notification.body {
+                        Text(body)
+                            .lineLimit(notification.bodyLineLimit)
+                    }
+                }
+            }
         }
     }
 }
