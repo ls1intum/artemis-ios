@@ -18,7 +18,8 @@ public struct CourseNotificationToolbarButton: View {
     private let sizeClass: UserInterfaceSizeClass?
 
     @State private var showNotificationSheet = false
-    @FeatureAvailability(.courseNotifications) var featureEnabled
+    @FeatureAvailability(.courseNotifications)
+    var featureEnabled
 
     @EnvironmentObject private var navController: NavigationController
     private var courseId: Int {
