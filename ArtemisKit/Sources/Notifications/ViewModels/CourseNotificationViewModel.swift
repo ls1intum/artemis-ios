@@ -36,9 +36,9 @@ enum NotificationFilter: FilterPicker {
     var displayName: String {
         switch self {
         case .general:
-            "General"
+            R.string.localizable.general()
         case .communication:
-            "Communication"
+            R.string.localizable.communication()
         }
     }
 
