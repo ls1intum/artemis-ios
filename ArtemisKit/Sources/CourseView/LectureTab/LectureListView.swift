@@ -7,6 +7,7 @@
 
 import DesignLibrary
 import Navigation
+import Notifications
 import SharedModels
 import SwiftUI
 import Messages
@@ -70,6 +71,9 @@ struct LectureListView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     BackToRootButton(placement: .navBar, sizeClass: sizeClass)
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    CourseNotificationToolbarButton(placement: .navBar, sizeClass: sizeClass)
                 }
             }
         } detail: {

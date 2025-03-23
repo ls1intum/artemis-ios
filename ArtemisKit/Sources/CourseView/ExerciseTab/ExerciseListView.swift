@@ -4,6 +4,7 @@ import SwiftUI
 import SharedModels
 import Common
 import Navigation
+import Notifications
 import DesignLibrary
 
 struct ExerciseListView: View {
@@ -64,6 +65,9 @@ struct ExerciseListView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     BackToRootButton(placement: .navBar, sizeClass: sizeClass)
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    CourseNotificationToolbarButton(placement: .navBar, sizeClass: sizeClass)
                 }
             }
         } detail: {

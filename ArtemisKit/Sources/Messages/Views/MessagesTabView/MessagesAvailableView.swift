@@ -9,6 +9,7 @@ import Common
 import DesignLibrary
 import Faq
 import Navigation
+import Notifications
 import SharedModels
 import SwiftUI
 
@@ -75,6 +76,9 @@ public struct MessagesAvailableView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     BackToRootButton(placement: .navBar, sizeClass: sizeClass)
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    CourseNotificationToolbarButton(placement: .navBar, sizeClass: sizeClass)
                 }
             }
         } detail: {

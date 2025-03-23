@@ -9,6 +9,7 @@ import ArtemisMarkdown
 import Common
 import DesignLibrary
 import Navigation
+import Notifications
 import SharedModels
 import SwiftUI
 
@@ -66,6 +67,9 @@ public struct FaqListView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     BackToRootButton(placement: .navBar, sizeClass: sizeClass)
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    CourseNotificationToolbarButton(placement: .navBar, sizeClass: sizeClass)
                 }
             }
         } detail: {
