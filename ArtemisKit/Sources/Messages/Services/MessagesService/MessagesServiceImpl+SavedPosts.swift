@@ -9,6 +9,32 @@ import APIClient
 import Common
 
 extension MessagesServiceImpl {
+    struct AddSavedPostRequest: APIRequest {
+        typealias Response = RawResponse
+
+        let postId: Int64
+        let postType: PostType
+
+        var method: HTTPMethod {
+            return .post
+        }
+
+        var resourceName: String {
+            return "api/communication/saved-posts/\(postId)/\(postType.rawValue)"
+        }
+    }
+
+    func addSavedPost(with postId: Int64, of type: PostType) async -> NetworkResponse {
+        let result = await client.sendRequest(AddSavedPostRequest(postId: postId, postType: type))
+
+        switch result {
+        case .success:
+            return .success
+        case let .failure(error):
+            return .failure(error: error)
+        }
+    }
+
     struct GetSavedPostsRequest: APIRequest {
         typealias Response = [SavedPostDTO]
 
@@ -38,7 +64,7 @@ extension MessagesServiceImpl {
     struct UpdateSavedPostStatusRequest: APIRequest {
         typealias Response = RawResponse
 
-        let postId: Int
+        let postId: Int64
         let postType: PostType
         let status: SavedPostStatus
 
@@ -51,7 +77,7 @@ extension MessagesServiceImpl {
         }
     }
 
-    func updateSavedPostStatus(for postId: Int, with type: PostType, status: SavedPostStatus) async -> NetworkResponse {
+    func updateSavedPostStatus(for postId: Int64, with type: PostType, status: SavedPostStatus) async -> NetworkResponse {
         let result = await client.sendRequest(UpdateSavedPostStatusRequest(postId: postId, postType: type, status: status))
 
         switch result {
@@ -65,7 +91,7 @@ extension MessagesServiceImpl {
     struct DeleteSavedPostRequest: APIRequest {
         typealias Response = RawResponse
 
-        let postId: Int
+        let postId: Int64
         let postType: PostType
 
         var method: HTTPMethod {
@@ -77,7 +103,7 @@ extension MessagesServiceImpl {
         }
     }
 
-    func deleteSavedPost(with postId: Int, of type: PostType) async -> NetworkResponse {
+    func deleteSavedPost(with postId: Int64, of type: PostType) async -> NetworkResponse {
         let result = await client.sendRequest(DeleteSavedPostRequest(postId: postId, postType: type))
 
         switch result {
