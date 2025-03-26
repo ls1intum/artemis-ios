@@ -180,6 +180,11 @@ protocol MessagesService {
 
     // MARK: Saved Messages
     /**
+     * Perform a post request to add the specified post to the list of saved posts..
+     */
+    func addSavedPost(with postId: Int64, of type: PostType) async -> NetworkResponse
+
+    /**
      * Perform a get request to find all saved posts in a course that have the given status.
      */
     func getSavedPosts(for courseId: Int, status: SavedPostStatus) async -> DataState<[SavedPostDTO]>
@@ -187,12 +192,12 @@ protocol MessagesService {
     /**
      * Perform a put request to update a saved post's status.
      */
-    func updateSavedPostStatus(for postId: Int, with type: PostType, status: SavedPostStatus) async -> NetworkResponse
+    func updateSavedPostStatus(for postId: Int64, with type: PostType, status: SavedPostStatus) async -> NetworkResponse
 
     /**
      * Perform a delete request to remove the saved post with given id from the list of saved posts..
      */
-    func deleteSavedPost(with postId: Int, of type: PostType) async -> NetworkResponse
+    func deleteSavedPost(with postId: Int64, of type: PostType) async -> NetworkResponse
 }
 
 extension MessagesService {
