@@ -15,13 +15,17 @@ extension View {
 }
 
 private struct NotificationNavigationHandler: ViewModifier {
+    @Environment(\.dismiss) var dismiss
     @EnvironmentObject var navController: NavigationController
     let notification: CourseNotification
 
     func body(content: Content) -> some View {
-        if let tappable = notification.notification as? TappableNotification {
+        if let tappable = notification.notification.displayable as? TappableNotification {
             Button {
-                tappable.handleTap(with: navController)
+                dismiss()
+                Task {
+                    await tappable.handleTap(with: navController)
+                }
             } label: {
                 content
             }
