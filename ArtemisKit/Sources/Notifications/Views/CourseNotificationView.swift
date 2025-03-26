@@ -29,6 +29,7 @@ struct CourseNotificationView: View {
 
                     ForEach(viewModel.filteredNotifications) { notification in
                         SingleNotificationView(notification: notification)
+                            .notificationTapHandler(for: notification)
                     }
 
                     if viewModel.filteredNotifications.isEmpty {
