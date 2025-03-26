@@ -65,7 +65,7 @@ public struct RootView: View {
         .modifier(ForceAppUpdateViewModifier(updateRequirement: $viewModel.updateRequirement))
         .onChange(of: scenePhase) {
             if scenePhase == .active {
-                Task { await viewModel.checkForUpdates() }
+                Task { await viewModel.checkFeaturesAndUpdates() }
             }
         }
     }

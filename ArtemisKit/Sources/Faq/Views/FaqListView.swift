@@ -9,12 +9,12 @@ import ArtemisMarkdown
 import Common
 import DesignLibrary
 import Navigation
+import Notifications
 import SharedModels
 import SwiftUI
 
 public struct FaqListView: View {
     @Namespace var namespace
-    @Environment(\.horizontalSizeClass) var sizeClass
     @EnvironmentObject var navController: NavigationController
     @State private var columnVisibilty: NavigationSplitViewVisibility = .doubleColumn
     @State var viewModel: FaqViewModel
@@ -61,13 +61,7 @@ public struct FaqListView: View {
                     await viewModel.loadFaq()
                 }
             }
-            .navigationTitle(viewModel.course.title ?? R.string.localizable.faqs())
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    BackToRootButton(placement: .navBar, sizeClass: sizeClass)
-                }
-            }
+            .courseToolbar()
         } detail: {
             NavigationStack(path: $navController.tabPath) {
                 Group {

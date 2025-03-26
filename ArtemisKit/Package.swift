@@ -58,6 +58,7 @@ let package = Package(
                 "Faq",
                 "Messages",
                 "Navigation",
+                "Notifications",
                 .product(name: "ApollonEdit", package: "apollon-ios-module"),
                 .product(name: "ApollonView", package: "apollon-ios-module"),
                 .product(name: "ApollonShared", package: "apollon-ios-module"),
@@ -99,6 +100,7 @@ let package = Package(
             dependencies: [
                 "Extensions",
                 "Navigation",
+                "Notifications",
                 .product(name: "APIClient", package: "artemis-ios-core-modules"),
                 .product(name: "ArtemisMarkdown", package: "artemis-ios-core-modules"),
                 .product(name: "DesignLibrary", package: "artemis-ios-core-modules"),
@@ -116,6 +118,7 @@ let package = Package(
                 "Extensions",
                 "Faq",
                 "Navigation",
+                "Notifications",
                 .product(name: "Smile", package: "Smile"),
                 .product(name: "APIClient", package: "artemis-ios-core-modules"),
                 .product(name: "ArtemisMarkdown", package: "artemis-ios-core-modules"),
