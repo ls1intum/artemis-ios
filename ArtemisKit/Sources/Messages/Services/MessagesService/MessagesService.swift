@@ -36,7 +36,12 @@ protocol MessagesService {
     /**
      * Perform a get request for Messages of a specific conversation in a specific course to the server.
      */
-    func getMessages(for courseId: Int, and conversationId: Int64, page: Int) async -> DataState<[Message]>
+    func getMessages(for courseId: Int, and conversationId: Int64, filter: MessageRequestFilter, page: Int) async -> DataState<[Message]>
+
+    /**
+     * Perform a get request for a specific Message of a specific conversation in a specific course to the server.
+    */
+    func getMessage(with messageId: Int64, for courseId: Int, and conversationId: Int64) async -> DataState<Message>
 
     /**
      * Perform a post request for a new message for a specific conversation in a specific course to the server.
@@ -47,6 +52,11 @@ protocol MessagesService {
      * Perform a post request for a new message answer for a specific message in a specific course to the server.
      */
     func sendAnswerMessage(for courseId: Int, message: Message, content: String) async -> NetworkResponse
+
+    /**
+      * Perform a post request for uploading a file  in a specific conversation to the server.
+      */
+     func uploadFile(for courseId: Int, and conversationId: Int64, file: Data, filename: String, mimeType: String) async -> DataState<String>
 
     /**
      * Perform a delete request for a message in a specific course to the server.
@@ -121,7 +131,7 @@ protocol MessagesService {
     /**
      * Perform a post request to create a specific channels in a specific course to the server.
      */
-    func createChannel(for courseId: Int, name: String, description: String?, isPrivate: Bool, isAnnouncement: Bool) async -> DataState<Channel>
+    func createChannel(for courseId: Int, name: String, description: String?, isPrivate: Bool, isAnnouncement: Bool, isCourseWide: Bool) async -> DataState<Channel>
 
     /**
      * Perform a get request to find users in a specific course to the server.
@@ -157,6 +167,16 @@ protocol MessagesService {
      * Perform a put request to edit the name/topic/description of  a specific conversation in a specific course to the server.
      */
     func editConversation(for courseId: Int, conversation: Conversation, newName: String?, newTopic: String?, newDescription: String?) async -> DataState<Conversation>
+
+    /**
+     * Perform a get request to retrieve channels which have unresolved messages
+     */
+    func getUnresolvedChannelIds(for courseId: Int, and channelIds: [Int64]) async -> DataState<[Int64]>
+
+    /**
+     * Perform a delete request to delete a specific channel in a specific course to the server.
+     */
+    func deleteChannel(for courseId: Int, channelId: Int64) async -> NetworkResponse
 }
 
 extension MessagesService {

@@ -14,7 +14,7 @@ import UserStore
 // swiftlint:disable file_length type_body_length
 struct MessagesServiceImpl: MessagesService {
 
-    private let client = APIClient()
+    internal let client = APIClient()
 
     struct GetConversationsRequest: APIRequest {
         typealias Response = [Conversation]
@@ -136,6 +136,7 @@ struct MessagesServiceImpl: MessagesService {
         let courseId: Int
         let conversationId: Int64
         let page: Int
+        let filter: MessageRequestFilter
 
         var method: HTTPMethod {
             return .get
@@ -149,7 +150,7 @@ struct MessagesServiceImpl: MessagesService {
                 .init(name: "pagingEnabled", value: "true"),
                 .init(name: "page", value: String(describing: page)),
                 .init(name: "size", value: String(describing: Self.size))
-            ]
+            ] + filter.queryItems
         }
 
         var resourceName: String {
@@ -157,8 +158,8 @@ struct MessagesServiceImpl: MessagesService {
         }
     }
 
-    func getMessages(for courseId: Int, and conversationId: Int64, page: Int) async -> DataState<[Message]> {
-        let result = await client.sendRequest(GetMessagesRequest(courseId: courseId, conversationId: conversationId, page: page))
+    func getMessages(for courseId: Int, and conversationId: Int64, filter: MessageRequestFilter = .init(), page: Int) async -> DataState<[Message]> {
+        let result = await client.sendRequest(GetMessagesRequest(courseId: courseId, conversationId: conversationId, page: page, filter: filter))
 
         switch result {
         case let .success((messages, _)):
@@ -168,8 +169,46 @@ struct MessagesServiceImpl: MessagesService {
         }
     }
 
+    struct GetMessageRequest: APIRequest {
+        typealias Response = [Message]
+
+        let courseId: Int
+        let conversationId: Int64
+        let messageId: Int64
+
+        var method: HTTPMethod {
+            return .get
+        }
+
+        var params: [URLQueryItem] {
+            [
+                .init(name: "conversationId", value: String(describing: conversationId)),
+                .init(name: "searchText", value: "#\(messageId)")
+            ]
+        }
+
+        var resourceName: String {
+            return "api/courses/\(courseId)/messages"
+        }
+    }
+
+    func getMessage(with messageId: Int64, for courseId: Int, and conversationId: Int64) async -> DataState<Message> {
+        let result = await client.sendRequest(GetMessageRequest(courseId: courseId, conversationId: conversationId, messageId: messageId))
+
+        switch result {
+        case let .success((messages, _)):
+            if let message = messages.first {
+                return .done(response: message)
+            } else {
+                return .failure(error: .init(title: "Message not found"))
+            }
+        case let .failure(error):
+            return DataState(error: error)
+        }
+    }
+
     struct SendMessageRequest: APIRequest {
-        typealias Response = RawResponse
+        typealias Response = Message
 
         let courseId: Int
         let visibleForStudents: Bool
@@ -192,7 +231,10 @@ struct MessagesServiceImpl: MessagesService {
         )
 
         switch result {
-        case .success:
+        case .success(let response):
+            NotificationCenter.default.post(name: .newMessageSent,
+                                            object: nil,
+                                            userInfo: ["message": response.0])
             return .success
         case let .failure(error):
             return .failure(error: error)
@@ -228,6 +270,33 @@ struct MessagesServiceImpl: MessagesService {
             return .failure(error: error)
         }
     }
+
+    struct UploadFileResult: Codable {
+        let path: String
+    }
+
+       func uploadFile(for courseId: Int, and conversationId: Int64, file: Data, filename: String, mimeType: String) async -> DataState<String> {
+           // Check file size limit
+           let maxFileSize = 5 * 1024 * 1024
+           if file.count > maxFileSize {
+               return .failure(error: .init(title: "File too big to upload"))
+           }
+
+           let request = MultipartFormDataRequest(path: "api/files/courses/\(courseId)/conversations/\(conversationId)")
+           request.addDataField(named: "file",
+                                filename: filename,
+                                data: file,
+                                mimeType: mimeType)
+
+           let result: Swift.Result<(UploadFileResult, Int), APIClientError> = await client.sendRequest(request)
+
+           switch result {
+           case .success(let response):
+               return .done(response: response.0.path)
+           case .failure(let failure):
+               return .failure(error: .init(error: failure))
+           }
+       }
 
     struct DeleteMessageRequest: APIRequest {
         typealias Response = RawResponse
@@ -630,38 +699,6 @@ struct MessagesServiceImpl: MessagesService {
         }
     }
 
-    struct CreateChannelRequest: APIRequest {
-        typealias Response = Channel
-
-        let courseId: Int
-        var type: ConversationType = .channel
-        let name: String
-        let description: String?
-        let isPublic: Bool
-        let isAnnouncementChannel: Bool
-
-        var method: HTTPMethod {
-            return .post
-        }
-
-        var resourceName: String {
-            return "api/courses/\(courseId)/channels"
-        }
-    }
-
-    func createChannel(for courseId: Int, name: String, description: String?, isPrivate: Bool, isAnnouncement: Bool) async -> DataState<Channel> {
-        let result = await client.sendRequest(
-            CreateChannelRequest(courseId: courseId, name: name, description: description, isPublic: !isPrivate, isAnnouncementChannel: isAnnouncement)
-        )
-
-        switch result {
-        case let .success((channel, _)):
-            return .done(response: channel)
-        case let .failure(error):
-            return .failure(error: UserFacingError(error: error))
-        }
-    }
-
     struct SearchForUsersRequest: APIRequest {
         typealias Response = [ConversationUser]
 
@@ -788,58 +825,6 @@ struct MessagesServiceImpl: MessagesService {
         }
     }
 
-    struct ArchiveChannelRequest: APIRequest {
-        typealias Response = RawResponse
-
-        let courseId: Int
-        let channelId: Int64
-
-        var method: HTTPMethod {
-            return .post
-        }
-
-        var resourceName: String {
-            return "api/courses/\(courseId)/channels/\(channelId)/archive"
-        }
-    }
-
-    func archiveChannel(for courseId: Int, channelId: Int64) async -> NetworkResponse {
-        let result = await client.sendRequest(ArchiveChannelRequest(courseId: courseId, channelId: channelId))
-
-        switch result {
-        case .success:
-            return .success
-        case let .failure(error):
-            return .failure(error: error)
-        }
-    }
-
-    struct UnarchiveChannelRequest: APIRequest {
-        typealias Response = RawResponse
-
-        let courseId: Int
-        let channelId: Int64
-
-        var method: HTTPMethod {
-            return .post
-        }
-
-        var resourceName: String {
-            return "api/courses/\(courseId)/channels/\(channelId)/unarchive"
-        }
-    }
-
-    func unarchiveChannel(for courseId: Int, channelId: Int64) async -> NetworkResponse {
-        let result = await client.sendRequest(UnarchiveChannelRequest(courseId: courseId, channelId: channelId))
-
-        switch result {
-        case .success:
-            return .success
-        case let .failure(error):
-            return .failure(error: error)
-        }
-    }
-
     struct RenameConversationRequest: APIRequest {
         typealias Response = Conversation
 
@@ -899,4 +884,12 @@ private extension ConversationType {
             return nil
         }
     }
+}
+
+// MARK: Reload Notification
+
+extension Foundation.Notification.Name {
+    // Sending a notification of this type causes the Conversation
+    // to add the newly sent message in case the web socket fails
+    static let newMessageSent = Foundation.Notification.Name("NewMessageSent")
 }

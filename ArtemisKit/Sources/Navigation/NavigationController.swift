@@ -46,6 +46,7 @@ public extension NavigationController {
         outerPath = NavigationPath()
         tabPath = NavigationPath()
         selectedCourse = nil
+        selectedPath = nil
     }
 
     func goToCourse(id: Int) {
@@ -88,6 +89,10 @@ public extension NavigationController {
         goToCourseConversations(courseId: courseId)
         selectedPath = ConversationPath(conversation: conversation, coursePath: CoursePath(id: courseId))
         tabPath = NavigationPath()
+    }
+
+    func goToThread(for messageId: Int64, in conversation: Conversation, of course: Course) {
+        tabPath.append(ThreadPath(postId: messageId, conversation: conversation, coursePath: CoursePath(course: course)))
     }
 
     func showDeeplinkNotSupported(url: URL) {

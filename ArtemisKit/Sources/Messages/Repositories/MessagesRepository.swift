@@ -48,8 +48,10 @@ extension MessagesRepository {
     @discardableResult
     func insertServer(host: String) -> ServerModel {
         log.verbose("begin")
-        let server = ServerModel(host: host, lastAccessDate: .now)
+        let server = (try? fetchServer(host: host)) ?? ServerModel(host: host, lastAccessDate: .now)
+        server.lastAccessDate = .now
         container.mainContext.insert(server)
+        save()
         return server
     }
 
@@ -69,8 +71,10 @@ extension MessagesRepository {
         log.verbose("begin")
         let server = try fetchServer(host: host) ?? insertServer(host: host)
         try touch(server: server)
-        let course = CourseModel(server: server, courseId: courseId)
+        let course = try fetchCourse(host: host, courseId: courseId)
+        ?? CourseModel(server: server, courseId: courseId)
         container.mainContext.insert(course)
+        save()
         return course
     }
 
@@ -90,9 +94,17 @@ extension MessagesRepository {
     func insertConversation(host: String, courseId: Int, conversationId: Int, messageDraft: String) throws -> ConversationModel {
         log.verbose("begin")
         let course = try fetchCourse(host: host, courseId: courseId) ?? insertCourse(host: host, courseId: courseId)
+        container.mainContext.insert(course)
         try touch(server: course.server)
-        let conversation = ConversationModel(course: course, conversationId: conversationId, messageDraft: messageDraft)
+        let conversation = try fetchConversation(host: host,
+                                                 courseId: courseId,
+                                                 conversationId: conversationId)
+        ?? ConversationModel(course: course,
+                             conversationId: conversationId,
+                             messageDraft: "")
+        conversation.messageDraft = messageDraft
         container.mainContext.insert(conversation)
+        save()
         return conversation
     }
 
@@ -154,9 +166,18 @@ extension MessagesRepository {
         log.verbose("begin")
         let conversation = try fetchConversation(host: host, courseId: courseId, conversationId: conversationId)
             ?? insertConversation(host: host, courseId: courseId, conversationId: conversationId, messageDraft: "")
+        container.mainContext.insert(conversation)
         try touch(server: conversation.course?.server)
-        let message = MessageModel(conversation: conversation, messageId: messageId, answerMessageDraft: answerMessageDraft)
+        let message = try fetchMessage(host: host,
+                                       courseId: courseId,
+                                       conversationId: conversationId,
+                                       messageId: messageId)
+        ?? MessageModel(conversation: conversation,
+                        messageId: messageId,
+                        answerMessageDraft: "")
+        message.answerMessageDraft = answerMessageDraft
         container.mainContext.insert(message)
+        save()
         return message
     }
 
@@ -164,10 +185,11 @@ extension MessagesRepository {
         log.verbose("begin")
         try purge(host: host)
         let predicate = #Predicate<MessageModel> { message in
-            if let course = message.conversation.course {
+            if let conversation = message.conversation,
+               let course = conversation.course {
                 course.server?.host == host
                 && course.courseId == courseId
-                && message.conversation.conversationId == conversationId
+                && conversation.conversationId == conversationId
                 && message.messageId == messageId
             } else {
                 false
@@ -186,7 +208,7 @@ extension MessagesRepository {
         log.verbose("begin")
         let message = try fetchMessage(host: host, courseId: courseId, conversationId: conversationId, messageId: messageId)
             ?? insertMessage(host: host, courseId: courseId, conversationId: conversationId, messageId: messageId, answerMessageDraft: "")
-        try touch(server: message.conversation.course?.server)
+        try touch(server: message.conversation?.course?.server)
         let answer = MessageOfflineAnswerModel(message: message, date: date, text: text)
         container.mainContext.insert(answer)
         return answer
@@ -198,10 +220,11 @@ extension MessagesRepository {
         log.verbose("begin")
         try purge(host: host)
         let predicate = #Predicate<MessageOfflineAnswerModel> { answer in
-            if let course = answer.message.conversation.course {
+            if let conversation = answer.message.conversation,
+               let course = conversation.course {
                 course.server?.host == host
                 && course.courseId == courseId
-                && answer.message.conversation.conversationId == conversationId
+                && conversation.conversationId == conversationId
                 && answer.message.messageId == messageId
             } else {
                 false
@@ -234,5 +257,10 @@ extension MessagesRepository {
                 container.mainContext.delete(server)
             }
         }
+        // Remove messages that don't belong to any conversation anymore
+        try container.mainContext.delete(model: MessageModel.self, where: #Predicate { message in
+            message.conversation == nil
+        })
+        save()
     }
 }

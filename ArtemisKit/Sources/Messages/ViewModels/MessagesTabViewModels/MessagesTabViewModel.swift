@@ -19,15 +19,6 @@ class MessagesTabViewModel: BaseViewModel {
     @Published var codeOfConduct: DataState<String> = .loading
     @Published var codeOfConductAgreement: DataState<Bool> = .loading
 
-    var isSearchable: Bool {
-        if let codeOfConduct = course.courseInformationSharingMessagingCodeOfConduct, !codeOfConduct.isEmpty,
-           let agreement = codeOfConductAgreement.value, agreement {
-            return true
-        } else {
-            return false
-        }
-    }
-
     init(course: Course) {
         self.course = course
         self.courseId = course.id

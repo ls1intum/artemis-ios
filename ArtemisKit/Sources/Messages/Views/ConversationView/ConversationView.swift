@@ -12,7 +12,6 @@ import Navigation
 import SharedModels
 import SwiftUI
 
-@MainActor
 public struct ConversationView: View {
 
     @EnvironmentObject var navigationController: NavigationController
@@ -39,7 +38,11 @@ public struct ConversationView: View {
                 ContentUnavailableView(
                     R.string.localizable.noMessages(),
                     systemImage: "bubble.right",
-                    description: Text(R.string.localizable.noMessagesDescription()))
+                    description:
+                        viewModel.filter.selectedFilter == "all" ?
+                            Text(R.string.localizable.noMessagesDescription()) :
+                            Text(R.string.localizable.noMatchingMessages())
+                )
             } else {
                 ScrollViewReader { value in
                     ScrollView {
@@ -91,6 +94,7 @@ public struct ConversationView: View {
                 )
             }
         }
+        .loadingIndicator(isLoading: $viewModel.isLoadingMessages)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 Button {
@@ -98,8 +102,6 @@ public struct ConversationView: View {
                 } label: {
                     HStack(alignment: .center, spacing: .m) {
                         viewModel.conversation.baseConversation.icon?
-                            .renderingMode(.template)
-                            .resizable()
                             .scaledToFit()
                             .frame(height: 20)
                         VStack(alignment: .leading, spacing: .xxs) {
@@ -124,28 +126,41 @@ public struct ConversationView: View {
                 }
             }
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    viewModel.isConversationInfoSheetPresented = true
+                Menu {
+                    Button {
+                        viewModel.isConversationInfoSheetPresented = true
+                    } label: {
+                        Label(R.string.localizable.details(), systemImage: "info")
+                    }
+                    Picker(selection: $viewModel.filter.selectedFilter) {
+                        Text(R.string.localizable.allFilter())
+                            .tag("all")
+                        ForEach(viewModel.filter.filters, id: \.self) { filter in
+                            Text(filter.displayName)
+                                .tag(filter.name)
+                        }
+                    } label: {
+                        Label(R.string.localizable.filterMessages(),
+                              systemImage: "line.3.horizontal.decrease")
+                    }
+                    .pickerStyle(.menu)
                 } label: {
-                    Image(systemName: "info.circle")
+                    Image(systemName: "ellipsis.circle")
                 }
             }
         }
         .sheet(isPresented: $viewModel.isConversationInfoSheetPresented) {
             ConversationInfoSheetView(course: viewModel.course, conversation: $viewModel.conversation)
         }
-        .task {
-            viewModel.shouldScrollToId = "bottom"
-            await viewModel.loadMessages()
-        }
         .onDisappear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                if navigationController.selectedCourse == nil {
-                    // only cancel task if we navigate back
-                    viewModel.subscription?.cancel()
-                }
+            if navigationController.courseTab != .communication && navigationController.tabPath.isEmpty {
+                // only cancel task if we leave communication
+                SocketConnectionHandler.shared.cancelSubscriptions()
             }
             viewModel.saveContext()
+            Task {
+                await viewModel.removeAssociatedNotifications()
+            }
         }
         .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
         .navigationBarTitleDisplayMode(.inline)

@@ -23,6 +23,7 @@ struct ConversationInfoSheetView: View {
 
     // Triggers view update
     @Binding private var conversation: Conversation
+    @State private var showDeleteConfirmation = false
 
     var body: some View {
         NavigationView {
@@ -58,6 +59,24 @@ struct ConversationInfoSheetView: View {
                 }
             } content: {
                 CreateOrAddToChatView(courseId: viewModel.course.id, configuration: .addToChat(conversation))
+            }
+            .alert(isPresented: $showDeleteConfirmation) {
+                Alert(
+                    title: Text(R.string.localizable.deleteChannel()),
+                    message: Text(R.string.localizable.confirmDeleteMessage(conversation.baseConversation.conversationName)),
+                    primaryButton: .destructive(Text(R.string.localizable.delete())) {
+                        viewModel.isLoading = true
+                        Task {
+                            let success = await viewModel.deleteChannel()
+                            if success {
+                                navigationController.selectedPath = nil
+                            } else {
+                                viewModel.isLoading = false
+                            }
+                        }
+                    },
+                    secondaryButton: .cancel()
+                )
             }
         }
     }
@@ -107,6 +126,12 @@ private extension ConversationInfoSheetView {
                         }
                     }
                     .foregroundColor(.Artemis.badgeWarningColor)
+                }
+                if viewModel.canDeleteChannel {
+                    Button(R.string.localizable.deleteChannel(), systemImage: "trash.fill", role: .destructive) {
+                        showDeleteConfirmation = true
+                    }
+                    .foregroundColor(.Artemis.badgeDangerColor)
                 }
             }
             if viewModel.canLeaveConversation {

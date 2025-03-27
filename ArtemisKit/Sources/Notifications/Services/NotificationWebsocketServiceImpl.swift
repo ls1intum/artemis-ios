@@ -160,7 +160,7 @@ class NotificationWebsocketServiceImpl: NotificationWebsocketService {
                     for await message in stream {
                         guard let quizExercise = JSONDecoder.getTypeFromSocketMessage(type: QuizExercise.self, message: message) else { continue }
                         if quizExercise.visibleToStudents ?? false,
-                           quizExercise.quizMode == .SYNCHRONIZED,
+                           quizExercise.quizMode == .synchronized,
                            quizExercise.quizBatches?.first?.started ?? false,
                            !(quizExercise.isOpenForPractice ?? false) {
                             guard let notification = Notification.createNotificationFromStartedQuizExercise(quizExercise: quizExercise) else { continue }

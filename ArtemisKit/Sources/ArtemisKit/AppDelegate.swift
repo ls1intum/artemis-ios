@@ -11,6 +11,7 @@ import UIKit
 import UserNotifications
 import UserStore
 import PushNotifications
+import Messages
 import Navigation
 import Common
 
@@ -30,6 +31,7 @@ public class AppDelegate: UIResponder, UIApplicationDelegate {
 
     private func registerForPushNotifications() {
         UNUserNotificationCenter.current().delegate = self
+        PushNotificationHandler.registerNotificationCategories()
     }
 }
 
@@ -40,7 +42,8 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
     ) {
         Task {
-            await PushNotificationServiceFactory.shared.register(deviceToken: String(deviceToken: deviceToken))
+            _ = await PushNotificationServiceFactory.shared.register(deviceToken: String(deviceToken: deviceToken))
+            PushNotificationHandler.scheduleNotificationForSessionExpired()
         }
         log.info("Device Token: \(String(deviceToken: deviceToken))")
     }
@@ -75,6 +78,10 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         willPresent notification: UNNotification,
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
+        if notification.request.identifier == LocalNotificationIdentifiers.sessionExpired {
+            UserSessionFactory.shared.setTokenExpired(expired: true)
+            UserSessionFactory.shared.setUserLoggedIn(isLoggedIn: false)
+        }
         completionHandler([.banner, .badge, .sound])
     }
 
@@ -83,6 +90,13 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
+        guard handleNotificationResponse(response) else {
+            // If handleNotificationResponse returns false, we don't need to perform additional work
+            log.info("Handled notification action. Not opening deep link.")
+            completionHandler()
+            return
+        }
+
         let userInfo = response.notification.request.content.userInfo
         guard let targetURL = PushNotificationResponseHandler.getTarget(userInfo: userInfo) else {
             log.error("Could not handle click on push notification!")
@@ -97,6 +111,27 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
 
         // maybe add as param in handle above
         completionHandler()
+    }
+
+    /// Handles actions triggered from a user interacting with a notification.
+    /// Returns whether the corresponding deep link should be opened.
+    private func handleNotificationResponse(_ response: UNNotificationResponse) -> Bool {
+        if response.actionIdentifier == PushNotificationActionIdentifiers.reply {
+            guard
+                let infoData = response
+                    .notification.request.content
+                    .userInfo[PushNotificationUserInfoKeys.communicationInfo] as? Data,
+                let communicationInfo = try? PushNotificationCommunicationInfo(with: infoData),
+                let textResponse = response as? UNTextInputNotificationResponse else {
+                return true
+            }
+
+            NotificationMessageResponseHandler.handle(responseText: textResponse.userText,
+                                                      info: communicationInfo)
+
+            return false
+        }
+        return true
     }
 }
 

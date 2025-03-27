@@ -17,7 +17,7 @@ struct LectureListView: View {
     @ObservedObject var viewModel: CourseViewModel
     @State private var columnVisibilty: NavigationSplitViewVisibility = .doubleColumn
 
-    @Binding var searchText: String
+    @State private var searchText = ""
 
     private var selectedLecture: Binding<LecturePath?> {
         navController.selectedPathBinding($navController.selectedPath)
@@ -50,6 +50,7 @@ struct LectureListView: View {
                 .listRowSpacing(.m)
                 .listStyle(.insetGrouped)
                 .scrollContentBackground(.hidden)
+                .searchable(text: $searchText)
                 .refreshable {
                     await viewModel.refreshCourse()
                 }

@@ -11,7 +11,7 @@ import SwiftUI
 /// Display the course grid.
 public struct DashboardView: View {
 
-    @StateObject private var viewModel = DashboardViewModel()
+    @State private var viewModel = DashboardViewModel()
 
     public init() {}
 
@@ -24,7 +24,8 @@ public struct DashboardView: View {
                     viewModel.error
                 }, set: { error in
                     if let error {
-                        viewModel.presentError(userFacingError: error)
+                        viewModel.error = error
+                        viewModel.showError = true
                     }
                 })
             )

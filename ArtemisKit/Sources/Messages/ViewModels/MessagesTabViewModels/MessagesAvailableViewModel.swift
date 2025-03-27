@@ -6,8 +6,8 @@
 //
 
 import APIClient
+import Combine
 import Common
-import DesignLibrary
 import Foundation
 import SharedModels
 import SwiftUI
@@ -16,30 +16,8 @@ import UserStore
 @MainActor
 class MessagesAvailableViewModel: BaseViewModel {
 
-    @Published var allConversations: DataState<[Conversation]> = .loading {
-        didSet {
-            updateFilteredConversations()
-        }
-    }
-
-    @Published var filter: ConversationFilter = .all {
-        didSet {
-            withAnimation {
-                updateFilteredConversations()
-            }
-        }
-    }
-
-    @Published var favoriteConversations: DataState<[Conversation]> = .loading
-
-    @Published var channels: DataState<[Channel]> = .loading
-    @Published var exercises: DataState<[Channel]> = .loading
-    @Published var lectures: DataState<[Channel]> = .loading
-    @Published var exams: DataState<[Channel]> = .loading
-    @Published var groupChats: DataState<[GroupChat]> = .loading
-    @Published var oneToOneChats: DataState<[OneToOneChat]> = .loading
-
-    @Published var hiddenConversations: DataState<[Conversation]> = .loading
+    @Published var allConversations: DataState<[Conversation]> = .loading
+    @Published var isCodeOfConductPresented = false
 
     var isDirectMessagingEnabled: Bool {
         course.courseInformationSharingConfiguration == .communicationAndMessaging
@@ -49,20 +27,19 @@ class MessagesAvailableViewModel: BaseViewModel {
     let courseId: Int
 
     private let messagesService: MessagesService
-    private let stompClient: ArtemisStompClient
     private let userSession: UserSession
+
+    private var subscription: AnyCancellable?
 
     init(
         course: Course,
         messagesService: MessagesService = MessagesServiceFactory.shared,
-        stompClient: ArtemisStompClient = ArtemisStompClient.shared,
         userSession: UserSession = UserSessionFactory.shared
     ) {
         self.course = course
         self.courseId = course.id
 
         self.messagesService = messagesService
-        self.stompClient = stompClient
         self.userSession = userSession
 
         super.init()
@@ -73,21 +50,30 @@ class MessagesAvailableViewModel: BaseViewModel {
                                                object: nil)
     }
 
+    deinit {
+        SocketConnectionHandler.shared.cancelSubscriptions()
+        subscription?.cancel()
+    }
+
     func subscribeToConversationMembershipTopic() async {
         guard let userId = userSession.user?.id else {
             log.debug("User could not be found. Subscribe to Conversation not possible")
             return
         }
 
-        let topic = WebSocketTopic.makeConversationMembershipNotifications(courseId: courseId, userId: userId)
-        let stream = stompClient.subscribe(to: topic)
+        let socketConnection = SocketConnectionHandler.shared
 
-        for await message in stream {
-            guard let conversationWebsocketDTO = JSONDecoder.getTypeFromSocketMessage(type: ConversationWebsocketDTO.self, message: message) else {
-                continue
+        subscription = socketConnection
+            .conversationPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] conversationWebsocketDTO in
+                guard let self else {
+                    return
+                }
+                onConversationMembershipMessageReceived(conversationWebsocketDTO: conversationWebsocketDTO)
             }
-            onConversationMembershipMessageReceived(conversationWebsocketDTO: conversationWebsocketDTO)
-        }
+
+        socketConnection.subscribeToMembershipNotifications(courseId: courseId, userId: userId)
     }
 
     func loadConversations() async {
@@ -183,94 +169,6 @@ class MessagesAvailableViewModel: BaseViewModel {
             }
         }
     }
-
-    private func updateFilteredConversations() {
-        switch allConversations {
-        case .loading:
-            favoriteConversations = .loading
-
-            hiddenConversations = .loading
-
-            channels = .loading
-            exercises = .loading
-            lectures = .loading
-            exams = .loading
-            groupChats = .loading
-            oneToOneChats = .loading
-        case .failure(let error):
-            favoriteConversations = .failure(error: error)
-
-            hiddenConversations = .failure(error: error)
-
-            channels = .failure(error: error)
-            exercises = .failure(error: error)
-            lectures = .failure(error: error)
-            exams = .failure(error: error)
-            groupChats = .failure(error: error)
-            oneToOneChats = .failure(error: error)
-        case .done(let response):
-            let notHiddenConversations = response.filter {
-                !($0.baseConversation.isHidden ?? false)
-            }
-
-            // Turn off filter if no unread/favorites exist
-            if !response.contains(where: { conversation in
-                conversation.baseConversation.unreadMessagesCount ?? 0 > 0
-            }) && !notHiddenConversations.contains(where: { conversation in
-                conversation.baseConversation.isFavorite ?? false
-            }) && filter != .all {
-                filter = .all
-            }
-
-            favoriteConversations = .done(response: notHiddenConversations
-                .filter { $0.baseConversation.isFavorite ?? false && filter.matches($0.baseConversation) }
-            )
-
-            // If we only show favorites, we can skip all other filtering
-            if filter == .favorite {
-                channels = .done(response: [])
-                exercises = .done(response: [])
-                lectures = .done(response: [])
-                exams = .done(response: [])
-                groupChats = .done(response: [])
-                oneToOneChats = .done(response: [])
-                hiddenConversations = .done(response: [])
-                return
-            }
-
-            let notHiddenNotFavoriteConversations = notHiddenConversations.filter {
-                !($0.baseConversation.isFavorite ?? false)
-            }
-
-            channels = .done(response: notHiddenNotFavoriteConversations
-                .compactMap { $0.baseConversation as? Channel }
-                .filter { ($0.subType ?? .general) == .general && filter.matches($0) }
-            )
-            exercises = .done(response: notHiddenNotFavoriteConversations
-                .compactMap { $0.baseConversation as? Channel }
-                .filter { ($0.subType ?? .general) == .exercise && filter.matches($0) }
-            )
-            lectures = .done(response: notHiddenNotFavoriteConversations
-                .compactMap { $0.baseConversation as? Channel }
-                .filter { ($0.subType ?? .general) == .lecture && filter.matches($0) }
-            )
-            exams = .done(response: notHiddenNotFavoriteConversations
-                .compactMap { $0.baseConversation as? Channel }
-                .filter { ($0.subType ?? .general) == .exam && filter.matches($0) }
-            )
-            groupChats = .done(response: notHiddenNotFavoriteConversations
-                .compactMap { $0.baseConversation as? GroupChat }
-                .filter { filter.matches($0) }
-            )
-            oneToOneChats = .done(response: notHiddenNotFavoriteConversations
-                .compactMap { $0.baseConversation as? OneToOneChat }
-                .filter { filter.matches($0) }
-            )
-            hiddenConversations = .done(response: response
-                .filter { $0.baseConversation.isHidden ?? false && filter.matches($0.baseConversation) }
-            )
-        }
-    }
 }
 
 // MARK: Functions to handle new conversation received socket
@@ -334,59 +232,6 @@ private extension MessagesAvailableViewModel {
         conversations[conversationIndex] = updatedConversation
 
         allConversations = .done(response: conversations)
-    }
-}
-
-enum ConversationFilter: FilterPicker {
-
-    case all, unread, favorite
-
-    var displayName: String {
-        return switch self {
-        case .all:
-            R.string.localizable.allFilter()
-        case .unread:
-            R.string.localizable.unreadFilter()
-        case .favorite:
-            R.string.localizable.favoritesSection()
-        }
-    }
-
-    var iconName: String {
-        return switch self {
-        case .all:
-            "tray.2"
-        case .unread:
-            "app.badge"
-        case .favorite:
-            "heart"
-        }
-    }
-
-    var selectedColor: Color {
-        return switch self {
-        case .all:
-            Color.blue
-        case .unread:
-            Color.indigo
-        case .favorite:
-            Color.orange
-        }
-    }
-
-    var id: Int {
-        hashValue
-    }
-
-    func matches(_ conversation: BaseConversation) -> Bool {
-        switch self {
-        case .all:
-            true
-        case .unread:
-            conversation.unreadMessagesCount ?? 0 > 0
-        case .favorite:
-            conversation.isFavorite ?? false
-        }
     }
 }
 

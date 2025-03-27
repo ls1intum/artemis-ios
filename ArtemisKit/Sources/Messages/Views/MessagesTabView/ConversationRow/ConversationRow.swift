@@ -9,14 +9,15 @@ import Navigation
 import SharedModels
 import SwiftUI
 
-struct ConversationRow<T: BaseConversation>: View {
+struct ConversationRow: View {
 
+    @Environment(\.showFavoriteIcon) var showFavoriteIcon
     @Environment(\.horizontalSizeClass) var sizeClass
     @EnvironmentObject var navigationController: NavigationController
 
     @ObservedObject var viewModel: MessagesAvailableViewModel
 
-    let conversation: T
+    let conversation: BaseConversation
     var namePrefix: String?
 
     var conversationDisplayName: String {
@@ -86,7 +87,6 @@ private extension ConversationRow {
     @ViewBuilder var conversationIcon: some View {
         if let icon = conversation.icon {
             icon
-                .resizable()
                 .scaledToFit()
                 .frame(height: .extraSmallImage)
                 .frame(maxWidth: .infinity, alignment: .trailing)
@@ -97,6 +97,16 @@ private extension ConversationRow {
                             .fill(Color.Artemis.artemisBlue)
                             .frame(width: .m, height: .m)
                             .offset(x: .s, y: .xs * -1)
+                    }
+                }
+                .overlay(alignment: .bottomTrailing) {
+                    if conversation.isFavorite ?? false && showFavoriteIcon {
+                        Image(systemName: "heart.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .foregroundStyle(.orange)
+                            .frame(width: .m, height: .m)
+                            .offset(x: .s, y: .s)
                     }
                 }
         }
@@ -116,8 +126,8 @@ private extension ConversationRow {
 
     @ViewBuilder var hideAndMuteButtons: some View {
         let isHidden = conversation.isHidden ?? false
-        Button(isHidden ? R.string.localizable.show() : R.string.localizable.hide(),
-               systemImage: isHidden ? "eye.fill" : "eye.slash.fill") {
+        Button(isHidden ? R.string.localizable.unarchive() : R.string.localizable.archive(),
+               systemImage: "archivebox.fill") {
             Task(priority: .userInitiated) {
                 await viewModel.setConversationIsHidden(conversationId: conversation.id, isHidden: !(conversation.isHidden ?? false))
             }
@@ -135,5 +145,22 @@ private extension ConversationRow {
     @ViewBuilder var contextMenuItems: some View {
         favoriteButton
         hideAndMuteButtons
+    }
+}
+
+// MARK: Environment Values
+
+private enum ConversationRowFavoriteIconKey: EnvironmentKey {
+    static let defaultValue = true
+}
+
+extension EnvironmentValues {
+    var showFavoriteIcon: Bool {
+        get {
+            self[ConversationRowFavoriteIconKey.self]
+        }
+        set {
+            self[ConversationRowFavoriteIconKey.self] = newValue
+        }
     }
 }

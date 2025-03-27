@@ -13,8 +13,16 @@ import SwiftUI
 struct SendMessageView: View {
 
     @State var viewModel: SendMessageViewModel
+    /// This has to be in here, otherwise it gets deinitialized while file picker is open,
+    /// due to the textfield losing focus and the toolbar disappearing
+    @State private var uploadFileViewModel: SendMessageUploadFileViewModel
 
     @FocusState private var isFocused: Bool
+
+    init(viewModel: SendMessageViewModel) {
+        self._viewModel = State(initialValue: viewModel)
+        self._uploadFileViewModel = State(initialValue: .init(courseId: viewModel.course.id, conversationId: viewModel.conversation.id))
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -33,12 +41,24 @@ struct SendMessageView: View {
             }
             textField
                 .padding(isFocused ? [.horizontal, .bottom] : .all, .l)
-            if isFocused {
+            if isFocused || viewModel.keyboardVisible {
                 keyboardToolbarContent
                     .padding(.horizontal, .l)
                     .padding(.vertical, .m)
                     .background(.bar)
             }
+        }
+        .onChange(of: isFocused, initial: true) {
+            // Don't set keyboardVisible to false automatically on iPad
+            // Focus with hardware keyboard is messed up, this is a workaround
+            if UIDevice.current.userInterfaceIdiom != .pad || isFocused {
+                viewModel.keyboardVisible = isFocused
+            }
+        }
+        .onChange(of: viewModel.text) { oldValue, newValue in
+            // Only call change handler if text was entered, not when text was removed
+            guard newValue.count > oldValue.count else { return }
+            viewModel.handleListFormatting(newValue)
         }
         .onAppear {
             viewModel.performOnAppear()
@@ -55,6 +75,7 @@ struct SendMessageView: View {
                     if value.translation.height > 0 {
                         // down
                         isFocused = false
+                        viewModel.keyboardVisible = false
                         let impactMed = UIImpactFeedbackGenerator(style: .medium)
                         impactMed.impactOccurred()
                     }
@@ -96,7 +117,7 @@ private extension SendMessageView {
             TextField(
                 R.string.localizable.messageAction(viewModel.conversation.baseConversation.conversationName),
                 text: $viewModel.text,
-                selection: $viewModel.selection,
+                selection: viewModel.selection,
                 axis: .vertical
             )
             .textFieldStyle(.roundedBorder)
@@ -133,9 +154,15 @@ private extension SendMessageView {
                         } label: {
                             Label(R.string.localizable.lectures(), systemImage: "character.book.closed")
                         }
+                        if viewModel.course.faqEnabled == true {
+                            Button {
+                                viewModel.wantsToAddMessageMentionContentType = .faq
+                            } label: {
+                                Label(R.string.localizable.faqs(), systemImage: "questionmark.circle")
+                            }
+                        }
                     } label: {
                         Label(R.string.localizable.mention(), systemImage: "plus.circle.fill")
-                            .labelStyle(.iconOnly)
                     }
                     Menu {
                         Button {
@@ -153,15 +180,32 @@ private extension SendMessageView {
                         } label: {
                             Label(R.string.localizable.underline(), systemImage: "underline")
                         }
+                        Button {
+                            viewModel.didTapStrikethroughButton()
+                        } label: {
+                            Label(R.string.localizable.strikethrough(), systemImage: "strikethrough")
+                        }
                     } label: {
                         Label(R.string.localizable.style(), systemImage: "bold.italic.underline")
-                            .labelStyle(.iconOnly)
+                    }
+                    Menu {
+                        Button {
+                            viewModel.insertListPrefix(unordered: true)
+                        } label: {
+                            Label(R.string.localizable.unorderedList(), systemImage: "list.bullet")
+                        }
+                        Button {
+                            viewModel.insertListPrefix(unordered: false)
+                        } label: {
+                            Label(R.string.localizable.orderedList(), systemImage: "list.number")
+                        }
+                    } label: {
+                        Label(R.string.localizable.listFormatting(), systemImage: "list.triangle")
                     }
                     Button {
                         viewModel.didTapBlockquoteButton()
                     } label: {
                         Label(R.string.localizable.quote(), systemImage: "quote.opening")
-                            .labelStyle(.iconOnly)
                     }
                     Menu {
                         Button {
@@ -176,15 +220,16 @@ private extension SendMessageView {
                         }
                     } label: {
                         Label(R.string.localizable.code(), systemImage: "curlybraces")
-                            .labelStyle(.iconOnly)
                     }
                     Button {
                         viewModel.didTapLinkButton()
                     } label: {
                         Label(R.string.localizable.link(), systemImage: "link")
-                            .labelStyle(.iconOnly)
                     }
+                    SendMessageImagePickerView(sendMessageViewModel: viewModel)
+                    SendMessageFilePickerView(sendViewModel: viewModel, viewModel: uploadFileViewModel)
                 }
+                .labelStyle(.iconOnly)
                 .font(.title3)
             }
             Spacer()

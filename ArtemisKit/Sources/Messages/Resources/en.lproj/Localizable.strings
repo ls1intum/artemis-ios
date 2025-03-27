@@ -11,6 +11,8 @@
 "lecture" = "Lecture";
 "channelsUnavailable" = "No Channels";
 "lecturesUnavailable" = "No Lectures";
+"faqs" = "FAQs";
+"faqsUnavailable" = "No FAQs";
 "membersUnavailable" = "No Members";
 "messageAction" = "Message %@";
 "mentionSlideNumber" = "Slide %i";
@@ -18,11 +20,17 @@
 "bold" = "Bold";
 "italic" = "Italic";
 "underline" = "Underline";
+"strikethrough" = "Strikethrough";
 "quote" = "Quote";
 "inlineCode" = "Inline code";
 "codeBlock" = "Code block";
 "code" = "Code";
 "link" = "Link";
+"uploadImage" = "Upload Image";
+"uploadFile" = "Upload File";
+"unorderedList" = "Unordered List";
+"orderedList" = "Ordered List";
+"listFormatting" = "List Formatting";
 
 // MARK: SendMessageMentionContentView
 "members" = "Members";
@@ -40,13 +48,13 @@
 "createChat" = "Create Chat";
 "noResultForSearch" = "There is no result for your search.";
 "favoritesSection" = "Favorites";
-"hiddenSection" = "Hidden";
+"hiddenSection" = "Archived";
 "favorite" = "Favorite";
 "unfavorite" = "Unfavorite";
 "mute" = "Mute";
 "unmute" = "Unmute";
-"hide" = "Hide";
-"show" = "Show";
+"archive" = "Archive";
+"unarchive" = "Unarchive";
 "channels" = "Channels";
 "generalTopics" = "General Topics";
 "exercises" = "Exercises";
@@ -56,12 +64,17 @@
 "directMessages" = "Direct Messages";
 "unreadFilter" = "Unread";
 "allFilter" = "All";
+"recentFilter" = "Recent";
+"unresolvedFilter" = "Unresolved";
+"allDone" = "All done";
+"allDoneDescription" = "All messages are resolved. Good work!";
 
 // MARK: MessageDetailView
 "edited" = "Edited";
 "messageCouldNotBeLoadedError" = "Message could not be loaded.";
 "thread" = "Thread";
 "replies" = "Reply";
+"attachment" = "Attachment";
 
 // MARK: MessageActionSheet
 "replyInThread" = "Reply in Thread";
@@ -83,23 +96,36 @@
 // MARK: ConversationView
 "noMessages" = "No Messages";
 "noMessagesDescription" = "Write the first message to kickstart this conversation.";
+"noMatchingMessages" = "No messages match the selected filter.";
 "reply" = "reply";
 "new" = "New";
 "pinned" = "Pinned";
 "resolved" = "Resolved";
 "resolvesPost" = "Resolves Post";
+"filterMessages" = "Filter Messages";
+"details" = "Details";
+"messageFilterReacted" = "Reacted";
+"messageFilterUnresolved" = "Unresolved";
+"messageFilterOwn" = "Own";
 
 // MARK: CreateChannelView
 "channelNameLabel" = "Name";
 "channelNameWarningText" = "Names can only contain lowercase letters, numbers, and dashes. Only Artemis can create channels that start with a $.";
 "descriptionOptional" = "Description (Optional)";
 "description" = "Description";
-"privateChannelLabel" = "Private Channel?";
-"privateChannelDescription" = "Every user except instructors will need an invitation to join a private channel. Everybody can join a public channel.";
+"channelType" = "Channel Type";
+"privateChannelLabel" = "Private";
+"publicChannelLabel" = "Public";
+"courseWideChannelLabel" = "Course-wide";
+"privateChannelDescription" = "Every user except instructors will need an invitation to join a private channel.";
+"publicChannelDescription" = "Everybody can join a public channel.";
+"courseWideChannelDescription" = "All users of a course are automatically added to a course-wide channel.";
 "announcementChannelLabel" = "Announcement Channel?";
 "announcementChannelDescription" = "Only instructors and channel moderators can create new messages in an announcement channel. Students can only read the messages and answer to them.";
 "createChannelButtonLabel" = "Create Channel";
 "createChannelNavTitel" = "Create Channel";
+"noMatchingUsers" = "No matching users found";
+"enterAtLeast3Characters" = "Please enter at least three characters to start your search.";
 
 // MARK: BrowseChannelsView
 "joinedLabel" = "Joined";
@@ -145,6 +171,9 @@
 "addFavorite" = "Add to Favorites";
 "removeFavorite" = "Remove from Favorites";
 "sendMessage" = "Send Message";
+"deleteChannel" = "Delete Channel";
+"confirmDeleteMessage" = "Are you sure you want to delete the channel with name '%@'? This is a permanent action and cannot be undone.";
+"delete" = "Delete";
 
 // MARK: Errors
 "detailViewCantBeOpened" = "Detail View can not be opened. Please try again later.";
@@ -155,6 +184,7 @@
 "ok" = "OK";
 "loading" = "Loading...";
 "cancel" = "Cancel";
+"uploading" = "Uploading";
 "previous" = "Previous";
 "next" = "Next";
 "confirm" = "Confirm";

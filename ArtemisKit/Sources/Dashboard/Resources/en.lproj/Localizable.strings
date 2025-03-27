@@ -1,5 +1,7 @@
 "dashboardRegisterForCourseButton" = "Course Enrollment";
 "dashboardTitle" = "Courses";
+"allCourses" = "All courses";
+"recentlyAccessed" = "Recently accessed";
 "dashboardNextExerciseLabel" = "Next Exercise";
 "dashboardNoExercisePlannedLabel" = "No exercise planned";
 "dashboardNoStatisticsAvailable" = "No statistics available";

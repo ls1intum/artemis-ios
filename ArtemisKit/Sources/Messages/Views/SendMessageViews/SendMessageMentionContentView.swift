@@ -15,7 +15,7 @@ struct SendMessageMentionContentView: View {
     var body: some View {
         NavigationStack {
             let delegate = SendMessageMentionContentDelegate { [weak viewModel] mention in
-                if let selection = viewModel?.selection {
+                if let selection = viewModel?.selection.wrappedValue {
                     switch selection.indices {
                     case .selection(let range):
                         viewModel?.text.insert(contentsOf: mention, at: range.upperBound)
@@ -33,6 +33,8 @@ struct SendMessageMentionContentView: View {
                     SendMessageExercisePicker(delegate: delegate, course: viewModel.course)
                 case .lecture:
                     SendMessageLecturePicker(course: viewModel.course, delegate: delegate)
+                case .faq:
+                    SendMessageFAQPicker(course: viewModel.course, delegate: delegate)
                 }
             }
             .toolbar {
@@ -53,4 +55,5 @@ enum MessageMentionContentType: Identifiable {
 
     case exercise
     case lecture
+    case faq
 }

@@ -6,7 +6,6 @@
 //
 
 import Common
-import EmojiPicker
 import Navigation
 import SharedModels
 import Smile
@@ -95,7 +94,7 @@ struct MessageActions: View {
         @State private var showDeleteAlert = false
         @State private var showEditSheet = false
 
-        var isAbleToEditDelete: Bool {
+        var canDelete: Bool {
             guard let message = message.value else {
                 return false
             }
@@ -107,7 +106,19 @@ struct MessageActions: View {
             guard let channel = viewModel.conversation.baseConversation as? Channel else {
                 return false
             }
-            if channel.hasChannelModerationRights ?? false && message is Message {
+            if channel.hasChannelModerationRights ?? false {
+                return true
+            }
+
+            return false
+        }
+
+        var canEdit: Bool {
+            guard let message = message.value else {
+                return false
+            }
+
+            if message.isCurrentUserAuthor {
                 return true
             }
 
@@ -116,9 +127,10 @@ struct MessageActions: View {
 
         var body: some View {
             Group {
-                if isAbleToEditDelete {
+                if canEdit || canDelete {
                     Divider()
-
+                }
+                if canEdit {
                     Button(R.string.localizable.editMessage(), systemImage: "pencil") {
                         showEditSheet = true
                     }
@@ -128,10 +140,12 @@ struct MessageActions: View {
                         editMessage
                             .font(nil)
                     }
-
+                }
+                if canDelete {
                     Button(R.string.localizable.deleteMessage(), systemImage: "trash", role: .destructive) {
                         showDeleteAlert = true
                     }
+                    .foregroundStyle(.red)
                     .alert(R.string.localizable.confirmDeletionTitle(), isPresented: $showDeleteAlert) {
                         Button(R.string.localizable.confirm(), role: .destructive) {
                             viewModel.isLoading = true
@@ -247,6 +261,12 @@ struct MessageActions: View {
                 let oldRole = message.authorRole
                 if var newMessageResult = result.value as? Message {
                     newMessageResult.authorRole = oldRole
+                    newMessageResult.answers = newMessageResult.answers?.map { answer in
+                        var newAnswer = answer
+                        let oldAnswer = message.answers?.first { $0.id == answer.id }
+                        newAnswer.authorRole = newAnswer.authorRole ?? oldAnswer?.authorRole
+                        return newAnswer
+                    }
                     self.$message.wrappedValue = .done(response: newMessageResult)
                     viewModel.selectedMessageId = nil
                 }
@@ -409,7 +429,6 @@ private struct EmojiPickerButton: View {
     var viewModel: ReactionsViewModel
 
     @State private var showEmojiPicker = false
-    @State var selectedEmoji: Emoji?
 
     var body: some View {
         Button {
@@ -425,19 +444,8 @@ private struct EmojiPickerButton: View {
                 .background(Capsule().fill(Color.Artemis.reactionCapsuleColor))
         }
         .sheet(isPresented: $showEmojiPicker) {
-            NavigationView {
-                EmojiPickerView(selectedEmoji: $selectedEmoji, selectedColor: Color.Artemis.artemisBlue)
-                    .navigationTitle(R.string.localizable.emojis())
-                    .navigationBarTitleDisplayMode(.inline)
-            }
-        }
-        .onChange(of: selectedEmoji) { _, newEmoji in
-            if let newEmoji,
-               let emojiId = Smile.alias(emoji: newEmoji.value) {
-                Task {
-                    await viewModel.addReaction(emojiId: emojiId)
-                    selectedEmoji = nil
-                }
+            NavigationStack {
+                EmojiPicker(viewModel: viewModel)
             }
         }
     }

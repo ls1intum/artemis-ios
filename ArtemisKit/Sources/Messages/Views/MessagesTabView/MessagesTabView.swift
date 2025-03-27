@@ -13,15 +13,10 @@ import SwiftUI
 
 public struct MessagesTabView: View {
 
-    @EnvironmentObject private var messagesPreferences: MessagesPreferences
-
     @StateObject private var viewModel: MessagesTabViewModel
 
-    @Binding private var searchText: String
-
-    public init(course: Course, searchText: Binding<String>) {
+    public init(course: Course) {
         self._viewModel = StateObject(wrappedValue: MessagesTabViewModel(course: course))
-        self._searchText = searchText
     }
 
     public var body: some View {
@@ -29,7 +24,7 @@ public struct MessagesTabView: View {
             await viewModel.getCodeOfConductInformation()
         } content: { agreement in
             if agreement {
-                MessagesAvailableView(course: viewModel.course, searchText: _searchText)
+                MessagesAvailableView(course: viewModel.course)
             } else {
                 ScrollView {
                     CodeOfConductView(course: viewModel.course)
@@ -46,14 +41,12 @@ public struct MessagesTabView: View {
                         Spacer()
                     }
                 }
+                .navigationBarTitleDisplayMode(.inline)
                 .contentMargins(.l, for: .scrollContent)
             }
         }
         .task {
             await viewModel.getCodeOfConductInformation()
-        }
-        .onChange(of: viewModel.codeOfConductAgreement.value) {
-            messagesPreferences.isSearchable = viewModel.isSearchable
         }
     }
 }

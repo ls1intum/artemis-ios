@@ -25,5 +25,11 @@
 		<string>webcredentials:artemis-test6.artemis.cit.tum.de</string>
 		<string>webcredentials:artemis-test9.artemis.cit.tum.de</string>
 	</array>
+	<key>com.apple.developer.usernotifications.communication</key>
+	<true/>
+	<key>keychain-access-groups</key>
+	<array>
+		<string>$(AppIdentifierPrefix)de.tum.cit.ase.artemis</string>
+	</array>
 </dict>
 </plist>

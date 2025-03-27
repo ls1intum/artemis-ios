@@ -14,6 +14,7 @@ import SwiftUI
 
 struct MessageDetailView: View {
 
+    @EnvironmentObject var navController: NavigationController
     @ObservedObject var viewModel: ConversationViewModel
     @Binding private var message: DataState<BaseMessage>
 
@@ -60,11 +61,18 @@ struct MessageDetailView: View {
                     Text(R.string.localizable.thread())
                         .fontWeight(.semibold)
                     HStack(spacing: .s) {
-                        viewModel.conversation.baseConversation.icon?
-                            .resizable()
-                            .scaledToFit()
-                            .frame(height: .m * 1.5)
-                        Text(viewModel.conversation.baseConversation.conversationName)
+                        ViewThatFits(in: .horizontal) {
+                            viewModel.conversation.baseConversation.icon?
+                                .scaledToFit()
+                                .frame(height: .m * 1.5)
+                            viewModel.conversation.baseConversation.icon?
+                                .scaleEffect(0.5)
+                                .frame(height: .m * 1.5)
+                        }
+                        .frame(maxWidth: 25)
+                        // Workaround: Trailing spaces, otherwise SwiftUI shortens this prematurely
+                        Text(viewModel.conversation.baseConversation.conversationName + "    ")
+                            .frame(maxWidth: 220)
                     }
                     .font(.footnote)
                 }.padding(.leading, .m)
@@ -74,6 +82,26 @@ struct MessageDetailView: View {
             if message.value == nil {
                 await reloadMessage()
             }
+        }
+        .onChange(of: navController.courseTab) { _, newValue in
+            if newValue != .communication {
+                navController.tabPath = .init()
+            }
+        }
+        .onChange(of: message) {
+            switch message {
+            case .loading:
+                // Message was deleted
+                if !navController.tabPath.isEmpty {
+                    navController.tabPath.removeLast()
+                }
+            default:
+                break
+            }
+        }
+        .onDisappear {
+            // Reset any selection when navigating back
+            viewModel.selectedMessageId = nil
         }
         .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
         .navigationBarTitleDisplayMode(.inline)
@@ -138,6 +166,7 @@ private extension MessageDetailView {
                     let needsRoundedCorners = !(sortedArray[safe: index + 1]?.isContinuation(of: answerMessage) ?? false)
                     MessageCellWrapper(
                         viewModel: viewModel,
+                        message: self.$message,
                         answerMessage: answerMessage,
                         isHeaderVisible: isHeaderVisible,
                         roundBottomCorners: needsRoundedCorners)
@@ -192,6 +221,7 @@ private struct MessageCellWrapper: View {
 
     @ObservedObject var viewModel: ConversationViewModel
 
+    let message: Binding<DataState<BaseMessage>>
     let answerMessage: AnswerMessage
     let isHeaderVisible: Bool
     let roundBottomCorners: Bool
@@ -209,6 +239,8 @@ private struct MessageCellWrapper: View {
             if let message = viewModel.messages.first(where: messageContainsAnswer),
                let answer = message.rawValue.answers?.first(where: isAnswerMessage) {
                 return .done(response: answer)
+            } else if let answer = (message.wrappedValue.value as? Message)?.answers?.first(where: isAnswerMessage) {
+                return .done(response: answer)
             } else {
                 return .loading
             }
@@ -216,8 +248,15 @@ private struct MessageCellWrapper: View {
             if var message = viewModel.messages.first(where: messageContainsAnswer)?.rawValue,
                let answer = value.value as? AnswerMessage,
                let index = message.answers?.firstIndex(where: isAnswerMessage) {
+                // Save changes in View model
                 message.answers?[index] = answer
                 viewModel.messages.update(with: .message(message))
+            } else if let answer = value.value as? AnswerMessage,
+                      let index = (message.wrappedValue.value as? Message)?.answers?.firstIndex(where: isAnswerMessage),
+                      var newMessage = message.wrappedValue.value as? Message {
+                // Save changes in message itself
+                newMessage.answers?[index] = answer
+                message.wrappedValue = .done(response: newMessage)
             }
         }
     }

@@ -10,11 +10,14 @@ import SwiftUI
 
 public struct RootView: View {
 
+    @Environment(\.scenePhase) var scenePhase
     @StateObject private var viewModel = RootViewModel()
 
-    @StateObject private var navigationController = NavigationController()
+    @ObservedObject private var navigationController: NavigationController
 
-    public init() {}
+    public init(navigationController: NavigationController) {
+        self.navigationController = navigationController
+    }
 
     public var body: some View {
         Group {
@@ -59,6 +62,12 @@ public struct RootView: View {
                 }
             }
         })
+        .modifier(ForceAppUpdateViewModifier(updateRequirement: $viewModel.updateRequirement))
+        .onChange(of: scenePhase) {
+            if scenePhase == .active {
+                Task { await viewModel.checkForUpdates() }
+            }
+        }
     }
 }
 

@@ -7,7 +7,6 @@
 
 import APIClient
 import Common
-import Foundation
 import SharedModels
 import SwiftUI
 import UserStore
@@ -45,7 +44,18 @@ final class SendMessageViewModel {
     // MARK: Text
 
     var text = ""
-    var selection: TextSelection?
+    internal var _selection: TextSelection? // swiftlint:disable:this identifier_name
+    var selection: Binding<TextSelection?> {
+        Binding {
+            return self._selection
+        } set: { newValue in
+            // Ignore updates if text field is not focused
+            if !self.keyboardVisible && newValue != nil {
+                return
+            }
+            self._selection = newValue
+        }
+    }
 
     var isEditing: Bool {
         switch configuration {
@@ -73,6 +83,7 @@ final class SendMessageViewModel {
 
     var wantsToAddMessageMentionContentType: MessageMentionContentType?
     var presentKeyboardOnAppear: Bool
+    var keyboardVisible = false
 
     // MARK: Life cycle
 
@@ -132,6 +143,7 @@ extension SendMessageViewModel {
     }
 
     func performOnDisappear() {
+        keyboardVisible = false
         do {
             if let host = userSession.institution?.baseURL?.host() {
                 switch configuration {
@@ -171,6 +183,10 @@ extension SendMessageViewModel {
         appendToSelection(before: "<ins>", after: "</ins>", placeholder: "underlined")
     }
 
+    func didTapStrikethroughButton() {
+        appendToSelection(before: "~~", after: "~~", placeholder: "strikethough")
+    }
+
     func didTapBlockquoteButton() {
         appendToSelection(before: "> ", after: "", placeholder: "Reference")
     }
@@ -205,12 +221,20 @@ extension SendMessageViewModel {
         }
     }
 
+    func insertImageMention(path: String) {
+        appendToSelection(before: "![", after: "](\(path))", placeholder: "image")
+    }
+
+    func insertFileMention(path: String, fileName: String) {
+        appendToSelection(before: "[", after: "](\(path))", placeholder: fileName)
+    }
+
     /// Prepends/Appends the given snippets to text the user has selected.
     private func appendToSelection(before: String, after: String, placeholder: String) {
         let placeholderText = "\(before)\(placeholder)\(after)"
         var shouldSelectPlaceholder = false
 
-        if let selection {
+        if let selection = _selection {
             switch selection.indices {
             case .selection(let range):
                 let newText: String
@@ -222,7 +246,7 @@ extension SendMessageViewModel {
                 }
                 text.replaceSubrange(range, with: newText)
                 if !shouldSelectPlaceholder, let endIndex = text.range(of: newText)?.upperBound {
-                    self.selection = TextSelection(insertionPoint: endIndex)
+                    self._selection = TextSelection(insertionPoint: endIndex)
                 }
             default:
                 break
@@ -235,7 +259,7 @@ extension SendMessageViewModel {
         if shouldSelectPlaceholder {
             for range in text.ranges(of: placeholderText) {
                 if let placeholderRange = text[range].range(of: placeholder) {
-                    selection = TextSelection(range: range.clamped(to: placeholderRange))
+                    _selection = TextSelection(range: range.clamped(to: placeholderRange))
                 }
             }
         }
@@ -273,7 +297,7 @@ extension SendMessageViewModel {
             }
             switch result {
             case .success:
-                selection = nil
+                _selection = nil
                 text = ""
             default:
                 return
@@ -351,8 +375,13 @@ extension SendMessageViewModel {
     }
 
     func searchMember() -> Substring? {
-        let matches = text.matches(of: #/@(?<candidate>[\w]*)/#)
-        return matches.last?.candidate
+        let matches = text.matches(of: #/@(?<candidate>[\w]*\s?)/#)
+        let candidate = matches.last?.candidate
+        if candidate == " " || candidate?.contains(".") == true {
+            // Either space after @ or a period indicating an email address -> Hide the member picker
+            return nil
+        }
+        return candidate?.filter { $0 != Character(" ") }
     }
 
     func replace(member: UserNameAndLoginDTO) {
@@ -363,7 +392,6 @@ extension SendMessageViewModel {
 
         // Replaces all occurrences. Otherwise, we need to get the match.
         let range = Range<String.Index>?.none
-
         text = text.replacingOccurrences(
             of: "@" + candidate,
             with: "[user]\(name)(\(login))[/user]",
