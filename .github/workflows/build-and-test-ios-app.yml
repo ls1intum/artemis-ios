@@ -22,14 +22,11 @@ jobs:
       # - name: Run Unit and UI Tests
       #   run: bundle exec fastlane test
 
-      - name: Initalize rbenv
-        run:  eval "$(/opt/homebrew/bin/rbenv init - --no-rehash zsh)"
-
       - name: Install Gems
-        run: bundle install
+        run: eval "$(/opt/homebrew/bin/rbenv init - --no-rehash bash)" && bundle install
         
       - name: Build iOS App 
-        run: bundle exec fastlane build
+        run: eval "$(/opt/homebrew/bin/rbenv init - --no-rehash bash)" &&  bundle exec fastlane build
         env: 
           BUILD_NUMBER: ${{ github.run_number }}
           MATCH_GITLAB_AUTH: ${{ secrets.IOS_MATCH_GITLAB_AUTH }}
