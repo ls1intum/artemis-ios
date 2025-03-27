@@ -6,6 +6,7 @@
 //
 
 import Navigation
+import Notifications
 import SwiftUI
 
 /// Tab Bar Background for iPadOS 18
@@ -24,7 +25,9 @@ struct TabBarIpad<Content: View>: View {
                 HStack(alignment: .center) {
                     BackToRootButton(placement: .tabBar, sizeClass: sizeClass)
                     Spacer()
+                    CourseNotificationToolbarButton(placement: .tabBar, sizeClass: sizeClass)
                 }
+                .imageScale(.large)
                 .padding(.horizontal)
                 .frame(height: 50)
                 .frame(maxWidth: .infinity)

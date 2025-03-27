@@ -20,7 +20,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/onmyway133/Smile.git", revision: "6bacbf7"),
         .package(url: "https://github.com/ls1intum/apollon-ios-module", .upToNextMajor(from: "1.0.2")),
-        .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", .upToNextMajor(from: "15.6.1")),
+        .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", revision: "bc1ab91"),
         .package(url: "https://github.com/mac-cain13/R.swift.git", from: "7.7.0")
     ],
     targets: [
@@ -58,6 +58,7 @@ let package = Package(
                 "Faq",
                 "Messages",
                 "Navigation",
+                "Notifications",
                 .product(name: "ApollonEdit", package: "apollon-ios-module"),
                 .product(name: "ApollonView", package: "apollon-ios-module"),
                 .product(name: "ApollonShared", package: "apollon-ios-module"),
@@ -99,6 +100,7 @@ let package = Package(
             dependencies: [
                 "Extensions",
                 "Navigation",
+                "Notifications",
                 .product(name: "APIClient", package: "artemis-ios-core-modules"),
                 .product(name: "ArtemisMarkdown", package: "artemis-ios-core-modules"),
                 .product(name: "DesignLibrary", package: "artemis-ios-core-modules"),
@@ -116,6 +118,7 @@ let package = Package(
                 "Extensions",
                 "Faq",
                 "Navigation",
+                "Notifications",
                 .product(name: "Smile", package: "Smile"),
                 .product(name: "APIClient", package: "artemis-ios-core-modules"),
                 .product(name: "ArtemisMarkdown", package: "artemis-ios-core-modules"),

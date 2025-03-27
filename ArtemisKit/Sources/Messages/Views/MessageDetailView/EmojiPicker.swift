@@ -6,7 +6,6 @@
 //
 
 import DesignLibrary
-import Smile
 import SwiftUI
 
 struct EmojiPicker: View {
@@ -72,21 +71,23 @@ struct EmojiPicker: View {
     func emojiCategory(emojis: [String], reactions: [String]) -> some View {
         LazyVGrid(columns: columns, spacing: 20) {
             ForEach(emojis, id: \.self) { emoji in
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.gray.opacity(0.4))
-                    .stroke(reactions.contains(emoji) && viewModel.isMyReaction(emoji) ? Color.blue : Color.clear,
-                            style: StrokeStyle(lineWidth: 2))
-                    .frame(width: 60, height: 60)
-                    .overlay {
-                        Text(emoji)
-                            .font(.largeTitle)
-                    }
-                    .onTapGesture {
-                        Task {
-                            dismiss()
-                            await viewModel.addReaction(emojiId: Smile.alias(emoji: emoji) ?? "")
+                if let emojiId = Emojis.getEmojiId(for: emoji) {
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color.gray.opacity(0.4))
+                        .stroke(reactions.contains(emoji) && viewModel.isMyReaction(emoji) ? Color.blue : Color.clear,
+                                style: StrokeStyle(lineWidth: 2))
+                        .frame(width: 60, height: 60)
+                        .overlay {
+                            Text(emoji)
+                                .font(.largeTitle)
                         }
-                    }
+                        .onTapGesture {
+                            Task {
+                                dismiss()
+                                await viewModel.addReaction(emojiId: emojiId)
+                            }
+                        }
+                }
             }
         }
     }
@@ -96,17 +97,17 @@ struct EmojiPicker: View {
     // https://util.unicode.org/UnicodeJsps/list-unicodeset.jsp?a=%5B%3AEmoji%3DYes%3A%5D&g=&i=
 
     // swiftlint:disable:next line_length
-    let emojis = "😀 😃 😄 😁 😆 😅 🤣 😂 🙂 🙃 🫠 😉 😊 😇 🥰 😍 🤩 😘 😗 ☺ 😚 😙 🥲 😋 😛 😜 🤪 😝 🤑 🤗 🤭 🫢 🫣 🤫 🤔 🫡 🤐 🤨 😐 😑 😶 🫥 😏 😒 🙄 😬 🤥 🫨 😌 😔 😪 🤤 😴 😷 🤒 🤕 🤢 🤮 🤧 🥵 🥶 🥴 😵 🤯 🤠 🥳 🥸 😎 🤓 🧐 😕 🫤 😟 🙁 ☹ 😮 😯 😲 😳 🥺 🥹 😦 😨 😰 😥 😢 😭 😱 😖 😣 😞 😓 😩 😫 🥱 😤 😡 😠 🤬 😈 👿 💀 ☠ 💩 🤡 👹 👻 👽 👾 🤖 😺 😸 😹 😻 😽 🙀 😿 😾 🙈 🙉 🙊 👋 🤚 🖐 ✋ 🖖 🫱 🫴 🫷 🫸 👌 🤌 🤏 ✌ 🤞 🫰 🤟 🤘 🤙 👈 👉 👆 🖕 👇 ☝ 🫵 👍 👎 ✊ 👊 🤛 🤜 👏 🙌 🫶 👐 🤲 🤝 🙏 ✍ 💅 🤳 💪 🦾 🦿 🦵 🦶 👂 🦻 👃 🧠 🫀 🫁 🦷 🦴 👀 👁 👅 👄 🫦 👶 🧒 👦 👧 🧑 👱 👨 🧔 👩 🧓 👴 👵 🙍 🙎 🙅 🙆 💁 🙋 🧏 🙇 🤦 🤷 👮 🕵 💂 🥷 👷 🫅 🤴 👸 👳 👲 🧕 🤵 👰 🤰 🫃 🫄 🤱 👼 🎅 🤶 🦸 🦹 🧙 🧟 🧌 💆 💇 🚶 🧍 🧎 🏃 💃 🕺 🕴 👯 🧖 🧗 🤺 🏇 ⛷ 🏂 🏌 🏄 🚣 🏊 ⛹ 🏋 🚴 🚵 🤸 🤼 🤾 🤹 🧘 🛀 🛌 👭 👫 👬 💏 💑 🗣 👤 👥 🫂 👪 👣 🦰 🦱 🦳 🦲".split(separator: " ").map { String($0) }
+    let emojis = "😀 😃 😄 😁 😆 😅 🤣 😂 🙂 🙃 🫠 😉 😊 😇 🥰 😍 🤩 😘 😗 ☺️ 😚 😙 🥲 😋 😛 😜 🤪 😝 🤑 🤗 🤭 🫢 🫣 🤫 🤔 🫡 🤐 🤨 😐 😑 😶 🫥 😏 😒 🙄 😬 🤥 🫨 😌 😔 😪 🤤 😴 😷 🤒 🤕 🤢 🤮 🤧 🥵 🥶 🥴 😵 🤯 🤠 🥳 🥸 😎 🤓 🧐 😕 🫤 😟 🙁 ☹️ 😮 😯 😲 😳 🥺 🥹 😦 😨 😰 😥 😢 😭 😱 😖 😣 😞 😓 😩 😫 🥱 😤 😡 😠 🤬 😈 👿 💀 ☠️ 💩 🤡 👹 👻 👽 👾 🤖 😺 😸 😹 😻 😽 🙀 😿 😾 🙈 🙉 🙊 👋 🤚 🖐️ ✋ 🖖 🫱 🫴 🫷 🫸 👌 🤌 🤏 ✌️ 🤞 🫰 🤟 🤘 🤙 👈 👉 👆 🖕 👇 ☝️ 🫵 👍 👎 ✊ 👊 🤛 🤜 👏 🙌 🫶 👐 🤲 🤝 🙏 ✍️ 💅 🤳 💪 🦾 🦿 🦵 🦶 👂 🦻 👃 🧠 🫀 🫁 🦷 🦴 👀 👁️ 👅 👄 🫦 👶 🧒 👦 👧 🧑 👱 👨 🧔 👩 🧓 👴 👵 🙍 🙎 🙅 🙆 💁 🙋 🧏 🙇 🤦 🤷 👮 👨‍⚕️ 💂 🥷 👷 🫅 🤴 👸 👳 👲 🧕 🤵 👰 🤰 🫃 🫄 🤱 👼 🎅 🤶 🦸 🦹 🧙 🧟 🧌 💆 💇 🚶 🧍 🧎 🏃 💃 🕺 🕴 👯 🧖 🧗 🤺 🏇 ⛷️ 🏂 🏌️‍♂️ 🏄 🚣 🏊 ⛹️ 🏋️ 🚴 🚵 🤸 🤼 🤾 🤹 🧘 🛀 🛌 👭 👫 👬 💏 💑 🗣️ 👤 👥 🫂 👪 👣".split(separator: " ").map { String($0) }
     // swiftlint:disable:next line_length
-    let animals = "🐵 🐒 🦍 🦧 🐶 🐕 🦮 🐩 🐺 🦊 🦝 🐱 🐈 🦁 🐯 🐅 🐆 🐴 🫎 🫏 🐎 🦄 🦓 🦌 🦬 🐮 🐂 🐄 🐷 🐖 🐗 🐽 🐏 🐑 🐐 🐪 🐫 🦙 🦒 🐘 🦣 🦏 🦛 🐭 🐁 🐀 🐹 🐰 🐇 🐿 🦫 🦔 🦇 🐻 🐨 🐼 🦥 🦦 🦨 🦘 🦡 🐾 🦃 🐔 🐓 🐣 🐧 🕊 🦅 🦆 🦢 🦉 🦤 🪶 🦩 🦚 🦜 🪽 🪿 🐸 🐊 🐢 🦎 🐍 🐲 🐉 🦕 🦖 🐳 🐋 🐬 🦭 🐟 🐡 🦈 🐙 🐚 🪸 🪼 🐌 🦋 🐛 🐝 🪲 🐞 🦗 🪳 🕷 🕸 🦂 🦟 🪰 🪱 🦠 💐 🌸 💮 🪷 🏵 🌹 🥀 🌺 🌼 🌷 🪻 🌱 🪴 🌲 🌵 🌾 🌿 ☘ 🍀 🍃 🪹 🪺 🍄 🍇 🍍 🥭".split(separator: " ").map { String($0) }
+    let animals = "🐵 🐒 🦍 🦧 🐶 🐕 🦮 🐩 🐺 🦊 🦝 🐱 🐈 🦁 🐯 🐅 🐆 🐴 🫎 🫏 🐎 🦄 🦓 🦌 🦬 🐮 🐂 🐄 🐷 🐖 🐗 🐽 🐏 🐑 🐐 🐪 🐫 🦙 🦒 🐘 🦣 🦏 🦛 🐭 🐁 🐀 🐹 🐰 🐇 🐿 🦫 🦔 🦇 🐻 🐨 🐼 🦥 🦦 🦨 🦘 🦡 🐾 🦃 🐔 🐓 🐣 🐧 🕊️ 🦅 🦆 🦢 🦉 🦤 🪶 🦩 🦚 🦜 🪽 🪿 🐸 🐊 🐢 🦎 🐍 🐲 🐉 🦕 🦖 🐳 🐋 🐬 🦭 🐟 🐡 🦈 🐙 🐚 🪸 🪼 🐌 🦋 🐛 🐝 🪲 🐞 🦗 🪳 🕷️ 🕸️ 🦂 🦟 🪰 🪱 🦠 💐 🌸 💮 🪷 🏵️ 🌹 🥀 🌺 🌼 🌷 🪻 🌱 🪴 🌲 🌵 🌾 🌿 ☘️ 🍀 🍃 🪹 🪺 🍄 🍇 🍍 🥭".split(separator: " ").map { String($0) }
     // swiftlint:disable:next line_length
-    let fruit = "🍎 🍓 🫐 🥝 🍅 🫒 🥥 🥑 🍆 🥔 🥕 🌽 🌶 🫑 🥒 🥬 🥦 🧄 🧅 🥜 🫘 🌰 🫚 🫛 🍞 🥐 🥖 🫓 🥨 🥯 🥞 🧇 🧀 🍖 🍗 🥩 🥓 🍔 🍟 🍕 🌭 🥪 🌮 🌯 🫔 🥙 🧆 🥚 🍳 🥘 🍲 🫕 🥣 🥗 🍿 🧈 🧂 🥫 🍱 🍘 🍝 🍠 🍢 🍥 🥮 🍡 🥟 🥡 🦀 🦞 🦐 🦑 🦪 🍦 🍪 🎂 🍰 🧁 🥧 🍫 🍯 🍼 🥛 ☕ 🫖 🍵 🍶 🍾 🍷 🍻 🥂 🥃 🫗 🥤 🧋 🧃 🧉 🧊 🥢 🍽 🍴 🥄 🔪 🫙".split(separator: " ").map { String($0) }
+    let fruit = "🍎 🍓 🫐 🥝 🍅 🫒 🥥 🥑 🍆 🥔 🥕 🌽 🌶️ 🫑 🥒 🥬 🥦 🧄 🧅 🥜 🫘 🌰 🫚 🫛 🍞 🥐 🥖 🫓 🥨 🥯 🥞 🧇 🧀 🍖 🍗 🥩 🥓 🍔 🍟 🍕 🌭 🥪 🌮 🌯 🫔 🥙 🧆 🥚 🍳 🥘 🍲 🫕 🥣 🥗 🍿 🧈 🧂 🥫 🍱 🍘 🍝 🍠 🍢 🍥 🥮 🍡 🥟 🥡 🦀 🦞 🦐 🦑 🦪 🍦 🍪 🎂 🍰 🧁 🥧 🍫 🍯 🍼 🥛 ☕ 🫖 🍵 🍶 🍾 🍷 🍻 🥂 🥃 🫗 🥤 🧋 🧃 🧉 🧊 🥢 🍽️ 🍴 🥄 🔪 🫙".split(separator: " ").map { String($0) }
     // swiftlint:disable:next line_length
-    let travel = "🌍 🌐 🗺 🗾 🧭 🏔 ⛰ 🌋 🗻 🏕 🏖 🏜 🏟 🏛 🏗 🧱 🪨 🪵 🛖 🏘 🏚 🏠 🏦 🏨 🏭 🏯 🏰 💒 🗼 🗽 ⛪ 🕌 🛕 🕍 ⛩ 🕋 ⛲ ⛺ 🌁 🌃 🏙 🌄 🌇 🌉 ♨ 🎠 🛝 🎡 🎢 💈 🎪 🚂 🚊 🚝 🚞 🚋 🚎 🚐 🚙 🛻 🚚 🚜 🏎 🏍 🛵 🦽 🦼 🛺 🚲 🛴 🛹 🛼 🚏 🛣 🛤 🛢 ⛽ 🛞 🚨 🚥 🚦 🛑 🚧 ⚓ 🛟 ⛵ 🛶 🚤 🛳 ⛴ 🛥 🚢 ✈ 🛩 🛫 🛬 🪂 💺 🚁 🚟 🚡 🛰 🚀 🛸".split(separator: " ").map { String($0) }
+    let travel = "🌍 🌐 🗺️ 🗾 🧭 🏔️ ⛰️ 🌋 🗻 🏕️ 🏝️ 🏜️ 🏟️ 🏛️ 🏗️ 🧱 🪨 🪵 🛖 🏘️ 🏚️ 🏠 🏦 🏨 🏭 🏯 🏰 💒 🗼 🗽 ⛪ 🕌 🛕 🕍 ⛩️ 🕋 ⛲ ⛺ 🌁 🌃 🏙️ 🌄 🌇 🌉 ♨️ 🎠 🛝 🎡 🎢 💈 🎪 🚂 🚊 🚝 🚞 🚋 🚎 🚐 🚙 🛻 🚚 🚜 🏎️ 🏍️ 🛵 🦽 🦼 🛺 🚲 🛴 🛹 🛼 🚏 🛣️ 🛤️ 🛢️ ⛽ 🛞 🚨 🚥 🚦 🛑 🚧 ⚓ 🛟 ⛵ 🛶 🚤 🛳️ ⛴️ 🛥️ 🚢 ✈️ 🛩️ 🛫 🛬 🪂 💺 🚁 🚟 🚡 🛰️ 🚀 🛸".split(separator: " ").map { String($0) }
     // swiftlint:disable:next line_length
-    let objects = "🛎 🧳 ⌛ ⏳ ⌚ ⏰ ⏲ 🕰 🕛 🕧 🕐 🕜 🕑 🕝 🕒 🕞 🕓 🕟 🕔 🕠 🕕 🕡 🕖 🕢 🕗 🕣 🕘 🕤 🕙 🕥 🕚 🕦 🌑 🌜 🌡 ☀ 🌝 🌞 🪐 ⭐ 🌟 🌠 🌌 ☁ ⛅ ⛈ 🌤 🌬 🌀 🌈 🌂 ☂ ☔ ⛱ ⚡ ❄ ☃ ⛄ ☄ 🔥 💧 🌊 🎃 🎄 🎆 🎇 🧨 ✨ 🎈 🎋 🎍 🎑 🧧 🎀 🎁 🎗 🎟 🎫 🎖 🏆 🏅 🥇 🥉 ⚽ ⚾ 🥎 🏀 🏐 🏈 🏉 🎾 🥏 🎳 🏏 🏑 🏒 🥍 🏓 🏸 🥊 🥋 🥅 ⛳ ⛸ 🎣 🤿 🎽 🎿 🛷 🥌 🎯 🪀 🪁 🔫 🎱 🔮 🪄 🎮 🕹 🎰 🎲 🧩 🧸 🪅 🪩 🪆 ♠ ♥ ♦ ♣ ♟ 🃏 🀄 🎴 🎭 🖼 🎨 🧵 🪡 🧶 🪢 👓 🕶 🥽 🥼 🦺 👔 👖 🧣 🧦 👗 👘 🥻 🩱 🩳 👙 👚 🪭 👛 👝 🛍 🎒 🩴 👞 👟 🥾 🥿 👠 👡 🩰 👢 🪮 👑 👒 🎩 🎓 🧢 🪖 ⛑ 📿 💄 💍 💎 🔇 🔊 📢 📣 📯 🔔 🔕 🎼 🎵 🎶 🎙 🎛 🎤 🎧 📻 🎷 🪗 🎸 🎻 🪕 🥁 🪘 🪇 🪈 📱 📲 ☎ 📞 📠 🔋 🪫 🔌 💻 🖥 🖨 ⌨ 🖱 🖲 💽 📀 🧮 🎥 🎞 📽 🎬 📺 📷 📹 📼 🔍 🔎 🕯 💡 🔦 🏮 🪔 📔 📚 📓 📒 📃 📜 📄 📰 🗞 📑 🔖 🏷 💰 🪙 💴 💸 💳 🧾 💹 ✉ 📧 📩 📤 📦 📫 📪 📬 📮 🗳 ✏ ✒ 🖋 🖊 🖌 🖍 📝 💼 📁 📂 🗂 📅 📆 🗒 🗓 📇 📎 🖇 📏 📐 ✂ 🗃 🗄 🗑 🔒 🔓 🔏 🔑 🗝 🔨 🪓 ⛏ ⚒ 🛠 🗡 ⚔ 💣 🪃 🏹 🛡 🪚 🔧 🪛 🔩 ⚙ 🗜 ⚖ 🦯 🔗 ⛓ 🪝 🧰 🧲 🪜 ⚗ 🧪 🧬 🔬 🔭 📡 💉 🩸 💊 🩹 🩼 🩺 🩻 🚪 🛗 🪞 🪟 🛏 🛋 🪑 🚽 🪠 🚿 🛁 🪤 🪒 🧴 🧷 🧹 🧻 🪣 🧼 🫧 🪥 🧽 🧯 🛒 🚬 ⚰ 🪦 ⚱ 🧿 🪬 🗿 🪧 🪪".split(separator: " ").map { String($0) }
+    let objects = "🛎️ 🧳 ⌛ ⏳ ⌚ ⏰ ⏲️ 🕰️ 🕛 🕧 🕐 🕜 🕑 🕝 🕒 🕞 🕓 🕟 🕔 🕠 🕕 🕡 🕖 🕢 🕗 🕣 🕘 🕤 🕙 🕥 🕚 🕦 🌑 🌜 🌡️ ☀️ 🌝 🌞 🪐 ⭐ 🌟 🌠 🌌 ☁️ ⛅ ⛈️ 🌤️ 🌬️ 🌀 🌈 🌂 ☂️ ☔ ⛱️ ⚡ ❄️ ☃️ ⛄ ☄️ 🔥 💧 🌊 🎃 🎄 🎆 🎇 🧨 ✨ 🎈 🎋 🎍 🎑 🧧 🎀 🎁 🎗️ 🎟️ 🎫 🎖️ 🏆 🏅 🥇 🥉 ⚽ ⚾ 🥎 🏀 🏐 🏈 🏉 🎾 🥏 🎳 🏏 🏑 🏒 🥍 🏓 🏸 🥊 🥋 🥅 ⛳ ⛸️ 🎣 🤿 🎽 🎿 🛷 🥌 🎯 🪀 🪁 🔫 🎱 🔮 🪄 🎮 🕹️ 🎰 🎲 🧩 🧸 🪅 🪩 🪆 ♠️ ♥️ ♦️ ♣️ ♟️ 🃏 🀄 🎴 🎭 🖼️ 🎨 🧵 🪡 🧶 🪢 👓 🕶️ 🥽 🥼 🦺 👔 👖 🧣 🧦 👗 👘 🥻 🩱 🩳 👙 👚 🪭 👛 👝 🛍️ 🎒 🩴 👞 👟 🥾 🥿 👠 👡 🩰 👢 🪮 👑 👒 🎩 🎓 🧢 🪖 ⛑️ 📿 💄 💍 💎 🔇 🔊 📢 📣 📯 🔔 🔕 🎼 🎵 🎶 🎙️ 🎛️ 🎤 🎧 📻 🎷 🪗 🎸 🎻 🪕 🥁 🪘 🪇 🪈 📱 📲 ☎️ 📞 📠 🔋 🪫 🔌 💻 🖥️ 🖨️ ⌨️ 🖱️ 🖲️ 💽 📀 🧮 🎥 🎞️ 📽️ 🎬 📺 📷 📹 📼 🔍 🔎 🕯️ 💡 🔦 🏮 🪔 📔 📚 📓 📒 📃 📜 📄 📰 🗞️ 📑 🔖 🏷️ 💰 🪙 💴 💸 💳 🧾 💹 ✉️ 📧 📩 📤 📦 📫 📪 📬 📮 🗳️ ✏️ ✒️ 🖋️ 🖊️ 🖌️ 🖍️ 📝 💼 📁 📂 🗂️ 📅 📆 🗒️ 🗓️ 📇 📎 🖇️ 📏 📐 ✂️ 🗃️ 🗄️ 🗑️ 🔒 🔓 🔏 🔑 🗝️ 🔨 🪓 ⛏️ ⚒️ 🛠️ 🗡️ ⚔️ 💣 🪃 🏹 🛡️ 🪚 🔧 🪛 🔩 ⚙️ 🗜️ ⚖️ 🦯 🔗 ⛓️ 🪝 🧰 🧲 🪜 ⚗️ 🧪 🧬 🔬 🔭 📡 💉 🩸 💊 🩹 🩼 🩺 🩻 🚪 🛗 🪞 🪟 🛏️ 🛋️ 🪑 🚽 🪠 🚿 🛁 🪤 🪒 🧴 🧷 🧹 🧻 🪣 🧼 🫧 🪥 🧽 🧯 🛒 🚬 ⚰️ 🪦 ⚱️ 🧿 🪬 🗿 🪧 🪪".split(separator: " ").map { String($0) }
     // swiftlint:disable:next line_length
-    let symbols = "💌 💘 💝 💖 💗 💓 💞 💕 💟 ❣ 💔 ❤ 🩷 🧡 💛 💚 💙 🩵 💜 🤎 🖤 🩶 🤍 💋 💯 💢 💥 💫 💦 💨 🕳 💬 🗨 🗯 💭 💤 🏧 🚮 🚰 ♿ 🚹 🚼 🚾 🛂 🛅 ⚠ 🚸 ⛔ 🚫 🚳 🚭 🚯 🚱 🚷 📵 🔞 ☢ ☣ ⬆ ↗ ➡ ↘ ⬇ ↙ ⬅ ↖ ↕ ↔ ↩ ↪ ⤴ ⤵ 🔃 🔄 🔙 🔝 🛐 ⚛ 🕉 ✡ ☸ ☯ ✝ ☦ ☪ ☮ 🕎 🔯 🪯 ♈ ♓ ⛎ 🔀 🔂 ▶ ⏩ ⏭ ⏯ ◀ ⏪ ⏮ 🔼 ⏫ 🔽 ⏬ ⏸ ⏺ ⏏ 🎦 🔅 🔆 📶 🛜 📳 📴 ♀ ♂ ⚧ ✖ ➕ ➗ 🟰 ♾ ‼ ⁉ ❓ ❕ ❗ 〰 💱 💲 ⚕ ♻ ⚜ 🔱 📛 🔰 ⭕ ✅ ☑ ✔ ❌ ❎ ➰ ➿ 〽 ✳ ✴ ❇ © ® ™ 🔟 🔤 🅰 🆎 🅱 🆑 🆓 ℹ 🆔 Ⓜ 🆕 🆖 🅾 🆗 🅿 🆘 🆚 🈁 🈂 🈷 🈶 🈯 🉐 🈹 🈚 🈲 🉑 🈸 🈴 🈳 ㊗ ㊙ 🈺 🈵 🔴 🟠 🟢 🔵 🟣 🟤 ⚫ ⚪ 🟥 🟧 🟩 🟦 🟪 🟫 ⬛ ⬜ ◼ ◻ ◾ ◽ ▪ ▫ 🔶 🔻 💠 🔘 🔳 🔲 🏁 🚩 🎌 🏴 🏳".split(separator: " ").map { String($0) }
+    let symbols = "💌 💘 💝 💖 💗 💓 💞 💕 💟 ❣️ 💔 ❤️ 🩷 🧡 💛 💚 💙 🩵 💜 🤎 🖤 🩶 🤍 💋 💯 💢 💥 💫 💦 💨 🕳️ 💬 🗨️ 🗯️ 💭 💤 🏧 🚮 🚰 ♿ 🚹 🚼 🚾 🛂 🛅 ⚠ 🚸 ⛔ 🚫 🚳 🚭 🚯 🚱 🚷 📵 🔞 ☢️ ☣️ ⬆️ ↗️ ➡️ ↘️ ⬇️ ↙️ ⬅️ ↖️ ↕️ ↔️ ↩️ ↪️ ⤴️ ⤵️ 🔃 🔄 🔙 🔝 🛐 ⚛️ 🕉️ ✡️ ☸️ ☯️ ✝️ ☦️ ☪️ ☮️ 🕎 🔯 🪯 ♈ ♓ ⛎ 🔀 🔂 ▶️ ⏩ ⏭️ ⏯️ ◀️ ⏪ ⏮️ 🔼 ⏫ 🔽 ⏬ ⏸️ ⏺️ ⏏️ 🎦 🔅 🔆 📶 🛜 📳 📴 ♀️ ♂️ ⚧️ ✖️ ➕ ➗ 🟰 ♾️ ‼️ ⁉️ ❓ ❕ ❗ 〰️ 💱 💲 ⚕️ ♻️ ⚜️ 🔱 📛 🔰 ⭕ ✅ ☑️ ✔️ ❌ ❎ ➰ ➿ 〽️ ✳️ ✴️ ❇️ ©️ ®️ ™️ 🔟 🔤 🅰️ 🆎 🅱️ 🆑 🆓 ℹ️ 🆔 Ⓜ️ 🆕 🆖 🅾️ 🆗 🅿️ 🆘 🆚 🈁 🈂️ 🈷️ 🈶 🈯 🉐 🈹 🈚 🈲 🉑 🈸 🈴 🈳 ㊗️ ㊙️ 🈺 🈵 🔴 🟠 🟢 🔵 🟣 🟤 ⚫ ⚪ 🟥 🟧 🟩 🟦 🟪 🟫 ⬛ ⬜ ◼️ ◻️ ◾ ◽ ▪️ ▫️ 🔶 🔻 💠 🔘 🔳 🔲 🏁 🚩 🎌 🏴 🏳️".split(separator: " ").map { String($0) }
 }
 
 private struct EmojiPickerLabelStyle: LabelStyle {

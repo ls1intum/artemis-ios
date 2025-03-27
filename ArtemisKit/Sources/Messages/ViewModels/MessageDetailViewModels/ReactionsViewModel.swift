@@ -8,7 +8,6 @@
 import Common
 import Foundation
 import SharedModels
-import Smile
 import SwiftUI
 
 @Observable
@@ -32,7 +31,7 @@ class ReactionsViewModel {
         var reactions = [String: [Reaction]]()
 
         message.value?.reactions?.forEach {
-            guard let emoji = Smile.emoji(alias: $0.emojiId) else {
+            guard let emoji = Emojis.getEmoji(for: $0.emojiId) else {
                 return
             }
             if reactions[emoji] != nil {
@@ -71,7 +70,7 @@ class ReactionsViewModel {
     }
 
     func isMyReaction(_ emoji: String) -> Bool {
-        guard let emojiId = Smile.alias(emoji: emoji),
+        guard let emojiId = Emojis.getEmojiId(for: emoji),
               let message = message.value else {
             return false
         }

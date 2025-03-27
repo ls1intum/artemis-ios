@@ -48,7 +48,7 @@
 "createChat" = "Create Chat";
 "noResultForSearch" = "There is no result for your search.";
 "favoritesSection" = "Favorites";
-"hiddenSection" = "Archived";
+"archivedSection" = "Archived";
 "favorite" = "Favorite";
 "unfavorite" = "Unfavorite";
 "mute" = "Mute";
@@ -76,7 +76,7 @@
 "replies" = "Reply";
 "attachment" = "Attachment";
 
-// MARK: MessageActionSheet
+// MARK: Message Actions
 "replyInThread" = "Reply in Thread";
 "copyText" = "Copy Text";
 "editMessage" = "Edit Message";
@@ -87,6 +87,13 @@
 "unmarkAsResolving" = "Doesn't Resolve Post";
 "pinMessage" = "Pin Message";
 "unpinMessage" = "Unpin Message";
+"addBookmark" = "Save Message";
+"removeBookmark" = "Remove Bookmark";
+
+// MARK: Saved Messages
+"savedMessages" = "Saved Messages";
+"inProgress" = "In Progress";
+"completed" = "Completed";
 
 // MARK: ProfileView
 "profile" = "Profile";
@@ -100,6 +107,7 @@
 "reply" = "reply";
 "new" = "New";
 "pinned" = "Pinned";
+"savedMessage" = "Saved for later";
 "resolved" = "Resolved";
 "resolvesPost" = "Resolves Post";
 "filterMessages" = "Filter Messages";

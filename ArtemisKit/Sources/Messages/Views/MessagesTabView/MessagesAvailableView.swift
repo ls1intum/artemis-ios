@@ -9,12 +9,12 @@ import Common
 import DesignLibrary
 import Faq
 import Navigation
+import Notifications
 import SharedModels
 import SwiftUI
 
 public struct MessagesAvailableView: View {
 
-    @Environment(\.horizontalSizeClass) var sizeClass
     @EnvironmentObject var navController: NavigationController
     @StateObject private var viewModel: MessagesAvailableViewModel
 
@@ -70,13 +70,7 @@ public struct MessagesAvailableView: View {
                     }
                 }
             }
-            .navigationTitle(viewModel.course.title ?? R.string.localizable.loading())
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    BackToRootButton(placement: .navBar, sizeClass: sizeClass)
-                }
-            }
+            .courseToolbar()
         } detail: {
             NavigationStack(path: $navController.tabPath) {
                 Group {

@@ -27,7 +27,6 @@ class RootViewModel: ObservableObject {
     private let accountService: AccountService
 
     private var cancellable: Set<AnyCancellable> = Set()
-    private var lastUpdateCheck: Date = .distantPast
 
     init(
         userSession: UserSession = UserSessionFactory.shared,
@@ -39,30 +38,24 @@ class RootViewModel: ObservableObject {
         start()
     }
 
-    /// Makes a request to check whether the current app version is still compatible with the sever
-    func checkForUpdates() async {
-        // Check once per day or after a restart
-        guard userSession.isLoggedIn && lastUpdateCheck.timeIntervalSinceNow < -60 * 60 * 24 else {
+    /// Performs a request to the server to ensure the client is compatible and check which features are available.
+    func checkFeaturesAndUpdates(forceCheck: Bool = false) async {
+        guard userSession.isLoggedIn else {
             return
         }
-        let profileService = ProfileInfoServiceFactory.shared
-        let response = await profileService.getProfileInfo()
+
+        await FeatureList.shared.checkAvailability(forceCheck: forceCheck)
+
         let versionString = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
         let currentVersion = AppVersion(versionString)
 
-        switch response {
-        case .loading, .failure:
-            break
-        case .done(let info):
-            lastUpdateCheck = .now
-            let supportedVersions = info.compatibleVersions?.ios
-            if let min = supportedVersions?.min, currentVersion < AppVersion(min) {
-                updateRequirement = .requiresUpdate(current: versionString, min: min)
-            } else if let min = supportedVersions?.recommended, currentVersion < AppVersion(min) {
-                updateRequirement = .recommendsUpdate
-            } else {
-                updateRequirement = .upToDate
-            }
+        let supportedVersions = FeatureList.shared.compatibleVersions?.ios
+        if let min = supportedVersions?.min, currentVersion < AppVersion(min) {
+            updateRequirement = .requiresUpdate(current: versionString, min: min)
+        } else if let min = supportedVersions?.recommended, currentVersion < AppVersion(min) {
+            updateRequirement = .recommendsUpdate
+        } else {
+            updateRequirement = .upToDate
         }
     }
 }
@@ -78,7 +71,7 @@ private extension RootViewModel {
                 if !self.isLoggedIn && self.userSession.isLoggedIn {
                     self.updateDeviceToken()
                     Task {
-                        await self.checkForUpdates()
+                        await self.checkFeaturesAndUpdates(forceCheck: true)
                     }
                 }
                 self.isLoggedIn = self.userSession.isLoggedIn
