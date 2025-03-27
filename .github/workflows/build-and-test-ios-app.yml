@@ -23,7 +23,7 @@ jobs:
       #   run: bundle exec fastlane test
 
       - name: Initalize rbenv
-        run: /opt/homebrew/bin/rbenv init
+        run:  eval "$(/opt/homebrew/bin/rbenv init - --no-rehash zsh)"
 
       - name: Install Gems
         run: bundle install
