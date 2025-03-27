@@ -13,6 +13,36 @@
 default_platform(:ios)
 
 platform :ios do
+  desc "Generate new screenshots"
+  lane :screenshots do
+    capture_screenshots
+    upload_to_app_store(
+      api_key: api_key,
+      force: true,
+      overwrite_screenshots: true,
+      precheck_include_in_app_purchases: false
+    )
+  end
+
+  desc "[CI] Check static code quality"
+  lane :swift_lint do
+    swiftlint(
+      config_file: ".swiftlint.yml",
+      strict: false,
+      raise_if_swiftlint_error: true
+    )
+  end
+
+  desc "[CI] Run Unit and UI Tests"
+  lane :test do
+    # Run Unit Tests
+    scan(
+      clean: true,
+      scheme: "Artemis"
+    )
+  end
+
+  desc "[CI] Build Artemis Scheme"
   lane :build do
     app_identifier = CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier)
     team_id = CredentialsManager::AppfileConfig.try_fetch_value(:team_id)
@@ -24,6 +54,8 @@ platform :ios do
       git_url: ENV['MATCH_GIT_URL'],
       git_basic_authorization: ENV['MATCH_GITLAB_AUTH'],
       api_key: api_key,
+      git_full_name: 'Artemis IOS',
+      git_user_email: 'ls1.itg@in.tum.de',
       readonly: false
     )
     update_code_signing_settings(
@@ -37,6 +69,11 @@ platform :ios do
     build_app(
       scheme: "Artemis",
       clean: true,
+      output_name: "App.ipa",
+      configuration: "Release",
+      cloned_source_packages_path: ".SwiftPackages",
+      derived_data_path: ".DerivedData",
+      output_directory: "./build",
       xcargs: "-skipMacroValidation -skipPackagePluginValidation",
       export_options: {
         provisioningProfiles: {
@@ -44,6 +81,17 @@ platform :ios do
           "de.tum.cit.ase.artemis.ArtemisNotificationExtension" => "match AppStore de.tum.cit.ase.artemis.ArtemisNotificationExtension"
         }
       }
+    )
+  end
+
+  desc "[CI] Upload the newest build to TestFlight"
+  lane :release do
+    upload_to_testflight(
+      ipa: "#{Dir.pwd}/../build/App.ipa",
+      demo_account_required: true,
+      api_key: api_key,
+      # submit_beta_review: false,
+      skip_waiting_for_build_processing: true
     )
   end
 
@@ -56,4 +104,5 @@ platform :ios do
       is_key_content_base64: true
     )
   end
+
 end
