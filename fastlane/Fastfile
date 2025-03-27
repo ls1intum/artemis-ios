@@ -19,6 +19,7 @@ platform :ios do
 
     setup_ci(force: 'true')
     match(
+      app_identifier: [app_identifier, 'de.tum.cit.ase.artemis.ArtemisNotificationExtension'],
       type: 'appstore',
       git_url: ENV['MATCH_GIT_URL'],
       git_basic_authorization: ENV['MATCH_GITLAB_AUTH'],
@@ -29,13 +30,20 @@ platform :ios do
       code_sign_identity: "iPhone Distribution",
       sdk: "iphoneos*",
       profile_name: "match AppStore de.tum.cit.ase.artemis",
+      bundle_identifier: "de.tum.cit.ase.artemis",
       team_id: team_id
     )
     build_app(
       scheme: "Artemis",
       clean: true,
-      xcargs: "-skipMacroValidation -skipPackagePluginValidation"
-      )
+      xcargs: "-skipMacroValidation -skipPackagePluginValidation",
+      export_options: {
+        provisioningProfiles: {
+          "de.tum.cit.ase.artemis" => "match AppStore de.tum.cit.ase.artemis",
+          "de.tum.cit.ase.artemis.ArtemisNotificationExtension" => "match AppStore de.tum.cit.ase.artemis.ArtemisNotificationExtension"
+        }
+      }
+    )
   end
 
   lane :api_key do
