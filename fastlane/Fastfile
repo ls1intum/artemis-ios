@@ -38,7 +38,8 @@ platform :ios do
     # Run Unit Tests
     scan(
       clean: true,
-      scheme: "Artemis"
+      scheme: "Artemis",
+      xcargs: "-skipMacroValidation -skipPackagePluginValidation",
     )
   end
 
