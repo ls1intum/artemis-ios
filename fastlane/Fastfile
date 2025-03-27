@@ -64,7 +64,9 @@ platform :ios do
 
     unlock_keychain(
       path: "~/Library/Keychains/ios-db",
-      password: ENV['IOS_KEYCHAIN_PASSWORD']
+      password: ENV['IOS_KEYCHAIN_PASSWORD'],
+      add_to_search_list: :replace
+      # set_default: true
     )
   
     ##########################################
@@ -73,6 +75,8 @@ platform :ios do
 
     match(
       type: "appstore",
+      team_id: team_id,
+      app_identifier: app_identifier,
       api_key: api_key, 
       git_full_name: "Artemis IOS", 
       git_branch: "main", # branch to store and get certificates from

@@ -28,7 +28,7 @@ jobs:
 
       # - name: Run Unit and UI Tests
       #   run: bundle exec fastlane test
-
+        
       - name: Build iOS App 
         run: bundle exec fastlane build
         env: 
