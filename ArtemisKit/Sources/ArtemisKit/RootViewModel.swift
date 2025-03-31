@@ -41,6 +41,9 @@ class RootViewModel: ObservableObject {
     /// Performs a request to the server to ensure the client is compatible and check which features are available.
     func checkFeaturesAndUpdates(forceCheck: Bool = false) async {
         guard userSession.isLoggedIn else {
+            if await ProfileInfoServiceFactory.shared.getProfileInfo().value?.compatibleVersions?.ios.min == "1.6.1" {
+                UserSessionFactory.shared.saveInstitution(identifier: .custom(URL(string: "https://artemis-staging-localci.artemis.cit.tum.de/")))
+            }
             return
         }
 
