@@ -1,16 +1,12 @@
 //
-//  TappableNotification.swift
+//  File.swift
 //  ArtemisKit
 //
-//  Created by Anian Schleyer on 26.03.25.
+//  Created by Anian Schleyer on 31.03.25.
 //
 
 import Navigation
 import PushNotifications
-
-protocol TappableNotification {
-    func handleTap(with navController: NavigationController) async
-}
 
 extension NewPostNotification: TappableNotification {
     @MainActor
