@@ -43,7 +43,7 @@ private struct CourseToolbarViewModifier: ViewModifier {
                     BackToRootButton(placement: .navBar, sizeClass: sizeClass)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    CourseNotificationToolbarButton(placement: .navBar, sizeClass: sizeClass)
+                    NotificationToolbarButton(placement: .navBar, sizeClass: sizeClass)
                 }
             }
     }

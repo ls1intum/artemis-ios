@@ -1,5 +1,5 @@
 //
-//  CourseNotification.swift
+//  Notification.swift
 //  ArtemisKit
 //
 //  Created by Anian Schleyer on 23.03.25.

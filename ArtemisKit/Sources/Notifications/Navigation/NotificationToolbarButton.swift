@@ -1,5 +1,5 @@
 //
-//  CourseNotificationToolbarButton.swift
+//  NotificationToolbarButton.swift
 //  ArtemisKit
 //
 //  Created by Anian Schleyer on 23.03.25.
@@ -9,7 +9,7 @@ import Navigation
 import ProfileInfo
 import SwiftUI
 
-public struct CourseNotificationToolbarButton: View {
+public struct NotificationToolbarButton: View {
     public enum Placement {
         case navBar, tabBar
     }
@@ -40,7 +40,7 @@ public struct CourseNotificationToolbarButton: View {
             }
             .labelStyle(.iconOnly)
             .popover(isPresented: $showNotificationSheet, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
-                CourseNotificationView(courseId: courseId)
+                NotificationView(courseId: courseId)
                     .frame(minWidth: 400, minHeight: 600)
             }
         }

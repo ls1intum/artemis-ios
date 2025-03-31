@@ -1,5 +1,5 @@
 //
-//  CourseNotificationIconView.swift
+//  NotificationIconView.swift
 //  ArtemisKit
 //
 //  Created by Anian Schleyer on 23.03.25.
@@ -9,7 +9,7 @@ import DesignLibrary
 import UserStore
 import SwiftUI
 
-struct CourseNotificationIconView: View {
+struct NotificationIconView: View {
     let notification: CourseNotification
 
     var body: some View {
