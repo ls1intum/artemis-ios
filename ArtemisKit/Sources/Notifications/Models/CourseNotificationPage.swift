@@ -12,5 +12,5 @@ struct CourseNotificationPage: Codable {
     let pageSize: Int
     let totalElements: Int
     let totalPages: Int
-    let content: [CourseNotification]
+    let content: [CourseNotification]?
 }

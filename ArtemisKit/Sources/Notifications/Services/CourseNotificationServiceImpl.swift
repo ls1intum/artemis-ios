@@ -33,7 +33,7 @@ class CourseNotificationServiceImpl: CourseNotificationService {
 
         switch result {
         case .success((let response, _)):
-            return .done(response: response.content)
+            return .done(response: response.content ?? [])
         case .failure(let error):
             return .failure(error: UserFacingError(error: error))
         }
