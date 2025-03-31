@@ -14,8 +14,8 @@ struct CourseNotification: Codable, Identifiable {
     let notificationId: Int
     let courseId: Int
     let creationDate: Date
-    let category: CourseNotificationCategory
-    let status: CourseNotificationStatus
+    let category: NotificationCategory
+    let status: NotificationStatus
     let notification: CoursePushNotification
 
     init(from decoder: any Decoder) throws {
@@ -24,8 +24,8 @@ struct CourseNotification: Codable, Identifiable {
         self.notificationId = try container.decode(Int.self, forKey: .notificationId)
         self.courseId = try container.decode(Int.self, forKey: .courseId)
         self.creationDate = try container.decode(Date.self, forKey: .creationDate)
-        self.category = try container.decode(CourseNotificationCategory.self, forKey: .category)
-        self.status = try container.decode(CourseNotificationStatus.self, forKey: .status)
+        self.category = try container.decode(NotificationCategory.self, forKey: .category)
+        self.status = try container.decode(NotificationStatus.self, forKey: .status)
         // Custom decoding required for CoursePushNotification
         self.notification = try CoursePushNotification(from: decoder, typeKey: Keys.notificationType, parametersKey: Keys.parameters)
     }
@@ -38,13 +38,13 @@ struct CourseNotification: Codable, Identifiable {
     var id: Int { notificationId }
 }
 
-enum CourseNotificationCategory: String, ConstantsEnum {
+enum NotificationCategory: String, ConstantsEnum {
     case communication = "COMMUNICATION"
     case general = "GENERAL"
     case unknown
 }
 
-enum CourseNotificationStatus: String, ConstantsEnum {
+enum NotificationStatus: String, ConstantsEnum {
     case unseen = "UNSEEN"
     case seen = "SEEN"
     case unknown
