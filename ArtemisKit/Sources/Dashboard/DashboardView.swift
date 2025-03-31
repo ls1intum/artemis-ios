@@ -29,7 +29,6 @@ public struct DashboardView: View {
                     }
                 })
             )
-            .notificationToolbar()
             .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
     }
 }
