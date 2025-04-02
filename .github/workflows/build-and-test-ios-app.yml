@@ -41,5 +41,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ios-app
-          path: Artemis.ipa
-
+          path: /opt/actions-runner/_work/artemis-ios/artemis-ios/build/App.ipa
