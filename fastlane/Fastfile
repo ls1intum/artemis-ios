@@ -45,7 +45,7 @@ platform :ios do
 
   desc "[CI] Build Artemis Scheme"
   lane :build do
-    app_identifier = CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier)
+    app_identifier = 'de.tum.cit.ase.artemis'
     team_id = CredentialsManager::AppfileConfig.try_fetch_value(:team_id)
 
     setup_ci(force: 'true')
@@ -64,7 +64,7 @@ platform :ios do
       code_sign_identity: "iPhone Distribution",
       sdk: "iphoneos*",
       profile_name: "match AppStore de.tum.cit.ase.artemis",
-      bundle_identifier: "de.tum.cit.ase.artemis",
+      bundle_identifier: app_identifier,
       team_id: team_id
     )
     update_code_signing_settings(
