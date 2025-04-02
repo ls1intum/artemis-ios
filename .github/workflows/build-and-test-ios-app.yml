@@ -36,3 +36,10 @@ jobs:
           API_KEY_ISSUER_ID: ${{ secrets.IOS_APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
           API_KEY_PASSWORD: ${{ secrets.IOS_APP_STORE_CONNECT_API_KEY_PASSWORD }}
 
+      - name: Try Upload iOS App to TestFlight
+        run: eval "$(/opt/homebrew/bin/rbenv init - --no-rehash bash)" && bundle exec fastlane release
+        env: 
+          API_KEY_ID: ${{ secrets.IOS_APP_STORE_CONNECT_API_KEY_KEY_ID }}
+          API_KEY_ISSUER_ID: ${{ secrets.IOS_APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
+          API_KEY_PASSWORD: ${{ secrets.IOS_APP_STORE_CONNECT_API_KEY_PASSWORD }}
+
