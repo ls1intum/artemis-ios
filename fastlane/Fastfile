@@ -102,7 +102,7 @@ platform :ios do
   desc "[CI] Upload the newest build to TestFlight"
   lane :release do
     upload_to_testflight(
-      ipa: "#{Dir.pwd}/../build/App.ipa",
+      ipa: "App.ipa",
       demo_account_required: true,
       api_key: api_key,
       # submit_beta_review: false,
