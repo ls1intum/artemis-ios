@@ -16,10 +16,12 @@ jobs:
   release:
     permissions:
       contents: read
-    needs: build
     runs-on: [self-hosted, macOS]
     steps:
       - uses: actions/checkout@v2
+
+      - name: Build
+        uses: ./.github/workflows/build-and-test-ios-app.yml
 
       - name: Upload iOS App to TestFlight
         run: eval "$(/opt/homebrew/bin/rbenv init - --no-rehash bash)" && bundle exec fastlane release
