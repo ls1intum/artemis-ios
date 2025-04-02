@@ -17,12 +17,16 @@ jobs:
   release:
     permissions:
       contents: read
+    needs: build
     runs-on: [self-hosted, macOS]
     steps:
       - uses: actions/checkout@v2
 
-      - name: Build
-        uses: ./.github/workflows/build-and-test-ios-app.yml
+      - name: Download IPA Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ios-app
+          path: .
 
       - name: Upload iOS App to TestFlight
         run: eval "$(/opt/homebrew/bin/rbenv init - --no-rehash bash)" && bundle exec fastlane release
