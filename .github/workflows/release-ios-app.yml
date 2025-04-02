@@ -11,6 +11,7 @@ jobs:
     permissions:
       contents: read
     uses: ./.github/workflows/build-and-test-ios-app.yml
+    secrets: inherit
 
   release:
     permissions:
