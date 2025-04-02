@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - develop
-      - bugfix/ci/missing-artifact
   workflow_dispatch:
 
 jobs:
