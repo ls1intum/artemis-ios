@@ -59,6 +59,24 @@ platform :ios do
       git_user_email: 'ls1.itg@in.tum.de',
       readonly: false
     )
+    update_project_provisioning(
+      path: "Artemis.xcodeproj",
+      target: "Artemis",
+      profile: "match AppStore de.tum.cit.ase.artemis",
+      bundle_identifier: app_identifier,
+      type: "appstore",
+      team_id: team_id
+    )
+
+    update_project_provisioning(
+      path: "Artemis.xcodeproj",
+      target: "ArtemisNotificationExtension",
+      profile: "match AppStore de.tum.cit.ase.artemis.ArtemisNotificationExtension",
+      bundle_identifier: "de.tum.cit.ase.artemis.ArtemisNotificationExtension",
+      type: "appstore",
+      team_id: team_id
+    )
+
     update_code_signing_settings(
       use_automatic_signing: false,
       code_sign_identity: "iPhone Distribution",
