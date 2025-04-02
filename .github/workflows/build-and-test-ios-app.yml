@@ -29,7 +29,7 @@ jobs:
       - name: Build iOS App 
         run: eval "$(/opt/homebrew/bin/rbenv init - --no-rehash bash)" &&  bundle exec fastlane build
         env: 
-          BUILD_NUMBER: ${{ github.run_number }}
+          # BUILD_NUMBER: ${{ github.run_number }}
           MATCH_GITLAB_AUTH: ${{ secrets.IOS_MATCH_GITLAB_AUTH }}
           MATCH_PASSWORD: ${{ secrets.IOS_MATCH_PASSWORD }}
           MATCH_GIT_URL: ${{ vars.IOS_MATCH_GIT_URL }}
