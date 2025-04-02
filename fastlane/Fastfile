@@ -45,12 +45,13 @@ platform :ios do
 
   desc "[CI] Build Artemis Scheme"
   lane :build do
-    app_identifier = 'de.tum.cit.ase.artemis'
+    app_identifier = CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier)
+    notification_extension_identifier = app_identifier + ".ArtemisNotificationExtension"
     team_id = CredentialsManager::AppfileConfig.try_fetch_value(:team_id)
 
     setup_ci(force: 'true')
     match(
-      app_identifier: [app_identifier, 'de.tum.cit.ase.artemis.ArtemisNotificationExtension'],
+      app_identifier: [app_identifier, notification_extension_identifier],
       type: 'appstore',
       git_url: ENV['MATCH_GIT_URL'],
       git_basic_authorization: ENV['MATCH_GITLAB_AUTH'],
@@ -59,7 +60,6 @@ platform :ios do
       git_user_email: 'ls1.itg@in.tum.de',
       readonly: false
     )
-
     update_code_signing_settings(
       use_automatic_signing: false,
       code_sign_identity: "iPhone Distribution",
@@ -73,7 +73,7 @@ platform :ios do
       code_sign_identity: "iPhone Distribution",
       sdk: "iphoneos*",
       profile_name: "match AppStore de.tum.cit.ase.artemis.ArtemisNotificationExtension",
-      bundle_identifier: "de.tum.cit.ase.artemis.ArtemisNotificationExtension",
+      bundle_identifier: notification_extension_identifier,
       team_id: team_id,
       targets: ["ArtemisNotificationExtension"]
     )
