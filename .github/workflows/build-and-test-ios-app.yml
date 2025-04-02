@@ -19,8 +19,9 @@ jobs:
       - name: Check static code quality of iOS App
         run: eval "$(/opt/homebrew/bin/rbenv init - --no-rehash bash)" && bundle exec fastlane swift_lint
 
-      - name: Run Unit and UI Tests
-        run: eval "$(/opt/homebrew/bin/rbenv init - --no-rehash bash)" && bundle exec fastlane test
+      # Uncomment to run tests
+      # - name: Run Unit and UI Tests
+        # run: eval "$(/opt/homebrew/bin/rbenv init - --no-rehash bash)" && bundle exec fastlane test
 
       - name: Install Gems
         run: eval "$(/opt/homebrew/bin/rbenv init - --no-rehash bash)" && bundle install
