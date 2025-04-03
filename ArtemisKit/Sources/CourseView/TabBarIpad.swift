@@ -25,7 +25,7 @@ struct TabBarIpad<Content: View>: View {
                 HStack(alignment: .center) {
                     BackToRootButton(placement: .tabBar, sizeClass: sizeClass)
                     Spacer()
-                    CourseNotificationToolbarButton(placement: .tabBar, sizeClass: sizeClass)
+                    NotificationToolbarButton(placement: .tabBar, sizeClass: sizeClass)
                 }
                 .imageScale(.large)
                 .padding(.horizontal)

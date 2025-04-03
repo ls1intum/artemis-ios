@@ -1,5 +1,5 @@
 //
-//  CourseNotificationServiceImpl.swift
+//  NotificationServiceImpl.swift
 //  ArtemisKit
 //
 //  Created by Anian Schleyer on 23.03.25.
@@ -8,12 +8,12 @@
 import APIClient
 import Common
 
-class CourseNotificationServiceImpl: CourseNotificationService {
+class NotificationServiceImpl: NotificationService {
 
     let client = APIClient()
 
     struct GetNotificationsRequest: APIRequest {
-        typealias Response = CourseNotificationPage
+        typealias Response = NotificationPage
 
         let courseId: Int
         let page: Int

@@ -1,5 +1,5 @@
 //
-//  CourseNotificationView.swift
+//  NotificationView.swift
 //  ArtemisKit
 //
 //  Created by Anian Schleyer on 23.03.25.
@@ -9,12 +9,12 @@ import DesignLibrary
 import PushNotifications
 import SwiftUI
 
-struct CourseNotificationView: View {
-    @State private var viewModel: CourseNotificationViewModel
+struct NotificationView: View {
+    @State private var viewModel: NotificationViewModel
     @Environment(\.dismiss) private var dismiss
 
     init(courseId: Int) {
-        _viewModel = State(initialValue: CourseNotificationViewModel(courseId: courseId))
+        _viewModel = State(initialValue: NotificationViewModel(courseId: courseId))
     }
 
     var body: some View {
@@ -64,7 +64,7 @@ private struct SingleNotificationView: View {
     var body: some View {
         if let notification = notification.notification.displayable {
             HStack(spacing: .l) {
-                CourseNotificationIconView(notification: self.notification)
+                NotificationIconView(notification: self.notification)
                     .frame(maxWidth: 50)
 
                 VStack(alignment: .leading) {
