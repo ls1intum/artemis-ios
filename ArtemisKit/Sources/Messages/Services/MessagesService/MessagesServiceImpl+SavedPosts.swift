@@ -7,6 +7,7 @@
 
 import APIClient
 import Common
+import Foundation
 
 extension MessagesServiceImpl {
     struct AddSavedPostRequest: APIRequest {
@@ -19,8 +20,12 @@ extension MessagesServiceImpl {
             return .post
         }
 
+        var params: [URLQueryItem] {
+            [.init(name: "type", value: postType.rawValue)]
+        }
+
         var resourceName: String {
-            return "api/communication/saved-posts/\(postId)/\(postType.rawValue)"
+            return "api/communication/saved-posts/\(postId)"
         }
     }
 
@@ -45,8 +50,12 @@ extension MessagesServiceImpl {
             return .get
         }
 
+        var params: [URLQueryItem] {
+            [.init(name: "courseId", value: "\(courseId)"), .init(name: "status", value: status.rawValue)]
+        }
+
         var resourceName: String {
-            return "api/communication/saved-posts/\(courseId)/\(status.rawValue)"
+            return "api/communication/saved-posts"
         }
     }
 
@@ -72,8 +81,12 @@ extension MessagesServiceImpl {
             return .put
         }
 
+        var params: [URLQueryItem] {
+            [.init(name: "type", value: postType.rawValue), .init(name: "status", value: status.rawValue)]
+        }
+
         var resourceName: String {
-            return "api/communication/saved-posts/\(postId)/\(postType.rawValue)?status=\(status.rawValue)"
+            return "api/communication/saved-posts/\(postId)"
         }
     }
 
@@ -98,8 +111,12 @@ extension MessagesServiceImpl {
             return .delete
         }
 
+        var params: [URLQueryItem] {
+            [.init(name: "type", value: postType.rawValue)]
+        }
+
         var resourceName: String {
-            return "api/communication/saved-posts/\(postId)/\(postType.rawValue)"
+            return "api/communication/saved-posts/\(postId)"
         }
     }
 
