@@ -41,7 +41,7 @@ public struct NotificationToolbarButton: View {
             .labelStyle(.iconOnly)
             .popover(isPresented: $showNotificationSheet, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
                 NotificationView(courseId: courseId)
-                    .frame(minWidth: 400, minHeight: 600)
+                    .frame(minWidth: 350, minHeight: 500)
             }
         }
     }
