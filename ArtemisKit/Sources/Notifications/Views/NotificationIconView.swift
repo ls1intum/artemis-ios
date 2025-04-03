@@ -18,6 +18,18 @@ struct NotificationIconView: View {
             profilePicture(name: postNotification.authorName,
                            id: postNotification.authorId,
                            url: postNotification.authorImageUrl)
+        case .newAnnouncement(let postNotification):
+            profilePicture(name: postNotification.authorName,
+                           id: postNotification.authorId,
+                           url: postNotification.authorImageUrl)
+        case .newAnswer(let postNotification):
+            profilePicture(name: postNotification.replyAuthorName,
+                           id: postNotification.replyAuthorId,
+                           url: postNotification.replyImageUrl)
+        case .newMention(let postNotification):
+            profilePicture(name: postNotification.replyAuthorName ?? postNotification.postAuthorName,
+                           id: postNotification.replyAuthorId,
+                           url: postNotification.replyImageUrl)
         default:
             EmptyView()
         }
