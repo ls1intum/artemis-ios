@@ -7,6 +7,7 @@
 
 import APIClient
 import Common
+import Foundation
 
 extension MessagesServiceImpl {
     struct AddSavedPostRequest: APIRequest {
@@ -45,8 +46,12 @@ extension MessagesServiceImpl {
             return .get
         }
 
+        var params: [URLQueryItem] {
+            [.init(name: "courseId", value: "\(courseId)"), .init(name: "status", value: status.rawValue)]
+        }
+
         var resourceName: String {
-            return "api/communication/saved-posts/\(courseId)/\(status.rawValue)"
+            return "api/communication/saved-posts"
         }
     }
 

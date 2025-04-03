@@ -27,12 +27,16 @@ struct SavedPostDTO: Codable, Identifiable, Hashable, Comparable {
     let referencePostId: Int64
 }
 
-enum PostType: Int, Codable {
-    case post, answer
+enum PostType: String, ConstantsEnum {
+    case post = "POST"
+    case answer = "ANSWER"
+    case unknown
 }
 
-enum SavedPostStatus: Int, Codable, FilterPicker {
-    case inProgress, completed, archived
+enum SavedPostStatus: String, Codable, FilterPicker {
+    case inProgress = "IN_PROGRESS"
+    case completed = "COMPLETED"
+    case archived = "ARCHIVED"
 
     var displayName: String {
         switch self {
