@@ -312,4 +312,16 @@ extension ConversationInfoSheetViewModel {
             return false
         }
     }
+
+    func toggleChannelPrivacy() async {
+        let result = await messagesService.toggleChannelPrivacy(for: course.id, channelId: conversation.id)
+
+        switch result {
+        case .success:
+            await refreshConversation()
+        case .failure(let error):
+            presentError(userFacingError: UserFacingError(title: error.localizedDescription))
+        default: break
+        }
+    }
 }

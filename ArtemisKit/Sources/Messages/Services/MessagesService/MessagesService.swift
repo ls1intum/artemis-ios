@@ -178,6 +178,11 @@ protocol MessagesService {
      */
     func deleteChannel(for courseId: Int, channelId: Int64) async -> NetworkResponse
 
+    /**
+     * Perform a post request to toggle privacy of a specific channel in a specific course to the server.
+     */
+    func toggleChannelPrivacy(for courseId: Int, channelId: Int64) async -> NetworkResponse
+
     // MARK: Saved Messages
     /**
      * Perform a post request to add the specified post to the list of saved posts..

@@ -123,6 +123,29 @@ extension MessagesServiceImpl {
         }
     }
 
+    func toggleChannelPrivacy(for courseId: Int, channelId: Int64) async -> NetworkResponse {
+        let result = await client.sendRequest(ToggleChannelPrivacyRequest(courseId: courseId, channelId: channelId))
+
+        switch result {
+        case .success:
+            return .success
+        case let .failure(error):
+            return .failure(error: error)
+        }
+    }
+
+    struct ToggleChannelPrivacyRequest: APIRequest {
+        typealias Response = RawResponse
+        let courseId: Int
+        let channelId: Int64
+
+        var method: HTTPMethod { .post }
+
+        var resourceName: String {
+            "api/communication/courses/\(courseId)/channels/\(channelId)/toggle-privacy"
+        }
+    }
+
     struct GetUnresolvedChannelsRequest: APIRequest {
         typealias Response = [UnresolvedChannelsResponse]
         struct UnresolvedChannelsResponse: Codable {

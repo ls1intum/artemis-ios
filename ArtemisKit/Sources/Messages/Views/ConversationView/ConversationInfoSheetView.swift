@@ -24,6 +24,8 @@ struct ConversationInfoSheetView: View {
     // Triggers view update
     @Binding private var conversation: Conversation
     @State private var showDeleteConfirmation = false
+    @State private var showTogglePrivacyAlert = false
+    @State private var togglePrivacyTargetIsPublic = true
 
     var body: some View {
         NavigationView {
@@ -78,6 +80,31 @@ struct ConversationInfoSheetView: View {
                     secondaryButton: .cancel()
                 )
             }
+            .alert(isPresented: $showTogglePrivacyAlert) {
+                Alert(
+                    title: Text(togglePrivacyTargetIsPublic
+                                ? R.string.localizable.confirmPrivateChannelTitle()
+                                : R.string.localizable.confirmPublicChannelTitle()
+                               ),
+                    message: Text(togglePrivacyTargetIsPublic
+                                  ? R.string.localizable.confirmPrivateChannelMessage()
+                                  : R.string.localizable.confirmPublicChannelMessage()
+                                 ),
+                    primaryButton: .default(
+                        Text(togglePrivacyTargetIsPublic
+                             ? R.string.localizable.toggleToPrivateButton()
+                             : R.string.localizable.toggleToPublicButton()
+                            )
+                    ) {
+                        viewModel.isLoading = true
+                        Task {
+                            await viewModel.toggleChannelPrivacy()
+                            viewModel.isLoading = false
+                        }
+                    },
+                    secondaryButton: .cancel()
+                )
+            }
         }
     }
 }
@@ -108,6 +135,14 @@ private extension ConversationInfoSheetView {
 
             if let channel = conversation.baseConversation as? Channel,
                channel.hasChannelModerationRights ?? false {
+                let isPublic = channel.isPublic == true
+                Button(isPublic ? R.string.localizable.toggleToPrivateChannel() : R.string.localizable.toggleToPublicChannel(),
+                       systemImage: isPublic ? "lock.fill" : "number") {
+                    togglePrivacyTargetIsPublic = !isPublic
+                    showTogglePrivacyAlert = true
+                }
+                .foregroundColor(.Artemis.artemisBlue)
+
                 if channel.isArchived ?? false {
                     Button(R.string.localizable.unarchiveChannelButtonLabel(), systemImage: "archivebox.fill") {
                         viewModel.isLoading = true
@@ -116,7 +151,7 @@ private extension ConversationInfoSheetView {
                             viewModel.isLoading = false
                         }
                     }
-                    .foregroundColor(.Artemis.badgeWarningColor)
+                    .foregroundColor(.Artemis.artemisBlue)
                 } else {
                     Button(R.string.localizable.archiveChannelButtonLabel(), systemImage: "archivebox.fill") {
                         viewModel.isLoading = true
@@ -125,7 +160,7 @@ private extension ConversationInfoSheetView {
                             viewModel.isLoading = false
                         }
                     }
-                    .foregroundColor(.Artemis.badgeWarningColor)
+                    .foregroundColor(.Artemis.artemisBlue)
                 }
                 if viewModel.canDeleteChannel {
                     Button(R.string.localizable.deleteChannel(), systemImage: "trash.fill", role: .destructive) {
