@@ -182,9 +182,6 @@
 "deleteChannel" = "Delete Channel";
 "confirmDeleteMessage" = "Are you sure you want to delete the channel with name '%@'? This is a permanent action and cannot be undone.";
 "delete" = "Delete";
-"deleteChannel" = "Delete Channel";
-"confirmDeleteMessage" = "Are you sure you want to delete the channel with name '%@'? This is a permanent action and cannot be undone.";
-"delete" = "Delete";
 "toggleToPrivateChannel" = "Change to Private Channel";
 "toggleToPublicChannel" = "Change to Public Channel";
 "confirmPrivateChannelTitle" = "Change to a private channel?";
