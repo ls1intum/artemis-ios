@@ -221,6 +221,10 @@ extension MessagesServiceStub: MessagesService {
         .loading
     }
 
+    func toggleChannelPrivacy(for courseId: Int, channelId: Int64) async -> NetworkResponse {
+        .loading
+    }
+
     func getSavedPosts(for courseId: Int, status: SavedPostStatus) async -> DataState<[SavedPostDTO]> {
         .loading
     }
