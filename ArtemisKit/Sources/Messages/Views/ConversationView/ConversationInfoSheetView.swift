@@ -135,20 +135,13 @@ private extension ConversationInfoSheetView {
 
             if let channel = conversation.baseConversation as? Channel,
                channel.hasChannelModerationRights ?? false {
-
-                if channel.isPublic == true {
-                    Button(R.string.localizable.toggleToPrivateChannel(), systemImage: "lock.fill") {
-                        togglePrivacyTargetIsPublic = false
-                        showTogglePrivacyAlert = true
-                    }
-                    .foregroundColor(.Artemis.artemisBlue)
-                } else {
-                    Button(R.string.localizable.toggleToPublicChannel(), systemImage: "number") {
-                        togglePrivacyTargetIsPublic = true
-                        showTogglePrivacyAlert = true
-                    }
-                    .foregroundColor(.Artemis.artemisBlue)
+                let isPublic = channel.isPublic == true
+                Button(isPublic ? R.string.localizable.toggleToPrivateChannel() : R.string.localizable.toggleToPublicChannel(),
+                       systemImage: isPublic ? "lock.fill" : "number") {
+                    togglePrivacyTargetIsPublic = !isPublic
+                    showTogglePrivacyAlert = true
                 }
+                .foregroundColor(.Artemis.artemisBlue)
 
                 if channel.isArchived ?? false {
                     Button(R.string.localizable.unarchiveChannelButtonLabel(), systemImage: "archivebox.fill") {
