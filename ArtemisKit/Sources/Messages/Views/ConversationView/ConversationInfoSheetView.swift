@@ -83,17 +83,17 @@ struct ConversationInfoSheetView: View {
             .alert(isPresented: $showTogglePrivacyAlert) {
                 Alert(
                     title: Text(togglePrivacyTargetIsPublic
-                                ? R.string.localizable.confirmPrivateChannelTitle()
-                                : R.string.localizable.confirmPublicChannelTitle()
+                                ? R.string.localizable.confirmPublicChannelTitle()
+                                : R.string.localizable.confirmPrivateChannelTitle()
                                ),
                     message: Text(togglePrivacyTargetIsPublic
-                                  ? R.string.localizable.confirmPrivateChannelMessage()
-                                  : R.string.localizable.confirmPublicChannelMessage()
+                                  ? R.string.localizable.confirmPublicChannelMessage()
+                                  : R.string.localizable.confirmPrivateChannelMessage()
                                  ),
                     primaryButton: .default(
                         Text(togglePrivacyTargetIsPublic
-                             ? R.string.localizable.toggleToPrivateButton()
-                             : R.string.localizable.toggleToPublicButton()
+                             ? R.string.localizable.toggleToPublicButton()
+                             : R.string.localizable.toggleToPrivateButton()
                             )
                     ) {
                         viewModel.isLoading = true
