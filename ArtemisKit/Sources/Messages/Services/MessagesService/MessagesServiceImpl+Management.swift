@@ -164,7 +164,7 @@ extension MessagesServiceImpl {
 
         var params: [URLQueryItem] {
             [
-                .init(name: "courseWideChannelIds", value: channelIdsString),
+                .init(name: "conversationIds", value: channelIdsString),
                 .init(name: "postSortCriterion", value: "CREATION_DATE"),
                 .init(name: "sortingOrder", value: "DESCENDING"),
                 .init(name: "pagingEnabled", value: "true"),
