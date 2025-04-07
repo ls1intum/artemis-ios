@@ -144,7 +144,7 @@ struct MessagesServiceImpl: MessagesService {
 
         var params: [URLQueryItem] {
             [
-                .init(name: "conversationId", value: String(describing: conversationId)),
+                .init(name: "conversationIds", value: "\(conversationId)"),
                 .init(name: "postSortCriterion", value: "CREATION_DATE"),
                 .init(name: "sortingOrder", value: "DESCENDING"),
                 .init(name: "pagingEnabled", value: "true"),

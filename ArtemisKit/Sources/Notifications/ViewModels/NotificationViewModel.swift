@@ -1,5 +1,5 @@
 //
-//  CourseNotificationViewModel.swift
+//  NotificationViewModel.swift
 //  ArtemisKit
 //
 //  Created by Anian Schleyer on 23.03.25.
@@ -10,7 +10,7 @@ import DesignLibrary
 import SwiftUI
 
 @Observable
-class CourseNotificationViewModel {
+class NotificationViewModel {
     let courseId: Int
 
     var notifications: DataState<[CourseNotification]> = .loading
@@ -25,7 +25,7 @@ class CourseNotificationViewModel {
     }
 
     func loadNotifications() async {
-        let service = CourseNotificationServiceFactory.shared
+        let service = NotificationServiceFactory.shared
         notifications = await service.loadNotifications(courseId: courseId, page: 0, size: 20)
     }
 }

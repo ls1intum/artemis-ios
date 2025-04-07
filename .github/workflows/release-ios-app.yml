@@ -1,0 +1,35 @@
+name: release-ios-app
+
+on:
+  push:
+    branches:
+      - develop
+  workflow_dispatch:
+
+jobs:
+  build:
+    permissions:
+      contents: read
+    uses: ./.github/workflows/build-and-test-ios-app.yml
+    secrets: inherit
+
+  release:
+    permissions:
+      contents: read
+    needs: build
+    runs-on: [self-hosted, macOS]
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Download IPA Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ios-app
+          path: .
+
+      - name: Upload iOS App to TestFlight
+        run: eval "$(/opt/homebrew/bin/rbenv init - --no-rehash bash)" && bundle exec fastlane release
+        env: 
+          API_KEY_ID: ${{ secrets.IOS_APP_STORE_CONNECT_API_KEY_KEY_ID }}
+          API_KEY_ISSUER_ID: ${{ secrets.IOS_APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
+          API_KEY_PASSWORD: ${{ secrets.IOS_APP_STORE_CONNECT_API_KEY_PASSWORD }}

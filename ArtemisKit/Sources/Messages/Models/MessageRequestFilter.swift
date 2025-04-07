@@ -68,6 +68,9 @@ class MessageRequestFilter: Codable {
     var queryItems: [URLQueryItem] {
         let items: [URLQueryItem] = filters.compactMap { filter in
             if filter.enabled {
+                if filter.name == .filterToOwn, let user = UserSessionFactory.shared.user?.id {
+                    return .init(name: "authorIds", value: "\(user)")
+                }
                 return .init(name: filter.name, value: "true")
             } else {
                 return nil

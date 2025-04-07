@@ -1,5 +1,5 @@
 {
-  "originHash" : "ac9a25ce4cae5bc282a4065e185d8873c4f0f86ef41f18b926dd130040afae4d",
+  "originHash" : "a4085264584eed6d4de303be61ad4b9cc8e02f46589799d20c1bd4c0046dc808",
   "pins" : [
     {
       "identity" : "apollon-ios-module",
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ls1intum/artemis-ios-core-modules",
       "state" : {
-        "branch" : "11a692a",
-        "revision" : "11a692a51f91044976de3c299f0f1080fd3d73c8"
+        "revision" : "41edea44cc1597aeca3473a2a85e90151c79d94f",
+        "version" : "16.1.0"
       }
     },
     {
@@ -114,8 +114,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swiftlang/swift-cmark",
       "state" : {
-        "revision" : "3ccff77b2dc5b96b77db3da0d68d28068593fa53",
-        "version" : "0.5.0"
+        "revision" : "b022b08312decdc46585e0b3440d97f6f22ef703",
+        "version" : "0.6.0"
       }
     },
     {
