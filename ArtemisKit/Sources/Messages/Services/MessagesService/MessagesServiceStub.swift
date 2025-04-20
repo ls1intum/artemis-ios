@@ -220,4 +220,24 @@ extension MessagesServiceStub: MessagesService {
     func deleteChannel(for courseId: Int, channelId: Int64) async -> NetworkResponse {
         .loading
     }
+
+    func toggleChannelPrivacy(for courseId: Int, channelId: Int64) async -> NetworkResponse {
+        .loading
+    }
+
+    func getSavedPosts(for courseId: Int, status: SavedPostStatus) async -> DataState<[SavedPostDTO]> {
+        .loading
+    }
+
+    func updateSavedPostStatus(for postId: Int64, with type: PostType, status: SavedPostStatus) async -> NetworkResponse {
+        .loading
+    }
+
+    func deleteSavedPost(with postId: Int64, of type: PostType) async -> NetworkResponse {
+        .loading
+    }
+
+    func addSavedPost(with postId: Int64, of type: PostType) async -> NetworkResponse {
+        .loading
+    }
 }

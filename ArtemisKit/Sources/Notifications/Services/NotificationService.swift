@@ -1,23 +1,17 @@
 //
 //  NotificationService.swift
-//  
+//  ArtemisKit
 //
-//  Created by Sven Andabaka on 17.03.23.
+//  Created by Anian Schleyer on 23.03.25.
 //
 
-import Foundation
 import Common
 
 protocol NotificationService {
     /**
-     * Load the notifications from the specified server using the specified authentication data.
+     * Load notifications for the given course from the server.
      */
-    func loadNotifications(page: Int, size: Int) async -> DataState<[Notification]>
-
-    /**
-     * Update the user notification last read date from the specified server using the specified authentication data.
-     */
-    func updateUserNotificationDate() async -> NetworkResponse
+    func loadNotifications(courseId: Int, page: Int, size: Int) async -> DataState<[CourseNotification]>
 }
 
 enum NotificationServiceFactory {

@@ -1,99 +1,73 @@
 //
-//  File.swift
-//  
+//  NotificationViewModel.swift
+//  ArtemisKit
 //
-//  Created by Sven Andabaka on 17.03.23.
+//  Created by Anian Schleyer on 23.03.25.
 //
 
-import Foundation
 import Common
-import UserNotifications
-import UserStore
+import DesignLibrary
+import SwiftUI
 
-@MainActor
-class NotificationViewModel: ObservableObject {
+@Observable
+class NotificationViewModel {
+    let courseId: Int
 
-    @Published var notifications: DataState<[Notification]> = .loading
-
-    @Published var newNotificationCount = 0
-
-    private var lastNotificationSeenDate: Date? {
-        didSet {
-            UserDefaults.standard.set(lastNotificationSeenDate, forKey: "lastNotificationSeenDate")
-            updateNewNotificationCount()
-        }
+    var notifications: DataState<[CourseNotification]> = .loading
+    var filteredNotifications: [CourseNotification] {
+        notifications.value?.filter { filter.matches($0) } ?? []
     }
 
-    init() {
-        updateLastNotificationSeenDate()
+    var filter: NotificationFilter = .communication
 
-        Task {
-            await loadNotifications()
-        }
-    }
-
-    func subscribeToNotificationUpdates() async {
-        let stream = NotificationWebsocketServiceFactory.shared.subscribeToNotifications()
-
-        for await notification in stream {
-            notifications.value?.insert(notification, at: 0)
-            newNotificationCount += 1
-        }
-    }
-
-    private func updateLastNotificationSeenDate() {
-        let userLastNotificationSeen = UserSessionFactory.shared.user?.lastNotificationRead
-        let storedLastNotificationSeenDate = UserDefaults.standard.object(forKey: "lastNotificationSeenDate") as? Date
-
-        if let userLastNotificationSeen,
-           storedLastNotificationSeenDate == nil {
-            self.lastNotificationSeenDate = userLastNotificationSeen
-        } else if userLastNotificationSeen == nil,
-                  let storedLastNotificationSeenDate {
-            self.lastNotificationSeenDate = storedLastNotificationSeenDate
-        } else if let userLastNotificationSeen,
-                  let storedLastNotificationSeenDate {
-            if storedLastNotificationSeenDate > userLastNotificationSeen {
-                self.lastNotificationSeenDate = storedLastNotificationSeenDate
-            } else {
-                self.lastNotificationSeenDate = userLastNotificationSeen
-            }
-        }
-    }
-
-    private func updateNewNotificationCount() {
-        if let lastNotificationSeenDate {
-            newNotificationCount = notifications.value?.filter {
-                $0.notificationDate > lastNotificationSeenDate
-            }.count ?? 0
-        } else {
-            newNotificationCount = notifications.value?.count ?? 0
-        }
-    }
-
-    @objc
-    func reloadNotifications() {
-        Task {
-            await loadNotifications()
-        }
+    init(courseId: Int) {
+        self.courseId = courseId
     }
 
     func loadNotifications() async {
-        notifications = await NotificationServiceFactory.shared.loadNotifications(page: 0, size: 25)
+        let service = NotificationServiceFactory.shared
+        notifications = await service.loadNotifications(courseId: courseId, page: 0, size: 20)
+    }
+}
 
-        updateNewNotificationCount()
+enum NotificationFilter: FilterPicker {
+    case general, communication
+
+    var displayName: String {
+        switch self {
+        case .general:
+            R.string.localizable.general()
+        case .communication:
+            R.string.localizable.communication()
+        }
     }
 
-    func updateNotificationSeenDate() async {
-        let result = await NotificationServiceFactory.shared.updateUserNotificationDate()
+    var iconName: String {
+        switch self {
+        case .general:
+            "bell"
+        case .communication:
+            "bubble"
+        }
+    }
 
-        switch result {
-        case .notStarted, .loading:
-            return
-        case .success:
-            lastNotificationSeenDate = .now
-        case .failure(let error):
-            log.error(error)
+    var selectedColor: Color {
+        switch self {
+        case .general:
+            .green
+        case .communication:
+            .blue
+        }
+    }
+
+    var id: Self { self }
+
+    func matches(_ notification: CourseNotification) -> Bool {
+        switch self {
+        case .general:
+            notification.category == .general
+        case .communication:
+            notification.category == .communication
         }
     }
 }

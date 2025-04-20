@@ -15,11 +15,13 @@ class MessageRequestFilter: Codable {
 
     init(filterToUnresolved: Bool = false,
          filterToOwn: Bool = false,
-         filterToAnsweredOrReacted: Bool = false) {
+         filterToAnsweredOrReacted: Bool = false,
+         pinnedOnly: Bool = false) {
         self.filters = [
             .init(name: .filterToUnresolved, enabled: filterToUnresolved),
             .init(name: .filterToOwn, enabled: filterToOwn),
-            .init(name: .filterToAnsweredOrReacted, enabled: filterToAnsweredOrReacted)
+            .init(name: .filterToAnsweredOrReacted, enabled: filterToAnsweredOrReacted),
+            .init(name: .pinnedOnly, enabled: pinnedOnly)
         ]
     }
 
@@ -56,6 +58,8 @@ class MessageRequestFilter: Codable {
             return isOwn || didReply
         case .filterToUnresolved:
             return !(message.resolved ?? false)
+        case .pinnedOnly:
+            return message.displayPriority == .pinned
         default:
             return true
         }
@@ -64,6 +68,9 @@ class MessageRequestFilter: Codable {
     var queryItems: [URLQueryItem] {
         let items: [URLQueryItem] = filters.compactMap { filter in
             if filter.enabled {
+                if filter.name == .filterToOwn, let user = UserSessionFactory.shared.user?.id {
+                    return .init(name: "authorIds", value: "\(user)")
+                }
                 return .init(name: filter.name, value: "true")
             } else {
                 return nil
@@ -85,6 +92,8 @@ struct FilterOption: Codable, Hashable {
             return R.string.localizable.messageFilterUnresolved()
         case .filterToOwn:
             return R.string.localizable.messageFilterOwn()
+        case .pinnedOnly:
+            return R.string.localizable.pinned()
         default:
             return ""
         }
@@ -96,4 +105,5 @@ fileprivate extension String {
     static let filterToAnsweredOrReacted = "filterToAnsweredOrReacted"
     static let filterToUnresolved = "filterToUnresolved"
     static let filterToOwn = "filterToOwn"
+    static let pinnedOnly = "pinnedOnly"
 }

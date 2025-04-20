@@ -1,11 +1,10 @@
 //
-//  File.swift
-//  
+//  NotificationServiceImpl.swift
+//  ArtemisKit
 //
-//  Created by Sven Andabaka on 17.03.23.
+//  Created by Anian Schleyer on 23.03.25.
 //
 
-import Foundation
 import APIClient
 import Common
 
@@ -14,8 +13,9 @@ class NotificationServiceImpl: NotificationService {
     let client = APIClient()
 
     struct GetNotificationsRequest: APIRequest {
-        typealias Response = [Notification]
+        typealias Response = NotificationPage
 
+        let courseId: Int
         let page: Int
         let size: Int
 
@@ -24,39 +24,16 @@ class NotificationServiceImpl: NotificationService {
         }
 
         var resourceName: String {
-            return "api/notifications?page=\(page)&size=\(size)&sort=notificationDate,desc"
+            return "api/communication/notification/\(courseId)?page=\(page)&size=\(size)"
         }
     }
 
-    func loadNotifications(page: Int = 0, size: Int = 50) async -> DataState<[Notification]> {
-        let result = await client.sendRequest(GetNotificationsRequest(page: page, size: size))
+    func loadNotifications(courseId: Int, page: Int = 0, size: Int = 50) async -> DataState<[CourseNotification]> {
+        let result = await client.sendRequest(GetNotificationsRequest(courseId: courseId, page: page, size: size))
 
         switch result {
         case .success((let response, _)):
-            return .done(response: response)
-        case .failure(let error):
-            return .failure(error: UserFacingError(error: error))
-        }
-    }
-
-    struct UpdateUserNotificationDateRequest: APIRequest {
-        typealias Response = RawResponse
-
-        var method: HTTPMethod {
-            return .put
-        }
-
-        var resourceName: String {
-            return "api/users/notification-date"
-        }
-    }
-
-    func updateUserNotificationDate() async -> NetworkResponse {
-        let result = await client.sendRequest(UpdateUserNotificationDateRequest())
-
-        switch result {
-        case .success:
-            return .success
+            return .done(response: response.content ?? [])
         case .failure(let error):
             return .failure(error: UserFacingError(error: error))
         }

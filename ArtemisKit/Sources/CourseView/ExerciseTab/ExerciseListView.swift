@@ -4,11 +4,11 @@ import SwiftUI
 import SharedModels
 import Common
 import Navigation
+import Notifications
 import DesignLibrary
 
 struct ExerciseListView: View {
     @EnvironmentObject var navController: NavigationController
-    @Environment(\.horizontalSizeClass) var sizeClass
     @ObservedObject var viewModel: CourseViewModel
     @State private var columnVisibilty: NavigationSplitViewVisibility = .doubleColumn
 
@@ -59,13 +59,7 @@ struct ExerciseListView: View {
                     }
                 }
             }
-            .navigationTitle(viewModel.course.title ?? R.string.localizable.loading())
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    BackToRootButton(placement: .navBar, sizeClass: sizeClass)
-                }
-            }
+            .courseToolbar()
         } detail: {
             NavigationStack(path: $navController.tabPath) {
                 Group {

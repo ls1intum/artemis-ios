@@ -8,6 +8,7 @@ import DesignLibrary
 
 public struct CourseView: View {
     @EnvironmentObject private var navigationController: NavigationController
+    @Environment(\.horizontalSizeClass) private var sizeClass
 
     @StateObject private var viewModel: CourseViewModel
 
@@ -53,8 +54,7 @@ public struct CourseView: View {
                 .tag(TabIdentifier.faq)
             }
         }
-        .navigationTitle(viewModel.course.title ?? R.string.localizable.loading())
-        .navigationBarTitleDisplayMode(.inline)
+        .courseToolbar(title: viewModel.course.title  ?? R.string.localizable.loading())
         // Add a file picker here, inside the navigation it doesn't work sometimes
         .supportsFilePicker()
     }

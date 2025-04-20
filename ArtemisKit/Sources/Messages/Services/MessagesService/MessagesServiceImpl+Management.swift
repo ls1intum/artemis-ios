@@ -28,7 +28,7 @@ extension MessagesServiceImpl {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/channels"
+            return "api/communication/courses/\(courseId)/channels"
         }
     }
 
@@ -56,7 +56,7 @@ extension MessagesServiceImpl {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/channels/\(channelId)/archive"
+            return "api/communication/courses/\(courseId)/channels/\(channelId)/archive"
         }
     }
 
@@ -82,7 +82,7 @@ extension MessagesServiceImpl {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/channels/\(channelId)/unarchive"
+            return "api/communication/courses/\(courseId)/channels/\(channelId)/unarchive"
         }
     }
 
@@ -119,7 +119,30 @@ extension MessagesServiceImpl {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/channels/\(channelId)"
+            return "api/communication/courses/\(courseId)/channels/\(channelId)"
+        }
+    }
+
+    func toggleChannelPrivacy(for courseId: Int, channelId: Int64) async -> NetworkResponse {
+        let result = await client.sendRequest(ToggleChannelPrivacyRequest(courseId: courseId, channelId: channelId))
+
+        switch result {
+        case .success:
+            return .success
+        case let .failure(error):
+            return .failure(error: error)
+        }
+    }
+
+    struct ToggleChannelPrivacyRequest: APIRequest {
+        typealias Response = RawResponse
+        let courseId: Int
+        let channelId: Int64
+
+        var method: HTTPMethod { .post }
+
+        var resourceName: String {
+            "api/communication/courses/\(courseId)/channels/\(channelId)/toggle-privacy"
         }
     }
 
@@ -141,7 +164,7 @@ extension MessagesServiceImpl {
 
         var params: [URLQueryItem] {
             [
-                .init(name: "courseWideChannelIds", value: channelIdsString),
+                .init(name: "conversationIds", value: channelIdsString),
                 .init(name: "postSortCriterion", value: "CREATION_DATE"),
                 .init(name: "sortingOrder", value: "DESCENDING"),
                 .init(name: "pagingEnabled", value: "true"),
@@ -151,7 +174,7 @@ extension MessagesServiceImpl {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/messages"
+            return "api/communication/courses/\(courseId)/messages"
         }
     }
 

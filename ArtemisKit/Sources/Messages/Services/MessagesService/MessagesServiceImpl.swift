@@ -26,7 +26,7 @@ struct MessagesServiceImpl: MessagesService {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/conversations"
+            return "api/communication/courses/\(courseId)/conversations"
         }
     }
 
@@ -53,7 +53,7 @@ struct MessagesServiceImpl: MessagesService {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/conversations/\(conversationId)/favorite?isFavorite=\(isFavorite)"
+            return "api/communication/courses/\(courseId)/conversations/\(conversationId)/favorite?isFavorite=\(isFavorite)"
         }
     }
 
@@ -82,7 +82,7 @@ struct MessagesServiceImpl: MessagesService {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/conversations/\(conversationId)/muted?isMuted=\(isMuted)"
+            return "api/communication/courses/\(courseId)/conversations/\(conversationId)/muted?isMuted=\(isMuted)"
         }
     }
 
@@ -111,7 +111,7 @@ struct MessagesServiceImpl: MessagesService {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/conversations/\(conversationId)/hidden?isHidden=\(isHidden)"
+            return "api/communication/courses/\(courseId)/conversations/\(conversationId)/hidden?isHidden=\(isHidden)"
         }
     }
 
@@ -144,7 +144,7 @@ struct MessagesServiceImpl: MessagesService {
 
         var params: [URLQueryItem] {
             [
-                .init(name: "conversationId", value: String(describing: conversationId)),
+                .init(name: "conversationIds", value: "\(conversationId)"),
                 .init(name: "postSortCriterion", value: "CREATION_DATE"),
                 .init(name: "sortingOrder", value: "DESCENDING"),
                 .init(name: "pagingEnabled", value: "true"),
@@ -154,7 +154,7 @@ struct MessagesServiceImpl: MessagesService {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/messages"
+            return "api/communication/courses/\(courseId)/messages"
         }
     }
 
@@ -188,7 +188,7 @@ struct MessagesServiceImpl: MessagesService {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/messages"
+            return "api/communication/courses/\(courseId)/messages"
         }
     }
 
@@ -221,7 +221,7 @@ struct MessagesServiceImpl: MessagesService {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/messages"
+            return "api/communication/courses/\(courseId)/messages"
         }
     }
 
@@ -254,7 +254,7 @@ struct MessagesServiceImpl: MessagesService {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/answer-messages"
+            return "api/communication/courses/\(courseId)/answer-messages"
         }
     }
 
@@ -282,7 +282,7 @@ struct MessagesServiceImpl: MessagesService {
                return .failure(error: .init(title: "File too big to upload"))
            }
 
-           let request = MultipartFormDataRequest(path: "api/files/courses/\(courseId)/conversations/\(conversationId)")
+           let request = MultipartFormDataRequest(path: "api/core/files/courses/\(courseId)/conversations/\(conversationId)")
            request.addDataField(named: "file",
                                 filename: filename,
                                 data: file,
@@ -309,7 +309,7 @@ struct MessagesServiceImpl: MessagesService {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/messages/\(messageId)"
+            return "api/communication/courses/\(courseId)/messages/\(messageId)"
         }
     }
 
@@ -335,7 +335,7 @@ struct MessagesServiceImpl: MessagesService {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/answer-messages/\(messageId)"
+            return "api/communication/courses/\(courseId)/answer-messages/\(messageId)"
         }
     }
 
@@ -361,7 +361,7 @@ struct MessagesServiceImpl: MessagesService {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/messages/\(message.id)"
+            return "api/communication/courses/\(courseId)/messages/\(message.id)"
         }
 
         func encode(to encoder: Encoder) throws {
@@ -392,7 +392,7 @@ struct MessagesServiceImpl: MessagesService {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/messages/\(messageId)/display-priority"
+            return "api/communication/courses/\(courseId)/messages/\(messageId)/display-priority"
         }
 
         var params: [URLQueryItem] {
@@ -422,7 +422,7 @@ struct MessagesServiceImpl: MessagesService {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/answer-messages/\(answerMessage.id)"
+            return "api/communication/courses/\(courseId)/answer-messages/\(answerMessage.id)"
         }
 
         func encode(to encoder: Encoder) throws {
@@ -453,7 +453,7 @@ struct MessagesServiceImpl: MessagesService {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/postings/reactions"
+            return "api/communication/courses/\(courseId)/postings/reactions"
         }
     }
 
@@ -482,7 +482,7 @@ struct MessagesServiceImpl: MessagesService {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/postings/reactions"
+            return "api/communication/courses/\(courseId)/postings/reactions"
         }
     }
 
@@ -510,7 +510,7 @@ struct MessagesServiceImpl: MessagesService {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/postings/reactions/\(reactionId)"
+            return "api/communication/courses/\(courseId)/postings/reactions/\(reactionId)"
         }
     }
 
@@ -535,7 +535,7 @@ struct MessagesServiceImpl: MessagesService {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/channels/overview"
+            return "api/communication/courses/\(courseId)/channels/overview"
         }
     }
 
@@ -560,7 +560,7 @@ struct MessagesServiceImpl: MessagesService {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/channels/public-overview"
+            return "api/communication/courses/\(courseId)/channels/public-overview"
         }
     }
 
@@ -587,7 +587,7 @@ struct MessagesServiceImpl: MessagesService {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/channels/\(channelId)/register"
+            return "api/communication/courses/\(courseId)/channels/\(channelId)/register"
         }
 
         func encode(to encoder: Encoder) throws {
@@ -618,7 +618,7 @@ struct MessagesServiceImpl: MessagesService {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/channels/\(channelId)/deregister"
+            return "api/communication/courses/\(courseId)/channels/\(channelId)/deregister"
         }
 
         func encode(to encoder: Encoder) throws {
@@ -649,7 +649,7 @@ struct MessagesServiceImpl: MessagesService {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/group-chats/\(groupChatId)/register"
+            return "api/communication/courses/\(courseId)/group-chats/\(groupChatId)/register"
         }
 
         func encode(to encoder: Encoder) throws {
@@ -680,7 +680,7 @@ struct MessagesServiceImpl: MessagesService {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/group-chats/\(groupChatId)/deregister"
+            return "api/communication/courses/\(courseId)/group-chats/\(groupChatId)/deregister"
         }
 
         func encode(to encoder: Encoder) throws {
@@ -710,7 +710,7 @@ struct MessagesServiceImpl: MessagesService {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/users/search?loginOrName=\(searchText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&roles=students,tutors,instructors"
+            return "api/core/courses/\(courseId)/users/search?loginOrName=\(searchText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&roles=students,tutors,instructors"
         }
     }
 
@@ -736,7 +736,7 @@ struct MessagesServiceImpl: MessagesService {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/group-chats"
+            return "api/communication/courses/\(courseId)/group-chats"
         }
 
         func encode(to encoder: Encoder) throws {
@@ -766,7 +766,7 @@ struct MessagesServiceImpl: MessagesService {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/one-to-one-chats"
+            return "api/communication/courses/\(courseId)/one-to-one-chats"
         }
 
         func encode(to encoder: Encoder) throws {
@@ -808,7 +808,7 @@ struct MessagesServiceImpl: MessagesService {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/conversations/\(conversationId)/members/search"
+            return "api/communication/courses/\(courseId)/conversations/\(conversationId)/members/search"
         }
     }
 
@@ -842,7 +842,7 @@ struct MessagesServiceImpl: MessagesService {
         }
 
         var resourceName: String {
-            return "api/courses/\(courseId)/\(typePath)/\(conversationId)"
+            return "api/communication/courses/\(courseId)/\(typePath)/\(conversationId)"
         }
     }
 

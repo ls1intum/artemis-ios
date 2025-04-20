@@ -29,9 +29,14 @@ struct MessageCell: View {
             reactionMenuIfAvailable
 
             VStack(alignment: .leading, spacing: .s) {
+                savedIndicator
                 pinnedIndicator
                 resolvesPostIndicator
                 headerIfVisible
+                if !title.isEmpty {
+                    Text(title)
+                        .fontWeight(.bold)
+                }
                 ArtemisMarkdownView(string: content.surroundingMarkdownImagesWithNewlines())
                     .opacity(isMessageOffline ? 0.5 : 1)
                     .messageUrlHandler(conversationViewModel: conversationViewModel,
@@ -110,6 +115,14 @@ private extension MessageCell {
         message.value?.content ?? ""
     }
 
+    var title: String {
+        (message.value as? Message)?.title ?? ""
+    }
+
+    var isSaved: Bool {
+        message.value?.isBookmarked ?? false
+    }
+
     var isPinned: Bool {
         (message.value as? Message)?.displayPriority == .pinned
     }
@@ -141,6 +154,7 @@ private extension MessageCell {
 
     var messageBackground: Color {
         useFullWidth ? .clear :
+        isSaved ? .blue.opacity(0.2) :
         isPinned ? .orange.opacity(0.25) :
         resolvesPost ? .green.opacity(0.2) :
         Color(uiColor: .secondarySystemBackground)
@@ -155,6 +169,13 @@ private extension MessageCell {
                 verticalPadding: .s
             )
             .font(.footnote)
+        }
+    }
+
+    @ViewBuilder var savedIndicator: some View {
+        if isSaved {
+            Label(R.string.localizable.savedMessage(), systemImage: "bookmark")
+                .font(.caption)
         }
     }
 

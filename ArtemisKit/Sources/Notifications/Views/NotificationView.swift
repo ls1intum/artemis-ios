@@ -1,95 +1,88 @@
 //
-//  SwiftUIView.swift
-//  
+//  NotificationView.swift
+//  ArtemisKit
 //
-//  Created by Sven Andabaka on 17.03.23.
+//  Created by Anian Schleyer on 23.03.25.
 //
 
 import DesignLibrary
-import Navigation
 import PushNotifications
 import SwiftUI
 
 struct NotificationView: View {
+    @State private var viewModel: NotificationViewModel
+    @Environment(\.dismiss) private var dismiss
 
-    @ObservedObject var viewModel: NotificationViewModel
-
-    @Environment(\.dismiss) var dismiss
-
-    @State private var isTargetNotFoundAlertPresented = false
+    init(courseId: Int) {
+        _viewModel = State(initialValue: NotificationViewModel(courseId: courseId))
+    }
 
     var body: some View {
         NavigationStack {
             DataStateView(data: $viewModel.notifications) {
                 await viewModel.loadNotifications()
-            } content: { notifications in
-                if notifications.isEmpty {
-                    ContentUnavailableView(R.string.localizable.noNotifications(), systemImage: "bell")
-                } else {
-                    List {
-                        ForEach(notifications) { notification in
-                            NotificationListRowView(notification: notification)
-                                .onTapGesture {
-                                    dismiss()
-                                    guard let type = notification.pushNotificationType,
-                                          let targetPath = PushNotificationResponseHandler.getTarget(type: type, targetString: notification.target) else {
-                                        isTargetNotFoundAlertPresented = true
-                                        return
-                                    }
-                                    DeeplinkHandler.shared.handle(path: targetPath)
-                                }
-                        }
-                        .listRowSeparator(.hidden)
+            } content: { _ in
+                List {
+                    Section {
+                        FilterBarPicker(selectedFilter: $viewModel.filter, hiddenFilters: [])
+                    }
+
+                    ForEach(viewModel.filteredNotifications) { notification in
+                        SingleNotificationView(notification: notification)
+                            .notificationTapHandler(for: notification)
+                    }
+
+                    if viewModel.filteredNotifications.isEmpty {
+                        ContentUnavailableView(R.string.localizable.noNotifications(), systemImage: viewModel.filter.iconName)
                     }
                 }
-            }
-            .listStyle(.plain)
-            .refreshable {
-                await viewModel.loadNotifications()
+                .animation(.default, value: viewModel.filter)
+                .listRowSpacing(.m)
             }
             .navigationTitle(R.string.localizable.notificationsTitle())
             .navigationBarTitleDisplayMode(.inline)
-            .onAppear {
-                Task {
-                    await viewModel.updateNotificationSeenDate()
-                }
-            }
-            .alert(R.string.localizable.notificationTargetNotFound(), isPresented: $isTargetNotFoundAlertPresented) {
-                Button(R.string.localizable.ok(), role: .cancel) { }
-            }
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(R.string.localizable.close()) {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(R.string.localizable.close(), systemImage: "xmark.circle.fill") {
                         dismiss()
                     }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(.gray)
+                    .font(.title2)
                 }
             }
+        }
+        .task {
+            await viewModel.loadNotifications()
         }
     }
 }
 
-private struct NotificationListRowView: View {
-
-    let notification: Notification
+private struct SingleNotificationView: View {
+    let notification: CourseNotification
 
     var body: some View {
-        if let title = notification.encodedTitle,
-           let body = notification.encodedBody {
-            VStack(alignment: .leading, spacing: .m) {
-                Text(title)
-                    .font(.title2)
-                Text(body)
-                HStack {
-                    Spacer()
-                    Text(R.string.localizable.notificationAuthorLabel(
-                        notification.notificationDate.shortDateAndTime,
-                        notification.author?.name ?? R.string.localizable.artemisLabel()))
-                    .multilineTextAlignment(.trailing)
-                    .foregroundColor(Color.Artemis.secondaryLabel)
+        if let notification = notification.notification.displayable {
+            HStack(spacing: .l) {
+                NotificationIconView(notification: self.notification)
+                    .frame(maxWidth: 50)
+
+                VStack(alignment: .leading) {
+                    Text(notification.title)
+                        .font(.title2)
+                        .fontWeight(.semibold)
+
+                    if let subtitle = notification.subtitle {
+                        Text(subtitle)
+                            .font(.headline)
+                    }
+
+                    if let body = notification.body {
+                        Text(body)
+                            .lineLimit(notification.bodyLineLimit)
+                    }
                 }
             }
-            .padding(.l)
-            .cardModifier(backgroundColor: Color.Artemis.modalCardBackgroundColor)
         }
     }
 }

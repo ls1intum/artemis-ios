@@ -85,13 +85,24 @@ struct ConversationListView: View {
                     MessageSection(
                         viewModel: viewModel,
                         conversations: viewModel.hiddenConversations,
-                        sectionTitle: R.string.localizable.hiddenSection(),
+                        sectionTitle: R.string.localizable.archivedSection(),
                         sectionIconName: "archivebox.fill",
                         isExpanded: false,
                         hidePrefixes: false)
                 }
                 .listRowBackground(Color.clear)
                 .listRowInsets(EdgeInsets(top: 0, leading: .s, bottom: 0, trailing: .s))
+
+                Section {
+                    NavigationLink {
+                        SavedMessagesContainerView(course: viewModel.parentViewModel.course)
+                    } label: {
+                        Label(R.string.localizable.savedMessages(), systemImage: "bookmark.fill")
+                            .font(.headline)
+                            .foregroundStyle(.primary)
+                    }
+                    .listRowInsets(EdgeInsets(top: 0, leading: .s, bottom: 0, trailing: .s))
+                }
 
                 HStack {
                     Spacer()

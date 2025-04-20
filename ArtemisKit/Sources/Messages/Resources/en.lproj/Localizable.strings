@@ -48,7 +48,7 @@
 "createChat" = "Create Chat";
 "noResultForSearch" = "There is no result for your search.";
 "favoritesSection" = "Favorites";
-"hiddenSection" = "Archived";
+"archivedSection" = "Archived";
 "favorite" = "Favorite";
 "unfavorite" = "Unfavorite";
 "mute" = "Mute";
@@ -76,7 +76,7 @@
 "replies" = "Reply";
 "attachment" = "Attachment";
 
-// MARK: MessageActionSheet
+// MARK: Message Actions
 "replyInThread" = "Reply in Thread";
 "copyText" = "Copy Text";
 "editMessage" = "Edit Message";
@@ -87,6 +87,13 @@
 "unmarkAsResolving" = "Doesn't Resolve Post";
 "pinMessage" = "Pin Message";
 "unpinMessage" = "Unpin Message";
+"addBookmark" = "Save Message";
+"removeBookmark" = "Remove Bookmark";
+
+// MARK: Saved Messages
+"savedMessages" = "Saved Messages";
+"inProgress" = "In Progress";
+"completed" = "Completed";
 
 // MARK: ProfileView
 "profile" = "Profile";
@@ -100,6 +107,7 @@
 "reply" = "reply";
 "new" = "New";
 "pinned" = "Pinned";
+"savedMessage" = "Saved for later";
 "resolved" = "Resolved";
 "resolvesPost" = "Resolves Post";
 "filterMessages" = "Filter Messages";
@@ -174,6 +182,15 @@
 "deleteChannel" = "Delete Channel";
 "confirmDeleteMessage" = "Are you sure you want to delete the channel with name '%@'? This is a permanent action and cannot be undone.";
 "delete" = "Delete";
+"toggleToPrivateChannel" = "Change to Private Channel";
+"toggleToPublicChannel" = "Change to Public Channel";
+"confirmPrivateChannelTitle" = "Change to a private channel?";
+"confirmPublicChannelTitle" = "Change to a public channel?";
+"confirmPrivateChannelMessage" = "Are you sure you want to make this channel private?\n\nOnly users with moderation rights will be able to add new members.";
+"confirmPublicChannelMessage" = "Do you really want to change this channel to public?\n\nKeep in mind that making a channel public allows anyone in the course to join, and new members will be able to see past messages.";
+"toggleToPrivateButton" = "Change to Private";
+"toggleToPublicButton" = "Change to Public";
+
 
 // MARK: Errors
 "detailViewCantBeOpened" = "Detail View can not be opened. Please try again later.";
