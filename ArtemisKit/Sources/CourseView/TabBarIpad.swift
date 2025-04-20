@@ -21,7 +21,7 @@ struct TabBarIpad<Content: View>: View {
             content()
         } else {
             // Floating Tab Bar is shown
-            VStack(spacing: 0) {
+            layout {
                 HStack(alignment: .center) {
                     BackToRootButton(placement: .tabBar, sizeClass: sizeClass)
                     Spacer()
@@ -32,9 +32,20 @@ struct TabBarIpad<Content: View>: View {
                 .frame(height: 50)
                 .frame(maxWidth: .infinity)
                 .background(.thinMaterial)
+                .zIndex(1)
 
                 content()
             }
+        }
+    }
+
+    private var layout: AnyLayout {
+        if #available(iOS 18.4, *) {
+            // Change in iOS 18.4:
+            // SplitView inside TabView has space built in for TabBar at the top
+            AnyLayout(ZStackLayout(alignment: .top))
+        } else {
+            AnyLayout(VStackLayout(spacing: 0))
         }
     }
 }
