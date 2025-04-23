@@ -102,6 +102,7 @@ struct ConversationListView: View {
                             .foregroundStyle(.primary)
                     }
                     .listRowInsets(EdgeInsets(top: 0, leading: .s, bottom: 0, trailing: .s))
+                    .listRowBackground(Color.clear)
                 }
 
                 HStack {
