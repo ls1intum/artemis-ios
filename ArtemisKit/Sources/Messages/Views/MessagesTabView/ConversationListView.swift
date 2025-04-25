@@ -35,7 +35,7 @@ struct ConversationListView: View {
 
                 if viewModel.filter == .unresolved && viewModel.allChannelsResolved {
                     ContentUnavailableView(R.string.localizable.allDone(),
-                                           image: "checkmark",
+                                           systemImage: "checkmark",
                                            description: Text(R.string.localizable.allDoneDescription()))
                 }
 
