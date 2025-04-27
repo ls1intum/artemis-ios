@@ -23,6 +23,12 @@ struct NotificationView: View {
                 await viewModel.loadNotifications()
             } content: { _ in
                 List {
+                    if viewModel.skippedNotifications {
+                        Section {
+                            PushNotificationSetupView(shouldCloseOnSkip: true)
+                        }
+                    }
+
                     Section {
                         FilterBarPicker(selectedFilter: $viewModel.filter, hiddenFilters: [])
                     }

@@ -5,9 +5,11 @@
 //  Created by Anian Schleyer on 23.03.25.
 //
 
+import Combine
 import Common
 import DesignLibrary
 import SwiftUI
+import UserStore
 
 @Observable
 class NotificationViewModel {
@@ -20,13 +22,27 @@ class NotificationViewModel {
 
     var filter: NotificationFilter = .communication
 
+    var skippedNotifications: Bool
+    private var cancellables = Set<AnyCancellable>()
+
     init(courseId: Int) {
         self.courseId = courseId
+        self.skippedNotifications = UserSessionFactory.shared.getCurrentNotificationDeviceConfiguration()?.skippedNotifications ?? true
+        updateSkippedStatus()
     }
 
     func loadNotifications() async {
         let service = NotificationServiceFactory.shared
         notifications = await service.loadNotifications(courseId: courseId, page: 0, size: 20)
+    }
+
+    /// Ensures the status of skippedNotifications always reflects the one in UserSession
+    private func updateSkippedStatus() {
+        UserSessionFactory.shared.notificationChangePublisher.sink { [weak self] config in
+            if let self {
+                skippedNotifications = config?.skippedNotifications ?? true
+            }
+        }.store(in: &cancellables)
     }
 }
 
