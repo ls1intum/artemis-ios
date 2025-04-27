@@ -182,7 +182,7 @@ struct MessagesServiceImpl: MessagesService {
 
         var params: [URLQueryItem] {
             [
-                .init(name: "conversationId", value: String(describing: conversationId)),
+                .init(name: "conversationIds", value: String(describing: conversationId)),
                 .init(name: "searchText", value: "#\(messageId)")
             ]
         }
