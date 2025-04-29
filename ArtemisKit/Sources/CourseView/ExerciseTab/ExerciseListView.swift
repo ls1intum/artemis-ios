@@ -137,7 +137,7 @@ private extension ExerciseListView {
             let exercises = group.value.sorted {
                 if let lhsDue = $0.baseExercise.dueDate,
                    let rhsDue = $1.baseExercise.dueDate {
-                    return lhsDue.compare(rhsDue) == .orderedAscending
+                    return lhsDue.compare(rhsDue) == .orderedDescending
                 }
                 let lhs = $0.baseExercise.title?.lowercased() ?? ""
                 let rhs = $1.baseExercise.title?.lowercased() ?? ""
@@ -351,12 +351,12 @@ private struct ExerciseGroup: Identifiable, Hashable, Comparable {
         return weeklyExercises.sorted {
             let lhs = $0.id.startOfWeek ?? .distantFuture
             let rhs = $1.id.startOfWeek ?? .distantFuture
-            return lhs.compare(rhs) == .orderedAscending
+            return lhs.compare(rhs) == .orderedDescending
         }
     }
 
     enum GroupType: Hashable, Comparable {
-        case past, dueSoon, current, future, noDate
+        case future, dueSoon, current, past, noDate
 
         var description: String {
             return switch self {

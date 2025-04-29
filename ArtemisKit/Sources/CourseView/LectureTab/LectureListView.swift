@@ -139,7 +139,7 @@ private extension LectureListView {
             let lectures = group.value.sorted {
                 if let lhsDue = $0.endDate,
                    let rhsDue = $1.endDate {
-                    return lhsDue.compare(rhsDue) == .orderedAscending
+                    return lhsDue.compare(rhsDue) == .orderedDescending
                 }
                 let lhs = $0.title?.lowercased() ?? ""
                 let rhs = $1.title?.lowercased() ?? ""
@@ -299,7 +299,7 @@ private struct LectureGroup: Identifiable, Hashable, Comparable {
         let groupedDates = lectures.reduce(into: [WeeklyLectureId: [Lecture]]()) { partialResult, lecture in
             var week: Int?
             var year: Int?
-            if let dueDate = lecture.endDate {
+            if let dueDate = lecture.endDate ?? lecture.startDate {
                 week = Calendar.current.component(.weekOfYear, from: dueDate)
                 year = Calendar.current.component(.year, from: dueDate)
             }
@@ -318,12 +318,12 @@ private struct LectureGroup: Identifiable, Hashable, Comparable {
         return weeklyLectures.sorted {
             let lhs = $0.id.startOfWeek ?? .distantFuture
             let rhs = $1.id.startOfWeek ?? .distantFuture
-            return lhs.compare(rhs) == .orderedAscending
+            return lhs.compare(rhs) == .orderedDescending
         }
     }
 
     enum GroupType: Hashable, Comparable {
-        case past, current, future, noDate
+        case future, current, past, noDate
 
         var description: String {
             return switch self {
