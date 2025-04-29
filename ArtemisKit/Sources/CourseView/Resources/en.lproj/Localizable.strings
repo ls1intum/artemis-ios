@@ -20,6 +20,13 @@
 "userSubmitted" = "You have already submitted.";
 "userParticipating" = "You are currently participating in this quiz.";
 "quizNotStarted" = "The quiz is not active.";
+"userNotStartedExerciseShort" = "Not yet started";
+"userNotAssignedToTeamShort" = "No team yet";
+"exerciseMissedDeadlineShort" = "Missed due date";
+"quizNotStartedShort" = "Not yet started";
+"userNotParticipatedShort" = "Not participated";
+"userParticipatingShort" = "Currently participating";
+"userSubmittedShort" = "Already submitted";
 
 // MARK: SubmissionResultView
 "noResult" = "No result";
@@ -50,7 +57,7 @@
 // MARK: - ExerciseDetailView
 "exerciseDetails" = "Exercise details";
 "noDueDate" = "No due date";
-"points" = "Points: %s of %s";
+"points" = " %s / %s";
 "assessment" = "Assessment: %s";
 "showFeedback" = "Show feedback";
 "startExercise" = "Start exercise";
@@ -64,12 +71,21 @@
 "exerciseParticipationHint" = "Participating in exercises is currently not possible in the mobile app";
 "diagramTypeNotSupported" = "This diagram type is not yet supported in the mobile app";
 "releaseDate" = "Release date:";
+"startDate" = "Start date:";
 "submissionDate" = "Submission due:";
 "assessmentDate" = "Assessment due:";
 "complaintPossible" = "Complaint possible:";
 "exerciseType" = "Exercise type:";
 "difficulty" = "Difficulty:";
 "categories" = "Categories:";
+"problemStatement" = "Problem Statement";
+//Exercise Overview Chip Title
+"pointsTitle" = "Points";
+"submissionDueTitle" = "Submission due";
+"submissionClosedTitle" = "Submission closed";
+"statusTitle" = "Status";
+"difficultyTitle" = "Difficulty";
+"categoryTitle" = "Category";
 
 // Modeling Submission Alerts
 "successfulSubmissionAlertTitle" = "Your submission was successful!";

@@ -108,3 +108,37 @@ struct SubmissionResultStatusView: View {
         }
     }
 }
+
+extension SubmissionResultStatusView {
+
+    /// Single short status line – exactly the same decision order as the web UI.
+    static func singleShortStatus(for exercise: Exercise) -> String {
+        let base   = exercise.baseExercise
+        let teamId = base.studentAssignedTeamId
+        let teamOk = !(base.teamMode ?? false)
+        || !(base.studentAssignedTeamIdComputed ?? false)
+        || teamId != nil
+
+        let participation = exercise.getSpecificStudentParticipation(testRun: false)
+
+        let uninitialized  = (base.dueDate ?? .tomorrow) > .now && participation == nil
+        let missedDueDate  = (base.dueDate ?? .tomorrow) < .now && participation == nil
+
+        if !teamOk {
+            return R.string.localizable.userNotAssignedToTeamShort()
+        } else if uninitialized {
+            return R.string.localizable.userNotStartedExerciseShort()
+        } else if missedDueDate {
+            return R.string.localizable.exerciseMissedDeadlineShort()
+        } else if participation?.initializationState == .finished {
+            return R.string.localizable.userSubmittedShort()
+        } else if participation?.initializationState == .initialized,
+                  case .quiz = exercise {
+            return R.string.localizable.userParticipatingShort()
+        } else if case .quiz(let quiz) = exercise, quiz.notStarted {
+            return R.string.localizable.quizNotStartedShort()
+        } else {
+            return "–"
+        }
+    }
+}

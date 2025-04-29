@@ -25,9 +25,9 @@ public struct ExerciseDetailView: View {
                 VStack(alignment: .leading, spacing: .l) {
                     feedback(exercise: exercise)
                     hint
-                    score(exercise: exercise)
-                    detail(exercise: exercise)
+                    ExerciseOverviewChipsRow(exercise: exercise, score: viewModel.score)
                     problem
+                    detail(exercise: exercise)
                 }
             }
             .toolbar {
@@ -140,19 +140,6 @@ private extension ExerciseDetailView {
         }
     }
 
-    // All score related information
-    func score(exercise: Exercise) -> some View {
-        VStack(alignment: .leading, spacing: .xs) {
-            Text(R.string.localizable.points(
-                viewModel.score,
-                exercise.baseExercise.maxPoints?.clean ?? "0"))
-            .bold()
-
-            SubmissionResultStatusView(exercise: exercise)
-        }
-        .padding(.horizontal, .m)
-    }
-
     // Exercise Details
     func detail(exercise: Exercise) -> some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -198,29 +185,6 @@ private extension ExerciseDetailView {
                 }
             }
 
-            // Exercise Type
-            if exercise.baseExercise.includedInOverallScore != .includedCompletely {
-                ExerciseDetailCell(descriptionText: R.string.localizable.exerciseType()) {
-                    Chip(text: exercise.baseExercise.includedInOverallScore.description, backgroundColor: exercise.baseExercise.includedInOverallScore.color, padding: .s)
-                }
-            }
-
-            // Difficulty
-            if let difficulty = exercise.baseExercise.difficulty {
-                ExerciseDetailCell(descriptionText: R.string.localizable.difficulty()) {
-                    Chip(text: difficulty.description, backgroundColor: difficulty.color, padding: .s)
-                }
-            }
-
-            // Categories
-            if let categories = exercise.baseExercise.categories {
-                ExerciseDetailCell(descriptionText: R.string.localizable.categories()) {
-                    ForEach(categories, id: \.category) { category in
-                        Chip(text: category.category, backgroundColor: UIColor(hexString: category.colorCode).suColor, padding: .s)
-                    }
-                }
-            }
-
             // Communication
             if let channel = viewModel.channel.value {
                 Divider()
@@ -251,14 +215,21 @@ private extension ExerciseDetailView {
     }
 
     var problem: some View {
-        ArtemisWebView(urlRequest: $viewModel.urlRequest,
-                       contentHeight: $viewModel.webViewHeight,
-                       isLoading: $viewModel.isWebViewLoading,
-                       customJSHeightQuery: viewModel.webViewHeightJS)
-        .frame(height: viewModel.webViewHeight)
-        .allowsHitTesting(false)
-        .loadingIndicator(isLoading: $viewModel.isWebViewLoading)
-        .id(viewModel.webViewId)}
+        VStack(alignment: .leading, spacing: .s) {
+            Text(R.string.localizable.problemStatement())
+                .font(.headline)
+
+            ArtemisWebView(urlRequest: $viewModel.urlRequest,
+                           contentHeight: $viewModel.webViewHeight,
+                           isLoading: $viewModel.isWebViewLoading,
+                           customJSHeightQuery: viewModel.webViewHeightJS)
+            .frame(height: viewModel.webViewHeight)
+            .allowsHitTesting(false)
+            .loadingIndicator(isLoading: $viewModel.isWebViewLoading)
+            .id(viewModel.webViewId)
+        }
+        .padding(.horizontal, .m)
+    }
 }
 
 private struct ExerciseDetailCell<Content: View>: View {
