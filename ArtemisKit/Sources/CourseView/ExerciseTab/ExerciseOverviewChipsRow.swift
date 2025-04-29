@@ -26,7 +26,7 @@ struct ExerciseOverviewChipsRow: View {
                 chips
             }
             .padding(.horizontal, .m)
-        }
+        }.scrollClipDisabled()
     }
 
     @ViewBuilder
