@@ -35,7 +35,7 @@ struct ConversationListView: View {
 
                 if viewModel.filter == .unresolved && viewModel.allChannelsResolved {
                     ContentUnavailableView(R.string.localizable.allDone(),
-                                           image: "checkmark",
+                                           systemImage: "checkmark",
                                            description: Text(R.string.localizable.allDoneDescription()))
                 }
 
@@ -102,6 +102,7 @@ struct ConversationListView: View {
                             .foregroundStyle(.primary)
                     }
                     .listRowInsets(EdgeInsets(top: 0, leading: .s, bottom: 0, trailing: .s))
+                    .listRowBackground(Color.clear)
                 }
 
                 HStack {
