@@ -20,10 +20,9 @@
 "userSubmitted" = "You have already submitted.";
 "userParticipating" = "You are currently participating in this quiz.";
 "quizNotStarted" = "The quiz is not active.";
-"userNotStartedExerciseShort" = "Not yet started";
+"notYetStarted" = "Not yet started";
 "userNotAssignedToTeamShort" = "No team yet";
 "exerciseMissedDeadlineShort" = "Missed due date";
-"quizNotStartedShort" = "Not yet started";
 "userNotParticipatedShort" = "Not participated";
 "userParticipatingShort" = "Currently participating";
 "userSubmittedShort" = "Already submitted";
