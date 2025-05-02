@@ -6,7 +6,7 @@
 	<string>development</string>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
-		<string>applinks:artemis.cit.tum.de</string>
+		<string>applinks:artemis.tum.de</string>
 		<string>applinks:artemis-staging.artemis.cit.tum.de</string>
 		<string>applinks:artemis-test1.artemis.cit.tum.de</string>
 		<string>applinks:artemis-test2.artemis.cit.tum.de</string>
