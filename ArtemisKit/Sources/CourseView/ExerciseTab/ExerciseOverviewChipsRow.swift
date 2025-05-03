@@ -42,10 +42,8 @@ struct ExerciseOverviewChipsRow: View {
             let remaining = due.timeIntervalSinceNow
             let isLessThanADay = remaining > 0 && remaining < 86_400 // 24 * 60 * 60
 
-            let value: String = remaining > 0
-            ? (abs(remaining) < 7 * 24 * 60 * 60
-               ? relFormatter.localizedString(for: due, relativeTo: .now)
-               : due.mediumDateShortTime)
+            let value = (remaining > 0 && abs(remaining) < 7 * 24 * 60 * 60)
+            ? relFormatter.localizedString(for: due, relativeTo: .now)
             : due.mediumDateShortTime
 
             let title = remaining > 0
@@ -60,7 +58,7 @@ struct ExerciseOverviewChipsRow: View {
 
         // Status Chip
         TwoLineChip(title: R.string.localizable.statusTitle()) {
-            Text(SubmissionResultStatusView.singleShortStatus(for: exercise))
+            Text(exercise.status)
         }
 
         // Difficulty Chip
