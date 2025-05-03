@@ -58,7 +58,7 @@ struct ExerciseOverviewChipsRow: View {
 
         // Status Chip
         TwoLineChip(title: R.string.localizable.statusTitle()) {
-            Text(exercise.status)
+            SubmissionResultStatusView(exercise: exercise, length: .short)
         }
 
         // Difficulty Chip

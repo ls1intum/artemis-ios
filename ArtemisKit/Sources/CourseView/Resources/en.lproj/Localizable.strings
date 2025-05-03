@@ -26,6 +26,11 @@
 "userNotParticipatedShort" = "Not participated";
 "userParticipatingShort" = "Currently participating";
 "userSubmittedShort" = "Already submitted";
+"userNotAssignedToTeamShort" = "No team yet";
+"exerciseMissedDeadlineShort" = "Missed due date";
+"userNotParticipatedShort" = "Not participated";
+"userParticipatingShort" = "Currently participating";
+"userSubmittedShort" = "Already submitted";
 
 // MARK: SubmissionResultView
 "noResult" = "No result";
