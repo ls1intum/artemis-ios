@@ -43,6 +43,7 @@ struct LectureAttachmentSheet: View {
             return
         }
 
-        previewURL = await LectureServiceFactory.shared.getAttachmentFile(link: link)
+        let normalizedLink = link.hasPrefix("/api/core/files/") ? link : "/api/core/files/\(link)"
+        previewURL = await LectureServiceFactory.shared.getAttachmentFile(link: normalizedLink)
     }
 }
