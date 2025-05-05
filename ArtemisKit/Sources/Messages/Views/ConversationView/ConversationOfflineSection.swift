@@ -23,8 +23,10 @@ struct ConversationOfflineSection: View {
                 roundBottomCorners: true,
                 retryButtonAction: viewModel.retryButtonAction
             )
-            .task {
-                await viewModel.sendMessage()
+            .onAppear {
+                Task {
+                    await viewModel.sendMessage()
+                }
             }
             .onDisappear {
                 viewModel.task?.cancel()
