@@ -116,16 +116,14 @@ private extension LectureListView {
             let end = lecture.endDate
             let type: LectureGroup.GroupType
 
-            if start == nil || start ?? .now < .now {
-                if end == nil {
-                    type = .noDate
-                } else if end ?? .now < .now {
-                    type = .past
-                } else {
-                    type = .current
-                }
-            } else {
+            if let start, start > .now {
                 type = .future
+            } else if let end, end < .now {
+                type = .past
+            } else if let end, end > .now {
+                type = .current
+            } else {
+                type = .noDate
             }
 
             if partialResult[type] == nil {
@@ -139,7 +137,7 @@ private extension LectureListView {
             let lectures = group.value.sorted {
                 if let lhsDue = $0.endDate,
                    let rhsDue = $1.endDate {
-                    return lhsDue.compare(rhsDue) == .orderedAscending
+                    return lhsDue.compare(rhsDue) == .orderedDescending
                 }
                 let lhs = $0.title?.lowercased() ?? ""
                 let rhs = $1.title?.lowercased() ?? ""
@@ -318,12 +316,12 @@ private struct LectureGroup: Identifiable, Hashable, Comparable {
         return weeklyLectures.sorted {
             let lhs = $0.id.startOfWeek ?? .distantFuture
             let rhs = $1.id.startOfWeek ?? .distantFuture
-            return lhs.compare(rhs) == .orderedAscending
+            return lhs.compare(rhs) == .orderedDescending
         }
     }
 
     enum GroupType: Hashable, Comparable {
-        case past, current, future, noDate
+        case future, current, past, noDate
 
         var description: String {
             return switch self {

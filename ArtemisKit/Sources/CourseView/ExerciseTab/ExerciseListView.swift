@@ -112,18 +112,16 @@ private extension ExerciseListView {
             let end = exercise.baseExercise.dueDate
             let type: ExerciseGroup.GroupType
 
-            if start == nil || start ?? .now < .now {
-                if end == nil {
-                    type = .noDate
-                } else if end ?? .now < .now {
-                    type = .past
-                } else if end?.distance(to: .now) ?? 0 > 3 * 24 * 60 * 60 {
-                    type = .dueSoon
-                } else {
-                    type = .current
-                }
-            } else {
+            if let start, start > .now {
                 type = .future
+            } else if let end, end < .now {
+                type = .past
+            } else if let end, end > .now, end.timeIntervalSince(.now) <= 3 * 24 * 60 * 60 {
+                type = .dueSoon
+            } else if let end, end > .now {
+                type = .current
+            } else {
+                type = .noDate
             }
 
             if partialResult[type] == nil {
@@ -137,7 +135,7 @@ private extension ExerciseListView {
             let exercises = group.value.sorted {
                 if let lhsDue = $0.baseExercise.dueDate,
                    let rhsDue = $1.baseExercise.dueDate {
-                    return lhsDue.compare(rhsDue) == .orderedAscending
+                    return lhsDue.compare(rhsDue) == .orderedDescending
                 }
                 let lhs = $0.baseExercise.title?.lowercased() ?? ""
                 let rhs = $1.baseExercise.title?.lowercased() ?? ""
@@ -351,12 +349,12 @@ private struct ExerciseGroup: Identifiable, Hashable, Comparable {
         return weeklyExercises.sorted {
             let lhs = $0.id.startOfWeek ?? .distantFuture
             let rhs = $1.id.startOfWeek ?? .distantFuture
-            return lhs.compare(rhs) == .orderedAscending
+            return lhs.compare(rhs) == .orderedDescending
         }
     }
 
     enum GroupType: Hashable, Comparable {
-        case past, dueSoon, current, future, noDate
+        case future, dueSoon, current, past, noDate
 
         var description: String {
             return switch self {
