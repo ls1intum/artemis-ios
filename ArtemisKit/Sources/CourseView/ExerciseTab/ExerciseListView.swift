@@ -112,29 +112,16 @@ private extension ExerciseListView {
             let end = exercise.baseExercise.dueDate
             let type: ExerciseGroup.GroupType
 
-            // Future release items (has release date in future)
-            if start == nil && end == nil && start ?? .now > .now {
+            if let start, start > .now {
                 type = .future
-            }
-            // Past items (has ended)
-            else if (start == nil || start ?? .now < .now) && (end != nil && end ?? .now < .now) {
+            } else if let end, end < .now {
                 type = .past
-            }
-            // No date items
-            else if (start == nil || start ?? .now < .now) && end == nil && (start == nil || start ?? .now <= .now) {
-                type = .noDate
-            }
-            // Due soon items (due within 3 days)
-            else if end != nil && end ?? .now > .now && end?.distance(to: .now) ?? 0 <= 3 * 24 * 60 * 60 {
+            } else if let end, end > .now, end.timeIntervalSince(.now) <= 3 * 24 * 60 * 60 {
                 type = .dueSoon
-            }
-            // Current items (has started but not ended)
-            else if (start == nil || start ?? .now <= .now) && (end != nil && end ?? .now > .now) {
+            } else if let end, end > .now {
                 type = .current
-            }
-            // Future items
-            else {
-                type = .future
+            } else {
+                type = .noDate
             }
 
             if partialResult[type] == nil {
