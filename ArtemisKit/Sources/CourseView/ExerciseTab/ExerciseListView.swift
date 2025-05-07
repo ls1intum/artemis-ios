@@ -112,17 +112,28 @@ private extension ExerciseListView {
             let end = exercise.baseExercise.dueDate
             let type: ExerciseGroup.GroupType
 
-            if start == nil || start ?? .now < .now {
-                if end == nil {
-                    type = .noDate
-                } else if end ?? .now < .now {
-                    type = .past
-                } else if end?.distance(to: .now) ?? 0 > 3 * 24 * 60 * 60 {
-                    type = .dueSoon
-                } else {
-                    type = .current
-                }
-            } else {
+            // Future release items (has release date in future)
+            if start == nil && end == nil && start ?? .now > .now {
+                type = .future
+            }
+            // Past items (has ended)
+            else if (start == nil || start ?? .now < .now) && (end != nil && end ?? .now < .now) {
+                type = .past
+            }
+            // No date items
+            else if (start == nil || start ?? .now < .now) && end == nil && (start == nil || start ?? .now <= .now) {
+                type = .noDate
+            }
+            // Due soon items (due within 3 days)
+            else if end != nil && end ?? .now > .now && end?.distance(to: .now) ?? 0 <= 3 * 24 * 60 * 60 {
+                type = .dueSoon
+            }
+            // Current items (has started but not ended)
+            else if (start == nil || start ?? .now <= .now) && (end != nil && end ?? .now > .now) {
+                type = .current
+            }
+            // Future items
+            else {
                 type = .future
             }
 
@@ -137,7 +148,7 @@ private extension ExerciseListView {
             let exercises = group.value.sorted {
                 if let lhsDue = $0.baseExercise.dueDate,
                    let rhsDue = $1.baseExercise.dueDate {
-                    return lhsDue.compare(rhsDue) == .orderedAscending
+                    return lhsDue.compare(rhsDue) == .orderedDescending
                 }
                 let lhs = $0.baseExercise.title?.lowercased() ?? ""
                 let rhs = $1.baseExercise.title?.lowercased() ?? ""
@@ -351,12 +362,12 @@ private struct ExerciseGroup: Identifiable, Hashable, Comparable {
         return weeklyExercises.sorted {
             let lhs = $0.id.startOfWeek ?? .distantFuture
             let rhs = $1.id.startOfWeek ?? .distantFuture
-            return lhs.compare(rhs) == .orderedAscending
+            return lhs.compare(rhs) == .orderedDescending
         }
     }
 
     enum GroupType: Hashable, Comparable {
-        case past, dueSoon, current, future, noDate
+        case future, dueSoon, current, past, noDate
 
         var description: String {
             return switch self {

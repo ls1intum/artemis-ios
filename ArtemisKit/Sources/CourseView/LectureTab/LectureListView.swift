@@ -116,15 +116,24 @@ private extension LectureListView {
             let end = lecture.endDate
             let type: LectureGroup.GroupType
 
-            if start == nil || start ?? .now < .now {
-                if end == nil {
-                    type = .noDate
-                } else if end ?? .now < .now {
-                    type = .past
-                } else {
-                    type = .current
-                }
-            } else {
+            // Future release items (has release date in future)
+            if start == nil && end == nil && start ?? .now > .now {
+                type = .future
+            }
+            // Past items (has ended)
+            else if (start == nil || start ?? .now < .now) && (end != nil && end ?? .now < .now) {
+                type = .past
+            }
+            // No date items
+            else if (start == nil || start ?? .now < .now) && end == nil && (start == nil || start ?? .now <= .now) {
+                type = .noDate
+            }
+            // Current items (has started but not ended)
+            else if (start == nil || start ?? .now <= .now) && (end != nil && end ?? .now > .now) {
+                type = .current
+            }
+            // Future items
+            else {
                 type = .future
             }
 
@@ -139,7 +148,7 @@ private extension LectureListView {
             let lectures = group.value.sorted {
                 if let lhsDue = $0.endDate,
                    let rhsDue = $1.endDate {
-                    return lhsDue.compare(rhsDue) == .orderedAscending
+                    return lhsDue.compare(rhsDue) == .orderedDescending
                 }
                 let lhs = $0.title?.lowercased() ?? ""
                 let rhs = $1.title?.lowercased() ?? ""
@@ -318,12 +327,12 @@ private struct LectureGroup: Identifiable, Hashable, Comparable {
         return weeklyLectures.sorted {
             let lhs = $0.id.startOfWeek ?? .distantFuture
             let rhs = $1.id.startOfWeek ?? .distantFuture
-            return lhs.compare(rhs) == .orderedAscending
+            return lhs.compare(rhs) == .orderedDescending
         }
     }
 
     enum GroupType: Hashable, Comparable {
-        case past, current, future, noDate
+        case future, current, past, noDate
 
         var description: String {
             return switch self {
