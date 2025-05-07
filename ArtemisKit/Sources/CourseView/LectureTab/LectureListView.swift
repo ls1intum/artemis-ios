@@ -116,25 +116,14 @@ private extension LectureListView {
             let end = lecture.endDate
             let type: LectureGroup.GroupType
 
-            // Future release items (has release date in future)
-            if start == nil && end == nil && start ?? .now > .now {
+            if let start, start > .now {
                 type = .future
-            }
-            // Past items (has ended)
-            else if (start == nil || start ?? .now < .now) && (end != nil && end ?? .now < .now) {
+            } else if let end, end < .now {
                 type = .past
-            }
-            // No date items
-            else if (start == nil || start ?? .now < .now) && end == nil && (start == nil || start ?? .now <= .now) {
-                type = .noDate
-            }
-            // Current items (has started but not ended)
-            else if (start == nil || start ?? .now <= .now) && (end != nil && end ?? .now > .now) {
+            } else if let end, end > .now {
                 type = .current
-            }
-            // Future items
-            else {
-                type = .future
+            } else {
+                type = .noDate
             }
 
             if partialResult[type] == nil {
