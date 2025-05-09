@@ -9,4 +9,4 @@
 "communication" = "Communication";
 "general" = "General";
 
-"settingsDisclaimer" = "It is currently not possible to change notification settings in the mobile app. To enable/disable certain push notification types, please use your browser.";
+"settingsDisclaimer" = "Changing notification settings is currently not possible in the mobile app.\nTo enable/disable certain notifications, please use your browser.";

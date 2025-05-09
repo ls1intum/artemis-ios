@@ -23,6 +23,9 @@ struct NotificationView: View {
                 await viewModel.loadNotifications()
             } content: { _ in
                 List {
+                    ArtemisHintBox(text: R.string.localizable.settingsDisclaimer(), hintType: .info)
+                        .listRowInsets(EdgeInsets())
+
                     if viewModel.skippedNotifications {
                         Section {
                             PushNotificationSetupView(shouldCloseOnSkip: true)
