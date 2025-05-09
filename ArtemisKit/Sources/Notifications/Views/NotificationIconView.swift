@@ -37,11 +37,15 @@ struct NotificationIconView: View {
 
     @ViewBuilder
     func profilePicture(name: String?, id: Int?, url: String?) -> some View {
-        if let url, let baseUrl = UserSessionFactory.shared.institution?.baseURL {
-            ArtemisAsyncImage(imageURL: baseUrl.appending(path: url)) {}
-        } else if let name, let id {
-            ProfilePictureInitialsView(name: name, userId: "\(id)", size: 50)
-                .clipShape(.rect(cornerRadius: .m))
+        Group {
+            if let url,
+               let baseUrl = UserSessionFactory.shared.institution?.baseURL?.appending(path: "api/core/files") {
+                ArtemisAsyncImage(imageURL: baseUrl.appending(path: url)) {}
+                    .frame(height: 50)
+            } else if let name, let id {
+                ProfilePictureInitialsView(name: name, userId: "\(id)", size: 50)
+            }
         }
+        .clipShape(.rect(cornerRadius: .m))
     }
 }
