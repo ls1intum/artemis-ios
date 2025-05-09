@@ -5,7 +5,7 @@
 // MARK: - CourseView
 "exercisesTabLabel" = "Exercises";
 "lectureTabLabel" = "Lectures";
-"messagesTabLabel" = "Messages";
+"messagesTabLabel" = "Communication";
 "faqTabLabel" = "FAQ";
 "exercisesUnavailable" = "No Exercises";
 "lecturesUnavailable" = "No Lectures";
