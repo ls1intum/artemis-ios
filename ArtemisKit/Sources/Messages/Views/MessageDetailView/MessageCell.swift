@@ -153,11 +153,10 @@ private extension MessageCell {
     }
 
     var messageBackground: Color {
-        useFullWidth ? .clear :
         isSaved ? .blue.opacity(0.2) :
         isPinned ? .orange.opacity(0.25) :
         resolvesPost ? .green.opacity(0.2) :
-        Color(uiColor: .secondarySystemBackground)
+        .clear
     }
 
     @ViewBuilder var roleBadge: some View {
