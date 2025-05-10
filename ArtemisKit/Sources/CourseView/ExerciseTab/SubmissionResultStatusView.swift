@@ -1,6 +1,6 @@
 //
 //  SubmissionResultStatusView.swift
-//  
+//
 //
 //  Created by Sven Andabaka on 20.03.23.
 //
@@ -10,9 +10,15 @@ import SharedModels
 
 struct SubmissionResultStatusView: View {
 
+    enum TextLength {
+        case full, short
+    }
+
     let exercise: Exercise
 
     let showUngradedResults = false
+
+    var length: TextLength = .full
 
     var isUninitialized: Bool {
         switch exercise {
@@ -56,28 +62,42 @@ struct SubmissionResultStatusView: View {
         if exercise.baseExercise.teamMode ?? false,
            exercise.baseExercise.studentAssignedTeamIdComputed ?? false,
            exercise.baseExercise.studentAssignedTeamId == nil {
-            result.append(R.string.localizable.userNotAssignedToTeam())
+            result.append(length == .full
+                          ? R.string.localizable.userNotAssignedToTeam()
+                          : R.string.localizable.userNotAssignedToTeamShort())
         }
         if isUninitialized {
-            result.append(R.string.localizable.userNotStartedExercise())
+            result.append( length == .full
+                           ? R.string.localizable.userNotStartedExercise()
+                           : R.string.localizable.notYetStarted())
         }
         if exerciseMissedDeadline {
-            result.append(R.string.localizable.exerciseMissedDeadline())
+            result.append(length == .full
+                          ? R.string.localizable.exerciseMissedDeadline()
+                          : R.string.localizable.exerciseMissedDeadlineShort())
         }
         if notSubmitted {
-            result.append(R.string.localizable.exerciseNotSubmitted())
+            result.append(length == .full
+                          ? R.string.localizable.exerciseNotSubmitted()
+                          : "–")
         }
         if studentParticipation?.initializationState == .finished {
-            result.append(R.string.localizable.userSubmitted())
+            result.append(length == .full
+                          ? R.string.localizable.userSubmitted()
+                          : R.string.localizable.userSubmittedShort())
         }
         if studentParticipation?.initializationState == .initialized,
            case .quiz = exercise {
-            result.append(R.string.localizable.userParticipating())
+            result.append(length == .full
+                          ? R.string.localizable.userParticipating()
+                          : R.string.localizable.userParticipatingShort())
         }
         if quizNotStarted {
-            result.append(R.string.localizable.quizNotStarted())
+            result.append(length == .full
+                          ? R.string.localizable.quizNotStarted()
+                          : R.string.localizable.notYetStarted())
         }
-        return result
+        return length == .full ? result : (result.first.map { [$0] } ?? [])
     }
 
     var result: Result? {
