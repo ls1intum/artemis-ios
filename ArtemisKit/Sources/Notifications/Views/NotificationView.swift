@@ -23,9 +23,6 @@ struct NotificationView: View {
                 await viewModel.loadNotifications()
             } content: { _ in
                 List {
-                    ArtemisHintBox(text: R.string.localizable.settingsDisclaimer(), hintType: .info)
-                        .listRowInsets(EdgeInsets())
-
                     if viewModel.skippedNotifications {
                         Section {
                             PushNotificationSetupView(shouldCloseOnSkip: true)
@@ -58,6 +55,13 @@ struct NotificationView: View {
                     .buttonStyle(.plain)
                     .foregroundStyle(.gray)
                     .font(.title2)
+                }
+                ToolbarItem(placement: .topBarLeading) {
+                    NavigationLink {
+                        NotificationSettingsView(courseId: viewModel.courseId)
+                    } label: {
+                        Label(R.string.localizable.settings(), systemImage: "gearshape")
+                    }
                 }
             }
         }

@@ -1,5 +1,5 @@
 {
-  "originHash" : "e4159d16423fba7bcc85a8da7897fa481d49b9edf75425e7ac9ff4abf5a0d41d",
+  "originHash" : "f75e8b349b959cdc5e4a3e740cf7b9e9ecdf862ee252b4ba92690d5fbb595de2",
   "pins" : [
     {
       "identity" : "apollon-ios-module",
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ls1intum/artemis-ios-core-modules",
       "state" : {
-        "revision" : "de48cdf3148b9d1be683ed673f7c9bc329749f5e",
-        "version" : "16.3.0"
+        "branch" : "3afda2e",
+        "revision" : "3afda2e42e8527e08ac987f8e1fbe737b973b2c2"
       }
     },
     {

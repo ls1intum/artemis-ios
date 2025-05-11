@@ -5,8 +5,7 @@
 "notificationsTitle" = "Notifications";
 "notificationAuthorLabel" = "%@ by %@";
 "noNotifications" = "No Notifications";
+"settings" = "Settings";
 
 "communication" = "Communication";
 "general" = "General";
-
-"settingsDisclaimer" = "Changing notification settings is currently not possible in the mobile app.\nTo enable/disable certain notifications, please use your browser.";
