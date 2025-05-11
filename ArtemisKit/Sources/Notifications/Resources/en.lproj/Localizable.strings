@@ -5,6 +5,7 @@
 "notificationsTitle" = "Notifications";
 "notificationAuthorLabel" = "%@ by %@";
 "noNotifications" = "No Notifications";
+"settings" = "Settings";
 
 "communication" = "Communication";
 "general" = "General";

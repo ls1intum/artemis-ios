@@ -56,6 +56,13 @@ struct NotificationView: View {
                     .foregroundStyle(.gray)
                     .font(.title2)
                 }
+                ToolbarItem(placement: .topBarLeading) {
+                    NavigationLink {
+                        NotificationSettingsView(courseId: viewModel.courseId)
+                    } label: {
+                        Label(R.string.localizable.settings(), systemImage: "gearshape")
+                    }
+                }
             }
         }
         .task {
