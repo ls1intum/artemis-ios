@@ -38,17 +38,17 @@ private struct ForwardedMessageCell: View {
                 .frame(width: .s)
 
             VStack(alignment: .leading) {
-                Text("Forwarded from #\(conversation?.baseConversation.conversationName ?? "")")
-                    .font(.caption)
+                forwardedFromHeader
                 messageHeader
                 ArtemisMarkdownView(string: message.content ?? "")
                     .frame(maxHeight: .largeImage)
                     .allowsHitTesting(false)
                     .offset(y: -5) // There is more space by default than we want
             }
-            .padding(.vertical, .s)
+            .padding([.vertical, .trailing], .s)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.ultraThinMaterial, in: .rect(cornerRadius: .s))
         .contentShape(.rect)
         .onTapGesture {
             if let conversation, let coursePath = navController.selectedCourse, let baseThreadId {
@@ -78,6 +78,21 @@ private struct ForwardedMessageCell: View {
             return parent.id
         }
         return nil
+    }
+
+    @ViewBuilder var forwardedFromHeader: some View {
+        if let conversationName = conversation?.baseConversation.conversationName {
+            HStack {
+                Text("Forwarded from #\(conversationName)")
+
+                Spacer()
+
+                if let creationDate = message.creationDate {
+                    Text(creationDate, formatter: DateFormatter.superShortDateAndTime)
+                }
+            }
+            .font(.caption)
+        }
     }
 
     @ViewBuilder var messageHeader: some View {
