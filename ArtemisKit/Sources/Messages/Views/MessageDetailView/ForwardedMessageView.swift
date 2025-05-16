@@ -101,6 +101,7 @@ private struct ForwardedMessageCell: View {
                 ProfilePictureView(user: author, role: nil, course: .mock, size: 25)
                     .allowsHitTesting(false)
                 Text(author.name ?? "")
+                    .fontWeight(.medium)
             }
         }
     }
