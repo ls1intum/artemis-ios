@@ -240,4 +240,8 @@ extension MessagesServiceStub: MessagesService {
     func addSavedPost(with postId: Int64, of type: PostType) async -> NetworkResponse {
         .loading
     }
+
+    func getForwardedMessages(for postIds: [Int64], courseId: Int) async -> DataState<[ForwardedMessagesGroupDTO]> {
+        .loading
+    }
 }
