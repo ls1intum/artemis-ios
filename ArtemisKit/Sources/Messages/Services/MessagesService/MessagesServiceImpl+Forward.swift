@@ -1,5 +1,5 @@
 //
-//  MessagesService+Forward.swift
+//  MessagesServiceImpl+Forward.swift
 //  ArtemisKit
 //
 //  Created by Anian Schleyer on 16.05.25.
@@ -87,6 +87,7 @@ extension MessagesServiceImpl {
     }
 
     private func loadForwardedPosts(with ids: [Int64], courseId: Int) async -> DataState<[Message]> {
+        if ids.isEmpty { return .done(response: []) }
         let response = await client.sendRequest(GetSourcePostsRequest(courseId: courseId, postIds: ids))
         switch response {
         case .success(let (data, _)):
@@ -113,6 +114,7 @@ extension MessagesServiceImpl {
     }
 
     private func loadForwardedAnswers(with ids: [Int64], courseId: Int) async -> DataState<[AnswerMessage]> {
+        if ids.isEmpty { return .done(response: []) }
         let response = await client.sendRequest(GetSourceAnswersRequest(courseId: courseId, postIds: ids))
         switch response {
         case .success(let (data, _)):
