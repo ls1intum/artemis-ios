@@ -7,6 +7,7 @@
 
 import ArtemisMarkdown
 import DesignLibrary
+import Navigation
 import SharedModels
 import SwiftUI
 
@@ -27,6 +28,7 @@ struct ForwardedMessageView: View {
 }
 
 private struct ForwardedMessageCell: View {
+    @EnvironmentObject var navController: NavigationController
     let message: BaseMessage
 
     var body: some View {
@@ -46,8 +48,14 @@ private struct ForwardedMessageCell: View {
             }
             .padding(.vertical, .s)
         }
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(.rect)
+        .onTapGesture {
+            if let conversation, let coursePath = navController.selectedCourse, let baseThreadId {
+                let threadPath = ThreadPath(postId: baseThreadId, conversation: conversation, coursePath: coursePath)
+                navController.tabPath.append(threadPath)
+            }
+        }
     }
 
     var conversation: Conversation? {
@@ -57,6 +65,17 @@ private struct ForwardedMessageCell: View {
         if let message = message as? AnswerMessage,
            let parent = message.post {
             return parent.conversation
+        }
+        return nil
+    }
+
+    var baseThreadId: Int64? {
+        if let message = message as? Message {
+            return message.id
+        }
+        if let message = message as? AnswerMessage,
+           let parent = message.post {
+            return parent.id
         }
         return nil
     }
