@@ -27,6 +27,8 @@ class ConversationViewModel: BaseViewModel {
     private var diff = 0
     private var page = 0
 
+    @Published var forwardedSourcePosts: [ForwardedMessagesGroupDTO] = []
+
     @Published var offlineMessages: [ConversationOfflineMessageModel] = []
 
     @Published var filter: MessageRequestFilter = .init() {
@@ -139,8 +141,26 @@ extension ConversationViewModel {
                 page -= 1
             }
             diff = 0
+            await loadForwardedMessages()
         case let .failure(error: error):
             presentError(userFacingError: error)
+        }
+    }
+
+    func loadForwardedMessages() async {
+        let messagesWithForwarded = messages.filter { $0.rawValue.hasForwardedMessages ?? false }
+        let loadedIds = Set(forwardedSourcePosts.map(\.id))
+        let missingIds = messagesWithForwarded.map(\.id).filter { !loadedIds.contains($0) }
+        if !missingIds.isEmpty {
+            let result = await messagesService.getForwardedMessages(for: missingIds, courseId: course.id)
+            switch result {
+            case .loading:
+                break
+            case .failure(let error):
+                presentError(userFacingError: error)
+            case .done(let response):
+                forwardedSourcePosts += response
+            }
         }
     }
 
