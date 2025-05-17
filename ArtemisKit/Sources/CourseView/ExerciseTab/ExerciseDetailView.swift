@@ -216,8 +216,10 @@ private extension ExerciseDetailView {
 
     var problem: some View {
         VStack(alignment: .leading, spacing: .s) {
-            Text(R.string.localizable.problemStatement())
-                .font(.headline)
+            if case .programming = viewModel.exercise.value {
+                Text(R.string.localizable.problemStatement())
+                    .font(.headline)
+            }
 
             ArtemisWebView(urlRequest: $viewModel.urlRequest,
                            contentHeight: $viewModel.webViewHeight,
@@ -228,7 +230,6 @@ private extension ExerciseDetailView {
             .loadingIndicator(isLoading: $viewModel.isWebViewLoading)
             .id(viewModel.webViewId)
         }
-        .padding(.horizontal, .m)
     }
 }
 
