@@ -219,6 +219,7 @@ private extension ExerciseDetailView {
             if case .programming = viewModel.exercise.value {
                 Text(R.string.localizable.problemStatement())
                     .font(.headline)
+                    .padding(.s)
             }
 
             ArtemisWebView(urlRequest: $viewModel.urlRequest,
