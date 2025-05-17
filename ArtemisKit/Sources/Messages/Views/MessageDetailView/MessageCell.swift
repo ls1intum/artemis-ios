@@ -44,6 +44,8 @@ struct MessageCell: View {
                     .environment(\.imagePreviewsEnabled, viewModel.conversationPath == nil)
                 editedLabel
                 resolvedIndicator
+                ForwardedMessageView(viewModel: conversationViewModel,
+                                     message: message.value as? Message)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(.rect)
