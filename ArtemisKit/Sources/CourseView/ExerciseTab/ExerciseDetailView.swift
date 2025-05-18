@@ -216,10 +216,13 @@ private extension ExerciseDetailView {
 
     var problem: some View {
         VStack(alignment: .leading, spacing: .s) {
-            if case .programming = viewModel.exercise.value {
+            switch viewModel.exercise.value {
+            case .programming, .quiz:
                 Text(R.string.localizable.problemStatement())
                     .font(.headline)
                     .padding(.s)
+            default:
+                EmptyView()
             }
 
             ArtemisWebView(urlRequest: $viewModel.urlRequest,
