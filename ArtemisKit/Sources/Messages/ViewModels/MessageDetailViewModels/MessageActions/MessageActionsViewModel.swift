@@ -56,7 +56,7 @@ class MessageActionsViewModel {
         }
 
         // Channel: Only Moderators can pin
-        let isModerator = (conversationViewModel.conversation.baseConversation as? Channel)?.isChannelModerator ?? false
+        let isModerator = (conversationViewModel.conversation.baseConversation as? Channel)?.hasChannelModerationRights ?? false
         if conversationViewModel.conversation.baseConversation is Channel && !isModerator {
             return false
         }
