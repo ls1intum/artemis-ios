@@ -25,8 +25,10 @@ struct SavedMessageView: View {
             } label: {
                 VStack(alignment: .leading) {
                     header
-                    ArtemisMarkdownView(string: post.content.surroundingMarkdownImagesWithNewlines())
-                        .allowsHitTesting(false)
+                    if let content = post.content {
+                        ArtemisMarkdownView(string: content.surroundingMarkdownImagesWithNewlines())
+                            .allowsHitTesting(false)
+                    }
                 }
             }
             .listRowInsets(EdgeInsets(top: .m, leading: .m, bottom: .s, trailing: .l))
