@@ -460,6 +460,9 @@ private extension ConversationViewModel {
         if inserted {
             diff += 1
         }
+        Task {
+            await loadForwardedMessages()
+        }
     }
 
     func handle(update message: Message) {
