@@ -18,7 +18,7 @@ struct SavedPostDTO: Codable, Identifiable, Hashable, Comparable {
     let author: AuthorDTO
     let role: UserRole?
     let creationDate: Date
-    let content: String
+    let content: String?
     let isSaved: Bool
     let savedPostStatus: SavedPostStatus
     let reactions: [ReactionDTO]?

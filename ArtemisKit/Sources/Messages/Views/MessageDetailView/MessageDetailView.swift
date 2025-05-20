@@ -106,6 +106,15 @@ struct MessageDetailView: View {
         }
         .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            if let message = message.value as? Message,
+               message.hasForwardedMessages ?? false &&
+               !viewModel.forwardedSourcePosts.contains(where: { $0.id == message.id }) {
+                Task {
+                    await viewModel.loadForwardedMessages(forceIds: [message.id])
+                }
+            }
+        }
     }
 }
 
