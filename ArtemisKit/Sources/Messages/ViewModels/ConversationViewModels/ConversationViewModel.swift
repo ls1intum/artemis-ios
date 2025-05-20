@@ -147,10 +147,10 @@ extension ConversationViewModel {
         }
     }
 
-    func loadForwardedMessages() async {
+    func loadForwardedMessages(forceIds: [Int64] = []) async {
         let messagesWithForwarded = messages.filter { $0.rawValue.hasForwardedMessages ?? false }
         let loadedIds = Set(forwardedSourcePosts.map(\.id))
-        let missingIds = messagesWithForwarded.map(\.id).filter { !loadedIds.contains($0) }
+        let missingIds = messagesWithForwarded.map(\.id).filter { !loadedIds.contains($0) } + forceIds
         if !missingIds.isEmpty {
             let result = await messagesService.getForwardedMessages(for: missingIds, courseId: course.id)
             switch result {
@@ -459,6 +459,9 @@ private extension ConversationViewModel {
         let (inserted, _) = messages.insert(.message(message))
         if inserted {
             diff += 1
+        }
+        Task {
+            await loadForwardedMessages()
         }
     }
 
