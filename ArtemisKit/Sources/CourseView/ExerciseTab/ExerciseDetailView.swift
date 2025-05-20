@@ -216,19 +216,27 @@ private extension ExerciseDetailView {
 
     var problem: some View {
         VStack(alignment: .leading, spacing: .s) {
-            Text(R.string.localizable.problemStatement())
-                .font(.headline)
+            if case .programming = viewModel.exercise.value {
+                Text(R.string.localizable.problemStatement())
+                    .font(.headline)
+                    .padding(.s)
+            }
 
-            ArtemisWebView(urlRequest: $viewModel.urlRequest,
-                           contentHeight: $viewModel.webViewHeight,
-                           isLoading: $viewModel.isWebViewLoading,
-                           customJSHeightQuery: viewModel.webViewHeightJS)
-            .frame(height: viewModel.webViewHeight)
-            .allowsHitTesting(false)
-            .loadingIndicator(isLoading: $viewModel.isWebViewLoading)
-            .id(viewModel.webViewId)
+            if case .quiz = viewModel.exercise.value {
+                EmptyView() // explicitly do nothing
+            } else {
+                ArtemisWebView(
+                    urlRequest: $viewModel.urlRequest,
+                    contentHeight: $viewModel.webViewHeight,
+                    isLoading: $viewModel.isWebViewLoading,
+                    customJSHeightQuery: viewModel.webViewHeightJS
+                )
+                .frame(height: viewModel.webViewHeight)
+                .allowsHitTesting(false)
+                .loadingIndicator(isLoading: $viewModel.isWebViewLoading)
+                .id(viewModel.webViewId)
+            }
         }
-        .padding(.horizontal, .m)
     }
 }
 
