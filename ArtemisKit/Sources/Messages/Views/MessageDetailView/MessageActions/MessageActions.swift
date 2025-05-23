@@ -64,7 +64,7 @@ struct MessageActions: View {
         }
 
         var body: some View {
-            Button("Forward", systemImage: "arrowshape.turn.up.right.fill") {
+            Button(R.string.localizable.forwardMessageShort(), systemImage: "arrowshape.turn.up.right.fill") {
                 viewModel.showForwardSheet = true
             }
             .sheet(isPresented: $viewModel.showForwardSheet) {
@@ -73,6 +73,7 @@ struct MessageActions: View {
                 ForwardMessageView(viewModel: viewModel)
                     .font(nil)
             }
+            Divider()
         }
     }
 

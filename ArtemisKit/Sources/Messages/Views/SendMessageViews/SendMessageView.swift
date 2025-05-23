@@ -32,6 +32,12 @@ struct SendMessageView: View {
                 Divider()
             }
 
+            if case .forwardMessage = viewModel.configuration {
+                Text(R.string.localizable.addMessage())
+                    .padding(.horizontal)
+                    .frame(maxWidth: .infinity)
+            }
+
             mentions
             if isFocused && !viewModel.isEditing {
                 Capsule()

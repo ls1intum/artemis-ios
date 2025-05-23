@@ -39,7 +39,7 @@ struct ForwardMessageView: View {
                     PickConversationView(viewModel: viewModel)
                 } label: {
                     HStack {
-                        Text("Conversation")
+                        Text(R.string.localizable.conversation())
                         Spacer()
                         Text("\(conversationName) \(Image(systemName: "chevron.forward"))")
                             .foregroundStyle(.secondary)
@@ -51,14 +51,11 @@ struct ForwardMessageView: View {
                 .cardModifier(backgroundColor: .gray.opacity(0.2))
                 .padding()
 
-                Spacer()
-
                 // TODO: Preview
 
-                Text("Add a message")
                 SendMessageView(viewModel: sendViewModel)
             }
-            .navigationTitle("Forward message")
+            .navigationTitle(R.string.localizable.forwardMessage())
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {

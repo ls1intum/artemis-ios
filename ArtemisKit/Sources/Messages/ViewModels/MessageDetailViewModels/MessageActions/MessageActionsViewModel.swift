@@ -159,15 +159,14 @@ class MessageActionsViewModel {
     }
 
     func forwardMessage(content: String) async {
-        guard let source = message.value else {
+        guard let source = message.value, let selectedConversation else {
             return
         }
 
         let course = conversationViewModel.course.id
-        let targetConversation = conversationViewModel.conversation
         let service = MessagesServiceFactory.shared
         let result = await service.sendMessage(for: course,
-                                               conversation: targetConversation,
+                                               conversation: selectedConversation,
                                                content: content,
                                                hasForwardedMessages: true)
 
