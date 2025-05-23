@@ -143,15 +143,13 @@ private struct MessageActions: View {
         }
 
         var body: some View {
-            Group {
-                if message.value?.isBookmarked ?? false {
-                    Button(R.string.localizable.removeBookmark(), systemImage: "bookmark.slash") {
-                        viewModel.toggleBookmark()
-                    }
-                } else {
-                    Button(R.string.localizable.addBookmark(), systemImage: "bookmark") {
-                        viewModel.toggleBookmark()
-                    }
+            if message.value?.isBookmarked ?? false {
+                Button(R.string.localizable.removeBookmark(), systemImage: "bookmark.slash") {
+                    viewModel.toggleBookmark()
+                }
+            } else {
+                Button(R.string.localizable.addBookmark(), systemImage: "bookmark") {
+                    viewModel.toggleBookmark()
                 }
             }
         }
@@ -166,30 +164,28 @@ private struct MessageActions: View {
         }
 
         var body: some View {
-            Group {
-                if viewModel.canEdit {
-                    Button(R.string.localizable.editMessage(), systemImage: "pencil") {
-                        viewModel.showEditSheet = true
-                    }
-                    .sheet(isPresented: $viewModel.showEditSheet) {
-                        viewModel.conversationViewModel.selectedMessageId = nil
-                    } content: {
-                        EditMessageView(viewModel: viewModel)
-                            .font(nil)
-                    }
+            if viewModel.canEdit {
+                Button(R.string.localizable.editMessage(), systemImage: "pencil") {
+                    viewModel.showEditSheet = true
                 }
-                if viewModel.canDelete {
-                    Button(R.string.localizable.deleteMessage(), systemImage: "trash", role: .destructive) {
-                        viewModel.showDeleteAlert = true
+                .sheet(isPresented: $viewModel.showEditSheet) {
+                    viewModel.conversationViewModel.selectedMessageId = nil
+                } content: {
+                    EditMessageView(viewModel: viewModel)
+                        .font(nil)
+                }
+            }
+            if viewModel.canDelete {
+                Button(R.string.localizable.deleteMessage(), systemImage: "trash", role: .destructive) {
+                    viewModel.showDeleteAlert = true
+                }
+                .foregroundStyle(.red)
+                .alert(R.string.localizable.confirmDeletionTitle(), isPresented: $viewModel.showDeleteAlert) {
+                    Button(R.string.localizable.confirm(), role: .destructive) {
+                        viewModel.deleteMessage(navController: navigationController)
                     }
-                    .foregroundStyle(.red)
-                    .alert(R.string.localizable.confirmDeletionTitle(), isPresented: $viewModel.showDeleteAlert) {
-                        Button(R.string.localizable.confirm(), role: .destructive) {
-                            viewModel.deleteMessage(navController: navigationController)
-                        }
-                        Button(R.string.localizable.cancel(), role: .cancel) {
-                            viewModel.conversationViewModel.selectedMessageId = nil
-                        }
+                    Button(R.string.localizable.cancel(), role: .cancel) {
+                        viewModel.conversationViewModel.selectedMessageId = nil
                     }
                 }
             }
@@ -206,13 +202,11 @@ private struct MessageActions: View {
         }
 
         var body: some View {
-            Group {
-                if viewModel.canPin {
-                    if (message.value as? Message)?.displayPriority == .pinned {
-                        Button(R.string.localizable.unpinMessage(), systemImage: "pin.slash", action: viewModel.togglePinned)
-                    } else {
-                        Button(R.string.localizable.pinMessage(), systemImage: "pin", action: viewModel.togglePinned)
-                    }
+            if viewModel.canPin {
+                if (message.value as? Message)?.displayPriority == .pinned {
+                    Button(R.string.localizable.unpinMessage(), systemImage: "pin.slash", action: viewModel.togglePinned)
+                } else {
+                    Button(R.string.localizable.pinMessage(), systemImage: "pin", action: viewModel.togglePinned)
                 }
             }
         }
@@ -242,13 +236,11 @@ private struct MessageActions: View {
         }
 
         var body: some View {
-            Group {
-                if isAbleToMarkResolving {
-                    if (message.value as? AnswerMessage)?.resolvesPost ?? false {
-                        Button(R.string.localizable.unmarkAsResolving(), systemImage: "xmark", action: toggleResolved)
-                    } else {
-                        Button(R.string.localizable.markAsResolving(), systemImage: "checkmark", action: toggleResolved)
-                    }
+            if isAbleToMarkResolving {
+                if (message.value as? AnswerMessage)?.resolvesPost ?? false {
+                    Button(R.string.localizable.unmarkAsResolving(), systemImage: "xmark", action: toggleResolved)
+                } else {
+                    Button(R.string.localizable.markAsResolving(), systemImage: "checkmark", action: toggleResolved)
                 }
             }
         }
@@ -261,56 +253,6 @@ private struct MessageActions: View {
                 }
             }
         }
-    }
-}
-
-struct HorizontalMenuGroup<Content: View>: View {
-    @Environment(\.actionsDisplayMode) private var displayMode
-    @ViewBuilder var content: Content
-
-    var isMenu: Bool { displayMode == .menu }
-
-    var body: some View {
-        HStack {
-            Group(subviews: content) { subviews in
-                ForEach(subviews.dropLast()) { subview in
-                    subview
-                        .frame(maxWidth: isMenu ? .infinity : nil)
-                    Divider()
-                }
-                subviews.last
-                    .frame(maxWidth: isMenu ? .infinity : nil)
-            }
-        }
-        .fixedSize(horizontal: false, vertical: true)
-        .environment(\.actionsDisplayMode, isMenu ? .menuCompact : displayMode)
-    }
-}
-
-struct MenuGroup<Content: View>: View {
-    @Environment(\.actionsDisplayMode) private var displayMode
-    @ViewBuilder var content: Content
-
-    var layout: AnyLayout {
-        if displayMode == .menu {
-            AnyLayout(VStackLayout(spacing: 0))
-        } else {
-            AnyLayout(HStackLayout(spacing: 10))
-        }
-    }
-
-    var body: some View {
-        layout {
-            Group(subviews: content) { subviews in
-                ForEach(subviews.dropLast()) { subview in
-                    subview
-                    Divider()
-                }
-                subviews.last
-            }
-        }
-        .fixedSize(horizontal: false, vertical: true)
-        .modifier(MessageActionsStyleModifier())
     }
 }
 
@@ -357,27 +299,6 @@ private struct ContextMenuLabelStyle: LabelStyle {
     }
 }
 
-private enum ActionsDisplayMode {
-    case menu, menuCompact, bar
-}
-
-// MARK: - Environment+ActionsDisplayMode
-
-private enum ActionsDisplayModeEnvironmentKey: EnvironmentKey {
-    static let defaultValue: ActionsDisplayMode = .menu
-}
-
-private extension EnvironmentValues {
-    var actionsDisplayMode: ActionsDisplayMode {
-        get {
-            self[ActionsDisplayModeEnvironmentKey.self]
-        }
-        set {
-            self[ActionsDisplayModeEnvironmentKey.self] = newValue
-        }
-    }
-}
-
 // MARK: - Environment+OriginalPostAuthor
 
 private enum OriginalPostAuthorEnvironmentKey: EnvironmentKey {
@@ -391,6 +312,78 @@ extension EnvironmentValues {
         }
         set {
             self[OriginalPostAuthorEnvironmentKey.self] = newValue
+        }
+    }
+}
+
+// MARK: - Layout
+private enum ActionsDisplayMode {
+    case menu, menuCompact, bar
+}
+
+private struct HorizontalMenuGroup<Content: View>: View {
+    @Environment(\.actionsDisplayMode) private var displayMode
+    @ViewBuilder var content: Content
+
+    var isMenu: Bool { displayMode == .menu }
+
+    var body: some View {
+        HStack {
+            Group(subviews: content) { subviews in
+                ForEach(subviews.dropLast()) { subview in
+                    subview
+                        .frame(maxWidth: isMenu ? .infinity : nil)
+                    Divider()
+                }
+                subviews.last
+                    .frame(maxWidth: isMenu ? .infinity : nil)
+            }
+        }
+        .fixedSize(horizontal: false, vertical: true)
+        .environment(\.actionsDisplayMode, isMenu ? .menuCompact : displayMode)
+    }
+}
+
+private struct MenuGroup<Content: View>: View {
+    @Environment(\.actionsDisplayMode) private var displayMode
+    @ViewBuilder var content: Content
+
+    var layout: AnyLayout {
+        if displayMode == .menu {
+            AnyLayout(VStackLayout(spacing: 0))
+        } else {
+            AnyLayout(HStackLayout(spacing: 10))
+        }
+    }
+
+    var body: some View {
+        layout {
+            Group(subviews: content) { subviews in
+                ForEach(subviews.dropLast()) { subview in
+                    subview
+                    Divider()
+                }
+                subviews.last
+            }
+        }
+        .fixedSize(horizontal: false, vertical: true)
+        .modifier(MessageActionsStyleModifier())
+    }
+}
+
+// MARK: Environment+ActionsDisplayMode
+
+private enum ActionsDisplayModeEnvironmentKey: EnvironmentKey {
+    static let defaultValue: ActionsDisplayMode = .menu
+}
+
+private extension EnvironmentValues {
+    var actionsDisplayMode: ActionsDisplayMode {
+        get {
+            self[ActionsDisplayModeEnvironmentKey.self]
+        }
+        set {
+            self[ActionsDisplayModeEnvironmentKey.self] = newValue
         }
     }
 }
