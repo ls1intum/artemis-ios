@@ -328,7 +328,7 @@ private struct HorizontalMenuGroup<Content: View>: View {
     var isMenu: Bool { displayMode == .menu }
 
     var body: some View {
-        HStack {
+        HStack(spacing: isMenu ? 0 : .m) {
             Group(subviews: content) { subviews in
                 ForEach(subviews.dropLast()) { subview in
                     subview
@@ -352,7 +352,7 @@ private struct MenuGroup<Content: View>: View {
         if displayMode == .menu {
             AnyLayout(VStackLayout(spacing: 0))
         } else {
-            AnyLayout(HStackLayout(spacing: 10))
+            AnyLayout(HStackLayout(spacing: .m))
         }
     }
 
