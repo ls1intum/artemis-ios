@@ -83,6 +83,7 @@ private struct ForwardMessagePreviewView: View {
         self.viewModel = viewModel
 
         let cViewModel = ConversationViewModel(course: viewModel.conversationViewModel.course, conversation: viewModel.conversationViewModel.conversation, skipLoadingData: true)
+        // Add viewModel's message as source for Message with id 0
         cViewModel.forwardedSourcePosts = [
             .init(id: 0, messages: [
                 .init(sourceId: 0, sourceType: .post, destinationPostId: nil)
@@ -98,6 +99,7 @@ private struct ForwardMessagePreviewView: View {
     }
 
     var previewContainer: Message {
+        // Message with id 0 for preview
         var message = Message(id: 0)
         message.hasForwardedMessages = true
         return message
