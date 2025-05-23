@@ -11,16 +11,41 @@ import SharedModels
 import SwiftUI
 import UserStore
 
-struct MessageActions: View {
+struct MessageActionsBar: View {
     @ObservedObject var viewModel: ConversationViewModel
     @Binding var message: DataState<BaseMessage>
     let conversationPath: ConversationPath?
 
     var body: some View {
-        Group {
-            ReplyInThreadButton(viewModel: viewModel, message: $message, conversationPath: conversationPath)
-            ForwardButton(viewModel: viewModel, message: $message)
-            CopyTextButton(viewModel: viewModel, message: $message)
+        MessageActions(viewModel: viewModel, message: $message, conversationPath: conversationPath)
+            .environment(\.actionsDisplayMode, .bar)
+    }
+}
+
+struct MessageActionsMenu: View {
+    @ObservedObject var viewModel: ConversationViewModel
+    @Binding var message: DataState<BaseMessage>
+    let conversationPath: ConversationPath?
+
+    var body: some View {
+        MessageActions(viewModel: viewModel, message: $message, conversationPath: conversationPath)
+            .background(.bar, in: .rect(cornerRadius: 10))
+            .fontWeight(.semibold)
+    }
+}
+
+private struct MessageActions: View {
+    @ObservedObject var viewModel: ConversationViewModel
+    @Binding var message: DataState<BaseMessage>
+    let conversationPath: ConversationPath?
+
+    var body: some View {
+        MenuGroup {
+            HorizontalMenuGroup {
+                ReplyInThreadButton(viewModel: viewModel, message: $message, conversationPath: conversationPath)
+                ForwardButton(viewModel: viewModel, message: $message)
+                CopyTextButton(viewModel: viewModel, message: $message)
+            }
             BookmarkButton(viewModel: viewModel, message: $message)
             PinButton(viewModel: viewModel, message: $message)
             MarkResolvingButton(viewModel: viewModel, message: $message)
@@ -73,7 +98,6 @@ struct MessageActions: View {
                 ForwardMessageView(viewModel: viewModel)
                     .font(nil)
             }
-            Divider()
         }
     }
 
@@ -120,7 +144,6 @@ struct MessageActions: View {
 
         var body: some View {
             Group {
-                Divider()
                 if message.value?.isBookmarked ?? false {
                     Button(R.string.localizable.removeBookmark(), systemImage: "bookmark.slash") {
                         viewModel.toggleBookmark()
@@ -144,9 +167,6 @@ struct MessageActions: View {
 
         var body: some View {
             Group {
-                if viewModel.canEdit || viewModel.canDelete {
-                    Divider()
-                }
                 if viewModel.canEdit {
                     Button(R.string.localizable.editMessage(), systemImage: "pencil") {
                         viewModel.showEditSheet = true
@@ -188,8 +208,6 @@ struct MessageActions: View {
         var body: some View {
             Group {
                 if viewModel.canPin {
-                    Divider()
-
                     if (message.value as? Message)?.displayPriority == .pinned {
                         Button(R.string.localizable.unpinMessage(), systemImage: "pin.slash", action: viewModel.togglePinned)
                     } else {
@@ -226,8 +244,6 @@ struct MessageActions: View {
         var body: some View {
             Group {
                 if isAbleToMarkResolving {
-                    Divider()
-
                     if (message.value as? AnswerMessage)?.resolvesPost ?? false {
                         Button(R.string.localizable.unmarkAsResolving(), systemImage: "xmark", action: toggleResolved)
                     } else {
@@ -248,42 +264,117 @@ struct MessageActions: View {
     }
 }
 
-struct MessageActionsMenu: View {
-    @ObservedObject var viewModel: ConversationViewModel
-    @Binding var message: DataState<BaseMessage>
-    let conversationPath: ConversationPath?
+struct HorizontalMenuGroup<Content: View>: View {
+    @Environment(\.actionsDisplayMode) private var displayMode
+    @ViewBuilder var content: Content
 
-    init(viewModel: ConversationViewModel, message: Binding<DataState<BaseMessage>>, conversationPath: ConversationPath?) {
-        self.viewModel = viewModel
-        self._message = message
-        self.conversationPath = conversationPath
+    var isMenu: Bool { displayMode == .menu }
+
+    var body: some View {
+        HStack {
+            Group(subviews: content) { subviews in
+                ForEach(subviews.dropLast()) { subview in
+                    subview
+                        .frame(maxWidth: isMenu ? .infinity : nil)
+                    Divider()
+                }
+                subviews.last
+                    .frame(maxWidth: isMenu ? .infinity : nil)
+            }
+        }
+        .fixedSize(horizontal: false, vertical: true)
+        .environment(\.actionsDisplayMode, isMenu ? .menuCompact : displayMode)
+    }
+}
+
+struct MenuGroup<Content: View>: View {
+    @Environment(\.actionsDisplayMode) private var displayMode
+    @ViewBuilder var content: Content
+
+    var layout: AnyLayout {
+        if displayMode == .menu {
+            AnyLayout(VStackLayout(spacing: 0))
+        } else {
+            AnyLayout(HStackLayout(spacing: 10))
+        }
     }
 
     var body: some View {
-        VStack {
-            MessageActions(viewModel: viewModel, message: $message, conversationPath: conversationPath)
+        layout {
+            Group(subviews: content) { subviews in
+                ForEach(subviews.dropLast()) { subview in
+                    subview
+                    Divider()
+                }
+                subviews.last
+            }
         }
-        .padding(.vertical, .s)
-        .background(.bar, in: .rect(cornerRadius: 10))
-        .fontWeight(.semibold)
-        .symbolVariant(.fill)
-        .labelStyle(ContextMenuLabelStyle())
-        .buttonStyle(.plain)
-        .loadingIndicator(isLoading: $viewModel.isLoading)
-        .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
+        .fixedSize(horizontal: false, vertical: true)
+        .modifier(MessageActionsStyleModifier())
+    }
+}
+
+private struct MessageActionsStyleModifier: ViewModifier {
+    @Environment(\.actionsDisplayMode) private var displayMode
+
+    func body(content: Content) -> some View {
+        if displayMode == .menu {
+            content
+                .symbolVariant(.fill)
+                .labelStyle(ContextMenuLabelStyle())
+                .buttonStyle(.plain)
+        } else {
+            content
+        }
     }
 }
 
 private struct ContextMenuLabelStyle: LabelStyle {
+    @Environment(\.actionsDisplayMode) var displayMode
+
+    var layout: AnyLayout {
+        if displayMode == .menuCompact {
+            AnyLayout(VStackLayout())
+        } else {
+            AnyLayout(HStackLayout())
+        }
+    }
+
     func makeBody(configuration: Configuration) -> some View {
-        HStack {
-            configuration.title
-            Spacer()
-            configuration.icon
+        layout {
+            if displayMode == .menuCompact {
+                configuration.icon.frame(height: 40)
+                configuration.title.font(.callout)
+            } else {
+                configuration.title
+                Spacer()
+                configuration.icon
+            }
         }
         .padding(.horizontal)
-        .padding(.vertical, .s)
+        .padding(.vertical, 10)
         .contentShape(.rect)
+    }
+}
+
+private enum ActionsDisplayMode {
+    case menu, menuCompact, bar
+}
+
+// MARK: - Environment+ActionsDisplayMode
+
+private enum ActionsDisplayModeEnvironmentKey: EnvironmentKey {
+    static let defaultValue: ActionsDisplayMode = .menu
+}
+
+private extension EnvironmentValues {
+    var actionsDisplayMode: ActionsDisplayMode {
+        get {
+            self[ActionsDisplayModeEnvironmentKey.self]
+        }
+        set {
+            self[ActionsDisplayModeEnvironmentKey.self] = newValue
+        }
     }
 }
 
