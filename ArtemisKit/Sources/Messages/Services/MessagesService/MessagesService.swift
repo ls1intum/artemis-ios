@@ -208,6 +208,11 @@ protocol MessagesService {
      * Performs necessary requests to fetch forwarded message source posts
      */
     func getForwardedMessages(for postIds: [Int64], courseId: Int) async -> DataState<[ForwardedMessagesGroupDTO]>
+
+    /**
+     * Performs POST request to attach forwarded message to a post
+     */
+    func forwardMessage(sourceId: Int64, sourceType: PostType, destinationId: Int64) async -> DataState<ForwardedMessageDTO>
 }
 
 extension MessagesService {

@@ -11,6 +11,5 @@ struct ForwardedMessageDTO: Codable {
 
     // Members needed for creating forwarded posts
     let destinationPostId: Int64?
-    let content: String?
     // Other members like id and destinationAnswerPostId are pointless and thus not decoded
 }

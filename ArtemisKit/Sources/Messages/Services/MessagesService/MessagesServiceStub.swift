@@ -244,4 +244,8 @@ extension MessagesServiceStub: MessagesService {
     func getForwardedMessages(for postIds: [Int64], courseId: Int) async -> DataState<[ForwardedMessagesGroupDTO]> {
         .loading
     }
+
+    func forwardMessage(sourceId: Int64, sourceType: PostType, destinationId: Int64) async -> DataState<ForwardedMessageDTO> {
+        .loading
+    }
 }
