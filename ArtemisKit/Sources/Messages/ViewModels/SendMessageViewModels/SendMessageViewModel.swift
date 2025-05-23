@@ -17,6 +17,7 @@ extension SendMessageViewModel {
         case answerMessage(Message, () async -> Void)
         case editMessage(Message, () -> Void)
         case editAnswerMessage(AnswerMessage, () -> Void)
+        case forwardMessage
     }
 
     enum ConditionalPresentation {
@@ -61,8 +62,15 @@ final class SendMessageViewModel {
         switch configuration {
         case .message, .answerMessage:
             return false
-        case .editMessage, .editAnswerMessage:
+        case .editMessage, .editAnswerMessage, .forwardMessage:
             return true
+        }
+    }
+
+    var canSend: Bool {
+        switch configuration {
+        case .forwardMessage: true
+        default: !text.isEmpty
         }
     }
 
@@ -132,10 +140,9 @@ extension SendMessageViewModel {
                         messageId: Int(message.id))
                     text = message?.answerMessageDraft ?? ""
                 }
-            case let .editMessage(message, _):
-                text = message.content ?? ""
-            case let .editAnswerMessage(message, _):
-                text = message.content ?? ""
+            case let .editMessage(message, _): text = message.content ?? ""
+            case let .editAnswerMessage(message, _): text = message.content ?? ""
+            case .forwardMessage: text = ""
             }
         } catch {
             log.error(error)
@@ -272,7 +279,7 @@ extension SendMessageViewModel {
         Task { @MainActor in
             var result: NetworkResponse?
             switch configuration {
-            case .message:
+            case .message, .forwardMessage:
                 await delegate.sendMessage(text)
                 result = .success
                 isLoading = false
@@ -343,10 +350,8 @@ extension SendMessageViewModel {
         let result = await messagesService.editAnswerMessage(for: course.id, answerMessage: answerMessage)
 
         switch result {
-        case .notStarted, .loading:
-            return false
-        case .success:
-            return true
+        case .notStarted, .loading: return false
+        case .success: return true
         case .failure(let error):
             delegate.presentError(UserFacingError(title: error.localizedDescription))
             return false
@@ -354,10 +359,8 @@ extension SendMessageViewModel {
     }
 
     // MARK: Search and Replace
-
     func searchChannel() -> Substring? {
-        let matches = text.matches(of: #/#(?<candidate>[\w-]*)/#)
-        return matches.last?.candidate
+        return text.matches(of: #/#(?<candidate>[\w-]*)/#).last?.candidate
     }
 
     func replace(channel: ChannelIdAndNameDTO) {
@@ -367,11 +370,9 @@ extension SendMessageViewModel {
 
         // Replaces all occurrences. Otherwise, we need to get the match.
         let range = Range<String.Index>?.none
-
-        text = text.replacingOccurrences(
-            of: "#" + candidate,
-            with: "[channel]\(channel.name)(\(channel.id))[/channel]",
-            range: range)
+        text = text.replacingOccurrences(of: "#" + candidate,
+                                         with: "[channel]\(channel.name)(\(channel.id))[/channel]",
+                                         range: range)
     }
 
     func searchMember() -> Substring? {
@@ -389,12 +390,10 @@ extension SendMessageViewModel {
               let name = member.name, let login = member.login else {
             return
         }
-
         // Replaces all occurrences. Otherwise, we need to get the match.
         let range = Range<String.Index>?.none
-        text = text.replacingOccurrences(
-            of: "@" + candidate,
-            with: "[user]\(name)(\(login))[/user]",
-            range: range)
+        text = text.replacingOccurrences(of: "@" + candidate,
+                                         with: "[user]\(name)(\(login))[/user]",
+                                         range: range)
     }
 }

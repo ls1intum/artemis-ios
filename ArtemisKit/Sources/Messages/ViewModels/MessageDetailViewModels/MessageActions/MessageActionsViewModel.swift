@@ -18,6 +18,8 @@ class MessageActionsViewModel {
     let service = MessagesServiceFactory.shared
 
     var showForwardSheet = false
+    var selectedConversation: Conversation?
+    var allConversations: DataState<[Conversation]> = .loading
 
     var showDeleteAlert = false
     @MainActor var canDelete: Bool {
@@ -169,7 +171,6 @@ class MessageActionsViewModel {
                                                content: content,
                                                hasForwardedMessages: true)
 
-        
         switch result {
         case .done(let response):
             let sourceType: PostType = source is Message ? .post : .answer
@@ -190,6 +191,11 @@ class MessageActionsViewModel {
             break
         }
         showForwardSheet = false
+    }
+
+    func loadConversations() async {
+        let service = MessagesServiceFactory.shared
+        allConversations = await service.getConversations(for: conversationViewModel.course.id)
     }
 }
 

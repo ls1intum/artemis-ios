@@ -143,8 +143,8 @@ extension MessagesServiceImpl {
 
     func forwardMessage(sourceId: Int64, sourceType: PostType, destinationId: Int64) async -> DataState<ForwardedMessageDTO> {
         let message = ForwardedMessageDTO(sourceId: sourceId,
-                                                   sourceType: sourceType,
-                                                   destinationPostId: destinationId)
+                                          sourceType: sourceType,
+                                          destinationPostId: destinationId)
         let response = await client.sendRequest(CreateForwardedMessageRequest(message: message))
         switch response {
         case .success(let (data, _)):
