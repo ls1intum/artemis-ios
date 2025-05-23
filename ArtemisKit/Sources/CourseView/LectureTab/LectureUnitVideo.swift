@@ -21,29 +21,27 @@ struct VideoUnitSheetContent: View {
 
     var body: some View {
         GeometryReader { proxy in
-            ScrollView {
-                if let description = unit.description {
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text(R.string.localizable.description())
-                                .font(.headline)
-                            Text(description)
-                        }
-                        Spacer()
+            if let description = unit.description {
+                HStack {
+                    VStack(alignment: .leading) {
+                        Text(R.string.localizable.description())
+                            .font(.headline)
+                        Text(description)
                     }
-                    .padding(.horizontal)
+                    Spacer()
                 }
-
-                if canPlayInline {
-                    VideoPlayerView(url: videoSource)
-                        .frame(width: proxy.size.width,
-                               height: min(proxy.size.height, proxy.size.width * 9 / 16))
-                }
-
-                Link(R.string.localizable.openVideo(), destination: videoSource)
-                    .buttonStyle(ArtemisButton())
-                    .padding(.horizontal)
+                .padding(.horizontal)
             }
+            
+            if canPlayInline {
+                VideoPlayerView(url: videoSource)
+                    .frame(width: proxy.size.width,
+                           height: min(proxy.size.height, proxy.size.width * 9 / 16))
+            }
+            
+            Link(R.string.localizable.openVideo(), destination: videoSource)
+                .buttonStyle(ArtemisButton())
+                .padding(.horizontal)
         }
     }
 }

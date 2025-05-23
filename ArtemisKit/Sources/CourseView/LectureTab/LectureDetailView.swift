@@ -260,12 +260,10 @@ struct BaseLectureUnitCell: View {
                 NavigationView {
                     Group {
                         switch lectureUnit {
-                        case .attachment(let lectureUnit):
+                        case .attachmentVideo(let lectureUnit):
                             AttachmentUnitSheetContent(attachmentUnit: lectureUnit)
                         case .text(let lectureUnit):
                             TextUnitSheetContent(textUnit: lectureUnit)
-                        case .video(let lectureUnit):
-                            VideoUnitSheetContent(videoUnit: lectureUnit)
                         case .online(let lectureUnit):
                             OnlineUnitSheetContent(onlineUnit: lectureUnit)
                         case .unknown, .exercise:
@@ -310,14 +308,28 @@ struct AttachmentUnitSheetContent: View {
     @State private var showAttachment = false
 
     var body: some View {
-        if let attachment = attachmentUnit.attachment {
+        if let attachment = attachmentUnit.attachment, attachmentUnit.videoSource == nil {
+            // Only attachment -> Make it full screen
             LectureAttachmentSheet(attachment: attachment)
-        } else if let videoSource = attachmentUnit.videoSource,
-                  let videoUrl = URL(string: videoSource) {
-            VideoUnitSheetContent(unit: attachmentUnit, videoSource: videoUrl)
         } else {
-            Text(R.string.localizable.attachmentCouldNotBeOpened())
-                .foregroundColor(.red)
+            ScrollView {
+                if let attachment = attachmentUnit.attachment, attachmentUnit.videoSource == nil {
+                    NavigationLink {
+                        LectureAttachmentSheet(attachment: attachment)
+                    } label: {
+                        BaseLectureUnitCell(viewModel: .init(courseId: 0, lectureId: 0),
+                                            lectureUnit: .attachmentVideo(lectureUnit: attachmentUnit))
+                        .allowsHitTesting(false)
+                    }
+                }
+                if let videoSource = attachmentUnit.videoSource,
+                   let videoUrl = URL(string: videoSource) {
+                    VideoUnitSheetContent(unit: attachmentUnit, videoSource: videoUrl)
+                } else {
+                    Text(R.string.localizable.attachmentCouldNotBeOpened())
+                        .foregroundColor(.red)
+                }
+            }
         }
     }
 }
