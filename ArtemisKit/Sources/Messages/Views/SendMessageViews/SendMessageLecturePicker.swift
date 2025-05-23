@@ -76,7 +76,7 @@ private extension SendMessageLecturePicker {
                         } label: {
                             Text(name)
                         }
-                        if case let .attachment(attachment) = lectureUnit, let slides = attachment.slides {
+                        if case let .attachmentVideo(attachment) = lectureUnit, let slides = attachment.slides {
                             ForEach(slides, id: \.id) { slide in
                                 rowContent(lectureUnit: lectureUnit, slide: slide)
                             }

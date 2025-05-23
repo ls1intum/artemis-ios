@@ -46,7 +46,7 @@ final class SendMessageLecturePickerViewModel {
 
     func select(lectureUnit: LectureUnit) {
         if let name = lectureUnit.baseUnit.name,
-           case let .attachment(attachment) = lectureUnit,
+           case let .attachmentVideo(attachment) = lectureUnit,
            case let .file(file) = attachment.attachment,
            let link = file.link,
            let url = URL(string: link),
