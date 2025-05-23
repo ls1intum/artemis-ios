@@ -66,7 +66,6 @@ struct ForwardMessageView: View {
             }
         }
         .fontWeight(.regular)
-        .presentationDetents([.medium, .large])
         .onAppear {
             viewModel.selectedConversation = viewModel.conversationViewModel.conversation
         }
