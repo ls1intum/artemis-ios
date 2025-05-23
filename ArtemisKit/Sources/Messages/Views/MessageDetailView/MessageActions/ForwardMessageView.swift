@@ -95,9 +95,8 @@ private struct PickConversationView: View {
             }
         }
         .task {
-            switch viewModel.allConversations {
-            case .loading: await viewModel.loadConversations()
-            default: break
+            if case .loading = viewModel.allConversations {
+                await viewModel.loadConversations()
             }
         }
     }
