@@ -25,7 +25,8 @@ struct ForwardMessageView: View {
         _sendViewModel = State(initialValue: SendMessageViewModel(course: course,
                                                                   conversation: conversation,
                                                                   configuration: .forwardMessage,
-                                                                  delegate: delegate))
+                                                                  delegate: delegate,
+                                                                  presentKeyboardOnAppear: true))
     }
 
     var conversationName: String {
@@ -51,7 +52,9 @@ struct ForwardMessageView: View {
                 .cardModifier(backgroundColor: .gray.opacity(0.2))
                 .padding()
 
-                // TODO: Preview
+                Spacer()
+
+                ForwardMessagePreviewView(viewModel: viewModel)
 
                 SendMessageView(viewModel: sendViewModel)
             }
@@ -69,6 +72,35 @@ struct ForwardMessageView: View {
         .onAppear {
             viewModel.selectedConversation = viewModel.conversationViewModel.conversation
         }
+    }
+}
+
+private struct ForwardMessagePreviewView: View {
+    let viewModel: MessageActionsViewModel
+    @StateObject var conversationViewModel: ConversationViewModel
+
+    init(viewModel: MessageActionsViewModel) {
+        self.viewModel = viewModel
+
+        let cViewModel = ConversationViewModel(course: viewModel.conversationViewModel.course, conversation: viewModel.conversationViewModel.conversation, skipLoadingData: true)
+        cViewModel.forwardedSourcePosts = [
+            .init(id: 0, messages: [
+                .init(sourceId: 0, sourceType: .post, destinationPostId: nil)
+            ], sourceMessage: viewModel.message.value)
+        ]
+        self._conversationViewModel = StateObject(wrappedValue: cViewModel)
+    }
+
+    var body: some View {
+        ForwardedMessageView(viewModel: conversationViewModel, message: previewContainer)
+            .fixedSize(horizontal: false, vertical: true)
+            .padding()
+    }
+
+    var previewContainer: Message {
+        var message = Message(id: 0)
+        message.hasForwardedMessages = true
+        return message
     }
 }
 
