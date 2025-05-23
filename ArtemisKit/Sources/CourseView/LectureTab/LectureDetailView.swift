@@ -305,13 +305,16 @@ struct TextUnitSheetContent: View {
 
 struct AttachmentUnitSheetContent: View {
 
-    let attachmentUnit: AttachmentUnit
+    let attachmentUnit: AttachmentVideoUnit
 
     @State private var showAttachment = false
 
     var body: some View {
         if let attachment = attachmentUnit.attachment {
             LectureAttachmentSheet(attachment: attachment)
+        } else if let videoSource = attachmentUnit.videoSource,
+                  let videoUrl = URL(string: videoSource) {
+            VideoUnitSheetContent(unit: attachmentUnit, videoSource: videoUrl)
         } else {
             Text(R.string.localizable.attachmentCouldNotBeOpened())
                 .foregroundColor(.red)

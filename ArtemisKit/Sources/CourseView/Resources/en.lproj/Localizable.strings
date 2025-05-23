@@ -110,7 +110,6 @@
 "openLink" = "Open Link";
 "linkCouldNotBeLoaded" = "Link can not be loaded";
 "openVideo" = "Open Video in Browser";
-"videoCouldNotBeLoaded" = "Video url can not be loaded";
 "notReleased" = "Not released";
 "exerciseCouldNotBeLoaded" = "Exercise could not be loaded";
 "version" = "Version";
