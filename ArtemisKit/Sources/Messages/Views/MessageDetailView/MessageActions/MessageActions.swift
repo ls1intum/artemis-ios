@@ -19,6 +19,7 @@ struct MessageActions: View {
     var body: some View {
         Group {
             ReplyInThreadButton(viewModel: viewModel, message: $message, conversationPath: conversationPath)
+            ForwardButton(viewModel: viewModel, message: $message)
             CopyTextButton(viewModel: viewModel, message: $message)
             BookmarkButton(viewModel: viewModel, message: $message)
             PinButton(viewModel: viewModel, message: $message)
@@ -50,6 +51,27 @@ struct MessageActions: View {
                         viewModel.presentError(userFacingError: UserFacingError(title: R.string.localizable.detailViewCantBeOpened()))
                     }
                 }
+            }
+        }
+    }
+
+    struct ForwardButton: View {
+        @EnvironmentObject var navigationController: NavigationController
+        @State private var viewModel: MessageActionsViewModel
+
+        init(viewModel: ConversationViewModel, message: Binding<DataState<BaseMessage>>) {
+            _viewModel = State(initialValue: MessageActionsViewModel(conversationViewModel: viewModel, message: message))
+        }
+
+        var body: some View {
+            Button("Forward", systemImage: "arrowshape.turn.up.right.fill") {
+                viewModel.showForwardSheet = true
+            }
+            .sheet(isPresented: $viewModel.showForwardSheet) {
+                viewModel.conversationViewModel.selectedMessageId = nil
+            } content: {
+                ForwardMessageView(viewModel: viewModel)
+                    .font(nil)
             }
         }
     }

@@ -17,6 +17,8 @@ class MessageActionsViewModel {
     @ObservationIgnored @Binding var message: DataState<BaseMessage>
     let service = MessagesServiceFactory.shared
 
+    var showForwardSheet = false
+
     var showDeleteAlert = false
     @MainActor var canDelete: Bool {
         guard let message = message.value else {
@@ -152,6 +154,42 @@ class MessageActionsViewModel {
                 break
             }
         }
+    }
+
+    func forwardMessage(content: String) async {
+        guard let source = message.value else {
+            return
+        }
+
+        let course = conversationViewModel.course.id
+        let targetConversation = conversationViewModel.conversation
+        let service = MessagesServiceFactory.shared
+        let result = await service.sendMessage(for: course,
+                                               conversation: targetConversation,
+                                               content: content,
+                                               hasForwardedMessages: true)
+
+        
+        switch result {
+        case .done(let response):
+            let sourceType: PostType = source is Message ? .post : .answer
+            let forwardResult = await service.forwardMessage(sourceId: source.id,
+                                                             sourceType: sourceType,
+                                                             destinationId: response.id)
+            switch forwardResult {
+            case .failure(let error):
+                conversationViewModel.presentError(userFacingError: error)
+                return
+            default:
+                break
+            }
+        case .failure(let error):
+            conversationViewModel.presentError(userFacingError: error)
+            return
+        default:
+            break
+        }
+        showForwardSheet = false
     }
 }
 

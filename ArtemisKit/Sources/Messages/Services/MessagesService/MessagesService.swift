@@ -46,7 +46,7 @@ protocol MessagesService {
     /**
      * Perform a post request for a new message for a specific conversation in a specific course to the server.
      */
-    func sendMessage(for courseId: Int, conversation: Conversation, content: String) async -> NetworkResponse
+    func sendMessage(for courseId: Int, conversation: Conversation, content: String, hasForwardedMessages: Bool?) async -> DataState<Message>
 
     /**
      * Perform a post request for a new message answer for a specific message in a specific course to the server.

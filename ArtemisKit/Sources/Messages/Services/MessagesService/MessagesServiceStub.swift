@@ -117,7 +117,7 @@ extension MessagesServiceStub: MessagesService {
         .loading
     }
 
-    func sendMessage(for courseId: Int, conversation: Conversation, content: String) async -> NetworkResponse {
+    func sendMessage(for courseId: Int, conversation: Conversation, content: String, hasForwardedMessages: Bool? = nil) async -> DataState<Message> {
         .loading
     }
 

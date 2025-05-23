@@ -215,6 +215,7 @@ struct MessagesServiceImpl: MessagesService {
         let displayPriority: DisplayPriority
         let conversation: Conversation
         let content: String
+        let hasForwardedMessages: Bool?
 
         var method: HTTPMethod {
             return .post
@@ -225,9 +226,9 @@ struct MessagesServiceImpl: MessagesService {
         }
     }
 
-    func sendMessage(for courseId: Int, conversation: Conversation, content: String) async -> NetworkResponse {
+    func sendMessage(for courseId: Int, conversation: Conversation, content: String, hasForwardedMessages: Bool? = nil) async -> DataState<Message> {
         let result = await client.sendRequest(
-            SendMessageRequest(courseId: courseId, visibleForStudents: true, displayPriority: .noInformation, conversation: conversation, content: content)
+            SendMessageRequest(courseId: courseId, visibleForStudents: true, displayPriority: .noInformation, conversation: conversation, content: content, hasForwardedMessages: hasForwardedMessages)
         )
 
         switch result {
@@ -235,9 +236,9 @@ struct MessagesServiceImpl: MessagesService {
             NotificationCenter.default.post(name: .newMessageSent,
                                             object: nil,
                                             userInfo: ["message": response.0])
-            return .success
+            return .done(response: response.0)
         case let .failure(error):
-            return .failure(error: error)
+            return .failure(error: .init(error: error))
         }
     }
 
