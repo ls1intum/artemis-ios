@@ -35,7 +35,7 @@ struct SendMessageView: View {
             if case .forwardMessage = viewModel.configuration {
                 Text(R.string.localizable.addMessage())
                     .padding(.horizontal)
-                    .frame(maxWidth: .infinity)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
 
             mentions
