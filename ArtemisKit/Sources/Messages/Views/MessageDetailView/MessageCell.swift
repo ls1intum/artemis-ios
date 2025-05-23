@@ -68,7 +68,7 @@ struct MessageCell: View {
         .background(messageBackground,
                     in: .rect(cornerRadii: viewModel.roundedCorners(isSelected: isSelected)))
         .padding(.top, viewModel.isHeaderVisible ? .m : 0)
-        .padding(.horizontal, useFullWidth ? 0 : (.m + .l) / 2)
+        .padding(.horizontal, useFullWidth ? 0 : .m)
         .opacity(opacity)
         .id(message.value?.id.description)
     }

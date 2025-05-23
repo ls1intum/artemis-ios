@@ -11,17 +11,42 @@ import SharedModels
 import SwiftUI
 import UserStore
 
-struct MessageActions: View {
+struct MessageActionsBar: View {
     @ObservedObject var viewModel: ConversationViewModel
     @Binding var message: DataState<BaseMessage>
     let conversationPath: ConversationPath?
 
     var body: some View {
-        Group {
-            ReplyInThreadButton(viewModel: viewModel, message: $message, conversationPath: conversationPath)
-            ForwardButton(viewModel: viewModel, message: $message)
+        MessageActions(viewModel: viewModel, message: $message, conversationPath: conversationPath)
+            .environment(\.actionsDisplayMode, .bar)
+    }
+}
+
+struct MessageActionsMenu: View {
+    @ObservedObject var viewModel: ConversationViewModel
+    @Binding var message: DataState<BaseMessage>
+    let conversationPath: ConversationPath?
+
+    var body: some View {
+        MessageActions(viewModel: viewModel, message: $message, conversationPath: conversationPath)
+            .background(.bar, in: .rect(cornerRadius: 10))
+            .fontWeight(.semibold)
+    }
+}
+
+private struct MessageActions: View {
+    @ObservedObject var viewModel: ConversationViewModel
+    @Binding var message: DataState<BaseMessage>
+    let conversationPath: ConversationPath?
+
+    var body: some View {
+        MenuGroup {
+            HorizontalMenuGroup {
+                ReplyButton(viewModel: viewModel, message: $message, conversationPath: conversationPath)
+                ForwardButton(viewModel: viewModel, message: $message)
+                BookmarkButton(viewModel: viewModel, message: $message)
+            }
             CopyTextButton(viewModel: viewModel, message: $message)
-            BookmarkButton(viewModel: viewModel, message: $message)
             PinButton(viewModel: viewModel, message: $message)
             MarkResolvingButton(viewModel: viewModel, message: $message)
             EditDeleteSection(viewModel: viewModel, message: $message)
@@ -30,7 +55,7 @@ struct MessageActions: View {
         .font(.title3)
     }
 
-    struct ReplyInThreadButton: View {
+    struct ReplyButton: View {
         @EnvironmentObject var navigationController: NavigationController
         @ObservedObject var viewModel: ConversationViewModel
         @Binding var message: DataState<BaseMessage>
@@ -39,7 +64,7 @@ struct MessageActions: View {
         var body: some View {
             if message.value is Message,
                let conversationPath {
-                Button(R.string.localizable.replyInThread(), systemImage: "text.bubble") {
+                Button(R.string.localizable.replyInThread(), systemImage: "arrowshape.turn.up.left") {
                     if let messagePath = MessagePath(
                         message: $message,
                         conversationPath: conversationPath,
@@ -64,7 +89,7 @@ struct MessageActions: View {
         }
 
         var body: some View {
-            Button(R.string.localizable.forwardMessageShort(), systemImage: "arrowshape.turn.up.right.fill") {
+            Button(R.string.localizable.forwardMessageShort(), systemImage: "arrowshape.turn.up.right") {
                 viewModel.showForwardSheet = true
             }
             .sheet(isPresented: $viewModel.showForwardSheet) {
@@ -73,7 +98,6 @@ struct MessageActions: View {
                 ForwardMessageView(viewModel: viewModel)
                     .font(nil)
             }
-            Divider()
         }
     }
 
@@ -119,16 +143,13 @@ struct MessageActions: View {
         }
 
         var body: some View {
-            Group {
-                Divider()
-                if message.value?.isBookmarked ?? false {
-                    Button(R.string.localizable.removeBookmark(), systemImage: "bookmark.slash") {
-                        viewModel.toggleBookmark()
-                    }
-                } else {
-                    Button(R.string.localizable.addBookmark(), systemImage: "bookmark") {
-                        viewModel.toggleBookmark()
-                    }
+            if message.value?.isBookmarked ?? false {
+                Button(R.string.localizable.removeBookmark(), systemImage: "bookmark.slash") {
+                    viewModel.toggleBookmark()
+                }
+            } else {
+                Button(R.string.localizable.addBookmark(), systemImage: "bookmark") {
+                    viewModel.toggleBookmark()
                 }
             }
         }
@@ -143,33 +164,28 @@ struct MessageActions: View {
         }
 
         var body: some View {
-            Group {
-                if viewModel.canEdit || viewModel.canDelete {
-                    Divider()
+            if viewModel.canEdit {
+                Button(R.string.localizable.editMessage(), systemImage: "pencil") {
+                    viewModel.showEditSheet = true
                 }
-                if viewModel.canEdit {
-                    Button(R.string.localizable.editMessage(), systemImage: "pencil") {
-                        viewModel.showEditSheet = true
+                .sheet(isPresented: $viewModel.showEditSheet) {
+                    viewModel.conversationViewModel.selectedMessageId = nil
+                } content: {
+                    EditMessageView(viewModel: viewModel)
+                        .font(nil)
+                }
+            }
+            if viewModel.canDelete {
+                Button(R.string.localizable.deleteMessage(), systemImage: "trash", role: .destructive) {
+                    viewModel.showDeleteAlert = true
+                }
+                .foregroundStyle(.red)
+                .alert(R.string.localizable.confirmDeletionTitle(), isPresented: $viewModel.showDeleteAlert) {
+                    Button(R.string.localizable.confirm(), role: .destructive) {
+                        viewModel.deleteMessage(navController: navigationController)
                     }
-                    .sheet(isPresented: $viewModel.showEditSheet) {
+                    Button(R.string.localizable.cancel(), role: .cancel) {
                         viewModel.conversationViewModel.selectedMessageId = nil
-                    } content: {
-                        EditMessageView(viewModel: viewModel)
-                            .font(nil)
-                    }
-                }
-                if viewModel.canDelete {
-                    Button(R.string.localizable.deleteMessage(), systemImage: "trash", role: .destructive) {
-                        viewModel.showDeleteAlert = true
-                    }
-                    .foregroundStyle(.red)
-                    .alert(R.string.localizable.confirmDeletionTitle(), isPresented: $viewModel.showDeleteAlert) {
-                        Button(R.string.localizable.confirm(), role: .destructive) {
-                            viewModel.deleteMessage(navController: navigationController)
-                        }
-                        Button(R.string.localizable.cancel(), role: .cancel) {
-                            viewModel.conversationViewModel.selectedMessageId = nil
-                        }
                     }
                 }
             }
@@ -186,15 +202,11 @@ struct MessageActions: View {
         }
 
         var body: some View {
-            Group {
-                if viewModel.canPin {
-                    Divider()
-
-                    if (message.value as? Message)?.displayPriority == .pinned {
-                        Button(R.string.localizable.unpinMessage(), systemImage: "pin.slash", action: viewModel.togglePinned)
-                    } else {
-                        Button(R.string.localizable.pinMessage(), systemImage: "pin", action: viewModel.togglePinned)
-                    }
+            if viewModel.canPin {
+                if (message.value as? Message)?.displayPriority == .pinned {
+                    Button(R.string.localizable.unpinMessage(), systemImage: "pin.slash", action: viewModel.togglePinned)
+                } else {
+                    Button(R.string.localizable.pinMessage(), systemImage: "pin", action: viewModel.togglePinned)
                 }
             }
         }
@@ -224,15 +236,11 @@ struct MessageActions: View {
         }
 
         var body: some View {
-            Group {
-                if isAbleToMarkResolving {
-                    Divider()
-
-                    if (message.value as? AnswerMessage)?.resolvesPost ?? false {
-                        Button(R.string.localizable.unmarkAsResolving(), systemImage: "xmark", action: toggleResolved)
-                    } else {
-                        Button(R.string.localizable.markAsResolving(), systemImage: "checkmark", action: toggleResolved)
-                    }
+            if isAbleToMarkResolving {
+                if (message.value as? AnswerMessage)?.resolvesPost ?? false {
+                    Button(R.string.localizable.unmarkAsResolving(), systemImage: "xmark", action: toggleResolved)
+                } else {
+                    Button(R.string.localizable.markAsResolving(), systemImage: "checkmark", action: toggleResolved)
                 }
             }
         }
@@ -248,41 +256,45 @@ struct MessageActions: View {
     }
 }
 
-struct MessageActionsMenu: View {
-    @ObservedObject var viewModel: ConversationViewModel
-    @Binding var message: DataState<BaseMessage>
-    let conversationPath: ConversationPath?
+private struct MessageActionsStyleModifier: ViewModifier {
+    @Environment(\.actionsDisplayMode) private var displayMode
 
-    init(viewModel: ConversationViewModel, message: Binding<DataState<BaseMessage>>, conversationPath: ConversationPath?) {
-        self.viewModel = viewModel
-        self._message = message
-        self.conversationPath = conversationPath
-    }
-
-    var body: some View {
-        VStack {
-            MessageActions(viewModel: viewModel, message: $message, conversationPath: conversationPath)
+    func body(content: Content) -> some View {
+        if displayMode == .menu {
+            content
+                .symbolVariant(.fill)
+                .labelStyle(ContextMenuLabelStyle())
+                .buttonStyle(.plain)
+        } else {
+            content
         }
-        .padding(.vertical, .s)
-        .background(.bar, in: .rect(cornerRadius: 10))
-        .fontWeight(.semibold)
-        .symbolVariant(.fill)
-        .labelStyle(ContextMenuLabelStyle())
-        .buttonStyle(.plain)
-        .loadingIndicator(isLoading: $viewModel.isLoading)
-        .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
     }
 }
 
 private struct ContextMenuLabelStyle: LabelStyle {
+    @Environment(\.actionsDisplayMode) var displayMode
+
+    var layout: AnyLayout {
+        if displayMode == .menuCompact {
+            AnyLayout(VStackLayout())
+        } else {
+            AnyLayout(HStackLayout())
+        }
+    }
+
     func makeBody(configuration: Configuration) -> some View {
-        HStack {
-            configuration.title
-            Spacer()
-            configuration.icon
+        layout {
+            if displayMode == .menuCompact {
+                configuration.icon.frame(height: 40)
+                configuration.title.font(.callout)
+            } else {
+                configuration.title
+                Spacer()
+                configuration.icon
+            }
         }
         .padding(.horizontal)
-        .padding(.vertical, .s)
+        .padding(.vertical, 10)
         .contentShape(.rect)
     }
 }
@@ -300,6 +312,78 @@ extension EnvironmentValues {
         }
         set {
             self[OriginalPostAuthorEnvironmentKey.self] = newValue
+        }
+    }
+}
+
+// MARK: - Layout
+private enum ActionsDisplayMode {
+    case menu, menuCompact, bar
+}
+
+private struct HorizontalMenuGroup<Content: View>: View {
+    @Environment(\.actionsDisplayMode) private var displayMode
+    @ViewBuilder var content: Content
+
+    var isMenu: Bool { displayMode == .menu }
+
+    var body: some View {
+        HStack(spacing: isMenu ? 0 : .m) {
+            Group(subviews: content) { subviews in
+                ForEach(subviews.dropLast()) { subview in
+                    subview
+                        .frame(maxWidth: isMenu ? .infinity : nil)
+                    Divider()
+                }
+                subviews.last
+                    .frame(maxWidth: isMenu ? .infinity : nil)
+            }
+        }
+        .fixedSize(horizontal: false, vertical: true)
+        .environment(\.actionsDisplayMode, isMenu ? .menuCompact : displayMode)
+    }
+}
+
+private struct MenuGroup<Content: View>: View {
+    @Environment(\.actionsDisplayMode) private var displayMode
+    @ViewBuilder var content: Content
+
+    var layout: AnyLayout {
+        if displayMode == .menu {
+            AnyLayout(VStackLayout(spacing: 0))
+        } else {
+            AnyLayout(HStackLayout(spacing: .m))
+        }
+    }
+
+    var body: some View {
+        layout {
+            Group(subviews: content) { subviews in
+                ForEach(subviews.dropLast()) { subview in
+                    subview
+                    Divider()
+                }
+                subviews.last
+            }
+        }
+        .fixedSize(horizontal: false, vertical: true)
+        .modifier(MessageActionsStyleModifier())
+    }
+}
+
+// MARK: Environment+ActionsDisplayMode
+
+private enum ActionsDisplayModeEnvironmentKey: EnvironmentKey {
+    static let defaultValue: ActionsDisplayMode = .menu
+}
+
+private extension EnvironmentValues {
+    var actionsDisplayMode: ActionsDisplayMode {
+        get {
+            self[ActionsDisplayModeEnvironmentKey.self]
+        }
+        set {
+            self[ActionsDisplayModeEnvironmentKey.self] = newValue
         }
     }
 }
