@@ -77,7 +77,7 @@ class LectureDetailViewModel: BaseViewModel {
         case .success:
             var newLectureUnit: LectureUnit?
             switch lectureUnit {
-            case .attachment(let lectureUnit):
+            case .attachmentVideo(let lectureUnit):
                 var newBaseLectureUnit = lectureUnit
                 newBaseLectureUnit.completed = completed
                 newLectureUnit = LectureUnit(lectureUnit: newBaseLectureUnit)
@@ -86,10 +86,6 @@ class LectureDetailViewModel: BaseViewModel {
                 newBaseLectureUnit.completed = completed
                 newLectureUnit = LectureUnit(lectureUnit: newBaseLectureUnit)
             case .text(let lectureUnit):
-                var newBaseLectureUnit = lectureUnit
-                newBaseLectureUnit.completed = completed
-                newLectureUnit = LectureUnit(lectureUnit: newBaseLectureUnit)
-            case .video(let lectureUnit):
                 var newBaseLectureUnit = lectureUnit
                 newBaseLectureUnit.completed = completed
                 newLectureUnit = LectureUnit(lectureUnit: newBaseLectureUnit)
