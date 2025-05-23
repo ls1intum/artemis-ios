@@ -79,7 +79,7 @@
 "attachment" = "Attachment";
 
 // MARK: Message Actions
-"replyInThread" = "Reply in Thread";
+"replyInThread" = "Reply";
 "copyText" = "Copy Text";
 "editMessage" = "Edit Message";
 "deleteMessage" = "Delete Message";
@@ -89,8 +89,8 @@
 "unmarkAsResolving" = "Doesn't Resolve Post";
 "pinMessage" = "Pin Message";
 "unpinMessage" = "Unpin Message";
-"addBookmark" = "Save Message";
-"removeBookmark" = "Remove Bookmark";
+"addBookmark" = "Save";
+"removeBookmark" = "Remove";
 "forwardMessage" = "Forward message";
 "forwardMessageShort" = "Forward";
 

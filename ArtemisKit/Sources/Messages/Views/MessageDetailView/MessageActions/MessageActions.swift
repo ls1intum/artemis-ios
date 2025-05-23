@@ -42,11 +42,11 @@ private struct MessageActions: View {
     var body: some View {
         MenuGroup {
             HorizontalMenuGroup {
-                ReplyInThreadButton(viewModel: viewModel, message: $message, conversationPath: conversationPath)
+                ReplyButton(viewModel: viewModel, message: $message, conversationPath: conversationPath)
                 ForwardButton(viewModel: viewModel, message: $message)
-                CopyTextButton(viewModel: viewModel, message: $message)
+                BookmarkButton(viewModel: viewModel, message: $message)
             }
-            BookmarkButton(viewModel: viewModel, message: $message)
+            CopyTextButton(viewModel: viewModel, message: $message)
             PinButton(viewModel: viewModel, message: $message)
             MarkResolvingButton(viewModel: viewModel, message: $message)
             EditDeleteSection(viewModel: viewModel, message: $message)
@@ -55,7 +55,7 @@ private struct MessageActions: View {
         .font(.title3)
     }
 
-    struct ReplyInThreadButton: View {
+    struct ReplyButton: View {
         @EnvironmentObject var navigationController: NavigationController
         @ObservedObject var viewModel: ConversationViewModel
         @Binding var message: DataState<BaseMessage>
@@ -64,7 +64,7 @@ private struct MessageActions: View {
         var body: some View {
             if message.value is Message,
                let conversationPath {
-                Button(R.string.localizable.replyInThread(), systemImage: "text.bubble") {
+                Button(R.string.localizable.replyInThread(), systemImage: "arrowshape.turn.up.left") {
                     if let messagePath = MessagePath(
                         message: $message,
                         conversationPath: conversationPath,
@@ -89,7 +89,7 @@ private struct MessageActions: View {
         }
 
         var body: some View {
-            Button(R.string.localizable.forwardMessageShort(), systemImage: "arrowshape.turn.up.right.fill") {
+            Button(R.string.localizable.forwardMessageShort(), systemImage: "arrowshape.turn.up.right") {
                 viewModel.showForwardSheet = true
             }
             .sheet(isPresented: $viewModel.showForwardSheet) {
