@@ -17,6 +17,10 @@ class MessageActionsViewModel {
     @ObservationIgnored @Binding var message: DataState<BaseMessage>
     let service = MessagesServiceFactory.shared
 
+    var showForwardSheet = false
+    var selectedConversation: Conversation?
+    var allConversations: DataState<[Conversation]> = .loading
+
     var showDeleteAlert = false
     @MainActor var canDelete: Bool {
         guard let message = message.value else {
@@ -152,6 +156,45 @@ class MessageActionsViewModel {
                 break
             }
         }
+    }
+
+    func forwardMessage(content: String) async {
+        guard let source = message.value, let selectedConversation else {
+            return
+        }
+
+        let course = conversationViewModel.course.id
+        let service = MessagesServiceFactory.shared
+        let result = await service.sendMessage(for: course,
+                                               conversation: selectedConversation,
+                                               content: content,
+                                               hasForwardedMessages: true)
+
+        switch result {
+        case .done(let response):
+            let sourceType: PostType = source is Message ? .post : .answer
+            let forwardResult = await service.forwardMessage(sourceId: source.id,
+                                                             sourceType: sourceType,
+                                                             destinationId: response.id)
+            switch forwardResult {
+            case .failure(let error):
+                conversationViewModel.presentError(userFacingError: error)
+                return
+            default:
+                break
+            }
+        case .failure(let error):
+            conversationViewModel.presentError(userFacingError: error)
+            return
+        default:
+            break
+        }
+        showForwardSheet = false
+    }
+
+    func loadConversations() async {
+        let service = MessagesServiceFactory.shared
+        allConversations = await service.getConversations(for: conversationViewModel.course.id)
     }
 }
 

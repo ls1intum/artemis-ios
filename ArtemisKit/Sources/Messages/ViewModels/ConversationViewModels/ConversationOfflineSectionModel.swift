@@ -61,11 +61,11 @@ final class ConversationOfflineSectionModel {
     }
 
     func sendMessage() async {
-        let result = await messagesService.sendMessage(for: course.id, conversation: conversation, content: message.text)
+        let result = await messagesService.sendMessage(for: course.id, conversation: conversation, content: message.text, hasForwardedMessages: nil)
         switch result {
-        case .notStarted, .loading:
+        case .loading:
             break
-        case .success:
+        case .done:
             await delegate.didSendOfflineMessage(message)
         case .failure:
             taskDidFail = true

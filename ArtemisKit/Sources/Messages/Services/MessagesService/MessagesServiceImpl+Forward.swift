@@ -123,4 +123,34 @@ extension MessagesServiceImpl {
             return .failure(error: .init(error: error))
         }
     }
+
+    struct CreateForwardedMessageRequest: APIRequest {
+        typealias Response = ForwardedMessageDTO
+
+        var method: HTTPMethod { .post }
+
+        let message: ForwardedMessageDTO
+
+        var resourceName: String {
+            "api/communication/forwarded-messages"
+        }
+
+        func encode(to encoder: any Encoder) throws {
+            var container = encoder.singleValueContainer()
+            try container.encode(message)
+        }
+    }
+
+    func forwardMessage(sourceId: Int64, sourceType: PostType, destinationId: Int64) async -> DataState<ForwardedMessageDTO> {
+        let message = ForwardedMessageDTO(sourceId: sourceId,
+                                          sourceType: sourceType,
+                                          destinationPostId: destinationId)
+        let response = await client.sendRequest(CreateForwardedMessageRequest(message: message))
+        switch response {
+        case .success(let (data, _)):
+            return .done(response: data)
+        case .failure(let error):
+            return .failure(error: .init(error: error))
+        }
+    }
 }

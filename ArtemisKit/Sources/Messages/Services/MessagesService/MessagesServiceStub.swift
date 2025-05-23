@@ -117,7 +117,7 @@ extension MessagesServiceStub: MessagesService {
         .loading
     }
 
-    func sendMessage(for courseId: Int, conversation: Conversation, content: String) async -> NetworkResponse {
+    func sendMessage(for courseId: Int, conversation: Conversation, content: String, hasForwardedMessages: Bool? = nil) async -> DataState<Message> {
         .loading
     }
 
@@ -242,6 +242,10 @@ extension MessagesServiceStub: MessagesService {
     }
 
     func getForwardedMessages(for postIds: [Int64], courseId: Int) async -> DataState<[ForwardedMessagesGroupDTO]> {
+        .loading
+    }
+
+    func forwardMessage(sourceId: Int64, sourceType: PostType, destinationId: Int64) async -> DataState<ForwardedMessageDTO> {
         .loading
     }
 }
