@@ -32,6 +32,14 @@ struct SendMessageView: View {
                 Divider()
             }
 
+            if case .forwardMessage = viewModel.configuration {
+                Text(R.string.localizable.addMessage())
+                    .fontWeight(.semibold)
+                    .padding(.horizontal, .l)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.bottom, isFocused ? .m : .m * -1)
+            }
+
             mentions
             if isFocused && !viewModel.isEditing {
                 Capsule()
@@ -114,8 +122,9 @@ private extension SendMessageView {
 
     var textField: some View {
         HStack(alignment: .bottom) {
+            let conversationName = viewModel.isEditing ? "" : viewModel.conversation.baseConversation.conversationName
             TextField(
-                R.string.localizable.messageAction(viewModel.conversation.baseConversation.conversationName),
+                R.string.localizable.messageAction(conversationName),
                 text: $viewModel.text,
                 selection: viewModel.selection,
                 axis: .vertical
@@ -243,7 +252,7 @@ private extension SendMessageView {
                 .imageScale(.large)
         }
         .padding(.leading, .l)
-        .disabled(viewModel.text.isEmpty)
+        .disabled(!viewModel.canSend)
         .loadingIndicator(isLoading: $viewModel.isLoading)
     }
 }

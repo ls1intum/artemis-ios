@@ -12,47 +12,36 @@ import SwiftUI
 
 struct VideoUnitSheetContent: View {
 
-    let videoUnit: VideoUnit
+    let unit: AttachmentVideoUnit
+    let videoSource: URL
     var canPlayInline: Bool {
         let supportedExtensions = ["m3u8", "mp4"]
-        guard let source = videoUnit.source,
-              let url = URL(string: source) else {
-            return false
-        }
-        return supportedExtensions.contains(url.pathExtension)
+        return supportedExtensions.contains(videoSource.pathExtension)
     }
 
     var body: some View {
         GeometryReader { proxy in
-            ScrollView {
-                if let description = videoUnit.description {
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text(R.string.localizable.description())
-                                .font(.headline)
-                            Text(description)
-                        }
-                        Spacer()
+            if let description = unit.description {
+                HStack {
+                    VStack(alignment: .leading) {
+                        Text(R.string.localizable.description())
+                            .font(.headline)
+                        Text(description)
                     }
-                    .padding(.horizontal)
+                    Spacer()
                 }
-
-                if let source = videoUnit.source,
-                   let url = URL(string: source) {
-                    if canPlayInline {
-                        VideoPlayerView(url: url)
-                            .frame(width: proxy.size.width,
-                                   height: min(proxy.size.height, proxy.size.width * 9 / 16))
-                    }
-
-                    Link(R.string.localizable.openVideo(), destination: url)
-                        .buttonStyle(ArtemisButton())
-                        .padding(.horizontal)
-                } else {
-                    Text(R.string.localizable.videoCouldNotBeLoaded())
-                        .foregroundColor(.red)
-                }
+                .padding(.horizontal)
             }
+            
+            if canPlayInline {
+                VideoPlayerView(url: videoSource)
+                    .frame(width: proxy.size.width,
+                           height: min(proxy.size.height, proxy.size.width * 9 / 16))
+            }
+            
+            Link(R.string.localizable.openVideo(), destination: videoSource)
+                .buttonStyle(ArtemisButton())
+                .padding(.horizontal)
         }
     }
 }

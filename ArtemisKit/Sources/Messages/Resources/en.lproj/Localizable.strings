@@ -1,4 +1,5 @@
 "Messages" = "Messages";
+"conversation" = "Conversation";
 
 // MARK: MessagesTabView
 "archived" = "(Archived)";
@@ -31,6 +32,7 @@
 "unorderedList" = "Unordered List";
 "orderedList" = "Ordered List";
 "listFormatting" = "List Formatting";
+"addMessage" = "Add a message";
 
 // MARK: SendMessageMentionContentView
 "members" = "Members";
@@ -77,7 +79,7 @@
 "attachment" = "Attachment";
 
 // MARK: Message Actions
-"replyInThread" = "Reply in Thread";
+"replyInThread" = "Reply";
 "copyText" = "Copy Text";
 "editMessage" = "Edit Message";
 "deleteMessage" = "Delete Message";
@@ -87,8 +89,10 @@
 "unmarkAsResolving" = "Doesn't Resolve Post";
 "pinMessage" = "Pin Message";
 "unpinMessage" = "Unpin Message";
-"addBookmark" = "Save Message";
-"removeBookmark" = "Remove Bookmark";
+"addBookmark" = "Save";
+"removeBookmark" = "Remove";
+"forwardMessage" = "Forward message";
+"forwardMessageShort" = "Forward";
 
 // MARK: Saved Messages
 "savedMessages" = "Saved Messages";

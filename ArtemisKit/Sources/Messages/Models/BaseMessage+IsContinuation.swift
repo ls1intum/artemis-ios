@@ -29,6 +29,14 @@ extension BaseMessage {
             return false
         }
 
+        // Don't merge saved messages
+        if (message as? Message)?.isSaved ?? false {
+            return false
+        }
+        if (self as? Message)?.isSaved ?? false {
+            return false
+        }
+
         // Don't merge resolving answers
         if (message as? AnswerMessage)?.resolvesPost ?? false {
             return false

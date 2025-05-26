@@ -106,6 +106,15 @@ struct MessageDetailView: View {
         }
         .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            if let message = message.value as? Message,
+               message.hasForwardedMessages ?? false &&
+               !viewModel.forwardedSourcePosts.contains(where: { $0.id == message.id }) {
+                Task {
+                    await viewModel.loadForwardedMessages(forceIds: [message.id])
+                }
+            }
+        }
     }
 }
 
@@ -136,14 +145,10 @@ private extension MessageDetailView {
 
                 // Only display labels if we have enough space
                 ViewThatFits(in: .horizontal) {
-                    HStack {
-                        MessageActions(viewModel: viewModel, message: $message, conversationPath: nil)
-                    }
-                    HStack(spacing: .l) {
-                        MessageActions(viewModel: viewModel, message: $message, conversationPath: nil)
-                            .labelStyle(.iconOnly)
-                            .fontWeight(.bold)
-                    }
+                    MessageActionsBar(viewModel: viewModel, message: $message, conversationPath: nil)
+                    MessageActionsBar(viewModel: viewModel, message: $message, conversationPath: nil)
+                        .labelStyle(.iconOnly)
+                        .fontWeight(.bold)
                 }
                 .loadingIndicator(isLoading: $viewModel.isLoading)
             }

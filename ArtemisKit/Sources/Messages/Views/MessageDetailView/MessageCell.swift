@@ -44,6 +44,8 @@ struct MessageCell: View {
                     .environment(\.imagePreviewsEnabled, viewModel.conversationPath == nil)
                 editedLabel
                 resolvedIndicator
+                ForwardedMessageView(viewModel: conversationViewModel,
+                                     message: message.value as? Message)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(.rect)
@@ -66,7 +68,7 @@ struct MessageCell: View {
         .background(messageBackground,
                     in: .rect(cornerRadii: viewModel.roundedCorners(isSelected: isSelected)))
         .padding(.top, viewModel.isHeaderVisible ? .m : 0)
-        .padding(.horizontal, useFullWidth ? 0 : (.m + .l) / 2)
+        .padding(.horizontal, useFullWidth ? 0 : .m)
         .opacity(opacity)
         .id(message.value?.id.description)
     }
@@ -157,7 +159,7 @@ private extension MessageCell {
         isSaved ? .blue.opacity(0.2) :
         isPinned ? .orange.opacity(0.25) :
         resolvesPost ? .green.opacity(0.2) :
-        Color(uiColor: .secondarySystemBackground)
+        .clear
     }
 
     @ViewBuilder var roleBadge: some View {
