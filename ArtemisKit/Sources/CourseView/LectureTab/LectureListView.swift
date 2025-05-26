@@ -50,7 +50,7 @@ struct LectureListView: View {
                 .listRowSpacing(.m)
                 .listStyle(.insetGrouped)
                 .scrollContentBackground(.hidden)
-                .searchable(text: $searchText)
+                .searchable(text: $searchText, prompt: R.string.localizable.filterLectures())
                 .refreshable {
                     await viewModel.refreshCourse()
                 }
