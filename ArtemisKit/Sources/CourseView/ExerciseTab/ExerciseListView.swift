@@ -47,7 +47,7 @@ struct ExerciseListView: View {
                 .listSectionSpacing(.compact)
                 .scrollContentBackground(.hidden)
                 .listRowSpacing(.m)
-                .searchable(text: $searchText)
+                .searchable(text: $searchText, prompt: R.string.localizable.filterExercises())
                 .refreshable {
                     await viewModel.refreshCourse()
                 }
