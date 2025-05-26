@@ -130,7 +130,7 @@ struct ConversationListView: View {
             }
         }
         .loadingIndicator(isLoading: $viewModel.showUnresolvedLoadingIndicator)
-        .searchable(text: $viewModel.searchText)
+        .searchable(text: $viewModel.searchText, prompt: R.string.localizable.filterConversations())
         .overlay(alignment: .bottomTrailing) {
             CreateOrAddChannelButton(viewModel: viewModel.parentViewModel)
                 .padding()
