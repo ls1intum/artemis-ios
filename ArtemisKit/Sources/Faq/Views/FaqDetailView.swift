@@ -18,6 +18,9 @@ struct FaqDetailView: View {
             VStack(alignment: .leading, spacing: .m) {
                 Text(faq.questionTitle)
                     .font(.title2.bold())
+                if let categories = faq.categories {
+                    CategoriesView(categories: categories)
+                }
                 ArtemisMarkdownView(string: faq.questionAnswer)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
