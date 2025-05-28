@@ -133,6 +133,8 @@ private struct PickConversationView: View {
             }
             .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
         }
+        .navigationTitle(R.string.localizable.conversation())
+        .navigationBarTitleDisplayMode(.inline)
         .task {
             if case .loading = viewModel.allConversations {
                 await viewModel.loadConversations()
