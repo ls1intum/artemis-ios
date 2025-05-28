@@ -23,8 +23,6 @@ struct FaqDetailView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .contentMargins(.l)
-        .navigationTitle(faq.questionTitle)
-        .navigationBarTitleDisplayMode(.inline)
         .modifier(TransitionIfAvailable(id: faq.id, namespace: namespace))
     }
 }
