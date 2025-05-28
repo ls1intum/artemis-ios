@@ -87,7 +87,8 @@ class LectureServiceImpl: LectureService {
                 (data, _) = try await URLSession.shared.data(from: newUrl)
             }
 
-            let suggestedFilename = name ?? url.lastPathComponent
+            let fileExtension = url.pathExtension
+            let suggestedFilename = name?.appending("." + fileExtension) ?? url.lastPathComponent
             let previewURL = FileManager.default.temporaryDirectory.appendingPathComponent(suggestedFilename)
             try data.write(to: previewURL, options: .atomic)   // atomic option overwrites it if needed
             return .done(response: previewURL)
