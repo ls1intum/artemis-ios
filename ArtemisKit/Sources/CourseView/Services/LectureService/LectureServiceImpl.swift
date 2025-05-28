@@ -69,14 +69,26 @@ class LectureServiceImpl: LectureService {
         }
     }
 
-    func getAttachmentFile(link: String) async -> DataState<URL> {
+    func getAttachmentFile(link: String, name: String? = nil) async -> DataState<URL> {
         guard let url = URL(string: link, relativeTo: UserSessionFactory.shared.institution?.baseURL) else {
             return .failure(error: UserFacingError(title: "Wrong URL"))
         }
         do {
-            let (data, _) = try await URLSession.shared.data(from: url)
+            var (data, response) = try await URLSession.shared.data(from: url)
 
-            guard let suggestedFilename = URL(string: link)?.lastPathComponent else { return .failure(error: UserFacingError(title: "")) }
+            // Accessing lecture attachment as student needs a different URL sometimes
+            if (response as? HTTPURLResponse)?.statusCode == 403 {
+                let lastPathComponent = url.lastPathComponent
+                let newUrl = url
+                    .deletingLastPathComponent()
+                    .appending(path: "student")
+                    .appending(path: lastPathComponent)
+
+                (data, _) = try await URLSession.shared.data(from: newUrl)
+            }
+
+            let fileExtension = url.pathExtension
+            let suggestedFilename = name?.appending("." + fileExtension) ?? url.lastPathComponent
             let previewURL = FileManager.default.temporaryDirectory.appendingPathComponent(suggestedFilename)
             try data.write(to: previewURL, options: .atomic)   // atomic option overwrites it if needed
             return .done(response: previewURL)
