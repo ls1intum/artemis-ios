@@ -25,7 +25,7 @@ struct FaqDetailView: View {
         .contentMargins(.l)
         .navigationTitle(faq.questionTitle)
         .navigationBarTitleDisplayMode(.inline)
-        .modifier(TransitionIfAvailable(id: faq.id, namespace: namespace))
+        .modifier(TransitionIfAvailable(id: faq.id ?? 0, namespace: namespace))
     }
 }
 
