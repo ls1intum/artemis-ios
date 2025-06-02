@@ -38,6 +38,13 @@ struct ProposeFaqView: View {
             }
         }
         .loadingIndicator(isLoading: $viewModel.isLoading)
+        .alert(viewModel.error?.title ?? "An error occurred", isPresented: Binding<Bool>(get: {
+            viewModel.error != nil
+        }, set: { newValue in
+            if newValue == false {
+                viewModel.error = nil
+            }
+        })) {}
     }
 
     var proposeButton: some View {

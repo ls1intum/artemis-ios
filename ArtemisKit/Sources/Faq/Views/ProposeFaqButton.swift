@@ -15,7 +15,7 @@ struct ProposeFaqButton: View {
             Button {
                 viewModel.showProposalView = true
             } label: {
-                Image(systemName: "plus.bubble")
+                Image(systemName: "square.and.pencil")
                     .foregroundStyle(.white)
                     .font(.title2)
                     .padding()
@@ -23,6 +23,8 @@ struct ProposeFaqButton: View {
                     .shadow(color: Color.gray.opacity(0.2), radius: .m)
             }
             .sheet(isPresented: $viewModel.showProposalView) {
+                viewModel.proposedFaq = .init()
+            } content: {
                 ProposeFaqView(viewModel: viewModel)
             }
         }
