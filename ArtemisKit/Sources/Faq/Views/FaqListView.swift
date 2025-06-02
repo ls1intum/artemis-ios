@@ -60,6 +60,9 @@ public struct FaqListView: View {
                 .refreshable {
                     await viewModel.loadFaq()
                 }
+                .overlay(alignment: .bottomTrailing) {
+                    ProposeFaqButton(viewModel: viewModel)
+                }
             }
             .courseToolbar()
         } detail: {
