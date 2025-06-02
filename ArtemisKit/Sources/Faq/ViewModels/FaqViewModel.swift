@@ -18,6 +18,14 @@ class FaqViewModel {
 
     var searchText = ""
 
+    var proposedFaq = FaqDTO()
+    var showProposalView = false
+    var isLoading = false
+    var error: UserFacingError?
+    var canPropose: Bool {
+        course.isAtLeastTutorInCourse
+    }
+
     init(course: Course) {
         self.course = course
     }
@@ -31,6 +39,24 @@ class FaqViewModel {
             faqs = .failure(error: error)
         case .done(let response):
             faqs = .done(response: response.filter { $0.faqState == .accepted })
+        }
+    }
+
+    func proposeFaq() async {
+        isLoading = true
+        defer {
+            isLoading = false
+        }
+
+        let createdFaq = await faqService.proposeFaq(faq: proposedFaq, for: course.id)
+        switch createdFaq {
+        case .failure(let error):
+            self.error = error
+        case .done(let response):
+            faqs.value?.append(response)
+            showProposalView = false
+        default:
+            break
         }
     }
 }
