@@ -110,12 +110,16 @@ private struct ForwardMessagePreviewView: View {
 private struct PickConversationView: View {
     @Environment(\.dismiss) private var dismiss
     @Bindable var viewModel: MessageActionsViewModel
+    @State private var searchText = ""
 
     var body: some View {
         DataStateView(data: $viewModel.allConversations) {
             await viewModel.loadConversations()
         } content: { conversations in
             List {
+                let conversations = searchText.isEmpty ? conversations : conversations.filter {
+                    $0.baseConversation.conversationName.localizedStandardContains(searchText)
+                }
                 ForEach(conversations) { conversation in
                     Button {
                         viewModel.selectedConversation = conversation
@@ -128,7 +132,10 @@ private struct PickConversationView: View {
                     .buttonStyle(.plain)
                 }
             }
+            .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
         }
+        .navigationTitle(R.string.localizable.conversation())
+        .navigationBarTitleDisplayMode(.inline)
         .task {
             if case .loading = viewModel.allConversations {
                 await viewModel.loadConversations()
