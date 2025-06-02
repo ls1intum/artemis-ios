@@ -38,7 +38,11 @@ class FaqViewModel {
         case .failure(let error):
             faqs = .failure(error: error)
         case .done(let response):
-            faqs = .done(response: response.filter { $0.faqState == .accepted })
+            if canPropose {
+                faqs = .done(response: response.filter { $0.faqState != .rejected })
+            } else {
+                faqs = .done(response: response.filter { $0.faqState == .accepted })
+            }
         }
     }
 
