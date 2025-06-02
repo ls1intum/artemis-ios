@@ -55,6 +55,7 @@ class FaqViewModel {
         case .done(let response):
             faqs.value?.append(response)
             showProposalView = false
+            proposedFaq = .init()
         default:
             break
         }

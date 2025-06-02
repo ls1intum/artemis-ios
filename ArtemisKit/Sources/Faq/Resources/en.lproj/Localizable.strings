@@ -1,3 +1,8 @@
 "faqs" = "FAQs";
 "noFaqs" = "No FAQs";
 "readMore" = "Read more";
+
+"proposeFaq" = "Propose FAQ";
+"propose" = "Propose";
+"cancel" = "Cancel";
+"proposedDescription" = "Proposed – not visible to students";
