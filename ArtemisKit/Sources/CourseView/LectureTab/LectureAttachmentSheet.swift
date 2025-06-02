@@ -28,9 +28,11 @@ struct LectureAttachmentSheet: View {
 
     private func loadAttachment() async {
         var link: String?
+        var fileName: String?
         switch attachment {
         case .file(let attachment):
             link = attachment.link
+            fileName = attachment.name
         case .url(let attachment):
             // TODO
             link = nil
@@ -44,6 +46,6 @@ struct LectureAttachmentSheet: View {
         }
 
         let normalizedLink = link.hasPrefix("/api/core/files/") ? link : "/api/core/files/\(link)"
-        previewURL = await LectureServiceFactory.shared.getAttachmentFile(link: normalizedLink)
+        previewURL = await LectureServiceFactory.shared.getAttachmentFile(link: normalizedLink, name: fileName)
     }
 }

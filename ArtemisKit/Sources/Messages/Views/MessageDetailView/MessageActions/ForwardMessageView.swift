@@ -96,6 +96,7 @@ private struct ForwardMessagePreviewView: View {
         ForwardedMessageView(viewModel: conversationViewModel, message: previewContainer)
             .fixedSize(horizontal: false, vertical: true)
             .padding()
+            .allowsHitTesting(false)
     }
 
     var previewContainer: Message {
