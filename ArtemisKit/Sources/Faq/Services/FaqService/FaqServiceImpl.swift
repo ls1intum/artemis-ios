@@ -70,6 +70,16 @@ struct FaqServiceImpl: FaqService {
         let courseId: Int
         let faq: FaqDTO
 
+        enum CodingKeys: CodingKey {
+            case courseId
+            case faq
+        }
+        
+        func encode(to encoder: any Encoder) throws {
+            var container = encoder.singleValueContainer()
+            try container.encode(faq)
+        }
+
         var method: HTTPMethod { .post }
 
         var resourceName: String {
