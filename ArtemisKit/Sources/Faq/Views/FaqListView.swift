@@ -60,8 +60,10 @@ public struct FaqListView: View {
                 .refreshable {
                     await viewModel.loadFaq()
                 }
+                .contentMargins(.bottom, 50, for: .scrollContent)
                 .overlay(alignment: .bottomTrailing) {
                     ProposeFaqButton(viewModel: viewModel)
+                        .padding()
                 }
             }
             .courseToolbar()
