@@ -60,6 +60,11 @@ public struct FaqListView: View {
                 .refreshable {
                     await viewModel.loadFaq()
                 }
+                .contentMargins(.bottom, 50, for: .scrollContent)
+                .overlay(alignment: .bottomTrailing) {
+                    ProposeFaqButton(viewModel: viewModel)
+                        .padding()
+                }
             }
             .courseToolbar()
         } detail: {
@@ -91,6 +96,10 @@ private struct FaqListCell: View {
     var body: some View {
         ZStack {
             VStack(alignment: .leading) {
+                if faq.faqState == .proposed {
+                    Text(R.string.localizable.proposedDescription())
+                        .font(.caption)
+                }
                 Text(faq.questionTitle)
                     .font(.title2.bold())
                     .lineLimit(2)
