@@ -26,7 +26,7 @@ struct FaqDetailView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .contentMargins(.l)
-        .modifier(TransitionIfAvailable(id: faq.id, namespace: namespace))
+        .modifier(TransitionIfAvailable(id: faq.id ?? 0, namespace: namespace))
     }
 }
 

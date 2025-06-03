@@ -41,7 +41,7 @@ extension FaqViewModel {
         faqs.value?.filter {
             $0.questionTitle.localizedStandardContains(searchText) ||
             $0.questionAnswer.localizedStandardContains(searchText) ||
-            $0.categories?.contains(where: { $0.localizedStandardContains(searchText) }) == true
+            $0.categories?.map(\.category).contains(where: { $0.localizedStandardContains(searchText) }) == true
         } ?? []
     }
 }
