@@ -14,12 +14,11 @@ struct ProposeFaqView: View {
     var body: some View {
         NavigationStack {
             Form {
-                // TODO: Localize
-                Section("Question") {
-                    TextField("Question", text: $viewModel.proposedFaq.questionTitle)
+                Section(R.string.localizable.question()) {
+                    TextField(R.string.localizable.question(), text: $viewModel.proposedFaq.questionTitle)
                 }
-                Section("Answer") {
-                    TextField("Answer", text: $viewModel.proposedFaq.questionAnswer)
+                Section(R.string.localizable.answer()) {
+                    TextField(R.string.localizable.answer(), text: $viewModel.proposedFaq.questionAnswer)
                 }
                 Section {
                     proposeButton

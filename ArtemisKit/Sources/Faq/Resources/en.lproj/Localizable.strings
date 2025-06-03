@@ -6,3 +6,5 @@
 "propose" = "Propose";
 "cancel" = "Cancel";
 "proposedDescription" = "Proposed – not visible to students";
+"question" = "Question";
+"answer" = "Answer";
