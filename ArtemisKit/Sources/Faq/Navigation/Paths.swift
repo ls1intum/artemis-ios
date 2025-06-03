@@ -20,7 +20,7 @@ public struct FaqPath: Hashable {
 
     public init(faq: FaqDTO, namespace: Namespace.ID?) {
         self.faq = faq
-        self.id = faq.id
+        self.id = faq.id ?? 0
         self.namespace = namespace
         self.courseId = nil
     }

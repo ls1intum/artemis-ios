@@ -18,14 +18,15 @@ struct FaqDetailView: View {
             VStack(alignment: .leading, spacing: .m) {
                 Text(faq.questionTitle)
                     .font(.title2.bold())
+                if let categories = faq.categories {
+                    CategoriesView(categories: categories)
+                }
                 ArtemisMarkdownView(string: faq.questionAnswer)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .contentMargins(.l)
-        .navigationTitle(faq.questionTitle)
-        .navigationBarTitleDisplayMode(.inline)
-        .modifier(TransitionIfAvailable(id: faq.id, namespace: namespace))
+        .modifier(TransitionIfAvailable(id: faq.id ?? 0, namespace: namespace))
     }
 }
 
