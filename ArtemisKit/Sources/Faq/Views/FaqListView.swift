@@ -103,6 +103,10 @@ private struct FaqListCell: View {
                 Text(faq.questionTitle)
                     .font(.title2.bold())
                     .lineLimit(2)
+                if let categories = faq.categories {
+                    CategoriesView(categories: categories)
+                        .offset(y: -5)
+                }
                 ArtemisMarkdownView(string: faq.questionAnswer)
                     .frame(minHeight: 70, maxHeight: 150, alignment: .top)
             }
