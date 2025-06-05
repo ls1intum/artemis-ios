@@ -41,6 +41,6 @@ final class SendMessageFAQPickerViewModel {
     }
 
     func select(faq: FaqDTO) {
-        delegate.pickerDidSelect("[faq]\(faq.questionTitle)(/courses/\(course.id)/faq?faqId=\(faq.id))[/faq]")
+        delegate.pickerDidSelect("[faq]\(faq.questionTitle)(/courses/\(course.id)/faq?faqId=\(faq.id ?? 0))[/faq]")
     }
 }

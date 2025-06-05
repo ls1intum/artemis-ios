@@ -63,4 +63,43 @@ struct FaqServiceImpl: FaqService {
             return .failure(error: UserFacingError(error: error))
         }
     }
+
+    struct ProposeFaqRequest: APIRequest {
+        typealias Response = FaqDTO
+
+        let courseId: Int
+        let faq: FaqDTO
+
+        enum CodingKeys: CodingKey {
+            case courseId
+            case faq
+        }
+        
+        func encode(to encoder: any Encoder) throws {
+            var container = encoder.singleValueContainer()
+            try container.encode(faq)
+        }
+
+        var method: HTTPMethod { .post }
+
+        var resourceName: String {
+            return "api/communication/courses/\(courseId)/faqs"
+        }
+    }
+
+    func proposeFaq(faq: FaqDTO, for courseId: Int) async -> DataState<FaqDTO> {
+        var newFaq = faq
+        newFaq.id = nil
+        newFaq.faqState = .proposed
+        newFaq.course = .init(id: courseId, courseInformationSharingConfiguration: .communicationAndMessaging)
+
+        let result = await client.sendRequest(ProposeFaqRequest(courseId: courseId, faq: newFaq))
+
+        switch result {
+        case .success((let response, _)):
+            return .done(response: response)
+        case .failure(let error):
+            return .failure(error: UserFacingError(error: error))
+        }
+    }
 }

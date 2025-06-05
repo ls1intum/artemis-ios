@@ -11,6 +11,8 @@
 "lecturesUnavailable" = "No Lectures";
 "exercise" = "Exercise";
 "lecture" = "Lecture";
+"filterExercises" = "Filter exercises";
+"filterLectures" = "Filter lectures";
 
 // MARK: SubmissionResultStatusView
 "userNotAssignedToTeam" = "You have not been assigned to a team yet.";
