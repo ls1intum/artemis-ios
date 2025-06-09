@@ -21,28 +21,33 @@ public struct ExerciseDetailView: View {
         DataStateView(data: $viewModel.exercise) {
             await viewModel.loadExercise()
         } content: { exercise in
-            ScrollView {
-                VStack(alignment: .leading, spacing: .l) {
-                    feedback(exercise: exercise)
-                    hint
-                    ExerciseOverviewChipsRow(exercise: exercise, score: viewModel.score)
-                    problem
-                    detail(exercise: exercise)
+            ZStack(alignment: .bottomTrailing) {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: .l) {
+                        hint
+                        ExerciseOverviewChipsRow(exercise: exercise, score: viewModel.score)
+                        problem
+                        detail(exercise: exercise)
+                    }
+                    .padding(.bottom, 88)
                 }
-            }
-            .toolbar {
-                ToolbarItem(placement: .principal) {
-                    HStack(spacing: .l) {
-                        exercise.image
-                            .renderingMode(.template)
-                            .resizable()
-                            .scaledToFit()
-                            .foregroundColor(Color.Artemis.primaryLabel)
-                            .frame(width: .smallImage)
-                        Text(exercise.baseExercise.title ?? "")
-                            .font(.headline)
+                .toolbar {
+                    ToolbarItem(placement: .principal) {
+                        HStack(spacing: .l) {
+                            exercise.image
+                                .renderingMode(.template)
+                                .resizable()
+                                .scaledToFit()
+                                .foregroundColor(Color.Artemis.primaryLabel)
+                                .frame(width: .smallImage)
+                            Text(exercise.baseExercise.title ?? "")
+                                .font(.headline)
+                        }
                     }
                 }
+
+                feedback(exercise: exercise)
+                    .padding(.l)
             }
         }
         .task {
