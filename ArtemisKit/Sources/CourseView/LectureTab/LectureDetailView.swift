@@ -246,7 +246,7 @@ struct BaseLectureUnitCell: View {
                 if isLoading {
                     ProgressView()
                 } else {
-                    Toggle("", isOn: isCompleted)
+                    RoundGreenCheckbox(isChecked: isCompleted)
                 }
             }
         }
@@ -361,5 +361,33 @@ struct OnlineUnitSheetContent: View {
                 }
             }.padding(.l)
         }
+    }
+}
+
+struct RoundGreenCheckbox: View {
+    @Binding var isChecked: Bool
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(isChecked ? Color.green : Color.gray)
+                .frame(width: 24, height: 24)
+                .overlay(
+                    Circle()
+                        .stroke(isChecked ? Color.green : Color.gray, lineWidth: 2)
+                )
+                .onTapGesture {
+                    isChecked.toggle()
+                }
+
+            if isChecked {
+                Image(systemName: "checkmark")
+                    .resizable()
+                    .scaledToFit()
+                    .foregroundColor(.white)
+                    .frame(width: 12, height: 12)
+            }
+        }
+        .animation(.easeInOut, value: isChecked)
     }
 }
