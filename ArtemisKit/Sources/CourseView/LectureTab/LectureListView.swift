@@ -28,7 +28,7 @@ struct LectureListView: View {
             ScrollViewReader { value in
                 List(selection: selectedLecture) {
                     if searchText.isEmpty {
-                        if lectureGroups.isEmpty {
+                        if lectureGroups.0.isEmpty {
                             ContentUnavailableView(R.string.localizable.lecturesUnavailable(), systemImage: "character.book.closed")
                                 .listRowSeparator(.hidden)
                         } else {
@@ -55,7 +55,7 @@ struct LectureListView: View {
                 .refreshable {
                     await viewModel.refreshCourse()
                 }
-                .onChange(of: lectureGroups) { _, newValue in
+                .onChange(of: lectureGroups.0) { _, newValue in
                     withAnimation {
                         let lecture = newValue.first {
                             $0.lectures.first?.startDate ?? .tomorrow > .now
@@ -109,7 +109,7 @@ private extension LectureListView {
 
     var lectureGroups: ([LectureGroup], LectureGroupsInfo) {
         guard let lectures = viewModel.course.lectures else {
-            return []
+            return ([], .init(currentCount: 0, futureCount: 0, pastCount: 0))
         }
 
         let groupedDates = lectures.reduce(into: [LectureGroup.GroupType: [Lecture]]()) { partialResult, lecture in
@@ -147,9 +147,9 @@ private extension LectureListView {
             return LectureGroup(type: group.key, lectures: lectures)
         }
 
-        let currentCount = groups.first(where: { $0.type == .current })?.exercises.count ?? 0
-        let futureCount = groups.first(where: { $0.type == .future })?.exercises.count ?? 0
-        let pastCount = groups.first(where: { $0.type == .past })?.exercises.count ?? 0
+        let currentCount = groups.first(where: { $0.type == .current })?.lectures.count ?? 0
+        let futureCount = groups.first(where: { $0.type == .future })?.lectures.count ?? 0
+        let pastCount = groups.first(where: { $0.type == .past })?.lectures.count ?? 0
         let info = LectureGroupsInfo(currentCount: currentCount, futureCount: futureCount, pastCount: pastCount)
 
         return (groups.sorted(by: <), info)
