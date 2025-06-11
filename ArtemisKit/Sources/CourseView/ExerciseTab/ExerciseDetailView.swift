@@ -21,7 +21,6 @@ public struct ExerciseDetailView: View {
         DataStateView(data: $viewModel.exercise) {
             await viewModel.loadExercise()
         } content: { exercise in
-            ZStack(alignment: .bottomTrailing) {
                 ScrollView {
                     VStack(alignment: .leading, spacing: .l) {
                         hint
@@ -45,11 +44,11 @@ public struct ExerciseDetailView: View {
                         }
                     }
                 }
-
-                feedback(exercise: exercise)
-                    .padding(.l)
+                .overlay(alignment: .bottomTrailing) {
+                    feedback(exercise: exercise)
+                        .padding()
+                }
             }
-        }
         .task {
             await viewModel.loadExercise()
             await viewModel.loadAssociatedChannel()
