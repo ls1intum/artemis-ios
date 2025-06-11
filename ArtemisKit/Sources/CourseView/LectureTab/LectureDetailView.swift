@@ -30,40 +30,55 @@ public struct LectureDetailView: View {
             ScrollView {
                 HStack {
                     VStack(alignment: .leading, spacing: .l) {
-                        if let startDate = lecture.startDate {
-                            Text(R.string.localizable.date())
-                                .font(.headline)
-                            HStack {
-                                Text("\(startDate.shortDateAndTime)")
-                                if let endDate = lecture.endDate {
-                                    Text(" - \(endDate.shortDateAndTime)")
+                        if lecture.startDate != nil || lecture.description != nil || viewModel.channel.value != nil {
+                            Text(R.string.localizable.overview())
+                                .font(.title2).bold()
+                                .foregroundColor(Color.Artemis.artemisBlue)
+
+                            if let startDate = lecture.startDate {
+                                Text(R.string.localizable.date())
+                                    .font(.headline)
+                                HStack {
+                                    Text("\(startDate.shortDateAndTime)")
+                                    if let endDate = lecture.endDate {
+                                        Text(" - \(endDate.shortDateAndTime)")
+                                    }
                                 }
                             }
+
+                            if let description = lecture.description {
+                                Text(R.string.localizable.description())
+                                    .font(.headline)
+                                ArtemisMarkdownView(string: description)
+                            }
+
+                            if let channel = viewModel.channel.value {
+                                Text(R.string.localizable.communication())
+                                    .font(.headline)
+                                ChannelCell(courseId: viewModel.courseId, channel: channel)
+                            }
                         }
-                        if let description = lecture.description {
-                            Text(R.string.localizable.description())
-                                .font(.headline)
-                            ArtemisMarkdownView(string: description)
-                        }
+
                         if let lectureUnits = lecture.lectureUnits {
                             Text(R.string.localizable.lectureUnits())
-                                .font(.headline)
+                                .font(.title2).bold()
+                                .foregroundColor(Color.Artemis.artemisBlue)
+
                             ForEach(lectureUnits, id: \.id) { lectureUnit in
                                 LectureUnitCell(viewModel: viewModel, lectureUnit: lectureUnit)
                             }
                         }
+
                         if let attachments = lecture.attachments {
                             Text(R.string.localizable.attachments())
-                                .font(.headline)
+                                .font(.title2).bold()
+                                .foregroundColor(Color.Artemis.artemisBlue)
+
                             ForEach(attachments, id: \.id) { attachment in
                                 AttachmentCell(attachment: attachment)
                             }
                         }
-                        if let channel = viewModel.channel.value {
-                            Text(R.string.localizable.communication())
-                                .font(.headline)
-                            ChannelCell(courseId: viewModel.courseId, channel: channel)
-                        }
+
                         Spacer()
                     }
                     Spacer()
