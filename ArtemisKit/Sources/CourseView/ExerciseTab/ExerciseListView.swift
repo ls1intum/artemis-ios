@@ -23,12 +23,13 @@ struct ExerciseListView: View {
             ScrollViewReader { value in
                 List(selection: selectedExercise) {
                     if searchText.isEmpty {
-                        if exerciseGroups.isEmpty {
+                        if exerciseGroups.0.isEmpty {
                             ContentUnavailableView(R.string.localizable.exercisesUnavailable(), systemImage: "list.bullet.clipboard")
                                 .listRowSeparator(.hidden)
                         } else {
-                            ForEach(exerciseGroups) { exerciseGroup in
-                                ExerciseListSection(course: viewModel.course, exerciseGroup: exerciseGroup)
+                            let groups = exerciseGroups
+                            ForEach(groups.0) { exerciseGroup in
+                                ExerciseListSection(course: viewModel.course, exerciseGroup: exerciseGroup, groupsInfo: groups.1)
                                     .id(exerciseGroup.id)
                             }
                         }
@@ -51,7 +52,7 @@ struct ExerciseListView: View {
                 .refreshable {
                     await viewModel.refreshCourse()
                 }
-                .onChange(of: exerciseGroups) { _, newValue in
+                .onChange(of: exerciseGroups.0) { _, newValue in
                     withAnimation {
                         if let id = newValue.first(where: { $0.exercises.first?.baseExercise.dueDate ?? .tomorrow > .now })?.id {
                             value.scrollTo(id, anchor: .top)
@@ -102,9 +103,9 @@ private extension ExerciseListView {
         }
     }
 
-    var exerciseGroups: [ExerciseGroup] {
+    var exerciseGroups: ([ExerciseGroup], ExerciseGroupsInfo) {
         guard let exercises = viewModel.course.exercises else {
-            return []
+            return ([], .init(currentDueCount: 0, futureCount: 0, pastCount: 0))
         }
 
         let groupedDates = exercises.reduce(into: [ExerciseGroup.GroupType: [Exercise]]()) { partialResult, exercise in
@@ -143,8 +144,20 @@ private extension ExerciseListView {
             }
             return ExerciseGroup(type: group.key, exercises: exercises)
         }
-        return groups.sorted(by: <)
+
+        let currentCount = groups.first(where: { $0.type == .current || $0.type == .dueSoon })?.exercises.count ?? 0
+        let futureCount = groups.first(where: { $0.type == .future })?.exercises.count ?? 0
+        let pastCount = groups.first(where: { $0.type == .past })?.exercises.count ?? 0
+        let info = ExerciseGroupsInfo(currentDueCount: currentCount, futureCount: futureCount, pastCount: pastCount)
+
+        return (groups.sorted(by: <), info)
     }
+}
+
+private struct ExerciseGroupsInfo {
+    let currentDueCount: Int
+    let futureCount: Int
+    let pastCount: Int
 }
 
 struct ExerciseListSection: View {
@@ -154,12 +167,23 @@ struct ExerciseListSection: View {
 
     @State private var isExpanded: Bool
 
-    fileprivate init(course: Course, exerciseGroup: ExerciseGroup) {
+    fileprivate init(course: Course, exerciseGroup: ExerciseGroup, groupsInfo: ExerciseGroupsInfo) {
         self.course = course
         self.exerciseGroup = exerciseGroup
 
-        let isCurrentOrDue = exerciseGroup.type == .current || exerciseGroup.type == .dueSoon
-        _isExpanded = State(wrappedValue: isCurrentOrDue)
+        let minVisibleCount = 7
+
+        let expandByDefault = switch exerciseGroup.type {
+        case .dueSoon, .current:
+            true
+        case .future:
+            groupsInfo.currentDueCount < minVisibleCount
+        case .past:
+            groupsInfo.currentDueCount + groupsInfo.futureCount < minVisibleCount
+        case .noDate:
+            groupsInfo.currentDueCount + groupsInfo.futureCount + groupsInfo.pastCount < minVisibleCount
+        }
+        _isExpanded = State(wrappedValue: expandByDefault)
     }
 
     var body: some View {

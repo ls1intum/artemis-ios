@@ -46,8 +46,8 @@ public struct MessagesAvailableView: View {
             .task {
                 await viewModel.loadConversations()
             }
-            .task {
-                await viewModel.subscribeToConversationMembershipTopic()
+            .onAppear {
+                viewModel.subscribeToWebsocketUpdates()
             }
             .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
             .loadingIndicator(isLoading: $viewModel.isLoading)

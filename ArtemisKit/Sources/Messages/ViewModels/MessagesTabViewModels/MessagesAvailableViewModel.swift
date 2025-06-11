@@ -29,7 +29,7 @@ class MessagesAvailableViewModel: BaseViewModel {
     private let messagesService: MessagesService
     private let userSession: UserSession
 
-    private var subscription: AnyCancellable?
+    private var subscriptions = Set<AnyCancellable>()
 
     init(
         course: Course,
@@ -52,18 +52,26 @@ class MessagesAvailableViewModel: BaseViewModel {
 
     deinit {
         SocketConnectionHandler.shared.cancelSubscriptions()
-        subscription?.cancel()
+        subscriptions.forEach {
+            $0.cancel()
+        }
+        subscriptions = []
     }
 
-    func subscribeToConversationMembershipTopic() async {
+    func subscribeToWebsocketUpdates() {
         guard let userId = userSession.user?.id else {
-            log.debug("User could not be found. Subscribe to Conversation not possible")
+            log.debug("User could not be found. Subscribe to Websocket updates not possible")
+            return
+        }
+
+        guard subscriptions.isEmpty else {
+            // Already subscribed
             return
         }
 
         let socketConnection = SocketConnectionHandler.shared
 
-        subscription = socketConnection
+        socketConnection
             .conversationPublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] conversationWebsocketDTO in
@@ -72,8 +80,22 @@ class MessagesAvailableViewModel: BaseViewModel {
                 }
                 onConversationMembershipMessageReceived(conversationWebsocketDTO: conversationWebsocketDTO)
             }
+            .store(in: &subscriptions)
+
+        socketConnection
+            .messagePublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] messageWebsocketDTO in
+                guard let self else {
+                    return
+                }
+                onNewSocketMessageReceived(messageWebsocketDTO: messageWebsocketDTO)
+            }
+            .store(in: &subscriptions)
 
         socketConnection.subscribeToMembershipNotifications(courseId: courseId, userId: userId)
+        socketConnection.subscribeToChannelNotifications(courseId: courseId)
+        socketConnection.subscribeToConversationNotifications(userId: userId)
     }
 
     func loadConversations() async {
@@ -182,6 +204,13 @@ private extension MessagesAvailableViewModel {
             handleDelete(deletedConversation: conversationWebsocketDTO.conversation)
         case .newMessage:
             handleNewMessage(conversationWithNewMessage: conversationWebsocketDTO.conversation)
+        }
+    }
+
+    func onNewSocketMessageReceived(messageWebsocketDTO: MessageWebsocketDTO) {
+        if case .create = messageWebsocketDTO.action,
+           let conversation = messageWebsocketDTO.post.conversation {
+            handleNewMessage(conversationWithNewMessage: conversation)
         }
     }
 
