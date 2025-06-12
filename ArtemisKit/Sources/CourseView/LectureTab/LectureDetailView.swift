@@ -33,7 +33,6 @@ public struct LectureDetailView: View {
                         if lecture.startDate != nil || lecture.description != nil || viewModel.channel.value != nil {
                             Text(R.string.localizable.overview())
                                 .font(.title2).bold()
-                                .foregroundColor(Color.Artemis.artemisBlue)
 
                             if let startDate = lecture.startDate {
                                 Text(R.string.localizable.date())
@@ -62,7 +61,6 @@ public struct LectureDetailView: View {
                         if let lectureUnits = lecture.lectureUnits {
                             Text(R.string.localizable.lectureUnits())
                                 .font(.title2).bold()
-                                .foregroundColor(Color.Artemis.artemisBlue)
 
                             ForEach(lectureUnits, id: \.id) { lectureUnit in
                                 LectureUnitCell(viewModel: viewModel, lectureUnit: lectureUnit)
@@ -72,7 +70,6 @@ public struct LectureDetailView: View {
                         if let attachments = lecture.attachments {
                             Text(R.string.localizable.attachments())
                                 .font(.title2).bold()
-                                .foregroundColor(Color.Artemis.artemisBlue)
 
                             ForEach(attachments, id: \.id) { attachment in
                                 AttachmentCell(attachment: attachment)
