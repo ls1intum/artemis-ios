@@ -28,12 +28,13 @@ struct LectureListView: View {
             ScrollViewReader { value in
                 List(selection: selectedLecture) {
                     if searchText.isEmpty {
-                        if lectureGroups.isEmpty {
+                        if lectureGroups.0.isEmpty {
                             ContentUnavailableView(R.string.localizable.lecturesUnavailable(), systemImage: "character.book.closed")
                                 .listRowSeparator(.hidden)
                         } else {
-                            ForEach(lectureGroups) { lectureGroup in
-                                LectureListSectionView(course: viewModel.course, lectureGroup: lectureGroup)
+                            let groups = lectureGroups
+                            ForEach(groups.0) { lectureGroup in
+                                LectureListSectionView(course: viewModel.course, lectureGroup: lectureGroup, groupsInfo: groups.1)
                             }
                         }
                     } else {
@@ -54,7 +55,7 @@ struct LectureListView: View {
                 .refreshable {
                     await viewModel.refreshCourse()
                 }
-                .onChange(of: lectureGroups) { _, newValue in
+                .onChange(of: lectureGroups.0) { _, newValue in
                     withAnimation {
                         let lecture = newValue.first {
                             $0.lectures.first?.startDate ?? .tomorrow > .now
@@ -106,9 +107,9 @@ private extension LectureListView {
         }
     }
 
-    var lectureGroups: [LectureGroup] {
+    var lectureGroups: ([LectureGroup], LectureGroupsInfo) {
         guard let lectures = viewModel.course.lectures else {
-            return []
+            return ([], .init(currentCount: 0, futureCount: 0, pastCount: 0))
         }
 
         let groupedDates = lectures.reduce(into: [LectureGroup.GroupType: [Lecture]]()) { partialResult, lecture in
@@ -145,8 +146,20 @@ private extension LectureListView {
             }
             return LectureGroup(type: group.key, lectures: lectures)
         }
-        return groups.sorted(by: <)
+
+        let currentCount = groups.first(where: { $0.type == .current })?.lectures.count ?? 0
+        let futureCount = groups.first(where: { $0.type == .future })?.lectures.count ?? 0
+        let pastCount = groups.first(where: { $0.type == .past })?.lectures.count ?? 0
+        let info = LectureGroupsInfo(currentCount: currentCount, futureCount: futureCount, pastCount: pastCount)
+
+        return (groups.sorted(by: <), info)
     }
+}
+
+private struct LectureGroupsInfo {
+    let currentCount: Int
+    let futureCount: Int
+    let pastCount: Int
 }
 
 private struct LectureListSectionView: View {
@@ -155,12 +168,23 @@ private struct LectureListSectionView: View {
 
     @State private var isExpanded: Bool
 
-    init(course: Course, lectureGroup: LectureGroup) {
+    init(course: Course, lectureGroup: LectureGroup, groupsInfo: LectureGroupsInfo) {
         self.course = course
         self.lectureGroup = lectureGroup
 
-        let isCurrent = lectureGroup.type == .current
-        _isExpanded = State(wrappedValue: isCurrent)
+        let minVisibleCount = 7
+
+        let expandByDefault = switch lectureGroup.type {
+        case .current:
+            true
+        case .future:
+            groupsInfo.currentCount < minVisibleCount
+        case .past:
+            groupsInfo.currentCount + groupsInfo.futureCount < minVisibleCount
+        case .noDate:
+            groupsInfo.currentCount + groupsInfo.futureCount + groupsInfo.pastCount < minVisibleCount
+        }
+        _isExpanded = State(wrappedValue: expandByDefault)
     }
 
     var body: some View {

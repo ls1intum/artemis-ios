@@ -30,40 +30,52 @@ public struct LectureDetailView: View {
             ScrollView {
                 HStack {
                     VStack(alignment: .leading, spacing: .l) {
-                        if let startDate = lecture.startDate {
-                            Text(R.string.localizable.date())
-                                .font(.headline)
-                            HStack {
-                                Text("\(startDate.shortDateAndTime)")
-                                if let endDate = lecture.endDate {
-                                    Text(" - \(endDate.shortDateAndTime)")
+                        if lecture.startDate != nil || lecture.description != nil || viewModel.channel.value != nil {
+                            Text(R.string.localizable.overview())
+                                .font(.title2).bold()
+
+                            if let startDate = lecture.startDate {
+                                Text(R.string.localizable.date())
+                                    .font(.headline)
+                                HStack {
+                                    Text("\(startDate.shortDateAndTime)")
+                                    if let endDate = lecture.endDate {
+                                        Text(" - \(endDate.shortDateAndTime)")
+                                    }
                                 }
                             }
+
+                            if let description = lecture.description {
+                                Text(R.string.localizable.description())
+                                    .font(.headline)
+                                ArtemisMarkdownView(string: description)
+                            }
+
+                            if let channel = viewModel.channel.value {
+                                Text(R.string.localizable.communication())
+                                    .font(.headline)
+                                ChannelCell(courseId: viewModel.courseId, channel: channel)
+                            }
                         }
-                        if let description = lecture.description {
-                            Text(R.string.localizable.description())
-                                .font(.headline)
-                            ArtemisMarkdownView(string: description)
-                        }
+
                         if let lectureUnits = lecture.lectureUnits {
                             Text(R.string.localizable.lectureUnits())
-                                .font(.headline)
+                                .font(.title2).bold()
+
                             ForEach(lectureUnits, id: \.id) { lectureUnit in
                                 LectureUnitCell(viewModel: viewModel, lectureUnit: lectureUnit)
                             }
                         }
+
                         if let attachments = lecture.attachments {
                             Text(R.string.localizable.attachments())
-                                .font(.headline)
+                                .font(.title2).bold()
+
                             ForEach(attachments, id: \.id) { attachment in
                                 AttachmentCell(attachment: attachment)
                             }
                         }
-                        if let channel = viewModel.channel.value {
-                            Text(R.string.localizable.communication())
-                                .font(.headline)
-                            ChannelCell(courseId: viewModel.courseId, channel: channel)
-                        }
+
                         Spacer()
                     }
                     Spacer()
@@ -246,7 +258,7 @@ struct BaseLectureUnitCell: View {
                 if isLoading {
                     ProgressView()
                 } else {
-                    Toggle("", isOn: isCompleted)
+                    RoundGreenCheckbox(isChecked: isCompleted)
                 }
             }
         }
@@ -361,5 +373,33 @@ struct OnlineUnitSheetContent: View {
                 }
             }.padding(.l)
         }
+    }
+}
+
+struct RoundGreenCheckbox: View {
+    @Binding var isChecked: Bool
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(isChecked ? Color.green : Color.gray)
+                .frame(width: 24, height: 24)
+                .overlay(
+                    Circle()
+                        .stroke(isChecked ? Color.green : Color.gray, lineWidth: 2)
+                )
+                .onTapGesture {
+                    isChecked.toggle()
+                }
+
+            if isChecked {
+                Image(systemName: "checkmark")
+                    .resizable()
+                    .scaledToFit()
+                    .foregroundColor(.white)
+                    .frame(width: 12, height: 12)
+            }
+        }
+        .animation(.easeInOut, value: isChecked)
     }
 }
