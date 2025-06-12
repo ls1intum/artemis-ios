@@ -23,12 +23,12 @@ public struct ExerciseDetailView: View {
         } content: { exercise in
             ScrollView {
                 VStack(alignment: .leading, spacing: .l) {
-                    feedback(exercise: exercise)
                     hint
                     ExerciseOverviewChipsRow(exercise: exercise, score: viewModel.score)
                     problem
                     detail(exercise: exercise)
                 }
+                .padding(.bottom, 88)
             }
             .toolbar {
                 ToolbarItem(placement: .principal) {
@@ -43,6 +43,10 @@ public struct ExerciseDetailView: View {
                             .font(.headline)
                     }
                 }
+            }
+            .overlay(alignment: .bottomTrailing) {
+                feedback(exercise: exercise)
+                    .padding()
             }
         }
         .task {
