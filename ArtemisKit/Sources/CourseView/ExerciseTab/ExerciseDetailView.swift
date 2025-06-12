@@ -21,34 +21,34 @@ public struct ExerciseDetailView: View {
         DataStateView(data: $viewModel.exercise) {
             await viewModel.loadExercise()
         } content: { exercise in
-                ScrollView {
-                    VStack(alignment: .leading, spacing: .l) {
-                        hint
-                        ExerciseOverviewChipsRow(exercise: exercise, score: viewModel.score)
-                        problem
-                        detail(exercise: exercise)
-                    }
-                    .padding(.bottom, 88)
+            ScrollView {
+                VStack(alignment: .leading, spacing: .l) {
+                    hint
+                    ExerciseOverviewChipsRow(exercise: exercise, score: viewModel.score)
+                    problem
+                    detail(exercise: exercise)
                 }
-                .toolbar {
-                    ToolbarItem(placement: .principal) {
-                        HStack(spacing: .l) {
-                            exercise.image
-                                .renderingMode(.template)
-                                .resizable()
-                                .scaledToFit()
-                                .foregroundColor(Color.Artemis.primaryLabel)
-                                .frame(width: .smallImage)
-                            Text(exercise.baseExercise.title ?? "")
-                                .font(.headline)
-                        }
+                .padding(.bottom, 88)
+            }
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    HStack(spacing: .l) {
+                        exercise.image
+                            .renderingMode(.template)
+                            .resizable()
+                            .scaledToFit()
+                            .foregroundColor(Color.Artemis.primaryLabel)
+                            .frame(width: .smallImage)
+                        Text(exercise.baseExercise.title ?? "")
+                            .font(.headline)
                     }
-                }
-                .overlay(alignment: .bottomTrailing) {
-                    feedback(exercise: exercise)
-                        .padding()
                 }
             }
+            .overlay(alignment: .bottomTrailing) {
+                feedback(exercise: exercise)
+                    .padding()
+            }
+        }
         .task {
             await viewModel.loadExercise()
             await viewModel.loadAssociatedChannel()
