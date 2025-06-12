@@ -41,7 +41,8 @@ private struct ForwardedMessageCell: View {
                 forwardedFromHeader
                 messageHeader
                 ArtemisMarkdownView(string: message.content ?? "")
-                    .frame(maxHeight: .largeImage)
+                    .frame(maxHeight: .largeImage, alignment: .top)
+                    .clipped()
                     .allowsHitTesting(false)
                     .offset(y: -5) // There is more space by default than we want
             }
