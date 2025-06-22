@@ -252,8 +252,8 @@ extension SendMessageViewModel {
                     newText = "\(before)\(text[range])\(after)"
                 }
                 text.replaceSubrange(range, with: newText)
-                if !shouldSelectPlaceholder, let endIndex = text.range(of: newText)?.upperBound {
-                    self._selection = TextSelection(insertionPoint: endIndex)
+                if !shouldSelectPlaceholder {
+                    moveCursor(after: newText)
                 }
             default:
                 break
