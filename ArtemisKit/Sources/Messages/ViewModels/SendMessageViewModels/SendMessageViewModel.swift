@@ -252,8 +252,8 @@ extension SendMessageViewModel {
                     newText = "\(before)\(text[range])\(after)"
                 }
                 text.replaceSubrange(range, with: newText)
-                if !shouldSelectPlaceholder, let endIndex = text.range(of: newText)?.upperBound {
-                    self._selection = TextSelection(insertionPoint: endIndex)
+                if !shouldSelectPlaceholder {
+                    moveCursor(after: newText)
                 }
             default:
                 break
@@ -367,12 +367,9 @@ extension SendMessageViewModel {
         guard let candidate = searchChannel() else {
             return
         }
-
-        // Replaces all occurrences. Otherwise, we need to get the match.
-        let range = Range<String.Index>?.none
-        text = text.replacingOccurrences(of: "#" + candidate,
-                                         with: "[channel]\(channel.name)(\(channel.id))[/channel]",
-                                         range: range)
+        let channelMention = "[channel]\(channel.name)(\(channel.id))[/channel]"
+        text = text.replacingOccurrences(of: "#" + candidate, with: channelMention)
+        moveCursor(after: channelMention)
     }
 
     func searchMember() -> Substring? {
@@ -390,10 +387,14 @@ extension SendMessageViewModel {
               let name = member.name, let login = member.login else {
             return
         }
-        // Replaces all occurrences. Otherwise, we need to get the match.
-        let range = Range<String.Index>?.none
-        text = text.replacingOccurrences(of: "@" + candidate,
-                                         with: "[user]\(name)(\(login))[/user]",
-                                         range: range)
+        let userMention = "[user]\(name)(\(login))[/user]"
+        text = text.replacingOccurrences(of: "@" + candidate, with: userMention)
+        moveCursor(after: userMention)
+    }
+
+    private func moveCursor(after string: String) {
+        if let range = text.range(of: string) {
+            _selection = TextSelection(insertionPoint: range.upperBound)
+        }
     }
 }
