@@ -123,15 +123,18 @@ private extension SendMessageView {
     var textField: some View {
         HStack(alignment: .bottom) {
             let conversationName = viewModel.isEditing ? "" : viewModel.conversation.baseConversation.conversationName
-            TextField(
-                R.string.localizable.messageAction(conversationName),
-                text: $viewModel.text,
-                selection: viewModel.selection,
-                axis: .vertical
-            )
-            .textFieldStyle(.roundedBorder)
-            .lineLimit(10)
-            .focused($isFocused)
+            let placeholder = if case .answerMessage = viewModel.configuration {
+                R.string.localizable.replyAction()
+            } else {
+                R.string.localizable.messageAction(conversationName)
+            }
+            TextField(placeholder,
+                      text: $viewModel.text,
+                      selection: viewModel.selection,
+                      axis: .vertical)
+                .textFieldStyle(.roundedBorder)
+                .lineLimit(10)
+                .focused($isFocused)
             if !isFocused {
                 sendButton
             }
