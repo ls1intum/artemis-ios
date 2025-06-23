@@ -104,17 +104,29 @@ final class ExerciseDetailViewModel {
 
 extension ExerciseDetailViewModel {
     var score: String {
-        let score = exercise.value?.baseExercise.studentParticipations?
-            .first?
-            .baseParticipation
-            .results?
-            .filter { $0.rated ?? false }
-            .max(by: { ($0.id ?? Int.min) > ($1.id ?? Int.min) })?
-            .score ?? 0
+        guard let participations = exercise.value?.baseExercise.studentParticipations,
+              let submissions = participations.first?.baseParticipation.submissions else {
+            return "0"
+        }
 
+        var allRatedResults: [Result] = []
+
+        for submission in submissions {
+            if let results = submission.baseSubmission.results {
+                let ratedResults = results.filter { $0?.rated == true }
+                allRatedResults.append(contentsOf: ratedResults.compactMap { $0 })
+            }
+        }
+
+        let latestRatedResult = allRatedResults.max(by: {
+            ($0.completionDate ?? .distantPast) < ($1.completionDate ?? .distantPast)
+        })
+
+        let resultScore = latestRatedResult?.score ?? 0
         let maxPoints = exercise.value?.baseExercise.maxPoints ?? 0
+        let finalScore = (resultScore * maxPoints / 100).rounded()
 
-        return (score * maxPoints / 100).rounded().clean
+        return finalScore.clean
     }
 
     var isFeedbackButtonVisible: Bool {
