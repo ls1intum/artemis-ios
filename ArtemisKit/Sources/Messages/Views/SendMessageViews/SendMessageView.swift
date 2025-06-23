@@ -48,6 +48,7 @@ struct SendMessageView: View {
                     .padding(.vertical, .m)
             }
             textField
+                .fixedSize(horizontal: false, vertical: true)
                 .padding(isFocused ? [.horizontal, .bottom] : .all, .l)
             if isFocused || viewModel.keyboardVisible {
                 keyboardToolbarContent
@@ -133,7 +134,8 @@ private extension SendMessageView {
                       selection: viewModel.selection,
                       axis: .vertical)
                 .textFieldStyle(.roundedBorder)
-                .lineLimit(10)
+                .lineLimit(isFocused ? 10 : 5)
+                .animation(.smooth, value: isFocused)
                 .focused($isFocused)
             if !isFocused {
                 sendButton
