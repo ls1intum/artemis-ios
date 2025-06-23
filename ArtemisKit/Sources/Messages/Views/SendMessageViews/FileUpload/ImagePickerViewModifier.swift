@@ -27,8 +27,6 @@ public extension View {
 private struct AddImagePickerViewModifier: ViewModifier {
     @State var manager = ImagePickerManager()
     func body(content: Content) -> some View {
-        @Bindable var manager = manager
-
         content
             .environment(\.imagePickerManager, manager)
             .photosPicker(isPresented: manager.isPresented, selection: manager.selectedItem, matching: .images, preferredItemEncoding: .compatible)
