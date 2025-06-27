@@ -49,12 +49,11 @@ struct SubmissionResultStatusView: View {
     }
 
     var notSubmitted: Bool {
-        switch exercise {
-        case .quiz:
-            return false
-        default:
-            return exercise.baseExercise.dueDate ?? .tomorrow > .now && studentParticipation != nil && (studentParticipation?.submissions?.isEmpty ?? true)
-        }
+        let afterDueDate = (exercise.baseExercise.dueDate ?? .distantFuture) < .now
+        let hasParticipation = studentParticipation != nil
+        let hasNoSubmissions = studentParticipation?.submissions?.isEmpty ?? true
+
+        return afterDueDate && hasParticipation && hasNoSubmissions
     }
 
     var text: [String] {

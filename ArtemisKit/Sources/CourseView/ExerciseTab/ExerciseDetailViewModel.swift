@@ -92,7 +92,8 @@ final class ExerciseDetailViewModel {
             lhs.completionDate ?? .distantPast > rhs.completionDate ?? .distantPast
         }
         // The latest result is the first rated result in the sorted array (=newest)
-        if let latestResultId = participation?.results?.max(by: areInIncreasingOrder)?.id {
+        if let results = participation?.submissions?.compactMap({ $0.baseSubmission.results }).flatMap({ $0 }),
+           let latestResultId = results.compactMap({ $0 }).max(by: areInIncreasingOrder)?.id {
             self.latestResultId = latestResultId
         }
 
