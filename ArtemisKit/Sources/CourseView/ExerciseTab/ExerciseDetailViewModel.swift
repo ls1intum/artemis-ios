@@ -92,8 +92,7 @@ final class ExerciseDetailViewModel {
             lhs.completionDate ?? .distantPast > rhs.completionDate ?? .distantPast
         }
         // The latest result is the first rated result in the sorted array (=newest)
-        if let results = participation?.submissions?.compactMap({ $0.baseSubmission.results }).flatMap({ $0 }),
-           let latestResultId = results.compactMap({ $0 }).max(by: areInIncreasingOrder)?.id {
+        if let latestResultId = exercise.baseExercise.latestRatedResult?.id {
             self.latestResultId = latestResultId
         }
 
@@ -119,9 +118,7 @@ extension ExerciseDetailViewModel {
             }
         }
 
-        let latestRatedResult = allRatedResults.max(by: {
-            ($0.completionDate ?? .distantPast) < ($1.completionDate ?? .distantPast)
-        })
+        let latestRatedResult = exercise.value?.baseExercise.latestRatedResult
 
         let resultScore = latestRatedResult?.score ?? 0
         let maxPoints = exercise.value?.baseExercise.maxPoints ?? 0
@@ -146,5 +143,26 @@ extension ExerciseDetailViewModel {
         default:
             return false
         }
+    }
+}
+
+extension BaseExercise {
+    var latestRatedResult: Result? {
+        guard let participations = studentParticipations else { return nil }
+
+        var allRatedResults: [Result] = []
+
+        for participation in participations {
+            let submissions = participation.baseParticipation.submissions ?? []
+            for submission in submissions {
+                let results = submission.baseSubmission.results ?? []
+                let ratedResults = results.compactMap { $0 }.filter { $0.rated == true }
+                allRatedResults.append(contentsOf: ratedResults)
+            }
+        }
+
+        return allRatedResults.max(by: {
+            ($0.completionDate ?? .distantPast) < ($1.completionDate ?? .distantPast)
+        })
     }
 }
