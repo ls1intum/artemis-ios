@@ -109,15 +109,6 @@ extension ExerciseDetailViewModel {
             return "0"
         }
 
-        var allRatedResults: [Result] = []
-
-        for submission in submissions {
-            if let results = submission.baseSubmission.results {
-                let ratedResults = results.filter { $0?.rated == true }
-                allRatedResults.append(contentsOf: ratedResults.compactMap { $0 })
-            }
-        }
-
         let latestRatedResult = exercise.value?.baseExercise.latestRatedResult
 
         let resultScore = latestRatedResult?.score ?? 0
