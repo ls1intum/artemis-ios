@@ -16,8 +16,6 @@ struct SubmissionResultStatusView: View {
 
     let exercise: Exercise
 
-    let showUngradedResults = false
-
     var length: TextLength = .full
 
     var isUninitialized: Bool {
@@ -49,11 +47,16 @@ struct SubmissionResultStatusView: View {
     }
 
     var notSubmitted: Bool {
-        let afterDueDate = (exercise.baseExercise.dueDate ?? .distantFuture) < .now
-        let hasParticipation = studentParticipation != nil
-        let hasNoSubmissions = studentParticipation?.submissions?.isEmpty ?? true
+        switch exercise {
+        case .quiz:
+            return false
+        default:
+            let afterDueDate = (exercise.baseExercise.dueDate ?? .distantFuture) < .now
+            let hasParticipation = studentParticipation != nil
+            let hasNoSubmissions = studentParticipation?.submissions?.isEmpty ?? true
 
-        return afterDueDate && hasParticipation && hasNoSubmissions
+            return afterDueDate && hasParticipation && hasNoSubmissions
+        }
     }
 
     var text: [String] {
@@ -113,20 +116,18 @@ struct SubmissionResultStatusView: View {
     }
 
     var body: some View {
-        Group {
-            if let result, let participation = studentParticipation {
-                SubmissionResultView(exercise: exercise,
-                                     participation: participation,
-                                     result: result,
-                                     missingResultInfo: .noInformation,
-                                     isBuilding: false,
-                                     short: true)
-            } else {
-                VStack(alignment: .leading) {
-                    ForEach(text, id: \.self) { line in
-                        Text(line)
-                            .foregroundColor(Color.Artemis.secondaryLabel)
-                    }
+        if let result, let participation = studentParticipation {
+            SubmissionResultView(exercise: exercise,
+                                    participation: participation,
+                                    result: result,
+                                    missingResultInfo: .noInformation,
+                                    isBuilding: false,
+                                    short: true)
+        } else {
+            VStack(alignment: .leading) {
+                ForEach(text, id: \.self) { line in
+                    Text(line)
+                        .foregroundColor(Color.Artemis.secondaryLabel)
                 }
             }
         }
