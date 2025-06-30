@@ -16,8 +16,6 @@ struct SubmissionResultStatusView: View {
 
     let exercise: Exercise
 
-    let showUngradedResults = false
-
     var length: TextLength = .full
 
     var isUninitialized: Bool {
@@ -53,7 +51,11 @@ struct SubmissionResultStatusView: View {
         case .quiz:
             return false
         default:
-            return exercise.baseExercise.dueDate ?? .tomorrow > .now && studentParticipation != nil && (studentParticipation?.submissions?.isEmpty ?? true)
+            let afterDueDate = (exercise.baseExercise.dueDate ?? .distantFuture) < .now
+            let hasParticipation = studentParticipation != nil
+            let hasNoSubmissions = studentParticipation?.submissions?.isEmpty ?? true
+
+            return afterDueDate && hasParticipation && hasNoSubmissions
         }
     }
 
@@ -101,27 +103,30 @@ struct SubmissionResultStatusView: View {
     }
 
     var result: Result? {
-        // The latest result is the first rated result in the sorted array (=newest) or any result if the option is active to show ungraded results.
-        if showUngradedResults {
-            return studentParticipation?.results?.first
-        } else {
-            return studentParticipation?.results?.first(where: { $0.rated == true })
-        }
+        let submissionResults: [Result] = studentParticipation?.submissions?
+            .flatMap { submission in
+                (submission.baseSubmission.results ?? []).compactMap { $0 }
+            }
+            .filter { $0.rated == true } ?? []
+
+        let latestFromSubmissions = submissionResults
+            .max(by: { ($0.completionDate ?? .distantPast) < ($1.completionDate ?? .distantPast) })
+
+        return latestFromSubmissions
     }
 
     var body: some View {
-        if let studentParticipation,
-           !(studentParticipation.results ?? []).isEmpty {
+        if let result, let participation = studentParticipation {
             SubmissionResultView(exercise: exercise,
-                                 participation: studentParticipation,
-                                 result: result,
-                                 missingResultInfo: .noInformation,
-                                 isBuilding: false,
-                                 short: true)
+                                    participation: participation,
+                                    result: result,
+                                    missingResultInfo: .noInformation,
+                                    isBuilding: false,
+                                    short: true)
         } else {
             VStack(alignment: .leading) {
-                ForEach(text, id: \.self) { text in
-                    Text(text)
+                ForEach(text, id: \.self) { line in
+                    Text(line)
                         .foregroundColor(Color.Artemis.secondaryLabel)
                 }
             }
