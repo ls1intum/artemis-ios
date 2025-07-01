@@ -36,25 +36,27 @@ struct ForwardMessageView: View {
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading) {
-                NavigationLink {
-                    PickConversationView(viewModel: viewModel)
-                } label: {
-                    HStack {
-                        Text(R.string.localizable.conversation())
-                        Spacer()
-                        Text("\(conversationName) \(Image(systemName: "chevron.forward"))")
-                            .foregroundStyle(.secondary)
+                ScrollView {
+                    NavigationLink {
+                        PickConversationView(viewModel: viewModel)
+                    } label: {
+                        HStack {
+                            Text(R.string.localizable.conversation())
+                            Spacer()
+                            Text("\(conversationName) \(Image(systemName: "chevron.forward"))")
+                                .foregroundStyle(.secondary)
+                        }
+                        .padding(.m * 1.5)
+                        .contentShape(.rect)
                     }
-                    .padding(.m * 1.5)
-                    .contentShape(.rect)
+                    .buttonStyle(.plain)
+                    .cardModifier(backgroundColor: .gray.opacity(0.2))
+                    .padding()
+
+                    Spacer()
+
+                    ForwardMessagePreviewView(viewModel: viewModel)
                 }
-                .buttonStyle(.plain)
-                .cardModifier(backgroundColor: .gray.opacity(0.2))
-                .padding()
-
-                Spacer()
-
-                ForwardMessagePreviewView(viewModel: viewModel)
 
                 SendMessageView(viewModel: sendViewModel)
             }

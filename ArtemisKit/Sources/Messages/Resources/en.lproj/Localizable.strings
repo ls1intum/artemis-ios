@@ -16,6 +16,7 @@
 "faqsUnavailable" = "No FAQs";
 "membersUnavailable" = "No Members";
 "messageAction" = "Message %@";
+"replyAction" = "Reply in thread";
 "mentionSlideNumber" = "Slide %i";
 "style" = "Style";
 "bold" = "Bold";

@@ -23,6 +23,10 @@ struct SubmissionResultView: View {
     var templateStatus: ResultTemplateStatus {
         guard let result else { return .noResult }
 
+        if result.rated == true {
+            return .hasResult
+        }
+  
         return result.getTemplateStatus(for: exercise,
                                         and: participation,
                                         isBuilding: isBuilding,

@@ -15,6 +15,7 @@ final class SendMessageUploadImageViewModel: UploadViewModel {
 
     var selection: PhotosPickerItem?
     var image: UIImage?
+    var isImagePickerPresented = false
 
     private let messagesService: MessagesService
 

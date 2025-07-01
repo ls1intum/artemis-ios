@@ -5,7 +5,6 @@
 //  Created by Anian Schleyer on 09.11.24.
 //
 
-import PhotosUI
 import SwiftUI
 
 struct SendMessageImagePickerView: View {
@@ -20,11 +19,10 @@ struct SendMessageImagePickerView: View {
     }
 
     var body: some View {
-        PhotosPicker(selection: $viewModel.selection,
-                     matching: .images,
-                     preferredItemEncoding: .compatible) {
-            Label(R.string.localizable.uploadImage(), systemImage: "photo.fill")
+        Button(R.string.localizable.uploadImage(), systemImage: "photo.fill") {
+            viewModel.isImagePickerPresented = true
         }
+        .imagePicker(isPresented: $viewModel.isImagePickerPresented, selectedImage: $viewModel.selection)
         .onChange(of: viewModel.selection) {
             viewModel.onChange()
         }
