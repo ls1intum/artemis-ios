@@ -118,11 +118,11 @@ struct SubmissionResultStatusView: View {
     var body: some View {
         if let result, let participation = studentParticipation {
             SubmissionResultView(exercise: exercise,
-                                    participation: participation,
-                                    result: result,
-                                    missingResultInfo: .noInformation,
-                                    isBuilding: false,
-                                    short: true)
+                                 participation: participation,
+                                 result: result,
+                                 missingResultInfo: .noInformation,
+                                 isBuilding: false,
+                                 short: true)
         } else {
             VStack(alignment: .leading) {
                 ForEach(text, id: \.self) { line in

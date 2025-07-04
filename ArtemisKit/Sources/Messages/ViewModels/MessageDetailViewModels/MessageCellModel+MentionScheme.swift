@@ -18,7 +18,7 @@ enum MentionScheme {
     case slide(number: Int, attachmentUnit: Int)
     case faq(id: Int64)
 
-    init?(_ url: URL) {
+    init?(_ url: URL) { // swiftlint:disable:this cyclomatic_complexity
         guard url.scheme == "mention" else {
             return nil
         }

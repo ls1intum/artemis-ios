@@ -29,8 +29,7 @@ struct ExerciseOverviewChipsRow: View {
         }.scrollClipDisabled()
     }
 
-    @ViewBuilder
-    private var chips: some View {
+    @ViewBuilder private var chips: some View {
         // Points Chip
         let maxPoints = exercise.baseExercise.maxPoints
         TwoLineChip(title: R.string.localizable.pointsTitle()) {

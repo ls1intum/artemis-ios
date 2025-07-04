@@ -32,13 +32,13 @@ struct VideoUnitSheetContent: View {
                 }
                 .padding(.horizontal)
             }
-            
+
             if canPlayInline {
                 VideoPlayerView(url: videoSource)
                     .frame(width: proxy.size.width,
                            height: min(proxy.size.height, proxy.size.width * 9 / 16))
             }
-            
+
             Link(R.string.localizable.openVideo(), destination: videoSource)
                 .buttonStyle(ArtemisButton())
                 .padding(.horizontal)

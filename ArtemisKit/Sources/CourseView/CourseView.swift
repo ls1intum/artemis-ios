@@ -54,7 +54,7 @@ public struct CourseView: View {
                 .tag(TabIdentifier.faq)
             }
         }
-        .courseToolbar(title: viewModel.course.title  ?? R.string.localizable.loading())
+        .courseToolbar(title: viewModel.course.title ?? R.string.localizable.loading())
         // Add a file and image picker here, inside the navigation it doesn't work sometimes
         .supportsFilePicker()
         .supportsImagePicker()
