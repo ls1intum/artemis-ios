@@ -13,7 +13,7 @@ public struct NotificationMessageResponseHandler {
     public static func handle(responseText: String, info: PushNotificationCommunicationInfo) {
         let courseId = info.courseId
         let channelId = Int64(info.channelId)
-        let messageId = Int64(info.messageId) ?? 0
+        let messageId = Int64(info.messageId)
         Task {
             var message = Message(id: messageId)
             message.conversation = .channel(conversation: .init(id: channelId))

@@ -41,7 +41,7 @@ struct MessageHandler: Deeplink {
     func handle(with navigationController: NavigationController) {
         Task(priority: .userInitiated) {
             if let threadId {
-                // TODO: Add proper loading for channel
+                // TODO: Maybe add proper loading for channel
                 var conversation = Channel(id: conversationId)
                 conversation.name = conversationName
 
