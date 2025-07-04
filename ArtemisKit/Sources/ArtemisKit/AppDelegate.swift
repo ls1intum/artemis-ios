@@ -118,10 +118,9 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     private func handleNotificationResponse(_ response: UNNotificationResponse) -> Bool {
         if response.actionIdentifier == PushNotificationActionIdentifiers.reply {
             guard
-                let infoData = response
+                let communicationInfo = PushNotificationResponseHandler.getCommunicationInfo(userInfo: response
                     .notification.request.content
-                    .userInfo[PushNotificationUserInfoKeys.communicationInfo] as? Data,
-                let communicationInfo = try? PushNotificationCommunicationInfo(with: infoData),
+                    .userInfo),
                 let textResponse = response as? UNTextInputNotificationResponse else {
                 return true
             }

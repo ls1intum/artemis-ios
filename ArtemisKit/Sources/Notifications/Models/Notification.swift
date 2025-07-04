@@ -32,6 +32,7 @@ struct CourseNotification: Codable, Identifiable {
 
     private enum Keys: String, CodingKey {
         case notificationType
+        case courseId
         case parameters
     }
 
