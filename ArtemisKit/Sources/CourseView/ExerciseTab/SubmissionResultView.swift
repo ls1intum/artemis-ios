@@ -26,7 +26,7 @@ struct SubmissionResultView: View {
         if result.rated == true {
             return .hasResult
         }
-  
+
         return result.getTemplateStatus(for: exercise,
                                         and: participation,
                                         isBuilding: isBuilding,

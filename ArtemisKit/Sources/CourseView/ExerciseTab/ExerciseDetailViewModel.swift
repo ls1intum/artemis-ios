@@ -87,10 +87,6 @@ final class ExerciseDetailViewModel {
 
         let participation = exercise.getSpecificStudentParticipation(testRun: false)
         participationId = participation?.id
-        // Sort participation results by completionDate desc.
-        let areInIncreasingOrder = { (lhs: Result, rhs: Result) -> Bool in
-            lhs.completionDate ?? .distantPast > rhs.completionDate ?? .distantPast
-        }
         // The latest result is the first rated result in the sorted array (=newest)
         if let latestResultId = exercise.baseExercise.latestRatedResult?.id {
             self.latestResultId = latestResultId
@@ -104,11 +100,6 @@ final class ExerciseDetailViewModel {
 
 extension ExerciseDetailViewModel {
     var score: String {
-        guard let participations = exercise.value?.baseExercise.studentParticipations,
-              let submissions = participations.first?.baseParticipation.submissions else {
-            return "0"
-        }
-
         let latestRatedResult = exercise.value?.baseExercise.latestRatedResult
 
         let resultScore = latestRatedResult?.score ?? 0
