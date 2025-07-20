@@ -21,7 +21,7 @@ let package = Package(
         .package(url: "https://github.com/onmyway133/Smile", revision: "6bacbf7"),
         .package(url: "https://github.com/ls1intum/apollon-ios-module", .upToNextMajor(from: "1.0.9")),
         .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", revision: "30d08eb"),
-        .package(url: "https://github.com/mac-cain13/R.swift.git", from: "7.7.0")
+        .package(url: "https://github.com/mac-cain13/R.swift.git", from: "7.8.0")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
