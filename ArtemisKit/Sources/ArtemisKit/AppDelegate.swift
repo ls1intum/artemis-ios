@@ -116,21 +116,31 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     /// Handles actions triggered from a user interacting with a notification.
     /// Returns whether the corresponding deep link should be opened.
     private func handleNotificationResponse(_ response: UNNotificationResponse) -> Bool {
-        if response.actionIdentifier == PushNotificationActionIdentifiers.reply {
-            guard
-                let communicationInfo = PushNotificationResponseHandler.getCommunicationInfo(userInfo: response
-                    .notification.request.content
-                    .userInfo),
-                let textResponse = response as? UNTextInputNotificationResponse else {
+        let userInfo = response.notification.request.content.userInfo
+        let communicationInfo = PushNotificationResponseHandler.getCommunicationInfo(userInfo: userInfo)
+
+        switch response.actionIdentifier {
+        case PushNotificationActionIdentifiers.reply:
+            guard let communicationInfo, let textResponse = response as? UNTextInputNotificationResponse else {
                 return true
             }
-
             NotificationMessageResponseHandler.handle(responseText: textResponse.userText,
                                                       info: communicationInfo)
-
             return false
+
+        case PushNotificationActionIdentifiers.muteChannel:
+            guard let communicationInfo else { return true }
+            NotificationMessageResponseHandler.muteChannel(info: communicationInfo)
+            return false
+
+        case PushNotificationActionIdentifiers.saveMessage:
+            guard let communicationInfo else { return true }
+            NotificationMessageResponseHandler.saveMessage(info: communicationInfo)
+            return false
+
+        default:
+            return true
         }
-        return true
     }
 }
 

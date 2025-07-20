@@ -36,4 +36,12 @@ public struct NotificationMessageResponseHandler {
             }
         }
     }
+
+    public static func muteChannel(info: PushNotificationCommunicationInfo) {
+        
+    }
+
+    public static func saveMessage(info: PushNotificationCommunicationInfo) {
+        
+    }
 }
