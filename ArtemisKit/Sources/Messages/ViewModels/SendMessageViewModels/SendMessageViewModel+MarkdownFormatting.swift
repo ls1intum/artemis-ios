@@ -115,12 +115,41 @@ extension SendMessageViewModel {
 
     // MARK: File uploads
 
-    func insertImageMention(path: String) {
-        appendToSelection(before: "![", after: "](\(path))", placeholder: "image")
-    }
-
     func insertFileMention(path: String, fileName: String) {
         appendToSelection(before: "[", after: "](\(path))", placeholder: fileName)
+    }
+
+    func insertImageMention(path: String, image: UIImage? = nil) {
+        appendToSelection(before: "![", after: "](\(path))", placeholder: "image")
+
+        // Save uploaded image locally for showing attachment preview
+        if let image {
+            uploadedImages[path] = image
+        }
+    }
+
+    var mentionedImages: [(name: String, path: String, image: UIImage)] {
+        let pattern = #"\!\[([^\]]+)\]\(([^\)]+)\)"#
+        var results = [(String, String, UIImage)]()
+
+        do {
+            let regex = try NSRegularExpression(pattern: pattern, options: [])
+            let matches = regex.matches(in: text, range: NSRange(text.startIndex..., in: text))
+
+            for match in matches {
+                if let nameRange = Range(match.range(at: 1), in: text),
+                   let pathRange = Range(match.range(at: 2), in: text) {
+                    let name = String(text[nameRange])
+                    let path = String(text[pathRange])
+                    if let image = uploadedImages[path] {
+                        results.append((name, path, image))
+                    }
+                }
+            }
+        } catch {
+            print("Invalid regex: \(error)")
+        }
+        return results
     }
 
     // MARK: Cursor/Selection management

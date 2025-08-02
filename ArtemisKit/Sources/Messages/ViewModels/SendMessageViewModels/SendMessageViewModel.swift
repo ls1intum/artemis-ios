@@ -45,6 +45,7 @@ final class SendMessageViewModel {
     // MARK: Text
 
     var text = ""
+    internal var uploadedImages = [String:UIImage]()
     internal var _selection: TextSelection? // swiftlint:disable:this identifier_name
     var selection: Binding<TextSelection?> {
         Binding {
