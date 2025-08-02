@@ -211,6 +211,7 @@ extension SendMessageViewModel {
             case .success:
                 _selection = nil
                 text = ""
+                uploadedImages = [:]
             default:
                 return
             }
@@ -226,6 +227,7 @@ extension SendMessageViewModel {
         case .success:
             await completion()
             isLoading = false
+            uploadedImages = [:]
         case .failure(let error):
             isLoading = false
             if let apiClientError = error as? APIClientError {
@@ -244,6 +246,7 @@ extension SendMessageViewModel {
         case .notStarted, .loading:
             return false
         case .success:
+            uploadedImages = [:]
             return true
         case .failure(let error):
             delegate.presentError(UserFacingError(title: error.localizedDescription))
@@ -256,7 +259,9 @@ extension SendMessageViewModel {
 
         switch result {
         case .notStarted, .loading: return false
-        case .success: return true
+        case .success:
+            uploadedImages = [:]
+            return true
         case .failure(let error):
             delegate.presentError(UserFacingError(title: error.localizedDescription))
             return false
