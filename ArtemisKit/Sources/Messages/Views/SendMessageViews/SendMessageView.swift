@@ -137,7 +137,7 @@ private extension SendMessageView {
                       selection: viewModel.selection,
                       axis: .vertical)
                 .textFieldStyle(.roundedBorder)
-                .lineLimit(isFocused ? 10 : 5)
+                .lineLimit(isFocused ? 8 : 5)
                 .animation(.smooth, value: isFocused)
                 .focused($isFocused)
             if !isFocused {
