@@ -49,12 +49,15 @@ struct SendMessageView: View {
             }
             textField
                 .fixedSize(horizontal: false, vertical: true)
-                .padding(isFocused ? [.horizontal, .bottom] : .all, .l)
+                .padding(isFocused ? .horizontal : [.horizontal, .top], .l)
+                .padding(.bottom, .m)
+            ImageAttachmentsPreview(viewModel: viewModel)
             if isFocused || viewModel.keyboardVisible {
                 keyboardToolbarContent
                     .padding(.horizontal, .l)
                     .padding(.vertical, .m)
                     .background(.bar)
+                    .padding(.top, .s)
             }
         }
         .onChange(of: isFocused, initial: true) {
@@ -134,7 +137,7 @@ private extension SendMessageView {
                       selection: viewModel.selection,
                       axis: .vertical)
                 .textFieldStyle(.roundedBorder)
-                .lineLimit(isFocused ? 10 : 5)
+                .lineLimit(isFocused ? 8 : 5)
                 .animation(.smooth, value: isFocused)
                 .focused($isFocused)
             if !isFocused {
