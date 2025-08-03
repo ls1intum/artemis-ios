@@ -25,6 +25,7 @@ struct ImageAttachmentsPreview: View {
 
                             Text(name)
                                 .font(.caption)
+                                .lineLimit(1)
                                 .frame(maxWidth: .largeImage)
                         }
                     }
