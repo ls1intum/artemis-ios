@@ -28,7 +28,7 @@ struct SendMessageImagePickerView: View {
         }
         .sheet(isPresented: viewModel.showUploadScreen) {
             if let path = viewModel.filePath {
-                sendViewModel.insertImageMention(path: path)
+                sendViewModel.insertImageMention(path: path, image: viewModel.image)
             }
             viewModel.selection = nil
             viewModel.image = nil

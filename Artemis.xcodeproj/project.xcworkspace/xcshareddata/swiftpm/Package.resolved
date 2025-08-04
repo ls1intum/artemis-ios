@@ -1,5 +1,5 @@
 {
-  "originHash" : "238b86cfa8650d26367b7e3dc6f37311835a6f7847f454db15ef1c85779da2f1",
+  "originHash" : "b74c148233e86b6deff54934b32218be0d1e246b8c07fdaf91d86acea60c845e",
   "pins" : [
     {
       "identity" : "apollon-ios-module",
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ls1intum/artemis-ios-core-modules",
       "state" : {
-        "revision" : "cf8259b1731fed28ab7ddd0d4bd56db0d7e4da68",
-        "version" : "17.1.1"
+        "revision" : "9fec7e8ebac8f89e901ad5e8986a9467369243af",
+        "version" : "18.0.0"
       }
     },
     {
@@ -33,8 +33,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/krzyzanowskim/CryptoSwift.git",
       "state" : {
-        "revision" : "729e01bc9b9dab466ac85f21fb9ee2bc1c61b258",
-        "version" : "1.8.4"
+        "revision" : "132f5b209cd0251067f29cdb59c97d9f8a63252a",
+        "version" : "1.8.5"
       }
     },
     {

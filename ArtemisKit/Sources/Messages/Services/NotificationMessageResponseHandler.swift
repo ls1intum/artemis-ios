@@ -7,13 +7,14 @@
 
 import PushNotifications
 import SharedModels
+import UserNotifications
 import UserStore
 
 public struct NotificationMessageResponseHandler {
     public static func handle(responseText: String, info: PushNotificationCommunicationInfo) {
         let courseId = info.courseId
         let channelId = Int64(info.channelId)
-        let messageId = Int64(info.messageId) ?? 0
+        let messageId = Int64(info.messageId)
         Task {
             var message = Message(id: messageId)
             message.conversation = .channel(conversation: .init(id: channelId))
@@ -34,6 +35,32 @@ public struct NotificationMessageResponseHandler {
             default:
                 break
             }
+        }
+    }
+
+    public static func muteChannel(info: PushNotificationCommunicationInfo) {
+        let service = MessagesServiceFactory.shared
+        Task {
+            let courseId = info.courseId
+            let channelId = info.channelId
+            _ = await service.updateIsConversationMuted(for: courseId, and: Int64(channelId), isMuted: true)
+
+            // Remove all notifications from muted channel
+            let notifications = await UNUserNotificationCenter.current().deliveredNotifications()
+            let notificationsForChannel = notifications.filter {
+                PushNotificationResponseHandler.getConversationId(from: $0.request.content.userInfo) == channelId
+            }.map { $0.request.identifier }
+
+            UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: notificationsForChannel)
+        }
+    }
+
+    public static func saveMessage(info: PushNotificationCommunicationInfo) {
+        let service = MessagesServiceFactory.shared
+        Task {
+            let messageId = info.messageId
+            let type = info.isReply ? PostType.answer : PostType.post
+            _ = await service.addSavedPost(with: Int64(messageId), of: type)
         }
     }
 }

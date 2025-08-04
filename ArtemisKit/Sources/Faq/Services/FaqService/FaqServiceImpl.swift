@@ -74,7 +74,7 @@ struct FaqServiceImpl: FaqService {
             case courseId
             case faq
         }
-        
+
         func encode(to encoder: any Encoder) throws {
             var container = encoder.singleValueContainer()
             try container.encode(faq)

@@ -6,6 +6,7 @@
 //
 
 import Navigation
+import PushNotifications
 import SwiftUI
 
 extension View {
@@ -20,11 +21,11 @@ private struct NotificationNavigationHandler: ViewModifier {
     let notification: CourseNotification
 
     func body(content: Content) -> some View {
-        if let tappable = notification.notification.displayable as? TappableNotification {
+        if let tappable = notification.notification.displayable as? NavigatableNotification {
             Button {
-                dismiss()
-                Task {
-                    await tappable.handleTap(with: navController)
+                if let path = tappable.relativePath {
+                    dismiss()
+                    DeeplinkHandler.shared.handle(path: path)
                 }
             } label: {
                 content
