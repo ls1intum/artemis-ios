@@ -28,9 +28,10 @@ jobs:
 
       - name: Generate build number
         run: |
-          # Build number is current date/time in format YYYYMMDDHHMMSS
-          BUILD_NUMBER=$(date +'%Y%m%d%H%M%S')
+          # Build number is current date/time in format YYYYMMDDHHMM
+          BUILD_NUMBER=$(date +'%Y%m%d%H%M')
           echo "BUILD_NUMBER=$BUILD_NUMBER" >> $GITHUB_ENV
+          echo "Build is $(date +'%Y%m%d%H%M')"
         
       - name: Build iOS App 
         run: eval "$(/opt/homebrew/bin/rbenv init - --no-rehash bash)" &&  bundle exec fastlane build
