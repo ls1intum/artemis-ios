@@ -64,5 +64,6 @@ private struct ImageAttachmentThumbnail: View {
                     }
                 }
         }
+        .frame(minWidth: 250, minHeight: 250)
     }
 }
