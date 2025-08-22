@@ -128,6 +128,12 @@ extension SendMessageViewModel {
         }
     }
 
+    func removeImage(name: String, path: String) {
+        uploadedImages.removeValue(forKey: path)
+        text = text.replacing("![\(name)](\(path))", with: "")
+        moveCursorToEnd()
+    }
+
     var mentionedImages: [(name: String, path: String, image: UIImage)] {
         let pattern = #"\!\[([^\]]+)\]\(([^\)]+)\)"#
         var results = [(String, String, UIImage)]()
