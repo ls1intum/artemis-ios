@@ -34,6 +34,7 @@
 "orderedList" = "Ordered List";
 "listFormatting" = "List Formatting";
 "addMessage" = "Add a message";
+"removeImage" = "Remove";
 
 // MARK: SendMessageMentionContentView
 "members" = "Members";
