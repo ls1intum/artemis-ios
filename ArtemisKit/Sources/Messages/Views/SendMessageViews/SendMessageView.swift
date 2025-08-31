@@ -16,12 +16,14 @@ struct SendMessageView: View {
     /// This has to be in here, otherwise it gets deinitialized while file picker is open,
     /// due to the textfield losing focus and the toolbar disappearing
     @State private var uploadFileViewModel: SendMessageUploadFileViewModel
+    @State private var uploadImageViewModel: SendMessageUploadImageViewModel
 
     @FocusState private var isFocused: Bool
 
     init(viewModel: SendMessageViewModel) {
         self._viewModel = State(initialValue: viewModel)
         self._uploadFileViewModel = State(initialValue: .init(courseId: viewModel.course.id, conversationId: viewModel.conversation.id))
+        self._uploadImageViewModel = State(initialValue: .init(courseId: viewModel.course.id, conversationId: viewModel.conversation.id))
     }
 
     var body: some View {
@@ -53,9 +55,10 @@ struct SendMessageView: View {
                 .padding(.bottom, .m)
             ImageAttachmentsPreview(viewModel: viewModel)
             if isFocused || viewModel.keyboardVisible {
-                keyboardToolbarContent
-                    .padding(.horizontal, .l)
-                    .padding(.vertical, .m)
+                SendMessageKeyboardToolbar(sendButton: sendButton,
+                                           viewModel: viewModel,
+                                           uploadFileViewModel: uploadFileViewModel,
+                                           uploadImageViewModel: uploadImageViewModel)
                     .background(.bar)
                     .padding(.top, .s)
             }
@@ -146,120 +149,12 @@ private extension SendMessageView {
         }
     }
 
-    var keyboardToolbarContent: some View {
-        HStack {
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(alignment: .firstTextBaseline, spacing: .l) {
-                    Menu {
-                        Button {
-                            viewModel.didTapAtButton()
-                        } label: {
-                            Label(R.string.localizable.members(), systemImage: "at")
-                        }
-                        Button {
-                            viewModel.didTapNumberButton()
-                        } label: {
-                            Label(R.string.localizable.channels(), systemImage: "number")
-                        }
-                        Button {
-                            viewModel.wantsToAddMessageMentionContentType = .exercise
-                        } label: {
-                            Label(R.string.localizable.exercises(), systemImage: "list.bullet.clipboard")
-                        }
-                        Button {
-                            viewModel.wantsToAddMessageMentionContentType = .lecture
-                        } label: {
-                            Label(R.string.localizable.lectures(), systemImage: "character.book.closed")
-                        }
-                        if viewModel.course.faqEnabled == true {
-                            Button {
-                                viewModel.wantsToAddMessageMentionContentType = .faq
-                            } label: {
-                                Label(R.string.localizable.faqs(), systemImage: "questionmark.circle")
-                            }
-                        }
-                    } label: {
-                        Label(R.string.localizable.mention(), systemImage: "plus.circle.fill")
-                    }
-                    Menu {
-                        Button {
-                            viewModel.didTapBoldButton()
-                        } label: {
-                            Label(R.string.localizable.bold(), systemImage: "bold")
-                        }
-                        Button {
-                            viewModel.didTapItalicButton()
-                        } label: {
-                            Label(R.string.localizable.italic(), systemImage: "italic")
-                        }
-                        Button {
-                            viewModel.didTapUnderlineButton()
-                        } label: {
-                            Label(R.string.localizable.underline(), systemImage: "underline")
-                        }
-                        Button {
-                            viewModel.didTapStrikethroughButton()
-                        } label: {
-                            Label(R.string.localizable.strikethrough(), systemImage: "strikethrough")
-                        }
-                    } label: {
-                        Label(R.string.localizable.style(), systemImage: "bold.italic.underline")
-                    }
-                    Menu {
-                        Button {
-                            viewModel.insertListPrefix(unordered: true)
-                        } label: {
-                            Label(R.string.localizable.unorderedList(), systemImage: "list.bullet")
-                        }
-                        Button {
-                            viewModel.insertListPrefix(unordered: false)
-                        } label: {
-                            Label(R.string.localizable.orderedList(), systemImage: "list.number")
-                        }
-                    } label: {
-                        Label(R.string.localizable.listFormatting(), systemImage: "list.triangle")
-                    }
-                    Button {
-                        viewModel.didTapBlockquoteButton()
-                    } label: {
-                        Label(R.string.localizable.quote(), systemImage: "quote.opening")
-                    }
-                    Menu {
-                        Button {
-                            viewModel.didTapCodeButton()
-                        } label: {
-                            Label(R.string.localizable.inlineCode(), systemImage: "curlybraces")
-                        }
-                        Button {
-                            viewModel.didTapCodeBlockButton()
-                        } label: {
-                            Label(R.string.localizable.codeBlock(), systemImage: "curlybraces.square.fill")
-                        }
-                    } label: {
-                        Label(R.string.localizable.code(), systemImage: "curlybraces")
-                    }
-                    Button {
-                        viewModel.didTapLinkButton()
-                    } label: {
-                        Label(R.string.localizable.link(), systemImage: "link")
-                    }
-                    SendMessageImagePickerView(sendMessageViewModel: viewModel)
-                    SendMessageFilePickerView(sendViewModel: viewModel, viewModel: uploadFileViewModel)
-                }
-                .labelStyle(.iconOnly)
-                .font(.title3)
-            }
-            Spacer()
-            sendButton
-        }
-    }
-
     var sendButton: some View {
         Button(action: viewModel.didTapSendButton) {
             Image(systemName: "paperplane.fill")
                 .imageScale(.large)
         }
-        .padding(.leading, .l)
+        .padding(isFocused ? .trailing : .leading, .l)
         .disabled(!viewModel.canSend)
         .loadingIndicator(isLoading: $viewModel.isLoading)
     }
