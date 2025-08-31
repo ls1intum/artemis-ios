@@ -23,7 +23,7 @@ struct SendMessageKeyboardToolbar<SendButton: View>: View {
                     SendMessageImagePickerView(sendViewModel: viewModel, viewModel: uploadImageViewModel)
                     SendMessageFilePickerView(sendViewModel: viewModel, viewModel: uploadFileViewModel)
                 } label: {
-                    Label("Attachments", systemImage: "paperclip") // TODO: Localize
+                    Label(R.string.localizable.attachments(), systemImage: "paperclip")
                 }
 
                 InlineExpandableMenu {
@@ -42,7 +42,7 @@ struct SendMessageKeyboardToolbar<SendButton: View>: View {
                         Label(R.string.localizable.quote(), systemImage: "quote.opening")
                     }
                 } label: {
-                    Label("Text formatting", systemImage: "textformat") // TODO: Localize
+                    Label(R.string.localizable.textFormatting(), systemImage: "textformat")
                 }
             }
             .labelStyle(.iconOnly)
@@ -192,6 +192,7 @@ struct InlineExpandableMenu<Content: View, Label: View>: View {
                     ForEach(Array(subviews.enumerated()), id: \.0) { offset, subview in
                         subview.disabled(true).opacity(0)
                             .matchedGeometryEffect(id: offset, in: namespace)
+                            .accessibilityHidden(true)
                     }
                 }
                 Button {
