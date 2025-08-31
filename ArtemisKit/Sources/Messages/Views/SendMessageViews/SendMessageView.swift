@@ -16,12 +16,14 @@ struct SendMessageView: View {
     /// This has to be in here, otherwise it gets deinitialized while file picker is open,
     /// due to the textfield losing focus and the toolbar disappearing
     @State private var uploadFileViewModel: SendMessageUploadFileViewModel
+    @State private var uploadImageViewModel: SendMessageUploadImageViewModel
 
     @FocusState private var isFocused: Bool
 
     init(viewModel: SendMessageViewModel) {
         self._viewModel = State(initialValue: viewModel)
         self._uploadFileViewModel = State(initialValue: .init(courseId: viewModel.course.id, conversationId: viewModel.conversation.id))
+        self._uploadImageViewModel = State(initialValue: .init(courseId: viewModel.course.id, conversationId: viewModel.conversation.id))
     }
 
     var body: some View {
@@ -53,7 +55,10 @@ struct SendMessageView: View {
                 .padding(.bottom, .m)
             ImageAttachmentsPreview(viewModel: viewModel)
             if isFocused || viewModel.keyboardVisible {
-                SendMessageKeyboardToolbar(sendButton: sendButton, viewModel: viewModel)
+                SendMessageKeyboardToolbar(sendButton: sendButton,
+                                           viewModel: viewModel,
+                                           uploadFileViewModel: uploadFileViewModel,
+                                           uploadImageViewModel: uploadImageViewModel)
                     .background(.bar)
                     .padding(.top, .s)
             }

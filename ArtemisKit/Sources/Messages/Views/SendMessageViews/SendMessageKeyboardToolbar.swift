@@ -11,14 +11,17 @@ struct SendMessageKeyboardToolbar<SendButton: View>: View {
     let sendButton: SendButton
     let viewModel: SendMessageViewModel
 
+    let uploadFileViewModel: SendMessageUploadFileViewModel
+    let uploadImageViewModel: SendMessageUploadImageViewModel
+
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(alignment: .firstTextBaseline, spacing: .l) {
                 mentionContentMenu
 
-                Menu {
-                    SendMessageImagePickerView(sendMessageViewModel: viewModel)
-                    SendMessageFilePickerView(sendMessageViewModel: viewModel)
+                InlineExpandableMenu {
+                    SendMessageImagePickerView(sendViewModel: viewModel, viewModel: uploadImageViewModel)
+                    SendMessageFilePickerView(sendViewModel: viewModel, viewModel: uploadFileViewModel)
                 } label: {
                     Label("Attachments", systemImage: "paperclip") // TODO: Localize
                 }
@@ -180,6 +183,8 @@ struct InlineExpandableMenu<Content: View, Label: View>: View {
                         .matchedGeometryEffect(id: offset, in: namespace)
                     }
                 }
+                // Spacer (0) + spacing (.l) ensures separability to nearby menus
+                Spacer().frame(width: 0)
             }
         } else {
             ZStack(alignment: .leading) {
