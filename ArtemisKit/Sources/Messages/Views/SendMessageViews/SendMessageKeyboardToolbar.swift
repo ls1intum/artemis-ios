@@ -9,10 +9,12 @@ import SwiftUI
 
 struct SendMessageKeyboardToolbar<SendButton: View>: View {
     let sendButton: SendButton
-    let viewModel: SendMessageViewModel
+    @Bindable var viewModel: SendMessageViewModel
 
     let uploadFileViewModel: SendMessageUploadFileViewModel
     let uploadImageViewModel: SendMessageUploadImageViewModel
+
+    @Namespace private var namespace
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -58,8 +60,28 @@ struct SendMessageKeyboardToolbar<SendButton: View>: View {
             ], startPoint: .leading, endPoint: .trailing)
         }
         .safeAreaInset(edge: .trailing) {
-            sendButton
+            HStack(spacing: .m * 1.5) {
+                previewButton
+                sendButton
+            }
         }
+    }
+
+    @ViewBuilder var previewButton: some View {
+        Group {
+            if viewModel.canPreview && !viewModel.previewVisible {
+                Button("Preview", systemImage: "eye") {
+                    viewModel.previewVisible = true
+                }
+                .labelStyle(.iconOnly)
+                .matchedGeometryEffect(id: "previewBtn", in: namespace, anchor: .leading)
+            } else if viewModel.previewVisible {
+                Toggle("Preview", systemImage: "eye", isOn: $viewModel.previewVisible)
+                    .toggleStyle(.button)
+                    .matchedGeometryEffect(id: "previewBtn", in: namespace, anchor: .leading)
+            }
+        }
+        .animation(.snappy, value: viewModel.previewVisible)
     }
 
     var mentionContentMenu: some View {
