@@ -37,6 +37,7 @@
 "addMessage" = "Add a message";
 "removeImage" = "Remove";
 "attachments" = "Attachments";
+"preview" = "Preview";
 
 // MARK: SendMessageMentionContentView
 "members" = "Members";
