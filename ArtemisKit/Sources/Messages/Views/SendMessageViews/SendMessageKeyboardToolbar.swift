@@ -70,13 +70,13 @@ struct SendMessageKeyboardToolbar<SendButton: View>: View {
     @ViewBuilder var previewButton: some View {
         Group {
             if viewModel.canPreview && !viewModel.previewVisible {
-                Button("Preview", systemImage: "eye") {
+                Button(R.string.localizable.preview(), systemImage: "eye") {
                     viewModel.previewVisible = true
                 }
                 .labelStyle(.iconOnly)
                 .matchedGeometryEffect(id: "previewBtn", in: namespace, anchor: .leading)
             } else if viewModel.previewVisible {
-                Toggle("Preview", systemImage: "eye", isOn: $viewModel.previewVisible)
+                Toggle(R.string.localizable.preview(), systemImage: "eye", isOn: $viewModel.previewVisible)
                     .toggleStyle(.button)
                     .matchedGeometryEffect(id: "previewBtn", in: namespace, anchor: .leading)
             }
