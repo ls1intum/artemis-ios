@@ -18,7 +18,6 @@ struct SendMessageView: View {
     /// due to the textfield losing focus and the toolbar disappearing
     @State private var uploadFileViewModel: SendMessageUploadFileViewModel
     @State private var uploadImageViewModel: SendMessageUploadImageViewModel
-    @State private var showPreview = false
 
     @FocusState private var isFocused: Bool
 
