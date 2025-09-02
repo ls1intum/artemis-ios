@@ -186,6 +186,7 @@ extension SendMessageViewModel {
 
     func didTapSendButton() {
         isLoading = true
+        previewVisible = false
         Task { @MainActor in
             var result: NetworkResponse?
             switch configuration {
