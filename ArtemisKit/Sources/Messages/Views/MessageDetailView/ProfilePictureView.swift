@@ -156,9 +156,6 @@ struct ProfileInfoSheet: View {
             .scrollContentBackground(.hidden)
             .background(backgroundImage)
         }
-        .task {
-            await viewModel.loadUserLogin()
-        }
         .loadingIndicator(isLoading: $viewModel.isLoading)
         .alert(isPresented: Binding(get: {
             viewModel.error != nil
