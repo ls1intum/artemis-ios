@@ -60,7 +60,7 @@ struct SendMessageKeyboardToolbar<SendButton: View>: View {
             ], startPoint: .leading, endPoint: .trailing)
         }
         .safeAreaInset(edge: .trailing) {
-            HStack(spacing: .m * 1.5) {
+            HStack(spacing: .l) {
                 previewButton
                 sendButton
             }
