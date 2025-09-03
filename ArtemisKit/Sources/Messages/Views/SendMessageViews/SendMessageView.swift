@@ -95,6 +95,7 @@ struct SendMessageView: View {
                         // down
                         isFocused = false
                         viewModel.keyboardVisible = false
+                        viewModel.previewVisible = false
                         let impactMed = UIImpactFeedbackGenerator(style: .medium)
                         impactMed.impactOccurred()
                     }

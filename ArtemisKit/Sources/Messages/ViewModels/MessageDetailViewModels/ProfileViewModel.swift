@@ -20,7 +20,6 @@ class ProfileViewModel {
 
     let user: ConversationUser
     let role: UserRole?
-    private var login: String?
     let course: Course
     var actions: [ProfileInfoSheetAction]
 
@@ -31,34 +30,17 @@ class ProfileViewModel {
         self.actions = actions
     }
 
-    // We can only create a conversation if we have the user's login
     // Don't allow sending messages to oneself
     var canSendMessage: Bool {
-        (user.login != nil || login != nil)
-        && UserSessionFactory.shared.user?.id != user.id
-    }
-
-    func loadUserLogin() async {
-        guard let name = user.name else { return }
-        isLoading = true
-        let result = await CourseServiceFactory.shared.getCourseMembers(courseId: course.id, searchLoginOrName: name)
-        switch result {
-        case .done(let matches):
-            login = matches.first(where: { $0.name == user.name })?.login
-            isLoading = false
-        default:
-            // No user found – cannot send a message
-            break
-        }
+        UserSessionFactory.shared.user?.id != user.id
     }
 
     @MainActor
     func openConversation(navigationController: NavigationController, completion: @escaping () -> Void) {
-        guard let login = user.login ?? login else { return }
         isLoading = true
         Task {
             let messageCellModel = MessageCellModel(course: course, conversationPath: nil, isHeaderVisible: false, roundBottomCorners: false, retryButtonAction: {})
-            if let conversation = await messageCellModel.getOneToOneChatOrCreate(login: login) {
+            if let conversation = await messageCellModel.getOneToOneChatOrCreate(userId: Int(user.id)) {
                 navigationController.goToCourseConversation(courseId: course.id, conversation: conversation)
                 completion()
             }

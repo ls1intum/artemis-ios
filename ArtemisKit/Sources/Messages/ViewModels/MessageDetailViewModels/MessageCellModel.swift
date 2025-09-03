@@ -67,17 +67,24 @@ extension MessageCellModel {
 
     // MARK: Navigation
 
-    func getOneToOneChatOrCreate(login: String) async -> Conversation? {
+    func getOneToOneChatOrCreate(login: String? = nil, userId: Int? = nil) async -> Conversation? {
+        guard login != nil || userId != nil else { return nil }
         async let conversations = messagesService.getConversations(for: course.id)
-        async let chat = messagesService.createOneToOneChat(for: course.id, usernames: [login])
+        async let chat = if login != nil {
+            messagesService.createOneToOneChat(for: course.id, usernames: [login ?? ""])
+        } else {
+            messagesService.createOneToOneChat(for: course.id, userId: userId ?? -1)
+        }
 
         if let conversations = await conversations.value,
            let conversation = conversations.first(where: { conversation in
-                guard case let .oneToOneChat(conversation) = conversation,
-                      let members = conversation.members else {
-                    return false
-                }
-                return members.map(\.login).contains(login)
+               guard case let .oneToOneChat(conversation) = conversation,
+                     let members = conversation.members else {
+                   return false
+               }
+               return members.contains(where: {
+                   $0.id == userId ?? -1 || ($0.login == login && login != nil)
+               })
            }) {
             return conversation
         } else if let chat = await chat.value {

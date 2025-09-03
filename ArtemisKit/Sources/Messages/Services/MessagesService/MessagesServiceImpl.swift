@@ -786,6 +786,32 @@ struct MessagesServiceImpl: MessagesService {
         }
     }
 
+    struct CreateOneToOneChatByIdRequest: APIRequest {
+        typealias Response = OneToOneChat
+
+        let courseId: Int
+        let userId: Int
+
+        var method: HTTPMethod {
+            .post
+        }
+
+        var resourceName: String {
+            "api/communication/courses/\(courseId)/one-to-one-chats/\(userId)"
+        }
+    }
+
+    func createOneToOneChat(for courseId: Int, userId: Int) async -> DataState<OneToOneChat> {
+        let result = await client.sendRequest(CreateOneToOneChatByIdRequest(courseId: courseId, userId: userId))
+
+        switch result {
+        case let .success((oneToOneChat, _)):
+            return .done(response: oneToOneChat)
+        case let .failure(error):
+            return .failure(error: UserFacingError(error: error))
+        }
+    }
+
     struct GetMembersOfConversationRequest: APIRequest {
         typealias Response = [ConversationUser]
 
