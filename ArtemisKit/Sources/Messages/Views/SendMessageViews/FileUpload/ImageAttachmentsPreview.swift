@@ -12,11 +12,11 @@ struct ImageAttachmentsPreview: View {
 
     var body: some View {
         let mentionedImages = viewModel.mentionedImages
-        if !mentionedImages.isEmpty {
+        if !mentionedImages.isEmpty && !viewModel.previewVisible {
             ScrollView(.horizontal) {
                 HStack {
-                    ForEach(viewModel.mentionedImages, id: \.image.hashValue) { name, _, image in
-                        ImageAttachmentThumbnail(image: image, name: name)
+                    ForEach(viewModel.mentionedImages, id: \.image.hashValue) { name, path, image in
+                        ImageAttachmentThumbnail(viewModel: viewModel, image: image, name: name, path: path)
                     }
                 }
             }
@@ -27,12 +27,16 @@ struct ImageAttachmentsPreview: View {
 
 private struct ImageAttachmentThumbnail: View {
     @State private var showPreview = false
+    let viewModel: SendMessageViewModel
     let image: UIImage
     let name: String
+    let path: String
 
     var body: some View {
-        Button {
-            showPreview = true
+        Menu {
+            Button(R.string.localizable.removeImage(), systemImage: "minus.circle", role: .destructive) {
+                viewModel.removeImage(name: name, path: path)
+            }
         } label: {
             VStack(spacing: .s) {
                 Image(uiImage: image)
@@ -46,6 +50,8 @@ private struct ImageAttachmentThumbnail: View {
                     .lineLimit(1)
                     .frame(maxWidth: .largeImage)
             }
+        } primaryAction: {
+            showPreview = true
         }
         .buttonStyle(.plain)
         .popover(isPresented: $showPreview, attachmentAnchor: .point(.top), arrowEdge: .bottom) {
@@ -59,8 +65,16 @@ private struct ImageAttachmentThumbnail: View {
                 .resizable()
                 .scaledToFit()
                 .toolbar {
-                    Button(R.string.localizable.done()) {
-                        showPreview = false
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button(R.string.localizable.done()) {
+                            showPreview = false
+                        }
+                    }
+                    ToolbarItem(placement: .bottomBar) {
+                        Button(R.string.localizable.removeImage(), systemImage: "minus.circle", role: .destructive) {
+                            showPreview = false
+                            viewModel.removeImage(name: name, path: path)
+                        }
                     }
                 }
         }

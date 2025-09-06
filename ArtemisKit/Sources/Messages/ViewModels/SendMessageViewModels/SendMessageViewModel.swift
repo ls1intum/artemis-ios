@@ -87,12 +87,17 @@ final class SendMessageViewModel {
         }
     }
 
+    var canPreview: Bool {
+        !text.isEmpty
+    }
+
     var isMemberPickerSuppressed = false
     var isChannelPickerSuppressed = false
 
     var wantsToAddMessageMentionContentType: MessageMentionContentType?
     var presentKeyboardOnAppear: Bool
     var keyboardVisible = false
+    var previewVisible = false
 
     // MARK: Life cycle
 
@@ -181,6 +186,7 @@ extension SendMessageViewModel {
 
     func didTapSendButton() {
         isLoading = true
+        previewVisible = false
         Task { @MainActor in
             var result: NetworkResponse?
             switch configuration {

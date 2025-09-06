@@ -10,12 +10,11 @@ import SwiftUI
 struct SendMessageImagePickerView: View {
 
     var sendViewModel: SendMessageViewModel
-    @State private var viewModel: SendMessageUploadImageViewModel
+    @Bindable private var viewModel: SendMessageUploadImageViewModel
 
-    init(sendMessageViewModel: SendMessageViewModel) {
-        self._viewModel = State(initialValue: .init(courseId: sendMessageViewModel.course.id,
-                                                    conversationId: sendMessageViewModel.conversation.id))
-        self.sendViewModel = sendMessageViewModel
+    init(sendViewModel: SendMessageViewModel, viewModel: SendMessageUploadImageViewModel) {
+        self.viewModel = viewModel
+        self.sendViewModel = sendViewModel
     }
 
     var body: some View {
