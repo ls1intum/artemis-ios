@@ -119,12 +119,14 @@ extension ExerciseDetailViewModel {
     }
 
     var isExerciseParticipationAvailable: Bool {
-        switch exercise.value {
-        case .modeling, .text:
-            return true
-        default:
-            return false
-        }
+        // TODO: Re-enable when fixed
+//        switch exercise.value {
+//        case .modeling, .text:
+//            return true
+//        default:
+//            return false
+//        }
+        false
     }
 }
 
