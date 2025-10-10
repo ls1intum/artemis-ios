@@ -442,25 +442,9 @@ struct MessagesServiceImpl: MessagesService {
         }
     }
 
-    struct AddReactionToAnswerMessageRequest: APIRequest {
-        typealias Response = RawResponse
-
-        let emojiId: String
-        let answerPost: AnswerMessage
-        let courseId: Int
-
-        var method: HTTPMethod {
-            return .post
-        }
-
-        var resourceName: String {
-            return "api/communication/courses/\(courseId)/postings/reactions"
-        }
-    }
-
     func addReactionToAnswerMessage(for courseId: Int, answerMessage: AnswerMessage, emojiId: String) async -> NetworkResponse {
         let result = await client.sendRequest(
-            AddReactionToAnswerMessageRequest(emojiId: emojiId, answerPost: answerMessage, courseId: courseId)
+            AddReactionToMessageRequest(emojiId: emojiId, relatedPostId: answerMessage.id, courseId: courseId)
         )
 
         switch result {
@@ -475,7 +459,7 @@ struct MessagesServiceImpl: MessagesService {
         typealias Response = RawResponse
 
         let emojiId: String
-        let post: Message
+        let relatedPostId: Int64
         let courseId: Int
 
         var method: HTTPMethod {
@@ -489,7 +473,7 @@ struct MessagesServiceImpl: MessagesService {
 
     func addReactionToMessage(for courseId: Int, message: Message, emojiId: String) async -> NetworkResponse {
         let result = await client.sendRequest(
-            AddReactionToMessageRequest(emojiId: emojiId, post: message, courseId: courseId)
+            AddReactionToMessageRequest(emojiId: emojiId, relatedPostId: message.id, courseId: courseId)
         )
 
         switch result {
