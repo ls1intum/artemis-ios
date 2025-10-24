@@ -29,13 +29,21 @@ public struct BackToRootButton: View {
             Button {
                 navController.popToRoot()
             } label: {
-                HStack(spacing: .s) {
-                    Image(systemName: "chevron.backward")
-                        .fontWeight(.semibold)
-                    Text("Back")
-                }
-                .offset(x: placement == .navBar ? -8 : 0)
+                backButtonLabel
             }
+        }
+    }
+
+    @ViewBuilder private var backButtonLabel: some View {
+        if #available(iOS 26.0, *) {
+            Image(systemName: "chevron.backward")
+        } else {
+            HStack(spacing: .s) {
+                Image(systemName: "chevron.backward")
+                    .fontWeight(.semibold)
+                Text("Back")
+            }
+            .offset(x: placement == .navBar ? -8 : 0)
         }
     }
 

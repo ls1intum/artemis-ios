@@ -96,7 +96,7 @@ struct ProfileInfoSheet: View {
                                 }
                             }
                             .frame(width: 100, height: 100)
-                            .clipShape(.rect(cornerRadius: 8))
+                            .clipShape(.rect(cornerRadius: pictureCornerRadius))
 
                             VStack(alignment: .leading, spacing: .m) {
                                 if let role = viewModel.role {
@@ -173,6 +173,14 @@ struct ProfileInfoSheet: View {
                 .ignoresSafeArea()
                 .blur(radius: .l, opaque: true)
                 .opacity(0.15)
+        }
+    }
+
+    private var pictureCornerRadius: Double {
+        if #available(iOS 26.0, *) {
+            25
+        } else {
+            8
         }
     }
 }
