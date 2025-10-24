@@ -27,6 +27,15 @@ public class AppDelegate: UIResponder, UIApplicationDelegate {
 
     public func applicationDidEnterBackground(_ application: UIApplication) {
         UNUserNotificationCenter.current().setBadgeCount(0)
+        // Save JWT Token to keychain for usage in app extensions
+        let userSession = UserSessionFactory.shared
+        let domain = userSession.institution?.baseURL?.absoluteString ?? ""
+        let cookie = URLSession.shared.configuration.httpCookieStorage?.cookies?.first {
+            $0.name == "jwt" && domain.contains($0.domain)
+        }
+        if let cookie {
+            UserSessionFactory.shared.saveToken(cookie.value)
+        }
     }
 
     private func registerForPushNotifications() {
