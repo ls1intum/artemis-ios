@@ -31,7 +31,7 @@ struct TabBarIpad<Content: View>: View {
                 .padding(.horizontal)
                 .frame(height: 50)
                 .frame(maxWidth: .infinity)
-                .background(.thinMaterial)
+                .thinMaterialBackgroundBefore26()
                 .zIndex(1)
 
                 content()
@@ -46,6 +46,17 @@ struct TabBarIpad<Content: View>: View {
             AnyLayout(ZStackLayout(alignment: .top))
         } else {
             AnyLayout(VStackLayout(spacing: 0))
+        }
+    }
+}
+
+fileprivate extension View {
+    @ViewBuilder
+    func thinMaterialBackgroundBefore26() -> some View {
+        if #available(iOS 26.0, *) {
+            self
+        } else {
+            background(.thinMaterial)
         }
     }
 }
