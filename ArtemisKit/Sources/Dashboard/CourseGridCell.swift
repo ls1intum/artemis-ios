@@ -162,7 +162,7 @@ private extension CourseGridCell {
 
     @ViewBuilder var statisticsChart: some View {
         if let totalScore = courseForDashboard.totalScores,
-           totalScore.studentScores.absoluteScore > 0 {
+           totalScore.studentScores.absoluteScore > 0 && totalScore.reachablePoints > 0 {
             ProgressBar(
                 value: totalScore.studentScores.absoluteScore,
                 total: totalScore.reachablePoints
