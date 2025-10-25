@@ -24,8 +24,10 @@ struct TabBarIpad<Content: View>: View {
             layout {
                 HStack(alignment: .center) {
                     BackToRootButton(placement: .tabBar, sizeClass: sizeClass)
+                        .glassButton26()
                     Spacer()
                     NotificationToolbarButton(placement: .tabBar, sizeClass: sizeClass)
+                        .glassButton26()
                 }
                 .imageScale(.large)
                 .padding(.horizontal)
@@ -57,6 +59,16 @@ fileprivate extension View {
             self
         } else {
             background(.thinMaterial)
+        }
+    }
+
+    @ViewBuilder
+    func glassButton26() -> some View {
+        if #available(iOS 26.0, *) {
+            frame(width: 45, height: 45)
+                .glassEffect(.regular.interactive(), in: .circle)
+        } else {
+            self
         }
     }
 }

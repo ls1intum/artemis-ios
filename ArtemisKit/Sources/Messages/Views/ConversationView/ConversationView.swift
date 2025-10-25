@@ -109,7 +109,7 @@ public struct ConversationView: View {
                                 Text(viewModel.conversation.baseConversation.conversationName)
                                     .lineLimit(1)
                                     .fontWeight(.semibold)
-                                    .frame(maxWidth: 200)
+                                    .frame(maxWidth: 155)
                                 Image(systemName: "chevron.forward")
                                     .font(.caption2)
                                     .offset(x: -4, y: 1)
@@ -121,7 +121,7 @@ public struct ConversationView: View {
                             }
                         }
                     }
-                    .padding(.horizontal, .m)
+                    .padding(.leading, .m)
                     .foregroundStyle(Color.Artemis.primaryLabel)
                 }
             }

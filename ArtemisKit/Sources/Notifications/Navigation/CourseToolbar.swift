@@ -42,10 +42,23 @@ private struct CourseToolbarViewModifier: ViewModifier {
                 ToolbarItem(placement: .topBarLeading) {
                     BackToRootButton(placement: .navBar, sizeClass: sizeClass)
                 }
+                .disableGlass26()
                 ToolbarItem(placement: .topBarTrailing) {
                     NotificationToolbarButton(placement: .navBar, sizeClass: sizeClass)
                 }
             }
+    }
+}
+
+fileprivate extension ToolbarContent {
+    func disableGlass26() -> some ToolbarContent {
+        Group {
+            if #available(iOS 26, *) {
+                sharedBackgroundVisibility(.hidden)
+            } else {
+                self
+            }
+        }
     }
 }
 
