@@ -124,6 +124,7 @@ struct ConversationListView: View {
                     .listRowBackground(Color.clear)
             }
         }
+        .environment(\.defaultMinListRowHeight, 45)
         .task {
             if viewModel.filter == .unresolved {
                 await viewModel.loadUnresolvedChannels()
@@ -153,6 +154,20 @@ struct ConversationListView: View {
         if nonNeededFilters.count < ConversationFilter.allCases.count - 1 {
             FilterBarPicker(selectedFilter: $viewModel.filter.animation(),
                             hiddenFilters: nonNeededFilters)
+            .scrollClipDisabled()
+            // Needed to prevent corner radius clipping on iOS 26+
+            .padding26()
+        }
+    }
+}
+
+fileprivate extension View {
+    @ViewBuilder
+    func padding26() -> some View {
+        if #available(iOS 26.0, *) {
+            padding(.horizontal, 10)
+        } else {
+            self
         }
     }
 }

@@ -47,9 +47,11 @@ struct ConversationRow: View {
                                       trailing: .m * (sizeClass == .compact ? -1 : 1)))
             .swipeActions(edge: .leading) {
                 favoriteButton
+                    .labelStyle(.iconOnly)
             }
             .swipeActions(edge: .trailing) {
                 hideAndMuteButtons
+                    .labelStyle(.iconOnly)
             }
         }
     }

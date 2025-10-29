@@ -46,14 +46,12 @@ struct CourseGrid: View {
                     ContentUnavailableView.search
                 }
 
-                HStack {
-                    Spacer()
-                    Button(R.string.localizable.dashboardRegisterForCourseButton()) {
-                        isCourseRegistrationPresented = true
-                    }
-                    .buttonStyle(ArtemisButton())
-                    Spacer()
+                Button(R.string.localizable.dashboardRegisterForCourseButton()) {
+                    isCourseRegistrationPresented = true
                 }
+                .buttonStyle(ArtemisButton())
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.vertical)
             }
             .contentMargins(.horizontal, .l, for: .scrollContent)
             .searchable(text: $viewModel.searchText)

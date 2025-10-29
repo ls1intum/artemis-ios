@@ -75,7 +75,9 @@ struct MessageDetailView: View {
                             .frame(minWidth: 100, maxWidth: 220, alignment: .leading)
                     }
                     .font(.footnote)
-                }.padding(.leading, .m)
+                }
+                .padding(.leading, .m)
+                .padding(.horizontal)
             }
         }
         .task {
