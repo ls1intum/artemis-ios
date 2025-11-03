@@ -104,7 +104,7 @@ extension ExerciseDetailViewModel {
 
         let resultScore = latestRatedResult?.score ?? 0
         let maxPoints = exercise.value?.baseExercise.maxPoints ?? 0
-        let finalScore = (resultScore * maxPoints / 100).rounded()
+        let finalScore = round(resultScore * maxPoints / 10) / 10
 
         return finalScore.clean
     }
