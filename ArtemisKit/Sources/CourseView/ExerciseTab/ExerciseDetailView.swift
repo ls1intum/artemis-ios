@@ -21,7 +21,7 @@ public struct ExerciseDetailView: View {
         DataStateView(data: $viewModel.exercise) {
             await viewModel.loadExercise()
         } content: { exercise in
-            ScrollView {
+            ScrollView(.vertical) {
                 VStack(alignment: .leading, spacing: .l) {
                     hint
                     ExerciseOverviewChipsRow(exercise: exercise, score: viewModel.score)
