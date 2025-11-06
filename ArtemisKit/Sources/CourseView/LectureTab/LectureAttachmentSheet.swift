@@ -27,20 +27,9 @@ struct LectureAttachmentSheet: View {
     }
 
     private func loadAttachment() async {
-        var link: String?
-        var fileName: String?
-        switch attachment {
-        case .file(let attachment):
-            link = attachment.link
-            fileName = attachment.name
-        case .url(let attachment):
-            // TODO
-            link = nil
-        case .unknown:
-            link = nil
-        }
+        let fileName: String? = attachment.name
 
-        guard let link else {
+        guard let link = attachment.link else {
             previewURL = .failure(error: UserFacingError(title: "There is no download link for this attachment!"))
             return
         }
