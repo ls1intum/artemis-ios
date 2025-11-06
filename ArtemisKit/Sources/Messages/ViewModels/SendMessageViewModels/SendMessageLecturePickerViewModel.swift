@@ -50,8 +50,9 @@ final class SendMessageLecturePickerViewModel {
            let file = attachment.attachment,
            let link = file.link,
            let url = URL(string: link),
-           url.pathComponents.count >= 7 {
-            let path = url.pathComponents[4...]
+           url.pathComponents.count >= 4 {
+            var path = url.pathComponents[1...]
+            path.insert("student", at: 3)
             let id = path.joined(separator: "/")
 
             delegate.pickerDidSelect("[lecture-unit]\(name)(\(id))[/lecture-unit]")
