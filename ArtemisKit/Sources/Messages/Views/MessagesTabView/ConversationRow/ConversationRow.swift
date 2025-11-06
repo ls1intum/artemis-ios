@@ -11,7 +11,6 @@ import SwiftUI
 
 struct ConversationRow: View {
 
-    @Environment(\.horizontalSizeClass) var sizeClass
     @EnvironmentObject var navigationController: NavigationController
 
     @ObservedObject var viewModel: MessagesAvailableViewModel
