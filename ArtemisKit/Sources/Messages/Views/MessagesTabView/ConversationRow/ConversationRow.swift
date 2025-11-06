@@ -38,13 +38,10 @@ struct ConversationRow: View {
                     contextMenuItems
                 }
             }
+            .navigationLinkIndicatorVisibility(.hidden)
             .tag(ConversationPath(conversation: conversationForPath, coursePath: CoursePath(course: viewModel.course)))
             .foregroundStyle((conversation.isMuted ?? false) ? .secondary : .primary)
-            .listRowInsets(EdgeInsets(top: 0,
-                                      leading: .s * -1,
-                                      bottom: 0,
-                                      // We need to move the chevron off screen if it exists
-                                      trailing: .m * (sizeClass == .compact ? -1 : 1)))
+            .listRowInsets(EdgeInsets(top: 0, leading: .s * -1, bottom: 0, trailing: 0))
             .swipeActions(edge: .leading) {
                 favoriteButton
                     .labelStyle(.iconOnly)
