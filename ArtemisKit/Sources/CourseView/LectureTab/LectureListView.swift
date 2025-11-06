@@ -44,6 +44,7 @@ struct LectureListView: View {
                         } else {
                             ForEach(searchResults) { lecture in
                                 LectureListCellView(course: viewModel.course, lecture: lecture)
+                                    .listRowInsets(.init())
                             }
                         }
                     }
@@ -216,6 +217,7 @@ struct WeeklyLectureView: View {
     var body: some View {
         ForEach(weeklyLecture.lectures) { lecture in
             LectureListCellView(course: course, lecture: lecture)
+                .listRowInsets(EdgeInsets(top: 0, leading: .m * -1, bottom: 0, trailing: 0))
         }
     }
 }
@@ -253,8 +255,8 @@ private struct LectureListCellView: View {
             .padding(.horizontal, .m)
             .padding(.vertical, .l)
         }
+        .navigationLinkIndicatorVisibility(.hidden)
         .foregroundColor(Color.Artemis.primaryLabel)
-        .listRowInsets(EdgeInsets(top: 0, leading: .m * -1, bottom: 0, trailing: .m * -1))
         .listRowBackground(Color.Artemis.exerciseCardBackgroundColor)
         .tag(LecturePath(lecture: lecture, coursePath: CoursePath(course: course)))
     }
