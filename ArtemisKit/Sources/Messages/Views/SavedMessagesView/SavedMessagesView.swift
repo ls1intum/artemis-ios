@@ -25,6 +25,7 @@ struct SavedMessagesView: View {
             if posts.isEmpty {
                 Section {
                     ContentUnavailableView(R.string.localizable.noMessages(), systemImage: viewModel.selectedType.iconName)
+                        .frame(minHeight: 150)
                 }
             }
             ForEach(posts.sorted()) { post in
