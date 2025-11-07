@@ -144,39 +144,31 @@ private struct AttachmentCell: View {
 
     @State private var showAttachmentSheet = false
 
-    var pathExtension: String? {
-        guard let name = (attachment.baseAttachment as? FileAttachment)?.link else { return nil }
-        let filename: NSString = name as NSString
-        return filename.pathExtension.uppercased()
-    }
-
     var body: some View {
         Button(action: {
             showAttachmentSheet = true
         }, label: {
             VStack(alignment: .leading) {
                 HStack {
-                    if let name = attachment.baseAttachment.name {
+                    if let name = attachment.name {
                         Text(name)
                     }
-                    if let pathExtension {
+                    if let pathExtension = attachment.pathExtension {
                         Chip(text: pathExtension, backgroundColor: .Artemis.artemisBlue)
                     }
                 }
-                if let fileAttachment = attachment.baseAttachment as? FileAttachment {
-                    HStack(spacing: 0) {
-                        Text("(")
-                        if let version = fileAttachment.version {
-                            Text("\(R.string.localizable.version()): \(version) -")
-                        }
-                        if let uploadDate = fileAttachment.uploadDate {
-                            Text("\(R.string.localizable.date()): \(uploadDate.shortDateAndTime)")
-                        }
-                        Text(")")
+                HStack(spacing: 0) {
+                    Text("(")
+                    if let version = attachment.version {
+                        Text("\(R.string.localizable.version()): \(version) -")
                     }
-                        .font(.caption)
-                        .foregroundColor(.Artemis.secondaryLabel)
+                    if let uploadDate = attachment.uploadDate {
+                        Text("\(R.string.localizable.date()): \(uploadDate.shortDateAndTime)")
+                    }
+                    Text(")")
                 }
+                .font(.caption)
+                .foregroundColor(.Artemis.secondaryLabel)
             }
         })
             .sheet(isPresented: $showAttachmentSheet) {
