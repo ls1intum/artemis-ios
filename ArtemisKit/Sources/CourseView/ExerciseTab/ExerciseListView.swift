@@ -40,6 +40,7 @@ struct ExerciseListView: View {
                         } else {
                             ForEach(searchResults) { exercise in
                                 ExerciseListCell(course: viewModel.course, exercise: exercise)
+                                    .listRowInsets(.init())
                             }
                         }
                     }
@@ -216,6 +217,7 @@ struct WeeklyExerciseView: View {
     var body: some View {
         ForEach(weeklyExercise.exercises) { exercise in
             ExerciseListCell(course: course, exercise: exercise)
+                .listRowInsets(EdgeInsets(top: 0, leading: -20, bottom: 0, trailing: 0))
         }
     }
 }
@@ -291,7 +293,7 @@ struct ExerciseListCell: View {
             .foregroundColor(Color.Artemis.primaryLabel)
         }
         .tag(ExercisePath(exercise: exercise, coursePath: CoursePath(course: course)))
-        .listRowInsets(EdgeInsets(top: 0, leading: -20, bottom: 0, trailing: .m * -1))
+        .navigationLinkIndicatorVisibility(.hidden)
         .listRowBackground(Color.Artemis.exerciseCardBackgroundColor)
     }
 }
