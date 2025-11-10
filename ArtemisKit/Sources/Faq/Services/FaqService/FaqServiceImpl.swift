@@ -72,12 +72,19 @@ struct FaqServiceImpl: FaqService {
 
         enum CodingKeys: CodingKey {
             case courseId
-            case faq
+            case questionTitle
+            case questionAnswer
+            case categories
+            case faqState
         }
 
         func encode(to encoder: any Encoder) throws {
-            var container = encoder.singleValueContainer()
-            try container.encode(faq)
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(courseId, forKey: .courseId)
+            try container.encode(faq.questionTitle, forKey: .questionTitle)
+            try container.encode(faq.questionAnswer, forKey: .questionAnswer)
+            try container.encode(faq.categories, forKey: .categories)
+            try container.encode(faq.faqState, forKey: .faqState)
         }
 
         var method: HTTPMethod { .post }
@@ -89,9 +96,7 @@ struct FaqServiceImpl: FaqService {
 
     func proposeFaq(faq: FaqDTO, for courseId: Int) async -> DataState<FaqDTO> {
         var newFaq = faq
-        newFaq.id = nil
         newFaq.faqState = .proposed
-        newFaq.course = .init(id: courseId, courseInformationSharingConfiguration: .communicationAndMessaging)
 
         let result = await client.sendRequest(ProposeFaqRequest(courseId: courseId, faq: newFaq))
 
