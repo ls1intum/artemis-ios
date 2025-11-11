@@ -75,9 +75,9 @@ private struct SearchSectionHeader: View {
 
     var body: some View {
         HStack {
-            Text("Messages").font(.headline)
+            Text(title).font(.headline)
             Spacer()
-            Button(limitEnabled ? "Show all" : "Collapse") {
+            Button(limitEnabled ? R.string.localizable.showAll() : R.string.localizable.collapse()) {
                 withAnimation {
                     limitEnabled.toggle()
                 }

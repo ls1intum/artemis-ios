@@ -76,6 +76,8 @@
 "unresolvedFilter" = "Unresolved";
 "allDone" = "All done";
 "allDoneDescription" = "All messages are resolved. Good work!";
+"showAll" = "Show all";
+"collapse" = "Collapse";
 
 // MARK: MessageDetailView
 "edited" = "Edited";
