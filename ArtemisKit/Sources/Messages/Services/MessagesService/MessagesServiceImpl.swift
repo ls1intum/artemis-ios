@@ -188,7 +188,7 @@ struct MessagesServiceImpl: MessagesService {
                 .init(name: "conversationIds", value: channelIdsString),
                 .init(name: "postSortCriterion", value: "CREATION_DATE"),
                 .init(name: "sortingOrder", value: "DESCENDING"),
-                .init(name: "searchText", value: searchTerm.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""),
+                .init(name: "searchText", value: searchTerm),
                 .init(name: "pagingEnabled", value: "true"),
                 .init(name: "page", value: "0"),
                 .init(name: "size", value: "20")
