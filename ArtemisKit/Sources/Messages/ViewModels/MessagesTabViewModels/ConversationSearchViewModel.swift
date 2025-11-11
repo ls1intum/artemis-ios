@@ -60,7 +60,7 @@ class ConversationSearchViewModel {
 private extension ConversationSearchViewModel {
     func observeSearch() {
         $__searchText
-            .debounce(for: 0.5, scheduler: DispatchQueue.main)
+            .debounce(for: 0.4, scheduler: DispatchQueue.main)
             .sink { [weak self] value in
                 guard let self else { return }
                 debouncedSearchText = value
