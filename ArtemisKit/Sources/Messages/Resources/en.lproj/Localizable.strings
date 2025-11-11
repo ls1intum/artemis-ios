@@ -75,7 +75,6 @@
 "unresolvedFilter" = "Unresolved";
 "allDone" = "All done";
 "allDoneDescription" = "All messages are resolved. Good work!";
-"filterConversations" = "Filter conversations";
 
 // MARK: MessageDetailView
 "edited" = "Edited";
