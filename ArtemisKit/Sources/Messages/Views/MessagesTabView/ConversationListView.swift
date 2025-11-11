@@ -12,24 +12,22 @@ import Navigation
 
 struct ConversationListView: View {
     @State var viewModel: ConversationListViewModel
+    @State var searchModel: ConversationSearchViewModel
     @Binding var selectedConversation: ConversationPath?
 
     init(viewModel: MessagesAvailableViewModel,
          conversations: [Conversation],
          selectedConversation: Binding<ConversationPath?>) {
-        _viewModel = State(initialValue: .init(parentViewModel: viewModel, conversations: conversations))
+        let viewModel = ConversationListViewModel(parentViewModel: viewModel, conversations: conversations)
+        _viewModel = State(initialValue: viewModel)
+        _searchModel = State(initialValue: .init(conversationListViewModel: viewModel))
         _selectedConversation = selectedConversation
     }
 
     var body: some View {
         List(selection: $selectedConversation) {
-            if !viewModel.searchText.isEmpty {
-                if viewModel.searchResults.isEmpty {
-                    ContentUnavailableView.search
-                }
-                ForEach(viewModel.searchResults) { conversation in
-                    ConversationRow(viewModel: viewModel.parentViewModel, conversation: conversation.baseConversation)
-                }.listRowBackground(Color.clear)
+            if !searchModel.searchText.isEmpty {
+                ConversationSearchResultsView(viewModel: searchModel)
             } else {
                 filterBar
 
@@ -124,6 +122,7 @@ struct ConversationListView: View {
                     .listRowBackground(Color.clear)
             }
         }
+        .listRowSpacing(searchModel.searchText.isEmpty ? 0.01 : .m)
         .environment(\.defaultMinListRowHeight, 45)
         .task {
             if viewModel.filter == .unresolved {
@@ -131,7 +130,7 @@ struct ConversationListView: View {
             }
         }
         .loadingIndicator(isLoading: $viewModel.showUnresolvedLoadingIndicator)
-        .searchable(text: $viewModel.searchText, prompt: R.string.localizable.filterConversations())
+        .searchable(text: $searchModel.searchText, prompt: R.string.localizable.filterConversations())
         .overlay(alignment: .bottomTrailing) {
             CreateOrAddChannelButton(viewModel: viewModel.parentViewModel)
                 .padding()
