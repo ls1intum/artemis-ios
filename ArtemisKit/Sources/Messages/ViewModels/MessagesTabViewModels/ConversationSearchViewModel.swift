@@ -37,7 +37,7 @@ class ConversationSearchViewModel {
     @ObservationIgnored private var cancellables = Set<AnyCancellable>()
 
     @MainActor var noResults: Bool {
-        conversations.isEmpty && !isLoading && messages.isEmpty
+        conversations.isEmpty && !isLoading && messages.isEmpty && debouncedSearchText.isEmpty
     }
 
     @MainActor var conversations: ArraySlice<Conversation> {
