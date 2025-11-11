@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ConversationSearchResultsView: View {
-    let viewModel: ConversationSearchViewModel
+    @Bindable var viewModel: ConversationSearchViewModel
 
     var body: some View {
         if viewModel.noResults {
@@ -37,15 +37,8 @@ struct ConversationSearchResultsView: View {
                     .padding(.leading, .l)
                 }
             } header: {
-                HStack {
-                    Text("Conversations").font(.headline)
-                    Spacer()
-                    Button(viewModel.limitConversations ? "Show all" : "Collapse") {
-                        withAnimation {
-                            viewModel.limitConversations.toggle()
-                        }
-                    }
-                }
+                SearchSectionHeader(title: R.string.localizable.conversations(),
+                                    limitEnabled: $viewModel.limitConversations)
             }
         }
     }
@@ -69,14 +62,24 @@ struct ConversationSearchResultsView: View {
                     }
                 }
             } header: {
-                HStack {
-                    Text("Messages").font(.headline)
-                    Spacer()
-                    Button(viewModel.limitMessages ? "Show all" : "Collapse") {
-                        withAnimation {
-                            viewModel.limitMessages.toggle()
-                        }
-                    }
+                SearchSectionHeader(title: R.string.localizable.messages(),
+                                    limitEnabled: $viewModel.limitMessages)
+            }
+        }
+    }
+}
+
+private struct SearchSectionHeader: View {
+    let title: String
+    @Binding var limitEnabled: Bool
+
+    var body: some View {
+        HStack {
+            Text("Messages").font(.headline)
+            Spacer()
+            Button(limitEnabled ? "Show all" : "Collapse") {
+                withAnimation {
+                    limitEnabled.toggle()
                 }
             }
         }

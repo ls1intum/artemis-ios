@@ -1,5 +1,6 @@
 "Messages" = "Messages";
 "conversation" = "Conversation";
+"conversations" = "Conversations";
 
 // MARK: MessagesTabView
 "archived" = "(Archived)";
