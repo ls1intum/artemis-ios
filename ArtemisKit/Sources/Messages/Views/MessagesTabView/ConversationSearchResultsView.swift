@@ -64,6 +64,7 @@ struct ConversationSearchResultsView: View {
                                        threadId: message.id,
                                        creationDate: creationDate,
                                        conversation: conversation,
+                                       conversationName: conversation.baseConversation.conversationName,
                                        course: viewModel.conversationListViewModel.parentViewModel.course)
                     }
                 }

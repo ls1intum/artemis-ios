@@ -15,6 +15,15 @@ struct SavedMessageView: View {
     let viewModel: SavedMessagesViewModel
     let post: SavedPostDTO
 
+    var conversationName: String {
+        if let name = post.conversation.title {
+            let namePrefix = post.conversation.type == .channel ? "#" : ""
+            let threadSuffix = post.referencePostId == post.id ? "" : " > \(R.string.localizable.thread())"
+            return "\(namePrefix)\(name)\(threadSuffix)"
+        }
+        return ""
+    }
+
     var body: some View {
         Section {
             MessagePreview(user: ConversationUser(id: post.author.id,
@@ -25,6 +34,7 @@ struct SavedMessageView: View {
                            threadId: post.referencePostId,
                            creationDate: post.creationDate,
                            conversation: getConversationForPath(),
+                           conversationName: conversationName,
                            course: viewModel.course)
             .listRowInsets(EdgeInsets(top: .m, leading: .m, bottom: .s, trailing: .l))
             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
@@ -110,6 +120,7 @@ struct MessagePreview: View {
     let threadId: Int64
     let creationDate: Date
     let conversation: Conversation
+    let conversationName: String
     let course: Course
 
     var body: some View {
@@ -144,22 +155,10 @@ struct MessagePreview: View {
                         .font(.caption)
                         .offset(x: .m * 1.5)
                 }
-                conversationName
+                Text(conversationName)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
             }
         }
-    }
-
-    @ViewBuilder var conversationName: some View {
-        // TODO: Re-add
-        /*
-        if let name = post.conversation.title {
-            let namePrefix = post.conversation.type == .channel ? "#" : ""
-            let threadSuffix = post.referencePostId == post.id ? "" : " > \(R.string.localizable.thread())"
-            Text("\(namePrefix)\(name)\(threadSuffix)")
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
-        }
-         */
-        Text("Convo")
     }
 }
