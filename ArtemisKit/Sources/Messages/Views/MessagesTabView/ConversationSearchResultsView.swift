@@ -20,9 +20,9 @@ struct ConversationSearchResultsView: View {
                 ProgressView()
             } else {
                 messagesSection
-                    .listRowInsets(EdgeInsets(top: .m, leading: .m * 1.5, bottom: .m, trailing: .s))
             }
         }
+        .listRowInsets(EdgeInsets(top: .m, leading: .m * 1.5, bottom: .m, trailing: .s))
         .listRowBackground(Color(uiColor: .secondarySystemBackground))
         .animation(.default, value: viewModel.isLoading)
     }
@@ -77,7 +77,6 @@ struct ConversationSearchResultsView: View {
                         }
                     }
                 }
-                .listRowInsets(EdgeInsets(top: .m, leading: .m * 1.5, bottom: .m, trailing: .s))
             }
         }
     }
