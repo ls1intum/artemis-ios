@@ -169,6 +169,49 @@ struct MessagesServiceImpl: MessagesService {
         }
     }
 
+    struct SearchMessagesRequest: APIRequest {
+        typealias Response = [Message]
+
+        let courseId: Int
+        let channelIds: [Int64]
+        let searchTerm: String
+        var channelIdsString: String {
+            channelIds.map(String.init(describing:)).joined(separator: ",")
+        }
+
+        var method: HTTPMethod {
+            return .get
+        }
+
+        var params: [URLQueryItem] {
+            [
+                .init(name: "conversationIds", value: channelIdsString),
+                .init(name: "postSortCriterion", value: "CREATION_DATE"),
+                .init(name: "sortingOrder", value: "DESCENDING"),
+                .init(name: "conversationIds", value: channelIdsString),
+                .init(name: "searchText", value: searchTerm.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""),
+                .init(name: "pagingEnabled", value: "true"),
+                .init(name: "page", value: "0"),
+                .init(name: "size", value: "20")
+            ]
+        }
+
+        var resourceName: String {
+            return "api/communication/courses/\(courseId)/messages"
+        }
+    }
+
+    func searchMessages(for courseId: Int, channelIds: [Int64], searchTerm: String) async -> DataState<[Message]> {
+        let result = await client.sendRequest(SearchMessagesRequest(courseId: courseId, channelIds: channelIds, searchTerm: searchTerm))
+
+        switch result {
+        case let .success((messages, _)):
+            return .done(response: messages)
+        case let .failure(error):
+            return DataState(error: error)
+        }
+    }
+
     struct GetMessageRequest: APIRequest {
         typealias Response = [Message]
 
