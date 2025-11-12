@@ -15,22 +15,27 @@ struct SavedMessageView: View {
     let viewModel: SavedMessagesViewModel
     let post: SavedPostDTO
 
+    var conversationName: String {
+        if let name = post.conversation.title {
+            let namePrefix = post.conversation.type == .channel ? "#" : ""
+            let threadSuffix = post.referencePostId == post.id ? "" : " > \(R.string.localizable.thread())"
+            return "\(namePrefix)\(name)\(threadSuffix)"
+        }
+        return ""
+    }
+
     var body: some View {
         Section {
-            NavigationLink {
-                let path = ThreadPath(postId: post.referencePostId,
-                                      conversation: getConversationForPath(),
-                                      coursePath: CoursePath(course: viewModel.course))
-                ThreadPathView(path: path)
-            } label: {
-                VStack(alignment: .leading) {
-                    header
-                    if let content = post.content {
-                        ArtemisMarkdownView(string: content.surroundingMarkdownImagesWithNewlines())
-                            .allowsHitTesting(false)
-                    }
-                }
-            }
+            MessagePreview(user: ConversationUser(id: post.author.id,
+                                                  name: post.author.name,
+                                                  imageUrl: post.author.imageUrl),
+                           userRole: post.role,
+                           content: post.content,
+                           threadId: post.referencePostId,
+                           creationDate: post.creationDate,
+                           conversation: getConversationForPath(),
+                           conversationName: conversationName,
+                           course: viewModel.course)
             .listRowInsets(EdgeInsets(top: .m, leading: .m, bottom: .s, trailing: .l))
             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                 Button(R.string.localizable.removeBookmark(), systemImage: "bookmark.slash") {
@@ -45,38 +50,6 @@ struct SavedMessageView: View {
             messageActions
         }
         .listRowSeparator(.hidden)
-    }
-
-    @ViewBuilder var header: some View {
-        HStack(alignment: .top, spacing: .m) {
-            ProfilePictureView(user: ConversationUser(id: post.author.id,
-                                                      name: post.author.name,
-                                                      imageUrl: post.author.imageUrl),
-                               role: post.role,
-                               course: viewModel.course)
-            VStack(alignment: .leading, spacing: .xs) {
-                HStack(alignment: .firstTextBaseline) {
-                    Text(post.author.name)
-                        .bold()
-                        .lineLimit(1)
-                    Spacer(minLength: .s)
-                    Text(post.creationDate, formatter: DateFormatter.superShortDateAndTime)
-                        .font(.caption)
-                        .offset(x: .m * 1.5)
-                }
-                conversationName
-            }
-        }
-    }
-
-    @ViewBuilder var conversationName: some View {
-        if let name = post.conversation.title {
-            let namePrefix = post.conversation.type == .channel ? "#" : ""
-            let threadSuffix = post.referencePostId == post.id ? "" : " > \(R.string.localizable.thread())"
-            Text("\(namePrefix)\(name)\(threadSuffix)")
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
-        }
     }
 
     var messageActions: some View {
@@ -137,5 +110,55 @@ private extension SavedMessageView {
             conversation.isPublic = false
         }
         return .channel(conversation: conversation)
+    }
+}
+
+struct MessagePreview: View {
+    let user: ConversationUser
+    let userRole: UserRole?
+    let content: String?
+    let threadId: Int64
+    let creationDate: Date
+    let conversation: Conversation
+    let conversationName: String
+    let course: Course
+
+    var body: some View {
+        NavigationLink {
+            let path = ThreadPath(postId: threadId,
+                                  conversation: conversation,
+                                  coursePath: CoursePath(course: course))
+            ThreadPathView(path: path)
+        } label: {
+            VStack(alignment: .leading) {
+                header
+                if let content {
+                    ArtemisMarkdownView(string: content.surroundingMarkdownImagesWithNewlines())
+                        .allowsHitTesting(false)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder var header: some View {
+        HStack(alignment: .top, spacing: .m) {
+            ProfilePictureView(user: user,
+                               role: userRole,
+                               course: course)
+            VStack(alignment: .leading, spacing: .xs) {
+                HStack(alignment: .firstTextBaseline) {
+                    Text(user.name ?? "")
+                        .bold()
+                        .lineLimit(1)
+                    Spacer(minLength: .s)
+                    Text(creationDate, formatter: DateFormatter.superShortDateAndTime)
+                        .font(.caption)
+                        .offset(x: .m * 1.5)
+                }
+                Text(conversationName)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+        }
     }
 }

@@ -1,5 +1,6 @@
 "Messages" = "Messages";
 "conversation" = "Conversation";
+"conversations" = "Conversations";
 
 // MARK: MessagesTabView
 "archived" = "(Archived)";
@@ -75,7 +76,8 @@
 "unresolvedFilter" = "Unresolved";
 "allDone" = "All done";
 "allDoneDescription" = "All messages are resolved. Good work!";
-"filterConversations" = "Filter conversations";
+"showAll" = "Show all";
+"collapse" = "Collapse";
 
 // MARK: MessageDetailView
 "edited" = "Edited";

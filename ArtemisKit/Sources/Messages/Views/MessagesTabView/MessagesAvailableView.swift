@@ -38,7 +38,6 @@ public struct MessagesAvailableView: View {
                                      selectedConversation: selectedConversation)
             }
             .scrollContentBackground(.hidden)
-            .listRowSpacing(0.01)
             .listSectionSpacing(.compact)
             .refreshable {
                 await viewModel.loadConversations()

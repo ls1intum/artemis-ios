@@ -17,7 +17,6 @@ class ConversationListViewModel {
     let parentViewModel: MessagesAvailableViewModel
 
     var filter: ConversationFilter = .all
-    var searchText = ""
 
     var conversations: [Conversation]
 
@@ -33,12 +32,6 @@ class ConversationListViewModel {
     var unresolvedIds = [Int64]()
     var showUnresolvedLoadingIndicator = false
     var allChannelsResolved = false
-
-    var searchResults: [Conversation] {
-        conversations.filter {
-            $0.baseConversation.conversationName.localizedStandardContains(searchText)
-        }
-    }
 
     var cancellables = Set<AnyCancellable>()
 
