@@ -63,7 +63,9 @@ private extension ConversationSearchViewModel {
             .debounce(for: 0.4, scheduler: DispatchQueue.main)
             .sink { [weak self] value in
                 guard let self else { return }
-                debouncedSearchText = value
+                if debouncedSearchText != value {
+                    debouncedSearchText = value
+                }
             }
             .store(in: &cancellables)
     }
