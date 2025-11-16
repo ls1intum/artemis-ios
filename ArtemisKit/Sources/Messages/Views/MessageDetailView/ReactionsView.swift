@@ -104,6 +104,17 @@ struct ReactionAuthorsSheet: View {
                 .frame(height: 40, alignment: .top)
                 .contentMargins(.leading, .l, for: .scrollContent)
                 .contentMargins(.trailing, 90, for: .scrollContent)
+                .mask {
+                    HStack(spacing: 0) {
+                        Color.black.frame(maxWidth: .infinity)
+                        LinearGradient(stops: [
+                            .init(color: .black.opacity(1), location: 0),
+                            .init(color: .black.opacity(0), location: 0.5),
+                            .init(color: .black.opacity(0), location: 1)
+                        ], startPoint: .leading, endPoint: .trailing)
+                        .frame(width: 90)
+                    }
+                }
                 .onChange(of: viewModel.selectedReactionSheet, initial: true) { _, newValue in
                     withAnimation {
                         proxy.scrollTo(newValue)
@@ -128,31 +139,16 @@ struct ReactionAuthorsSheet: View {
     }
 
     @ViewBuilder var closeButton: some View {
-        ZStack(alignment: .trailing) {
-            LinearGradient(
-                stops: [
-                    .init(color: .clear, location: 0),
-                    .init(color: .init(
-                        uiColor: .systemBackground
-                    ), location: 0.4)
-                ],
-                startPoint: .leading,
-                endPoint: .trailing
-            )
-            .frame(width: 90)
-            .allowsHitTesting(false)
-
-            Button {
-                viewModel.showAuthorsSheet = false
-            } label: {
-                Image(systemName: "xmark.circle.fill")
-                    .resizable()
-                    .padding(5)
-                    .frame(width: 40, height: 40)
-            }
-            .foregroundStyle(.secondary)
-            .padding(.trailing, .m)
+        Button {
+            viewModel.showAuthorsSheet = false
+        } label: {
+            Image(systemName: "xmark.circle.fill")
+                .resizable()
+                .padding(5)
+                .frame(width: 40, height: 40)
         }
+        .foregroundStyle(.secondary)
+        .padding(.trailing, .m)
     }
 
     @ViewBuilder
