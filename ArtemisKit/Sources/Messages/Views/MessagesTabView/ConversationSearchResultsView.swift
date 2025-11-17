@@ -32,7 +32,7 @@ struct ConversationSearchResultsView: View {
         if !conversations.isEmpty {
             Section {
                 ForEach(conversations) { conversation in
-                    ConversationRow(viewModel: viewModel.conversationListViewModel.parentViewModel,
+                    ConversationRow(viewModel: viewModel.conversationListViewModel,
                                     conversation: conversation.baseConversation)
                     .padding(.leading, .l)
                 }

@@ -13,7 +13,7 @@ struct ConversationRow: View {
 
     @EnvironmentObject var navigationController: NavigationController
 
-    @ObservedObject var viewModel: MessagesAvailableViewModel
+    var viewModel: ConversationListViewModel
 
     let conversation: BaseConversation
     var namePrefix: String?
@@ -21,7 +21,9 @@ struct ConversationRow: View {
     var body: some View {
         // should always be non-optional
         if let conversationForPath = Conversation(conversation: conversation) {
-            NavigationLink(value: ConversationPath(conversation: conversationForPath, coursePath: CoursePath(course: viewModel.course))) {
+            NavigationLink(value: ConversationPath(conversation: conversationForPath,
+                                                   coursePath: CoursePath(course: viewModel.parentViewModel.course),
+                                                   filterToUnresolved: viewModel.filter == ConversationFilter.unresolved)) {
                 HStack {
                     ConversationRowLabel(conversation: conversation, namePrefix: namePrefix)
                     Spacer()
@@ -38,7 +40,7 @@ struct ConversationRow: View {
                 }
             }
             .navigationLinkIndicatorVisibility(.hidden)
-            .tag(ConversationPath(conversation: conversationForPath, coursePath: CoursePath(course: viewModel.course)))
+            .tag(ConversationPath(conversation: conversationForPath, coursePath: CoursePath(course: viewModel.parentViewModel.course)))
             .foregroundStyle((conversation.isMuted ?? false) ? .secondary : .primary)
             .listRowInsets(EdgeInsets(top: 0, leading: .s * -1, bottom: 0, trailing: 0))
             .swipeActions(edge: .leading) {
@@ -59,7 +61,7 @@ private extension ConversationRow {
         Button(isFavorite ? R.string.localizable.unfavorite() : R.string.localizable.favorite(),
                systemImage: isFavorite ? "heart.slash.fill" : "heart.fill") {
             Task(priority: .userInitiated) {
-                await viewModel.setIsConversationFavorite(conversationId: conversation.id, isFavorite: !(conversation.isFavorite ?? false))
+                await viewModel.parentViewModel.setIsConversationFavorite(conversationId: conversation.id, isFavorite: !(conversation.isFavorite ?? false))
             }
         }.tint(.orange)
     }
@@ -69,7 +71,7 @@ private extension ConversationRow {
         Button(isHidden ? R.string.localizable.unarchive() : R.string.localizable.archive(),
                systemImage: "archivebox.fill") {
             Task(priority: .userInitiated) {
-                await viewModel.setConversationIsHidden(conversationId: conversation.id, isHidden: !(conversation.isHidden ?? false))
+                await viewModel.parentViewModel.setConversationIsHidden(conversationId: conversation.id, isHidden: !(conversation.isHidden ?? false))
             }
         }.tint(.gray)
 
@@ -77,7 +79,7 @@ private extension ConversationRow {
         Button(isMuted ? R.string.localizable.unmute() : R.string.localizable.mute(),
                systemImage: isMuted ? "bell.fill" : "bell.slash.fill") {
             Task(priority: .userInitiated) {
-                await viewModel.setIsConversationMuted(conversationId: conversation.id, isMuted: !(conversation.isMuted ?? false))
+                await viewModel.parentViewModel.setIsConversationMuted(conversationId: conversation.id, isMuted: !(conversation.isMuted ?? false))
             }
         }.tint(.indigo)
     }
