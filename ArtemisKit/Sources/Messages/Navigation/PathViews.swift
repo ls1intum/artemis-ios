@@ -13,14 +13,14 @@ import SwiftUI
 @MainActor
 public struct ConversationPathView<Content: View>: View {
     @State var viewModel: ConversationPathViewModel
-    let content: (Course, Conversation) -> Content
+    let content: (Course, Conversation, Bool) -> Content
 
     public var body: some View {
         DataStateView(data: $viewModel.conversation) {
             await viewModel.reloadConversation()
         } content: { conversation in
             CoursePathView(path: viewModel.path.coursePath) { course in
-                content(course, conversation)
+                content(course, conversation, viewModel.path.filterToUnresolved)
             }
         }
         .task {

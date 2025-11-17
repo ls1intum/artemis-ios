@@ -6,6 +6,7 @@
 //
 
 import SharedModels
+import SwiftUI
 
 public struct CoursePath: Hashable {
     public let id: Int

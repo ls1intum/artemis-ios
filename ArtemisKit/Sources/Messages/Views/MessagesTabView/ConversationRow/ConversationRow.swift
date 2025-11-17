@@ -23,7 +23,7 @@ struct ConversationRow: View {
         if let conversationForPath = Conversation(conversation: conversation) {
             NavigationLink(value: ConversationPath(conversation: conversationForPath,
                                                    coursePath: CoursePath(course: viewModel.parentViewModel.course),
-                                                   filterToUnresolved: viewModel.filter == ConversationFilter.unresolved)) {
+                                                   filterToUnresolved: viewModel.filter == .unresolved)) {
                 HStack {
                     ConversationRowLabel(conversation: conversation, namePrefix: namePrefix)
                     Spacer()
@@ -40,7 +40,7 @@ struct ConversationRow: View {
                 }
             }
             .navigationLinkIndicatorVisibility(.hidden)
-            .tag(ConversationPath(conversation: conversationForPath, coursePath: CoursePath(course: viewModel.parentViewModel.course)))
+            .tag(ConversationPath(conversation: conversationForPath, coursePath: CoursePath(course: viewModel.parentViewModel.course), filterToUnresolved: viewModel.filter == .unresolved))
             .foregroundStyle((conversation.isMuted ?? false) ? .secondary : .primary)
             .listRowInsets(EdgeInsets(top: 0, leading: .s * -1, bottom: 0, trailing: 0))
             .swipeActions(edge: .leading) {

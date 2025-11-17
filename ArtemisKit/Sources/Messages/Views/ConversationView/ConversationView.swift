@@ -168,8 +168,8 @@ public struct ConversationView: View {
 }
 
 extension ConversationView {
-    init(course: Course, conversation: Conversation) {
-        self.init(viewModel: ConversationViewModel(course: course, conversation: conversation))
+    init(course: Course, conversation: Conversation, filterToUnresolved: Bool = false) {
+        self.init(viewModel: ConversationViewModel(course: course, conversation: conversation, defaultFilter: .init(filterToUnresolved: filterToUnresolved)))
     }
 }
 
