@@ -152,7 +152,6 @@ public struct ConversationView: View {
                         .foregroundStyle(viewModel.filter.selectedFilter != "all" ? .blue : .primary)
                         .symbolVariant(viewModel.filter.selectedFilter != "all" ? .fill : .none)
                 }
-//                .buttonStyle(.plain)
             }
         }
         .sheet(isPresented: $viewModel.isConversationInfoSheetPresented) {
