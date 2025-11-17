@@ -59,8 +59,11 @@ public struct LectureDetailView: View {
                         }
 
                         if let lectureUnits = lecture.lectureUnits {
-                            Text(R.string.localizable.lectureUnits())
-                                .font(.title2).bold()
+                            HStack {
+                                Text(R.string.localizable.lectureUnits())
+                                    .font(.title2).bold()
+                                CompletePdfDownloadButton(viewModel: viewModel)
+                            }
 
                             ForEach(lectureUnits, id: \.id) { lectureUnit in
                                 LectureUnitCell(viewModel: viewModel, lectureUnit: lectureUnit)
@@ -95,6 +98,39 @@ public struct LectureDetailView: View {
             await viewModel.loadLecture()
         }
         .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
+    }
+}
+
+struct CompletePdfDownloadButton: View {
+
+    @ObservedObject var viewModel: LectureDetailViewModel
+    @State private var showDetails = false
+    
+    var body: some View {
+        Button(action: {
+            showDetails = true
+        }) {
+            Text(R.string.localizable.downloadCompletePdf())
+        }
+        .buttonStyle(ArtemisButton())
+        .opacity(viewModel.shouldDisableCompletePDFButton ? 0.8 : 1.0)
+        .disabled(viewModel.shouldDisableCompletePDFButton)
+        .sheet(isPresented: $showDetails) {
+            NavigationView {
+                Group {
+                    AttachmentUnitSheetContent(attachmentUnit: nil, lectureId: viewModel.lectureId, lectureName: viewModel.lecture.value?.title ?? "")
+                }
+                .navigationTitle(viewModel.lecture.value?.title ?? "")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button(R.string.localizable.close()) {
+                            showDetails = false
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -307,28 +343,32 @@ struct TextUnitSheetContent: View {
 
 struct AttachmentUnitSheetContent: View {
 
-    let attachmentUnit: AttachmentVideoUnit
+    let attachmentUnit: AttachmentVideoUnit?
+    var lectureId: Int?
+    var lectureName: String?
 
     @State private var showAttachment = false
 
     var body: some View {
-        if let attachment = attachmentUnit.attachment, attachmentUnit.videoSource == nil {
+        if let lectureId = lectureId, let lectureName = lectureName {
+            LectureAttachmentSheet(attachment: nil, lectureId: lectureId, lectureName: lectureName)
+        } else if let attachment = attachmentUnit?.attachment, attachmentUnit?.videoSource == nil {
             // Only attachment -> Make it full screen
             LectureAttachmentSheet(attachment: attachment)
         } else {
             ScrollView {
-                if let attachment = attachmentUnit.attachment, attachmentUnit.videoSource == nil {
+                if let attachment = attachmentUnit?.attachment, attachmentUnit?.videoSource == nil {
                     NavigationLink {
                         LectureAttachmentSheet(attachment: attachment)
                     } label: {
                         BaseLectureUnitCell(viewModel: .init(courseId: 0, lectureId: 0),
-                                            lectureUnit: .attachmentVideo(lectureUnit: attachmentUnit))
+                                            lectureUnit: .attachmentVideo(lectureUnit: attachmentUnit!))
                         .allowsHitTesting(false)
                     }
                 }
-                if let videoSource = attachmentUnit.videoSource,
+                if let videoSource = attachmentUnit?.videoSource,
                    let videoUrl = URL(string: videoSource) {
-                    VideoUnitSheetContent(unit: attachmentUnit, videoSource: videoUrl)
+                    VideoUnitSheetContent(unit: attachmentUnit!, videoSource: videoUrl)
                 } else {
                     Text(R.string.localizable.attachmentCouldNotBeOpened())
                         .foregroundColor(.red)
