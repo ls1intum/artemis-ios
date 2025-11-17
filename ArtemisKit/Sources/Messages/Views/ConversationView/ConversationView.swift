@@ -142,11 +142,17 @@ public struct ConversationView: View {
                     } label: {
                         Label(R.string.localizable.filterMessages(),
                               systemImage: "line.3.horizontal.decrease")
+                        if let filter = viewModel.filter.filters.first(where: \.enabled) {
+                            Text(filter.displayName)
+                        }
                     }
                     .pickerStyle(.menu)
                 } label: {
                     Image(systemName: "ellipsis.circle")
+                        .foregroundStyle(viewModel.filter.selectedFilter != "all" ? .blue : .primary)
+                        .symbolVariant(viewModel.filter.selectedFilter != "all" ? .fill : .none)
                 }
+//                .buttonStyle(.plain)
             }
         }
         .sheet(isPresented: $viewModel.isConversationInfoSheetPresented) {
