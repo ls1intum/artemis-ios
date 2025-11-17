@@ -261,7 +261,7 @@ private struct MessageSection: View {
                         },
                         id: \.id
                     ) { conversation in
-                        ConversationRow(viewModel: viewModel.parentViewModel,
+                        ConversationRow(viewModel: viewModel,
                                         conversation: conversation,
                                         namePrefix: namePrefix(of: conversation))
                     }
