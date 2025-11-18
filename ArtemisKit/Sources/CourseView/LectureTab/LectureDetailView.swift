@@ -105,10 +105,13 @@ struct CompletePdfDownloadButton: View {
 
     @ObservedObject var viewModel: LectureDetailViewModel
     @State private var showDetails = false
-    
+
     var body: some View {
         Button(action: {
             showDetails = true
+            Task {
+                await viewModel.updateCompletionForPDFs()
+            }
         }) {
             Text(R.string.localizable.downloadCompletePdf())
         }

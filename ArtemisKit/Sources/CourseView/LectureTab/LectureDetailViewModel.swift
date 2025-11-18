@@ -53,6 +53,11 @@ class LectureDetailViewModel: BaseViewModel {
     var shouldDisableCompletePDFButton: Bool {
         visibleLectureUnitsWithoutVideo.isEmpty
     }
+    func updateCompletionForPDFs() async {
+        for unit in visibleLectureUnitsWithoutVideo {
+            await updateLectureUnitCompletion(lectureUnit: unit, completed: true)
+        }
+    }
 
     func loadLecture() async {
         lecture = await LectureServiceFactory.shared.getLectureDetails(lectureId: lectureId)
