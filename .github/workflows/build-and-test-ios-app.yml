@@ -44,7 +44,7 @@ jobs:
           API_KEY_PASSWORD: ${{ secrets.IOS_APP_STORE_CONNECT_API_KEY_PASSWORD }}
 
       - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ios-app
           path: /opt/actions-runner/_work/artemis-ios/artemis-ios/build/App.ipa

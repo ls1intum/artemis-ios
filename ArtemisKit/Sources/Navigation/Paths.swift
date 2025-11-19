@@ -62,17 +62,20 @@ public struct ConversationPath: Hashable {
     public let id: Int64
     public let conversation: Conversation?
     public let coursePath: CoursePath
+    public let filterToUnresolved: Bool
 
-    public init(id: Int64, coursePath: CoursePath) {
+    public init(id: Int64, coursePath: CoursePath, filterToUnresolved: Bool = false) {
         self.id = id
         self.conversation = nil
         self.coursePath = coursePath
+        self.filterToUnresolved = filterToUnresolved
     }
 
-    public init(conversation: Conversation, coursePath: CoursePath) {
+    public init(conversation: Conversation, coursePath: CoursePath, filterToUnresolved: Bool = false) {
         self.id = conversation.id
         self.conversation = conversation
         self.coursePath = coursePath
+        self.filterToUnresolved = filterToUnresolved
     }
 }
 

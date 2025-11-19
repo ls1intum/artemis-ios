@@ -73,10 +73,12 @@ class ConversationViewModel: BaseViewModel {
         messagesRepository: MessagesRepository? = nil,
         messagesService: MessagesService = MessagesServiceFactory.shared,
         userSession: UserSession = UserSessionFactory.shared,
+        defaultFilter: MessageRequestFilter = .init(),
         skipLoadingData: Bool = false // Used in case we don't need the Conversation itself (Thread view)
     ) {
         self.course = course
         self.conversation = conversation
+        self.filter = defaultFilter
 
         self.messagesRepository = messagesRepository ?? .shared
         self.messagesService = messagesService
