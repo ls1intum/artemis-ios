@@ -39,24 +39,19 @@ class LectureDetailViewModel: BaseViewModel {
         }
     }
 
-    var visibleLectureUnitsWithoutVideo: [LectureUnit] {
+    var visibleLectureUnitsWithPDF: [LectureUnit] {
         guard let units = lecture.value?.lectureUnits, !units.isEmpty else { return [] }
         return units.compactMap { unit in
             guard unit.baseUnit.visibleToStudents ?? false else { return nil }
-            if case let .attachmentVideo(attachmentUnit) = unit, attachmentUnit.videoSource == nil {
+            if case let .attachmentVideo(attachmentUnit) = unit, attachmentUnit.attachment?.pathExtension?.lowercased() == "pdf" {
                 return unit
             }
             return nil
         }
     }
 
-    var shouldDisableCompletePDFButton: Bool {
-        visibleLectureUnitsWithoutVideo.isEmpty
-    }
-    func updateCompletionForPDFs() async {
-        for unit in visibleLectureUnitsWithoutVideo {
-            await updateLectureUnitCompletion(lectureUnit: unit, completed: true)
-        }
+    var shouldShowDownloadCompletePDFButton: Bool {
+        !visibleLectureUnitsWithPDF.isEmpty
     }
 
     func loadLecture() async {

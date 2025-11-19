@@ -62,7 +62,9 @@ public struct LectureDetailView: View {
                             HStack {
                                 Text(R.string.localizable.lectureUnits())
                                     .font(.title2).bold()
-                                CompletePdfDownloadButton(viewModel: viewModel)
+                                if viewModel.shouldShowDownloadCompletePDFButton {
+                                    CompletePdfDownloadButton(viewModel: viewModel)
+                                }
                             }
 
                             ForEach(lectureUnits, id: \.id) { lectureUnit in
@@ -109,15 +111,10 @@ struct CompletePdfDownloadButton: View {
     var body: some View {
         Button(action: {
             showDetails = true
-            Task {
-                await viewModel.updateCompletionForPDFs()
-            }
         }) {
             Text(R.string.localizable.downloadCompletePdf())
         }
         .buttonStyle(ArtemisButton())
-        .opacity(viewModel.shouldDisableCompletePDFButton ? 0.8 : 1.0)
-        .disabled(viewModel.shouldDisableCompletePDFButton)
         .sheet(isPresented: $showDetails) {
             NavigationView {
                 Group {
@@ -353,7 +350,7 @@ struct AttachmentUnitSheetContent: View {
     @State private var showAttachment = false
 
     var body: some View {
-        if let lectureId = lectureId, let lectureName = lectureName {
+        if let lectureId, let lectureName {
             LectureAttachmentSheet(attachment: nil, lectureId: lectureId, lectureName: lectureName)
         } else if let attachment = attachmentUnit?.attachment, attachmentUnit?.videoSource == nil {
             // Only attachment -> Make it full screen
