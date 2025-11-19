@@ -39,6 +39,21 @@ class LectureDetailViewModel: BaseViewModel {
         }
     }
 
+    var visibleLectureUnitsWithPDF: [LectureUnit] {
+        guard let units = lecture.value?.lectureUnits, !units.isEmpty else { return [] }
+        return units.compactMap { unit in
+            guard unit.baseUnit.visibleToStudents ?? false else { return nil }
+            if case let .attachmentVideo(attachmentUnit) = unit, attachmentUnit.attachment?.pathExtension?.lowercased() == "pdf" {
+                return unit
+            }
+            return nil
+        }
+    }
+
+    var shouldShowDownloadCompletePDFButton: Bool {
+        !visibleLectureUnitsWithPDF.isEmpty
+    }
+
     func loadLecture() async {
         lecture = await LectureServiceFactory.shared.getLectureDetails(lectureId: lectureId)
     }
