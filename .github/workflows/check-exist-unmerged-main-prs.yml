@@ -9,6 +9,8 @@ on:
 jobs:
   check-no-main-pr:
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
 
     steps:
       - name: Check for open PRs targeting main
