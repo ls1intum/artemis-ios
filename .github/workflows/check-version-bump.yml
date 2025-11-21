@@ -17,7 +17,6 @@ jobs:
       - name: Read version in current PR
         id: pr_version
         run: |
-          # Adjust this path to your .xcodeproj file
           FILE="Artemis.xcodeproj/project.pbxproj"
 
           PR_VERSION=$(grep -Eo 'APP_VERSION_NUMBER = [0-9.]+' "$FILE" | head -n1 | awk '{print $3}')
@@ -56,7 +55,7 @@ jobs:
           echo "Main version: $MAIN_VERSION"
 
           if [ "$PR_VERSION" = "$MAIN_VERSION" ]; then
-            echo "::error::APP_VERSION_NUMBER has not changed. Increase version number."
+            echo "::error::APP_VERSION_NUMBER has not changed. Please increase the app version number."
             exit 1
           fi
 
