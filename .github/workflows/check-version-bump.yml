@@ -1,0 +1,62 @@
+name: Require version bump for develop PRs
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    branches:
+      - develop
+
+jobs:
+  check-version:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout current PR
+        uses: actions/checkout@v6
+
+      - name: Read version in current PR
+        id: pr_version
+        run: |
+          FILE="Artemis.xcodeproj/project.pbxproj"
+
+          PR_VERSION=$(grep -Eo 'APP_VERSION_NUMBER = [0-9.]+' "$FILE" | head -n1 | awk '{print $3}')
+          echo "PR version: $PR_VERSION"
+
+          if [ -z "$PR_VERSION" ]; then
+            echo "::error::Could not read APP_VERSION_NUMBER in PR branch."
+            exit 1
+          fi
+
+          echo "pr=$PR_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Read version on main
+        id: main_version
+        run: |
+          # Switch to main version of file
+          git fetch --depth=1 origin main
+          git show origin/main:Artemis.xcodeproj/project.pbxproj > main_project.pbxproj
+
+          MAIN_VERSION=$(grep -Eo 'APP_VERSION_NUMBER = [0-9.]+' main_project.pbxproj | head -n1 | awk '{print $3}')
+          echo "Main version: $MAIN_VERSION"
+
+          if [ -z "$MAIN_VERSION" ]; then
+            echo "::error::Could not read APP_VERSION_NUMBER on main."
+            exit 1
+          fi
+
+          echo "main=$MAIN_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Compare versions
+        run: |
+          PR_VERSION=${{ steps.pr_version.outputs.pr }}
+          MAIN_VERSION=${{ steps.main_version.outputs.main }}
+
+          echo "PR version:   $PR_VERSION"
+          echo "Main version: $MAIN_VERSION"
+
+          if [ "$PR_VERSION" = "$MAIN_VERSION" ]; then
+            echo "::error::APP_VERSION_NUMBER has not changed. Please increase the app version number."
+            exit 1
+          fi
+
+          echo "Version changed — OK."
