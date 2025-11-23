@@ -25,7 +25,7 @@ jobs:
           echo "PRs found: $prs"
 
           if [ -n "$prs" ]; then
-            echo "::error::There is already an open non-draft PR targeting main."
+            echo "::error::There is an open PR targeting main, indicating an ongoing App Review. If this PR has been merged already, you can re-run this action."
             exit 1
           fi
 
