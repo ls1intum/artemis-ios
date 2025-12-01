@@ -357,14 +357,16 @@ struct AttachmentUnitSheetContent: View {
             LectureAttachmentSheet(attachment: attachment)
         } else {
             ScrollView {
-                if let attachment = attachmentUnit?.attachment, attachmentUnit?.videoSource == nil {
+                if let attachment = attachmentUnit?.attachment {
                     NavigationLink {
                         LectureAttachmentSheet(attachment: attachment)
                     } label: {
-                        BaseLectureUnitCell(viewModel: .init(courseId: 0, lectureId: 0),
+                        BaseLectureUnitCell(viewModel: .init(courseId: nil, lectureId: nil),
                                             lectureUnit: .attachmentVideo(lectureUnit: attachmentUnit!))
+                        .padding(.horizontal)
                         .allowsHitTesting(false)
                     }
+                    .foregroundStyle(.primary)
                 }
                 if let videoSource = attachmentUnit?.videoSource,
                    let videoUrl = URL(string: videoSource) {
