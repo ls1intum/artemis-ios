@@ -361,11 +361,12 @@ struct AttachmentUnitSheetContent: View {
                     NavigationLink {
                         LectureAttachmentSheet(attachment: attachment)
                     } label: {
-                        BaseLectureUnitCell(viewModel: .init(courseId: 0, lectureId: 0),
+                        BaseLectureUnitCell(viewModel: .init(courseId: nil, lectureId: nil),
                                             lectureUnit: .attachmentVideo(lectureUnit: attachmentUnit!))
                         .padding(.horizontal)
                         .allowsHitTesting(false)
                     }
+                    .foregroundStyle(.primary)
                 }
                 if let videoSource = attachmentUnit?.videoSource,
                    let videoUrl = URL(string: videoSource) {
