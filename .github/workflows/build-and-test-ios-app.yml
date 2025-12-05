@@ -16,6 +16,9 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Print versions
+        run: eval "ruby -v"
+
       - name: Check static code quality of iOS App
         run: eval "$(/opt/homebrew/bin/rbenv init - --no-rehash bash)" && bundle exec fastlane swift_lint
 
