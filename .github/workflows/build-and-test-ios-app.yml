@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Bundle update
-        run: eval "bundle update"
+        run: eval "bundle update --bundler"
 
       - name: Check static code quality of iOS App
         run: eval "$(/opt/homebrew/bin/rbenv init - --no-rehash bash)" && bundle exec fastlane swift_lint
