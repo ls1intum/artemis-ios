@@ -65,7 +65,7 @@ platform :ios do
       use_automatic_signing: false,
       code_sign_identity: "iPhone Distribution",
       sdk: "iphoneos*",
-      profile_name: "match AppStore de.tum.cit.ase.artemis 1764964318",
+      profile_name: "match AppStore de.tum.cit.ase.artemis",
       bundle_identifier: app_identifier,
       team_id: team_id
     )
@@ -73,7 +73,7 @@ platform :ios do
       use_automatic_signing: false,
       code_sign_identity: "iPhone Distribution",
       sdk: "iphoneos*",
-      profile_name: "match AppStore de.tum.cit.ase.artemis.ArtemisNotificationExtension 1764964320",
+      profile_name: "match AppStore de.tum.cit.ase.artemis.ArtemisNotificationExtension",
       bundle_identifier: notification_extension_identifier,
       team_id: team_id,
       targets: ["ArtemisNotificationExtension"]
