@@ -16,15 +16,18 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Install Gems
+        run: eval "$(/opt/homebrew/bin/rbenv init - --no-rehash bash)" && bundle install
+
+      - name: Print versions
+        run: eval "ruby -v"
+
       - name: Check static code quality of iOS App
         run: eval "$(/opt/homebrew/bin/rbenv init - --no-rehash bash)" && bundle exec fastlane swift_lint
 
       # Uncomment to run tests
       # - name: Run Unit and UI Tests
         # run: eval "$(/opt/homebrew/bin/rbenv init - --no-rehash bash)" && bundle exec fastlane test
-
-      - name: Install Gems
-        run: eval "$(/opt/homebrew/bin/rbenv init - --no-rehash bash)" && bundle install
 
       - name: Generate build number
         run: |
