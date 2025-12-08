@@ -126,9 +126,9 @@ private extension CourseGridCell {
             Group {
                 if let totalScore = courseForDashboard.totalScores,
                    totalScore.studentScores.absoluteScore > 0 {
-                    let achieved = Int(totalScore.studentScores.absoluteScore)
-                    let possible = Int(totalScore.reachablePoints)
-                    Text(R.string.localizable.dashboardScoreLabel(achieved, possible))
+                    let achieved = round(totalScore.studentScores.absoluteScore * 10) / 10
+                    let possible = round(totalScore.reachablePoints * 10) / 10
+                    Text(R.string.localizable.dashboardScoreLabel(achieved.clean, possible.clean))
                 } else {
                     Text(R.string.localizable.dashboardNoStatisticsAvailable())
                 }
@@ -171,6 +171,12 @@ private extension CourseGridCell {
             .frame(width: .xxxl)
             .padding(.leading)
         }
+    }
+}
+
+private extension Double {
+    var clean: String {
+       return self.truncatingRemainder(dividingBy: 1) == 0 ? String(format: "%.0f", self) : String(self)
     }
 }
 
