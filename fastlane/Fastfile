@@ -58,6 +58,7 @@ platform :ios do
       api_key: api_key,
       git_full_name: 'Artemis IOS',
       git_user_email: 'ls1.itg@in.tum.de',
+      git_branch: "main",
       readonly: false
     )
     update_code_signing_settings(

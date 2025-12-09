@@ -28,15 +28,39 @@ class LectureDetailViewModel: BaseViewModel {
         super.init()
     }
 
-    init(courseId: Int, lectureId: Int) {
-        self.courseId = courseId
-        self.lectureId = lectureId
+    init(courseId: Int?, lectureId: Int?) {
+        if let courseId, let lectureId {
+            self.courseId = courseId
+            self.lectureId = lectureId
+        } else {
+            self.courseId = -1
+            self.lectureId = -1
+        }
 
         super.init()
+
+        if courseId == -1 || lectureId == -1 {
+            return
+        }
 
         Task {
             await loadCourse()
         }
+    }
+
+    var visibleLectureUnitsWithPDF: [LectureUnit] {
+        guard let units = lecture.value?.lectureUnits, !units.isEmpty else { return [] }
+        return units.compactMap { unit in
+            guard unit.baseUnit.visibleToStudents ?? false else { return nil }
+            if case let .attachmentVideo(attachmentUnit) = unit, attachmentUnit.attachment?.pathExtension?.lowercased() == "pdf" {
+                return unit
+            }
+            return nil
+        }
+    }
+
+    var shouldShowDownloadCompletePDFButton: Bool {
+        !visibleLectureUnitsWithPDF.isEmpty
     }
 
     func loadLecture() async {

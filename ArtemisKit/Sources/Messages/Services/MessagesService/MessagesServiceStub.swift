@@ -113,6 +113,10 @@ extension MessagesServiceStub: MessagesService {
         .done(response: messages)
     }
 
+    func searchMessages(for courseId: Int, channelIds: [Int64], searchTerm: String) async -> DataState<[Message]> {
+        .loading
+    }
+
     func getMessage(with messageId: Int64, for courseId: Int, and conversationId: Int64) async -> DataState<Message> {
         .loading
     }

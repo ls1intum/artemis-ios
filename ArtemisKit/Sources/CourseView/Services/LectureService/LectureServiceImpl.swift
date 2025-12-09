@@ -87,7 +87,15 @@ class LectureServiceImpl: LectureService {
                 (data, _) = try await URLSession.shared.data(from: newUrl)
             }
 
-            let fileExtension = url.pathExtension
+            var fileExtension = url.pathExtension
+            if fileExtension.isEmpty {
+                // If no path extension in URL → check if PDF
+                if let httpResponse = response as? HTTPURLResponse,
+                   let contentType = httpResponse.value(forHTTPHeaderField: "Content-Type"),
+                   contentType.lowercased().contains("pdf") {
+                    fileExtension = "pdf"
+                }
+            }
             let suggestedFilename = name?.appending("." + fileExtension) ?? url.lastPathComponent
             let previewURL = FileManager.default.temporaryDirectory.appendingPathComponent(suggestedFilename)
             try data.write(to: previewURL, options: .atomic)   // atomic option overwrites it if needed

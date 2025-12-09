@@ -39,6 +39,11 @@ protocol MessagesService {
     func getMessages(for courseId: Int, and conversationId: Int64, filter: MessageRequestFilter, page: Int) async -> DataState<[Message]>
 
     /**
+     * Perform a get request for finding Messages that match a search term in a specific course to the server.
+     */
+    func searchMessages(for courseId: Int, channelIds: [Int64], searchTerm: String) async -> DataState<[Message]>
+
+    /**
      * Perform a get request for a specific Message of a specific conversation in a specific course to the server.
      */
     func getMessage(with messageId: Int64, for courseId: Int, and conversationId: Int64) async -> DataState<Message>

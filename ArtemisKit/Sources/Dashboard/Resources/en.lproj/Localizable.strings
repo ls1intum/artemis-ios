@@ -5,5 +5,5 @@
 "dashboardNextExerciseLabel" = "Next Exercise";
 "dashboardNoExercisePlannedLabel" = "No exercise planned";
 "dashboardNoStatisticsAvailable" = "No statistics available";
-"dashboardScoreLabel" = "%d / %d Points";
+"dashboardScoreLabel" = "%s / %s Points";
 "dashboardScoreTitle" = "Score";

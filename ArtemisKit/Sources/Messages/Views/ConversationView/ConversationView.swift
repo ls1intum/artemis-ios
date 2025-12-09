@@ -142,10 +142,15 @@ public struct ConversationView: View {
                     } label: {
                         Label(R.string.localizable.filterMessages(),
                               systemImage: "line.3.horizontal.decrease")
+                        if let filter = viewModel.filter.filters.first(where: \.enabled) {
+                            Text(filter.displayName)
+                        }
                     }
                     .pickerStyle(.menu)
                 } label: {
                     Image(systemName: "ellipsis.circle")
+                        .foregroundStyle(viewModel.filter.selectedFilter != "all" ? .blue : .primary)
+                        .symbolVariant(viewModel.filter.selectedFilter != "all" ? .fill : .none)
                 }
             }
         }
@@ -168,8 +173,8 @@ public struct ConversationView: View {
 }
 
 extension ConversationView {
-    init(course: Course, conversation: Conversation) {
-        self.init(viewModel: ConversationViewModel(course: course, conversation: conversation))
+    init(course: Course, conversation: Conversation, filterToUnresolved: Bool = false) {
+        self.init(viewModel: ConversationViewModel(course: course, conversation: conversation, defaultFilter: .init(filterToUnresolved: filterToUnresolved)))
     }
 }
 

@@ -1,0 +1,33 @@
+name: Check no unmerged open PRs to main exist
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    branches-ignore:
+      - main
+
+jobs:
+  check-no-main-pr:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: Check for open PRs targeting main
+        id: check
+        run: |
+          # Query all open PRs targeting main
+          prs=$(gh api \
+            -X GET \
+            "repos/${{ github.repository }}/pulls?state=open&base=main" \
+            --jq '.[] | select(.draft == false) | .number')
+
+          echo "PRs found: $prs"
+
+          if [ -n "$prs" ]; then
+            echo "::error::There is an open PR targeting main, indicating an ongoing App Review. If this PR has been merged already, you can re-run this action."
+            exit 1
+          fi
+
+      - name: All good
+        run: echo "No open PRs targeting main"
