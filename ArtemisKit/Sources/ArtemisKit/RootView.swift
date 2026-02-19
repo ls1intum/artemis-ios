@@ -81,6 +81,7 @@ extension RootView {
             .fullScreenCover(item: $navigationController.selectedCourse) { coursePath in
                 CoursePathView(path: coursePath)
                     .navigationTransition(.zoom(sourceID: coursePath.id, in: namespace))
+                    .disableSwipeDownToDismiss()
             }
             .zIndex(0)
 
@@ -92,8 +93,6 @@ extension RootView {
             .opacity(navigationController.outerPath.isEmpty ? 0 : 1)
             .zIndex(2)
         }
-        // TODO: Maybe for outer?
-//        .animation(.easeOut(duration: 0.3), value: navigationController.selectedCourse)
     }
 }
 
