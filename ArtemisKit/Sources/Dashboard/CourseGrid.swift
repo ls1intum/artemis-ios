@@ -12,6 +12,7 @@ import SwiftUI
 
 struct CourseGrid: View {
     private static let layout = [GridItem(.adaptive(minimum: 380, maximum: .infinity), spacing: .l, alignment: .center)]
+    let namespace: Namespace.ID
 
     @Bindable var viewModel: DashboardViewModel
     @State private var isCourseRegistrationPresented = false
@@ -29,6 +30,7 @@ struct CourseGrid: View {
                     LazyVGrid(columns: Self.layout, spacing: .l) {
                         ForEach(viewModel.recentCourses) { course in
                             CourseGridCell(courseForDashboard: course, viewModel: viewModel)
+                                .matchedTransitionSource(id: course.id, in: namespace)
                         }
                     }
 
@@ -75,5 +77,5 @@ struct CourseGrid: View {
 }
 
 #Preview {
-    CourseGrid(viewModel: DashboardViewModel(courseService: CourseServiceStub()))
+    CourseGrid(namespace: Namespace().wrappedValue, viewModel: DashboardViewModel(courseService: CourseServiceStub()))
 }

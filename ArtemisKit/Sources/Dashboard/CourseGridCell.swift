@@ -12,7 +12,6 @@ import SwiftUI
 
 struct CourseGridCell: View {
     @EnvironmentObject private var navigationController: NavigationController
-    @Environment(\.dismissSearch) private var dismissSearch
 
     let courseForDashboard: CourseForDashboardDTO
     let viewModel: DashboardViewModel
@@ -38,7 +37,6 @@ struct CourseGridCell: View {
                 // Update recents with a delay to not update grid during navigation transition
                 viewModel.addToRecents(courseId: courseForDashboard.id)
             }
-            dismissSearch()
         } label: {
             VStack(alignment: .leading, spacing: 0) {
                 header
@@ -150,7 +148,6 @@ private extension CourseGridCell {
                         .lineLimit(1)
                         .onTapGesture {
                             navigationController.goToExercise(courseId: courseForDashboard.id, exerciseId: nextExercise.id)
-                            dismissSearch()
                         }
                 } else {
                     Text(R.string.localizable.dashboardNoExercisePlannedLabel())
