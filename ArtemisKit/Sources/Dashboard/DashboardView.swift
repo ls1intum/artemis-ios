@@ -12,11 +12,14 @@ import SwiftUI
 public struct DashboardView: View {
 
     @State private var viewModel = DashboardViewModel()
+    private let namespace: Namespace.ID
 
-    public init() {}
+    public init(namespace: Namespace.ID) {
+        self.namespace = namespace
+    }
 
     public var body: some View {
-        CourseGrid(viewModel: viewModel)
+        CourseGrid(namespace: namespace, viewModel: viewModel)
             .navigationTitle(Text(R.string.localizable.dashboardTitle()))
             .navigationBarBackButtonHidden()
             .accountMenu(error: Binding(
