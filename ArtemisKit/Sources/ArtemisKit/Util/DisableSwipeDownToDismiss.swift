@@ -46,7 +46,7 @@ private final class ZoomTransitionAdapterController: UIViewController {
         super.viewWillAppear(animated)
         zoomTransitionOptions?.interactiveDismissShouldBegin = { context in
             // Only allow swipes from the leading edge
-            context.location.x < 20
+            context.location.x < 30
         }
     }
 }
