@@ -129,6 +129,7 @@ struct MessagePreview: View {
                                   conversation: conversation,
                                   coursePath: CoursePath(course: course))
             ThreadPathView(path: path)
+                .id(path.postId)
         } label: {
             VStack(alignment: .leading) {
                 header
