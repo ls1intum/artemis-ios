@@ -162,6 +162,12 @@ private extension SendMessageView {
                 .lineLimit(isFocused ? 8 : 5)
                 .animation(.smooth, value: isFocused)
                 .focused($isFocused)
+                .onKeyPress(.escape) {
+                    isFocused = false
+                    viewModel.keyboardVisible = false
+                    viewModel.previewVisible = false
+                    return .handled
+                }
             if !isFocused {
                 sendButton
             }
