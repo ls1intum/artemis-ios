@@ -174,6 +174,19 @@ extension SendMessageViewModel {
         }
     }
 
+    /// Inserts the given character at the current position and moves the cursor after the inserted char
+    func insertAtCurrentPosition(_ string: Character) {
+        guard let selection = _selection?.indices else { return }
+        switch selection {
+        case .selection(let range):
+            // Insert newline and move cursor one step
+            text.insert("\n", at: range.upperBound)
+            _selection = .init(insertionPoint: text.index(after: range.upperBound))
+        default:
+            break
+        }
+    }
+
     /// Prepends/Appends the given snippets to text the user has selected.
     private func appendToSelection(before: String, after: String, placeholder: String) {
         let placeholderText = "\(before)\(placeholder)\(after)"

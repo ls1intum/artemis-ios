@@ -168,6 +168,17 @@ private extension SendMessageView {
                     viewModel.previewVisible = false
                     return .handled
                 }
+                .onKeyPress { press in
+                    if press.key == .return && press.modifiers.isDisjoint(with: .command) {
+                        viewModel.insertAtCurrentPosition("\n")
+                        // Focus is always removed for some reason, so reset it
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            isFocused = true
+                        }
+                        return .handled
+                    }
+                    return .ignored
+                }
             if !isFocused {
                 sendButton
             }
