@@ -173,6 +173,7 @@ private extension SendMessageView {
             Image(systemName: "paperplane.fill")
                 .imageScale(.large)
         }
+        .keyboardShortcut(.return, modifiers: .command)
         .padding(isFocused ? .trailing : .leading, .l)
         .disabled(!viewModel.canSend)
         .loadingIndicator(isLoading: $viewModel.isLoading)
