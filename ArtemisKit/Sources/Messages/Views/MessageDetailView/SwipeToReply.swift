@@ -38,7 +38,7 @@ struct SwipeToReply: ViewModifier {
     }
 
     var swipeToReplyGesture: some Gesture {
-        DragGesture(minimumDistance: 25)
+        DragGesture(minimumDistance: 30)
             .onChanged { value in
                 // No swiping in Thread View
                 guard enabled else { return }

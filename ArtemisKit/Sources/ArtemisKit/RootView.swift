@@ -10,6 +10,7 @@ import SwiftUI
 
 public struct RootView: View {
 
+    @Namespace private var namespace
     @Environment(\.scenePhase) var scenePhase
     @StateObject private var viewModel = RootViewModel()
 
@@ -75,16 +76,14 @@ extension RootView {
     @ViewBuilder var contentView: some View {
         ZStack {
             NavigationStack {
-                DashboardView()
+                DashboardView(namespace: namespace)
+            }
+            .fullScreenCover(item: $navigationController.selectedCourse) { coursePath in
+                CoursePathView(path: coursePath)
+                    .navigationTransition(.zoom(sourceID: coursePath.id, in: namespace))
+                    .disableSwipeDownToDismiss()
             }
             .zIndex(0)
-
-            if let selectedCourse = navigationController.selectedCourse {
-                CoursePathView(path: selectedCourse)
-                    .transition(.move(edge: .trailing))
-                    .id(selectedCourse.id)
-                    .zIndex(1)
-            }
 
             NavigationStack(path: $navigationController.outerPath) {
                 Color.clear
@@ -94,7 +93,6 @@ extension RootView {
             .opacity(navigationController.outerPath.isEmpty ? 0 : 1)
             .zIndex(2)
         }
-        .animation(.easeOut(duration: 0.3), value: navigationController.selectedCourse)
     }
 }
 

@@ -7,7 +7,7 @@
 
 import SharedModels
 
-public struct CoursePath: Hashable {
+public struct CoursePath: Hashable, Identifiable {
     public let id: Int
     public let course: Course?
 

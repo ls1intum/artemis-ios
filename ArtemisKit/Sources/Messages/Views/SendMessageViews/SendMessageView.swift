@@ -162,6 +162,23 @@ private extension SendMessageView {
                 .lineLimit(isFocused ? 8 : 5)
                 .animation(.smooth, value: isFocused)
                 .focused($isFocused)
+                .onKeyPress(.escape) {
+                    isFocused = false
+                    viewModel.keyboardVisible = false
+                    viewModel.previewVisible = false
+                    return .handled
+                }
+                .onKeyPress { press in
+                    if press.key == .return && press.modifiers.isDisjoint(with: .command) {
+                        viewModel.insertAtCurrentPosition("\n")
+                        // Focus is always removed for some reason, so reset it
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            isFocused = true
+                        }
+                        return .handled
+                    }
+                    return .ignored
+                }
             if !isFocused {
                 sendButton
             }
@@ -173,6 +190,7 @@ private extension SendMessageView {
             Image(systemName: "paperplane.fill")
                 .imageScale(.large)
         }
+        .keyboardShortcut(.return, modifiers: .command)
         .padding(isFocused ? .trailing : .leading, .l)
         .disabled(!viewModel.canSend)
         .loadingIndicator(isLoading: $viewModel.isLoading)
