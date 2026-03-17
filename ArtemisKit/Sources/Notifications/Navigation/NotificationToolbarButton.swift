@@ -6,7 +6,6 @@
 //
 
 import Navigation
-import ProfileInfo
 import SwiftUI
 
 public struct NotificationToolbarButton: View {
