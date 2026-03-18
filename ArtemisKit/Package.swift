@@ -59,6 +59,7 @@ let package = Package(
                 "Messages",
                 "Navigation",
                 "Notifications",
+                "Search",
                 .product(name: "ApollonEdit", package: "apollon-ios-module"),
                 .product(name: "ApollonView", package: "apollon-ios-module"),
                 .product(name: "ApollonShared", package: "apollon-ios-module"),
@@ -153,6 +154,19 @@ let package = Package(
                 .product(name: "PushNotifications", package: "artemis-ios-core-modules"),
                 .product(name: "UserStore", package: "artemis-ios-core-modules"),
                 .product(name: "RswiftLibrary", package: "R.swift")
+            ],
+            plugins: [
+                .plugin(name: "RswiftGeneratePublicResources", package: "R.swift")
+            ]),
+        .target(
+            name: "Search",
+            dependencies: [
+                "Extensions",
+                .product(name: "APIClient", package: "artemis-ios-core-modules"),
+                .product(name: "Common", package: "artemis-ios-core-modules"),
+                .product(name: "SharedModels", package: "artemis-ios-core-modules"),
+                .product(name: "SharedServices", package: "artemis-ios-core-modules"),
+                .product(name: "UserStore", package: "artemis-ios-core-modules")
             ],
             plugins: [
                 .plugin(name: "RswiftGeneratePublicResources", package: "R.swift")

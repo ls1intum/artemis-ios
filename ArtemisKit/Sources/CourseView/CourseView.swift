@@ -4,6 +4,7 @@ import Common
 import SharedModels
 import Navigation
 import Messages
+import Search
 import DesignLibrary
 
 public struct CourseView: View {
@@ -50,16 +51,34 @@ public struct CourseView: View {
                     }
                 }
             }
+
+            Tab(value: .search, role: .search) {
+                TabBarIpad {
+                    SearchTabView()
+                }
+            }
         }
         .courseToolbar(title: viewModel.course.title ?? R.string.localizable.loading())
         // Add a file and image picker here, inside the navigation it doesn't work sometimes
         .supportsFilePicker()
         .supportsImagePicker()
+        .autoFocusSearchOnSearchTab()
     }
 }
 
 extension CourseView {
     init(course: Course) {
         self.init(viewModel: CourseViewModel(course: course), courseId: course.id)
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func autoFocusSearchOnSearchTab() -> some View {
+        if #available(iOS 26, *) {
+            tabViewSearchActivation(.searchTabSelection)
+        } else {
+            self
+        }
     }
 }
