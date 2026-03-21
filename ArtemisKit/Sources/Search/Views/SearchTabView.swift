@@ -33,14 +33,14 @@ public struct SearchTabView: View {
     }
 
     private var scopePicker: some View {
-        Section("Search") {
+        Section(R.string.localizable.search()) {
             Picker(selection: $viewModel.scope) {
                 ForEach(SearchScope.allCases, id: \.self) { scope in
                     Text(scope.title)
                         .tag(scope)
                 }
             } label: {
-                Text("Scope")
+                Text(R.string.localizable.scope())
             }
             .controlSize(.large)
             .pickerStyle(.segmented)

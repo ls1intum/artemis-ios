@@ -15,11 +15,11 @@ enum SearchFilter: CaseIterable, Identifiable, Equatable {
     var displayTitle: String {
         switch self {
         case .iris:
-            "Ask Iris"
+            R.string.localizable.askIris()
         case .exercises:
-            "Exercises"
+            R.string.localizable.exercises()
         case .lectures:
-            "Lectures"
+            R.string.localizable.lectures()
         }
     }
 

@@ -12,8 +12,8 @@ enum SearchScope: Hashable, CaseIterable {
 
     var title: String {
         switch self {
-        case .course: "This course"
-        case .global: "All courses"
+        case .course: R.string.localizable.thisCourse()
+        case .global: R.string.localizable.allCourses()
         }
     }
 }
