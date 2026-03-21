@@ -9,63 +9,101 @@ import Notifications
 import SwiftUI
 
 public struct SearchTabView: View {
-    @State private var searchTerm = ""
-    @State private var scope: SearchScope = .course
+    @State private var viewModel = SearchTabViewModel()
 
     public init() {}
 
     public var body: some View {
         NavigationStack {
             List {
-                Section("Search") {
-                    Picker(selection: $scope) {
-                        ForEach(SearchScope.allCases, id: \.self) { scope in
-                            Text(scope.title)
-                                .tag(scope)
-                        }
-                    } label: {
-                        Text("Scope")
-                    }
-                    .controlSize(.large)
-                    .pickerStyle(.segmented)
-                    .listRowBackground(Color.clear)
-                    .listRowInsets(EdgeInsets())
-                }
+                scopePicker
 
-                ScopeSuggestion(title: "Ask Iris", image: "eyes.inverse", color: .blue)
-                ScopeSuggestion(title: "Exercises", image: "list.bullet.clipboard.fill", color: .orange)
-                ScopeSuggestion(title: "Lectures", image: "character.book.closed.fill", color: .orange)
+                scopeSuggestions
+
+                Section {
+                    SearchResultsView(results: [])
+                }
             }
-            .searchable(text: $searchTerm)
+            .searchable(text: $viewModel.searchTerm, tokens: $viewModel.selectedFilters) { token in
+                Label(token.displayTitle, systemImage: token.systemImage)
+            }
             .listRowSpacing(15)
             .courseToolbar()
+        }
+    }
+
+    private var scopePicker: some View {
+        Section("Search") {
+            Picker(selection: $viewModel.scope) {
+                ForEach(SearchScope.allCases, id: \.self) { scope in
+                    Text(scope.title)
+                        .tag(scope)
+                }
+            } label: {
+                Text("Scope")
+            }
+            .controlSize(.large)
+            .pickerStyle(.segmented)
+            .listRowBackground(Color.clear)
+            .listRowInsets(EdgeInsets())
+        }
+    }
+
+    private var scopeSuggestions: some View {
+        ForEach(SearchFilter.allCases) { filter in
+            ScopeSuggestion(viewModel: viewModel, filter: filter)
         }
     }
 }
 
 private struct ScopeSuggestion: View {
-    let title: String
-    let image: String
-    let color: Color
+    let viewModel: SearchTabViewModel
+    let filter: SearchFilter
 
     var body: some View {
-        Button {
-            
-        } label: {
-            ZStack {
-                Text(title)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                    .font(.title)
-                Image(systemName: image)
-                    .resizable()
-                    .scaledToFit()
-                    .padding(10)
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-                    .opacity(0.3)
+        if viewModel.selectedFilters.isEmpty || filter == .iris {
+            Group {
+                if filter == .iris {
+                    NavigationLink {
+                        // TODO: Iris does not exist yet
+                        // This could open Iris, providing the entered text as input
+                    } label: {
+                        label
+                            .overlay(alignment: .bottomLeading) {
+                                Text("Not available yet")
+                            }
+                    }
+                    .navigationLinkIndicatorVisibility(.hidden)
+                    .disabled(true)
+                } else {
+                    Button {
+                        withAnimation {
+                            viewModel.selectedFilters.append(filter)
+                        }
+                    } label: {
+                        label
+                    }
+                }
             }
-            .frame(height: 80)
+            .buttonStyle(.plain)
+            .listRowBackground(filter.color.opacity(0.5))
+            .transition(.slide.combined(with: .opacity))
         }
-        .buttonStyle(.plain)
-        .listRowBackground(color.opacity(0.5))
+    }
+
+    private var label: some View {
+        ZStack {
+            Text(filter.displayTitle)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .font(.title)
+            Image(systemName: filter.systemImage)
+                .resizable()
+                .scaledToFit()
+                .padding(10)
+                .frame(maxWidth: .infinity, alignment: .trailing)
+                .opacity(0.3)
+        }
+        .frame(height: 70)
+        .contentShape(.rect)
     }
 }
