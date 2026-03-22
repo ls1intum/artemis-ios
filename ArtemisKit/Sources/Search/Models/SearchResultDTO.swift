@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  SearchResultDTO.swift
 //  ArtemisKit
 //
 //  Created by Anian Schleyer on 21.03.26.

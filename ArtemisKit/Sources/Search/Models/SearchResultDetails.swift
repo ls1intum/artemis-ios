@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  SearchResultDetails.swift
 //  ArtemisKit
 //
 //  Created by Anian Schleyer on 22.03.26.
