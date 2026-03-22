@@ -9,9 +9,11 @@ import Notifications
 import SwiftUI
 
 public struct SearchTabView: View {
-    @State private var viewModel = SearchTabViewModel()
+    @State private var viewModel: SearchTabViewModel
 
-    public init() {}
+    public init(courseId: Int) {
+        _viewModel = State(initialValue: SearchTabViewModel(courseId: courseId))
+    }
 
     public var body: some View {
         NavigationStack {

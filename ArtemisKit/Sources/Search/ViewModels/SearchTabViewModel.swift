@@ -10,18 +10,24 @@ import Foundation
 
 @Observable
 class SearchTabViewModel {
+    let courseId: Int
+
     var searchTerm = ""
     var scope: SearchScope = .course
     var selectedFilters = [SearchFilter]()
 
     var searchRequest: SearchRequest {
         .init(type: selectedFilters.first?.apiFilterType,
-              courseId: scope == .course ? 0 : nil,
+              courseId: scope == .course ? courseId : nil,
               searchTerm: searchTerm)
     }
 
     var searchResults: DataState<[SearchResultDTO]> = .loading
     var isLoading = false
+
+    init(courseId: Int) {
+        self.courseId = courseId
+    }
 
     private var updateSearchTask: Task<(), Never>?
     /// Observes changes to search request related properties, sending a new request when values change
