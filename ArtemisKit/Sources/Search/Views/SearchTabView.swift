@@ -21,9 +21,10 @@ public struct SearchTabView: View {
                 scopeSuggestions
 
                 Section {
-                    SearchResultsView(results: [])
+                    SearchResultsView(viewModel: viewModel)
                 }
             }
+            .submitLabel(.search)
             .searchable(text: $viewModel.searchTerm, tokens: $viewModel.selectedFilters) { token in
                 Label(token.displayTitle, systemImage: token.systemImage)
             }

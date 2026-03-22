@@ -45,6 +45,14 @@ enum SearchFilter: CaseIterable, Identifiable, Equatable {
         }
     }
 
+    var apiFilterType: SearchFilterType? {
+        switch self {
+        case .iris: nil
+        case .exercises: .exercise
+        case .lectures: .lecture
+        }
+    }
+
     var id: String {
         self.displayTitle
     }
