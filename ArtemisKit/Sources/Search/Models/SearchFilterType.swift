@@ -20,7 +20,8 @@ enum SearchFilterType: String, Codable, ConstantsEnum {
         switch self {
         case .exercise:
             ExerciseSearchResult.self
-        // TODO: Add other types
+        case .lecture:
+            LectureSearchResult.self
         default:
             nil
         }
