@@ -1,15 +1,6 @@
 {
-  "originHash" : "eaed38c70ded99e5f9b6bb63913c68bf5a2617f0053b18ae06a57b39884e7641",
+  "originHash" : "a7a8309c677a9d103b45fb5e6a92b6741c3d5cbbd9621d73f6ea1f0426f71da2",
   "pins" : [
-    {
-      "identity" : "apollon-ios-module",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/ls1intum/apollon-ios-module",
-      "state" : {
-        "revision" : "5e4b1223bf33b542bcef2b844f7c451ac0ed7a9e",
-        "version" : "1.0.9"
-      }
-    },
     {
       "identity" : "artemis-ios-core-modules",
       "kind" : "remoteSourceControl",

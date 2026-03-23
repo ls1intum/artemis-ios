@@ -19,7 +19,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/onmyway133/Smile", revision: "6bacbf7"),
-        .package(url: "https://github.com/ls1intum/apollon-ios-module", .upToNextMajor(from: "1.0.9")),
+//        .package(url: "https://github.com/ls1intum/apollon-ios-module", .upToNextMajor(from: "1.0.9")), // Disabled because not working
         .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", revision: "fdde93c"),
         .package(url: "https://github.com/mac-cain13/R.swift.git", from: "7.8.0")
     ],
@@ -60,12 +60,14 @@ let package = Package(
                 "Navigation",
                 "Notifications",
                 "Search",
-                .product(name: "ApollonEdit", package: "apollon-ios-module"),
-                .product(name: "ApollonView", package: "apollon-ios-module"),
-                .product(name: "ApollonShared", package: "apollon-ios-module"),
+                // Apollon disabled because not working
+//                .product(name: "ApollonEdit", package: "apollon-ios-module"),
+//                .product(name: "ApollonView", package: "apollon-ios-module"),
+//                .product(name: "ApollonShared", package: "apollon-ios-module"),
                 .product(name: "APIClient", package: "artemis-ios-core-modules"),
                 .product(name: "ArtemisMarkdown", package: "artemis-ios-core-modules"),
                 .product(name: "Common", package: "artemis-ios-core-modules"),
+                .product(name: "ProfileInfo", package: "artemis-ios-core-modules"),
                 .product(name: "SharedModels", package: "artemis-ios-core-modules"),
                 .product(name: "SharedServices", package: "artemis-ios-core-modules"),
                 .product(name: "UserStore", package: "artemis-ios-core-modules"),
