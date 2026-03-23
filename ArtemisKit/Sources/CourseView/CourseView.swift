@@ -54,7 +54,7 @@ public struct CourseView: View {
 
             Tab(value: .search, role: .search) {
                 TabBarIpad {
-                    SearchTabView()
+                    SearchTabView(courseId: viewModel.course.id)
                 }
             }
         }
