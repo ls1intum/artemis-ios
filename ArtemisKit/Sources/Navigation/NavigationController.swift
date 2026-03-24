@@ -50,6 +50,10 @@ public extension NavigationController {
     }
 
     func goToCourse(id: Int) {
+        if let currentCourseId = selectedCourse?.id, currentCourseId == id {
+            return
+        }
+
         popToRoot()
 
         selectedCourse = CoursePath(id: id)
