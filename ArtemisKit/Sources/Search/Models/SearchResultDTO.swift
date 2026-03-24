@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Navigation
 
 struct SearchResultDTO: Decodable {
     let id: String?
@@ -31,5 +32,11 @@ struct SearchResultDTO: Decodable {
 
     enum CodingKeys: String, CodingKey {
         case id, type, title, description, badge, metadata
+    }
+}
+
+extension SearchResultDTO {
+    func navigate(with controller: NavigationController) async {
+        await metadata?.navigateToDetail(with: controller, result: self)
     }
 }

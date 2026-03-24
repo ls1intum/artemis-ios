@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Navigation
 
 struct LectureSearchResult: SearchResultDetails {
     let courseId: Int?
@@ -13,4 +14,10 @@ struct LectureSearchResult: SearchResultDetails {
 
     let startDate: Date?
     let endDate: Date?
+
+    func navigateToDetail(with controller: NavigationController, result: SearchResultDTO) async {
+        guard let courseId,
+              let lectureId = Int(result.id ?? "") else { return }
+        await controller.goToLecture(courseId: courseId, lectureId: lectureId)
+    }
 }

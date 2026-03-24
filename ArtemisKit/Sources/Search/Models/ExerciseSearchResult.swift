@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Navigation
 
 struct ExerciseSearchResult: SearchResultDetails {
     let courseId: Int?
@@ -15,4 +16,10 @@ struct ExerciseSearchResult: SearchResultDetails {
     let releaseDate: Date?
     let points: Int?
     let difficulty: String?
+
+    func navigateToDetail(with controller: NavigationController, result: SearchResultDTO) async {
+        guard let courseId,
+              let exerciseId = Int(result.id ?? "") else { return }
+        await controller.goToExercise(courseId: courseId, exerciseId: exerciseId)
+    }
 }
