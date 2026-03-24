@@ -82,6 +82,7 @@ attributes:
     - "@OptionGroup"
   always_on_same_line:
     - "@Environment"
+    - "@FeatureAvailability"
 identifier_name:
   max_length:
     warning: 55

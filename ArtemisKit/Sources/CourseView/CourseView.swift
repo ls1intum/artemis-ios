@@ -44,7 +44,7 @@ public struct CourseView: View {
                 }
             }
 
-            if viewModel.course.faqEnabled ?? false {
+            if (viewModel.course.numberOfAcceptedFaqs ?? 0) > 0 {
                 Tab(R.string.localizable.faqTabLabel(),
                     systemImage: "questionmark.circle",
                     value: TabIdentifier.faq) {
