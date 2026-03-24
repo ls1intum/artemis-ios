@@ -45,20 +45,11 @@ private struct SearchResultView: View {
             }
         } label: {
             VStack(alignment: .leading) {
-                HStack {
-                    if let title = result.title {
-                        Text(title)
-                            .font(.headline)
-                            .lineLimit(1)
-                    }
-                    Spacer(minLength: 0)
-                    if let badge = result.badge {
-                        Chip(text: badge,
-                             backgroundColor: .gray,
-                             horizontalPadding: .m,
-                             verticalPadding: .s)
+                header
+
+                if let details = result.metadata {
+                    ResultMetadataView(details: details)
                         .font(.footnote)
-                    }
                 }
 
                 if let description = result.description {
@@ -70,5 +61,23 @@ private struct SearchResultView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .buttonStyle(.plain)
+    }
+
+    private var header: some View {
+        HStack {
+            if let title = result.title {
+                Text(title)
+                    .font(.headline)
+                    .lineLimit(1)
+            }
+            Spacer(minLength: 0)
+            if let badge = result.badge {
+                Chip(text: badge,
+                     backgroundColor: .gray,
+                     horizontalPadding: .m,
+                     verticalPadding: .s)
+                .font(.footnote)
+            }
+        }
     }
 }

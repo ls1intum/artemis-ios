@@ -7,6 +7,7 @@
 
 import Foundation
 import Navigation
+import SwiftUI
 
 struct LectureSearchResult: SearchResultDetails {
     let courseId: Int?
@@ -14,6 +15,10 @@ struct LectureSearchResult: SearchResultDetails {
 
     let startDate: Date?
     let endDate: Date?
+
+    var displayInfo: [Text] {
+        [] // TODO: Add info
+    }
 
     func navigateToDetail(with controller: NavigationController, result: SearchResultDTO) async {
         guard let courseId,
