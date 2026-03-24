@@ -4,6 +4,7 @@ import Common
 import SharedModels
 import Navigation
 import Messages
+import ProfileInfo
 import Search
 import DesignLibrary
 
@@ -11,6 +12,7 @@ public struct CourseView: View {
     @EnvironmentObject private var navigationController: NavigationController
 
     @StateObject private var viewModel: CourseViewModel
+    @FeatureAvailability(.globalSearch) private var searchEnabled
 
     private let courseId: Int
 
@@ -52,9 +54,11 @@ public struct CourseView: View {
                 }
             }
 
-            Tab(value: .search, role: .search) {
-                TabBarIpad {
-                    SearchTabView(courseId: viewModel.course.id)
+            if searchEnabled {
+                Tab(value: .search, role: .search) {
+                    TabBarIpad {
+                        SearchTabView(courseId: viewModel.course.id)
+                    }
                 }
             }
         }
