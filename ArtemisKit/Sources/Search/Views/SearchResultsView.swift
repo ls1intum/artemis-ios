@@ -49,6 +49,7 @@ private struct SearchResultView: View {
                     if let title = result.title {
                         Text(title)
                             .font(.headline)
+                            .lineLimit(1)
                     }
                     Spacer(minLength: 0)
                     if let badge = result.badge {
