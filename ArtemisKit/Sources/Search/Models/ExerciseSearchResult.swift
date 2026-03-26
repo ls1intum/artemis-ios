@@ -23,12 +23,12 @@ struct ExerciseSearchResult: SearchResultDetails {
 
         if let dueDate {
             let image = Image(systemName: "calendar")
-            info.append(Text("\(image) Due: \(dueDate.mediumDateShortTime)"))
+            info.append(Text("\(image)\u{00A0}Due:\u{00A0}\(dueDate.mediumDateShortTime)"))
         }
 
         if let points {
             let image = Image(systemName: "trophy")
-            info.append(Text("\(image) \(points) Points"))
+            info.append(Text("\(image)\u{00A0}\(points)\u{00A0}Points"))
         }
 
         return info

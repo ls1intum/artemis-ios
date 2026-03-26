@@ -11,11 +11,10 @@ struct ResultMetadataView: View {
     let details: any SearchResultDetails
 
     var body: some View {
-        if let name = details.courseName {
-            Label(name, systemImage: "list.bullet.rectangle.fill")
-        }
-        
-        details.displayInfo.reduce(Text("")) { partialResult, text in
+        let name = details.courseName ?? ""
+        let image = Image(systemName: "list.bullet.rectangle.fill")
+
+        details.displayInfo.reduce(Text("\(image)\u{00A0}\(name)")) { partialResult, text in
             partialResult + Text(" • ") + text
         }
     }
