@@ -25,6 +25,9 @@ public struct SearchTabView: View {
                 Section {
                     SearchResultsView(viewModel: viewModel)
                 }
+
+                // Search text field does not count to Safe Area while open, so create some space
+                Spacer().listRowBackground(Color.clear)
             }
             .submitLabel(.search)
             .searchable(text: $viewModel.searchTerm, tokens: $viewModel.selectedFilters) { token in

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Navigation
 
 struct SearchResultDTO: Decodable {
     let id: String?
@@ -15,6 +16,12 @@ struct SearchResultDTO: Decodable {
     let badge: String?
     let metadata: (any SearchResultDetails)?
 
+    enum CodingKeys: String, CodingKey {
+        case id, type, title, description, badge, metadata
+    }
+}
+
+extension SearchResultDTO {
     init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decodeIfPresent(String.self, forKey: .id)
@@ -28,8 +35,10 @@ struct SearchResultDTO: Decodable {
             self.metadata = nil
         }
     }
+}
 
-    enum CodingKeys: String, CodingKey {
-        case id, type, title, description, badge, metadata
+extension SearchResultDTO {
+    func navigate(with controller: NavigationController) async {
+        await metadata?.navigateToDetail(with: controller, result: self)
     }
 }

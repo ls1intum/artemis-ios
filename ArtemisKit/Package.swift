@@ -164,6 +164,7 @@ let package = Package(
             name: "Search",
             dependencies: [
                 "Extensions",
+                "Navigation",
                 "Notifications",
                 .product(name: "APIClient", package: "artemis-ios-core-modules"),
                 .product(name: "Common", package: "artemis-ios-core-modules"),
