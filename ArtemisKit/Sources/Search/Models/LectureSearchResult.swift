@@ -17,7 +17,11 @@ struct LectureSearchResult: SearchResultDetails {
     let endDate: Date?
 
     var displayInfo: [Text] {
-        [] // TODO: Add info
+        if let startDate {
+            let image = Image(systemName: "calendar")
+            return [Text("\(image)\u{00A0}\(startDate.mediumDateShortTime)")]
+        }
+        return []
     }
 
     func navigateToDetail(with controller: NavigationController, result: SearchResultDTO) async {
