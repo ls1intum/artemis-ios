@@ -65,20 +65,14 @@ public extension ExerciseDetailView {
         self.init(viewModel: ExerciseDetailViewModel(
             courseId: course.id,
             exerciseId: exercise.id,
-            exercise: .done(response: exercise),
-            urlRequest: URLRequest(url: URL(
-                string: "/courses/\(course.id)/exercises/\(exercise.id)/problem-statement",
-                relativeTo: UserSessionFactory.shared.institution?.baseURL)!)))
+            exercise: .done(response: exercise)))
     }
 
     init(courseId: Int, exerciseId: Int) {
         self.init(viewModel: ExerciseDetailViewModel(
             courseId: courseId,
             exerciseId: exerciseId,
-            exercise: .loading,
-            urlRequest: URLRequest(url: URL(
-                string: "/courses/\(courseId)/exercises/\(exerciseId)",
-                relativeTo: UserSessionFactory.shared.institution?.baseURL)!)))
+            exercise: .loading))
     }
 }
 
@@ -93,7 +87,7 @@ private extension ExerciseDetailView {
                             OpenExerciseButton(
                                 exercise: exercise,
                                 participationId: participationId,
-                                problemStatementURL: viewModel.urlRequest)
+                                problemStatementURL: .init(url: .applicationDirectory))
                         } else {
                             StartExerciseButton(exercise: exercise, participationId: $viewModel.participationId)
                         }
@@ -111,7 +105,7 @@ private extension ExerciseDetailView {
                         OpenExerciseButton(
                             exercise: exercise,
                             participationId: participationId,
-                            problemStatementURL: viewModel.urlRequest)
+                            problemStatementURL: .init(url: .applicationDirectory))
                     } else {
                         StartExerciseButton(exercise: exercise, participationId: $viewModel.participationId)
                     }
@@ -219,28 +213,7 @@ private extension ExerciseDetailView {
     }
 
     var problem: some View {
-        VStack(alignment: .leading, spacing: .s) {
-            if case .programming = viewModel.exercise.value {
-                Text(R.string.localizable.problemStatement())
-                    .font(.headline)
-                    .padding(.s)
-            }
-
-            if case .quiz = viewModel.exercise.value {
-                EmptyView() // explicitly do nothing
-            } else {
-                ArtemisWebView(
-                    urlRequest: $viewModel.urlRequest,
-                    contentHeight: $viewModel.webViewHeight,
-                    isLoading: $viewModel.isWebViewLoading,
-                    customJSHeightQuery: viewModel.webViewHeightJS
-                )
-                .frame(height: viewModel.webViewHeight)
-                .allowsHitTesting(false)
-                .loadingIndicator(isLoading: $viewModel.isWebViewLoading)
-                .id(viewModel.webViewId)
-            }
-        }
+        ProblemStatementView(viewModel: viewModel)
     }
 }
 
