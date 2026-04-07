@@ -19,19 +19,22 @@ struct ProblemStatementView: View {
             } else {
                 DataStateView(data: $viewModel.problemStatementRendered) {
                     await viewModel.loadRenderedProblemStatement()
-                } content: { prob in
+                } content: { problem in
                     ArtemisWebView(
-                        html: prob,
+                        html: problem,
                         contentHeight: $viewModel.webViewHeight,
                         isLoading: $viewModel.isWebViewLoading
                     )
-                    .frame(height: viewModel.webViewHeight)
+                    .id(problem.hashValue)
+                    .frame(height: !problem.isEmpty ? viewModel.webViewHeight : 0)
                     .allowsHitTesting(false)
                     .loadingIndicator(isLoading: $viewModel.isWebViewLoading)
                 }
-                .task {
+                .onAppear {
                     if case .loading = viewModel.problemStatementRendered {
-                        await viewModel.loadRenderedProblemStatement()
+                        Task {
+                            await viewModel.loadRenderedProblemStatement()
+                        }
                     }
                 }
             }
