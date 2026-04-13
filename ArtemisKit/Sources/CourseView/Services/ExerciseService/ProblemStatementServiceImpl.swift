@@ -36,19 +36,7 @@ struct ProblemStatementServiceImpl: ProblemStatementService {
 
         switch result {
         case let .success((response, _)):
-            let html = response.html ?? ""
-            let result = """
-                <!DOCTYPE html>
-                <html>
-                <head>
-                <meta name="viewport" content="width=device-width">
-                </head>
-                <body>
-                \(html)
-                </body>
-                </html>
-                """
-            return .done(response: result)
+            return .done(response: response.html ?? "")
         case let .failure(error):
             return .failure(error: UserFacingError(error: error))
         }

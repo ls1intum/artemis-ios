@@ -18,6 +18,7 @@ final class ExerciseDetailViewModel {
 
     var exercise: DataState<Exercise>
     var problemStatementRendered: DataState<String> = .loading
+    var problemStatementRenderedDark: DataState<String> = .loading
     var channel: DataState<Channel> = .loading
 
     var isFeedbackPresented = false
@@ -63,7 +64,7 @@ final class ExerciseDetailViewModel {
         }
     }
 
-    func loadRenderedProblemStatement() async {
+    func loadRenderedProblemStatement(darkMode: Bool) async {
         if exercise.value?.baseExercise.problemStatement == nil {
             await refreshExercise()
         }
@@ -73,7 +74,12 @@ final class ExerciseDetailViewModel {
         }
 
         let problemService = ProblemStatementServiceFactory.shared
-        problemStatementRendered = await problemService.getRenderedProblemStatement(for: problemStatement)
+        let result = await problemService.getRenderedProblemStatement(for: problemStatement, darkMode: darkMode)
+        if darkMode {
+            problemStatementRenderedDark = result
+        } else {
+            problemStatementRendered = result
+        }
     }
 
     func loadAssociatedChannel() async {

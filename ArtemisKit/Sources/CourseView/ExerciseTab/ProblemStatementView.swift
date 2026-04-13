@@ -18,7 +18,19 @@ struct ProblemStatementView: View {
             if case .quiz = exercise {
                 EmptyView()
             } else {
-                problemStatement(darkMode: colorScheme == .dark)
+                ZStack {
+                    problemStatement(darkMode: true)
+                        .opacity(colorScheme == .dark ? 1 : 0)
+                    problemStatement(darkMode: false)
+                        .opacity(colorScheme == .dark ? 0 : 1)
+                }
+                .onChange(of: colorScheme, initial: true) {
+                    if colorScheme == .dark, case .loading = viewModel.problemStatementRenderedDark {
+                        loadProblemStatement(darkMode: true)
+                    } else if colorScheme != .dark, case .loading = viewModel.problemStatementRendered {
+                        loadProblemStatement(darkMode: false)
+                    }
+                }
             }
         }
     }
@@ -26,29 +38,23 @@ struct ProblemStatementView: View {
     private func problemStatement(darkMode: Bool) -> some View {
         DataStateView(data: darkMode ? $viewModel.problemStatementRenderedDark : $viewModel.problemStatementRendered) {
             await viewModel.loadRenderedProblemStatement(darkMode: darkMode)
-        } content: { problem in
+        } content: { html in
             ArtemisWebView(
-                html: problem,
+                html: html,
                 contentHeight: $viewModel.webViewHeight,
                 isLoading: $viewModel.isWebViewLoading
             )
-            .id("\(problem.hashValue)\(darkMode)")
-            .frame(height: !problem.isEmpty ? viewModel.webViewHeight : 0)
+            .id("\(html.hashValue)")
+            .frame(height: !html.isEmpty ? viewModel.webViewHeight + 40 : 0)
             .allowsHitTesting(false)
             .loadingIndicator(isLoading: $viewModel.isWebViewLoading)
-        }
-        .onAppear {
-            if darkMode, case .loading = viewModel.problemStatementRenderedDark {
-                loadProblemStatement(darkMode: darkMode)
-            } else if !darkMode, case .loading = viewModel.problemStatementRendered {
-                loadProblemStatement(darkMode: darkMode)
-            }
         }
     }
 
     private func loadProblemStatement(darkMode: Bool) {
         Task {
             await viewModel.loadRenderedProblemStatement(darkMode: darkMode)
+            viewModel.isWebViewLoading = true
         }
     }
 }
