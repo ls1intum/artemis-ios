@@ -31,8 +31,8 @@ struct ProblemStatementServiceImpl: ProblemStatementService {
         let html: String?
     }
 
-    func getRenderedProblemStatement(for markdown: String) async -> DataState<String> {
-        let result = await client.sendRequest(GetRenderedProblemStatementRequest(markdown: markdown, darkMode: false))
+    func getRenderedProblemStatement(for markdown: String, darkMode: Bool) async -> DataState<String> {
+        let result = await client.sendRequest(GetRenderedProblemStatementRequest(markdown: markdown, darkMode: darkMode))
 
         switch result {
         case let .success((response, _)):

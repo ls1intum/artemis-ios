@@ -12,7 +12,7 @@ import Common
 import SharedModels
 
 protocol ProblemStatementService {
-    func getRenderedProblemStatement(for markdown: String) async -> DataState<String>
+    func getRenderedProblemStatement(for markdown: String, darkMode: Bool) async -> DataState<String>
 }
 
 enum ProblemStatementServiceFactory {
