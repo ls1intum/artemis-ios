@@ -38,6 +38,7 @@ struct ProblemStatementServiceImpl: ProblemStatementService {
         case let .success((response, _)):
             let html = response.html ?? ""
             let result = """
+                <!DOCTYPE html>
                 <html>
                 <head>
                 <meta name="viewport" content="width=device-width">
