@@ -45,7 +45,7 @@ struct ProblemStatementView: View {
                 isLoading: $viewModel.isWebViewLoading
             )
             .id("\(html.hashValue)")
-            .frame(height: !html.isEmpty ? viewModel.webViewHeight + 40 : 0)
+            .frame(height: viewModel.webViewHeight + webViewPadding)
             .allowsHitTesting(false)
             .loadingIndicator(isLoading: $viewModel.isWebViewLoading)
         }
@@ -56,5 +56,15 @@ struct ProblemStatementView: View {
             await viewModel.loadRenderedProblemStatement(darkMode: darkMode)
             viewModel.isWebViewLoading = true
         }
+    }
+
+    private var webViewPadding: CGFloat {
+        // UML diagrams slightly change height between light and dark mode
+        // This adds some spacing to ensure they are not cut off when switching to dark mode
+        if let problemStatement = viewModel.exercise.value?.baseExercise.problemStatement,
+           let regex = try? Regex("@startuml") {
+            return CGFloat(problemStatement.matches(of: regex).count) * 20
+        }
+        return 0
     }
 }
