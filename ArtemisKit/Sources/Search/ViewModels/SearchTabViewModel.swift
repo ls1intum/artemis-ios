@@ -54,7 +54,7 @@ class SearchTabViewModel {
         let service = SearchServiceFactory.shared
 
         searchResults = await service.search(for: selectedFilters.first?.apiFilterType,
-                                             in: scope == .course ? 0 : nil,
+                                             in: scope == .course ? courseId : nil,
                                              searchTerm: searchTerm)
         observeChanges()
         isLoading = false

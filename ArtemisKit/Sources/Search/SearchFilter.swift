@@ -28,7 +28,7 @@ enum SearchFilter: CaseIterable, Identifiable, Equatable {
         case .iris:
             Color.blue
         case .exercises:
-            Color.orange
+            Color.indigo
         case .lectures:
             Color.orange
         }
