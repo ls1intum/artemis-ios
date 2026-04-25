@@ -20,7 +20,7 @@ struct SearchServiceImpl: SearchService {
         let searchTerm: String
 
         var resourceName: String {
-            "/api/search"
+            "api/search"
         }
 
         var method: HTTPMethod { .get }
