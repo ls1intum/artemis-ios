@@ -11,6 +11,8 @@ enum SearchFilter: CaseIterable, Identifiable, Equatable {
     case iris
     case exercises
     case lectures
+    case faq
+    case channel
 
     var displayTitle: String {
         switch self {
@@ -20,6 +22,10 @@ enum SearchFilter: CaseIterable, Identifiable, Equatable {
             R.string.localizable.exercises()
         case .lectures:
             R.string.localizable.lectures()
+        case .faq:
+            R.string.localizable.faq()
+        case .channel:
+            R.string.localizable.channel()
         }
     }
 
@@ -30,6 +36,10 @@ enum SearchFilter: CaseIterable, Identifiable, Equatable {
         case .exercises:
             Color.indigo
         case .lectures:
+            Color.teal
+        case .faq:
+            Color.pink
+        case .channel:
             Color.orange
         }
     }
@@ -42,6 +52,10 @@ enum SearchFilter: CaseIterable, Identifiable, Equatable {
             "list.bullet.clipboard.fill"
         case .lectures:
             "character.book.closed.fill"
+        case .faq:
+            "questionmark.circle.fill"
+        case .channel:
+            "bubble.right.fill"
         }
     }
 
@@ -50,6 +64,8 @@ enum SearchFilter: CaseIterable, Identifiable, Equatable {
         case .iris: nil
         case .exercises: .exercise
         case .lectures: .lecture
+        case .faq: .faq
+        case .channel: .channel
         }
     }
 
