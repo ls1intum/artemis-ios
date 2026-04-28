@@ -10,6 +10,10 @@ import SharedModels
 enum SearchFilterType: String, Codable, ConstantsEnum {
     case exercise
     case lecture
+    case lectureUnit = "lecture_unit"
+    case exam
+    case faq
+    case channel
     case unknown
 
     /// String describing the type for the API query param
