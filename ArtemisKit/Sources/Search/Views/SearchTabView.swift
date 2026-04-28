@@ -30,11 +30,12 @@ public struct SearchTabView: View {
                 Spacer().listRowBackground(Color.clear)
             }
             .animation(.default, value: viewModel.selectedFilters)
+            .animation(.default, value: viewModel.searchTerm.isEmpty)
             .submitLabel(.search)
             .searchable(text: $viewModel.searchTerm, tokens: $viewModel.selectedFilters) { token in
                 Label(token.displayTitle, systemImage: token.systemImage)
             }
-            .listRowSpacing(.s)
+            .listRowSpacing(.m)
             .listSectionSpacing(.compact)
             .courseToolbar()
         }
@@ -69,7 +70,7 @@ public struct SearchTabView: View {
         .listRowInsets(EdgeInsets(top: .m, leading: .s, bottom: .s, trailing: .s))
         .listRowBackground(Color.clear)
 
-        if viewModel.selectedFilters.isEmpty {
+        if viewModel.selectedFilters.isEmpty && viewModel.searchTerm.isEmpty {
             LazyVGrid(columns: [.init(.adaptive(minimum: 150, maximum: 500))]) {
                 ForEach(SearchFilter.allCases.filter { $0 != .iris }) { filter in
                     ScopeSuggestion(viewModel: viewModel, filter: filter)
