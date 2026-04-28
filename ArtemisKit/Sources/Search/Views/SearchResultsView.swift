@@ -20,7 +20,7 @@ struct SearchResultsView: View {
                 ContentUnavailableView.search
                     .loadingIndicator(isLoading: $viewModel.isLoading)
             } else {
-                ForEach(results, id: \.id) { result in
+                ForEach(results.filter(\.isDisplayable), id: \.id) { result in
                     SearchResultView(result: result)
                         .loadingIndicator(isLoading: $viewModel.isLoading)
                 }

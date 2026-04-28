@@ -19,6 +19,11 @@ struct SearchResultDTO: Decodable {
     enum CodingKeys: String, CodingKey {
         case id, type, title, description, badge, metadata
     }
+
+    var isDisplayable: Bool {
+        let supported: [SearchFilterType] = [.exercise, .lecture] // TODO: Add other types
+        return supported.contains(type ?? .unknown)
+    }
 }
 
 extension SearchResultDTO {
