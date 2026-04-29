@@ -42,6 +42,18 @@ let package = Package(
                 .plugin(name: "RswiftGeneratePublicResources", package: "R.swift")
             ]),
         .target(
+            name: "Calendar",
+            dependencies: [
+                "Extensions",
+                .product(name: "APIClient", package: "artemis-ios-core-modules"),
+                .product(name: "DesignLibrary", package: "artemis-ios-core-modules"),
+                .product(name: "SharedModels", package: "artemis-ios-core-modules"),
+                .product(name: "RswiftLibrary", package: "R.swift")
+            ],
+            plugins: [
+                .plugin(name: "RswiftGeneratePublicResources", package: "R.swift")
+            ]),
+        .target(
             name: "CourseRegistration",
             dependencies: [
                 .product(name: "APIClient", package: "artemis-ios-core-modules"),
