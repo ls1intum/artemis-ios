@@ -22,11 +22,17 @@ public struct CalendarTimelineProvider: AppIntentTimelineProvider {
                             needsConfiguration: false,
                             calendarEvents: [
                                 .init(_type: .lecture,
-                                      title: "Software Engineering Principles",
+                                      title: "Software Engineering",
                                       startDate: .tomorrow),
                                 .init(_type: .programmingExercise,
-                                      title: "W04E02",
-                                      startDate: .tomorrow)
+                                      title: "W04E01 Broker",
+                                      startDate: .tomorrow),
+                                .init(_type: .programmingExercise,
+                                      title: "W04E02 Async ID Generation",
+                                      startDate: .tomorrow),
+                                .init(_type: .tutorial,
+                                      title: "Group 7",
+                                      startDate: .now),
                             ]
         )
     }

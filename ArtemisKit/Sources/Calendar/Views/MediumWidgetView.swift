@@ -6,6 +6,7 @@
 //
 
 import DesignLibrary
+import SharedModels
 import SwiftUI
 
 public struct MediumCalendarWidgetView: View {
@@ -28,7 +29,36 @@ public struct MediumCalendarWidgetView: View {
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
         } else {
-            Text("\(entry.calendarEvents.count) upcoming events (TODO: Design)")
+            WidgetEventsView(events: entry.calendarEvents)
         }
+    }
+}
+
+struct WidgetEventsView: View {
+    let events: [DTO.CalendarEvent]
+
+    var nextLecture: DTO.CalendarEvent? {
+        events.first { $0._type == .lecture }
+    }
+
+    var nextTutorial: DTO.CalendarEvent? {
+        events.first { $0._type == .tutorial }
+    }
+
+    var body: some View {
+        TwoColumnLayout {
+            WidgetDueSoonView(events: events)
+
+            if let nextLecture {
+                WidgetEventGroup(title: "Next Lecture", showSubtitle: false, events: [nextLecture], color: .teal)
+            }
+
+            if let nextTutorial {
+                WidgetEventGroup(title: "Next Tutorial", showSubtitle: false, events: [nextTutorial], color: .blue)
+            }
+        }
+        .padding(.horizontal)
+        .padding(.vertical, .m)
+        .containerRelativeFrame([.vertical, .horizontal], alignment: .topLeading)
     }
 }
