@@ -44,6 +44,11 @@ struct WidgetDueSoonView: View {
     }
 
     var body: some View {
-        WidgetEventGroup(title: "Due Soon", showSubtitle: true, events: events, color: .indigo)
+        if !events.isEmpty {
+            WidgetEventGroup(title: R.string.localizable.dueSoon(),
+                             showSubtitle: true,
+                             events: events,
+                             color: .indigo)
+        }
     }
 }

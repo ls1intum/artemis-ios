@@ -3,3 +3,7 @@
 
 "failedLoading" = "Artemis failed to load events";
 "noUpcomingEvents" = "No upcoming events in the next month.\nEnjoy your free time!";
+
+"dueSoon" = "Due Soon";
+"nextLecture" = "Next Lecture";
+"nextTutorial" = "Next Tutorial";

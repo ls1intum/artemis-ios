@@ -13,6 +13,7 @@ struct WidgetEventGroup: View {
     let showSubtitle: Bool
     let events: [DTO.CalendarEvent]
     let color: Color
+    var canTakeMoreSpace = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: .s) {
@@ -35,7 +36,8 @@ struct WidgetEventGroup: View {
                 VStack(alignment: .leading) {
                     ForEach(events, id: \.hashValue) { event in
                         Text(event.title)
-                            .lineLimit(events.count == 1 ? 2 : 1)
+                            .lineLimit(canTakeMoreSpace ? 2 : 1)
+
                         if events.count == 1 && !showSubtitle {
                             Text(event.startDate, style: .date)
                         }

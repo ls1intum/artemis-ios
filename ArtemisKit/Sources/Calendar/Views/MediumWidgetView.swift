@@ -34,7 +34,7 @@ public struct MediumCalendarWidgetView: View {
     }
 }
 
-struct WidgetEventsView: View {
+private struct WidgetEventsView: View {
     let events: [DTO.CalendarEvent]
 
     var nextLecture: DTO.CalendarEvent? {
@@ -50,11 +50,19 @@ struct WidgetEventsView: View {
             WidgetDueSoonView(events: events)
 
             if let nextLecture {
-                WidgetEventGroup(title: "Next Lecture", showSubtitle: false, events: [nextLecture], color: .teal)
+                WidgetEventGroup(title: R.string.localizable.nextLecture(),
+                                 showSubtitle: false,
+                                 events: [nextLecture],
+                                 color: .teal,
+                                 canTakeMoreSpace: nextTutorial == nil)
             }
 
             if let nextTutorial {
-                WidgetEventGroup(title: "Next Tutorial", showSubtitle: false, events: [nextTutorial], color: .blue)
+                WidgetEventGroup(title: R.string.localizable.nextTutorial(),
+                                 showSubtitle: false,
+                                 events: [nextTutorial],
+                                 color: .blue,
+                                 canTakeMoreSpace: nextLecture == nil)
             }
         }
         .padding(.horizontal)
