@@ -97,7 +97,9 @@ public struct CalendarTimelineProvider: AppIntentTimelineProvider {
         }.value
 
         if let allEvents = events?.values.flatMap({ $0 }) {
-            return allEvents
+            return allEvents.filter {
+                ($0.endDate ?? $0.startDate) > .now
+            }
         }
         return nil
     }
