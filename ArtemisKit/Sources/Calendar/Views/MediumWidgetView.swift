@@ -24,12 +24,19 @@ public struct MediumCalendarWidgetView: View {
         } else if entry.error {
             ContentUnavailableView(R.string.localizable.failedLoading(),
                                    systemImage: "antenna.radiowaves.left.and.right.slash")
-        } else if entry.calendarEvents.isEmpty {
+        } else if hasNoUpcomingEvents {
             Text(R.string.localizable.noUpcomingEvents())
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
         } else {
             WidgetEventsView(events: entry.calendarEvents)
+        }
+    }
+
+    private var hasNoUpcomingEvents: Bool {
+        entry.calendarEvents.isEmpty || entry.calendarEvents.allSatisfy { event in
+            // All events in the past (exams not shown)
+            (event.endDate ?? event.startDate) < entry.date || event._type == .exam
         }
     }
 }
