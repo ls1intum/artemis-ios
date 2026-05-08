@@ -36,15 +36,30 @@ struct WidgetEventGroup: View {
                         Text(event.title)
                             .lineLimit(canTakeMoreSpace ? 2 : 1)
 
-                        if events.count == 1 && !showSubtitle {
-                            Text(event.startDate, style: .date)
-                        }
+                        timeView(for: event)
+                            .foregroundStyle(.secondary)
                     }
                 }
                 .font(.subheadline)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    @ViewBuilder
+    private func timeView(for event: DTO.CalendarEvent) -> some View {
+        if events.count == 1 && !showSubtitle {
+            Text(event.startDate, style: .date)
+            if canTakeMoreSpace {
+                HStack(alignment: .firstTextBaseline, spacing: .s) {
+                    Text(event.startDate, style: .time)
+                    if let endDate = event.endDate {
+                        Text("-")
+                        Text(endDate, style: .time)
+                    }
+                }
+            }
+        }
     }
 
     private var title: String {
