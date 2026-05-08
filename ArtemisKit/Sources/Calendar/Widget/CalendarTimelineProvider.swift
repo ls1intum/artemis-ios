@@ -60,7 +60,7 @@ public struct CalendarTimelineProvider: AppIntentTimelineProvider {
 
         let startDates = allEvents.compactMap(\.startDate)
         let endDates = allEvents.compactMap(\.endDate)
-        for date in startDates + endDates {
+        for date in [.now] + startDates + endDates {
             // Always update within a minute of something starting or ending
             let entry = CalendarWidgetEntry(date: date.addingTimeInterval(60),
                                             needsConfiguration: false,
