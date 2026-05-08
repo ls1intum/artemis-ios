@@ -26,7 +26,7 @@ struct SmallWidgetView: View {
                 }
             }
         }
-        .padding(.m)
+        .padding()
         .containerRelativeFrame([.vertical, .horizontal], alignment: .topLeading)
     }
 }
