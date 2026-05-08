@@ -17,10 +17,10 @@ struct ArtemisCalendarWidget: Widget {
         AppIntentConfiguration(kind: kind,
                                intent: CalendarCourseConfigurationIntent.self,
                                provider: CalendarTimelineProvider()) { entry in
-            MediumCalendarWidgetView(entry: entry)
+            HomeScreenWidgetView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
         }
-        .supportedFamilies([.systemMedium])
+        .supportedFamilies([.systemMedium, .systemSmall])
         .configurationDisplayName("Calendar")
         .description("Keep an overview of upcoming events.")
     }

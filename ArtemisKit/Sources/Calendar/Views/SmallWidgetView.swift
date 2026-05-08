@@ -1,5 +1,5 @@
 //
-//  MediumWidgetView.swift
+//  SmallWidgetView.swift
 //  ArtemisKit
 //
 //  Created by Anian Schleyer on 09.05.26.
@@ -8,7 +8,7 @@
 import SharedModels
 import SwiftUI
 
-struct MediumWidgetView: View {
+struct SmallWidgetView: View {
     let events: [DTO.CalendarEvent]
 
     var nextLecture: DTO.CalendarEvent? {
