@@ -20,7 +20,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/onmyway133/Smile", revision: "6bacbf7"),
 //        .package(url: "https://github.com/ls1intum/apollon-ios-module", .upToNextMajor(from: "1.0.9")), // Disabled because not working
-        .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", revision: "5ef1b78"),
+        .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", revision: "8881634"),
         .package(url: "https://github.com/mac-cain13/R.swift.git", from: "7.8.0")
     ],
     targets: [
@@ -42,6 +42,19 @@ let package = Package(
                 .plugin(name: "RswiftGeneratePublicResources", package: "R.swift")
             ]),
         .target(
+            name: "Calendar",
+            dependencies: [
+                "Extensions",
+                .product(name: "APIClient", package: "artemis-ios-core-modules"),
+                .product(name: "DesignLibrary", package: "artemis-ios-core-modules"),
+                .product(name: "SharedModels", package: "artemis-ios-core-modules"),
+                .product(name: "SharedServices", package: "artemis-ios-core-modules"),
+                .product(name: "RswiftLibrary", package: "R.swift")
+            ],
+            plugins: [
+                .plugin(name: "RswiftGeneratePublicResources", package: "R.swift")
+            ]),
+        .target(
             name: "CourseRegistration",
             dependencies: [
                 .product(name: "APIClient", package: "artemis-ios-core-modules"),
@@ -55,6 +68,7 @@ let package = Package(
         .target(
             name: "CourseView",
             dependencies: [
+                "Calendar",
                 "Faq",
                 "Messages",
                 "Navigation",
