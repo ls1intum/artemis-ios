@@ -16,7 +16,7 @@
 		51F1B22C2C0CC2D700F14D01 /* SnapshotHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51F1B22B2C0CC2D700F14D01 /* SnapshotHelper.swift */; };
 		51F9CEEA2FA26D2C0044B368 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 51F9CEE92FA26D2C0044B368 /* WidgetKit.framework */; };
 		51F9CEEC2FA26D2C0044B368 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 51F9CEEB2FA26D2C0044B368 /* SwiftUI.framework */; };
-		51F9CEF72FA26D2E0044B368 /* ArtemisWidgetExtensionExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 51F9CEE82FA26D2C0044B368 /* ArtemisWidgetExtensionExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		51F9CEF72FA26D2E0044B368 /* ArtemisWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 51F9CEE82FA26D2C0044B368 /* ArtemisWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		51F9CEFD2FA26E460044B368 /* ArtemisKit in Frameworks */ = {isa = PBXBuildFile; productRef = 51F9CEFC2FA26E460044B368 /* ArtemisKit */; };
 		A166A2592B0381F000AB6119 /* ArtemisKit in Frameworks */ = {isa = PBXBuildFile; productRef = A166A2582B0381F000AB6119 /* ArtemisKit */; };
 /* End PBXBuildFile section */
@@ -41,7 +41,7 @@
 			containerPortal = 7555FF73242A565900829871 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 51F9CEE72FA26D2C0044B368;
-			remoteInfo = ArtemisWidgetExtensionExtension;
+			remoteInfo = ArtemisWidgetExtension;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -52,7 +52,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				51F9CEF72FA26D2E0044B368 /* ArtemisWidgetExtensionExtension.appex in Embed Foundation Extensions */,
+				51F9CEF72FA26D2E0044B368 /* ArtemisWidgetExtension.appex in Embed Foundation Extensions */,
 				51B0EFC82CE6468700927F30 /* ArtemisNotificationExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
@@ -68,7 +68,7 @@
 		51F1B2202C0CC26800F14D01 /* ArtemisUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ArtemisUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		51F1B2242C0CC26800F14D01 /* ArtemisUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtemisUITests.swift; sourceTree = "<group>"; };
 		51F1B22B2C0CC2D700F14D01 /* SnapshotHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapshotHelper.swift; sourceTree = "<group>"; };
-		51F9CEE82FA26D2C0044B368 /* ArtemisWidgetExtensionExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ArtemisWidgetExtensionExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		51F9CEE82FA26D2C0044B368 /* ArtemisWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ArtemisWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		51F9CEE92FA26D2C0044B368 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		51F9CEEB2FA26D2C0044B368 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		7555FF7B242A565900829871 /* Artemis.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Artemis.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -92,12 +92,12 @@
 			);
 			target = 51B0EFC02CE6468700927F30 /* ArtemisNotificationExtension */;
 		};
-		51F9CEFA2FA26D2E0044B368 /* Exceptions for "ArtemisWidgetExtension" folder in "ArtemisWidgetExtensionExtension" target */ = {
+		51F9CEFA2FA26D2E0044B368 /* Exceptions for "ArtemisWidgetExtension" folder in "ArtemisWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 51F9CEE72FA26D2C0044B368 /* ArtemisWidgetExtensionExtension */;
+			target = 51F9CEE72FA26D2C0044B368 /* ArtemisWidgetExtension */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -113,7 +113,7 @@
 		51F9CEED2FA26D2C0044B368 /* ArtemisWidgetExtension */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				51F9CEFA2FA26D2E0044B368 /* Exceptions for "ArtemisWidgetExtension" folder in "ArtemisWidgetExtensionExtension" target */,
+				51F9CEFA2FA26D2E0044B368 /* Exceptions for "ArtemisWidgetExtension" folder in "ArtemisWidgetExtension" target */,
 			);
 			path = ArtemisWidgetExtension;
 			sourceTree = "<group>";
@@ -203,7 +203,7 @@
 				7555FF7B242A565900829871 /* Artemis.app */,
 				51F1B2202C0CC26800F14D01 /* ArtemisUITests.xctest */,
 				51B0EFC12CE6468700927F30 /* ArtemisNotificationExtension.appex */,
-				51F9CEE82FA26D2C0044B368 /* ArtemisWidgetExtensionExtension.appex */,
+				51F9CEE82FA26D2C0044B368 /* ArtemisWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -280,9 +280,9 @@
 			productReference = 51F1B2202C0CC26800F14D01 /* ArtemisUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
-		51F9CEE72FA26D2C0044B368 /* ArtemisWidgetExtensionExtension */ = {
+		51F9CEE72FA26D2C0044B368 /* ArtemisWidgetExtension */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 51F9CEFB2FA26D2E0044B368 /* Build configuration list for PBXNativeTarget "ArtemisWidgetExtensionExtension" */;
+			buildConfigurationList = 51F9CEFB2FA26D2E0044B368 /* Build configuration list for PBXNativeTarget "ArtemisWidgetExtension" */;
 			buildPhases = (
 				51F9CEE42FA26D2C0044B368 /* Sources */,
 				51F9CEE52FA26D2C0044B368 /* Frameworks */,
@@ -295,12 +295,12 @@
 			fileSystemSynchronizedGroups = (
 				51F9CEED2FA26D2C0044B368 /* ArtemisWidgetExtension */,
 			);
-			name = ArtemisWidgetExtensionExtension;
+			name = ArtemisWidgetExtension;
 			packageProductDependencies = (
 				51F9CEFC2FA26E460044B368 /* ArtemisKit */,
 			);
-			productName = ArtemisWidgetExtensionExtension;
-			productReference = 51F9CEE82FA26D2C0044B368 /* ArtemisWidgetExtensionExtension.appex */;
+			productName = ArtemisWidgetExtension;
+			productReference = 51F9CEE82FA26D2C0044B368 /* ArtemisWidgetExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 		7555FF7A242A565900829871 /* Artemis */ = {
@@ -372,7 +372,7 @@
 				7555FF7A242A565900829871 /* Artemis */,
 				51F1B21F2C0CC26800F14D01 /* ArtemisUITests */,
 				51B0EFC02CE6468700927F30 /* ArtemisNotificationExtension */,
-				51F9CEE72FA26D2C0044B368 /* ArtemisWidgetExtensionExtension */,
+				51F9CEE72FA26D2C0044B368 /* ArtemisWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -477,7 +477,7 @@
 		};
 		51F9CEF62FA26D2E0044B368 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 51F9CEE72FA26D2C0044B368 /* ArtemisWidgetExtensionExtension */;
+			target = 51F9CEE72FA26D2C0044B368 /* ArtemisWidgetExtension */;
 			targetProxy = 51F9CEF52FA26D2E0044B368 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -871,7 +871,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		51F9CEFB2FA26D2E0044B368 /* Build configuration list for PBXNativeTarget "ArtemisWidgetExtensionExtension" */ = {
+		51F9CEFB2FA26D2E0044B368 /* Build configuration list for PBXNativeTarget "ArtemisWidgetExtension" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				51F9CEF82FA26D2E0044B368 /* Debug */,
