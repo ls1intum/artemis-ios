@@ -20,7 +20,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/onmyway133/Smile", revision: "6bacbf7"),
 //        .package(url: "https://github.com/ls1intum/apollon-ios-module", .upToNextMajor(from: "1.0.9")), // Disabled because not working
-        .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", revision: "6fa71b4"),
+        .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", revision: "8881634"),
         .package(url: "https://github.com/mac-cain13/R.swift.git", from: "7.8.0")
     ],
     targets: [
@@ -67,6 +67,7 @@ let package = Package(
         .target(
             name: "CourseView",
             dependencies: [
+                "Calendar",
                 "Faq",
                 "Messages",
                 "Navigation",

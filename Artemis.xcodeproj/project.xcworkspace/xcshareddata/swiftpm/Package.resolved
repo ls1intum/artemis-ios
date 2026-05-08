@@ -1,13 +1,13 @@
 {
-  "originHash" : "8eb8bc84bfba53459aa7b7a184bd276f917aab7b4ba48f3bb001deb201198b3c",
+  "originHash" : "0e97cbf423c739693c421ec39dce56f8756724fea57aee648c1c294a7711741b",
   "pins" : [
     {
       "identity" : "artemis-ios-core-modules",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ls1intum/artemis-ios-core-modules",
       "state" : {
-        "branch" : "6fa71b4",
-        "revision" : "6fa71b4b62047e8608f589087d0ae569a3f9abd8"
+        "branch" : "8881634",
+        "revision" : "8881634fce24696962703dd1be74feb9b2c3f1ec"
       }
     },
     {
@@ -114,8 +114,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-argument-parser",
       "state" : {
-        "revision" : "41982a3656a71c768319979febd796c6fd111d5c",
-        "version" : "1.5.0"
+        "revision" : "626b5b7b2f45e1b0b1c6f4a309296d1d21d7311b",
+        "version" : "1.7.1"
       }
     },
     {

@@ -25,7 +25,12 @@ public struct CourseQuery: EntityQuery {
     public init() {}
 
     public func entities(for identifiers: [Course.ID]) async throws -> [Course] {
-        try await suggestedEntities().filter { identifiers.contains($0.id) }
+        do {
+            return try await suggestedEntities().filter { identifiers.contains($0.id) }
+        } catch {
+            // Fallback: If loading courses fails, use same id and a sensible name to display
+            return identifiers.map { Course(id: $0, name: "Selected Course") }
+        }
     }
 
     public func suggestedEntities() async throws -> [Course] {

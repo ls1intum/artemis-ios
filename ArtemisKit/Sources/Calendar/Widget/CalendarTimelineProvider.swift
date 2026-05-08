@@ -32,7 +32,7 @@ public struct CalendarTimelineProvider: AppIntentTimelineProvider {
                                       startDate: .tomorrow),
                                 .init(_type: .tutorial,
                                       title: "Group 7",
-                                      startDate: .now),
+                                      startDate: .now)
                             ]
         )
     }
