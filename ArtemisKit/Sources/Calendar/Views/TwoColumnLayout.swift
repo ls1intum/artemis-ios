@@ -13,7 +13,11 @@ struct TwoColumnLayout: Layout {
 
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
         let width = proposal.width ?? 0
-        let columnWidth = (width - spacing) / 2
+        let columnWidth = if subviews.count == 1 {
+            width // Use full width if only one view needs to be placed
+        } else {
+            (width - spacing) / 2
+        }
 
         var leftHeight: CGFloat = 0
         var rightHeight: CGFloat = 0
@@ -32,7 +36,11 @@ struct TwoColumnLayout: Layout {
     }
 
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
-        let columnWidth = (bounds.width - spacing) / 2
+        let columnWidth = if subviews.count == 1 {
+            bounds.width // Use full width if only one view needs to be placed
+        } else {
+            (bounds.width - spacing) / 2
+        }
 
         var leftY: CGFloat = bounds.minY
         var rightY: CGFloat = bounds.minY
