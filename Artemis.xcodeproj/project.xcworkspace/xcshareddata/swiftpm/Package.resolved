@@ -1,13 +1,13 @@
 {
-  "originHash" : "00c27685fea7710069efb5d91a4d898474c44174f319fc9d57c08a0ed24f14a8",
+  "originHash" : "af0ac36a9d07e77587a69770b060d6f625fd28a746fd3741a1df36be2aabda25",
   "pins" : [
     {
       "identity" : "artemis-ios-core-modules",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ls1intum/artemis-ios-core-modules",
       "state" : {
-        "branch" : "e8c7032",
-        "revision" : "e8c703225624e229a02b7c22304d2232c4228019"
+        "branch" : "5ef1b78",
+        "revision" : "5ef1b7871c7fc8d4d9d21bc86d59494a639b7631"
       }
     },
     {
@@ -105,8 +105,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swiftlang/swift-cmark",
       "state" : {
-        "revision" : "5d9bdaa4228b381639fff09403e39a04926e2dbe",
-        "version" : "0.7.1"
+        "revision" : "924936d0427cb25a61169739a7660230bffa6ea6",
+        "version" : "0.8.0"
       }
     },
     {
