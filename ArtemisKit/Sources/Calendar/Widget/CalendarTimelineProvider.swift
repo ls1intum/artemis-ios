@@ -23,7 +23,8 @@ public struct CalendarTimelineProvider: AppIntentTimelineProvider {
                             calendarEvents: [
                                 .init(_type: .lecture,
                                       title: "Software Engineering",
-                                      startDate: .tomorrow),
+                                      startDate: .tomorrow,
+                                      endDate: .tomorrow.addingTimeInterval(3600)),
                                 .init(_type: .programmingExercise,
                                       title: "W04E01 Broker",
                                       startDate: .tomorrow),
