@@ -48,6 +48,7 @@ let package = Package(
                 .product(name: "APIClient", package: "artemis-ios-core-modules"),
                 .product(name: "DesignLibrary", package: "artemis-ios-core-modules"),
                 .product(name: "SharedModels", package: "artemis-ios-core-modules"),
+                .product(name: "SharedServices", package: "artemis-ios-core-modules"),
                 .product(name: "RswiftLibrary", package: "R.swift")
             ],
             plugins: [
