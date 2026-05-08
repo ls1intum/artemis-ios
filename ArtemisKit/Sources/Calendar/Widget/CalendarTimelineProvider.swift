@@ -86,6 +86,8 @@ public struct CalendarTimelineProvider: AppIntentTimelineProvider {
         let currentMonth = formatter.string(from: .now)
         let nextMonth = formatter.string(from: Calendar.current.date(byAdding: DateComponents(month: 1), to: .now) ?? .now)
 
+        APIClient.setupCurrentJWT()
+
         let events = await APIClient().call { client in
             try await client.getCalendarEventsOverlappingMonths(
                 .init(path: .init(courseId: Int64(courseId)),
