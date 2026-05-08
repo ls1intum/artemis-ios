@@ -5,6 +5,7 @@
 //  Created by Anian Schleyer on 29.04.26.
 //
 
+import SharedModels
 import SwiftUI
 
 public struct HomeScreenWidgetView: View {
@@ -25,23 +26,22 @@ public struct HomeScreenWidgetView: View {
         } else if entry.error {
             ContentUnavailableView(isSmall ? i18n.failedLoadingShort() : i18n.failedLoading(),
                                    systemImage: "antenna.radiowaves.left.and.right.slash")
-        } else if hasNoUpcomingEvents {
+        } else if upcomingEvents.isEmpty {
             Text(R.string.localizable.noUpcomingEvents())
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
         } else {
             if isSmall {
-                
+                SmallWidgetView(events: upcomingEvents)
             } else {
-                MediumWidgetView(events: entry.calendarEvents)
+                MediumWidgetView(events: upcomingEvents)
             }
         }
     }
 
-    private var hasNoUpcomingEvents: Bool {
-        entry.calendarEvents.isEmpty || entry.calendarEvents.allSatisfy { event in
-            // All events in the past (exams not shown)
-            (event.endDate ?? event.startDate) < entry.date || event._type == .exam
+    private var upcomingEvents: [DTO.CalendarEvent] {
+        entry.calendarEvents.filter { event in
+            (event.endDate ?? event.startDate) > entry.date && event._type != .exam
         }
     }
 

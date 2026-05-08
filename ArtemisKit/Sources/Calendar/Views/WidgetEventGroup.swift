@@ -9,10 +9,8 @@ import SharedModels
 import SwiftUI
 
 struct WidgetEventGroup: View {
-    let title: String
     let showSubtitle: Bool
     let events: [DTO.CalendarEvent]
-    let color: Color
     var canTakeMoreSpace = false
 
     var body: some View {
@@ -47,5 +45,31 @@ struct WidgetEventGroup: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var title: String {
+        switch events.first?._type {
+        case .fileUploadExercise, .modelingExercise, .programmingExercise, .quizExercise, .textExercise:
+            R.string.localizable.dueSoon()
+        case .lecture:
+            R.string.localizable.nextLecture()
+        case .tutorial:
+            R.string.localizable.nextTutorial()
+        default:
+            ""
+        }
+    }
+
+    private var color: Color {
+        switch events.first?._type {
+        case .fileUploadExercise, .modelingExercise, .programmingExercise, .quizExercise, .textExercise:
+                .indigo
+        case .lecture:
+                .teal
+        case .tutorial:
+                .blue
+        default:
+                .gray
+        }
     }
 }

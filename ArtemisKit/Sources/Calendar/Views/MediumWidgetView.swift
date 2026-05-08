@@ -24,18 +24,14 @@ struct MediumWidgetView: View {
             WidgetDueSoonView(events: events)
 
             if let nextLecture {
-                WidgetEventGroup(title: R.string.localizable.nextLecture(),
-                                 showSubtitle: false,
+                WidgetEventGroup(showSubtitle: false,
                                  events: [nextLecture],
-                                 color: .teal,
                                  canTakeMoreSpace: nextTutorial == nil)
             }
 
             if let nextTutorial {
-                WidgetEventGroup(title: R.string.localizable.nextTutorial(),
-                                 showSubtitle: false,
+                WidgetEventGroup(showSubtitle: false,
                                  events: [nextTutorial],
-                                 color: .blue,
                                  canTakeMoreSpace: nextLecture == nil)
             }
         }
