@@ -46,7 +46,7 @@ platform :ios do
   desc "[CI] Build Artemis Scheme"
   lane :build do
     app_identifier = CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier)
-    notification_extension_identifier = app_identifier + ".ArtemisNotificationExtension"v
+    notification_extension_identifier = app_identifier + ".ArtemisNotificationExtension"
     widget_extension_identifier = app_identifier + ".ArtemisWidgetExtension"
     team_id = CredentialsManager::AppfileConfig.try_fetch_value(:team_id)
 
