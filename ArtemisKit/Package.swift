@@ -32,6 +32,7 @@ let package = Package(
                 "CourseRegistration",
                 "CourseView",
                 "Dashboard",
+                "Iris",
                 "Messages",
                 "Navigation",
                 "Notifications",
@@ -111,6 +112,11 @@ let package = Package(
             name: "Extensions",
             dependencies: [
                 .product(name: "Common", package: "artemis-ios-core-modules")
+            ]),
+        .target(
+            name: "Iris",
+            dependencies: [
+                .product(name: "SharedModels", package: "artemis-ios-core-modules")
             ]),
         .target(
             name: "Faq",
