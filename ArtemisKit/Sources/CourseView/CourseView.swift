@@ -58,7 +58,6 @@ public struct CourseView: View {
                 Tab(value: .search, role: .search) {
                     SearchTabView(courseId: viewModel.course.id)
                     // Search tab does not use split view, so always use compact toolbar
-                        .environment(\.horizontalSizeClass, nil)
                         .courseToolbar(title: viewModel.course.title ?? R.string.localizable.loading())
                         .environment(\.horizontalSizeClass, .compact)
                 }
