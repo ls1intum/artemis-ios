@@ -19,6 +19,7 @@ struct ProblemStatementServiceImpl: ProblemStatementService {
         let darkMode: Bool
         let includeJs = false
         let includeCss = true
+        let inlineImages = false
 
         var method: HTTPMethod { .post }
 
