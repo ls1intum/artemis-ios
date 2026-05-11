@@ -56,9 +56,10 @@ public struct CourseView: View {
 
             if searchEnabled {
                 Tab(value: .search, role: .search) {
-                    TabBarIpad {
-                        SearchTabView(courseId: viewModel.course.id)
-                    }
+                    SearchTabView(courseId: viewModel.course.id)
+                    // Search tab does not use split view, so always use compact toolbar
+                        .courseToolbar(title: viewModel.course.title ?? R.string.localizable.loading())
+                        .environment(\.horizontalSizeClass, .compact)
                 }
             }
         }
@@ -66,23 +67,11 @@ public struct CourseView: View {
         // Add a file and image picker here, inside the navigation it doesn't work sometimes
         .supportsFilePicker()
         .supportsImagePicker()
-        .autoFocusSearchOnSearchTab()
     }
 }
 
 extension CourseView {
     init(course: Course) {
         self.init(viewModel: CourseViewModel(course: course), courseId: course.id)
-    }
-}
-
-private extension View {
-    @ViewBuilder
-    func autoFocusSearchOnSearchTab() -> some View {
-        if #available(iOS 26, *) {
-            tabViewSearchActivation(.searchTabSelection)
-        } else {
-            self
-        }
     }
 }
