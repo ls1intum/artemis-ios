@@ -56,9 +56,11 @@ public struct CourseView: View {
 
             if searchEnabled {
                 Tab(value: .search, role: .search) {
-                    TabBarIpad {
-                        SearchTabView(courseId: viewModel.course.id)
-                    }
+                    SearchTabView(courseId: viewModel.course.id)
+                    // Search tab does not use split view, so always use compact toolbar
+                        .environment(\.horizontalSizeClass, nil)
+                        .courseToolbar(title: viewModel.course.title ?? R.string.localizable.loading())
+                        .environment(\.horizontalSizeClass, .compact)
                 }
             }
         }
