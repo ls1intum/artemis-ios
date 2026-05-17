@@ -17,6 +17,8 @@ final class ExerciseDetailViewModel {
     let exerciseId: Int
 
     var exercise: DataState<Exercise>
+    var problemStatementRendered: DataState<String> = .loading
+    var problemStatementRenderedDark: DataState<String> = .loading
     var channel: DataState<Channel> = .loading
 
     var isFeedbackPresented = false
@@ -24,21 +26,8 @@ final class ExerciseDetailViewModel {
     var participationId: Int?
 
     // MARK: Web view
-
     var isWebViewLoading = true
-    var urlRequest: URLRequest
-    var webViewId = UUID()
     var webViewHeight = CGFloat.s
-    /// We need a custom height calculation, otherwise the web view is often too small
-    let webViewHeightJS = """
-        if (document.querySelector("#problem-statement") != null) {
-            document.querySelector("#problem-statement").scrollHeight;
-        } else if (document.querySelector(".instructions__content") != null) {
-            document.querySelector(".instructions__content").scrollHeight;
-        } else {
-            document.body.scrollHeight;
-        }
-        """
 
     private let exerciseService: ExerciseService
     private let userSession: UserSession
@@ -47,7 +36,6 @@ final class ExerciseDetailViewModel {
         courseId: Int,
         exerciseId: Int,
         exercise: DataState<Exercise>,
-        urlRequest: URLRequest,
         exerciseService: ExerciseService = ExerciseServiceFactory.shared,
         userSession: UserSession = UserSessionFactory.shared
     ) {
@@ -55,7 +43,7 @@ final class ExerciseDetailViewModel {
         self.exerciseId = exerciseId
 
         self.exercise = exercise
-        self.urlRequest = urlRequest
+        self.problemStatementRendered = .loading
 
         self.exerciseService = exerciseService
         self.userSession = userSession
@@ -74,8 +62,24 @@ final class ExerciseDetailViewModel {
         if let exercise = exercise.value {
             setParticipationAndResultId(from: exercise)
         }
-        // Force WebView to reload
-        webViewId = UUID()
+    }
+
+    func loadRenderedProblemStatement(darkMode: Bool) async {
+        if exercise.value?.baseExercise.problemStatement == nil {
+            await refreshExercise()
+        }
+        guard let problemStatement = exercise.value?.baseExercise.problemStatement else {
+            problemStatementRendered = .done(response: "") // Empty problem statement
+            return
+        }
+
+        let problemService = ProblemStatementServiceFactory.shared
+        let result = await problemService.getRenderedProblemStatement(for: problemStatement, darkMode: darkMode)
+        if darkMode {
+            problemStatementRenderedDark = result
+        } else {
+            problemStatementRendered = result
+        }
     }
 
     func loadAssociatedChannel() async {
@@ -91,10 +95,6 @@ final class ExerciseDetailViewModel {
         if let latestResultId = exercise.baseExercise.latestRatedResult?.id {
             self.latestResultId = latestResultId
         }
-
-        urlRequest = URLRequest(url: URL(
-            string: "/courses/\(courseId)/exercises/\(exercise.id)/problem-statement/\(participationId?.description ?? "")",
-            relativeTo: userSession.institution?.baseURL)!)
     }
 }
 
