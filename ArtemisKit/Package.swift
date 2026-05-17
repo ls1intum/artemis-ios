@@ -116,6 +116,8 @@ let package = Package(
         .target(
             name: "Iris",
             dependencies: [
+                .product(name: "APIClient", package: "artemis-ios-core-modules"),
+                .product(name: "Common", package: "artemis-ios-core-modules"),
                 .product(name: "SharedModels", package: "artemis-ios-core-modules")
             ]),
         .target(
