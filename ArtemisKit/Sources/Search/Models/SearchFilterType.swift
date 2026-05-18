@@ -26,6 +26,8 @@ enum SearchFilterType: String, Codable, ConstantsEnum {
             ExerciseSearchResult.self
         case .lecture:
             LectureSearchResult.self
+        case .faq:
+            FAQSearchResult.self
         default:
             nil
         }
