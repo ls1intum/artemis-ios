@@ -30,6 +30,8 @@ enum SearchFilterType: String, Codable, ConstantsEnum {
             FAQSearchResult.self
         case .channel:
             ChannelSearchResult.self
+        case .lectureUnit:
+            LectureSearchResult.self
         default:
             nil
         }
