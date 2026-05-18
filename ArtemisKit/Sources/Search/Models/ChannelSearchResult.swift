@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Navigation
 import SwiftUI
 
 struct ChannelSearchResult: SearchResultDetails {
@@ -20,6 +21,6 @@ struct ChannelSearchResult: SearchResultDetails {
     func navigateToDetail(with controller: NavigationController, result: SearchResultDTO) async {
         guard let courseId,
               let conversationId = Int(result.id ?? "") else { return }
-        controller.goToCourseConversation(courseId: courseId, conversationId: conversationId)
+        await controller.goToCourseConversation(courseId: courseId, conversationId: Int64(conversationId))
     }
 }

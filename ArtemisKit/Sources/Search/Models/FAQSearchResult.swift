@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Navigation
 import SharedModels
 import SwiftUI
 
@@ -19,7 +20,7 @@ struct FAQSearchResult: SearchResultDetails {
 
     func navigateToDetail(with controller: NavigationController, result: SearchResultDTO) async {
         guard let courseId else { return }
-        controller.goToCourse(id: courseId)
-        controller.setTab(identifier: .faq)
+        await controller.goToCourse(id: courseId)
+        await controller.setTab(identifier: .faq)
     }
 }
