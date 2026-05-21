@@ -15,8 +15,8 @@ enum IrisMessageContentType: String, ConstantsEnum {
 
 /// Plain-text message content used by user, assistant and artifact messages.
 struct IrisTextMessageContent: Hashable {
-    let id: Int64?
-    let messageId: Int64?
+    let id: Int?
+    let messageId: Int?
     let textContent: String
 }
 
@@ -25,8 +25,8 @@ struct IrisTextMessageContent: Hashable {
 /// (see `IrisMessageContentResponseDTO.attributes`); the chat service decodes
 /// that string into the typed `IrisJsonAttributes` payload below.
 struct IrisJsonMessageContent: Hashable {
-    let id: Int64?
-    let messageId: Int64?
+    let id: Int?
+    let messageId: Int?
     let attributes: IrisJsonAttributes
 }
 

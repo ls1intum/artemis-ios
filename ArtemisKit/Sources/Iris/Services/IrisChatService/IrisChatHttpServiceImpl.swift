@@ -19,7 +19,7 @@ struct IrisChatHttpServiceImpl: IrisChatHttpService {
         typealias Response = IrisSession
 
         let mode: ChatServiceMode
-        let entityId: Int64
+        let entityId: Int
 
         var method: HTTPMethod { .post }
 
@@ -39,7 +39,7 @@ struct IrisChatHttpServiceImpl: IrisChatHttpService {
         }
     }
 
-    func getCurrentOrCreateSession(mode: ChatServiceMode, entityId: Int64) async -> DataState<IrisSession> {
+    func getCurrentOrCreateSession(mode: ChatServiceMode, entityId: Int) async -> DataState<IrisSession> {
         let result = await client.sendRequest(GetCurrentSessionRequest(mode: mode, entityId: entityId))
         switch result {
         case .success(let response):
@@ -53,7 +53,7 @@ struct IrisChatHttpServiceImpl: IrisChatHttpService {
         typealias Response = IrisSession
 
         let mode: ChatServiceMode
-        let entityId: Int64
+        let entityId: Int
 
         var method: HTTPMethod { .post }
 
@@ -73,7 +73,7 @@ struct IrisChatHttpServiceImpl: IrisChatHttpService {
         }
     }
 
-    func createSession(mode: ChatServiceMode, entityId: Int64) async -> DataState<IrisSession> {
+    func createSession(mode: ChatServiceMode, entityId: Int) async -> DataState<IrisSession> {
         let result = await client.sendRequest(CreateSessionRequest(mode: mode, entityId: entityId))
         switch result {
         case .success(let response):
@@ -109,7 +109,7 @@ struct IrisChatHttpServiceImpl: IrisChatHttpService {
         typealias Response = IrisSession
 
         let courseId: Int
-        let sessionId: Int64
+        let sessionId: Int
 
         var method: HTTPMethod { .get }
 
@@ -118,7 +118,7 @@ struct IrisChatHttpServiceImpl: IrisChatHttpService {
         }
     }
 
-    func getChatSession(courseId: Int, sessionId: Int64) async -> DataState<IrisSession> {
+    func getChatSession(courseId: Int, sessionId: Int) async -> DataState<IrisSession> {
         let result = await client.sendRequest(GetChatSessionRequest(courseId: courseId, sessionId: sessionId))
         switch result {
         case .success(let response):
@@ -171,7 +171,7 @@ struct IrisChatHttpServiceImpl: IrisChatHttpService {
     struct DeleteSessionRequest: APIRequest {
         typealias Response = RawResponse
 
-        let sessionId: Int64
+        let sessionId: Int
 
         var method: HTTPMethod { .delete }
 
@@ -180,7 +180,7 @@ struct IrisChatHttpServiceImpl: IrisChatHttpService {
         }
     }
 
-    func deleteSession(sessionId: Int64) async -> NetworkResponse {
+    func deleteSession(sessionId: Int) async -> NetworkResponse {
         let result = await client.sendRequest(DeleteSessionRequest(sessionId: sessionId))
         switch result {
         case .success:
@@ -195,7 +195,7 @@ struct IrisChatHttpServiceImpl: IrisChatHttpService {
     struct GetMessagesRequest: APIRequest {
         typealias Response = [IrisMessageResponseDTO]
 
-        let sessionId: Int64
+        let sessionId: Int
 
         var method: HTTPMethod { .get }
 
@@ -204,7 +204,7 @@ struct IrisChatHttpServiceImpl: IrisChatHttpService {
         }
     }
 
-    func getMessages(sessionId: Int64) async -> DataState<[IrisMessageResponseDTO]> {
+    func getMessages(sessionId: Int) async -> DataState<[IrisMessageResponseDTO]> {
         let result = await client.sendRequest(GetMessagesRequest(sessionId: sessionId))
         switch result {
         case .success(let response):
@@ -217,7 +217,7 @@ struct IrisChatHttpServiceImpl: IrisChatHttpService {
     struct SendMessageRequest: APIRequest {
         typealias Response = IrisMessageResponseDTO
 
-        let sessionId: Int64
+        let sessionId: Int
         let messageRequest: IrisMessageRequestDTO
 
         var method: HTTPMethod { .post }
@@ -231,7 +231,7 @@ struct IrisChatHttpServiceImpl: IrisChatHttpService {
         }
     }
 
-    func sendMessage(sessionId: Int64, request: IrisMessageRequestDTO) async -> DataState<IrisMessageResponseDTO> {
+    func sendMessage(sessionId: Int, request: IrisMessageRequestDTO) async -> DataState<IrisMessageResponseDTO> {
         let result = await client.sendRequest(SendMessageRequest(sessionId: sessionId, messageRequest: request))
         switch result {
         case .success(let response):
@@ -244,8 +244,8 @@ struct IrisChatHttpServiceImpl: IrisChatHttpService {
     struct ResendMessageRequest: APIRequest {
         typealias Response = IrisMessageResponseDTO
 
-        let sessionId: Int64
-        let messageId: Int64
+        let sessionId: Int
+        let messageId: Int
 
         var method: HTTPMethod { .post }
 
@@ -254,7 +254,7 @@ struct IrisChatHttpServiceImpl: IrisChatHttpService {
         }
     }
 
-    func resendMessage(sessionId: Int64, messageId: Int64) async -> DataState<IrisMessageResponseDTO> {
+    func resendMessage(sessionId: Int, messageId: Int) async -> DataState<IrisMessageResponseDTO> {
         let result = await client.sendRequest(ResendMessageRequest(sessionId: sessionId, messageId: messageId))
         switch result {
         case .success(let response):
@@ -267,8 +267,8 @@ struct IrisChatHttpServiceImpl: IrisChatHttpService {
     struct RateMessageRequest: APIRequest {
         typealias Response = IrisMessageResponseDTO
 
-        let sessionId: Int64
-        let messageId: Int64
+        let sessionId: Int
+        let messageId: Int
         let helpful: Bool
 
         var method: HTTPMethod { .put }
@@ -284,7 +284,7 @@ struct IrisChatHttpServiceImpl: IrisChatHttpService {
         }
     }
 
-    func rateMessage(sessionId: Int64, messageId: Int64, helpful: Bool) async -> DataState<IrisMessageResponseDTO> {
+    func rateMessage(sessionId: Int, messageId: Int, helpful: Bool) async -> DataState<IrisMessageResponseDTO> {
         let result = await client.sendRequest(RateMessageRequest(sessionId: sessionId, messageId: messageId, helpful: helpful))
         switch result {
         case .success(let response):

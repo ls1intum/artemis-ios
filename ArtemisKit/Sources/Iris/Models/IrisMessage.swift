@@ -19,7 +19,7 @@ enum IrisSender: String, ConstantsEnum {
 /// Domain message produced by the LLM. Holds typed content, parsed `sentAt`
 /// and the optional Memiris references attached by the server.
 struct IrisAssistantMessage: Hashable, Identifiable {
-    let id: Int64
+    let id: Int
     let content: [IrisMessageContent]
     let sentAt: Date
     let helpful: Bool?
@@ -31,7 +31,7 @@ struct IrisAssistantMessage: Hashable, Identifiable {
 
 /// Domain message authored by the current user.
 struct IrisUserMessage: Hashable, Identifiable {
-    let id: Int64?
+    let id: Int?
     let content: [IrisTextMessageContent]
     let sentAt: Date?
     let messageDifferentiator: Int?
@@ -44,7 +44,7 @@ struct IrisUserMessage: Hashable, Identifiable {
 /// Domain message representing a server-generated artifact, e.g. a tutor
 /// suggestion result that is attached to a message thread.
 struct IrisArtifactMessage: Hashable, Identifiable {
-    let id: Int64?
+    let id: Int?
     let content: [IrisTextMessageContent]
     let sentAt: Date?
     let accessedMemories: [MemirisMemory]?
@@ -60,7 +60,7 @@ enum IrisMessage: Hashable, Identifiable {
     case user(IrisUserMessage)
     case artifact(IrisArtifactMessage)
 
-    var id: Int64? {
+    var id: Int? {
         switch self {
         case .assistant(let message): message.id
         case .user(let message): message.id

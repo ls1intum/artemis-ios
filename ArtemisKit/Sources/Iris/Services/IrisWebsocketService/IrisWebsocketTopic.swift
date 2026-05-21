@@ -6,7 +6,7 @@
 //
 
 enum IrisWebsocketTopic {
-    static func makeIrisChat(sessionId: Int64) -> String {
+    static func makeIrisChat(sessionId: Int) -> String {
         "/user/topic/iris/\(sessionId)"
     }
 }

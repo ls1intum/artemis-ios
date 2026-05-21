@@ -13,10 +13,10 @@ import Common
 /// STOMP subscription on `/user/topic/iris/{sessionId}`. Single-consumer:
 /// re-subscribing to the same session replaces the previous stream.
 /// Cleanup is explicit via ``unsubscribe(sessionId:)`` (or
-/// ``unsubscribeAll()`` on logout / user change).
+/// ``unsubscribeAll()`` whenever the course is closed).
 protocol IrisWebsocketService: Sendable {
-    func subscribe(sessionId: Int64) async -> AsyncStream<IrisChatWebsocketDTO>
-    func unsubscribe(sessionId: Int64) async
+    func subscribe(sessionId: Int) async -> AsyncStream<IrisChatWebsocketDTO>
+    func unsubscribe(sessionId: Int) async
     func unsubscribeAll() async
 }
 

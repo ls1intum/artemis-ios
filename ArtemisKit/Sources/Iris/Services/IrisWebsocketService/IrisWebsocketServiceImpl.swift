@@ -17,9 +17,9 @@ import Foundation
 /// ``unsubscribeAll()``) drops the STOMP subscription downstream.
 actor IrisWebsocketServiceImpl: IrisWebsocketService {
 
-    private var sessions: [Int64: Task<Void, Never>] = [:]
+    private var sessions: [Int: Task<Void, Never>] = [:]
 
-    func subscribe(sessionId: Int64) -> AsyncStream<IrisChatWebsocketDTO> {
+    func subscribe(sessionId: Int) -> AsyncStream<IrisChatWebsocketDTO> {
         sessions.removeValue(forKey: sessionId)?.cancel()
 
         let (stream, continuation) = AsyncStream<IrisChatWebsocketDTO>.makeStream()
@@ -28,6 +28,7 @@ actor IrisWebsocketServiceImpl: IrisWebsocketService {
         let task = Task.detached {
             let raw = ArtemisStompClient.shared.subscribe(to: topic)
             for await message in raw {
+                if Task.isCancelled { break }
                 guard let dto = JSONDecoder.getTypeFromSocketMessage(
                     type: IrisChatWebsocketDTO.self,
                     message: message
@@ -45,7 +46,7 @@ actor IrisWebsocketServiceImpl: IrisWebsocketService {
         return stream
     }
 
-    func unsubscribe(sessionId: Int64) {
+    func unsubscribe(sessionId: Int) {
         sessions.removeValue(forKey: sessionId)?.cancel()
     }
 

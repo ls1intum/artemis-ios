@@ -35,7 +35,7 @@ struct IrisCourseSettingsDTO: Codable, Hashable {
 /// Full settings response from `GET /courses/{courseId}/iris-settings`.
 /// Combines the editable settings with the server-computed effective limits.
 struct IrisCourseSettingsWithRateLimitDTO: Codable, Hashable {
-    let courseId: Int64
+    let courseId: Int
     let settings: IrisCourseSettingsDTO
     let effectiveRateLimit: IrisRateLimitConfiguration
     let applicationRateLimitDefaults: IrisRateLimitConfiguration

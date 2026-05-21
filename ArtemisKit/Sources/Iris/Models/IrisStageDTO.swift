@@ -11,7 +11,7 @@ struct IrisStageDTO: Codable, Hashable {
     let name: String
     let weight: Int
     let state: IrisStageStateDTO
-    let message: String
+    let message: String?
     /// Internal stages are not shown in the UI and are hidden from the user.
     let `internal`: Bool
     let chatMessage: String?
