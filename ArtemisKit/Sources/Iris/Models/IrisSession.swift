@@ -12,14 +12,14 @@ import Foundation
 /// `messages` carries the raw response DTOs; the chat service maps them to the
 /// `IrisMessage` domain type when populating UI state.
 struct IrisSession: Codable, Hashable, Identifiable {
-    let id: Int64
-    let userId: Int64
+    let id: Int
+    let userId: Int
     let messages: [IrisMessageResponseDTO]?
     /// Server-encoded JSON string of the most recent suggestion array, when present.
     let latestSuggestions: String?
     let title: String?
     let creationDate: Date
     let mode: ChatServiceMode?
-    let entityId: Int64
+    let entityId: Int
     let citationInfo: [IrisCitationMetaDTO]?
 }

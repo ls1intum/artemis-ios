@@ -6,9 +6,9 @@
 //
 
 struct IrisCitationMetaDTO: Codable, Hashable {
-    let entityId: Int64
+    let entityId: Int
     let lectureTitle: String
     let lectureUnitTitle: String
-    let lectureId: Int64
-    let courseId: Int64
+    let lectureId: Int
+    let courseId: Int
 }

@@ -11,7 +11,7 @@ import Foundation
 /// `attributes` is a JSON-encoded string when `type == "json"` and is parsed
 /// into `IrisJsonAttributes` only at the domain boundary.
 struct IrisMessageContentResponseDTO: Codable, Hashable {
-    let id: Int64?
+    let id: Int?
     let type: String
     let textContent: String?
     let attributes: String?
@@ -21,7 +21,7 @@ struct IrisMessageContentResponseDTO: Codable, Hashable {
 /// Mirrors the server `IrisMessageResponseDTO` record. Use this type at the
 /// HTTP/WebSocket boundary; map to `IrisMessage` domain types for app use.
 struct IrisMessageResponseDTO: Codable, Hashable, Identifiable {
-    let id: Int64?
+    let id: Int?
     let sentAt: Date?
     let helpful: Bool?
     let sender: IrisSender
