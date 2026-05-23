@@ -9,7 +9,7 @@ import SharedModels
 
 /// Identifies the Iris context a session belongs to.
 /// Mirrors the `ChatServiceMode` TS enum in `iris-chat.service.ts`.
-enum ChatServiceMode: String, ConstantsEnum {
+public enum ChatServiceMode: String, ConstantsEnum {
     case textExercise = "TEXT_EXERCISE_CHAT"
     case programmingExercise = "PROGRAMMING_EXERCISE_CHAT"
     case course = "COURSE_CHAT"
