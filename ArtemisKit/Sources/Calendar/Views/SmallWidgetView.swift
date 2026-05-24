@@ -7,8 +7,11 @@
 
 import SharedModels
 import SwiftUI
+import WidgetKit
 
 struct SmallWidgetView: View {
+    @Environment(\.widgetRenderingMode) private var renderingMode
+
     let events: [DTO.CalendarEvent]
 
     var nextEvent: DTO.CalendarEvent? {
@@ -26,7 +29,8 @@ struct SmallWidgetView: View {
                 }
             }
         }
-        .padding()
+        // No padding needed on the iPad Lock Screen
+        .padding(renderingMode == .vibrant ? .s : .m)
         .containerRelativeFrame([.vertical, .horizontal], alignment: .topLeading)
     }
 }
