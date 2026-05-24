@@ -29,8 +29,8 @@ struct SmallWidgetView: View {
                 }
             }
         }
-        // No padding needed on the iPad Lock Screen
-        .padding(renderingMode == .vibrant ? .s : .m)
+        // Smaller padding needed on the iPad Lock Screen
+        .padding(renderingMode == .vibrant ? .s : nil)
         .containerRelativeFrame([.vertical, .horizontal], alignment: .topLeading)
     }
 }
