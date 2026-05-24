@@ -13,8 +13,8 @@ struct ChannelSearchResult: SearchResultDetails {
     let courseId: Int?
     let courseName: String?
 
-    let isPublic: Bool
-    let isCourseWide: Bool
+    let isPublic: Bool?
+    let isCourseWide: Bool?
 
     var displayInfo: [Text] { [] }
 
