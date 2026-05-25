@@ -55,7 +55,7 @@ public struct CalendarTimelineProvider: AppIntentTimelineProvider {
 
         guard let events = await fetchEventsForCurrentAndNextMonth(courseId: courseId) else {
             return Timeline(entries: [
-                CalendarWidgetEntry(date: .now, needsConfiguration: false)
+                CalendarWidgetEntry(date: .now, needsConfiguration: false, error: true)
             ], policy: .after(.now.addingTimeInterval(60 * 30)))
         }
 
