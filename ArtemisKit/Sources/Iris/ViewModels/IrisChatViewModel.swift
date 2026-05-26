@@ -40,6 +40,7 @@ final class IrisChatViewModel {
          httpService: IrisChatHttpService = IrisChatHttpServiceFactory.shared) {
         self.sessionPath = sessionPath
         self.httpService = httpService
+        self.sessionTitle = sessionPath.session?.title
     }
 
     func loadMessages() async {

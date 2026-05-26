@@ -61,27 +61,32 @@ private struct MessageRow: View {
     let message: IrisMessageResponseDTO
 
     var body: some View {
-        HStack {
-            if isUser {
+        if isUser {
+            HStack {
                 Spacer()
+                VStack(alignment: .trailing, spacing: .s) {
+                    ForEach(message.content, id: \.id) { block in
+                        if let text = block.textContent {
+                            Text(text)
+                                .padding(.m + .xs)
+                                .background(Color.Artemis.reactionCapsuleColor)
+                                .foregroundStyle(.primary)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                        }
+                    }
+                }
+                .frame(maxWidth: 300, alignment: .trailing)
             }
-
+        } else {
             VStack(alignment: .leading, spacing: .s) {
                 ForEach(message.content, id: \.id) { block in
                     if let text = block.textContent {
                         Text(text)
-                            .padding(.m + .xs)
-                            .background(isUser ? Color.Artemis.artemisBlue : Color.Artemis.reactionCapsuleColor)
-                            .foregroundStyle(isUser ? Color.Artemis.primaryButtonTextColor : .primary)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .foregroundStyle(.primary)
                     }
                 }
             }
-            .frame(maxWidth: 300, alignment: isUser ? .trailing : .leading)
-
-            if !isUser {
-                Spacer()
-            }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
