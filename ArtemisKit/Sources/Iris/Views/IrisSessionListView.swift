@@ -79,3 +79,78 @@ public struct IrisSessionListView: View {
         navigationController.selectedPathBinding($navigationController.selectedPath)
     }
 }
+
+private struct IrisSessionRowView: View {
+    let session: IrisSessionDTO
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: modeIcon)
+                .font(.title3)
+                .foregroundStyle(.blue)
+                .frame(width: 28)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(session.title ?? "New Chat")
+                    .lineLimit(1)
+
+                if let entityName = session.entityName {
+                    Text(entityName)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
+                }
+            }
+
+            Spacer()
+
+            Text(session.creationDate, style: .date)
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+        .padding(.vertical, 4)
+    }
+
+    private var modeIcon: String {
+        switch session.mode {
+        case .programmingExercise:
+            "keyboard"
+        case .textExercise:
+            "character"
+        case .course:
+            "graduationcap"
+        case .lecture:
+            "inset.filled.rectangle.and.person.filled"
+        default:
+            "questionmark"
+        }
+    }
+}
+
+private struct NewIrisSessionButton: View {
+    @EnvironmentObject private var navigationController: NavigationController
+    @Bindable var viewModel: IrisSessionListViewModel
+    let courseId: Int
+
+    var body: some View {
+        Button {
+            Task {
+                if let newId = await viewModel.createNewSession() {
+                    navigationController.selectedPath = IrisSessionPath(
+                        id: newId,
+                        coursePath: CoursePath(id: courseId)
+                    )
+                    await viewModel.loadSessions()
+                }
+            }
+        } label: {
+            Image(systemName: "plus")
+                .foregroundStyle(.white)
+                .font(.title2)
+                .padding()
+                .background(Color.Artemis.artemisBlue, in: .circle)
+                .shadow(color: Color.gray.opacity(0.2), radius: .m)
+        }
+        .disabled(viewModel.isLoading)
+    }
+}
