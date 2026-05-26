@@ -61,8 +61,11 @@ public struct IrisSessionListView: View {
             .courseToolbar()
         } detail: {
             if let path = navigationController.selectedPath as? IrisSessionPath {
-                IrisChatView(sessionPath: path)
-                    .id(path.id)
+                IrisChatView(sessionPath: path, onDeleted: {
+                    viewModel.sessions.removeAll { $0.id == path.id }
+                    navigationController.selectedPath = nil
+                })
+                .id(path.id)
             } else {
                 SelectDetailView()
             }

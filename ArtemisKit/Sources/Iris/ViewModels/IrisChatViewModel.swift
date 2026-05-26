@@ -90,6 +90,21 @@ final class IrisChatViewModel {
         }
     }
 
+    func deleteSession() async -> Bool {
+        isLoading = true
+        let result = await httpService.deleteSession(sessionId: sessionPath.id)
+        isLoading = false
+        switch result {
+        case .success:
+            return true
+        case .failure(let networkError):
+            self.error = UserFacingError(title: networkError.localizedDescription)
+            return false
+        case .loading, .notStarted:
+            return false
+        }
+    }
+
     func disconnect() async {
         await IrisWebsocketServiceFactory.shared.unsubscribe(sessionId: sessionPath.id)
         websocketTask?.cancel()

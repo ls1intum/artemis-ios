@@ -11,9 +11,13 @@ import SwiftUI
 
 struct IrisChatView: View {
     @State private var viewModel: IrisChatViewModel
+    @State private var showDeleteConfirmation = false
 
-    init(sessionPath: IrisSessionPath) {
+    private let onDeleted: () -> Void
+
+    init(sessionPath: IrisSessionPath, onDeleted: @escaping () -> Void = {}) {
         _viewModel = State(wrappedValue: IrisChatViewModel(sessionPath: sessionPath))
+        self.onDeleted = onDeleted
     }
 
     var body: some View {
@@ -47,6 +51,31 @@ struct IrisChatView: View {
         }
         .navigationTitle(viewModel.sessionTitle ?? "")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    Button(role: .destructive) {
+                        showDeleteConfirmation = true
+                    } label: {
+                        Label("Delete Chat", systemImage: "trash")
+                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                }
+            }
+        }
+        .alert("Delete Chat", isPresented: $showDeleteConfirmation) {
+            Button("Cancel", role: .cancel) {}
+            Button("Delete", role: .destructive) {
+                Task {
+                    if await viewModel.deleteSession() {
+                        onDeleted()
+                    }
+                }
+            }
+        } message: {
+            Text("Are you sure you want to delete this chat? This action cannot be undone.")
+        }
         .task { await viewModel.loadMessages() }
         .task { await viewModel.connectWebSocket() }
         .onDisappear { Task {
