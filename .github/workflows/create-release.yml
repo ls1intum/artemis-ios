@@ -65,6 +65,6 @@ jobs:
           NOTES: ${{ steps.notes.outputs.notes }}
         run: |
           gh release create "$TAG" \
-            --title "${{ github.event.pull_request.title }}" \
+            --title "${{ steps.app_version.outputs.version }}" \
             --notes "$NOTES"
 
