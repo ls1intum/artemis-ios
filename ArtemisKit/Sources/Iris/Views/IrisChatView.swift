@@ -5,6 +5,7 @@
 //  Created by Senan Aslan on 25.05.26.
 //
 
+import ArtemisMarkdown
 import DesignLibrary
 import SwiftUI
 
@@ -67,7 +68,7 @@ private struct MessageRow: View {
                 VStack(alignment: .trailing, spacing: .s) {
                     ForEach(message.content, id: \.id) { block in
                         if let text = block.textContent {
-                            Text(text)
+                            ArtemisMarkdownView(string: text)
                                 .padding(.m + .xs)
                                 .background(Color.Artemis.reactionCapsuleColor)
                                 .foregroundStyle(.primary)
@@ -81,7 +82,7 @@ private struct MessageRow: View {
             VStack(alignment: .leading, spacing: .s) {
                 ForEach(message.content, id: \.id) { block in
                     if let text = block.textContent {
-                        Text(text)
+                        ArtemisMarkdownView(string: text)
                             .foregroundStyle(.primary)
                     }
                 }
