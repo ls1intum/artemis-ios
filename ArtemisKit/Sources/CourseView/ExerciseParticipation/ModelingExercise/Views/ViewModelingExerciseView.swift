@@ -5,6 +5,7 @@
 //  Created by Alexander Görtzen on 21.11.23.
 //
 
+/* Not used at the moment, here for reference when fixing participation
 import SwiftUI
 import ApollonShared
 import ApollonView
@@ -44,3 +45,4 @@ struct ViewModelingExerciseView: View {
         .navigationTitle(R.string.localizable.viewSubmissionTitle())
     }
 }
+*/

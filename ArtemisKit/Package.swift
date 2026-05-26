@@ -19,8 +19,8 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/onmyway133/Smile", revision: "6bacbf7"),
-        .package(url: "https://github.com/ls1intum/apollon-ios-module", .upToNextMajor(from: "1.0.9")),
-        .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", from: "19.2.0"),
+//        .package(url: "https://github.com/ls1intum/apollon-ios-module", .upToNextMajor(from: "1.0.9")), // Disabled because not working
+        .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", .upToNextMajor(from: "20.0.0")),
         .package(url: "https://github.com/mac-cain13/R.swift.git", from: "7.8.0")
     ],
     targets: [
@@ -32,11 +32,25 @@ let package = Package(
                 "CourseRegistration",
                 "CourseView",
                 "Dashboard",
+                "Iris",
                 "Messages",
                 "Navigation",
                 "Notifications",
                 .product(name: "Login", package: "artemis-ios-core-modules"),
                 .product(name: "ProfileInfo", package: "artemis-ios-core-modules")
+            ],
+            plugins: [
+                .plugin(name: "RswiftGeneratePublicResources", package: "R.swift")
+            ]),
+        .target(
+            name: "Calendar",
+            dependencies: [
+                "Extensions",
+                .product(name: "APIClient", package: "artemis-ios-core-modules"),
+                .product(name: "DesignLibrary", package: "artemis-ios-core-modules"),
+                .product(name: "SharedModels", package: "artemis-ios-core-modules"),
+                .product(name: "SharedServices", package: "artemis-ios-core-modules"),
+                .product(name: "RswiftLibrary", package: "R.swift")
             ],
             plugins: [
                 .plugin(name: "RswiftGeneratePublicResources", package: "R.swift")
@@ -55,16 +69,20 @@ let package = Package(
         .target(
             name: "CourseView",
             dependencies: [
+                "Calendar",
                 "Faq",
                 "Messages",
                 "Navigation",
                 "Notifications",
-                .product(name: "ApollonEdit", package: "apollon-ios-module"),
-                .product(name: "ApollonView", package: "apollon-ios-module"),
-                .product(name: "ApollonShared", package: "apollon-ios-module"),
+                "Search",
+                // Apollon disabled because not working
+//                .product(name: "ApollonEdit", package: "apollon-ios-module"),
+//                .product(name: "ApollonView", package: "apollon-ios-module"),
+//                .product(name: "ApollonShared", package: "apollon-ios-module"),
                 .product(name: "APIClient", package: "artemis-ios-core-modules"),
                 .product(name: "ArtemisMarkdown", package: "artemis-ios-core-modules"),
                 .product(name: "Common", package: "artemis-ios-core-modules"),
+                .product(name: "ProfileInfo", package: "artemis-ios-core-modules"),
                 .product(name: "SharedModels", package: "artemis-ios-core-modules"),
                 .product(name: "SharedServices", package: "artemis-ios-core-modules"),
                 .product(name: "UserStore", package: "artemis-ios-core-modules"),
@@ -94,6 +112,13 @@ let package = Package(
             name: "Extensions",
             dependencies: [
                 .product(name: "Common", package: "artemis-ios-core-modules")
+            ]),
+        .target(
+            name: "Iris",
+            dependencies: [
+                .product(name: "APIClient", package: "artemis-ios-core-modules"),
+                .product(name: "Common", package: "artemis-ios-core-modules"),
+                .product(name: "SharedModels", package: "artemis-ios-core-modules")
             ]),
         .target(
             name: "Faq",
@@ -153,6 +178,21 @@ let package = Package(
                 .product(name: "PushNotifications", package: "artemis-ios-core-modules"),
                 .product(name: "UserStore", package: "artemis-ios-core-modules"),
                 .product(name: "RswiftLibrary", package: "R.swift")
+            ],
+            plugins: [
+                .plugin(name: "RswiftGeneratePublicResources", package: "R.swift")
+            ]),
+        .target(
+            name: "Search",
+            dependencies: [
+                "Extensions",
+                "Navigation",
+                "Notifications",
+                .product(name: "APIClient", package: "artemis-ios-core-modules"),
+                .product(name: "Common", package: "artemis-ios-core-modules"),
+                .product(name: "SharedModels", package: "artemis-ios-core-modules"),
+                .product(name: "SharedServices", package: "artemis-ios-core-modules"),
+                .product(name: "UserStore", package: "artemis-ios-core-modules")
             ],
             plugins: [
                 .plugin(name: "RswiftGeneratePublicResources", package: "R.swift")

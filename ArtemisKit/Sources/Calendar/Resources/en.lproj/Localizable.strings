@@ -1,0 +1,13 @@
+"notConfigured" = "Widget not configured";
+"notConfiguredShort" = "Configure";
+"configureDetail" = "Long-press, then tap edit to configure.";
+"configureDetailShort" = "Hold, then edit.";
+
+"failedLoading" = "Artemis failed to load events";
+"failedLoadingShort" = "Failed to load";
+"noUpcomingEvents" = "No upcoming events in the next month.\nEnjoy your free time!";
+"noUpcomingEventsShort" = "No upcoming events.\nEnjoy your time!";
+
+"dueSoon" = "Due Soon";
+"nextLecture" = "Next Lecture";
+"nextTutorial" = "Next Tutorial";

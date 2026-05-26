@@ -4,54 +4,63 @@ import Common
 import SharedModels
 import Navigation
 import Messages
+import ProfileInfo
+import Search
 import DesignLibrary
 
 public struct CourseView: View {
     @EnvironmentObject private var navigationController: NavigationController
-    @Environment(\.horizontalSizeClass) private var sizeClass
 
     @StateObject private var viewModel: CourseViewModel
-
-    @State private var showNewMessageDialog = false
+    @FeatureAvailability(.globalSearch) private var searchEnabled
 
     private let courseId: Int
 
     public var body: some View {
         TabView(selection: $navigationController.courseTab) {
-            TabBarIpad {
-                ExerciseListView(viewModel: viewModel)
+            Tab(R.string.localizable.exercisesTabLabel(),
+                systemImage: "list.bullet.clipboard.fill",
+                value: TabIdentifier.exercise) {
+                TabBarIpad {
+                    ExerciseListView(viewModel: viewModel)
+                }
             }
-            .tabItem {
-                Label(R.string.localizable.exercisesTabLabel(), systemImage: "list.bullet.clipboard.fill")
-            }
-            .tag(TabIdentifier.exercise)
 
-            TabBarIpad {
-                LectureListView(viewModel: viewModel)
+            Tab(R.string.localizable.lectureTabLabel(),
+                systemImage: "character.book.closed.fill",
+                value: TabIdentifier.lecture) {
+                TabBarIpad {
+                    LectureListView(viewModel: viewModel)
+                }
             }
-            .tabItem {
-                Label(R.string.localizable.lectureTabLabel(), systemImage: "character.book.closed.fill")
-            }
-            .tag(TabIdentifier.lecture)
 
             if viewModel.isMessagesVisible {
-                TabBarIpad {
-                    MessagesTabView(course: viewModel.course)
+                Tab(R.string.localizable.messagesTabLabel(),
+                    systemImage: "bubble.right.fill",
+                    value: TabIdentifier.communication) {
+                    TabBarIpad {
+                        MessagesTabView(course: viewModel.course)
+                    }
                 }
-                .tabItem {
-                    Label(R.string.localizable.messagesTabLabel(), systemImage: "bubble.right.fill")
-                }
-                .tag(TabIdentifier.communication)
             }
 
-            if viewModel.course.faqEnabled ?? false {
-                TabBarIpad {
-                    FaqListView(course: viewModel.course)
+            if (viewModel.course.numberOfAcceptedFaqs ?? 0) > 0 {
+                Tab(R.string.localizable.faqTabLabel(),
+                    systemImage: "questionmark.circle",
+                    value: TabIdentifier.faq) {
+                    TabBarIpad {
+                        FaqListView(course: viewModel.course)
+                    }
                 }
-                .tabItem {
-                    Label(R.string.localizable.faqTabLabel(), systemImage: "questionmark.circle")
+            }
+
+            if searchEnabled {
+                Tab(value: .search, role: .search) {
+                    SearchTabView(courseId: viewModel.course.id)
+                    // Search tab does not use split view, so always use compact toolbar
+                        .courseToolbar(title: viewModel.course.title ?? R.string.localizable.loading())
+                        .environment(\.horizontalSizeClass, .compact)
                 }
-                .tag(TabIdentifier.faq)
             }
         }
         .courseToolbar(title: viewModel.course.title ?? R.string.localizable.loading())
