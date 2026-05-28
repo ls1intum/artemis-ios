@@ -55,6 +55,11 @@ public struct IrisSessionListView: View {
                 }
                 .listStyle(.insetGrouped)
                 .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always))
+                .overlay {
+                    if viewModel.groupedSessions.isEmpty && !viewModel.searchText.isEmpty {
+                        ContentUnavailableView.search(text: viewModel.searchText)
+                    }
+                }
                 .refreshable { await viewModel.loadSessions() }
                 .contentMargins(.bottom, 80, for: .scrollContent)
                 .overlay(alignment: .bottomTrailing) {
