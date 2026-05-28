@@ -61,7 +61,6 @@ public struct IrisSessionListView: View {
         } detail: {
             if let path = navigationController.selectedPath as? IrisSessionPath {
                 IrisChatView(sessionPath: path, onDeleted: {
-                    viewModel.sessions.value?.removeAll { $0.id == path.id }
                     navigationController.selectedPath = nil
                 })
                 .id(path.id)
@@ -69,6 +68,7 @@ public struct IrisSessionListView: View {
                 SelectDetailView()
             }
         }
+        .loadingIndicator(isLoading: $viewModel.isLoading)
         .task { await viewModel.loadSessions() }
     }
 }

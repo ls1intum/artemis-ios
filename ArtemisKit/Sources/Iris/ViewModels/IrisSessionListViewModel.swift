@@ -42,7 +42,6 @@ final class IrisSessionListViewModel {
         defer {
             isLoading = false
         }
-        
         let result = await httpService.createSession(mode: .course, entityId: courseId)
         switch result {
         case .failure(let error):
@@ -66,7 +65,6 @@ final class IrisSessionListViewModel {
         defer {
             isLoading = false
         }
-        
         let result = await httpService.deleteSession(sessionId: sessionId)
         switch result {
         case .success:

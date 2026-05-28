@@ -14,15 +14,15 @@ import SwiftUI
 final class IrisChatViewModel {
     let sessionPath: IrisSessionPath
     private let httpService: IrisChatHttpService
+    private var websocketTask: Task<Void, Never>?
 
-    var messages: [IrisMessageResponseDTO] = []
+    var messages: DataState<[IrisMessageResponseDTO]> = .loading
     var stages: [IrisStageDTO] = []
     var sessionTitle: String?
     var suggestions: [String] = []
     var rateLimitInfo: IrisRateLimitInformation?
     var inputText = ""
 
-    var isLoading = false
     var error: UserFacingError?
     var showError: Binding<Bool> {
         Binding(get: {
@@ -34,8 +34,6 @@ final class IrisChatViewModel {
         })
     }
 
-    private var websocketTask: Task<Void, Never>?
-
     init(sessionPath: IrisSessionPath,
          httpService: IrisChatHttpService = IrisChatHttpServiceFactory.shared) {
         self.sessionPath = sessionPath
@@ -44,20 +42,18 @@ final class IrisChatViewModel {
     }
 
     func loadMessages() async {
-        isLoading = true
         let result = await httpService.getMessages(sessionId: sessionPath.id)
         switch result {
         case .done(let response):
-            messages = response
+            messages = .done(response: response)
         case .failure(let error):
-            self.error = error
+            messages = .failure(error: error)
         case .loading:
-            break
+            messages = .loading
         }
-        isLoading = false
     }
 
-    func connectWebSocket() async {
+    func subscribeToWebsocket() async {
         let stream = await IrisWebsocketServiceFactory.shared.subscribe(sessionId: sessionPath.id)
         websocketTask = Task { [weak self] in
             for await dto in stream {
@@ -91,9 +87,7 @@ final class IrisChatViewModel {
     }
 
     func deleteSession() async -> Bool {
-        isLoading = true
         let result = await httpService.deleteSession(sessionId: sessionPath.id)
-        isLoading = false
         switch result {
         case .success:
             return true
@@ -124,10 +118,10 @@ final class IrisChatViewModel {
     }
 
     private func upsert(message: IrisMessageResponseDTO) {
-        if let id = message.id, let index = messages.firstIndex(where: { $0.id == id }) {
-            messages[index] = message
+        if let id = message.id, let index = messages.value?.firstIndex(where: { $0.id == id }) {
+            messages.value?[index] = message
         } else {
-            messages.append(message)
+            messages.value?.append(message)
         }
     }
 

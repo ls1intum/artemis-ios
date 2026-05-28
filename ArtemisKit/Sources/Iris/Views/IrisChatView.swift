@@ -21,33 +21,36 @@ struct IrisChatView: View {
     }
 
     var body: some View {
-        @Bindable var viewModel = viewModel
-        VStack(spacing: 0) {
-            ScrollViewReader { proxy in
-                ScrollView {
-                    LazyVStack(alignment: .leading, spacing: .m) {
-                        ForEach(viewModel.messages) { message in
-                            MessageRow(message: message)
+        DataStateView(data: $viewModel.messages) {
+            await viewModel.loadMessages()
+        } content: { messages in
+            VStack(spacing: 0) {
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        LazyVStack(alignment: .leading, spacing: .m) {
+                            ForEach(messages) { message in
+                                MessageRow(message: message)
+                            }
+                        }
+                        .padding(.l)
+                        Spacer()
+                            .frame(height: 1)
+                            .id("bottom")
+                    }
+                    .defaultScrollAnchor(.bottom)
+                    .onChange(of: messages.count) {
+                        withAnimation {
+                            proxy.scrollTo("bottom", anchor: .bottom)
                         }
                     }
-                    .padding(.l)
-                    Spacer()
-                        .frame(height: 1)
-                        .id("bottom")
-                }
-                .defaultScrollAnchor(.bottom)
-                .onChange(of: viewModel.messages.count) {
-                    withAnimation {
-                        proxy.scrollTo("bottom", anchor: .bottom)
+                    .onChange(of: messages.last) {
+                        withAnimation {
+                            proxy.scrollTo("bottom", anchor: .bottom)
+                        }
                     }
                 }
-                .onChange(of: viewModel.messages.last) {
-                    withAnimation {
-                        proxy.scrollTo("bottom", anchor: .bottom)
-                    }
-                }
+                InputBar(text: $viewModel.inputText, onSend: { viewModel.sendMessage() })
             }
-            InputBar(text: $viewModel.inputText, onSend: { viewModel.sendMessage() })
         }
         .navigationTitle(viewModel.sessionTitle ?? "")
         .navigationBarTitleDisplayMode(.inline)
@@ -77,18 +80,21 @@ struct IrisChatView: View {
             Text("Are you sure you want to delete this chat? This action cannot be undone.")
         }
         .task { await viewModel.loadMessages() }
-        .task { await viewModel.connectWebSocket() }
+        .task { await viewModel.subscribeToWebsocket() }
         .onDisappear { Task {
             await viewModel.disconnect()
-        } }
-        .loadingIndicator(isLoading: $viewModel.isLoading)
+        }
+        }
         .alert(isPresented: viewModel.showError, error: viewModel.error, actions: {})
     }
 }
 
-
 private struct MessageRow: View {
     let message: IrisMessageResponseDTO
+    
+    private var isUser: Bool {
+        message.sender == .user
+    }
 
     var body: some View {
         if isUser {
@@ -118,10 +124,6 @@ private struct MessageRow: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-    }
-
-    private var isUser: Bool {
-        message.sender == .user
     }
 }
 
