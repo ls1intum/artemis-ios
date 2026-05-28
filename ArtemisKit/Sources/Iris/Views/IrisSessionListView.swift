@@ -21,48 +21,47 @@ public struct IrisSessionListView: View {
         self.courseId = courseId
         _viewModel = State(wrappedValue: IrisSessionListViewModel(courseId: courseId))
     }
+    
+    private var selectedSession: Binding<IrisSessionPath?> {
+        navigationController.selectedPathBinding($navigationController.selectedPath)
+    }
 
     public var body: some View {
         @Bindable var viewModel = viewModel
         NavigationSplitView(columnVisibility: .constant(.all)) {
-            List(selection: selectedSession) {
-                ForEach(viewModel.groupedSessions) { group in
-                    Section(group.title) {
-                        ForEach(group.sessions) { session in
-                            let path = IrisSessionPath(session: session, coursePath: CoursePath(id: courseId))
-                            NavigationLink(value: path) {
-                                IrisSessionRowView(session: session)
-                            }
-                            .tag(path)
-                            .navigationLinkIndicatorVisibility(.hidden)
-                            .swipeActions(edge: .trailing) {
-                                Button(role: .destructive) {
-                                    Task { await viewModel.deleteSession(sessionId: session.id) }
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
+            DataStateView(data: $viewModel.sessions) {
+                await viewModel.loadSessions()
+            } content: { sessions in
+                List(selection: selectedSession) {
+                    ForEach(sessions) { session in
+                        let path = IrisSessionPath(session: session, coursePath: CoursePath(id: courseId))
+                        NavigationLink(value: path) {
+                            IrisSessionRowView(session: session)
+                        }
+                        .tag(path)
+                        .navigationLinkIndicatorVisibility(.hidden)
+                        .swipeActions(edge: .trailing) {
+                            Button(role: .destructive) {
+                                Task { await viewModel.deleteSession(sessionId: session.id) }
+                            } label: {
+                                Label("Delete", systemImage: "trash")
                             }
                         }
                     }
                 }
-            }
-            .listStyle(.insetGrouped)
-            .refreshable { await viewModel.loadSessions() }
-            .contentMargins(.bottom, 80, for: .scrollContent)
-            .overlay {
-                if viewModel.sessions.isEmpty && !viewModel.isLoading {
-                    ContentUnavailableView("No Iris Sessions", systemImage: "brain.head.profile")
+                .listStyle(.insetGrouped)
+                .refreshable { await viewModel.loadSessions() }
+                .contentMargins(.bottom, 80, for: .scrollContent)
+                .overlay(alignment: .bottomTrailing) {
+                    NewIrisSessionButton(viewModel: viewModel, courseId: courseId)
+                        .padding()
                 }
-            }
-            .overlay(alignment: .bottomTrailing) {
-                NewIrisSessionButton(viewModel: viewModel, courseId: courseId)
-                    .padding()
             }
             .courseToolbar()
         } detail: {
             if let path = navigationController.selectedPath as? IrisSessionPath {
                 IrisChatView(sessionPath: path, onDeleted: {
-                    viewModel.sessions.removeAll { $0.id == path.id }
+                    viewModel.sessions.value?.removeAll { $0.id == path.id }
                     navigationController.selectedPath = nil
                 })
                 .id(path.id)
@@ -71,12 +70,6 @@ public struct IrisSessionListView: View {
             }
         }
         .task { await viewModel.loadSessions() }
-        .loadingIndicator(isLoading: $viewModel.isLoading)
-        .alert(isPresented: viewModel.showError, error: viewModel.error, actions: {})
-    }
-
-    private var selectedSession: Binding<IrisSessionPath?> {
-        navigationController.selectedPathBinding($navigationController.selectedPath)
     }
 }
 
@@ -135,13 +128,7 @@ private struct NewIrisSessionButton: View {
     var body: some View {
         Button {
             Task {
-                if let newId = await viewModel.createNewSession() {
-                    navigationController.selectedPath = IrisSessionPath(
-                        id: newId,
-                        coursePath: CoursePath(id: courseId)
-                    )
-                    await viewModel.loadSessions()
-                }
+                await viewModel.createNewSession()
             }
         } label: {
             Image(systemName: "plus")
@@ -151,6 +138,5 @@ private struct NewIrisSessionButton: View {
                 .background(Color.Artemis.artemisBlue, in: .circle)
                 .shadow(color: Color.gray.opacity(0.2), radius: .m)
         }
-        .disabled(viewModel.isLoading)
     }
 }

@@ -8,6 +8,7 @@
 import Common
 import Foundation
 import SwiftUI
+import APIClient
 
 @MainActor
 @Observable
@@ -15,19 +16,9 @@ final class IrisSessionListViewModel {
     private let courseId: Int
     private let httpService: IrisChatHttpService
 
-    var sessions: [IrisSessionDTO] = []
-
-    var isLoading = false
+    var sessions: DataState<[IrisSessionDTO]> = .loading
     var error: UserFacingError?
-    var showError: Binding<Bool> {
-        Binding(get: {
-            self.error != nil
-        }, set: { newValue in
-            if !newValue {
-                self.error = nil
-            }
-        })
-    }
+    var isLoading = false
 
     init(courseId: Int, httpService: IrisChatHttpService = IrisChatHttpServiceFactory.shared) {
         self.courseId = courseId
@@ -35,45 +26,59 @@ final class IrisSessionListViewModel {
     }
 
     func loadSessions() async {
-        isLoading = true
-        let result = await httpService.getChatSessions(courseId: courseId)
-        switch result {
-        case .done(let response):
-            sessions = response.sorted { $0.creationDate > $1.creationDate }
-        case .failure(let error):
-            self.error = error
+        let chatSessions = await httpService.getChatSessions(courseId: courseId)
+        switch chatSessions {
         case .loading:
-            break
+            sessions = .loading
+        case .failure(let error):
+            sessions = .failure(error: error)
+        case .done(let response):
+            sessions = .done(response: response.sorted { $0.creationDate > $1.creationDate })
         }
-        isLoading = false
     }
 
-    func createNewSession() async -> Int? {
+    func createNewSession() async {
         isLoading = true
+        defer {
+            isLoading = false
+        }
+        
         let result = await httpService.createSession(mode: .course, entityId: courseId)
         switch result {
-        case .done(let response):
-            isLoading = false
-            return response.id
         case .failure(let error):
-            isLoading = false
             self.error = error
-            return nil
+        case .done(let response):
+            let dto = IrisSessionDTO(
+                id: response.id,
+                title: response.title,
+                creationDate: response.creationDate,
+                mode: response.mode ?? .course,
+                entityId: response.entityId,
+                entityName: nil)
+            sessions.value?.append(dto)
         case .loading:
-            isLoading = false
-            return nil
+            isLoading = true
         }
     }
 
     func deleteSession(sessionId: Int) async {
+        isLoading = true
+        defer {
+            isLoading = false
+        }
+        
         let result = await httpService.deleteSession(sessionId: sessionId)
         switch result {
         case .success:
-            sessions.removeAll { $0.id == sessionId }
+            sessions.value?.removeAll(where: { $0.id == sessionId })
         case .failure(let error):
-            self.error = UserFacingError(title: error.localizedDescription)
+            if let apiClientError = error as? APIClientError {
+                self.error = UserFacingError(error: apiClientError)
+            } else {
+                self.error = UserFacingError(title: error.localizedDescription)
+            }
         case .loading, .notStarted:
-            break
+            isLoading = true
         }
     }
 }
@@ -88,30 +93,30 @@ extension IrisSessionListViewModel {
 
     var groupedSessions: [GroupedSessions] {
         let now = Date()
-        let today = sessions.filter { Calendar.current.isDateInToday($0.creationDate) }
-        let yesterday = sessions.filter { Calendar.current.isDateInYesterday($0.creationDate) }
+        let today = sessions.value?.filter { Calendar.current.isDateInToday($0.creationDate) }
+        let yesterday = sessions.value?.filter { Calendar.current.isDateInYesterday($0.creationDate) }
 
         let sevenDayCutoff = Calendar.current.date(byAdding: .day, value: -7, to: now) ?? now
-        let last7Days = sessions.filter { session in
+        let last7Days = sessions.value?.filter { session in
             session.creationDate > sevenDayCutoff
                 && !Calendar.current.isDateInToday(session.creationDate)
                 && !Calendar.current.isDateInYesterday(session.creationDate)
         }
 
         let thirtyDayCutoff = Calendar.current.date(byAdding: .day, value: -30, to: now) ?? now
-        let last30Days = sessions.filter { session in
+        let last30Days = sessions.value?.filter { session in
             session.creationDate > thirtyDayCutoff
                 && session.creationDate <= sevenDayCutoff
         }
 
-        let older = sessions.filter { $0.creationDate <= thirtyDayCutoff }
+        let older = sessions.value?.filter { $0.creationDate <= thirtyDayCutoff }
 
         let buckets: [(String, [IrisSessionDTO])] = [
-            ("Today", today),
-            ("Yesterday", yesterday),
-            ("Last 7 Days", last7Days),
-            ("Last 30 Days", last30Days),
-            ("Older", older)
+            ("Today", today ?? []),
+            ("Yesterday", yesterday ?? []),
+            ("Last 7 Days", last7Days ?? []),
+            ("Last 30 Days", last30Days ?? []),
+            ("Older", older ?? [])
         ]
 
         return buckets.compactMap { title, sessions in
