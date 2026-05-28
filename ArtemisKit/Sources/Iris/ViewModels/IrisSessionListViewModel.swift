@@ -19,6 +19,7 @@ final class IrisSessionListViewModel {
     var sessions: DataState<[IrisSessionDTO]> = .loading
     var error: UserFacingError?
     var isLoading = false
+    var searchText: String = ""
 
     init(courseId: Int, httpService: IrisChatHttpService = IrisChatHttpServiceFactory.shared) {
         self.courseId = courseId
@@ -89,32 +90,42 @@ extension IrisSessionListViewModel {
         var id: String { title }
     }
 
+    private var filteredSessions: [IrisSessionDTO] {
+        let allSessions = sessions.value ?? []
+        let trimmedSearch = searchText.trimmingCharacters(in: .whitespaces)
+        guard !trimmedSearch.isEmpty else { return allSessions }
+        return allSessions.filter { session in
+            session.title?.localizedCaseInsensitiveContains(trimmedSearch) ?? false
+        }
+    }
+
     var groupedSessions: [GroupedSessions] {
         let now = Date()
-        let today = sessions.value?.filter { Calendar.current.isDateInToday($0.creationDate) }
-        let yesterday = sessions.value?.filter { Calendar.current.isDateInYesterday($0.creationDate) }
+        let sessions = filteredSessions
+        let today = sessions.filter { Calendar.current.isDateInToday($0.creationDate) }
+        let yesterday = sessions.filter { Calendar.current.isDateInYesterday($0.creationDate) }
 
         let sevenDayCutoff = Calendar.current.date(byAdding: .day, value: -7, to: now) ?? now
-        let last7Days = sessions.value?.filter { session in
+        let last7Days = sessions.filter { session in
             session.creationDate > sevenDayCutoff
                 && !Calendar.current.isDateInToday(session.creationDate)
                 && !Calendar.current.isDateInYesterday(session.creationDate)
         }
 
         let thirtyDayCutoff = Calendar.current.date(byAdding: .day, value: -30, to: now) ?? now
-        let last30Days = sessions.value?.filter { session in
+        let last30Days = sessions.filter { session in
             session.creationDate > thirtyDayCutoff
                 && session.creationDate <= sevenDayCutoff
         }
 
-        let older = sessions.value?.filter { $0.creationDate <= thirtyDayCutoff }
+        let older = sessions.filter { $0.creationDate <= thirtyDayCutoff }
 
         let buckets: [(String, [IrisSessionDTO])] = [
-            ("Today", today ?? []),
-            ("Yesterday", yesterday ?? []),
-            ("Last 7 Days", last7Days ?? []),
-            ("Last 30 Days", last30Days ?? []),
-            ("Older", older ?? [])
+            ("Today", today),
+            ("Yesterday", yesterday),
+            ("Last 7 Days", last7Days),
+            ("Last 30 Days", last30Days),
+            ("Older", older)
         ]
 
         return buckets.compactMap { title, sessions in

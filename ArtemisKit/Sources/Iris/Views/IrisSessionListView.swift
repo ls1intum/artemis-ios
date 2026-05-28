@@ -21,7 +21,7 @@ public struct IrisSessionListView: View {
         self.courseId = courseId
         _viewModel = State(wrappedValue: IrisSessionListViewModel(courseId: courseId))
     }
-    
+
     private var selectedSession: Binding<IrisSessionPath?> {
         navigationController.selectedPathBinding($navigationController.selectedPath)
     }
@@ -31,25 +31,30 @@ public struct IrisSessionListView: View {
         NavigationSplitView(columnVisibility: .constant(.all)) {
             DataStateView(data: $viewModel.sessions) {
                 await viewModel.loadSessions()
-            } content: { sessions in
+            } content: { _ in
                 List(selection: selectedSession) {
-                    ForEach(sessions) { session in
-                        let path = IrisSessionPath(session: session, coursePath: CoursePath(id: courseId))
-                        NavigationLink(value: path) {
-                            IrisSessionRowView(session: session)
-                        }
-                        .tag(path)
-                        .navigationLinkIndicatorVisibility(.hidden)
-                        .swipeActions(edge: .trailing) {
-                            Button(role: .destructive) {
-                                Task { await viewModel.deleteSession(sessionId: session.id) }
-                            } label: {
-                                Label("Delete", systemImage: "trash")
+                    ForEach(viewModel.groupedSessions) { group in
+                        Section(group.title) {
+                            ForEach(group.sessions) { session in
+                                let path = IrisSessionPath(session: session, coursePath: CoursePath(id: courseId))
+                                NavigationLink(value: path) {
+                                    IrisSessionRowView(session: session)
+                                }
+                                .tag(path)
+                                .navigationLinkIndicatorVisibility(.hidden)
+                                .swipeActions(edge: .trailing) {
+                                    Button(role: .destructive) {
+                                        Task { await viewModel.deleteSession(sessionId: session.id) }
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
+                                }
                             }
                         }
                     }
                 }
                 .listStyle(.insetGrouped)
+                .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always))
                 .refreshable { await viewModel.loadSessions() }
                 .contentMargins(.bottom, 80, for: .scrollContent)
                 .overlay(alignment: .bottomTrailing) {
