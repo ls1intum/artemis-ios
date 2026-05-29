@@ -56,8 +56,27 @@ public struct IrisSessionListView: View {
                 .listStyle(.insetGrouped)
                 .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always))
                 .overlay {
-                    if viewModel.groupedSessions.isEmpty && !viewModel.searchText.isEmpty {
-                        ContentUnavailableView.search(text: viewModel.searchText)
+                    if viewModel.groupedSessions.isEmpty {
+                        if !viewModel.searchText.isEmpty {
+                            ContentUnavailableView.search(text: viewModel.searchText)
+                        } else {
+                            VStack(spacing: .m) {
+                                Image("iris-logo", bundle: .module)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 80, height: 80)
+                                    .shadow(color: .black.opacity(0.15), radius: 4, y: 2)
+                                VStack(spacing: .xs) {
+                                    Text("No chats yet")
+                                        .font(.headline)
+                                    Text("Tap the + button to start a new chat.")
+                                        .font(.subheadline)
+                                        .foregroundStyle(.secondary)
+                                        .multilineTextAlignment(.center)
+                                }
+                            }
+                            .padding()
+                        }
                     }
                 }
                 .refreshable { await viewModel.loadSessions() }
@@ -90,7 +109,7 @@ private struct IrisSessionRowView: View {
         HStack(spacing: 12) {
             Image(systemName: modeIcon)
                 .font(.title3)
-                .foregroundStyle(.blue)
+                .foregroundStyle(.primary)
                 .frame(width: 28)
 
             VStack(alignment: .leading, spacing: 2) {
