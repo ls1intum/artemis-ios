@@ -27,12 +27,17 @@ struct IrisChatView: View {
             VStack(spacing: 0) {
                 ScrollViewReader { proxy in
                     ScrollView {
-                        LazyVStack(alignment: .leading, spacing: .m) {
-                            ForEach(messages) { message in
-                                MessageRow(message: message)
+                        if messages.isEmpty {
+                            EmptyChatView()
+                                .containerRelativeFrame(.vertical)
+                        } else {
+                            LazyVStack(alignment: .leading, spacing: .m) {
+                                ForEach(messages) { message in
+                                    MessageRow(message: message)
+                                }
                             }
+                            .padding(.l)
                         }
-                        .padding(.l)
                         Spacer()
                             .frame(height: 1)
                             .id("bottom")
@@ -91,7 +96,7 @@ struct IrisChatView: View {
 
 private struct MessageRow: View {
     let message: IrisMessageResponseDTO
-    
+
     private var isUser: Bool {
         message.sender == .user
     }
@@ -124,6 +129,23 @@ private struct MessageRow: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
+    }
+}
+
+private struct EmptyChatView: View {
+    var body: some View {
+        VStack(spacing: .m) {
+            Image("iris-logo", bundle: .module)
+                  .resizable()
+                  .scaledToFit()
+                  .frame(width: 80, height: 80)
+                  .shadow(color: .black.opacity(0.15), radius: 4, y: 2)
+            Text("How can I help you today?")
+                .font(.title2)
+                .fontWeight(.semibold)
+                .foregroundStyle(.primary)
+        }
+        .frame(maxWidth: .infinity)
     }
 }
 
