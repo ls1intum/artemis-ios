@@ -138,7 +138,9 @@ private struct NewIrisSessionButton: View {
     var body: some View {
         Button {
             Task {
-                await viewModel.createNewSession()
+                if let newSession = await viewModel.createNewSession() {
+                    navigationController.selectedPath = IrisSessionPath(session: newSession, coursePath: CoursePath(id: courseId))
+                }
             }
         } label: {
             Image(systemName: "plus")

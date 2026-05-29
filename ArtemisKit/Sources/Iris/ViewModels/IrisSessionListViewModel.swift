@@ -38,11 +38,14 @@ final class IrisSessionListViewModel {
         }
     }
 
-    func createNewSession() async {
+    func createNewSession() async -> IrisSessionDTO? {
+        var session: IrisSessionDTO?
+
         isLoading = true
         defer {
             isLoading = false
         }
+
         let result = await httpService.createSession(mode: .course, entityId: courseId)
         switch result {
         case .failure(let error):
@@ -55,10 +58,12 @@ final class IrisSessionListViewModel {
                 mode: response.mode ?? .course,
                 entityId: response.entityId,
                 entityName: nil)
-            sessions.value?.append(dto)
+            session = dto
         case .loading:
             isLoading = true
         }
+
+        return session
     }
 
     func deleteSession(sessionId: Int) async {
