@@ -137,7 +137,7 @@ private struct MessageRow: View {
 private struct EmptyChatView: View {
     var body: some View {
         VStack(spacing: .m) {
-            Image("iris-logo", bundle: .module)
+            Image("iris-colored", bundle: .module)
                   .resizable()
                   .scaledToFit()
                   .frame(width: 80, height: 80)
