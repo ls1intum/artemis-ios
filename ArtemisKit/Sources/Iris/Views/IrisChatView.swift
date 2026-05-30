@@ -70,19 +70,21 @@ struct IrisChatView: View {
                 } label: {
                     Image(systemName: "ellipsis.circle")
                 }
-            }
-        }
-        .alert("Delete Chat", isPresented: $showDeleteConfirmation) {
-            Button("Cancel", role: .cancel) {}
-            Button("Delete", role: .destructive) {
-                Task {
-                    if await viewModel.deleteSession() {
-                        onDeleted()
+                .confirmationDialog(
+                    "Are you sure you want to delete this chat? This action cannot be undone.",
+                    isPresented: $showDeleteConfirmation,
+                    titleVisibility: .visible
+                ) {
+                    Button("Delete", role: .destructive) {
+                        Task {
+                            if await viewModel.deleteSession() {
+                                onDeleted()
+                            }
+                        }
                     }
+                    Button("Cancel", role: .cancel) {}
                 }
             }
-        } message: {
-            Text("Are you sure you want to delete this chat? This action cannot be undone.")
         }
         .task { await viewModel.loadMessages() }
         .task { await viewModel.subscribeToWebsocket() }

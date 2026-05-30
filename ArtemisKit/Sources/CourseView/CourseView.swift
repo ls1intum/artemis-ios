@@ -17,7 +17,7 @@ public struct CourseView: View {
 
     // TODO: Replace with @FeatureAvailability(.iris) once the Feature enum in
     // artemis-ios-core-modules exposes the MODULE_FEATURE_IRIS case.
-    private var irisEnabled = true
+    private var irisEnabled = false
 
     private let courseId: Int
 

@@ -42,7 +42,7 @@ final class IrisChatViewModel {
     }
 
     func loadMessages() async {
-        let result = await httpService.getMessages(sessionId: sessionPath.id)
+        let result = await httpService.getMessages(sessionId: sessionPath.sessionId)
         switch result {
         case .done(let response):
             messages = .done(response: response)
@@ -54,7 +54,7 @@ final class IrisChatViewModel {
     }
 
     func subscribeToWebsocket() async {
-        let stream = await IrisWebsocketServiceFactory.shared.subscribe(sessionId: sessionPath.id)
+        let stream = await IrisWebsocketServiceFactory.shared.subscribe(sessionId: sessionPath.sessionId)
         websocketTask = Task { [weak self] in
             for await dto in stream {
                 guard let self else { return }
@@ -70,13 +70,12 @@ final class IrisChatViewModel {
         let content = [IrisMessageContentDTO.text(text)]
         let request = IrisMessageRequestDTO(content: content)
 
-        inputText = ""
-
         Task { [weak self] in
             guard let self else { return }
-            let result = await httpService.sendMessage(sessionId: sessionPath.id, request: request)
+            let result = await httpService.sendMessage(sessionId: sessionPath.sessionId, request: request)
             switch result {
             case .done(let response):
+                inputText = ""
                 upsert(message: response)
             case .failure(let error):
                 self.error = error
@@ -87,7 +86,7 @@ final class IrisChatViewModel {
     }
 
     func deleteSession() async -> Bool {
-        let result = await httpService.deleteSession(sessionId: sessionPath.id)
+        let result = await httpService.deleteSession(sessionId: sessionPath.sessionId)
         switch result {
         case .success:
             return true
@@ -100,7 +99,7 @@ final class IrisChatViewModel {
     }
 
     func disconnect() async {
-        await IrisWebsocketServiceFactory.shared.unsubscribe(sessionId: sessionPath.id)
+        await IrisWebsocketServiceFactory.shared.unsubscribe(sessionId: sessionPath.sessionId)
         websocketTask?.cancel()
         websocketTask = nil
     }
@@ -117,6 +116,9 @@ final class IrisChatViewModel {
         }
     }
 
+    /// Replaces an existing message with the same id, or appends if unknown.
+    /// A message can arrive both via the HTTP send response and the websocket,
+    /// so plain append would duplicate.
     private func upsert(message: IrisMessageResponseDTO) {
         if let id = message.id, let index = messages.value?.firstIndex(where: { $0.id == id }) {
             messages.value?[index] = message
@@ -125,6 +127,8 @@ final class IrisChatViewModel {
         }
     }
 
+    /// Merges only the fields the server actually sent. `STATUS` payloads omit
+    /// most fields (see `IrisChatWebsocketDTO`); writing nil would wipe state.
     private func updateMeta(from dto: IrisChatWebsocketDTO) {
         if let stages = dto.stages {
             self.stages = stages

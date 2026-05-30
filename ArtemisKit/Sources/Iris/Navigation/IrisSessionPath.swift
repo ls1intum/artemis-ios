@@ -3,18 +3,18 @@ import Navigation
 import SharedModels
 
 public struct IrisSessionPath: Hashable {
-    public let id: Int
+    public let sessionId: Int
     public let session: IrisSessionDTO?
     public let coursePath: CoursePath
 
-    public init(id: Int, coursePath: CoursePath) {
-        self.id = id
+    public init(sessionId: Int, coursePath: CoursePath) {
+        self.sessionId = sessionId
         self.session = nil
         self.coursePath = coursePath
     }
 
     public init(session: IrisSessionDTO, coursePath: CoursePath) {
-        self.id = session.id
+        self.sessionId = session.id
         self.session = session
         self.coursePath = coursePath
     }

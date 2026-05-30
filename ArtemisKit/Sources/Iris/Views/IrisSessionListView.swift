@@ -14,6 +14,7 @@ import SwiftUI
 public struct IrisSessionListView: View {
     @EnvironmentObject private var navigationController: NavigationController
     @State private var viewModel: IrisSessionListViewModel
+    @State private var columnVisibility: NavigationSplitViewVisibility = .doubleColumn
 
     private let courseId: Int
 
@@ -28,7 +29,7 @@ public struct IrisSessionListView: View {
 
     public var body: some View {
         @Bindable var viewModel = viewModel
-        NavigationSplitView(columnVisibility: .constant(.all)) {
+        NavigationSplitView(columnVisibility: $columnVisibility) {
             DataStateView(data: $viewModel.sessions) {
                 await viewModel.loadSessions()
             } content: { _ in
@@ -53,7 +54,6 @@ public struct IrisSessionListView: View {
                         }
                     }
                 }
-                .listStyle(.insetGrouped)
                 .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always))
                 .overlay {
                     if viewModel.groupedSessions.isEmpty {
@@ -92,12 +92,13 @@ public struct IrisSessionListView: View {
                 IrisChatView(sessionPath: path, onDeleted: {
                     navigationController.selectedPath = nil
                 })
-                .id(path.id)
+                .id(path.sessionId)
             } else {
                 SelectDetailView()
             }
         }
         .loadingIndicator(isLoading: $viewModel.isLoading)
+        .alert(isPresented: viewModel.showError, error: viewModel.error, actions: {})
         .task { await viewModel.loadSessions() }
     }
 }
@@ -162,12 +163,20 @@ private struct NewIrisSessionButton: View {
                 }
             }
         } label: {
-            Image(systemName: "plus")
-                .foregroundStyle(.white)
-                .font(.title2)
-                .padding()
-                .background(Color.Artemis.artemisBlue, in: .circle)
-                .shadow(color: Color.gray.opacity(0.2), radius: .m)
+            Group {
+                if viewModel.isCreatingSession {
+                    ProgressView()
+                        .tint(.white)
+                } else {
+                    Image(systemName: "plus")
+                }
+            }
+            .foregroundStyle(.white)
+            .font(.title2)
+            .padding()
+            .background(Color.Artemis.artemisBlue, in: .circle)
+            .shadow(color: Color.gray.opacity(0.2), radius: .m)
         }
+        .disabled(viewModel.isCreatingSession)
     }
 }

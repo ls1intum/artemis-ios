@@ -19,7 +19,18 @@ final class IrisSessionListViewModel {
     var sessions: DataState<[IrisSessionDTO]> = .loading
     var error: UserFacingError?
     var isLoading = false
+    var isCreatingSession = false
     var searchText: String = ""
+
+    var showError: Binding<Bool> {
+        Binding(get: {
+            self.error != nil
+        }, set: { newValue in
+            if !newValue {
+                self.error = nil
+            }
+        })
+    }
 
     init(courseId: Int, httpService: IrisChatHttpService = IrisChatHttpServiceFactory.shared) {
         self.courseId = courseId
@@ -41,9 +52,9 @@ final class IrisSessionListViewModel {
     func createNewSession() async -> IrisSessionDTO? {
         var session: IrisSessionDTO?
 
-        isLoading = true
+        isCreatingSession = true
         defer {
-            isLoading = false
+            isCreatingSession = false
         }
 
         let result = await httpService.createSession(mode: .course, entityId: courseId)
@@ -60,7 +71,7 @@ final class IrisSessionListViewModel {
                 entityName: nil)
             session = dto
         case .loading:
-            isLoading = true
+            break
         }
 
         return session
