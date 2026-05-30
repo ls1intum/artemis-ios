@@ -61,11 +61,11 @@ public struct IrisSessionListView: View {
                             ContentUnavailableView.search(text: viewModel.searchText)
                         } else {
                             VStack(spacing: .m) {
-                                Image("iris-logo", bundle: .module)
+                                Image("iris", bundle: .module)
                                     .resizable()
                                     .scaledToFit()
+                                    .foregroundStyle(.primary)
                                     .frame(width: 80, height: 80)
-                                    .shadow(color: .black.opacity(0.15), radius: 4, y: 2)
                                 VStack(spacing: .xs) {
                                     Text("No chats yet")
                                         .font(.headline)
