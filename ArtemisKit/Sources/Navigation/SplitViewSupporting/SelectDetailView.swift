@@ -52,7 +52,7 @@ public struct SelectDetailView: View {
         case .search:
             "Search"
         case .iris:
-            "Select Iris Session"
+            R.string.localizable.selectConversation()
         }
     }
 }

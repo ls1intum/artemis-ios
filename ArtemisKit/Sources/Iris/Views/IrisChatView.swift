@@ -74,24 +74,24 @@ struct IrisChatView: View {
                     Button(role: .destructive) {
                         showDeleteConfirmation = true
                     } label: {
-                        Label("Delete Chat", systemImage: "trash")
+                        Label(R.string.localizable.deleteChat(), systemImage: "trash")
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle")
                 }
                 .confirmationDialog(
-                    "Are you sure you want to delete this chat? This action cannot be undone.",
+                    R.string.localizable.deleteChatConfirmationMessage(),
                     isPresented: $showDeleteConfirmation,
                     titleVisibility: .visible
                 ) {
-                    Button("Delete", role: .destructive) {
+                    Button(R.string.localizable.delete(), role: .destructive) {
                         Task {
                             if await viewModel.deleteSession() {
                                 onDeleted()
                             }
                         }
                     }
-                    Button("Cancel", role: .cancel) {}
+                    Button(R.string.localizable.cancel(), role: .cancel) {}
                 }
             }
         }
@@ -150,7 +150,7 @@ private struct LoadingStageRow: View {
         stage?.chatMessage
             ?? stage?.message
             ?? stage?.name
-            ?? "Thinking…"
+            ?? R.string.localizable.thinking()
     }
 
     var body: some View {
@@ -175,7 +175,7 @@ private struct EmptyChatView: View {
                   .scaledToFit()
                   .frame(width: 80, height: 80)
                   .shadow(color: .black.opacity(0.15), radius: 4, y: 2)
-            Text("How can I help you today?")
+            Text(R.string.localizable.emptyChatTitle())
                 .font(.title2)
                 .fontWeight(.semibold)
                 .foregroundStyle(.primary)
@@ -191,7 +191,7 @@ private struct InputBar: View {
 
     var body: some View {
         HStack(alignment: .bottom, spacing: .m) {
-            TextField("Ask Iris...", text: $text, axis: .vertical)
+            TextField(R.string.localizable.askIrisPlaceholder(), text: $text, axis: .vertical)
                 .textFieldStyle(.roundedBorder)
                 .lineLimit(1...5)
                 .focused($isFocused)

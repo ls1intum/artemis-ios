@@ -47,7 +47,7 @@ public struct IrisSessionListView: View {
                                     Button(role: .destructive) {
                                         Task { await viewModel.deleteSession(sessionId: session.id) }
                                     } label: {
-                                        Label("Delete", systemImage: "trash")
+                                        Label(R.string.localizable.delete(), systemImage: "trash")
                                     }
                                 }
                             }
@@ -67,9 +67,9 @@ public struct IrisSessionListView: View {
                                     .foregroundStyle(.primary)
                                     .frame(width: 80, height: 80)
                                 VStack(spacing: .xs) {
-                                    Text("No chats yet")
+                                    Text(R.string.localizable.noChats())
                                         .font(.headline)
-                                    Text("Tap the + button to start a new chat.")
+                                    Text(R.string.localizable.noChatsDescription())
                                         .font(.subheadline)
                                         .foregroundStyle(.secondary)
                                         .multilineTextAlignment(.center)
@@ -114,7 +114,7 @@ private struct IrisSessionRowView: View {
                 .frame(width: 28)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(session.title ?? "New Chat")
+                Text(session.title ?? R.string.localizable.newChat())
                     .lineLimit(1)
 
                 if let entityName = session.entityName {

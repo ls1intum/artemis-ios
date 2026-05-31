@@ -137,11 +137,11 @@ extension IrisSessionListViewModel {
         let older = sessions.filter { $0.creationDate <= thirtyDayCutoff }
 
         let buckets: [(String, [IrisSessionDTO])] = [
-            ("Today", today),
-            ("Yesterday", yesterday),
-            ("Last 7 Days", last7Days),
-            ("Last 30 Days", last30Days),
-            ("Older", older)
+            (R.string.localizable.sectionToday(), today),
+            (R.string.localizable.sectionYesterday(), yesterday),
+            (R.string.localizable.sectionLast7Days(), last7Days),
+            (R.string.localizable.sectionLast30Days(), last30Days),
+            (R.string.localizable.sectionOlder(), older)
         ]
 
         return buckets.compactMap { title, sessions in
