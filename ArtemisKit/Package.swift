@@ -122,7 +122,11 @@ let package = Package(
                 .product(name: "SharedModels", package: "artemis-ios-core-modules"),
                 .product(name: "ProfileInfo", package: "artemis-ios-core-modules"),
                 "Navigation",
-                "Notifications"
+                "Notifications",
+                .product(name: "RswiftLibrary", package: "R.swift")
+            ],
+            plugins: [
+                .plugin(name: "RswiftGeneratePublicResources", package: "R.swift")
             ]),
         .target(
             name: "Faq",
