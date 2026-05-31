@@ -9,11 +9,11 @@ import Foundation
 
 /// Slim session shape returned by `/chat/{courseId}/sessions/overview`,
 /// used to render the chat-history list. Does **not** contain messages.
-public struct IrisSessionDTO: Codable, Hashable, Identifiable {
-    public let id: Int
-    public let title: String?
-    public let creationDate: Date
-    public let mode: ChatServiceMode
-    public let entityId: Int
-    public let entityName: String?
+struct IrisSessionDTO: Codable, Hashable, Identifiable {
+    let id: Int
+    let title: String?
+    let creationDate: Date
+    let mode: ChatServiceMode
+    let entityId: Int
+    let entityName: String?
 }
