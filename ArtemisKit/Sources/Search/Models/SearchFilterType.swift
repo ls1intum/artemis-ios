@@ -14,6 +14,9 @@ enum SearchFilterType: String, Codable, ConstantsEnum {
     case exam
     case faq
     case channel
+    case course
+    case post
+    case answerPost = "answer_post"
     case unknown
 
     /// String describing the type for the API query param
@@ -24,8 +27,14 @@ enum SearchFilterType: String, Codable, ConstantsEnum {
         switch self {
         case .exercise:
             ExerciseSearchResult.self
-        case .lecture:
+        case .lecture, .lectureUnit:
             LectureSearchResult.self
+        case .faq:
+            FAQSearchResult.self
+        case .channel:
+            ChannelSearchResult.self
+        case .post, .answerPost:
+            PostSearchResult.self
         default:
             nil
         }

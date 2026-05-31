@@ -17,7 +17,7 @@ class SearchTabViewModel {
     var selectedFilters = [SearchFilter]()
 
     var searchRequest: SearchRequest {
-        .init(type: selectedFilters.first?.apiFilterType,
+        .init(type: selectedFilters.first,
               courseId: scope == .course ? courseId : nil,
               searchTerm: searchTerm)
     }
@@ -53,7 +53,7 @@ class SearchTabViewModel {
 
         let service = SearchServiceFactory.shared
 
-        searchResults = await service.search(for: selectedFilters.first?.apiFilterType,
+        searchResults = await service.search(for: selectedFilters.first?.apiFilterTypes,
                                              in: scope == .course ? courseId : nil,
                                              searchTerm: searchTerm)
         observeChanges()

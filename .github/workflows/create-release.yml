@@ -1,0 +1,70 @@
+name: Create GitHub Release
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v6
+  
+      - name: Read version number
+        id: app_version
+        run: |
+          FILE="Artemis.xcodeproj/project.pbxproj"
+
+          APP_VERSION=$(grep -Eo 'APP_VERSION_NUMBER = [0-9.]+' "$FILE" | head -n1 | awk '{print $3}')
+
+          if [ -z "$APP_VERSION" ]; then
+            echo "::error::Could not read APP_VERSION_NUMBER."
+            exit 1
+          fi
+
+          echo "version=$APP_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create tag
+        id: tag
+        run: |
+          TAG=${{ steps.app_version.outputs.version }}
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+
+          git tag $TAG
+          git push origin $TAG
+
+      - name: Extract release notes
+        id: notes
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          NOTES=$(printf "%s\n" "$PR_BODY" | sed '/<!-- END Release Notes -->/q')
+          NOTES=$(printf "%s\n" "$NOTES" | sed '$d')
+
+          {
+            echo 'notes<<EOF'
+            echo "$NOTES"
+            echo 'EOF'
+          } >> $GITHUB_OUTPUT
+
+      - name: Create release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.tag.outputs.tag }}
+          NOTES: ${{ steps.notes.outputs.notes }}
+        run: |
+          gh release create "$TAG" \
+            --title "${{ steps.app_version.outputs.version }}" \
+            --notes "$NOTES"
+

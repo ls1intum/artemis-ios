@@ -40,6 +40,10 @@ public struct CalendarTimelineProvider: AppIntentTimelineProvider {
 
     public func timeline(for configuration: CalendarCourseConfigurationIntent,
                          in context: Context) async -> Timeline<CalendarWidgetEntry> {
+        if context.isPreview {
+            return await Timeline(entries: [snapshot(for: configuration, in: context)],
+                                  policy: .never)
+        }
 
         guard let courseId = configuration.course?.id else {
             return Timeline(entries: [
@@ -51,7 +55,7 @@ public struct CalendarTimelineProvider: AppIntentTimelineProvider {
 
         guard let events = await fetchEventsForCurrentAndNextMonth(courseId: courseId) else {
             return Timeline(entries: [
-                CalendarWidgetEntry(date: .now, needsConfiguration: false)
+                CalendarWidgetEntry(date: .now, needsConfiguration: false, error: true)
             ], policy: .after(.now.addingTimeInterval(60 * 30)))
         }
 

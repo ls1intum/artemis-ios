@@ -21,7 +21,7 @@ struct SearchResultDTO: Decodable {
     }
 
     var isDisplayable: Bool {
-        let supported: [SearchFilterType] = [.exercise, .lecture] // TODO: Add other types
+        let supported: [SearchFilterType] = [.exercise, .lecture, .faq, .channel, .lectureUnit]
         return supported.contains(type ?? .unknown)
     }
 }

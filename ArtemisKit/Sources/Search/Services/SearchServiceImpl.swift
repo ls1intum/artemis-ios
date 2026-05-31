@@ -15,7 +15,7 @@ struct SearchServiceImpl: SearchService {
     struct SearchAPIRequest: APIRequest {
         typealias Response = [SearchResultDTO]
 
-        let type: SearchFilterType?
+        let types: [SearchFilterType]?
         let courseId: Int?
         let searchTerm: String
 
@@ -29,13 +29,13 @@ struct SearchServiceImpl: SearchService {
             [
                 .init(name: "q", value: searchTerm),
                 .init(name: "courseId", value: courseId.flatMap { "\($0)" }),
-                .init(name: "type", value: type?.apiType)
+                .init(name: "types", value: types?.map(\.apiType).joined(separator: ","))
             ]
         }
     }
 
-    func search(for type: SearchFilterType?, in courseId: Int?, searchTerm: String) async -> DataState<[SearchResultDTO]> {
-        let request = SearchAPIRequest(type: type, courseId: courseId, searchTerm: searchTerm)
+    func search(for types: [SearchFilterType]?, in courseId: Int?, searchTerm: String) async -> DataState<[SearchResultDTO]> {
+        let request = SearchAPIRequest(types: types, courseId: courseId, searchTerm: searchTerm)
 
         let result = await client.sendRequest(request)
 

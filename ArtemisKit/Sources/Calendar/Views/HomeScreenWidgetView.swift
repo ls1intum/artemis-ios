@@ -27,7 +27,7 @@ public struct HomeScreenWidgetView: View {
             ContentUnavailableView(isSmall ? i18n.failedLoadingShort() : i18n.failedLoading(),
                                    systemImage: "antenna.radiowaves.left.and.right.slash")
         } else if upcomingEvents.isEmpty {
-            Text(R.string.localizable.noUpcomingEvents())
+            Text(isSmall ? i18n.noUpcomingEventsShort() : i18n.noUpcomingEvents())
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
         } else {

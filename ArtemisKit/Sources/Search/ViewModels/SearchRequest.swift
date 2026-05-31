@@ -8,7 +8,7 @@
 import Foundation
 
 struct SearchRequest: Hashable {
-    let type: SearchFilterType?
+    let type: SearchFilter?
     let courseId: Int?
     let searchTerm: String
 }
