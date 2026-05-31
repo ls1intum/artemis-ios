@@ -23,6 +23,21 @@ final class IrisChatViewModel {
     var rateLimitInfo: IrisRateLimitInformation?
     var inputText = ""
 
+    /// True while the last known message is the user's — i.e. we sent it but the
+    /// reply (which only arrives over the websocket `MESSAGE` payload)
+    /// hasn't landed yet. Drives the inline loading indicator.
+    var isAwaitingResponse: Bool {
+        messages.value?.last?.sender == .user
+    }
+
+    /// First non-internal stage that isn't `done`/`skipped`. Covers `inProgress`,
+    /// `notStarted` and `error` in one pass (mirrors the Angular client's
+    /// `firstUnfinished`). Nil once the pipeline is fully done — the loading
+    /// row then falls back to a generic label while the `MESSAGE` frame lands.
+    var currentStage: IrisStageDTO? {
+        stages.first { !$0.internal && $0.state != .done && $0.state != .skipped }
+    }
+
     var error: UserFacingError?
     var showError: Binding<Bool> {
         Binding(get: {

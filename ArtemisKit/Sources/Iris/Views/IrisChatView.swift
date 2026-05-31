@@ -38,6 +38,10 @@ struct IrisChatView: View {
                                     MessageRow(message: message)
                                         .id(message.id)
                                 }
+                                if viewModel.isAwaitingResponse {
+                                    LoadingStageRow(stage: viewModel.currentStage)
+                                        .id("loadingStageRow")
+                                }
                             }
                             .padding(.l)
                         }
@@ -136,6 +140,30 @@ private struct MessageRow: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
+    }
+}
+
+private struct LoadingStageRow: View {
+    let stage: IrisStageDTO?
+
+    private var label: String {
+        stage?.chatMessage
+            ?? stage?.message
+            ?? stage?.name
+            ?? "Thinking…"
+    }
+
+    var body: some View {
+        HStack(spacing: .m) {
+            ProgressView()
+                .controlSize(.small)
+            Text(label)
+                .foregroundStyle(.secondary)
+                .font(.callout)
+            Spacer(minLength: 0)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .transition(.opacity)
     }
 }
 
