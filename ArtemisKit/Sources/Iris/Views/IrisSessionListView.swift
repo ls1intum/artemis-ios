@@ -45,7 +45,13 @@ public struct IrisSessionListView: View {
                                 .navigationLinkIndicatorVisibility(.hidden)
                                 .swipeActions(edge: .trailing) {
                                     Button(role: .destructive) {
-                                        Task { await viewModel.deleteSession(sessionId: session.id) }
+                                        Task {
+                                            let didDelete = await viewModel.deleteSession(sessionId: session.id)
+                                            if didDelete,
+                                               (navigationController.selectedPath as? IrisSessionPath)?.sessionId == session.id {
+                                                navigationController.selectedPath = nil
+                                            }
+                                        }
                                     } label: {
                                         Label(R.string.localizable.delete(), systemImage: "trash")
                                     }
@@ -89,9 +95,15 @@ public struct IrisSessionListView: View {
             .courseToolbar()
         } detail: {
             if let path = navigationController.selectedPath as? IrisSessionPath {
-                IrisChatView(sessionPath: path, onDeleted: {
-                    navigationController.selectedPath = nil
-                })
+                IrisChatView(
+                    sessionPath: path,
+                    onDeleted: {
+                        viewModel.removeSession(sessionId: path.sessionId)
+                        navigationController.selectedPath = nil
+                    },
+                    onTitleChange: { newTitle in
+                        viewModel.updateSessionTitle(sessionId: path.sessionId, title: newTitle)
+                    })
                 .id(path.sessionId)
             } else {
                 SelectDetailView()

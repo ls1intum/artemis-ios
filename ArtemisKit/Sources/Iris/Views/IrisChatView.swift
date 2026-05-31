@@ -16,10 +16,14 @@ struct IrisChatView: View {
     @FocusState private var isInputFocused: Bool
 
     private let onDeleted: () -> Void
+    private let onTitleChange: (String) -> Void
 
-    init(sessionPath: IrisSessionPath, onDeleted: @escaping () -> Void = {}) {
+    init(sessionPath: IrisSessionPath,
+         onDeleted: @escaping () -> Void = {},
+         onTitleChange: @escaping (String) -> Void = { _ in }) {
         _viewModel = State(wrappedValue: IrisChatViewModel(sessionPath: sessionPath))
         self.onDeleted = onDeleted
+        self.onTitleChange = onTitleChange
     }
 
     var body: some View {
@@ -97,6 +101,9 @@ struct IrisChatView: View {
         }
         .task { await viewModel.loadMessages() }
         .task { await viewModel.subscribeToWebsocket() }
+        .onChange(of: viewModel.sessionTitle) { _, newTitle in
+            if let newTitle { onTitleChange(newTitle) }
+        }
         .onDisappear { Task {
             await viewModel.disconnect()
         }
@@ -160,7 +167,6 @@ private struct LoadingStageRow: View {
             Text(label)
                 .foregroundStyle(.secondary)
                 .font(.callout)
-            Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .transition(.opacity)

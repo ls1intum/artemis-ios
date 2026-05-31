@@ -70,6 +70,7 @@ final class IrisSessionListViewModel {
                 entityId: response.entityId,
                 entityName: nil)
             session = dto
+            sessions.value?.insert(dto, at: 0)
         case .loading:
             break
         }
@@ -77,7 +78,7 @@ final class IrisSessionListViewModel {
         return session
     }
 
-    func deleteSession(sessionId: Int) async {
+    func deleteSession(sessionId: Int) async -> Bool {
         isLoading = true
         defer {
             isLoading = false
@@ -85,16 +86,28 @@ final class IrisSessionListViewModel {
         let result = await httpService.deleteSession(sessionId: sessionId)
         switch result {
         case .success:
-            sessions.value?.removeAll(where: { $0.id == sessionId })
+            removeSession(sessionId: sessionId)
+            return true
         case .failure(let error):
             if let apiClientError = error as? APIClientError {
                 self.error = UserFacingError(error: apiClientError)
             } else {
                 self.error = UserFacingError(title: error.localizedDescription)
             }
+            return false
         case .loading, .notStarted:
             isLoading = true
+            return false
         }
+    }
+
+    func removeSession(sessionId: Int) {
+        sessions.value?.removeAll(where: { $0.id == sessionId })
+    }
+
+    func updateSessionTitle(sessionId: Int, title: String) {
+        guard let index = sessions.value?.firstIndex(where: { $0.id == sessionId }) else { return }
+        sessions.value?[index].title = title
     }
 }
 
