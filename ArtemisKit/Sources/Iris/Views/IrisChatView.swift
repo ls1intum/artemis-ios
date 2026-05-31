@@ -12,6 +12,8 @@ import SwiftUI
 struct IrisChatView: View {
     @State private var viewModel: IrisChatViewModel
     @State private var showDeleteConfirmation = false
+    @State private var viewportHeight: CGFloat = 0
+    @State private var bottomSpacerHeight: CGFloat = 0
 
     private let onDeleted: () -> Void
 
@@ -34,23 +36,28 @@ struct IrisChatView: View {
                             LazyVStack(alignment: .leading, spacing: .m) {
                                 ForEach(messages) { message in
                                     MessageRow(message: message)
+                                        .id(message.id)
                                 }
                             }
                             .padding(.l)
                         }
-                        Spacer()
-                            .frame(height: 1)
-                            .id("bottom")
+                        Color.clear.frame(height: bottomSpacerHeight)
                     }
                     .defaultScrollAnchor(.bottom)
-                    .onChange(of: messages.count) {
-                        withAnimation {
-                            proxy.scrollTo("bottom", anchor: .bottom)
+                    .background {
+                        GeometryReader { geo in
+                            Color.clear
+                                .onAppear { viewportHeight = geo.size.height }
+                                .onChange(of: geo.size.height) { _, newValue in
+                                    viewportHeight = newValue
+                                }
                         }
                     }
-                    .onChange(of: messages.last) {
+                    .onChange(of: messages.count) {
+                        guard let last = messages.last, last.sender == .user else { return }
                         withAnimation {
-                            proxy.scrollTo("bottom", anchor: .bottom)
+                            bottomSpacerHeight = viewportHeight
+                            proxy.scrollTo(last.id, anchor: .top)
                         }
                     }
                 }
