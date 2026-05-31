@@ -12,8 +12,8 @@ import SwiftUI
 struct IrisChatView: View {
     @State private var viewModel: IrisChatViewModel
     @State private var showDeleteConfirmation = false
-    @State private var viewportHeight: CGFloat = 0
-    @State private var bottomSpacerHeight: CGFloat = 0
+    @State private var bottomSpacerShown = false
+    @FocusState private var isInputFocused: Bool
 
     private let onDeleted: () -> Void
 
@@ -41,27 +41,25 @@ struct IrisChatView: View {
                             }
                             .padding(.l)
                         }
-                        Color.clear.frame(height: bottomSpacerHeight)
-                    }
-                    .defaultScrollAnchor(.bottom)
-                    .background {
-                        GeometryReader { geo in
-                            Color.clear
-                                .onAppear { viewportHeight = geo.size.height }
-                                .onChange(of: geo.size.height) { _, newValue in
-                                    viewportHeight = newValue
-                                }
+                        if bottomSpacerShown {
+                            Color.clear.containerRelativeFrame(.vertical)
                         }
                     }
+                    .defaultScrollAnchor(.bottom)
                     .onChange(of: messages.count) {
                         guard let last = messages.last, last.sender == .user else { return }
-                        withAnimation {
-                            bottomSpacerHeight = viewportHeight
-                            proxy.scrollTo(last.id, anchor: .top)
+                        bottomSpacerShown = true
+                        Task { @MainActor in
+                            withAnimation {
+                                proxy.scrollTo(last.id, anchor: .top)
+                            }
                         }
                     }
                 }
-                InputBar(text: $viewModel.inputText, onSend: { viewModel.sendMessage() })
+                InputBar(text: $viewModel.inputText, isFocused: $isInputFocused, onSend: {
+                    viewModel.sendMessage()
+                    isInputFocused = false
+                })
             }
         }
         .navigationTitle(viewModel.sessionTitle ?? "")
@@ -160,6 +158,7 @@ private struct EmptyChatView: View {
 
 private struct InputBar: View {
     @Binding var text: String
+    @FocusState.Binding var isFocused: Bool
     let onSend: () -> Void
 
     var body: some View {
@@ -167,6 +166,7 @@ private struct InputBar: View {
             TextField("Ask Iris...", text: $text, axis: .vertical)
                 .textFieldStyle(.roundedBorder)
                 .lineLimit(1...5)
+                .focused($isFocused)
 
             Button(action: onSend) {
                 Image(systemName: "paperplane.fill")
