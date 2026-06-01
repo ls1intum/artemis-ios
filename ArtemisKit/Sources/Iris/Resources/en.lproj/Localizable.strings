@@ -1,0 +1,20 @@
+// MARK: IrisSessionListView
+"newChat" = "New Chat";
+"noChats" = "No chats yet";
+"noChatsDescription" = "Tap the + button to start a new chat.";
+"delete" = "Delete";
+
+// MARK: IrisSessionListView – Section headers
+"sectionToday" = "Today";
+"sectionYesterday" = "Yesterday";
+"sectionLast7Days" = "Last 7 Days";
+"sectionLast30Days" = "Last 30 Days";
+"sectionOlder" = "Older";
+
+// MARK: IrisChatView
+"deleteChat" = "Delete Chat";
+"deleteChatConfirmationMessage" = "Are you sure you want to delete this chat? This action cannot be undone.";
+"cancel" = "Cancel";
+"thinking" = "Thinking…";
+"emptyChatTitle" = "How can I help you today?";
+"askIrisPlaceholder" = "Ask Iris...";

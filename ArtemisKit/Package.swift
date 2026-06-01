@@ -118,7 +118,15 @@ let package = Package(
             dependencies: [
                 .product(name: "APIClient", package: "artemis-ios-core-modules"),
                 .product(name: "Common", package: "artemis-ios-core-modules"),
-                .product(name: "SharedModels", package: "artemis-ios-core-modules")
+                .product(name: "DesignLibrary", package: "artemis-ios-core-modules"),
+                .product(name: "SharedModels", package: "artemis-ios-core-modules"),
+                .product(name: "ProfileInfo", package: "artemis-ios-core-modules"),
+                "Navigation",
+                "Notifications",
+                .product(name: "RswiftLibrary", package: "R.swift")
+            ],
+            plugins: [
+                .plugin(name: "RswiftGeneratePublicResources", package: "R.swift")
             ]),
         .target(
             name: "Faq",

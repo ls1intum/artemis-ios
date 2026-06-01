@@ -4,6 +4,7 @@ import Common
 import SharedModels
 import Navigation
 import Messages
+import Iris
 import ProfileInfo
 import Search
 import DesignLibrary
@@ -13,6 +14,10 @@ public struct CourseView: View {
 
     @StateObject private var viewModel: CourseViewModel
     @FeatureAvailability(.globalSearch) private var searchEnabled
+
+    // TODO: Replace with @FeatureAvailability(.iris) once the Feature enum in
+    // artemis-ios-core-modules exposes the MODULE_FEATURE_IRIS case.
+    private var irisEnabled = false
 
     private let courseId: Int
 
@@ -60,6 +65,14 @@ public struct CourseView: View {
                     // Search tab does not use split view, so always use compact toolbar
                         .courseToolbar(title: viewModel.course.title ?? R.string.localizable.loading())
                         .environment(\.horizontalSizeClass, .compact)
+                }
+            }
+
+            if irisEnabled {
+                Tab("Iris", systemImage: "eyes", value: TabIdentifier.iris) {
+                    TabBarIpad {
+                        IrisSessionListView(courseId: viewModel.course.id)
+                    }
                 }
             }
         }

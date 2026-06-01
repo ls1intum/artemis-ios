@@ -51,6 +51,8 @@ public struct SelectDetailView: View {
             R.string.localizable.selectFaq()
         case .search:
             "Search"
+        case .iris:
+            R.string.localizable.selectConversation()
         }
     }
 }
