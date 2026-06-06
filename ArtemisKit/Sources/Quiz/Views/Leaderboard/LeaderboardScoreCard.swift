@@ -21,7 +21,7 @@ struct LeaderboardScoreCard: View {
     var body: some View {
         if let league = entry.selectedLeague.map({ leaguePoints.count - Int($0) }),
            league < leaguePoints.count && league >= 0 {
-            Section("League") {
+            Section(R.string.localizable.league()) {
                 HStack {
                     Image(leagueNames[league], bundle: .module)
                         .resizable()

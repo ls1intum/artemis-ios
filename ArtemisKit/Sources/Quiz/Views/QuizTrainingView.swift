@@ -9,6 +9,8 @@ import SwiftUI
 
 public struct QuizTrainingView: View {
 
+    @Environment(\.dismiss) private var dismiss
+
     let courseId: Int
 
     public init(courseId: Int) {
@@ -20,8 +22,16 @@ public struct QuizTrainingView: View {
             List {
                 LeaderboardView(courseId: courseId)
             }
-            .navigationTitle("Quiz Training")
+            .navigationTitle(R.string.localizable.quizTraining())
             .toolbarTitleDisplayMode(.inlineLarge)
+            .interactiveDismissDisabled()
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(R.string.localizable.done()) {
+                        dismiss()
+                    }
+                }
+            }
         }
     }
 }

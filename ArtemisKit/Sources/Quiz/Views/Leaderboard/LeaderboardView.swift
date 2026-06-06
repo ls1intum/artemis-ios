@@ -24,7 +24,7 @@ struct LeaderboardView: View {
             LeaderboardScoreCard(entry: leaderboard.currentUserEntry)
             CurrentUserEntry(entry: leaderboard.currentUserEntry)
 
-            Section("Leaderboard") {
+            Section(R.string.localizable.leaderboard()) {
                 ForEach(leaderboard.leaderboardEntries, id: \.userId) { entry in
                     LeaderboardEntryView(entry: entry)
                 }
@@ -49,7 +49,7 @@ private struct CurrentUserEntry: View {
     }
 
     var body: some View {
-        Section("Your ranking") {
+        Section(R.string.localizable.yourRanking()) {
             LeaderboardEntryView(entry: entry)
         }
     }
