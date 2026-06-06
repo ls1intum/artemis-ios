@@ -5,6 +5,7 @@ import SharedModels
 import Common
 import Navigation
 import Notifications
+import Quiz
 import DesignLibrary
 
 struct ExerciseListView: View {
@@ -13,6 +14,7 @@ struct ExerciseListView: View {
     @State private var columnVisibilty: NavigationSplitViewVisibility = .doubleColumn
 
     @State private var searchText = ""
+    @State private var showQuizTraining = false
 
     private var selectedExercise: Binding<ExercisePath?> {
         navController.selectedPathBinding($navController.selectedPath)
@@ -60,6 +62,25 @@ struct ExerciseListView: View {
                         }
                     }
                 }
+                .safeAreaInset(edge: .bottom) {
+                    if hasQuizExercises {
+                        Button {
+                            showQuizTraining = true
+                        } label: {
+                            Image(systemName: "dumbbell.fill")
+                                .foregroundStyle(.white)
+                                .font(.title2)
+                                .frame(width: 60, height: 60, alignment: .center)
+                                .background(Color.Artemis.artemisBlue, in: .circle)
+                                .shadow(color: Color.gray.opacity(0.2), radius: .m)
+                        }
+                        .padding()
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                    }
+                }
+            }
+            .sheet(isPresented: $showQuizTraining) {
+                QuizTrainingView(courseId: viewModel.course.id)
             }
             .courseToolbar()
         } detail: {
@@ -94,6 +115,15 @@ struct ExerciseListView: View {
 }
 
 private extension ExerciseListView {
+    var hasQuizExercises: Bool {
+        viewModel.course.exercises?.contains(where: {
+            if case .quiz = $0 {
+                true
+            } else {
+                false
+            }
+        }) ?? false
+    }
     var searchResults: [Exercise] {
         guard let exercises = viewModel.course.exercises else {
             return []
@@ -219,82 +249,6 @@ struct WeeklyExerciseView: View {
             ExerciseListCell(course: course, exercise: exercise)
                 .listRowInsets(EdgeInsets(top: 0, leading: -20, bottom: 0, trailing: 0))
         }
-    }
-}
-
-struct ExerciseListCell: View {
-    @EnvironmentObject var navigationController: NavigationController
-
-    let course: Course
-    let exercise: Exercise
-
-    var showAdditionalBadges: Bool {
-        if let releaseDate = exercise.baseExercise.releaseDate,
-           releaseDate > .now {
-            return true
-        }
-        if let categories = exercise.baseExercise.categories, !categories.isEmpty {
-            return true
-        }
-        return exercise.baseExercise.includedInOverallScore != .includedCompletely
-    }
-
-    var body: some View {
-        NavigationLink(value: ExercisePath(exercise: exercise, coursePath: CoursePath(course: course))) {
-            HStack(alignment: .top, spacing: 0) {
-                if let difficulty = exercise.baseExercise.difficulty {
-                    Rectangle()
-                        .frame(width: .m)
-                        .foregroundStyle(difficulty.color)
-                        .accessibilityLabel(difficulty.description)
-                }
-                VStack(alignment: .leading, spacing: .m) {
-                    HStack(spacing: .m) {
-                        exercise.image
-                            .renderingMode(.template)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: .smallImage)
-                        Text(exercise.baseExercise.title ?? "")
-                            .font(.title3)
-                            .lineLimit(1)
-                    }
-                    if let dueDate = exercise.baseExercise.dueDate {
-                        Text(dueDate, style: .date)
-                    } else {
-                        Text(R.string.localizable.noDueDate())
-                    }
-                    SubmissionResultStatusView(exercise: exercise)
-                    if showAdditionalBadges {
-                        ScrollView(.horizontal) {
-                            HStack(spacing: .s) {
-                                if let releaseDate = exercise.baseExercise.releaseDate,
-                                   releaseDate > .now {
-                                    Chip(
-                                        text: R.string.localizable.notReleased(),
-                                        backgroundColor: Color.Artemis.badgeWarningColor)
-                                }
-                                ForEach(exercise.baseExercise.categories ?? [], id: \.category) { category in
-                                    Chip(text: category.category, backgroundColor: UIColor(hexString: category.colorCode).suColor)
-                                }
-                                // TODO: maybe add isActiveQuiz in presentationMode badge
-                                if exercise.baseExercise.includedInOverallScore != .includedCompletely {
-                                    Chip(
-                                        text: exercise.baseExercise.includedInOverallScore.description,
-                                        backgroundColor: exercise.baseExercise.includedInOverallScore.color)
-                                }
-                            }
-                        }
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.l)
-            }
-            .foregroundColor(Color.Artemis.primaryLabel)
-        }
-        .tag(ExercisePath(exercise: exercise, coursePath: CoursePath(course: course)))
-        .navigationLinkIndicatorVisibility(.hidden)
-        .listRowBackground(Color.Artemis.exerciseCardBackgroundColor)
     }
 }
 
