@@ -62,7 +62,7 @@ private struct LeaderboardEntryView: View {
         HStack(spacing: .l) {
             if let rank = entry.rank {
                 Text("#\(rank)")
-                    .font(.largeTitle.bold())
+                    .font(.largeTitle.bold().monospacedDigit())
             }
 
             ArtemisAsyncImage(imageURL: entry.imagePath) {}
