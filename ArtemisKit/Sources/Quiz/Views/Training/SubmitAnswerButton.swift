@@ -19,12 +19,22 @@ struct SubmitAnswerButton: View {
     @State private var isLoading = false
 
     var body: some View {
-        Button("Submit") {
-            submit()
+        Button {
+            if case .done = viewModel.lastSubmissionResult {
+                viewModel.goToNextQuestion()
+            } else {
+                submit()
+            }
+        } label: {
+            if case .done = viewModel.lastSubmissionResult {
+                Text(R.string.localizable.nextQuestion())
+            } else {
+                Text(R.string.localizable.submit())
+            }
         }
         .disabled(isLoading)
         .loadingIndicator(isLoading: $isLoading)
-        .alert("Failed to submit answer", isPresented: .init(
+        .alert(R.string.localizable.failedToSubmit(), isPresented: .init(
             get: {
                 if case .failure = viewModel.lastSubmissionResult {
                     return true
@@ -38,7 +48,7 @@ struct SubmitAnswerButton: View {
             })
         ) {
             Button("Ok") {}
-            Button("Retry") {
+            Button(R.string.localizable.retry()) {
                 submit()
             }
         }

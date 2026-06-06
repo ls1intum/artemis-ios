@@ -29,6 +29,9 @@ struct MCQuestionView: View {
                     if selectedAnswers.contains(id) {
                         selectedAnswers.removeAll { $0 == id }
                     } else {
+                        if question.quizQuestionWithSolutionDTO.singleChoice == true {
+                            selectedAnswers.removeAll()
+                        }
                         selectedAnswers.append(id)
                     }
                 } label: {

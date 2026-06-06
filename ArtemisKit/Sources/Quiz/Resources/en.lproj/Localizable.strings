@@ -4,3 +4,9 @@
 "leaderboard" = "Leaderboard";
 "yourRanking" = "Your Ranking";
 "league" = "League";
+
+"submit" = "Submit";
+"skip" = "Skip";
+"nextQuestion" = "Next Question";
+"failedToSubmit" = "Failed to submit answer";
+"retry" = "Retry";

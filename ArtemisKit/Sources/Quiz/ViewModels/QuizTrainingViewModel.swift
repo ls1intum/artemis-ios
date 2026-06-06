@@ -34,6 +34,7 @@ class QuizTrainingViewModel {
 
     func goToNextQuestion() {
         questions.value?.removeFirst()
+        lastSubmissionResult = .loading
     }
 
     func submitAnswer(questionId: Int64, isRated: Bool, answer: QuizTrainingAnswer) async {
