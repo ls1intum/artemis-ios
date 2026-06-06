@@ -38,7 +38,7 @@ struct QuizQuestionView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: .m) {
                 if let title = question.quizQuestionWithSolutionDTO.title {
                     Text(title)
                         .font(.title)
