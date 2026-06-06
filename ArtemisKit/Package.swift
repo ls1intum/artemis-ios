@@ -20,7 +20,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/onmyway133/Smile", revision: "6bacbf7"),
 //        .package(url: "https://github.com/ls1intum/apollon-ios-module", .upToNextMajor(from: "1.0.9")), // Disabled because not working
-        .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", .upToNextMajor(from: "20.0.0")),
+        .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", revision: "a14d665"),
         .package(url: "https://github.com/mac-cain13/R.swift.git", from: "7.8.0")
     ],
     targets: [
@@ -71,9 +71,11 @@ let package = Package(
             dependencies: [
                 "Calendar",
                 "Faq",
+                "Iris",
                 "Messages",
                 "Navigation",
                 "Notifications",
+                "Quiz",
                 "Search",
                 // Apollon disabled because not working
 //                .product(name: "ApollonEdit", package: "apollon-ios-module"),
@@ -111,7 +113,8 @@ let package = Package(
         .target(
             name: "Extensions",
             dependencies: [
-                .product(name: "Common", package: "artemis-ios-core-modules")
+                .product(name: "Common", package: "artemis-ios-core-modules"),
+                .product(name: "UserStore", package: "artemis-ios-core-modules")
             ]),
         .target(
             name: "Iris",
@@ -184,6 +187,19 @@ let package = Package(
                 .product(name: "DesignLibrary", package: "artemis-ios-core-modules"),
                 .product(name: "SharedModels", package: "artemis-ios-core-modules"),
                 .product(name: "PushNotifications", package: "artemis-ios-core-modules"),
+                .product(name: "UserStore", package: "artemis-ios-core-modules"),
+                .product(name: "RswiftLibrary", package: "R.swift")
+            ],
+            plugins: [
+                .plugin(name: "RswiftGeneratePublicResources", package: "R.swift")
+            ]),
+        .target(
+            name: "Quiz",
+            dependencies: [
+                "Extensions",
+                .product(name: "APIClient", package: "artemis-ios-core-modules"),
+                .product(name: "DesignLibrary", package: "artemis-ios-core-modules"),
+                .product(name: "SharedModels", package: "artemis-ios-core-modules"),
                 .product(name: "UserStore", package: "artemis-ios-core-modules"),
                 .product(name: "RswiftLibrary", package: "R.swift")
             ],
