@@ -21,7 +21,7 @@ struct QuizTraingQuestionsView: View {
         DataStateView(data: $viewModel.questions) {
             await viewModel.loadQuestions()
         } content: { questions in
-            if let question = questions.first(where: { $0.quizQuestionWithSolutionDTO._type == "drag-and-drop" }) {
+            if let question = questions.first {
                 QuizQuestionView(question: question)
             } else {
                 VStack(alignment: .center) {
