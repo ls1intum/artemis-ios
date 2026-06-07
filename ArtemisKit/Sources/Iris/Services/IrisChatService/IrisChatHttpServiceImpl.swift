@@ -18,7 +18,7 @@ struct IrisChatHttpServiceImpl: IrisChatHttpService {
     struct GetCurrentSessionRequest: APIRequest {
         typealias Response = IrisSession
 
-        let mode: ChatServiceMode
+        let mode: IrisChatMode
         let entityId: Int
 
         var method: HTTPMethod { .post }
@@ -39,7 +39,7 @@ struct IrisChatHttpServiceImpl: IrisChatHttpService {
         }
     }
 
-    func getCurrentOrCreateSession(mode: ChatServiceMode, entityId: Int) async -> DataState<IrisSession> {
+    func getCurrentOrCreateSession(mode: IrisChatMode, entityId: Int) async -> DataState<IrisSession> {
         let result = await client.sendRequest(GetCurrentSessionRequest(mode: mode, entityId: entityId))
         switch result {
         case .success(let response):
@@ -52,7 +52,7 @@ struct IrisChatHttpServiceImpl: IrisChatHttpService {
     struct CreateSessionRequest: APIRequest {
         typealias Response = IrisSession
 
-        let mode: ChatServiceMode
+        let mode: IrisChatMode
         let entityId: Int
 
         var method: HTTPMethod { .post }
@@ -73,7 +73,7 @@ struct IrisChatHttpServiceImpl: IrisChatHttpService {
         }
     }
 
-    func createSession(mode: ChatServiceMode, entityId: Int) async -> DataState<IrisSession> {
+    func createSession(mode: IrisChatMode, entityId: Int) async -> DataState<IrisSession> {
         let result = await client.sendRequest(CreateSessionRequest(mode: mode, entityId: entityId))
         switch result {
         case .success(let response):

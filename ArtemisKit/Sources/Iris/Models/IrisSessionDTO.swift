@@ -13,7 +13,7 @@ struct IrisSessionDTO: Codable, Hashable, Identifiable {
     let id: Int
     var title: String?
     let creationDate: Date
-    let mode: ChatServiceMode
+    let mode: IrisChatMode
     let entityId: Int
     let entityName: String?
 }

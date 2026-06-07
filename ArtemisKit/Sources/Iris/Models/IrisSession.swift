@@ -19,7 +19,7 @@ struct IrisSession: Codable, Hashable, Identifiable {
     let latestSuggestions: String?
     let title: String?
     let creationDate: Date
-    let mode: ChatServiceMode?
+    let mode: IrisChatMode?
     let entityId: Int
     let citationInfo: [IrisCitationMetaDTO]?
 }

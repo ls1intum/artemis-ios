@@ -1,15 +1,15 @@
 //
-//  ChatServiceMode.swift
+//  IrisChatMode.swift
 //  ArtemisKit
 //
-//  Created by Senan Aslan on 09.05.26.
+//  Created by Senan Aslan on 05.06.26.
 //
 
 import SharedModels
 
-/// Identifies the Iris context a session belongs to.
-/// Mirrors the `ChatServiceMode` TS enum in `iris-chat.service.ts`.
-enum ChatServiceMode: String, ConstantsEnum {
+/// Identifies the Iris chat mode.
+/// Mirrors the server `IrisChatMode` enum.
+enum IrisChatMode: String, ConstantsEnum {
     case textExercise = "TEXT_EXERCISE_CHAT"
     case programmingExercise = "PROGRAMMING_EXERCISE_CHAT"
     case course = "COURSE_CHAT"
