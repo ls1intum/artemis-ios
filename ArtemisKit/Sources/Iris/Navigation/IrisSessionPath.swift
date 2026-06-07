@@ -23,4 +23,14 @@ struct IrisSessionPath: Hashable {
         self.session = session
         self.coursePath = coursePath
     }
+
+    /// Identity is keyed on `sessionId` only. The embedded `session` DTO is a
+    /// mutable snapshot (title and context update live in the list)
+    static func == (lhs: IrisSessionPath, rhs: IrisSessionPath) -> Bool {
+        lhs.sessionId == rhs.sessionId
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(sessionId)
+    }
 }
