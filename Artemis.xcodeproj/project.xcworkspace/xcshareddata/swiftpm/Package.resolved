@@ -1,13 +1,13 @@
 {
-  "originHash" : "839792f4861f2a4b3358777ce8cf3b8b3fa78d9ef54357a18dd752553b2a664f",
+  "originHash" : "890c5cf33ce71fe3add567e372d050bc71c9714d1966e94362fbfc15abd390a8",
   "pins" : [
     {
       "identity" : "artemis-ios-core-modules",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ls1intum/artemis-ios-core-modules",
       "state" : {
-        "branch" : "a14d665",
-        "revision" : "a14d665787204e9370495b8d421b9e44a9040c89"
+        "branch" : "72696a4",
+        "revision" : "72696a4d4ee321177f095fe880f6dbe07c059994"
       }
     },
     {
