@@ -114,9 +114,7 @@ final class IrisSessionListViewModel {
     /// so its icon and entity name update without waiting for a full reload.
     func updateSessionContext(sessionId: Int, context: SessionContext) {
         guard let index = sessions.value?.firstIndex(where: { $0.id == sessionId }) else { return }
-        sessions.value?[index].mode = context.mode
-        sessions.value?[index].entityId = context.entityId
-        sessions.value?[index].entityName = context.entityName
+        sessions.value?[index].apply(context)
     }
 }
 

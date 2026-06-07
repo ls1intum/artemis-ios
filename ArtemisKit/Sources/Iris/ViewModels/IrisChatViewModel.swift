@@ -80,11 +80,7 @@ final class IrisChatViewModel {
         self.sessionPath = sessionPath
         self.httpService = httpService
         self.sessionTitle = sessionPath.session?.title
-        if let session = sessionPath.session {
-            self.committedContext = SessionContext(mode: session.mode,
-                                                   entityId: session.entityId,
-                                                   entityName: session.entityName)
-        }
+        self.committedContext = sessionPath.session?.context
     }
 
     func loadMessages() async {

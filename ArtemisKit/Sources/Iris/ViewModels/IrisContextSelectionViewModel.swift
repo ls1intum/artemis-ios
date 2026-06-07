@@ -11,9 +11,10 @@ import SharedModels
 import SharedServices
 import SwiftUI
 
-/// Backs ``IrisContextSelectionView``. Loads the course once, exposes its
-/// lectures and (text/programming) exercises filtered by the search text, and
-/// holds the current selection that a row tap pushes back to the chat view model.
+/// Backs ``IrisContextSelectionView``. Loads the course once and exposes its
+/// lectures and (text/programming) exercises filtered by the search text. The
+/// chosen ``SessionContext`` is built on demand and handed straight to the chat
+/// view model — this catalog holds no selection state of its own.
 @MainActor
 @Observable
 final class IrisContextSelectionViewModel {
@@ -23,15 +24,9 @@ final class IrisContextSelectionViewModel {
     var courseState: DataState<CourseForDashboardDTO> = .loading
     var searchText = ""
 
-    /// The current pick. Pushed up to the chat view model on a row tap;
-    /// dismissing without choosing a row discards it.
-    var selection: SessionContext?
-
     init(courseId: Int,
-         initialSelection: SessionContext? = nil,
          courseService: CourseService = CourseServiceFactory.shared) {
         self.courseId = courseId
-        self.selection = initialSelection
         self.courseService = courseService
     }
 
@@ -59,24 +54,24 @@ final class IrisContextSelectionViewModel {
             .filter { matches($0.baseExercise.title) }
     }
 
-    func select(lecture: Lecture) {
-        selection = SessionContext(mode: .lecture,
-                                   entityId: lecture.id,
-                                   entityName: lecture.title)
+    func context(for lecture: Lecture) -> SessionContext {
+        SessionContext(mode: .lecture,
+                       entityId: lecture.id,
+                       entityName: lecture.title)
     }
 
-    func select(exercise: Exercise) {
-        selection = SessionContext(mode: mode(for: exercise),
-                                   entityId: exercise.id,
-                                   entityName: exercise.baseExercise.title)
+    func context(for exercise: Exercise) -> SessionContext {
+        SessionContext(mode: mode(for: exercise),
+                       entityId: exercise.id,
+                       entityName: exercise.baseExercise.title)
     }
 
-    func isSelected(lecture: Lecture) -> Bool {
-        selection?.mode == .lecture && selection?.entityId == lecture.id
+    func isSelected(lecture: Lecture, current: SessionContext?) -> Bool {
+        current?.mode == .lecture && current?.entityId == lecture.id
     }
 
-    func isSelected(exercise: Exercise) -> Bool {
-        selection?.mode == mode(for: exercise) && selection?.entityId == exercise.id
+    func isSelected(exercise: Exercise, current: SessionContext?) -> Bool {
+        current?.mode == mode(for: exercise) && current?.entityId == exercise.id
     }
 
     private func matches(_ title: String?) -> Bool {

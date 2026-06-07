@@ -16,4 +16,17 @@ struct IrisSessionDTO: Codable, Hashable, Identifiable {
     var mode: IrisChatMode
     var entityId: Int
     var entityName: String?
+
+    /// The session's context as the local ``SessionContext`` model.
+    var context: SessionContext {
+        SessionContext(mode: mode, entityId: entityId, entityName: entityName)
+    }
+
+    /// Overwrites the context fields from a ``SessionContext`` — used to mirror a
+    /// live context switch from the open chat back into the list row.
+    mutating func apply(_ context: SessionContext) {
+        mode = context.mode
+        entityId = context.entityId
+        entityName = context.entityName
+    }
 }

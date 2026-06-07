@@ -77,13 +77,13 @@ struct IrisChatView: View {
                     isFocused: $isInputFocused,
                     isContextPresented: $isContextSelectionPresented,
                     contextViewModel: contextViewModel,
+                    currentSelection: viewModel.displayedChipContext,
                     chipTitle: viewModel.displayedChipContext.map { $0.entityName ?? R.string.localizable.untitled() },
                     onSend: {
                         viewModel.sendMessage()
                         isInputFocused = false
                     },
                     onPlusTapped: {
-                        contextViewModel.selection = viewModel.displayedChipContext
                         isContextSelectionPresented = true
                     },
                     onChipRemoved: {
@@ -240,6 +240,7 @@ private struct InputBar: View {
     @FocusState.Binding var isFocused: Bool
     @Binding var isContextPresented: Bool
     let contextViewModel: IrisContextSelectionViewModel
+    let currentSelection: SessionContext?
     let chipTitle: String?
     let onSend: () -> Void
     let onPlusTapped: () -> Void
@@ -264,7 +265,9 @@ private struct InputBar: View {
                 .popover(isPresented: $isContextPresented,
                          attachmentAnchor: .point(.top),
                          arrowEdge: .bottom) {
-                    IrisContextSelectionView(viewModel: contextViewModel, onSet: onContextSelected)
+                    IrisContextSelectionView(viewModel: contextViewModel,
+                                             currentSelection: currentSelection,
+                                             onSet: onContextSelected)
                         .modifier(ContextSelectionPresentation(isRegular: horizontalSizeClass == .regular))
                 }
 

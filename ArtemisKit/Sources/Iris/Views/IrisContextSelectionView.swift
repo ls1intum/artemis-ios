@@ -16,6 +16,8 @@ struct IrisContextSelectionView: View {
     @Environment(\.dismiss) private var dismiss
     @Bindable var viewModel: IrisContextSelectionViewModel
 
+    /// The context currently active in the chat — drives the row checkmark.
+    let currentSelection: SessionContext?
     let onSet: (SessionContext) -> Void
 
     var body: some View {
@@ -31,9 +33,9 @@ struct IrisContextSelectionView: View {
                             Section(R.string.localizable.lecturesSection()) {
                                 ForEach(viewModel.lectures) { lecture in
                                     ContextRow(title: lecture.title,
-                                               isSelected: viewModel.isSelected(lecture: lecture)) {
-                                        viewModel.select(lecture: lecture)
-                                        apply()
+                                               isSelected: viewModel.isSelected(lecture: lecture, current: currentSelection)) {
+                                        onSet(viewModel.context(for: lecture))
+                                        dismiss()
                                     }
                                 }
                             }
@@ -42,9 +44,9 @@ struct IrisContextSelectionView: View {
                             Section(R.string.localizable.exercisesSection()) {
                                 ForEach(viewModel.exercises) { exercise in
                                     ContextRow(title: exercise.baseExercise.title,
-                                               isSelected: viewModel.isSelected(exercise: exercise)) {
-                                        viewModel.select(exercise: exercise)
-                                        apply()
+                                               isSelected: viewModel.isSelected(exercise: exercise, current: currentSelection)) {
+                                        onSet(viewModel.context(for: exercise))
+                                        dismiss()
                                     }
                                 }
                             }
@@ -59,15 +61,6 @@ struct IrisContextSelectionView: View {
                 await viewModel.loadCourseIfNeeded()
             }
         }
-    }
-
-    /// Pushes the current pick up to the chat view model and closes the
-    /// presentation. Called from a row tap — there is no separate confirm step.
-    private func apply() {
-        if let selection = viewModel.selection {
-            onSet(selection)
-        }
-        dismiss()
     }
 }
 
