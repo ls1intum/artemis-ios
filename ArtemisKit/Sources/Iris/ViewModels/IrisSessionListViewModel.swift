@@ -109,6 +109,15 @@ final class IrisSessionListViewModel {
         guard let index = sessions.value?.firstIndex(where: { $0.id == sessionId }) else { return }
         sessions.value?[index].title = title
     }
+
+    /// Mirrors a live context switch from the open chat back into the list row,
+    /// so its icon and entity name update without waiting for a full reload.
+    func updateSessionContext(sessionId: Int, context: SessionContext) {
+        guard let index = sessions.value?.firstIndex(where: { $0.id == sessionId }) else { return }
+        sessions.value?[index].mode = context.mode
+        sessions.value?[index].entityId = context.entityId
+        sessions.value?[index].entityName = context.entityName
+    }
 }
 
 extension IrisSessionListViewModel {

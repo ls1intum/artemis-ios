@@ -103,6 +103,9 @@ public struct IrisSessionListView: View {
                     },
                     onTitleChange: { newTitle in
                         viewModel.updateSessionTitle(sessionId: path.sessionId, title: newTitle)
+                    },
+                    onContextChange: { context in
+                        viewModel.updateSessionContext(sessionId: path.sessionId, context: context)
                     })
                 .id(path.sessionId)
             } else {
