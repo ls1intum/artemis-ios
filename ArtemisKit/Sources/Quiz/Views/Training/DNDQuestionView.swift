@@ -15,8 +15,6 @@ extension DTO.QuizQuestionWithSolution: WithImage {}
 struct DNDQuestionView: View {
     let question: DTO.QuizQuestionTraining
 
-    @State private var imageSize: CGSize?
-
     @State private var mappings: [DTO.DragAndDropMappingFromLiveClient]
 
     var backgroundImage: URL? {
@@ -36,16 +34,13 @@ struct DNDQuestionView: View {
                 .padding(.horizontal)
         }
 
-        ArtemisAsyncImage(imageURL: backgroundImage) { _ in
-        } onSuccess: { img in
-            imageSize = img.image.size
-        } errorPlaceholder: {
+        ArtemisAsyncImage(imageURL: backgroundImage) {
             Text("Failed to load image :/")
         }
         .scaledToFit()
         .containerRelativeFrame(.horizontal)
         .overlay {
-            DNDDropLocations(mappings: $mappings, question: question.quizQuestionWithSolutionDTO, imageSize: imageSize)
+            DNDDropLocations(mappings: $mappings, question: question.quizQuestionWithSolutionDTO)
         }
 
         Text(R.string.localizable.dndInfo())
@@ -67,24 +62,16 @@ struct DNDDropLocations: View {
     @Binding var mappings: [DTO.DragAndDropMappingFromLiveClient]
 
     let question: DTO.QuizQuestionWithSolution
-    let imageSize: CGSize?
 
     var body: some View {
-        if let imageSize,
-           let dropLocations = question.dropLocations,
+        if let dropLocations = question.dropLocations,
            let dragItems = question.dragItems {
             GeometryReader { geo in
-                let width = geo.size.width * 2 // Web app also has the factor of two
-                let height = geo.size.height * 1.25 // Don't ask.
-
-                let scaleX = imageSize.width / width
-                let scaleY = imageSize.height / height
-
                 ForEach(dropLocations, id: \.id) { location in
                     DropLocation(dragItems: dragItems,
                                  location: location,
-                                 scaleX: scaleX,
-                                 scaleY: scaleY,
+                                 scaleX: geo.size.width,
+                                 scaleY: geo.size.height,
                                  mappings: $mappings)
                 }
             }
@@ -102,10 +89,11 @@ struct DropLocation: View {
     @Binding var mappings: [DTO.DragAndDropMappingFromLiveClient]
 
     var body: some View {
-        let startX = (location.posX ?? 0) / scaleX
-        let startY = (location.posY ?? 0) / scaleY
-        let width = (location.width ?? 0) / scaleX
-        let height = (location.height ?? 0) / scaleY
+        // Positions are scaled from 0...200
+        let startX = (location.posX ?? 0) / 200 * scaleX
+        let startY = (location.posY ?? 0) / 200 * scaleY
+        let width = (location.width ?? 0) / 200 * scaleX
+        let height = (location.height ?? 0) / 200 * scaleY
 
         Button {
             if mappings.first(where: { $0.dropLocation?.id == location.id })?.dragItem?.id == nil {

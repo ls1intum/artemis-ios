@@ -11,7 +11,7 @@ import SharedModels
 import SwiftUI
 
 struct LeaderboardView: View {
-    
+
     @Bindable var viewModel: LeaderboardViewModel
 
     var body: some View {
