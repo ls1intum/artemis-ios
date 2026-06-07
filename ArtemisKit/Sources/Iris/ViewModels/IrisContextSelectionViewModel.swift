@@ -13,7 +13,7 @@ import SwiftUI
 
 /// Backs ``IrisContextSelectionView``. Loads the course once, exposes its
 /// lectures and (text/programming) exercises filtered by the search text, and
-/// holds the tentative selection until the user taps "Set".
+/// holds the current selection that a row tap pushes back to the chat view model.
 @MainActor
 @Observable
 final class IrisContextSelectionViewModel {
@@ -23,8 +23,8 @@ final class IrisContextSelectionViewModel {
     var courseState: DataState<CourseForDashboardDTO> = .loading
     var searchText = ""
 
-    /// The tentative pick inside the sheet. Only pushed up to the chat view
-    /// model when the user taps "Set"; dismissing the sheet discards it.
+    /// The current pick. Pushed up to the chat view model on a row tap;
+    /// dismissing without choosing a row discards it.
     var selection: SessionContext?
 
     init(courseId: Int,

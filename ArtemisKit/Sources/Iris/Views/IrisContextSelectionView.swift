@@ -9,9 +9,9 @@ import DesignLibrary
 import SharedModels
 import SwiftUI
 
-/// Bottom sheet that lets the user scope the next Iris message to a lecture or
-/// a (text/programming) exercise of the course. Tapping "Set" hands the chosen
-/// ``SessionContext`` back via ``onSet``.
+/// Lets the user scope the next Iris message to a lecture or a (text/programming)
+/// exercise of the course. Tapping a row hands the chosen ``SessionContext`` back
+/// via ``onSet`` and dismisses — there is no separate confirm step.
 struct IrisContextSelectionView: View {
     @Environment(\.dismiss) private var dismiss
     @Bindable var viewModel: IrisContextSelectionViewModel
@@ -33,6 +33,7 @@ struct IrisContextSelectionView: View {
                                     ContextRow(title: lecture.title,
                                                isSelected: viewModel.isSelected(lecture: lecture)) {
                                         viewModel.select(lecture: lecture)
+                                        apply()
                                     }
                                 }
                             }
@@ -43,6 +44,7 @@ struct IrisContextSelectionView: View {
                                     ContextRow(title: exercise.baseExercise.title,
                                                isSelected: viewModel.isSelected(exercise: exercise)) {
                                         viewModel.select(exercise: exercise)
+                                        apply()
                                     }
                                 }
                             }
@@ -52,30 +54,20 @@ struct IrisContextSelectionView: View {
             }
             .navigationTitle(R.string.localizable.selectTitle())
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "xmark")
-                    }
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(R.string.localizable.set()) {
-                        if let selection = viewModel.selection {
-                            onSet(selection)
-                        }
-                        dismiss()
-                    }
-                    .bold()
-                    .disabled(viewModel.selection == nil)
-                }
-            }
             .searchable(text: $viewModel.searchText)
             .task {
                 await viewModel.loadCourseIfNeeded()
             }
         }
+    }
+
+    /// Pushes the current pick up to the chat view model and closes the
+    /// presentation. Called from a row tap — there is no separate confirm step.
+    private func apply() {
+        if let selection = viewModel.selection {
+            onSet(selection)
+        }
+        dismiss()
     }
 }
 

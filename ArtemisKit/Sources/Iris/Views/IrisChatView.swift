@@ -17,6 +17,7 @@ struct IrisChatView: View {
     @State private var bottomSpacerShown = false
     @FocusState private var isInputFocused: Bool
 
+    private let courseId: Int
     private let onDeleted: () -> Void
     private let onTitleChange: (String) -> Void
     private let onContextChange: (SessionContext) -> Void
@@ -27,6 +28,7 @@ struct IrisChatView: View {
          onContextChange: @escaping (SessionContext) -> Void = { _ in }) {
         _viewModel = State(wrappedValue: IrisChatViewModel(sessionPath: sessionPath))
         _contextViewModel = State(wrappedValue: IrisContextSelectionViewModel(courseId: sessionPath.courseId))
+        self.courseId = sessionPath.courseId
         self.onDeleted = onDeleted
         self.onTitleChange = onTitleChange
         self.onContextChange = onContextChange
@@ -45,7 +47,7 @@ struct IrisChatView: View {
                         } else {
                             LazyVStack(alignment: .leading, spacing: .m) {
                                 ForEach(messages) { message in
-                                    MessageRow(message: message)
+                                    MessageRow(message: message, courseId: courseId)
                                         .id(message.id)
                                 }
                                 if viewModel.isAwaitingResponse {
@@ -142,6 +144,7 @@ struct IrisChatView: View {
 
 private struct MessageRow: View {
     let message: IrisMessageResponseDTO
+    let courseId: Int
 
     private var isUser: Bool {
         message.sender == .user
@@ -154,7 +157,7 @@ private struct MessageRow: View {
     var body: some View {
         if isCtxSwap {
             if let contextSwitch = message.contextSwitch {
-                IrisContextSwitchDivider(info: contextSwitch)
+                IrisContextSwitchDivider(info: contextSwitch, courseId: courseId)
             }
         } else if isUser {
             HStack {
@@ -304,58 +307,5 @@ private struct IrisContextChip: View {
         .padding(.horizontal, .m)
         .padding(.vertical, .s)
         .background(Color.Artemis.reactionCapsuleColor, in: Capsule())
-    }
-}
-
-// MARK: Context Switch Divider
-
-private struct IrisContextSwitchDivider: View {
-    let info: IrisContextSwitchAttributes
-
-    var body: some View {
-        HStack(spacing: .m) {
-            line
-            HStack(spacing: .s) {
-                Image(systemName: icon)
-                    .imageScale(.small)
-                Text(label)
-                    .font(.caption)
-                    .lineLimit(1)
-            }
-            .foregroundStyle(.secondary)
-            line
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, .s)
-    }
-
-    private var line: some View {
-        Rectangle()
-            .fill(Color.secondary.opacity(0.3))
-            .frame(height: 1)
-    }
-
-    private var icon: String {
-        switch info.entityMode {
-        case .lecture:
-            return "inset.filled.rectangle.and.person.filled"
-        case .textExercise:
-            return "character"
-        case .programmingExercise:
-            return "keyboard"
-        default:
-            return "arrow.triangle.swap"
-        }
-    }
-
-    private var label: String {
-        switch info.transition {
-        case .removed:
-            return R.string.localizable.contextRemoved()
-        case .changed:
-            return R.string.localizable.contextSwitched(info.name ?? "")
-        case .added, .unknown:
-            return R.string.localizable.contextAdded(info.name ?? "")
-        }
     }
 }
