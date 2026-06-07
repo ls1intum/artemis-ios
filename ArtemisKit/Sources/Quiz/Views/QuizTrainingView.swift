@@ -24,7 +24,6 @@ public struct QuizTrainingView: View {
             }
             .navigationTitle(R.string.localizable.quizTraining())
             .toolbarTitleDisplayMode(.inlineLarge)
-            .interactiveDismissDisabled()
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(R.string.localizable.done()) {

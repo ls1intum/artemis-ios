@@ -32,6 +32,7 @@ struct QuizTraingQuestionsView: View {
                 }
             }
         }
+        .interactiveDismissDisabled()
         .environment(viewModel)
         .task(id: "loadQuestions") {
             viewModel.questions = .loading
@@ -75,7 +76,7 @@ struct UnsupportedQuestionView: View {
         Text("Question type \(type ?? "") not supported.")
             .toolbar {
                 ToolbarItem(placement: .bottomBar) {
-                    Button("Skip") {
+                    Button(R.string.localizable.skip()) {
                         viewModel.goToNextQuestion()
                     }
                 }
