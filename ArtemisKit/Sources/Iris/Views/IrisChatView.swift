@@ -11,19 +11,25 @@ import SwiftUI
 
 struct IrisChatView: View {
     @State private var viewModel: IrisChatViewModel
+    @State private var contextViewModel: IrisContextSelectionViewModel
     @State private var showDeleteConfirmation = false
+    @State private var showContextSheet = false
     @State private var bottomSpacerShown = false
     @FocusState private var isInputFocused: Bool
 
     private let onDeleted: () -> Void
     private let onTitleChange: (String) -> Void
+    private let onContextChange: (SessionContext) -> Void
 
     init(sessionPath: IrisSessionPath,
          onDeleted: @escaping () -> Void = {},
-         onTitleChange: @escaping (String) -> Void = { _ in }) {
+         onTitleChange: @escaping (String) -> Void = { _ in },
+         onContextChange: @escaping (SessionContext) -> Void = { _ in }) {
         _viewModel = State(wrappedValue: IrisChatViewModel(sessionPath: sessionPath))
+        _contextViewModel = State(wrappedValue: IrisContextSelectionViewModel(courseId: sessionPath.courseId))
         self.onDeleted = onDeleted
         self.onTitleChange = onTitleChange
+        self.onContextChange = onContextChange
     }
 
     var body: some View {
@@ -64,11 +70,28 @@ struct IrisChatView: View {
                         }
                     }
                 }
-                InputBar(text: $viewModel.inputText, isFocused: $isInputFocused, onSend: {
-                    viewModel.sendMessage()
-                    isInputFocused = false
-                })
+                InputBar(
+                    text: $viewModel.inputText,
+                    isFocused: $isInputFocused,
+                    chipTitle: viewModel.displayedChipContext.map { $0.entityName ?? R.string.localizable.untitled() },
+                    onSend: {
+                        viewModel.sendMessage()
+                        isInputFocused = false
+                    },
+                    onPlusTapped: {
+                        contextViewModel.selection = viewModel.displayedChipContext
+                        showContextSheet = true
+                    },
+                    onChipRemoved: {
+                        viewModel.clearPendingSelection()
+                    })
             }
+        }
+        .sheet(isPresented: $showContextSheet) {
+            IrisContextSelectionView(viewModel: contextViewModel) { selection in
+                viewModel.commitPendingSelection(selection)
+            }
+            .presentationDetents([.medium, .large])
         }
         .navigationTitle(viewModel.sessionTitle ?? "")
         .navigationBarTitleDisplayMode(.inline)
@@ -104,6 +127,9 @@ struct IrisChatView: View {
         .onChange(of: viewModel.sessionTitle) { _, newTitle in
             if let newTitle { onTitleChange(newTitle) }
         }
+        .onChange(of: viewModel.committedContext) { _, newContext in
+            if let newContext { onContextChange(newContext) }
+        }
         .onDisappear { Task {
             await viewModel.disconnect()
         }
@@ -112,6 +138,8 @@ struct IrisChatView: View {
     }
 }
 
+// MARK: Message Row
+
 private struct MessageRow: View {
     let message: IrisMessageResponseDTO
 
@@ -119,8 +147,16 @@ private struct MessageRow: View {
         message.sender == .user
     }
 
+    private var isCtxSwap: Bool {
+        message.sender == .ctxswap
+    }
+
     var body: some View {
-        if isUser {
+        if isCtxSwap {
+            if let contextSwitch = message.contextSwitch {
+                IrisContextSwitchDivider(info: contextSwitch)
+            }
+        } else if isUser {
             HStack {
                 Spacer()
                 VStack(alignment: .trailing, spacing: .s) {
@@ -150,6 +186,8 @@ private struct MessageRow: View {
     }
 }
 
+// MARK: Loading Stage
+
 private struct LoadingStageRow: View {
     let stage: IrisStageDTO?
 
@@ -173,6 +211,8 @@ private struct LoadingStageRow: View {
     }
 }
 
+// MARK: Empty State
+
 private struct EmptyChatView: View {
     var body: some View {
         VStack(spacing: .m) {
@@ -190,25 +230,132 @@ private struct EmptyChatView: View {
     }
 }
 
+// MARK: Input Bar
+
 private struct InputBar: View {
     @Binding var text: String
     @FocusState.Binding var isFocused: Bool
+    let chipTitle: String?
     let onSend: () -> Void
+    let onPlusTapped: () -> Void
+    let onChipRemoved: () -> Void
+
+    private var isSendDisabled: Bool {
+        text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
 
     var body: some View {
-        HStack(alignment: .bottom, spacing: .m) {
+        VStack(spacing: .m) {
             TextField(R.string.localizable.askIrisPlaceholder(), text: $text, axis: .vertical)
-                .textFieldStyle(.roundedBorder)
                 .lineLimit(1...5)
                 .focused($isFocused)
 
-            Button(action: onSend) {
-                Image(systemName: "paperplane.fill")
-                    .imageScale(.large)
+            HStack(spacing: .m) {
+                Button(action: onPlusTapped) {
+                    Image(systemName: "plus")
+                        .imageScale(.large)
+                }
+
+                if let chipTitle {
+                    IrisContextChip(title: chipTitle, onTap: onPlusTapped, onRemove: onChipRemoved)
+                }
+
+                Spacer()
+
+                Button(action: onSend) {
+                    Image(systemName: "paperplane.fill")
+                        .imageScale(.large)
+                }
+                .disabled(isSendDisabled)
             }
-            .disabled(text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
         }
+        .padding(.m + .xs)
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color.Artemis.cardBorderColor, lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 16))
         .padding(.horizontal, .l)
         .padding(.vertical, .m)
+    }
+}
+
+// MARK: Context Chip
+
+private struct IrisContextChip: View {
+    let title: String
+    let onTap: () -> Void
+    let onRemove: () -> Void
+
+    var body: some View {
+        HStack(spacing: .s) {
+            Text(title)
+                .font(.footnote)
+                .lineLimit(1)
+                .foregroundStyle(.primary)
+
+            Button(action: onRemove) {
+                Image(systemName: "xmark")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, .m)
+        .padding(.vertical, .s)
+        .background(Color.Artemis.reactionCapsuleColor, in: Capsule())
+    }
+}
+
+// MARK: Context Switch Divider
+
+private struct IrisContextSwitchDivider: View {
+    let info: IrisContextSwitchAttributes
+
+    var body: some View {
+        HStack(spacing: .m) {
+            line
+            HStack(spacing: .s) {
+                Image(systemName: icon)
+                    .imageScale(.small)
+                Text(label)
+                    .font(.caption)
+                    .lineLimit(1)
+            }
+            .foregroundStyle(.secondary)
+            line
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, .s)
+    }
+
+    private var line: some View {
+        Rectangle()
+            .fill(Color.secondary.opacity(0.3))
+            .frame(height: 1)
+    }
+
+    private var icon: String {
+        switch info.entityMode {
+        case .lecture:
+            return "inset.filled.rectangle.and.person.filled"
+        case .textExercise:
+            return "character"
+        case .programmingExercise:
+            return "keyboard"
+        default:
+            return "arrow.triangle.swap"
+        }
+    }
+
+    private var label: String {
+        switch info.transition {
+        case .removed:
+            return R.string.localizable.contextRemoved()
+        case .changed:
+            return R.string.localizable.contextSwitched(info.name ?? "")
+        case .added, .unknown:
+            return R.string.localizable.contextAdded(info.name ?? "")
+        }
     }
 }

@@ -23,6 +23,32 @@ final class IrisChatViewModel {
     var rateLimitInfo: IrisRateLimitInformation?
     var inputText = ""
 
+    /// The context the server currently associates with this session. Seeded
+    /// from the session DTO and advanced to `pendingContext` after each
+    /// successful send that carried one.
+    private(set) var committedContext: SessionContext?
+
+    /// A not-yet-sent context override chosen via the "+" sheet. `nil` means the
+    /// next message keeps the committed context.
+    private(set) var pendingContext: SessionContext?
+
+    /// Pending wins over committed for display and for the next send.
+    var effectiveSelection: SessionContext? {
+        pendingContext ?? committedContext
+    }
+
+    /// The selection to render as a chip — only lecture/exercise contexts get
+    /// one; the implicit base course chat never shows a chip.
+    var displayedChipContext: SessionContext? {
+        guard let selection = effectiveSelection else { return nil }
+        switch selection.mode {
+        case .lecture, .textExercise, .programmingExercise:
+            return selection
+        default:
+            return nil
+        }
+    }
+
     /// True while the last known message is the user's — i.e. we sent it but the
     /// reply (which only arrives over the websocket `MESSAGE` payload)
     /// hasn't landed yet. Drives the inline loading indicator.
@@ -54,6 +80,11 @@ final class IrisChatViewModel {
         self.sessionPath = sessionPath
         self.httpService = httpService
         self.sessionTitle = sessionPath.session?.title
+        if let session = sessionPath.session {
+            self.committedContext = SessionContext(mode: session.mode,
+                                                   entityId: session.entityId,
+                                                   entityName: session.entityName)
+        }
     }
 
     func loadMessages() async {
@@ -78,12 +109,32 @@ final class IrisChatViewModel {
         }
     }
 
+    /// Sets the pending context from the sheet's "Set" action.
+    func commitPendingSelection(_ context: SessionContext) {
+        pendingContext = context
+    }
+
+    /// Removes the chip: drops the override and reverts to the base course chat
+    /// for the next message.
+    func clearPendingSelection() {
+        pendingContext = SessionContext(mode: .course, entityId: sessionPath.courseId)
+    }
+
     func sendMessage() {
         let text = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
 
         let content = [IrisMessageContentDTO.text(text)]
-        let request = IrisMessageRequestDTO(content: content)
+
+        // Only attach the pending context when it actually differs from what the
+        // server already has, so we don't resend the same context every message.
+        var pendingContextDTO: IrisPendingContextDTO?
+        if let pending = pendingContext, pending != committedContext {
+            pendingContextDTO = IrisPendingContextDTO(
+                mode: pending.mode,
+                entityId: pending.entityId)
+        }
+        let request = IrisMessageRequestDTO(content: content, pendingContext: pendingContextDTO)
 
         Task { [weak self] in
             guard let self else { return }
@@ -91,6 +142,12 @@ final class IrisChatViewModel {
             switch result {
             case .done(let response):
                 inputText = ""
+                // The send succeeded with `pendingContext`; it is now the
+                // session's context, so promote it and clear the override.
+                if let pending = pendingContext {
+                    committedContext = pending
+                    pendingContext = nil
+                }
                 upsert(message: response)
             case .failure(let error):
                 self.error = error
