@@ -23,6 +23,13 @@ struct QuizTraingQuestionsView: View {
         } content: { questions in
             if let question = questions.first {
                 QuizQuestionView(question: question)
+            } else {
+                VStack(alignment: .center) {
+                    Text("🎉")
+                        .font(.largeTitle)
+                    Text("No more questions for now")
+                        .font(.title2)
+                }
             }
         }
         .environment(viewModel)
@@ -48,13 +55,14 @@ struct QuizQuestionView: View {
                 switch question.quizQuestionWithSolutionDTO._type {
                 case "multiple-choice": MCQuestionView(question: question)
                 case "drag-and-drop": UnsupportedQuestionView(type: question.quizQuestionWithSolutionDTO._type)
-                case "short-answer": UnsupportedQuestionView(type: question.quizQuestionWithSolutionDTO._type)
+                case "short-answer": ShortAnswerQuestionView(question: question)
                 default: UnsupportedQuestionView(type: question.quizQuestionWithSolutionDTO._type)
                 }
             }
             .multilineTextAlignment(.leading)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
+        .scrollDismissesKeyboard(.interactively)
     }
 }
 

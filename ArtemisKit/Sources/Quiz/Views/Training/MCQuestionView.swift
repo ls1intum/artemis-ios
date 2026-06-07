@@ -53,12 +53,7 @@ struct MCQuestionView: View {
             .padding(.horizontal)
         }
 
-        Spacer()
-            .toolbar {
-                ToolbarItem(placement: .bottomBar) {
-                    SubmitAnswerButton(questionId: question.id, isRated: question.isRated, answer: answer)
-                }
-            }
+        SubmitAnswerButton(questionId: question.id, isRated: question.isRated, answer: answer)
     }
 
     var answer: QuizTrainingAnswer {

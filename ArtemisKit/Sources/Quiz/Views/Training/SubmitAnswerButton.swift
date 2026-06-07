@@ -19,39 +19,44 @@ struct SubmitAnswerButton: View {
     @State private var isLoading = false
 
     var body: some View {
-        Button {
-            if case .done = viewModel.lastSubmissionResult {
-                viewModel.goToNextQuestion()
-            } else {
-                submit()
-            }
-        } label: {
-            if case .done = viewModel.lastSubmissionResult {
-                Text(R.string.localizable.nextQuestion())
-            } else {
-                Text(R.string.localizable.submit())
-            }
-        }
-        .disabled(isLoading)
-        .loadingIndicator(isLoading: $isLoading)
-        .alert(R.string.localizable.failedToSubmit(), isPresented: .init(
-            get: {
-                if case .failure = viewModel.lastSubmissionResult {
-                    return true
-                } else {
-                    return false
+        Spacer()
+            .toolbar {
+                ToolbarItem(placement: .bottomBar) {
+                    Button {
+                        if case .done = viewModel.lastSubmissionResult {
+                            viewModel.goToNextQuestion()
+                        } else {
+                            submit()
+                        }
+                    } label: {
+                        if case .done = viewModel.lastSubmissionResult {
+                            Text(R.string.localizable.nextQuestion())
+                        } else {
+                            Text(R.string.localizable.submit())
+                        }
+                    }
+                    .disabled(isLoading)
+                    .loadingIndicator(isLoading: $isLoading)
                 }
-            }, set: { newValue in
-                if !newValue {
-                    viewModel.lastSubmissionResult = .loading
-                }
-            })
-        ) {
-            Button("Ok") {}
-            Button(R.string.localizable.retry()) {
-                submit()
             }
-        }
+            .alert(R.string.localizable.failedToSubmit(), isPresented: .init(
+                get: {
+                    if case .failure = viewModel.lastSubmissionResult {
+                        return true
+                    } else {
+                        return false
+                    }
+                }, set: { newValue in
+                    if !newValue {
+                        viewModel.lastSubmissionResult = .loading
+                    }
+                })
+            ) {
+                Button("Ok") {}
+                Button(R.string.localizable.retry()) {
+                    submit()
+                }
+            }
     }
 
     func submit() {

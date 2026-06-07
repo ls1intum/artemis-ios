@@ -32,9 +32,6 @@ struct LeaderboardView: View {
             }
         }
         .task(id: "loadLeaderboard") {
-            if case .done = viewModel.leaderboardData {
-                return
-            }
             await viewModel.loadLeaderboard()
         }
     }
