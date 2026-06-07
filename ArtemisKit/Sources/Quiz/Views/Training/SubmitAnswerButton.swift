@@ -35,6 +35,7 @@ struct SubmitAnswerButton: View {
                             Text(R.string.localizable.submit())
                         }
                     }
+                    .buttonStyle(.borderedProminent)
                     .disabled(isLoading)
                     .loadingIndicator(isLoading: $isLoading)
                 }

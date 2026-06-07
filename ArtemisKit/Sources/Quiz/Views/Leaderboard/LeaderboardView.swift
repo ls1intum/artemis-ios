@@ -63,6 +63,7 @@ private struct CurrentUserEntry: View {
                             Label("Start Training", systemImage: "dumbbell")
                         }
                         .labelStyle(.titleAndIcon)
+                        .buttonStyle(.borderedProminent)
                         .disabled(!canStartRated)
                     }
                 }
