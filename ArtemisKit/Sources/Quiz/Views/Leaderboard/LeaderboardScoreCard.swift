@@ -23,7 +23,7 @@ struct LeaderboardScoreCard: View {
            league < leaguePoints.count && league >= 0 {
             Section(R.string.localizable.league()) {
                 HStack {
-                    Image(leagueNames[league], bundle: .module)
+                    Image(leagueNames[league].lowercased, bundle: .module)
                         .resizable()
                         .frame(width: .mediumImage, height: .mediumImage)
 
