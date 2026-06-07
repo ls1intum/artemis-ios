@@ -18,3 +18,16 @@
 "thinking" = "Thinking…";
 "emptyChatTitle" = "How can I help you today?";
 "askIrisPlaceholder" = "Ask Iris...";
+
+// MARK: IrisContextSelectionView
+"selectTitle" = "Select Context";
+"lecturesSection" = "Lectures";
+"exercisesSection" = "Exercises";
+"set" = "Set";
+"noItems" = "No lectures or exercises available";
+"untitled" = "Untitled";
+
+// MARK: IrisContextSwitchDivider
+"contextAdded" = "Added %@";
+"contextSwitched" = "Switched to %@";
+"contextRemoved" = "Chat topic cleared";
