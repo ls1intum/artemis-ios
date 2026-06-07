@@ -22,7 +22,8 @@ struct LeaderboardView: View {
             await viewModel.loadLeaderboard()
         } content: { leaderboard in
             LeaderboardScoreCard(entry: leaderboard.currentUserEntry)
-            CurrentUserEntry(entry: leaderboard.currentUserEntry)
+            CurrentUserEntry(leaderboard: leaderboard,
+                             courseId: viewModel.courseId)
 
             Section(R.string.localizable.leaderboard()) {
                 ForEach(leaderboard.leaderboardEntries, id: \.userId) { entry in
@@ -31,9 +32,6 @@ struct LeaderboardView: View {
             }
         }
         .task(id: "loadLeaderboard") {
-            if case .done = viewModel.leaderboardData {
-                return
-            }
             await viewModel.loadLeaderboard()
         }
     }
@@ -41,16 +39,33 @@ struct LeaderboardView: View {
 
 private struct CurrentUserEntry: View {
     let entry: DTO.LeaderboardEntry
+    let canStartRated: Bool
+    let courseId: Int
 
-    init(entry: DTO.LeaderboardEntry) {
-        var newEntry = entry
-        newEntry.rank = (newEntry.rank ?? 0) + 1
-        self.entry = newEntry
+    init(leaderboard: DTO.LeaderboardWithCurrentUserEntry, courseId: Int) {
+        self.courseId = courseId
+
+        entry = leaderboard.leaderboardEntries.first {
+            $0.userId == leaderboard.currentUserEntry.userId
+        } ?? leaderboard.currentUserEntry
+
+        canStartRated = leaderboard.currentUserEntry.dueDate < leaderboard.currentTime
     }
 
     var body: some View {
         Section(R.string.localizable.yourRanking()) {
             LeaderboardEntryView(entry: entry)
+                .toolbar {
+                    ToolbarItem(placement: .bottomBar) {
+                        NavigationLink {
+                            QuizTraingQuestionsView(courseId: courseId)
+                        } label: {
+                            Label("Start Training", systemImage: "dumbbell")
+                        }
+                        .labelStyle(.titleAndIcon)
+                        .disabled(!canStartRated)
+                    }
+                }
         }
     }
 }
