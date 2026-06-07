@@ -152,9 +152,3 @@ struct DropLocation: View {
         selected = false
     }
 }
-
-/// 1536 x 1024
-///
-/// Scaled to 804 x 335
-///
-/// Pos1: 104, 30 -> 55, 10
