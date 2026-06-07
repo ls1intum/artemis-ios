@@ -55,7 +55,7 @@ struct QuizQuestionView: View {
 
                 switch question.quizQuestionWithSolutionDTO._type {
                 case "multiple-choice": MCQuestionView(question: question)
-                case "drag-and-drop": UnsupportedQuestionView(type: question.quizQuestionWithSolutionDTO._type)
+                case "drag-and-drop": DNDQuestionView(question: question)
                 case "short-answer": ShortAnswerQuestionView(question: question)
                 default: UnsupportedQuestionView(type: question.quizQuestionWithSolutionDTO._type)
                 }

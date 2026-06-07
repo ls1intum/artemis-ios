@@ -47,6 +47,7 @@ struct MCQuestionView: View {
                                 }
                             }
                         Text(option.text ?? "No text")
+                            .multilineTextAlignment(.leading)
                     }
                 }
             }

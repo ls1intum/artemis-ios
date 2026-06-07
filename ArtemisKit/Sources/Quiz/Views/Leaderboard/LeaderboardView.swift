@@ -11,19 +11,15 @@ import SharedModels
 import SwiftUI
 
 struct LeaderboardView: View {
-    @State private var viewModel: LeaderboardViewModel
-
-    init(courseId: Int) {
-        self._viewModel = State(initialValue: LeaderboardViewModel(courseId: courseId))
-    }
+    
+    @Bindable var viewModel: LeaderboardViewModel
 
     var body: some View {
         DataStateView(data: $viewModel.leaderboardData) {
             await viewModel.loadLeaderboard()
         } content: { leaderboard in
             LeaderboardScoreCard(entry: leaderboard.currentUserEntry)
-            CurrentUserEntry(leaderboard: leaderboard,
-                             courseId: viewModel.courseId)
+            CurrentUserEntry(leaderboard: leaderboard)
 
             Section(R.string.localizable.leaderboard()) {
                 ForEach(leaderboard.leaderboardEntries, id: \.userId) { entry in
@@ -39,33 +35,16 @@ struct LeaderboardView: View {
 
 private struct CurrentUserEntry: View {
     let entry: DTO.LeaderboardEntry
-    let canStartRated: Bool
-    let courseId: Int
 
-    init(leaderboard: DTO.LeaderboardWithCurrentUserEntry, courseId: Int) {
-        self.courseId = courseId
-
+    init(leaderboard: DTO.LeaderboardWithCurrentUserEntry) {
         entry = leaderboard.leaderboardEntries.first {
             $0.userId == leaderboard.currentUserEntry.userId
         } ?? leaderboard.currentUserEntry
-
-        canStartRated = leaderboard.currentUserEntry.dueDate < leaderboard.currentTime
     }
 
     var body: some View {
         Section(R.string.localizable.yourRanking()) {
             LeaderboardEntryView(entry: entry)
-                .toolbar {
-                    ToolbarItem(placement: .bottomBar) {
-                        NavigationLink {
-                            QuizTraingQuestionsView(courseId: courseId)
-                        } label: {
-                            Label("Start Training", systemImage: "dumbbell")
-                        }
-                        .labelStyle(.titleAndIcon)
-                        .disabled(!canStartRated)
-                    }
-                }
         }
     }
 }
