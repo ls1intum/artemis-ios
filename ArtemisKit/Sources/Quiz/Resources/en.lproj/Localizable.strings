@@ -10,3 +10,4 @@
 "nextQuestion" = "Next Question";
 "failedToSubmit" = "Failed to submit answer";
 "retry" = "Retry";
+"dndInfo" = "Tap on a location to pick an item to drop.\nTap again to remove.";

@@ -25,4 +25,11 @@ public extension WithImage {
             .appending(path: "api/core/files")
             .appending(path: image)
     }
+
+    func image(for path: KeyPath<Self, String?>) -> URL? {
+        guard let pathString = self[keyPath: path] else { return nil }
+        return UserSessionFactory.shared.institution?.baseURL?
+            .appending(path: "api/core/files")
+            .appending(path: pathString)
+    }
 }

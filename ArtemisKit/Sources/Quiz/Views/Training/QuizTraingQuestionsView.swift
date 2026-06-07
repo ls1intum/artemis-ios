@@ -21,7 +21,7 @@ struct QuizTraingQuestionsView: View {
         DataStateView(data: $viewModel.questions) {
             await viewModel.loadQuestions()
         } content: { questions in
-            if let question = questions.first {
+            if let question = questions.first(where: { $0.quizQuestionWithSolutionDTO._type == "drag-and-drop" }) {
                 QuizQuestionView(question: question)
             } else {
                 VStack(alignment: .center) {
@@ -55,7 +55,7 @@ struct QuizQuestionView: View {
 
                 switch question.quizQuestionWithSolutionDTO._type {
                 case "multiple-choice": MCQuestionView(question: question)
-                case "drag-and-drop": UnsupportedQuestionView(type: question.quizQuestionWithSolutionDTO._type)
+                case "drag-and-drop": DNDQuestionView(question: question)
                 case "short-answer": ShortAnswerQuestionView(question: question)
                 default: UnsupportedQuestionView(type: question.quizQuestionWithSolutionDTO._type)
                 }
