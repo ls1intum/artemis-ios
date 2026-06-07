@@ -9,16 +9,17 @@ import SharedModels
 import SwiftUI
 
 struct ShortAnswerQuestionView: View {
+    @Environment(QuizTrainingViewModel.self) private var viewModel
+
     let question: DTO.QuizQuestionTraining
     private let segments: [Segment]
 
     @State private var textInputs: [DTO.ShortAnswerSubmittedTextFromLiveClient]
-
     @FocusState private var focus: Segment?
 
     init(question: DTO.QuizQuestionTraining) {
         self.question = question
-        self.segments = Self.parse(question.quizQuestionWithSolutionDTO.text)
+        self.segments = Segment.create(from: question.quizQuestionWithSolutionDTO.text)
 
         let inputs = segments.filter(\.isInput)
         self.textInputs = inputs.map {
@@ -52,6 +53,7 @@ struct ShortAnswerQuestionView: View {
         .padding(.horizontal)
         .autocorrectionDisabled()
         .textInputAutocapitalization(.never)
+        .disabled(viewModel.hasSubmitted)
 
         SubmitAnswerButton(questionId: question.id, isRated: question.isRated, answer: answer)
     }
@@ -78,8 +80,21 @@ struct ShortAnswerQuestionView: View {
             }
         }
     }
+}
 
-    private static func parse(_ text: String?) -> [Segment] {
+private enum Segment: Hashable {
+    case text(text: String)
+    case input(spot: Int64)
+
+    var isInput: Bool {
+        if case .input = self {
+            return true
+        } else {
+            return false
+        }
+    }
+
+    static func create(from text: String?) -> [Segment] {
         guard let text else { return [] }
 
         let regex = #/\[-spot\s+(\d+)\]/#
@@ -98,18 +113,5 @@ struct ShortAnswerQuestionView: View {
         }
 
         return result
-    }
-}
-
-private enum Segment: Hashable {
-    case text(text: String)
-    case input(spot: Int64)
-
-    var isInput: Bool {
-        if case .input = self {
-            return true
-        } else {
-            return false
-        }
     }
 }

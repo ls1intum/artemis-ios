@@ -17,6 +17,13 @@ class QuizTrainingViewModel {
     var questions: DataState<[DTO.QuizQuestionTraining]> = .loading
 
     var lastSubmissionResult: DataState<DTO.SubmittedAnswerAfterEvaluation> = .loading
+    var hasSubmitted: Bool {
+        if case .done = lastSubmissionResult {
+            return true
+        } else {
+            return false
+        }
+    }
 
     init(courseId: Int) {
         self.courseId = courseId

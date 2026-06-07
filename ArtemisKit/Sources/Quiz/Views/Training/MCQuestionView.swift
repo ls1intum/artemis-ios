@@ -51,6 +51,7 @@ struct MCQuestionView: View {
                 }
             }
             .padding(.horizontal)
+            .disabled(viewModel.hasSubmitted)
         }
 
         SubmitAnswerButton(questionId: question.id, isRated: question.isRated, answer: answer)
