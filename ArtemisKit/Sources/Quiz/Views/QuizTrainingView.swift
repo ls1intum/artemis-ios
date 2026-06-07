@@ -36,7 +36,11 @@ public struct QuizTrainingView: View {
                     NavigationLink {
                         QuizTraingQuestionsView(courseId: courseId)
                     } label: {
-                        Label("Start Training", systemImage: "dumbbell")
+                        HStack(alignment: .center, spacing: .m) {
+                            Image(systemName: "dumbbell")
+                            Text(R.string.localizable.startTraining())
+                        }
+                        .padding(.trailing, .s)
                     }
                     .labelStyle(.titleAndIcon)
                     .buttonStyle(.borderedProminent)
