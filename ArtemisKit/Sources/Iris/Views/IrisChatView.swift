@@ -13,7 +13,7 @@ struct IrisChatView: View {
     @State private var viewModel: IrisChatViewModel
     @State private var contextViewModel: IrisContextSelectionViewModel
     @State private var showDeleteConfirmation = false
-    @State private var showContextSheet = false
+    @State private var isContextSelectionPresented = false
     @State private var bottomSpacerShown = false
     @FocusState private var isInputFocused: Bool
 
@@ -75,6 +75,8 @@ struct IrisChatView: View {
                 InputBar(
                     text: $viewModel.inputText,
                     isFocused: $isInputFocused,
+                    isContextPresented: $isContextSelectionPresented,
+                    contextViewModel: contextViewModel,
                     chipTitle: viewModel.displayedChipContext.map { $0.entityName ?? R.string.localizable.untitled() },
                     onSend: {
                         viewModel.sendMessage()
@@ -82,18 +84,15 @@ struct IrisChatView: View {
                     },
                     onPlusTapped: {
                         contextViewModel.selection = viewModel.displayedChipContext
-                        showContextSheet = true
+                        isContextSelectionPresented = true
                     },
                     onChipRemoved: {
                         viewModel.clearPendingSelection()
+                    },
+                    onContextSelected: { selection in
+                        viewModel.commitPendingSelection(selection)
                     })
             }
-        }
-        .sheet(isPresented: $showContextSheet) {
-            IrisContextSelectionView(viewModel: contextViewModel) { selection in
-                viewModel.commitPendingSelection(selection)
-            }
-            .presentationDetents([.medium, .large])
         }
         .navigationTitle(viewModel.sessionTitle ?? "")
         .navigationBarTitleDisplayMode(.inline)
@@ -236,12 +235,16 @@ private struct EmptyChatView: View {
 // MARK: Input Bar
 
 private struct InputBar: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Binding var text: String
     @FocusState.Binding var isFocused: Bool
+    @Binding var isContextPresented: Bool
+    let contextViewModel: IrisContextSelectionViewModel
     let chipTitle: String?
     let onSend: () -> Void
     let onPlusTapped: () -> Void
     let onChipRemoved: () -> Void
+    let onContextSelected: (SessionContext) -> Void
 
     private var isSendDisabled: Bool {
         text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -257,6 +260,12 @@ private struct InputBar: View {
                 Button(action: onPlusTapped) {
                     Image(systemName: "plus")
                         .imageScale(.large)
+                }
+                .popover(isPresented: $isContextPresented,
+                         attachmentAnchor: .point(.top),
+                         arrowEdge: .bottom) {
+                    IrisContextSelectionView(viewModel: contextViewModel, onSet: onContextSelected)
+                        .modifier(ContextSelectionPresentation(isRegular: horizontalSizeClass == .regular))
                 }
 
                 if let chipTitle {
@@ -307,5 +316,21 @@ private struct IrisContextChip: View {
         .padding(.horizontal, .m)
         .padding(.vertical, .s)
         .background(Color.Artemis.reactionCapsuleColor, in: Capsule())
+    }
+}
+
+// MARK: Context Selection Presentation
+
+/// iPhone keeps the familiar resizable sheet (the `.popover` adapts to a sheet at
+/// compact width); iPad shows a fixed-size popover anchored to the `+`. 
+private struct ContextSelectionPresentation: ViewModifier {
+    let isRegular: Bool
+
+    func body(content: Content) -> some View {
+        if isRegular {
+            content.frame(minWidth: 360, minHeight: 480)
+        } else {
+            content.presentationDetents([.medium, .large])
+        }
     }
 }
