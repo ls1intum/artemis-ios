@@ -10,17 +10,19 @@ import SwiftUI
 public struct QuizTrainingView: View {
 
     @Environment(\.dismiss) private var dismiss
+    @State private var viewModel: LeaderboardViewModel
 
     let courseId: Int
 
     public init(courseId: Int) {
         self.courseId = courseId
+        self._viewModel = State(initialValue: LeaderboardViewModel(courseId: courseId))
     }
 
     public var body: some View {
         NavigationStack {
             List {
-                LeaderboardView(courseId: courseId)
+                LeaderboardView(viewModel: viewModel)
             }
             .navigationTitle(R.string.localizable.quizTraining())
             .toolbarTitleDisplayMode(.inlineLarge)
@@ -30,7 +32,22 @@ public struct QuizTrainingView: View {
                         dismiss()
                     }
                 }
+                ToolbarItem(placement: .bottomBar) {
+                    NavigationLink {
+                        QuizTraingQuestionsView(courseId: courseId)
+                    } label: {
+                        Label("Start Training", systemImage: "dumbbell")
+                    }
+                    .labelStyle(.titleAndIcon)
+                    .buttonStyle(.borderedProminent)
+                    .disabled(!canStartRated)
+                }
             }
         }
+    }
+
+    var canStartRated: Bool {
+        guard let leaderboard = viewModel.leaderboardData.value else { return false }
+        return leaderboard.currentUserEntry.dueDate < leaderboard.currentTime
     }
 }
