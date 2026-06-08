@@ -14,6 +14,7 @@ struct IrisChatView: View {
     @State private var viewModel: IrisChatViewModel
     @State private var showDeleteConfirmation = false
     @State private var bottomSpacerShown = false
+    @State private var showScrollToBottom = false
     @FocusState private var isInputFocused: Bool
 
     private let onDeleted: () -> Void
@@ -55,6 +56,14 @@ struct IrisChatView: View {
                         }
                     }
                     .defaultScrollAnchor(.bottom)
+                    .onScrollGeometryChange(for: Bool.self) { geometry in
+                        let distanceFromBottom = geometry.contentSize.height
+                            - geometry.contentOffset.y
+                            - geometry.containerSize.height
+                        return distanceFromBottom > 120
+                    } action: { _, isAway in
+                        withAnimation(.easeInOut(duration: 0.2)) { showScrollToBottom = isAway }
+                    }
                     .onChange(of: messages.count) {
                         guard let last = messages.last, last.sender == .user else { return }
                         bottomSpacerShown = true
@@ -62,6 +71,17 @@ struct IrisChatView: View {
                             withAnimation {
                                 proxy.scrollTo(last.id, anchor: .top)
                             }
+                        }
+                    }
+                    .overlay(alignment: .bottom) {
+                        if showScrollToBottom {
+                            ScrollToBottomButton {
+                                if let id = messages.last?.id {
+                                    withAnimation { proxy.scrollTo(id, anchor: .bottom) }
+                                }
+                            }
+                            .padding(.bottom, .m)
+                            .transition(.opacity.combined(with: .scale))
                         }
                     }
                 }
@@ -202,6 +222,23 @@ private struct IrisMessageActionBar: View {
         .foregroundStyle(.secondary)
         .buttonStyle(.plain)
         .padding(.top, .s)
+    }
+}
+
+private struct ScrollToBottomButton: View {
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: "chevron.down")
+                .font(.callout.weight(.semibold))
+                .foregroundStyle(.primary)
+                .padding(.m)
+                .background(.regularMaterial, in: .circle)
+                .overlay(Circle().stroke(Color.primary.opacity(0.1)))
+                .shadow(color: .black.opacity(0.15), radius: 4, y: 2)
+        }
+        .accessibilityLabel(R.string.localizable.scrollToBottom())
     }
 }
 
