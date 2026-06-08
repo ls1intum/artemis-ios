@@ -18,6 +18,7 @@
 "thinking" = "Thinking…";
 "emptyChatTitle" = "How can I help you today?";
 "askIrisPlaceholder" = "Ask Iris...";
+"irisDisclaimer" = "Iris can make mistakes. Consider checking important information.";
 
 // MARK: IrisChatView – Message actions
 "copyText" = "Copy";

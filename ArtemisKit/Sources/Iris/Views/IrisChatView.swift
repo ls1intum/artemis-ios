@@ -47,6 +47,8 @@ struct IrisChatView: View {
                                 if viewModel.isAwaitingResponse {
                                     LoadingStageRow(stage: viewModel.currentStage)
                                         .id("loadingStageRow")
+                                } else if messages.last?.sender == .llm {
+                                    DisclaimerView()
                                 }
                             }
                             .padding(.l)
@@ -222,6 +224,16 @@ private struct IrisMessageActionBar: View {
         .foregroundStyle(.secondary)
         .buttonStyle(.plain)
         .padding(.top, .s)
+    }
+}
+
+private struct DisclaimerView: View {
+    var body: some View {
+        Text(R.string.localizable.irisDisclaimer())
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+            .frame(maxWidth: .infinity, alignment: .center)
+            .padding(.top, .s)
     }
 }
 
