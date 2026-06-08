@@ -50,6 +50,15 @@ struct MCQuestionView: View {
                             .multilineTextAlignment(.leading)
                     }
                 }
+
+                if viewModel.hasSubmitted {
+                    let loc = R.string.localizable
+                    let optionIsCorrect = option.isCorrect ?? false
+
+                    Text(optionIsCorrect ? loc.correct() : loc.incorrect())
+                        .foregroundStyle(optionIsCorrect ? .green : .red)
+                    + Text(option.explanation.map { ": " + $0 } ?? "")
+                }
             }
             .padding(.horizontal)
             .disabled(viewModel.hasSubmitted)
