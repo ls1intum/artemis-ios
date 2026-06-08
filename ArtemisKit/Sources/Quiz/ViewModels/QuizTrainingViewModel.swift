@@ -25,6 +25,15 @@ class QuizTrainingViewModel {
         }
     }
 
+    var currentScore: (reached: Double, total: Double)? {
+        let total = questions.value?.first?.quizQuestionWithSolutionDTO.points
+        let reached = lastSubmissionResult.value?.scoreInPoints
+        if let reached, let total {
+            return (reached, total)
+        }
+        return nil
+    }
+
     init(courseId: Int) {
         self.courseId = courseId
     }

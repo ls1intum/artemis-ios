@@ -18,7 +18,7 @@ struct MCQuestionView: View {
 
     var body: some View {
         if let text = question.quizQuestionWithSolutionDTO.text {
-            Text(text)
+            Text(LocalizedStringKey(text))
                 .padding(.horizontal)
         }
 

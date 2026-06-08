@@ -23,6 +23,21 @@ struct QuizTraingQuestionsView: View {
         } content: { questions in
             if let question = questions.first {
                 QuizQuestionView(question: question)
+                    .toolbar {
+                        if let score = viewModel.currentScore {
+                            ToolbarItem(placement: .topBarTrailing) {
+                                let percent = score.reached / score.total
+                                Button {
+                                    // This needs to be a button, otherwise .tint has no effect
+                                } label: {
+                                    Text("\(score.reached.formatted(.number)) / \(score.total.formatted(.number))")
+                                        .padding(.horizontal, .s)
+                                }
+                                .buttonStyle(.borderedProminent)
+                                .tint(percent > 0.8 ? .green : percent > 0.4 ? .yellow : .red)
+                            }
+                        }
+                    }
             } else {
                 VStack(alignment: .center) {
                     Text("🎉")
