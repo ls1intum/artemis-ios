@@ -195,37 +195,34 @@ private struct IrisMessageActionBar: View {
 
     var body: some View {
         HStack(spacing: .l) {
-            Button {
+            Button(R.string.localizable.copyText(),
+                   systemImage: didCopy ? "checkmark" : "doc.on.doc") {
                 UIPasteboard.general.string = plainText
                 didCopy = true
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) { didCopy = false }
-            } label: {
-                Image(systemName: didCopy ? "checkmark" : "doc.on.doc")
             }
-            .accessibilityLabel(R.string.localizable.copyText())
+            .labelStyle(.iconOnly)
 
             ShareLink(item: plainText) {
-                Image(systemName: "square.and.arrow.up")
+                Label(R.string.localizable.shareMessage(), systemImage: "square.and.arrow.up")
             }
-            .accessibilityLabel(R.string.localizable.shareMessage())
+            .labelStyle(.iconOnly)
 
-            Button {
+            Button(R.string.localizable.rateHelpful(),
+                   systemImage: message.helpful == true ? "hand.thumbsup.fill" : "hand.thumbsup") {
                 if message.helpful != true, let id = message.id {
                     viewModel.rateMessage(messageId: id, helpful: true)
                 }
-            } label: {
-                Image(systemName: message.helpful == true ? "hand.thumbsup.fill" : "hand.thumbsup")
             }
-            .accessibilityLabel(R.string.localizable.rateHelpful())
+            .labelStyle(.iconOnly)
 
-            Button {
+            Button(R.string.localizable.rateUnhelpful(),
+                   systemImage: message.helpful == false ? "hand.thumbsdown.fill" : "hand.thumbsdown") {
                 if message.helpful != false, let id = message.id {
                     viewModel.rateMessage(messageId: id, helpful: false)
                 }
-            } label: {
-                Image(systemName: message.helpful == false ? "hand.thumbsdown.fill" : "hand.thumbsdown")
             }
-            .accessibilityLabel(R.string.localizable.rateUnhelpful())
+            .labelStyle(.iconOnly)
         }
         .font(.callout)
         .foregroundStyle(.secondary)
