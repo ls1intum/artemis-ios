@@ -47,7 +47,7 @@ struct ShortAnswerQuestionView: View {
                         }
                     }
             case .text(let text):
-                Text(text)
+                Text(LocalizedStringKey(text))
             }
         }
         .padding(.horizontal)
