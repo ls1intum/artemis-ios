@@ -30,4 +30,4 @@
 // MARK: IrisContextSwitchDivider
 "contextAdded" = "Added %@";
 "contextSwitched" = "Switched to %@";
-"contextRemoved" = "Chat topic cleared";
+"contextRemoved" = "Topic cleared";

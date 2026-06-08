@@ -31,7 +31,6 @@ struct IrisContextSwitchDivider: View {
                         chip
                     }
                     .buttonStyle(.plain)
-                    .layoutPriority(1)
                 } else {
                     chip
                 }
@@ -46,8 +45,10 @@ struct IrisContextSwitchDivider: View {
 
     private var chip: some View {
         HStack(spacing: .s) {
-            Image(systemName: icon)
-                .imageScale(.small)
+            if info.transition != .removed {
+                Image(systemName: icon)
+                    .imageScale(.small)
+            }
             Text(label)
                 .font(.caption)
                 .lineLimit(1)
