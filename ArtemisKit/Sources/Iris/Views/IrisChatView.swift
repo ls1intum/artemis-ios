@@ -49,6 +49,7 @@ struct IrisChatView: View {
                                         .id("loadingStageRow")
                                 } else if messages.last?.sender == .llm {
                                     DisclaimerView()
+                                        .id("disclaimer")
                                 }
                             }
                             .padding(.l)
@@ -78,8 +79,14 @@ struct IrisChatView: View {
                     .overlay(alignment: .bottom) {
                         if showScrollToBottom {
                             ScrollToBottomButton {
-                                if let id = messages.last?.id {
-                                    withAnimation { proxy.scrollTo(id, anchor: .bottom) }
+                                withAnimation {
+                                    if viewModel.isAwaitingResponse {
+                                        proxy.scrollTo("loadingStageRow", anchor: .bottom)
+                                    } else if messages.last?.sender == .llm {
+                                        proxy.scrollTo("disclaimer", anchor: .bottom)
+                                    } else if let id = messages.last?.id {
+                                        proxy.scrollTo(id, anchor: .bottom)
+                                    }
                                 }
                             }
                             .padding(.bottom, .m)
