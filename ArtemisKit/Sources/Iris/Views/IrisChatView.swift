@@ -242,10 +242,10 @@ private struct ScrollToBottomButton: View {
 
     var body: some View {
         Button(action: action) {
-            Image(systemName: "chevron.down")
-                .font(.callout.weight(.semibold))
+            Image(systemName: "arrow.down")
+                .font(.title3.weight(.semibold))
                 .foregroundStyle(.primary)
-                .padding(.m)
+                .padding(.m + .s)
                 .background(.regularMaterial, in: .circle)
                 .overlay(Circle().stroke(Color.primary.opacity(0.1)))
                 .shadow(color: .black.opacity(0.15), radius: 4, y: 2)
