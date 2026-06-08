@@ -8,6 +8,7 @@
 import ArtemisMarkdown
 import DesignLibrary
 import SwiftUI
+import UIKit
 
 struct IrisChatView: View {
     @State private var viewModel: IrisChatViewModel
@@ -39,7 +40,7 @@ struct IrisChatView: View {
                         } else {
                             LazyVStack(alignment: .leading, spacing: .m) {
                                 ForEach(messages) { message in
-                                    MessageRow(message: message)
+                                    MessageRow(message: message, viewModel: viewModel)
                                         .id(message.id)
                                 }
                                 if viewModel.isAwaitingResponse {
@@ -114,6 +115,7 @@ struct IrisChatView: View {
 
 private struct MessageRow: View {
     let message: IrisMessageResponseDTO
+    let viewModel: IrisChatViewModel
 
     private var isUser: Bool {
         message.sender == .user
@@ -144,9 +146,62 @@ private struct MessageRow: View {
                             .foregroundStyle(.primary)
                     }
                 }
+                if message.id != nil {
+                    IrisMessageActionBar(message: message, viewModel: viewModel)
+                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
+    }
+}
+
+private struct IrisMessageActionBar: View {
+    let message: IrisMessageResponseDTO
+    let viewModel: IrisChatViewModel
+    @State private var didCopy = false
+
+    private var plainText: String {
+        message.content.compactMap(\.textContent).joined(separator: "\n\n")
+    }
+
+    var body: some View {
+        HStack(spacing: .l) {
+            Button {
+                UIPasteboard.general.string = plainText
+                didCopy = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) { didCopy = false }
+            } label: {
+                Image(systemName: didCopy ? "checkmark" : "doc.on.doc")
+            }
+            .accessibilityLabel(R.string.localizable.copyText())
+
+            ShareLink(item: plainText) {
+                Image(systemName: "square.and.arrow.up")
+            }
+            .accessibilityLabel(R.string.localizable.shareMessage())
+
+            Button {
+                if message.helpful != true, let id = message.id {
+                    viewModel.rateMessage(messageId: id, helpful: true)
+                }
+            } label: {
+                Image(systemName: message.helpful == true ? "hand.thumbsup.fill" : "hand.thumbsup")
+            }
+            .accessibilityLabel(R.string.localizable.rateHelpful())
+
+            Button {
+                if message.helpful != false, let id = message.id {
+                    viewModel.rateMessage(messageId: id, helpful: false)
+                }
+            } label: {
+                Image(systemName: message.helpful == false ? "hand.thumbsdown.fill" : "hand.thumbsdown")
+            }
+            .accessibilityLabel(R.string.localizable.rateUnhelpful())
+        }
+        .font(.callout)
+        .foregroundStyle(.secondary)
+        .buttonStyle(.plain)
+        .padding(.top, .s)
     }
 }
 

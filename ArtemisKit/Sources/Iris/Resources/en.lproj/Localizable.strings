@@ -18,3 +18,9 @@
 "thinking" = "Thinking…";
 "emptyChatTitle" = "How can I help you today?";
 "askIrisPlaceholder" = "Ask Iris...";
+
+// MARK: IrisChatView – Message actions
+"copyText" = "Copy";
+"shareMessage" = "Share";
+"rateHelpful" = "Helpful";
+"rateUnhelpful" = "Not helpful";
