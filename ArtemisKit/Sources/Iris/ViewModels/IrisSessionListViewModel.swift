@@ -106,8 +106,9 @@ final class IrisSessionListViewModel {
     }
 
     func updateSessionTitle(sessionId: Int, title: String) {
-        guard let index = sessions.value?.firstIndex(where: { $0.id == sessionId }) else { return }
-        sessions.value?[index].title = title
+        guard let index = sessions.value?.firstIndex(where: { $0.id == sessionId }),
+              let session = sessions.value?[index] else { return }
+        sessions.value?[index] = session.withTitle(title)
     }
 
     /// Mirrors a live context switch from the open chat back into the list row,

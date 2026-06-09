@@ -11,7 +11,7 @@ import Foundation
 /// used to render the chat-history list. Does **not** contain messages.
 struct IrisSessionDTO: Codable, Hashable, Identifiable {
     let id: Int
-    var title: String?
+    let title: String?
     let creationDate: Date
     let mode: IrisChatMode
     let entityId: Int
@@ -33,5 +33,17 @@ struct IrisSessionDTO: Codable, Hashable, Identifiable {
             mode: context.mode,
             entityId: context.entityId,
             entityName: context.entityName)
+    }
+
+    /// Returns a copy with the title replaced by `title` — used to reflect a
+    /// freshly generated/updated session title in the list row.
+    func withTitle(_ title: String?) -> IrisSessionDTO {
+        IrisSessionDTO(
+            id: id,
+            title: title,
+            creationDate: creationDate,
+            mode: mode,
+            entityId: entityId,
+            entityName: entityName)
     }
 }
