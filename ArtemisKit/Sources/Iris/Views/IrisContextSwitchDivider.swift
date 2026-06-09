@@ -45,7 +45,7 @@ struct IrisContextSwitchDivider: View {
 
     private var chip: some View {
         HStack(spacing: .s) {
-            if info.transition != .removed {
+            if info.transition != .removed, let icon = info.entityMode?.icon {
                 Image(systemName: icon)
                     .imageScale(.small)
             }
@@ -81,19 +81,6 @@ struct IrisContextSwitchDivider: View {
             navigationController.goToExercise(courseId: courseId, exerciseId: id)
         case .lecture(let id):
             navigationController.goToLecture(courseId: courseId, lectureId: id)
-        }
-    }
-
-    private var icon: String {
-        switch info.entityMode {
-        case .lecture:
-            return "inset.filled.rectangle.and.person.filled"
-        case .textExercise:
-            return "character"
-        case .programmingExercise:
-            return "keyboard"
-        default:
-            return "arrow.triangle.swap"
         }
     }
 

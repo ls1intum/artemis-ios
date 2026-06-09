@@ -44,9 +44,11 @@ struct IrisContextSelectionView: View {
                 if !lectures.isEmpty {
                     Section(R.string.localizable.lecturesSection()) {
                         ForEach(lectures) { lecture in
+                            let context = viewModel.context(for: lecture)
                             ContextRow(title: lecture.title,
+                                       icon: context.mode.icon,
                                        isSelected: viewModel.isSelected(lecture: lecture, current: currentSelection)) {
-                                onSet(viewModel.context(for: lecture))
+                                onSet(context)
                                 dismiss()
                             }
                         }
@@ -55,9 +57,11 @@ struct IrisContextSelectionView: View {
                 if !exercises.isEmpty {
                     Section(R.string.localizable.exercisesSection()) {
                         ForEach(exercises) { exercise in
+                            let context = viewModel.context(for: exercise)
                             ContextRow(title: exercise.baseExercise.title,
+                                       icon: context.mode.icon,
                                        isSelected: viewModel.isSelected(exercise: exercise, current: currentSelection)) {
-                                onSet(viewModel.context(for: exercise))
+                                onSet(context)
                                 dismiss()
                             }
                         }
@@ -70,12 +74,16 @@ struct IrisContextSelectionView: View {
 
 private struct ContextRow: View {
     let title: String?
+    let icon: String
     let isSelected: Bool
     let onSelect: () -> Void
 
     var body: some View {
         Button(action: onSelect) {
             HStack {
+                Image(systemName: icon)
+                    .foregroundStyle(.primary)
+                    .frame(width: 28)
                 Text(title ?? R.string.localizable.untitled())
                     .foregroundStyle(.primary)
                 Spacer()

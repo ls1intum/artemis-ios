@@ -17,3 +17,20 @@ enum IrisChatMode: String, ConstantsEnum {
     case tutorSuggestion = "TUTOR_SUGGESTION"
     case unknown
 }
+
+extension IrisChatMode {
+    var icon: String {
+        switch self {
+        case .programmingExercise:
+            "keyboard"
+        case .textExercise:
+            "character"
+        case .course:
+            "graduationcap"
+        case .lecture:
+            "inset.filled.rectangle.and.person.filled"
+        case .tutorSuggestion, .unknown:
+            "questionmark"
+        }
+    }
+}

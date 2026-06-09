@@ -124,7 +124,7 @@ private struct IrisSessionRowView: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: modeIcon)
+            Image(systemName: session.mode.icon)
                 .font(.title3)
                 .foregroundStyle(.primary)
                 .frame(width: 28)
@@ -148,21 +148,6 @@ private struct IrisSessionRowView: View {
                 .foregroundColor(.secondary)
         }
         .padding(.vertical, 4)
-    }
-
-    private var modeIcon: String {
-        switch session.mode {
-        case .programmingExercise:
-            "keyboard"
-        case .textExercise:
-            "character"
-        case .course:
-            "graduationcap"
-        case .lecture:
-            "inset.filled.rectangle.and.person.filled"
-        default:
-            "questionmark"
-        }
     }
 }
 
