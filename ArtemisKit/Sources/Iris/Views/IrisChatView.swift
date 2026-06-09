@@ -16,6 +16,7 @@ struct IrisChatView: View {
     @State private var bottomSpacerShown = false
     @State private var showScrollToBottom = false
     @FocusState private var isInputFocused: Bool
+    @Environment(\.scenePhase) private var scenePhase
 
     private let onDeleted: () -> Void
     private let onTitleChange: (String) -> Void
@@ -131,6 +132,16 @@ struct IrisChatView: View {
         }
         .task { await viewModel.loadMessages() }
         .task { await viewModel.subscribeToWebsocket() }
+        .onChange(of: scenePhase) { _, newPhase in
+            // Iris' reply arrives only once over the STOMP topic, which iOS tears
+            // down on backgrounding. STOMP doesn't replay messages published while
+            // we were disconnected, so a reply that lands in the background never
+            // reaches the live stream. Re-fetch the persisted messages on return to
+            // the foreground to catch up (upsert dedupes against the live stream).
+            if newPhase == .active {
+                Task { await viewModel.refreshMessages() }
+            }
+        }
         .onChange(of: viewModel.sessionTitle) { _, newTitle in
             if let newTitle { onTitleChange(newTitle) }
         }

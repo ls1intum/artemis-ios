@@ -68,6 +68,18 @@ final class IrisChatViewModel {
         }
     }
 
+    /// Silent catch-up refresh for returning from the background, where a reply
+    /// published over the STOMP topic while we were disconnected is otherwise
+    /// lost (topics aren't replayed on reconnect). Unlike `loadMessages`, it
+    /// never overwrites loaded messages with a `.loading`/`.failure` state — a
+    /// flaky network on resume must not wipe the visible chat. The server list
+    /// is authoritative; the live stream dedupes via `upsert`.
+    func refreshMessages() async {
+        if case .done(let response) = await httpService.getMessages(sessionId: sessionPath.sessionId) {
+            messages = .done(response: response)
+        }
+    }
+
     func subscribeToWebsocket() async {
         let stream = await IrisWebsocketServiceFactory.shared.subscribe(sessionId: sessionPath.sessionId)
         websocketTask = Task { [weak self] in
