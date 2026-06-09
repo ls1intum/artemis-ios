@@ -113,8 +113,16 @@ final class IrisSessionListViewModel {
     /// Mirrors a live context switch from the open chat back into the list row,
     /// so its icon and entity name update without waiting for a full reload.
     func updateSessionContext(sessionId: Int, context: SessionContext) {
-        guard let index = sessions.value?.firstIndex(where: { $0.id == sessionId }) else { return }
-        sessions.value?[index].apply(context)
+        guard let index = sessions.value?.firstIndex(where: { $0.id == sessionId }),
+              let session = sessions.value?[index] else { return }
+        sessions.value?[index] = session.withContext(context)
+    }
+
+    /// The current DTO for `sessionId` from the loaded list — the source of truth
+    /// for a row's title/context, kept current by the `updateSession*` mutators.
+    /// Used to seed the chat when it opens.
+    func session(for sessionId: Int) -> IrisSessionDTO? {
+        sessions.value?.first { $0.id == sessionId }
     }
 }
 

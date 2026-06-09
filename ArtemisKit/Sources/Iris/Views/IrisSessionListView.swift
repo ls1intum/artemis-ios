@@ -37,7 +37,7 @@ public struct IrisSessionListView: View {
                     ForEach(viewModel.groupedSessions) { group in
                         Section(group.title) {
                             ForEach(group.sessions) { session in
-                                let path = IrisSessionPath(session: session, coursePath: CoursePath(id: courseId))
+                                let path = IrisSessionPath(sessionId: session.id, coursePath: CoursePath(id: courseId))
                                 NavigationLink(value: path) {
                                     IrisSessionRowView(session: session)
                                 }
@@ -97,6 +97,7 @@ public struct IrisSessionListView: View {
             if let path = navigationController.selectedPath as? IrisSessionPath {
                 IrisChatView(
                     sessionPath: path,
+                    session: viewModel.session(for: path.sessionId),
                     onDeleted: {
                         viewModel.removeSession(sessionId: path.sessionId)
                         navigationController.selectedPath = nil
@@ -174,7 +175,7 @@ private struct NewIrisSessionButton: View {
         Button {
             Task {
                 if let newSession = await viewModel.createNewSession() {
-                    navigationController.selectedPath = IrisSessionPath(session: newSession, coursePath: CoursePath(id: courseId))
+                    navigationController.selectedPath = IrisSessionPath(sessionId: newSession.id, coursePath: CoursePath(id: courseId))
                 }
             }
         } label: {

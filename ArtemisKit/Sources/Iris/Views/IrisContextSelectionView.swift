@@ -6,6 +6,7 @@
 //
 
 import DesignLibrary
+import Navigation
 import SharedModels
 import SwiftUI
 
@@ -16,49 +17,52 @@ struct IrisContextSelectionView: View {
     @Environment(\.dismiss) private var dismiss
     @Bindable var viewModel: IrisContextSelectionViewModel
 
+    let courseId: Int
     /// The context currently active in the chat — drives the row checkmark.
     let currentSelection: SessionContext?
     let onSet: (SessionContext) -> Void
 
     var body: some View {
         NavigationStack {
-            DataStateView(data: $viewModel.courseState) {
-                await viewModel.loadCourseIfNeeded()
-            } content: { _ in
-                if viewModel.lectures.isEmpty && viewModel.exercises.isEmpty {
-                    ContentUnavailableView(R.string.localizable.noItems(), systemImage: "tray")
-                } else {
-                    List {
-                        if !viewModel.lectures.isEmpty {
-                            Section(R.string.localizable.lecturesSection()) {
-                                ForEach(viewModel.lectures) { lecture in
-                                    ContextRow(title: lecture.title,
-                                               isSelected: viewModel.isSelected(lecture: lecture, current: currentSelection)) {
-                                        onSet(viewModel.context(for: lecture))
-                                        dismiss()
-                                    }
-                                }
-                            }
-                        }
-                        if !viewModel.exercises.isEmpty {
-                            Section(R.string.localizable.exercisesSection()) {
-                                ForEach(viewModel.exercises) { exercise in
-                                    ContextRow(title: exercise.baseExercise.title,
-                                               isSelected: viewModel.isSelected(exercise: exercise, current: currentSelection)) {
-                                        onSet(viewModel.context(for: exercise))
-                                        dismiss()
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+            CoursePathView(path: CoursePath(id: courseId)) { course in
+                content(for: course)
             }
             .navigationTitle(R.string.localizable.selectTitle())
             .navigationBarTitleDisplayMode(.inline)
             .searchable(text: $viewModel.searchText)
-            .task {
-                await viewModel.loadCourseIfNeeded()
+        }
+    }
+
+    @ViewBuilder
+    private func content(for course: Course) -> some View {
+        let lectures = viewModel.lectures(in: course)
+        let exercises = viewModel.exercises(in: course)
+        if lectures.isEmpty && exercises.isEmpty {
+            ContentUnavailableView(R.string.localizable.noItems(), systemImage: "tray")
+        } else {
+            List {
+                if !lectures.isEmpty {
+                    Section(R.string.localizable.lecturesSection()) {
+                        ForEach(lectures) { lecture in
+                            ContextRow(title: lecture.title,
+                                       isSelected: viewModel.isSelected(lecture: lecture, current: currentSelection)) {
+                                onSet(viewModel.context(for: lecture))
+                                dismiss()
+                            }
+                        }
+                    }
+                }
+                if !exercises.isEmpty {
+                    Section(R.string.localizable.exercisesSection()) {
+                        ForEach(exercises) { exercise in
+                            ContextRow(title: exercise.baseExercise.title,
+                                       isSelected: viewModel.isSelected(exercise: exercise, current: currentSelection)) {
+                                onSet(viewModel.context(for: exercise))
+                                dismiss()
+                            }
+                        }
+                    }
+                }
             }
         }
     }

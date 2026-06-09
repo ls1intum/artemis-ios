@@ -23,11 +23,12 @@ struct IrisChatView: View {
     private let onContextChange: (SessionContext) -> Void
 
     init(sessionPath: IrisSessionPath,
+         session: IrisSessionDTO?,
          onDeleted: @escaping () -> Void = {},
          onTitleChange: @escaping (String) -> Void = { _ in },
          onContextChange: @escaping (SessionContext) -> Void = { _ in }) {
-        _viewModel = State(wrappedValue: IrisChatViewModel(sessionPath: sessionPath))
-        _contextViewModel = State(wrappedValue: IrisContextSelectionViewModel(courseId: sessionPath.courseId))
+        _viewModel = State(wrappedValue: IrisChatViewModel(sessionPath: sessionPath, session: session))
+        _contextViewModel = State(wrappedValue: IrisContextSelectionViewModel())
         self.courseId = sessionPath.courseId
         self.onDeleted = onDeleted
         self.onTitleChange = onTitleChange
@@ -76,6 +77,7 @@ struct IrisChatView: View {
                     text: $viewModel.inputText,
                     isFocused: $isInputFocused,
                     isContextPresented: $isContextSelectionPresented,
+                    courseId: courseId,
                     contextViewModel: contextViewModel,
                     currentSelection: viewModel.displayedChipContext,
                     chipTitle: viewModel.displayedChipContext.map { $0.entityName ?? R.string.localizable.untitled() },
@@ -239,6 +241,7 @@ private struct InputBar: View {
     @Binding var text: String
     @FocusState.Binding var isFocused: Bool
     @Binding var isContextPresented: Bool
+    let courseId: Int
     let contextViewModel: IrisContextSelectionViewModel
     let currentSelection: SessionContext?
     let chipTitle: String?
@@ -266,6 +269,7 @@ private struct InputBar: View {
                          attachmentAnchor: .point(.top),
                          arrowEdge: .bottom) {
                     IrisContextSelectionView(viewModel: contextViewModel,
+                                             courseId: courseId,
                                              currentSelection: currentSelection,
                                              onSet: onContextSelected)
                         .modifier(ContextSelectionPresentation(isRegular: horizontalSizeClass == .regular))

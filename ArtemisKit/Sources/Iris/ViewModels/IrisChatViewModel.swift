@@ -76,11 +76,12 @@ final class IrisChatViewModel {
     }
 
     init(sessionPath: IrisSessionPath,
+         session: IrisSessionDTO?,
          httpService: IrisChatHttpService = IrisChatHttpServiceFactory.shared) {
         self.sessionPath = sessionPath
         self.httpService = httpService
-        self.sessionTitle = sessionPath.session?.title
-        self.committedContext = sessionPath.session?.context
+        self.sessionTitle = session?.title
+        self.committedContext = session?.context
     }
 
     func loadMessages() async {
