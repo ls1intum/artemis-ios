@@ -7,6 +7,7 @@
 
 import ArtemisMarkdown
 import DesignLibrary
+import Navigation
 import SwiftUI
 import UIKit
 
@@ -19,7 +20,7 @@ struct IrisChatView: View {
     @State private var showScrollToBottom = false
     @FocusState private var isInputFocused: Bool
 
-    private let courseId: Int
+    private let coursePath: CoursePath
     private let onDeleted: () -> Void
     private let onTitleChange: (String) -> Void
     private let onContextChange: (SessionContext) -> Void
@@ -31,7 +32,7 @@ struct IrisChatView: View {
          onContextChange: @escaping (SessionContext) -> Void = { _ in }) {
         _viewModel = State(wrappedValue: IrisChatViewModel(sessionPath: sessionPath, session: session))
         _contextViewModel = State(wrappedValue: IrisContextSelectionViewModel())
-        self.courseId = sessionPath.courseId
+        self.coursePath = sessionPath.coursePath
         self.onDeleted = onDeleted
         self.onTitleChange = onTitleChange
         self.onContextChange = onContextChange
@@ -50,7 +51,7 @@ struct IrisChatView: View {
                         } else {
                             LazyVStack(alignment: .leading, spacing: .m) {
                                 ForEach(messages) { message in
-                                    MessageRow(message: message, courseId: courseId, viewModel: viewModel)
+                                    MessageRow(message: message, courseId: coursePath.id, viewModel: viewModel)
                                         .id(message.id)
                                 }
                                 if viewModel.isAwaitingResponse {
@@ -107,7 +108,7 @@ struct IrisChatView: View {
                     text: $viewModel.inputText,
                     isFocused: $isInputFocused,
                     isContextPresented: $isContextSelectionPresented,
-                    courseId: courseId,
+                    coursePath: coursePath,
                     contextViewModel: contextViewModel,
                     currentSelection: viewModel.displayedChipContext,
                     chipTitle: viewModel.displayedChipContext.map { $0.entityName ?? R.string.localizable.untitled() },
@@ -355,7 +356,7 @@ private struct InputBar: View {
     @Binding var text: String
     @FocusState.Binding var isFocused: Bool
     @Binding var isContextPresented: Bool
-    let courseId: Int
+    let coursePath: CoursePath
     let contextViewModel: IrisContextSelectionViewModel
     let currentSelection: SessionContext?
     let chipTitle: String?
@@ -383,7 +384,7 @@ private struct InputBar: View {
                          attachmentAnchor: .point(.top),
                          arrowEdge: .bottom) {
                     IrisContextSelectionView(viewModel: contextViewModel,
-                                             courseId: courseId,
+                                             coursePath: coursePath,
                                              currentSelection: currentSelection,
                                              onSet: onContextSelected)
                         .modifier(ContextSelectionPresentation(isRegular: horizontalSizeClass == .regular))

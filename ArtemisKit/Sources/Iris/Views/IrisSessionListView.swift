@@ -9,6 +9,7 @@ import Common
 import DesignLibrary
 import Navigation
 import Notifications
+import SharedModels
 import SwiftUI
 
 public struct IrisSessionListView: View {
@@ -16,11 +17,11 @@ public struct IrisSessionListView: View {
     @State private var viewModel: IrisSessionListViewModel
     @State private var columnVisibility: NavigationSplitViewVisibility = .doubleColumn
 
-    private let courseId: Int
+    private let course: Course
 
-    public init(courseId: Int) {
-        self.courseId = courseId
-        _viewModel = State(wrappedValue: IrisSessionListViewModel(courseId: courseId))
+    public init(course: Course) {
+        self.course = course
+        _viewModel = State(wrappedValue: IrisSessionListViewModel(courseId: course.id))
     }
 
     private var selectedSession: Binding<IrisSessionPath?> {
@@ -37,7 +38,7 @@ public struct IrisSessionListView: View {
                     ForEach(viewModel.groupedSessions) { group in
                         Section(group.title) {
                             ForEach(group.sessions) { session in
-                                let path = IrisSessionPath(sessionId: session.id, coursePath: CoursePath(id: courseId))
+                                let path = IrisSessionPath(sessionId: session.id, coursePath: CoursePath(course: course))
                                 NavigationLink(value: path) {
                                     IrisSessionRowView(session: session)
                                 }
@@ -88,7 +89,7 @@ public struct IrisSessionListView: View {
                 .refreshable { await viewModel.loadSessions() }
                 .contentMargins(.bottom, 80, for: .scrollContent)
                 .overlay(alignment: .bottomTrailing) {
-                    NewIrisSessionButton(viewModel: viewModel, courseId: courseId)
+                    NewIrisSessionButton(viewModel: viewModel, course: course)
                         .padding()
                 }
             }
@@ -154,13 +155,13 @@ private struct IrisSessionRowView: View {
 private struct NewIrisSessionButton: View {
     @EnvironmentObject private var navigationController: NavigationController
     @Bindable var viewModel: IrisSessionListViewModel
-    let courseId: Int
+    let course: Course
 
     var body: some View {
         Button {
             Task {
                 if let newSession = await viewModel.createNewSession() {
-                    navigationController.selectedPath = IrisSessionPath(sessionId: newSession.id, coursePath: CoursePath(id: courseId))
+                    navigationController.selectedPath = IrisSessionPath(sessionId: newSession.id, coursePath: CoursePath(course: course))
                 }
             }
         } label: {

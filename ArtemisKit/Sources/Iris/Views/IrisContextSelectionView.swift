@@ -17,14 +17,16 @@ struct IrisContextSelectionView: View {
     @Environment(\.dismiss) private var dismiss
     @Bindable var viewModel: IrisContextSelectionViewModel
 
-    let courseId: Int
+    /// Carries the already-loaded ``Course`` when navigated from within the course,
+    /// so ``CoursePathView`` starts in `.done` and skips re-fetching the catalog.
+    let coursePath: CoursePath
     /// The context currently active in the chat — drives the row checkmark.
     let currentSelection: SessionContext?
     let onSet: (SessionContext) -> Void
 
     var body: some View {
         NavigationStack {
-            CoursePathView(path: CoursePath(id: courseId)) { course in
+            CoursePathView(path: coursePath) { course in
                 content(for: course)
             }
             .navigationTitle(R.string.localizable.selectTitle())
