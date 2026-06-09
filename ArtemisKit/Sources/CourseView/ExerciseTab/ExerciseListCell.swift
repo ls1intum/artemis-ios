@@ -54,8 +54,7 @@ struct ExerciseListCell: View {
                     }
                     SubmissionResultStatusView(exercise: exercise)
                     if showAdditionalBadges {
-                        ScrollView(.horizontal) {
-                            HStack(spacing: .s) {
+                        FlowLayout(spacing: .s) {
                                 if let releaseDate = exercise.baseExercise.releaseDate,
                                    releaseDate > .now {
                                     Chip(
@@ -72,7 +71,6 @@ struct ExerciseListCell: View {
                                         backgroundColor: exercise.baseExercise.includedInOverallScore.color)
                                 }
                             }
-                        }
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
