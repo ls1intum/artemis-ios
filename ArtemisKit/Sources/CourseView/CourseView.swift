@@ -45,7 +45,7 @@ public struct CourseView: View {
                 }
             }
 
-            if (viewModel.course.numberOfAcceptedFaqs ?? 0) > 0 {
+            if ((viewModel.course.numberOfAcceptedFaqs ?? 0) > 0) && viewModel.course.irisEnabledInCourse == false {
                 Tab(R.string.localizable.faqTabLabel(),
                     systemImage: "questionmark.circle",
                     value: TabIdentifier.faq) {
