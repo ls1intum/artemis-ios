@@ -15,10 +15,6 @@ public struct CourseView: View {
     @StateObject private var viewModel: CourseViewModel
     @FeatureAvailability(.globalSearch) private var searchEnabled
 
-    // TODO: Replace with @FeatureAvailability(.iris) once the Feature enum in
-    // artemis-ios-core-modules exposes the MODULE_FEATURE_IRIS case.
-    private var irisEnabled = false
-
     private let courseId: Int
 
     public var body: some View {
@@ -68,7 +64,7 @@ public struct CourseView: View {
                 }
             }
 
-            if irisEnabled {
+            if viewModel.course.irisEnabledInCourse == true {
                 Tab("Iris", systemImage: "eyes", value: TabIdentifier.iris) {
                     TabBarIpad {
                         IrisSessionListView(courseId: viewModel.course.id)
