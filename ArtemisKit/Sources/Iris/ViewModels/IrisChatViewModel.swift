@@ -154,6 +154,22 @@ final class IrisChatViewModel {
         }
     }
 
+    func rateMessage(messageId: Int, helpful: Bool) {
+        Task { [weak self] in
+            guard let self else { return }
+            let result = await httpService.rateMessage(
+                sessionId: sessionPath.sessionId, messageId: messageId, helpful: helpful)
+            switch result {
+            case .done(let response):
+                upsert(message: response)
+            case .failure(let error):
+                self.error = error
+            case .loading:
+                break
+            }
+        }
+    }
+
     func deleteSession() async -> Bool {
         let result = await httpService.deleteSession(sessionId: sessionPath.sessionId)
         switch result {
