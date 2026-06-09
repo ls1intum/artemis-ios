@@ -216,7 +216,7 @@ private struct MessageRow: View {
                     }
                 }
                 if message.id != nil {
-                    IrisMessageActionBar(message: message, viewModel: viewModel)
+                    MessageActionBar(message: message, viewModel: viewModel)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -224,7 +224,9 @@ private struct MessageRow: View {
     }
 }
 
-private struct IrisMessageActionBar: View {
+// MARK: MessageActionBar
+
+private struct MessageActionBar: View {
     let message: IrisMessageResponseDTO
     let viewModel: IrisChatViewModel
     @State private var didCopy = false
@@ -271,6 +273,8 @@ private struct IrisMessageActionBar: View {
     }
 }
 
+// MARK: DisclaimerView
+
 private struct DisclaimerView: View {
     var body: some View {
         Text(R.string.localizable.irisDisclaimer())
@@ -280,6 +284,8 @@ private struct DisclaimerView: View {
             .padding(.top, .s)
     }
 }
+
+// MARK: ScrollToBottomButton
 
 private struct ScrollToBottomButton: View {
     let action: () -> Void
