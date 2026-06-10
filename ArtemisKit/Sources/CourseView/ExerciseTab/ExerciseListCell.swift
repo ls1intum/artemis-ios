@@ -70,7 +70,7 @@ struct ExerciseListCell: View {
                                         text: exercise.baseExercise.includedInOverallScore.description,
                                         backgroundColor: exercise.baseExercise.includedInOverallScore.color)
                                 }
-                            }
+                        }
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)

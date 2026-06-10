@@ -7,25 +7,31 @@
 
 import Foundation
 import SwiftUI
+
 struct FlowLayout: Layout {
     var spacing: CGFloat
 
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
-        let availableWidth = proposal.width ?? .infinity
-        let sizes = subviews.map { $0.sizeThatFits(ProposedViewSize(width: availableWidth, height: nil)) }
+        let availableWidth: CGFloat
+        if let width = proposal.width, width != .infinity {
+            availableWidth = width
+        } else {
+            availableWidth = 350
+        }
+        let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
         return layout(sizes: sizes, proposalWidth: availableWidth).size
     }
 
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
         let availableWidth = bounds.width
-        let sizes = subviews.map { $0.sizeThatFits(ProposedViewSize(width: availableWidth, height: nil)) }
+        let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
         let layoutData = layout(sizes: sizes, proposalWidth: availableWidth)
 
         for (index, subview) in subviews.enumerated() {
             let position = layoutData.positions[index]
             let actualPosition = CGPoint(x: bounds.minX + position.x, y: bounds.minY + position.y)
-            
             let itemSize = sizes[index]
+            
             let constrainedWidth = min(itemSize.width, availableWidth)
             
             subview.place(
