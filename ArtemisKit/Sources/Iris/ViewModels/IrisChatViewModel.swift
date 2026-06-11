@@ -7,6 +7,7 @@
 
 import Common
 import Foundation
+import Navigation
 import SwiftUI
 
 @MainActor
@@ -53,7 +54,7 @@ final class IrisChatViewModel {
          httpService: IrisChatHttpService = IrisChatHttpServiceFactory.shared) {
         self.sessionPath = sessionPath
         self.httpService = httpService
-        self.sessionTitle = sessionPath.session?.title
+        self.sessionTitle = sessionPath.title
     }
 
     func loadMessages() async {
