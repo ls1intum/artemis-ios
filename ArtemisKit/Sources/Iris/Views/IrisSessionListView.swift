@@ -88,7 +88,7 @@ public struct IrisSessionListView: View {
                 .refreshable { await viewModel.loadSessions() }
                 .contentMargins(.bottom, 80, for: .scrollContent)
                 .overlay(alignment: .bottomTrailing) {
-                    NewIrisSessionButton(viewModel: viewModel, courseId: courseId)
+                    NewIrisSessionButton(isCreating: viewModel.isCreatingSession, action: createAndOpenSession)
                         .padding()
                 }
             }
@@ -97,6 +97,7 @@ public struct IrisSessionListView: View {
             if let path = navigationController.selectedPath as? IrisSessionPath {
                 IrisChatView(
                     sessionPath: path,
+                    onNewChat: createAndOpenSession,
                     onDeleted: {
                         viewModel.removeSession(sessionId: path.sessionId)
                         navigationController.selectedPath = nil
@@ -112,6 +113,17 @@ public struct IrisSessionListView: View {
         .loadingIndicator(isLoading: $viewModel.isLoading)
         .alert(isPresented: viewModel.showError, error: viewModel.error, actions: {})
         .task { await viewModel.loadSessions() }
+    }
+
+    /// Creates a session and navigates to it. Shared by the + button and the
+    /// chat view's "New Chat" menu item.
+    private func createAndOpenSession() {
+        Task {
+            if let newSession = await viewModel.createNewSession() {
+                navigationController.selectedPath = IrisSessionPath(
+                    session: newSession, coursePath: CoursePath(id: courseId))
+            }
+        }
     }
 }
 
@@ -163,20 +175,13 @@ private struct IrisSessionRowView: View {
 }
 
 private struct NewIrisSessionButton: View {
-    @EnvironmentObject private var navigationController: NavigationController
-    @Bindable var viewModel: IrisSessionListViewModel
-    let courseId: Int
+    let isCreating: Bool
+    let action: () -> Void
 
     var body: some View {
-        Button {
-            Task {
-                if let newSession = await viewModel.createNewSession() {
-                    navigationController.selectedPath = IrisSessionPath(session: newSession, coursePath: CoursePath(id: courseId))
-                }
-            }
-        } label: {
+        Button(action: action) {
             Group {
-                if viewModel.isCreatingSession {
+                if isCreating {
                     ProgressView()
                         .tint(.white)
                 } else {
@@ -189,6 +194,6 @@ private struct NewIrisSessionButton: View {
             .background(Color.Artemis.artemisBlue, in: .circle)
             .shadow(color: Color.gray.opacity(0.2), radius: .m)
         }
-        .disabled(viewModel.isCreatingSession)
+        .disabled(isCreating)
     }
 }

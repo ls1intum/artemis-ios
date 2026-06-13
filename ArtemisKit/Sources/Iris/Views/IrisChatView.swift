@@ -13,18 +13,22 @@ import UIKit
 struct IrisChatView: View {
     @State private var viewModel: IrisChatViewModel
     @State private var showDeleteConfirmation = false
+    @State private var showAboutIris = false
     @State private var bottomSpacerShown = false
     @State private var showScrollToBottom = false
     @FocusState private var isInputFocused: Bool
     @Environment(\.scenePhase) private var scenePhase
 
+    private let onNewChat: () -> Void
     private let onDeleted: () -> Void
     private let onTitleChange: (String) -> Void
 
     init(sessionPath: IrisSessionPath,
+         onNewChat: @escaping () -> Void = {},
          onDeleted: @escaping () -> Void = {},
          onTitleChange: @escaping (String) -> Void = { _ in }) {
         _viewModel = State(wrappedValue: IrisChatViewModel(sessionPath: sessionPath))
+        self.onNewChat = onNewChat
         self.onDeleted = onDeleted
         self.onTitleChange = onTitleChange
     }
@@ -106,6 +110,20 @@ struct IrisChatView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
+                    Button {
+                        onNewChat()
+                    } label: {
+                        Label(R.string.localizable.newChat(), systemImage: "square.and.pencil")
+                    }
+
+                    Button {
+                        showAboutIris = true
+                    } label: {
+                        Label(R.string.localizable.aboutIris(), systemImage: "info.circle")
+                    }
+
+                    Divider()
+
                     Button(role: .destructive) {
                         showDeleteConfirmation = true
                     } label: {
@@ -127,6 +145,10 @@ struct IrisChatView: View {
                         }
                     }
                     Button(R.string.localizable.cancel(), role: .cancel) {}
+                }
+                .sheet(isPresented: $showAboutIris) {
+                    AboutIrisView()
+                        .presentationDragIndicator(.hidden)
                 }
             }
         }
