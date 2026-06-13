@@ -97,6 +97,7 @@ public struct IrisSessionListView: View {
             if let path = navigationController.selectedPath as? IrisSessionPath {
                 IrisChatView(
                     sessionPath: path,
+                    isCreatingSession: viewModel.isCreatingSession,
                     onNewChat: createAndOpenSession,
                     onDeleted: {
                         viewModel.removeSession(sessionId: path.sessionId)

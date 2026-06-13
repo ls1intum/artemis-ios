@@ -19,15 +19,18 @@ struct IrisChatView: View {
     @FocusState private var isInputFocused: Bool
     @Environment(\.scenePhase) private var scenePhase
 
+    private let isCreatingSession: Bool
     private let onNewChat: () -> Void
     private let onDeleted: () -> Void
     private let onTitleChange: (String) -> Void
 
     init(sessionPath: IrisSessionPath,
+         isCreatingSession: Bool = false,
          onNewChat: @escaping () -> Void = {},
          onDeleted: @escaping () -> Void = {},
          onTitleChange: @escaping (String) -> Void = { _ in }) {
         _viewModel = State(wrappedValue: IrisChatViewModel(sessionPath: sessionPath))
+        self.isCreatingSession = isCreatingSession
         self.onNewChat = onNewChat
         self.onDeleted = onDeleted
         self.onTitleChange = onTitleChange
@@ -115,6 +118,7 @@ struct IrisChatView: View {
                     } label: {
                         Label(R.string.localizable.newChat(), systemImage: "square.and.pencil")
                     }
+                    .disabled(isCreatingSession)
 
                     Button {
                         showAboutIris = true
@@ -130,7 +134,11 @@ struct IrisChatView: View {
                         Label(R.string.localizable.deleteChat(), systemImage: "trash")
                     }
                 } label: {
-                    Image(systemName: "ellipsis.circle")
+                    if isCreatingSession {
+                        ProgressView()
+                    } else {
+                        Image(systemName: "ellipsis.circle")
+                    }
                 }
                 .confirmationDialog(
                     R.string.localizable.deleteChatConfirmationMessage(),
