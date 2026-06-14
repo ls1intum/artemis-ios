@@ -756,7 +756,7 @@ struct MessagesServiceImpl: MessagesService {
         typealias Response = GroupChat
 
         let courseId: Int
-        let usernames: [String]
+        let memberLogins: [String]
 
         var method: HTTPMethod {
             return .post
@@ -765,14 +765,10 @@ struct MessagesServiceImpl: MessagesService {
         var resourceName: String {
             return "api/communication/courses/\(courseId)/group-chats"
         }
-
-        func encode(to encoder: Encoder) throws {
-            try usernames.encode(to: encoder)
-        }
     }
 
     func createGroupChat(for courseId: Int, usernames: [String]) async -> DataState<GroupChat> {
-        let result = await client.sendRequest(CreateGroupChatRequest(courseId: courseId, usernames: usernames))
+        let result = await client.sendRequest(CreateGroupChatRequest(courseId: courseId, memberLogins: usernames))
 
         switch result {
         case let .success((groupChat, _)):
