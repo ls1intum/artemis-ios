@@ -21,16 +21,23 @@ struct ExerciseOverviewChipsRow: View {
     }()
     
     var body: some View {
+        // ---------------------------------------------------------------------------
+        // Categories / special badges chip
+        // Show WHEN at least one of:
+        //   • exercise.releaseDate is in the future          → “Not released”
+        //   • includedInOverallScore != .includedCompletely  → that value’s description
+        //   • exercise.categories != nil                     → up to 3 category badges
+        // ---------------------------------------------------------------------------
         let specialBadges: [AnyView] = {
             var badges: [AnyView] = []
-            // Not released
+            // 1. Not released
             if let release = exercise.baseExercise.releaseDate, release > .now {
                 badges.append(
                     AnyView(Chip(text: R.string.localizable.notReleased(),
                                  backgroundColor: Color.Artemis.badgeWarningColor, padding: .s))
                 )
             }
-            // Assessment related chips
+            // 2. Included-in-overall-score
             if exercise.baseExercise.includedInOverallScore != .includedCompletely {
                 let includedInScore = exercise.baseExercise.includedInOverallScore
                 badges.append(
@@ -38,7 +45,7 @@ struct ExerciseOverviewChipsRow: View {
                                  backgroundColor: includedInScore.color, padding: .s))
                 )
             }
-            // Collect the categories
+            // 3. Categories (max 3, then “+ n more”)
             if let cats = exercise.baseExercise.categories, !cats.isEmpty {
                 let maxVisibleCategories = 3
                 for cat in cats.prefix(maxVisibleCategories) {
