@@ -26,3 +26,27 @@
 "rateHelpful" = "Helpful";
 "rateUnhelpful" = "Not helpful";
 "scrollToBottom" = "Scroll to latest message";
+
+// MARK: IrisChatView – About Iris
+"aboutIris" = "About Iris";
+"close" = "Close";
+"aboutIrisMeetIris" = "Meet Iris";
+"aboutIrisSubtitle" = "Your AI tutor, built right into Artemis.";
+"aboutIrisDescription" = "As part of the EduTelligence suite of AI features in Artemis, Iris helps with course-related programming questions and lecture content using your current context.";
+"aboutIrisWhatIrisCanDo" = "What Iris can do";
+"aboutIrisWhatToExpect" = "What to expect from Iris";
+"aboutIrisContextAwareTitle" = "Context-aware";
+"aboutIrisContextAwareDescription" = "Iris can reference your problem statement, code, and build results, no copy-pasting needed.";
+"aboutIrisGuidedLearningTitle" = "Guided learning";
+"aboutIrisGuidedLearningDescription" = "Iris provides hints and explanations to help you solve problems independently.";
+"aboutIrisFeedbackHelpsTitle" = "Feedback helps";
+"aboutIrisFeedbackHelpsDescription" = "Rate answers and conversations to improve Iris' quality over time.";
+"aboutIrisGuideNotSolveTitle" = "Guide, not solve";
+"aboutIrisGuideNotSolveDescription" = "Iris does not provide complete solutions. It supports your problem-solving process.";
+"aboutIrisStayOnTopicTitle" = "Stay on topic";
+"aboutIrisStayOnTopicDescription" = "Iris answers questions about course content and programming topics only. It does not handle off-topic requests or organizational information.";
+"aboutIrisOwnYourWorkTitle" = "Own your work";
+"aboutIrisOwnYourWorkDescription" = "Use Iris as a learning aid, while maintaining academic integrity. Your submissions must reflect your own understanding and effort.";
+"aboutIrisPrivacyTitle" = "Privacy";
+"aboutIrisPrivacyDescription" = "Iris processes interactions within European data centers. Data handling follows applicable European data protection requirements.";
+"aboutIrisPrivacyDisclaimer" = "Review your institution's privacy policy for details.";
