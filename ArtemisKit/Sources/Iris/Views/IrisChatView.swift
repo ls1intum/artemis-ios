@@ -8,20 +8,30 @@
 import ArtemisMarkdown
 import DesignLibrary
 import SwiftUI
+import UIKit
 
 struct IrisChatView: View {
     @State private var viewModel: IrisChatViewModel
     @State private var showDeleteConfirmation = false
+    @State private var showAboutIris = false
     @State private var bottomSpacerShown = false
+    @State private var showScrollToBottom = false
     @FocusState private var isInputFocused: Bool
+    @Environment(\.scenePhase) private var scenePhase
 
+    private let isCreatingSession: Bool
+    private let onNewChat: () -> Void
     private let onDeleted: () -> Void
     private let onTitleChange: (String) -> Void
 
     init(sessionPath: IrisSessionPath,
+         isCreatingSession: Bool = false,
+         onNewChat: @escaping () -> Void = {},
          onDeleted: @escaping () -> Void = {},
          onTitleChange: @escaping (String) -> Void = { _ in }) {
         _viewModel = State(wrappedValue: IrisChatViewModel(sessionPath: sessionPath))
+        self.isCreatingSession = isCreatingSession
+        self.onNewChat = onNewChat
         self.onDeleted = onDeleted
         self.onTitleChange = onTitleChange
     }
@@ -39,12 +49,15 @@ struct IrisChatView: View {
                         } else {
                             LazyVStack(alignment: .leading, spacing: .m) {
                                 ForEach(messages) { message in
-                                    MessageRow(message: message)
+                                    MessageRow(message: message, viewModel: viewModel)
                                         .id(message.id)
                                 }
                                 if viewModel.isAwaitingResponse {
                                     LoadingStageRow(stage: viewModel.currentStage)
                                         .id("loadingStageRow")
+                                } else if messages.last?.sender == .llm {
+                                    DisclaimerView()
+                                        .id("disclaimer")
                                 }
                             }
                             .padding(.l)
@@ -54,6 +67,14 @@ struct IrisChatView: View {
                         }
                     }
                     .defaultScrollAnchor(.bottom)
+                    .onScrollGeometryChange(for: Bool.self) { geometry in
+                        let distanceFromBottom = geometry.contentSize.height
+                            - geometry.contentOffset.y
+                            - geometry.containerSize.height
+                        return distanceFromBottom > 120
+                    } action: { _, isAway in
+                        withAnimation(.easeInOut(duration: 0.2)) { showScrollToBottom = isAway }
+                    }
                     .onChange(of: messages.count) {
                         guard let last = messages.last, last.sender == .user else { return }
                         bottomSpacerShown = true
@@ -61,6 +82,23 @@ struct IrisChatView: View {
                             withAnimation {
                                 proxy.scrollTo(last.id, anchor: .top)
                             }
+                        }
+                    }
+                    .overlay(alignment: .bottom) {
+                        if showScrollToBottom {
+                            ScrollToBottomButton {
+                                withAnimation {
+                                    if viewModel.isAwaitingResponse {
+                                        proxy.scrollTo("loadingStageRow", anchor: .bottom)
+                                    } else if messages.last?.sender == .llm {
+                                        proxy.scrollTo("disclaimer", anchor: .bottom)
+                                    } else if let id = messages.last?.id {
+                                        proxy.scrollTo(id, anchor: .bottom)
+                                    }
+                                }
+                            }
+                            .padding(.bottom, .m)
+                            .transition(.opacity.combined(with: .scale))
                         }
                     }
                 }
@@ -75,13 +113,32 @@ struct IrisChatView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
+                    Button {
+                        onNewChat()
+                    } label: {
+                        Label(R.string.localizable.newChat(), systemImage: "square.and.pencil")
+                    }
+                    .disabled(isCreatingSession)
+
+                    Button {
+                        showAboutIris = true
+                    } label: {
+                        Label(R.string.localizable.aboutIris(), systemImage: "info.circle")
+                    }
+
+                    Divider()
+
                     Button(role: .destructive) {
                         showDeleteConfirmation = true
                     } label: {
                         Label(R.string.localizable.deleteChat(), systemImage: "trash")
                     }
                 } label: {
-                    Image(systemName: "ellipsis.circle")
+                    if isCreatingSession {
+                        ProgressView()
+                    } else {
+                        Image(systemName: "ellipsis.circle")
+                    }
                 }
                 .confirmationDialog(
                     R.string.localizable.deleteChatConfirmationMessage(),
@@ -97,10 +154,23 @@ struct IrisChatView: View {
                     }
                     Button(R.string.localizable.cancel(), role: .cancel) {}
                 }
+                .sheet(isPresented: $showAboutIris) {
+                    AboutIrisView()
+                }
             }
         }
         .task { await viewModel.loadMessages() }
         .task { await viewModel.subscribeToWebsocket() }
+        .onChange(of: scenePhase) { _, newPhase in
+            // Iris' reply arrives only once over the STOMP topic, which iOS tears
+            // down on backgrounding. STOMP doesn't replay messages published while
+            // we were disconnected, so a reply that lands in the background never
+            // reaches the live stream. Re-fetch the persisted messages on return to
+            // the foreground to catch up (upsert dedupes against the live stream).
+            if newPhase == .active {
+                Task { await viewModel.refreshMessages() }
+            }
+        }
         .onChange(of: viewModel.sessionTitle) { _, newTitle in
             if let newTitle { onTitleChange(newTitle) }
         }
@@ -114,6 +184,7 @@ struct IrisChatView: View {
 
 private struct MessageRow: View {
     let message: IrisMessageResponseDTO
+    let viewModel: IrisChatViewModel
 
     private var isUser: Bool {
         message.sender == .user
@@ -144,9 +215,86 @@ private struct MessageRow: View {
                             .foregroundStyle(.primary)
                     }
                 }
+                if message.id != nil {
+                    IrisMessageActionBar(message: message, viewModel: viewModel)
+                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
+    }
+}
+
+private struct IrisMessageActionBar: View {
+    let message: IrisMessageResponseDTO
+    let viewModel: IrisChatViewModel
+    @State private var didCopy = false
+
+    private var plainText: String {
+        message.content.compactMap(\.textContent).joined(separator: "\n\n")
+    }
+
+    var body: some View {
+        HStack(spacing: .l) {
+            Button(R.string.localizable.copyText(),
+                   systemImage: didCopy ? "checkmark" : "doc.on.doc") {
+                UIPasteboard.general.string = plainText
+                didCopy = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) { didCopy = false }
+            }
+            .labelStyle(.iconOnly)
+
+            ShareLink(item: plainText) {
+                Label(R.string.localizable.shareMessage(), systemImage: "square.and.arrow.up")
+            }
+            .labelStyle(.iconOnly)
+
+            Button(R.string.localizable.rateHelpful(),
+                   systemImage: message.helpful == true ? "hand.thumbsup.fill" : "hand.thumbsup") {
+                if message.helpful != true, let id = message.id {
+                    viewModel.rateMessage(messageId: id, helpful: true)
+                }
+            }
+            .labelStyle(.iconOnly)
+
+            Button(R.string.localizable.rateUnhelpful(),
+                   systemImage: message.helpful == false ? "hand.thumbsdown.fill" : "hand.thumbsdown") {
+                if message.helpful != false, let id = message.id {
+                    viewModel.rateMessage(messageId: id, helpful: false)
+                }
+            }
+            .labelStyle(.iconOnly)
+        }
+        .font(.callout)
+        .foregroundStyle(.secondary)
+        .buttonStyle(.plain)
+        .padding(.top, .s)
+    }
+}
+
+private struct DisclaimerView: View {
+    var body: some View {
+        Text(R.string.localizable.irisDisclaimer())
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+            .frame(maxWidth: .infinity, alignment: .center)
+            .padding(.top, .s)
+    }
+}
+
+private struct ScrollToBottomButton: View {
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: "arrow.down")
+                .font(.title3.weight(.semibold))
+                .foregroundStyle(.primary)
+                .padding(.m + .s)
+                .background(.regularMaterial, in: .circle)
+                .overlay(Circle().stroke(Color.primary.opacity(0.1)))
+                .shadow(color: .black.opacity(0.15), radius: 4, y: 2)
+        }
+        .accessibilityLabel(R.string.localizable.scrollToBottom())
     }
 }
 
