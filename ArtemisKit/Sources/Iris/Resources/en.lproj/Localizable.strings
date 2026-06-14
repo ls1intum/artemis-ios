@@ -11,6 +11,10 @@
 "sectionLast30Days" = "Last 30 Days";
 "sectionOlder" = "Older";
 
+// MARK: IrisSessionListView – AI consent gate
+"irisAiUsageDeclined" = "You explicitly declined the usage of AI. Enable it in the account menu under 'AI Experience' to use Iris.";
+"irisAiUsageNotChosen" = "Choose your AI experience in the account menu to start using Iris.";
+
 // MARK: IrisChatView
 "deleteChat" = "Delete Chat";
 "deleteChatConfirmationMessage" = "Are you sure you want to delete this chat? This action cannot be undone.";

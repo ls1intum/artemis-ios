@@ -9,7 +9,9 @@ import Common
 import DesignLibrary
 import Navigation
 import Notifications
+import SharedModels
 import SwiftUI
+import UserStore
 
 public struct IrisSessionListView: View {
     @EnvironmentObject private var navigationController: NavigationController
@@ -27,13 +29,57 @@ public struct IrisSessionListView: View {
         navigationController.selectedPathBinding($navigationController.selectedPath)
     }
 
+    /// The user's AI usage choice, read from the cached account.
+    private var selectedLLMUsage: AiSelectionDecision? {
+        UserSessionFactory.shared.user?.selectedLLMUsage
+    }
+
+    /// Iris may only be used when the user opted into cloud or local AI.
+    private var aiEnabled: Bool {
+        selectedLLMUsage?.isAIEnabled ?? false
+    }
+
     public var body: some View {
         @Bindable var viewModel = viewModel
         NavigationSplitView(columnVisibility: $columnVisibility) {
-            DataStateView(data: $viewModel.sessions) {
-                await viewModel.loadSessions()
-            } content: { _ in
-                List(selection: selectedSession) {
+            Group {
+                if aiEnabled {
+                    sessionList(viewModel: viewModel)
+                } else {
+                    AiConsentView(selection: selectedLLMUsage)
+                }
+            }
+            .courseToolbar()
+        } detail: {
+            if let path = navigationController.selectedPath as? IrisSessionPath {
+                IrisChatView(
+                    sessionPath: path,
+                    isCreatingSession: viewModel.isCreatingSession,
+                    onNewChat: createAndOpenSession,
+                    onDeleted: {
+                        viewModel.removeSession(sessionId: path.sessionId)
+                        navigationController.selectedPath = nil
+                    },
+                    onTitleChange: { newTitle in
+                        viewModel.updateSessionTitle(sessionId: path.sessionId, title: newTitle)
+                    })
+                .id(path.sessionId)
+            } else {
+                SelectDetailView()
+            }
+        }
+        .loadingIndicator(isLoading: $viewModel.isLoading)
+        .alert(isPresented: viewModel.showError, error: viewModel.error, actions: {})
+        .task { await viewModel.loadSessions() }
+    }
+
+    @ViewBuilder
+    private func sessionList(viewModel: IrisSessionListViewModel) -> some View {
+        @Bindable var viewModel = viewModel
+        DataStateView(data: $viewModel.sessions) {
+            await viewModel.loadSessions()
+        } content: { _ in
+            List(selection: selectedSession) {
                     ForEach(viewModel.groupedSessions) { group in
                         Section(group.title) {
                             ForEach(group.sessions) { session in
@@ -91,29 +137,7 @@ public struct IrisSessionListView: View {
                     NewIrisSessionButton(isCreating: viewModel.isCreatingSession, action: createAndOpenSession)
                         .padding()
                 }
-            }
-            .courseToolbar()
-        } detail: {
-            if let path = navigationController.selectedPath as? IrisSessionPath {
-                IrisChatView(
-                    sessionPath: path,
-                    isCreatingSession: viewModel.isCreatingSession,
-                    onNewChat: createAndOpenSession,
-                    onDeleted: {
-                        viewModel.removeSession(sessionId: path.sessionId)
-                        navigationController.selectedPath = nil
-                    },
-                    onTitleChange: { newTitle in
-                        viewModel.updateSessionTitle(sessionId: path.sessionId, title: newTitle)
-                    })
-                .id(path.sessionId)
-            } else {
-                SelectDetailView()
-            }
         }
-        .loadingIndicator(isLoading: $viewModel.isLoading)
-        .alert(isPresented: viewModel.showError, error: viewModel.error, actions: {})
-        .task { await viewModel.loadSessions() }
     }
 
     /// Creates a session and navigates to it. Shared by the + button and the
@@ -125,6 +149,34 @@ public struct IrisSessionListView: View {
                     session: newSession, coursePath: CoursePath(id: courseId))
             }
         }
+    }
+}
+
+/// Shown in place of the session list when the user has not opted into AI usage.
+/// The choice is changed from the account menu.
+private struct AiConsentView: View {
+    let selection: AiSelectionDecision?
+
+    private var message: String {
+        selection == .noAI
+            ? R.string.localizable.irisAiUsageDeclined()
+            : R.string.localizable.irisAiUsageNotChosen()
+    }
+
+    var body: some View {
+        VStack(spacing: .m) {
+            Image("iris", bundle: .module)
+                .resizable()
+                .scaledToFit()
+                .foregroundStyle(.primary)
+                .frame(width: 80, height: 80)
+            Text(message)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .padding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
