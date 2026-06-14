@@ -21,51 +21,6 @@ struct ExerciseOverviewChipsRow: View {
     }()
     
     var body: some View {
-        // ---------------------------------------------------------------------------
-        // Categories / special badges chip
-        // Show WHEN at least one of:
-        //   • exercise.releaseDate is in the future          → “Not released”
-        //   • includedInOverallScore != .includedCompletely  → that value’s description
-        //   • exercise.categories != nil                     → up to 3 category badges
-        // ---------------------------------------------------------------------------
-        let specialBadges: [AnyView] = {
-            var badges: [AnyView] = []
-            // 1. Not released
-            if let release = exercise.baseExercise.releaseDate, release > .now {
-                badges.append(
-                    AnyView(Chip(text: R.string.localizable.notReleased(),
-                                 backgroundColor: Color.Artemis.badgeWarningColor, padding: .s))
-                )
-            }
-            // 2. Included-in-overall-score
-            if exercise.baseExercise.includedInOverallScore != .includedCompletely {
-                let includedInScore = exercise.baseExercise.includedInOverallScore
-                badges.append(
-                    AnyView(Chip(text: includedInScore.description,
-                                 backgroundColor: includedInScore.color, padding: .s))
-                )
-            }
-            // 3. Categories (max 3, then “+ n more”)
-            if let cats = exercise.baseExercise.categories, !cats.isEmpty {
-                let maxVisibleCategories = 3
-                for cat in cats.prefix(maxVisibleCategories) {
-                    badges.append(
-                        AnyView(Chip(text: cat.category,
-                                     backgroundColor: UIColor(hexString: cat.colorCode).suColor,
-                                     padding: .s))
-                    )
-                }
-                let remainder = cats.count - min(cats.count, maxVisibleCategories)
-                if remainder > 0 {
-                    badges.append(
-                        AnyView(Chip(text: "+\(remainder) more",
-                                     backgroundColor: Color.Artemis.badgeSecondaryColor,
-                                     padding: .s))
-                    )
-                }
-            }
-            return badges
-        }()
         let columns = [
             GridItem(.flexible(), spacing: .m, alignment: .top),
             GridItem(.flexible(), spacing: .m, alignment: .top)
@@ -77,20 +32,7 @@ struct ExerciseOverviewChipsRow: View {
                 gridChips
             }
             // Render all categories using custom FlowLayout
-            if !specialBadges.isEmpty {
-                TwoLineChip(title: R.string.localizable.categoryTitle(), lineLimit: nil) {
-                    FlowLayout(spacing: .xs) {
-                        ForEach(Array(specialBadges.enumerated()), id: \.offset) { _, view in
-                            view
-                            // disallow text wrapping instide the chip and add "..."
-                                .lineLimit(1)
-                                .frame(maxWidth: 220, alignment: .leading)
-                                .padding(.bottom, .s)
-                        }
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                }
-            }
+            specialChips
         }
         .padding(.horizontal, .m)
     }
@@ -130,6 +72,68 @@ struct ExerciseOverviewChipsRow: View {
         if let difficulty = exercise.baseExercise.difficulty {
             TwoLineChip(title: R.string.localizable.difficultyTitle()) {
                 DifficultyBar(difficulty: difficulty)
+            }
+        }
+    }
+    
+    // ---------------------------------------------------------------------------
+    // Categories / special badges chip
+    // Show WHEN at least one of:
+    //   • exercise.releaseDate is in the future          → “Not released”
+    //   • includedInOverallScore != .includedCompletely  → that value’s description
+    //   • exercise.categories != nil                     → up to 3 category badges
+    // ---------------------------------------------------------------------------
+    @ViewBuilder private var specialChips: some View {
+        let specialBadges: [AnyView] = {
+            var badges: [AnyView] = []
+            // 1. Not released
+            if let release = exercise.baseExercise.releaseDate, release > .now {
+                badges.append(
+                    AnyView(Chip(text: R.string.localizable.notReleased(),
+                                 backgroundColor: Color.Artemis.badgeWarningColor, padding: .s))
+                )
+            }
+            // 2. Included-in-overall-score
+            if exercise.baseExercise.includedInOverallScore != .includedCompletely {
+                let includedInScore = exercise.baseExercise.includedInOverallScore
+                badges.append(
+                    AnyView(Chip(text: includedInScore.description,
+                                 backgroundColor: includedInScore.color, padding: .s))
+                )
+            }
+            // 3. Categories (max 3, then “+ n more”)
+            if let cats = exercise.baseExercise.categories, !cats.isEmpty {
+                let maxVisibleCategories = 3
+                for cat in cats.prefix(maxVisibleCategories) {
+                    badges.append(
+                        AnyView(Chip(text: cat.category,
+                                     backgroundColor: UIColor(hexString: cat.colorCode).suColor,
+                                     padding: .s))
+                    )
+                }
+                let remainder = cats.count - min(cats.count, maxVisibleCategories)
+                if remainder > 0 {
+                    badges.append(
+                        AnyView(Chip(text: "+\(remainder) more",
+                                     backgroundColor: Color.Artemis.badgeSecondaryColor,
+                                     padding: .s))
+                    )
+                }
+            }
+            return badges
+        }()
+        if !specialBadges.isEmpty {
+            TwoLineChip(title: R.string.localizable.categoryTitle(), lineLimit: nil) {
+                FlowLayout(spacing: .xs) {
+                    ForEach(Array(specialBadges.enumerated()), id: \.offset) { _, view in
+                        view
+                        // disallow text wrapping instide the chip and add "..."
+                            .lineLimit(1)
+                            .frame(maxWidth: 220, alignment: .leading)
+                            .padding(.bottom, .s)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
     }
