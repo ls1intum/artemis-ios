@@ -13,18 +13,25 @@ import UIKit
 struct IrisChatView: View {
     @State private var viewModel: IrisChatViewModel
     @State private var showDeleteConfirmation = false
+    @State private var showAboutIris = false
     @State private var bottomSpacerShown = false
     @State private var showScrollToBottom = false
     @FocusState private var isInputFocused: Bool
     @Environment(\.scenePhase) private var scenePhase
 
+    private let isCreatingSession: Bool
+    private let onNewChat: () -> Void
     private let onDeleted: () -> Void
     private let onTitleChange: (String) -> Void
 
     init(sessionPath: IrisSessionPath,
+         isCreatingSession: Bool = false,
+         onNewChat: @escaping () -> Void = {},
          onDeleted: @escaping () -> Void = {},
          onTitleChange: @escaping (String) -> Void = { _ in }) {
         _viewModel = State(wrappedValue: IrisChatViewModel(sessionPath: sessionPath))
+        self.isCreatingSession = isCreatingSession
+        self.onNewChat = onNewChat
         self.onDeleted = onDeleted
         self.onTitleChange = onTitleChange
     }
@@ -106,13 +113,32 @@ struct IrisChatView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
+                    Button {
+                        onNewChat()
+                    } label: {
+                        Label(R.string.localizable.newChat(), systemImage: "square.and.pencil")
+                    }
+                    .disabled(isCreatingSession)
+
+                    Button {
+                        showAboutIris = true
+                    } label: {
+                        Label(R.string.localizable.aboutIris(), systemImage: "info.circle")
+                    }
+
+                    Divider()
+
                     Button(role: .destructive) {
                         showDeleteConfirmation = true
                     } label: {
                         Label(R.string.localizable.deleteChat(), systemImage: "trash")
                     }
                 } label: {
-                    Image(systemName: "ellipsis.circle")
+                    if isCreatingSession {
+                        ProgressView()
+                    } else {
+                        Image(systemName: "ellipsis.circle")
+                    }
                 }
                 .confirmationDialog(
                     R.string.localizable.deleteChatConfirmationMessage(),
@@ -127,6 +153,9 @@ struct IrisChatView: View {
                         }
                     }
                     Button(R.string.localizable.cancel(), role: .cancel) {}
+                }
+                .sheet(isPresented: $showAboutIris) {
+                    AboutIrisView()
                 }
             }
         }
