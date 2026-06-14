@@ -77,7 +77,7 @@ public extension NavigationController {
     func goToIrisSession(courseId: Int, sessionId: Int) {
         goToCourse(id: courseId)
         courseTab = .iris
-        selectedPath = IrisSessionPath(sessionId: sessionId, coursePath: CoursePath(id: courseId))
+        selectedPath = IrisSessionPath(sessionId: sessionId, coursePath: selectedCourse ?? CoursePath(id: courseId))
         tabPath = NavigationPath()
     }
 
