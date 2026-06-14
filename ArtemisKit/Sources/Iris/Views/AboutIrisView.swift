@@ -36,7 +36,6 @@ struct AboutIrisView: View {
                 }
             }
         }
-        .presentationDragIndicator(.visible)
     }
 
     private var header: some View {

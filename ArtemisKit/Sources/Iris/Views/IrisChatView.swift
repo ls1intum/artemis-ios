@@ -156,7 +156,6 @@ struct IrisChatView: View {
                 }
                 .sheet(isPresented: $showAboutIris) {
                     AboutIrisView()
-                        .presentationDragIndicator(.hidden)
                 }
             }
         }
