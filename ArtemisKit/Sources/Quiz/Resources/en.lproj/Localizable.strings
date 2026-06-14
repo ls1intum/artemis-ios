@@ -14,3 +14,4 @@
 "dndInfo" = "Tap on a location to pick an item to drop.\nTap again to remove.";
 "correct" = "Correct";
 "incorrect" = "Incorrect";
+"solution" = "Solution";
