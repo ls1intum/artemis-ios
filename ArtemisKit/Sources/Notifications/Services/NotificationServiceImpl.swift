@@ -24,7 +24,7 @@ class NotificationServiceImpl: NotificationService {
         }
 
         var resourceName: String {
-            return "api/communication/notification/\(courseId)?page=\(page)&size=\(size)"
+            return "api/notification/courses/\(courseId)?page=\(page)&size=\(size)"
         }
     }
 
