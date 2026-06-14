@@ -35,7 +35,7 @@ struct ShortAnswerQuestionView: View {
         ForEach(segments, id: \.self) { segment in
             switch segment {
             case .input(let spot):
-                TextField("\(spot)", text: textBinding(for: spot))
+                TextField("Input \(spot)", text: textBinding(for: spot))
                     .focused($focus, equals: segment)
                     .textFieldStyle(.roundedBorder)
                     .submitLabel(.next)
@@ -46,6 +46,29 @@ struct ShortAnswerQuestionView: View {
                             focus = next.first(where: \.isInput)
                         }
                     }
+                    .overlay(alignment: .trailing) {
+                        let text = textBinding(for: spot).wrappedValue
+                        if viewModel.hasSubmitted, let solutions = solutions(for: spot) {
+                            let isCorrect = solutions.contains(text)
+                            Image(systemName: isCorrect ? "checkmark.circle" : "xmark.circle")
+                                .symbolVariant(.fill)
+                                .foregroundStyle(isCorrect ? .green : .red)
+                                .padding(.trailing, .s)
+                                .font(.title2)
+                        }
+                    }
+                if viewModel.hasSubmitted,
+                   let solutions = solutions(for: spot),
+                   !solutions.contains(textBinding(for: spot).wrappedValue) {
+                    GroupBox(R.string.localizable.solution() + ":") {
+                        VStack(alignment: .leading) {
+                            ForEach(solutions, id: \.self) { solution in
+                                Text(solution)
+                            }
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                }
             case .text(let text):
                 Text(LocalizedStringKey(text))
             }
@@ -63,6 +86,13 @@ struct ShortAnswerQuestionView: View {
             .init(quizQuestion: .init(id: question.id),
                   submittedTexts: textInputs))
         )
+    }
+
+    private func solutions(for spot: Int64) -> [String]? {
+        guard let mappings = question.quizQuestionWithSolutionDTO.correctMappings else { return nil }
+        let solutions = mappings.filter { $0.spot?.spotNr ?? -1 == spot }
+        
+        return solutions.compactMap(\.solution?.text)
     }
 
     func textBinding(for spot: Int64) -> Binding<String> {
