@@ -13,13 +13,13 @@ import DesignLibrary
 struct ExerciseOverviewChipsRow: View {
     let exercise: Exercise
     let score: String
-    
+
     private let relFormatter: RelativeDateTimeFormatter = {
         let f = RelativeDateTimeFormatter()
         f.unitsStyle = .full
         return f
     }()
-    
+
     var body: some View {
         let columns = [
             GridItem(.flexible(), spacing: .m, alignment: .top),

@@ -54,21 +54,21 @@ struct ExerciseListCell: View {
                     }
                     SubmissionResultStatusView(exercise: exercise)
                     if showAdditionalBadges {
-                        FlowLayout(spacing: .s) {
+                        FlowLayout(spacing: .xs) {
                                 if let releaseDate = exercise.baseExercise.releaseDate,
                                    releaseDate > .now {
                                     Chip(
                                         text: R.string.localizable.notReleased(),
-                                        backgroundColor: Color.Artemis.badgeWarningColor)
+                                        backgroundColor: Color.Artemis.badgeWarningColor, padding: .s)
                                 }
                                 ForEach(exercise.baseExercise.categories ?? [], id: \.category) { category in
-                                    Chip(text: category.category, backgroundColor: UIColor(hexString: category.colorCode).suColor)
+                                    Chip(text: category.category, backgroundColor: UIColor(hexString: category.colorCode).suColor, padding: .s)
                                 }
                                 // TODO: maybe add isActiveQuiz in presentationMode badge
                                 if exercise.baseExercise.includedInOverallScore != .includedCompletely {
                                     Chip(
                                         text: exercise.baseExercise.includedInOverallScore.description,
-                                        backgroundColor: exercise.baseExercise.includedInOverallScore.color)
+                                        backgroundColor: exercise.baseExercise.includedInOverallScore.color, padding: .s)
                                 }
                         }
                     }
