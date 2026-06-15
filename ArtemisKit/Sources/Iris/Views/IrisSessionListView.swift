@@ -5,6 +5,7 @@
 //  Created by Senan Aslan on 25.05.26.
 //
 
+import Account
 import Common
 import DesignLibrary
 import Navigation
@@ -17,6 +18,7 @@ public struct IrisSessionListView: View {
     @EnvironmentObject private var navigationController: NavigationController
     @State private var viewModel: IrisSessionListViewModel
     @State private var columnVisibility: NavigationSplitViewVisibility = .doubleColumn
+    @State private var showAiSettings = false
 
     private let courseId: Int
 
@@ -29,10 +31,9 @@ public struct IrisSessionListView: View {
         navigationController.selectedPathBinding($navigationController.selectedPath)
     }
 
-    /// The user's AI usage choice, read from the cached account.
-    private var selectedLLMUsage: AiSelectionDecision? {
-        UserSessionFactory.shared.user?.selectedLLMUsage
-    }
+    /// The user's AI usage choice. Seeded from the cached account and refreshed when the
+    /// settings sheet reports a change, since the cached account is not observable.
+    @State private var selectedLLMUsage: AiSelectionDecision? = UserSessionFactory.shared.user?.selectedLLMUsage
 
     /// Iris may only be used when the user opted into cloud or local AI.
     private var aiEnabled: Bool {
@@ -46,10 +47,19 @@ public struct IrisSessionListView: View {
                 if aiEnabled {
                     sessionList(viewModel: viewModel)
                 } else {
-                    AiConsentView(selection: selectedLLMUsage)
+                    AiConsentView(selection: selectedLLMUsage) {
+                        showAiSettings = true
+                    }
                 }
             }
             .courseToolbar()
+            .sheet(isPresented: $showAiSettings) {
+                NavigationStack {
+                    AiExperienceSettingsView { newSelection in
+                        selectedLLMUsage = newSelection
+                    }
+                }
+            }
         } detail: {
             if let path = navigationController.selectedPath as? IrisSessionPath {
                 IrisChatView(
@@ -71,6 +81,11 @@ public struct IrisSessionListView: View {
         .loadingIndicator(isLoading: $viewModel.isLoading)
         .alert(isPresented: viewModel.showError, error: viewModel.error, actions: {})
         .task { await viewModel.loadSessions() }
+        .onChange(of: aiEnabled) { _, isEnabled in
+            if isEnabled {
+                Task { await viewModel.loadSessions() }
+            }
+        }
     }
 
     @ViewBuilder
@@ -153,9 +168,10 @@ public struct IrisSessionListView: View {
 }
 
 /// Shown in place of the session list when the user has not opted into AI usage.
-/// The choice is changed from the account menu.
+/// Explains where the AI setting lives via a breadcrumb whose final segment opens it directly.
 private struct AiConsentView: View {
     let selection: AiSelectionDecision?
+    let onOpenSettings: () -> Void
 
     private var message: String {
         selection == .noAI
@@ -170,13 +186,43 @@ private struct AiConsentView: View {
                 .scaledToFit()
                 .foregroundStyle(.primary)
                 .frame(width: 80, height: 80)
-            Text(message)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
+            VStack(spacing: .s) {
+                Text(message)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                settingsPath
+            }
         }
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    /// Breadcrumb to the AI setting; the last segment is a button that opens it directly.
+    private var settingsPath: some View {
+        HStack(spacing: .s) {
+            segment(R.string.localizable.irisAiSettingsPathDashboard())
+            arrow
+            segment(R.string.localizable.irisAiSettingsPathAccount())
+            arrow
+            Button(action: onOpenSettings) {
+                Text(R.string.localizable.irisAiSettingsPathDestination())
+                    .fontWeight(.semibold)
+                    .foregroundStyle(Color.Artemis.artemisBlue)
+            }
+            .buttonStyle(.plain)
+        }
+        .font(.subheadline)
+        .lineLimit(1)
+        .minimumScaleFactor(0.7)
+    }
+
+    private func segment(_ text: String) -> some View {
+        Text(text).foregroundStyle(.secondary)
+    }
+
+    private var arrow: some View {
+        Text("→").foregroundStyle(.tertiary)
     }
 }
 

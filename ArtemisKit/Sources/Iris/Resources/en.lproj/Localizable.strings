@@ -12,8 +12,11 @@
 "sectionOlder" = "Older";
 
 // MARK: IrisSessionListView – AI consent gate
-"irisAiUsageDeclined" = "You explicitly declined the usage of AI. Enable it in the account menu under 'AI Experience' to use Iris.";
-"irisAiUsageNotChosen" = "Choose your AI experience in the account menu to start using Iris.";
+"irisAiUsageDeclined" = "You've turned off AI features. To use Iris again, turn AI back on under:";
+"irisAiUsageNotChosen" = "Choose your AI experience to start using Iris. You can set it under:";
+"irisAiSettingsPathDashboard" = "Courses";
+"irisAiSettingsPathAccount" = "Account";
+"irisAiSettingsPathDestination" = "AI Experience";
 
 // MARK: IrisChatView
 "deleteChat" = "Delete Chat";
