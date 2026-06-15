@@ -25,7 +25,7 @@ struct ExerciseOverviewChipsRow: View {
             GridItem(.flexible(), spacing: .m, alignment: .top),
             GridItem(.flexible(), spacing: .m, alignment: .top)
         ]
-        
+
         VStack(spacing: .m) {
             // Display standard exercise metrics
             LazyVGrid(columns: columns, alignment: .leading, spacing: .m) {
@@ -36,38 +36,38 @@ struct ExerciseOverviewChipsRow: View {
         }
         .padding(.horizontal, .m)
     }
-    
+
     @ViewBuilder private var gridChips: some View {
         // Points Chip
         let maxPoints = exercise.baseExercise.maxPoints
         TwoLineChip(title: R.string.localizable.pointsTitle()) {
             Text(R.string.localizable.points(score, maxPoints?.clean ?? "0"))
         }
-        
+
         // Submission Chip
         if let due = exercise.baseExercise.dueDate {
             let remaining = due.timeIntervalSinceNow
             let isLessThanADay = remaining > 0 && remaining < 86_400 // 24 * 60 * 60
-            
+
             let value = (remaining > 0 && abs(remaining) < 7 * 24 * 60 * 60)
             ? relFormatter.localizedString(for: due, relativeTo: .now)
             : due.mediumDateShortTime
-            
+
             let title = remaining > 0
             ? R.string.localizable.submissionDueTitle()
             : R.string.localizable.submissionClosedTitle()
-            
+
             TwoLineChip(title: title) {
                 Text(value)
                     .foregroundColor(isLessThanADay ? .red : Color.Artemis.primaryLabel)
             }
         }
-        
+
         // Status Chip
         TwoLineChip(title: R.string.localizable.statusTitle()) {
             SubmissionResultStatusView(exercise: exercise, length: .short)
         }
-        
+
         // Difficulty Chip
         if let difficulty = exercise.baseExercise.difficulty {
             TwoLineChip(title: R.string.localizable.difficultyTitle()) {
@@ -75,7 +75,7 @@ struct ExerciseOverviewChipsRow: View {
             }
         }
     }
-    
+
     // ---------------------------------------------------------------------------
     // Categories / special badges chip
     // Show WHEN at least one of:
@@ -143,7 +143,7 @@ private struct TwoLineChip<Content: View>: View {
     let title: String
     var lineLimit: Int? = 1
     @ViewBuilder let content: Content
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: .s) {
             Text(title)
@@ -151,7 +151,7 @@ private struct TwoLineChip<Content: View>: View {
                 .foregroundColor(Color.Artemis.buttonDisabledColor)
                 .lineLimit(lineLimit)
                 .frame(maxWidth: .infinity, alignment: .leading)
-            
+
             content
                 .font(.footnote.weight(.bold))
                 .foregroundColor(Color.Artemis.primaryLabel)
@@ -170,7 +170,7 @@ private struct TwoLineChip<Content: View>: View {
 
 struct DifficultyBar: View {
     let difficulty: Difficulty
-    
+
     private var fillCount: Int {
         switch difficulty {
         case .EASY: return 1
@@ -178,7 +178,7 @@ struct DifficultyBar: View {
         case .HARD: return 3
         }
     }
-    
+
     var body: some View {
         HStack(spacing: 4) {
             ForEach(1...3, id: \.self) { index in
