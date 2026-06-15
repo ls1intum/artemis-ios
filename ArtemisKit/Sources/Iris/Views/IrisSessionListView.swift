@@ -95,6 +95,10 @@ public struct IrisSessionListView: View {
             await viewModel.loadSessions()
         } content: { _ in
             List(selection: selectedSession) {
+                if viewModel.groupedSessions.isEmpty {
+                    emptyState
+                        .listRowSeparator(.hidden)
+                } else {
                     ForEach(viewModel.groupedSessions) { group in
                         Section(group.title) {
                             ForEach(group.sessions) { session in
@@ -121,37 +125,37 @@ public struct IrisSessionListView: View {
                         }
                     }
                 }
-                .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always))
-                .overlay {
-                    if viewModel.groupedSessions.isEmpty {
-                        if !viewModel.searchText.isEmpty {
-                            ContentUnavailableView.search(text: viewModel.searchText)
-                        } else {
-                            VStack(spacing: .m) {
-                                Image("iris", bundle: .module)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .foregroundStyle(.primary)
-                                    .frame(width: 80, height: 80)
-                                VStack(spacing: .xs) {
-                                    Text(R.string.localizable.noChats())
-                                        .font(.headline)
-                                    Text(R.string.localizable.noChatsDescription())
-                                        .font(.subheadline)
-                                        .foregroundStyle(.secondary)
-                                        .multilineTextAlignment(.center)
-                                }
-                            }
-                            .padding()
-                        }
-                    }
+            }
+            .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always))
+            .refreshable { await viewModel.loadSessions() }
+            .contentMargins(.bottom, 80, for: .scrollContent)
+            .overlay(alignment: .bottomTrailing) {
+                NewIrisSessionButton(isCreating: viewModel.isCreatingSession, action: createAndOpenSession)
+                    .padding()
+            }
+        }
+    }
+
+    /// Empty state shown as a list row (rather than an overlay) so the list stays the
+    /// scrollable surface and pull-to-refresh moves the screen, consistent with other tabs.
+    @ViewBuilder
+    private var emptyState: some View {
+        if !viewModel.searchText.isEmpty {
+            ContentUnavailableView.search(text: viewModel.searchText)
+        } else {
+            ContentUnavailableView {
+                VStack(spacing: .m) {
+                    Image("iris", bundle: .module)
+                        .resizable()
+                        .scaledToFit()
+                        .foregroundStyle(.primary)
+                        .frame(width: 80, height: 80)
+                    Text(R.string.localizable.noChats())
+                        .font(.headline)
                 }
-                .refreshable { await viewModel.loadSessions() }
-                .contentMargins(.bottom, 80, for: .scrollContent)
-                .overlay(alignment: .bottomTrailing) {
-                    NewIrisSessionButton(isCreating: viewModel.isCreatingSession, action: createAndOpenSession)
-                        .padding()
-                }
+            } description: {
+                Text(R.string.localizable.noChatsDescription())
+            }
         }
     }
 
