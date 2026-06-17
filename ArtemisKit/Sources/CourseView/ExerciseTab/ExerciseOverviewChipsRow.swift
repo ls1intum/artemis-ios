@@ -13,8 +13,6 @@ import DesignLibrary
 struct ExerciseOverviewChipsRow: View {
     let exercise: Exercise
     let score: String
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    @Environment(\.verticalSizeClass) private var verticalSizeClass
 
     private let relFormatter: RelativeDateTimeFormatter = {
         let f = RelativeDateTimeFormatter()
@@ -22,34 +20,11 @@ struct ExerciseOverviewChipsRow: View {
         return f
     }()
 
-    // use centered FlowLayout if vertical side of device is not compact (e.g., iPad or horizontally located mobile device)
-    // else show the LazyVGrid
-    private var shouldLayout: Bool {
-        horizontalSizeClass == .regular || verticalSizeClass == .compact
-    }
-
     var body: some View {
-        let columns = [
-            GridItem(.flexible(), spacing: .m, alignment: .top),
-            GridItem(.flexible(), spacing: .m, alignment: .top)
-        ]
-
-        if shouldLayout {
             FlowLayout(spacing: .s, isCentered: true) {
                 gridChips
                 specialChips
             }.padding(.horizontal, .m)
-        } else {
-            VStack(spacing: .m) {
-                // Display standard exercise metrics
-                LazyVGrid(columns: columns, alignment: .leading, spacing: .m) {
-                    gridChips
-                }
-                // Render all categories using custom FlowLayout
-                specialChips
-            }
-            .padding(.horizontal, .m)
-        }
     }
 
     @ViewBuilder private var gridChips: some View {
