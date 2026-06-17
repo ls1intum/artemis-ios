@@ -21,42 +21,38 @@ struct FlowLayout: Layout {
         } else {
             availableWidth = 350 // Safe fallback width to properly calculate row wrapping and height
         }
-        // Requests the ideal (unconstrained) size of each subview
-        let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
-        return layout(sizes: sizes, proposalWidth: availableWidth).size
+        return layout(subviews: subviews, proposalWidth: availableWidth).size
     }
 
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
         let availableWidth = bounds.width
-        let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
-        let layoutData = layout(sizes: sizes, proposalWidth: availableWidth)
+        let layoutData = layout(subviews: subviews, proposalWidth: availableWidth)
 
         for (index, subview) in subviews.enumerated() {
             let position = layoutData.positions[index]
             let actualPosition = CGPoint(x: bounds.minX + position.x, y: bounds.minY + position.y)
-            let itemSize = sizes[index]
-
-            // Forces the subview to stay within the container boundaries to trigger native text truncation (...)
-            let constrainedWidth = min(itemSize.width, availableWidth)
+            let itemSize = layoutData.sizes[index]
 
             subview.place(
                 at: actualPosition,
-                proposal: ProposedViewSize(width: constrainedWidth, height: itemSize.height)
+                proposal: ProposedViewSize(width: itemSize.width, height: itemSize.height)
             )
         }
     }
 
-    /// Core math engine that calculates the total container size and absolute coordinates for each subview.
-    private func layout(sizes: [CGSize], proposalWidth: CGFloat) -> (size: CGSize, positions: [CGPoint]) {
-        var positions = [CGPoint](repeating: .zero, count: sizes.count)
+    /// Core math engine that calculates the total container size, sizes, and absolute coordinates for each subview.
+    private func layout(subviews: Subviews, proposalWidth: CGFloat) -> (size: CGSize, positions: [CGPoint], sizes: [CGSize]) {
+        var positions = [CGPoint](repeating: .zero, count: subviews.count)
+        var finalSizes = [CGSize](repeating: .zero, count: subviews.count)
 
-        // Step 1: Group items into rows
-        var rows: [[(index: Int, size: CGSize)]] = []
-        var currentRow: [(index: Int, size: CGSize)] = []
+        // Step 1: Group items into rows using their ideal widths
+        var rows: [[(index: Int, idealSize: CGSize, subview: LayoutSubview)]] = []
+        var currentRow: [(index: Int, idealSize: CGSize, subview: LayoutSubview)] = []
         var currentX: CGFloat = 0
 
-        for (index, size) in sizes.enumerated() {
-            let itemWidth = min(size.width, proposalWidth)
+        for (index, subview) in subviews.enumerated() {
+            let idealSize = subview.sizeThatFits(.unspecified)
+            let itemWidth = min(idealSize.width, proposalWidth)
 
             // Wraps to the next line if the current item exceeds the remaining row capacity
             if currentX + itemWidth > proposalWidth && !currentRow.isEmpty {
@@ -65,7 +61,7 @@ struct FlowLayout: Layout {
                 currentX = 0
             }
 
-            currentRow.append((index, CGSize(width: itemWidth, height: size.height)))
+            currentRow.append((index, idealSize, subview))
             currentX += itemWidth + spacing
         }
 
@@ -73,50 +69,47 @@ struct FlowLayout: Layout {
             rows.append(currentRow)
         }
 
-        // Step 2: Place rows and handle alignment (left, center, or space-between)
+        // Step 2: Place rows and handle stretching or standard alignment
         var currentY: CGFloat = 0
         var maxContainerWidth: CGFloat = 0
 
         for row in rows {
-            let rowHeight = row.map { $0.size.height }.max() ?? 0
-            let totalItemsWidth = row.map { $0.size.width }.reduce(0, +)
-            let baseSpacing = spacing
-
             let rowCount = row.count
-            let rowWidth = totalItemsWidth + CGFloat(max(0, rowCount - 1)) * baseSpacing
+            let totalSpacing = CGFloat(max(0, rowCount - 1)) * spacing
+            let totalIdealWidth = row.map { $0.idealSize.width }.reduce(0, +)
 
-            // Calculate start X position and spacing for current row
-            var xOffset: CGFloat = 0
-            var actualSpacing = baseSpacing
+            var rowItems: [(index: Int, size: CGSize)] = []
 
             if isCentered {
-                if rowCount == 1 {
-                    // Single element, center in row
-                    xOffset = max(0, (proposalWidth - row[0].size.width) / 2)
-                } else {
-                    // space-between: first at left, last at right, rest spread evenly
-                    let extraSpace = max(0, proposalWidth - totalItemsWidth)
-                    actualSpacing = rowCount > 1 ? extraSpace / CGFloat(rowCount - 1) : 0
-                    xOffset = 0
+                // Stretch items to fill the remaining width of the container
+                let extraSpace = max(0, proposalWidth - (totalIdealWidth + totalSpacing))
+                let widthAddition = extraSpace / CGFloat(rowCount)
+
+                for item in row {
+                    let stretchedWidth = item.idealSize.width + widthAddition
+                    // Query the height with the newly calculated stretched width
+                    let sizeWithStretchedWidth = item.subview.sizeThatFits(ProposedViewSize(width: stretchedWidth, height: nil))
+                    rowItems.append((item.index, CGSize(width: stretchedWidth, height: sizeWithStretchedWidth.height)))
                 }
             } else {
-                xOffset = 0
-                actualSpacing = baseSpacing
+                // Keep ideal widths but constrain them to proposalWidth to prevent overflow
+                for item in row {
+                    let constrainedWidth = min(item.idealSize.width, proposalWidth)
+                    let sizeWithConstrainedWidth = item.subview.sizeThatFits(ProposedViewSize(width: constrainedWidth, height: nil))
+                    rowItems.append((item.index, CGSize(width: constrainedWidth, height: sizeWithConstrainedWidth.height)))
+                }
             }
 
-            var itemX = xOffset
-            for item in row {
+            let rowHeight = rowItems.map { $0.size.height }.max() ?? 0
+
+            var itemX: CGFloat = 0
+            for item in rowItems {
                 positions[item.index] = CGPoint(x: itemX, y: currentY)
-                itemX += item.size.width + actualSpacing
+                finalSizes[item.index] = item.size
+                itemX += item.size.width + spacing
             }
 
-            // For container width, use proposalWidth if centered, otherwise actual row width
-            let finalRowWidth: CGFloat
-            if isCentered && rowCount > 1 {
-                finalRowWidth = proposalWidth
-            } else {
-                finalRowWidth = itemX - actualSpacing // Remove last spacing
-            }
+            let finalRowWidth = max(0, itemX - spacing)
             maxContainerWidth = max(maxContainerWidth, finalRowWidth)
             currentY += rowHeight + spacing
         }
@@ -125,6 +118,6 @@ struct FlowLayout: Layout {
         let finalWidth = max(0, maxContainerWidth)
         let finalHeight = max(0, currentY - spacing)
 
-        return (CGSize(width: finalWidth, height: finalHeight), positions)
+        return (CGSize(width: finalWidth, height: finalHeight), positions, finalSizes)
     }
 }
