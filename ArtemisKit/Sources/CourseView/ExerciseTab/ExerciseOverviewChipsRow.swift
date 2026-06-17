@@ -21,15 +21,13 @@ struct ExerciseOverviewChipsRow: View {
     }()
 
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: .m) {
-                chips
-            }
-            .padding(.horizontal, .m)
-        }.scrollClipDisabled()
+            FlowLayout(spacing: .s, isCentered: true) {
+                gridChips
+                specialChips
+            }.padding(.horizontal, .m)
     }
 
-    @ViewBuilder private var chips: some View {
+    @ViewBuilder private var gridChips: some View {
         // Points Chip
         let maxPoints = exercise.baseExercise.maxPoints
         TwoLineChip(title: R.string.localizable.pointsTitle()) {
@@ -66,17 +64,18 @@ struct ExerciseOverviewChipsRow: View {
                 DifficultyBar(difficulty: difficulty)
             }
         }
+    }
 
-        // ---------------------------------------------------------------------------
-        // Categories / special badges chip
-        // Show WHEN at least one of:
-        //   • exercise.releaseDate is in the future          → “Not released”
-        //   • includedInOverallScore != .includedCompletely  → that value’s description
-        //   • exercise.categories != nil                     → up to 2 category badges
-        // ---------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------
+    // Categories / special badges chip
+    // Show WHEN at least one of:
+    //   • exercise.releaseDate is in the future          → “Not released”
+    //   • includedInOverallScore != .includedCompletely  → that value’s description
+    //   • exercise.categories != nil                     → up to 3 category badges
+    // ---------------------------------------------------------------------------
+    @ViewBuilder private var specialChips: some View {
         let specialBadges: [AnyView] = {
             var badges: [AnyView] = []
-
             // 1. Not released
             if let release = exercise.baseExercise.releaseDate, release > .now {
                 badges.append(
@@ -84,7 +83,6 @@ struct ExerciseOverviewChipsRow: View {
                                  backgroundColor: Color.Artemis.badgeWarningColor, padding: .s))
                 )
             }
-
             // 2. Included-in-overall-score
             if exercise.baseExercise.includedInOverallScore != .includedCompletely {
                 let includedInScore = exercise.baseExercise.includedInOverallScore
@@ -93,17 +91,17 @@ struct ExerciseOverviewChipsRow: View {
                                  backgroundColor: includedInScore.color, padding: .s))
                 )
             }
-
-            // 3. Categories (max 2, then “+ n more”)
+            // 3. Categories (max 3, then “+ n more”)
             if let cats = exercise.baseExercise.categories, !cats.isEmpty {
-                for cat in cats.prefix(2) {
+                let maxVisibleCategories = 3
+                for cat in cats.prefix(maxVisibleCategories) {
                     badges.append(
-                        AnyView(Chip(text: String(cat.category.prefix(30)),
+                        AnyView(Chip(text: cat.category,
                                      backgroundColor: UIColor(hexString: cat.colorCode).suColor,
                                      padding: .s))
                     )
                 }
-                let remainder = cats.count - min(cats.count, 2)
+                let remainder = cats.count - min(cats.count, maxVisibleCategories)
                 if remainder > 0 {
                     badges.append(
                         AnyView(Chip(text: "+\(remainder) more",
@@ -112,17 +110,20 @@ struct ExerciseOverviewChipsRow: View {
                     )
                 }
             }
-
             return badges
         }()
-
         if !specialBadges.isEmpty {
-            TwoLineChip(title: R.string.localizable.categoryTitle()) {
-                HStack(spacing: .xs) {
+            TwoLineChip(title: R.string.localizable.categoryTitle(), lineLimit: nil) {
+                FlowLayout(spacing: .xs) {
                     ForEach(Array(specialBadges.enumerated()), id: \.offset) { _, view in
                         view
+                        // disallow text wrapping instide the chip and add "..."
+                            .lineLimit(1)
+                            .frame(maxWidth: 220, alignment: .leading)
+                            .padding(.bottom, .s)
                     }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
     }
@@ -130,6 +131,7 @@ struct ExerciseOverviewChipsRow: View {
 
 private struct TwoLineChip<Content: View>: View {
     let title: String
+    var lineLimit: Int? = 1
     @ViewBuilder let content: Content
 
     var body: some View {
@@ -137,18 +139,18 @@ private struct TwoLineChip<Content: View>: View {
             Text(title)
                 .font(.footnote.weight(.bold))
                 .foregroundColor(Color.Artemis.buttonDisabledColor)
-                .lineLimit(1)
+                .lineLimit(lineLimit)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             content
                 .font(.footnote.weight(.bold))
                 .foregroundColor(Color.Artemis.primaryLabel)
-                .lineLimit(1)
+                .lineLimit(lineLimit)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(.horizontal, .m)
         .padding(.vertical, .s)
-        .frame(height: 50)
+        .frame(minHeight: 50)
         .overlay(
             RoundedRectangle(cornerRadius: 8)
                 .stroke(Color.Artemis.cardBorderColor, lineWidth: 1)
