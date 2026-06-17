@@ -74,6 +74,13 @@ public extension NavigationController {
         log.debug("LecturePath was appended to queue")
     }
 
+    func goToIrisSession(courseId: Int, sessionId: Int) {
+        goToCourse(id: courseId)
+        courseTab = .iris
+        selectedPath = IrisSessionPath(sessionId: sessionId, coursePath: selectedCourse ?? CoursePath(id: courseId))
+        tabPath = NavigationPath()
+    }
+
     func setTab(identifier: TabIdentifier) {
         courseTab = identifier
     }

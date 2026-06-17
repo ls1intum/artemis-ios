@@ -18,7 +18,7 @@ struct MCQuestionView: View {
 
     var body: some View {
         if let text = question.quizQuestionWithSolutionDTO.text {
-            Text(text)
+            Text(LocalizedStringKey(text))
                 .padding(.horizontal)
         }
 
@@ -49,6 +49,15 @@ struct MCQuestionView: View {
                         Text(option.text ?? "No text")
                             .multilineTextAlignment(.leading)
                     }
+                }
+
+                if viewModel.hasSubmitted {
+                    let loc = R.string.localizable
+                    let optionIsCorrect = option.isCorrect ?? false
+
+                    Text(optionIsCorrect ? loc.correct() : loc.incorrect())
+                        .foregroundStyle(optionIsCorrect ? .green : .red)
+                    + Text(option.explanation.map { ": " + $0 } ?? "")
                 }
             }
             .padding(.horizontal)

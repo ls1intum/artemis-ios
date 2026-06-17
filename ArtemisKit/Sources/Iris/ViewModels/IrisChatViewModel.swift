@@ -7,6 +7,7 @@
 
 import Common
 import Foundation
+import Navigation
 import SwiftUI
 
 @MainActor
@@ -53,7 +54,7 @@ final class IrisChatViewModel {
          httpService: IrisChatHttpService = IrisChatHttpServiceFactory.shared) {
         self.sessionPath = sessionPath
         self.httpService = httpService
-        self.sessionTitle = sessionPath.session?.title
+        self.sessionTitle = sessionPath.title
     }
 
     func loadMessages() async {
@@ -65,6 +66,18 @@ final class IrisChatViewModel {
             messages = .failure(error: error)
         case .loading:
             messages = .loading
+        }
+    }
+
+    /// Silent catch-up refresh for returning from the background, where a reply
+    /// published over the STOMP topic while we were disconnected is otherwise
+    /// lost (topics aren't replayed on reconnect). Unlike `loadMessages`, it
+    /// never overwrites loaded messages with a `.loading`/`.failure` state — a
+    /// flaky network on resume must not wipe the visible chat. The server list
+    /// is authoritative; the live stream dedupes via `upsert`.
+    func refreshMessages() async {
+        if case .done(let response) = await httpService.getMessages(sessionId: sessionPath.sessionId) {
+            messages = .done(response: response)
         }
     }
 
@@ -91,6 +104,22 @@ final class IrisChatViewModel {
             switch result {
             case .done(let response):
                 inputText = ""
+                upsert(message: response)
+            case .failure(let error):
+                self.error = error
+            case .loading:
+                break
+            }
+        }
+    }
+
+    func rateMessage(messageId: Int, helpful: Bool) {
+        Task { [weak self] in
+            guard let self else { return }
+            let result = await httpService.rateMessage(
+                sessionId: sessionPath.sessionId, messageId: messageId, helpful: helpful)
+            switch result {
+            case .done(let response):
                 upsert(message: response)
             case .failure(let error):
                 self.error = error

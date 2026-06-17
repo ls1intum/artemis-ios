@@ -66,7 +66,7 @@ class CreateChatViewModel: BaseViewModel {
                 return response.id
             }
         } else {
-            let result = await MessagesServiceFactory.shared.createOneToOneChat(for: courseId, usernames: usernames)
+            let result = await MessagesServiceFactory.shared.createOneToOneChat(for: courseId, username: usernames.first ?? "")
             switch result {
             case .loading:
                 return nil
