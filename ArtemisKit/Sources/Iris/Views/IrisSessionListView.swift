@@ -20,11 +20,11 @@ public struct IrisSessionListView: View {
     @State private var columnVisibility: NavigationSplitViewVisibility = .doubleColumn
     @State private var showAiSettings = false
 
-    private let courseId: Int
+    private let course: Course
 
-    public init(courseId: Int) {
-        self.courseId = courseId
-        _viewModel = State(wrappedValue: IrisSessionListViewModel(courseId: courseId))
+    public init(course: Course) {
+        self.course = course
+        _viewModel = State(wrappedValue: IrisSessionListViewModel(courseId: course.id))
     }
 
     private var selectedSession: Binding<IrisSessionPath?> {
@@ -62,6 +62,7 @@ public struct IrisSessionListView: View {
             if let path = navigationController.selectedPath as? IrisSessionPath {
                 IrisChatView(
                     sessionPath: path,
+                    session: viewModel.session(for: path.sessionId),
                     isCreatingSession: viewModel.isCreatingSession,
                     onNewChat: createAndOpenSession,
                     onDeleted: {
@@ -70,6 +71,9 @@ public struct IrisSessionListView: View {
                     },
                     onTitleChange: { newTitle in
                         viewModel.updateSessionTitle(sessionId: path.sessionId, title: newTitle)
+                    },
+                    onContextChange: { context in
+                        viewModel.updateSessionContext(sessionId: path.sessionId, context: context)
                     })
                 .id(path.sessionId)
             } else {
@@ -100,7 +104,7 @@ public struct IrisSessionListView: View {
                     ForEach(viewModel.groupedSessions) { group in
                         Section(group.title) {
                             ForEach(group.sessions) { session in
-                                let path = IrisSessionPath(sessionId: session.id, coursePath: CoursePath(id: courseId), title: session.title)
+                                let path = IrisSessionPath(sessionId: session.id, coursePath: CoursePath(course: course))
                                 NavigationLink(value: path) {
                                     IrisSessionRowView(session: session)
                                 }
@@ -163,7 +167,7 @@ public struct IrisSessionListView: View {
         Task {
             if let newSession = await viewModel.createNewSession() {
                 navigationController.selectedPath = IrisSessionPath(
-                    sessionId: newSession.id, coursePath: CoursePath(id: courseId), title: newSession.title)
+                    sessionId: newSession.id, coursePath: CoursePath(course: course))
             }
         }
     }
@@ -235,7 +239,7 @@ private struct IrisSessionRowView: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: modeIcon)
+            Image(systemName: session.mode.icon)
                 .font(.title3)
                 .foregroundStyle(.primary)
                 .frame(width: 28)
@@ -259,21 +263,6 @@ private struct IrisSessionRowView: View {
                 .foregroundColor(.secondary)
         }
         .padding(.vertical, 4)
-    }
-
-    private var modeIcon: String {
-        switch session.mode {
-        case .programmingExercise:
-            "keyboard"
-        case .textExercise:
-            "character"
-        case .course:
-            "graduationcap"
-        case .lecture:
-            "inset.filled.rectangle.and.person.filled"
-        default:
-            "questionmark"
-        }
     }
 }
 

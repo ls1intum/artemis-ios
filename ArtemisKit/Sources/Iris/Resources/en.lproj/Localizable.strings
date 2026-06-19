@@ -57,3 +57,16 @@
 "aboutIrisPrivacyTitle" = "Privacy";
 "aboutIrisPrivacyDescription" = "Iris processes interactions within European data centers. Data handling follows applicable European data protection requirements.";
 "aboutIrisPrivacyDisclaimer" = "Review your institution's privacy policy for details.";
+
+// MARK: IrisContextSelectionView
+"selectTitle" = "Select Context";
+"lecturesSection" = "Lectures";
+"exercisesSection" = "Exercises";
+"set" = "Set";
+"noItems" = "No lectures or exercises available";
+"untitled" = "Untitled";
+
+// MARK: IrisContextSwitchDivider
+"contextAdded" = "Added %@";
+"contextSwitched" = "Switched to %@";
+"contextRemoved" = "Topic cleared";

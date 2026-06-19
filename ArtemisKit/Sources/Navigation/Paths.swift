@@ -93,12 +93,15 @@ public struct ThreadPath: Hashable {
 
 public struct IrisSessionPath: Hashable {
     public let sessionId: Int
-    public let title: String?
     public let coursePath: CoursePath
 
-    public init(sessionId: Int, coursePath: CoursePath, title: String? = nil) {
+    /// Convenience for the enclosing course's id.
+    public var courseId: Int {
+        coursePath.id
+    }
+
+    public init(sessionId: Int, coursePath: CoursePath) {
         self.sessionId = sessionId
-        self.title = title
         self.coursePath = coursePath
     }
 }

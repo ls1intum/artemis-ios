@@ -18,7 +18,7 @@ struct IrisChatHttpServiceImpl: IrisChatHttpService {
     struct GetCurrentSessionRequest: APIRequest {
         typealias Response = IrisSession
 
-        let mode: ChatServiceMode
+        let mode: IrisChatMode
         let entityId: Int
 
         var method: HTTPMethod { .post }
@@ -39,7 +39,7 @@ struct IrisChatHttpServiceImpl: IrisChatHttpService {
         }
     }
 
-    func getCurrentOrCreateSession(mode: ChatServiceMode, entityId: Int) async -> DataState<IrisSession> {
+    func getCurrentOrCreateSession(mode: IrisChatMode, entityId: Int) async -> DataState<IrisSession> {
         let result = await client.sendRequest(GetCurrentSessionRequest(mode: mode, entityId: entityId))
         switch result {
         case .success(let response):
@@ -52,29 +52,21 @@ struct IrisChatHttpServiceImpl: IrisChatHttpService {
     struct CreateSessionRequest: APIRequest {
         typealias Response = IrisSession
 
-        let mode: ChatServiceMode
-        let entityId: Int
+        let courseId: Int
 
         var method: HTTPMethod { .post }
 
         var resourceName: String {
-            if mode == .tutorSuggestion {
-                return "api/iris/tutor-suggestion/posts/\(entityId)/sessions"
-            }
-            return "api/iris/chat/sessions"
+            "api/iris/chat/sessions"
         }
 
         var params: [URLQueryItem] {
-            guard mode != .tutorSuggestion else { return [] }
-            return [
-                .init(name: "mode", value: mode.rawValue),
-                .init(name: "entityId", value: "\(entityId)")
-            ]
+            [.init(name: "courseId", value: "\(courseId)")]
         }
     }
 
-    func createSession(mode: ChatServiceMode, entityId: Int) async -> DataState<IrisSession> {
-        let result = await client.sendRequest(CreateSessionRequest(mode: mode, entityId: entityId))
+    func createSession(courseId: Int) async -> DataState<IrisSession> {
+        let result = await client.sendRequest(CreateSessionRequest(courseId: courseId))
         switch result {
         case .success(let response):
             return .done(response: response.0)
