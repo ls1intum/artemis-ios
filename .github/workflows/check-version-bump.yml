@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - name: Checkout current PR
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Read version in current PR
         id: pr_version

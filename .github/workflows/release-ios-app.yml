@@ -19,7 +19,7 @@ jobs:
     needs: build
     runs-on: [self-hosted, macOS]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Download IPA Artifact
         uses: actions/download-artifact@v8
