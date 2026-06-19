@@ -25,7 +25,7 @@ struct IrisChatHttpServiceImpl: IrisChatHttpService {
 
         var resourceName: String {
             if mode == .tutorSuggestion {
-                return "api/iris/tutor-suggestion/\(entityId)/sessions/current"
+                return "api/iris/tutor-suggestion/posts/\(entityId)/sessions/current"
             }
             return "api/iris/chat/sessions/current"
         }
@@ -59,7 +59,7 @@ struct IrisChatHttpServiceImpl: IrisChatHttpService {
 
         var resourceName: String {
             if mode == .tutorSuggestion {
-                return "api/iris/tutor-suggestion/\(entityId)/sessions"
+                return "api/iris/tutor-suggestion/posts/\(entityId)/sessions"
             }
             return "api/iris/chat/sessions"
         }
@@ -91,7 +91,7 @@ struct IrisChatHttpServiceImpl: IrisChatHttpService {
         var method: HTTPMethod { .get }
 
         var resourceName: String {
-            "api/iris/chat/\(courseId)/sessions/overview"
+            "api/iris/chat/courses/\(courseId)/sessions/overview"
         }
     }
 
@@ -114,7 +114,7 @@ struct IrisChatHttpServiceImpl: IrisChatHttpService {
         var method: HTTPMethod { .get }
 
         var resourceName: String {
-            "api/iris/chat/\(courseId)/session/\(sessionId)"
+            "api/iris/chat/courses/\(courseId)/sessions/\(sessionId)"
         }
     }
 

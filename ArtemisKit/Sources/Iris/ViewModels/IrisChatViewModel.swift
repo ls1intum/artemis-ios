@@ -7,6 +7,7 @@
 
 import Common
 import Foundation
+import Navigation
 import SwiftUI
 
 @MainActor
@@ -93,6 +94,18 @@ final class IrisChatViewModel {
             messages = .failure(error: error)
         case .loading:
             messages = .loading
+        }
+    }
+
+    /// Silent catch-up refresh for returning from the background, where a reply
+    /// published over the STOMP topic while we were disconnected is otherwise
+    /// lost (topics aren't replayed on reconnect). Unlike `loadMessages`, it
+    /// never overwrites loaded messages with a `.loading`/`.failure` state — a
+    /// flaky network on resume must not wipe the visible chat. The server list
+    /// is authoritative; the live stream dedupes via `upsert`.
+    func refreshMessages() async {
+        if case .done(let response) = await httpService.getMessages(sessionId: sessionPath.sessionId) {
+            messages = .done(response: response)
         }
     }
 

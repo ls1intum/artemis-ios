@@ -90,3 +90,15 @@ public struct ThreadPath: Hashable {
         self.coursePath = coursePath
     }
 }
+
+public struct IrisSessionPath: Hashable {
+    public let sessionId: Int
+    public let title: String?
+    public let coursePath: CoursePath
+
+    public init(sessionId: Int, coursePath: CoursePath, title: String? = nil) {
+        self.sessionId = sessionId
+        self.title = title
+        self.coursePath = coursePath
+    }
+}
