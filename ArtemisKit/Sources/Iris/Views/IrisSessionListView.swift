@@ -47,9 +47,7 @@ public struct IrisSessionListView: View {
                 if aiEnabled {
                     sessionList(viewModel: viewModel)
                 } else {
-                    AiConsentView(selection: selectedLLMUsage) {
-                        showAiSettings = true
-                    }
+                    AiConsentView(selection: selectedLLMUsage, showSettings: $showAiSettings)
                 }
             }
             .courseToolbar()
@@ -175,7 +173,7 @@ public struct IrisSessionListView: View {
 /// Explains where the AI setting lives via a breadcrumb whose final segment opens it directly.
 private struct AiConsentView: View {
     let selection: AiSelectionDecision?
-    let onOpenSettings: () -> Void
+    @Binding var showSettings: Bool
 
     private var message: String {
         selection == .noAI
@@ -209,7 +207,9 @@ private struct AiConsentView: View {
             arrow
             segment(R.string.localizable.irisAiSettingsPathAccount())
             arrow
-            Button(action: onOpenSettings) {
+            Button {
+                showSettings = true
+            } label: {
                 Text(R.string.localizable.irisAiSettingsPathDestination())
                     .fontWeight(.semibold)
                     .foregroundStyle(Color.Artemis.artemisBlue)
