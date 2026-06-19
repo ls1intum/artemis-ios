@@ -7,6 +7,7 @@
 
 import ArtemisMarkdown
 import DesignLibrary
+import Navigation
 import SwiftUI
 import UIKit
 

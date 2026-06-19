@@ -100,7 +100,7 @@ public struct IrisSessionListView: View {
                     ForEach(viewModel.groupedSessions) { group in
                         Section(group.title) {
                             ForEach(group.sessions) { session in
-                                let path = IrisSessionPath(session: session, coursePath: CoursePath(id: courseId))
+                                let path = IrisSessionPath(sessionId: session.id, coursePath: CoursePath(id: courseId), title: session.title)
                                 NavigationLink(value: path) {
                                     IrisSessionRowView(session: session)
                                 }
@@ -163,7 +163,7 @@ public struct IrisSessionListView: View {
         Task {
             if let newSession = await viewModel.createNewSession() {
                 navigationController.selectedPath = IrisSessionPath(
-                    session: newSession, coursePath: CoursePath(id: courseId))
+                    sessionId: newSession.id, coursePath: CoursePath(id: courseId), title: newSession.title)
             }
         }
     }
