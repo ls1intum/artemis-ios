@@ -57,7 +57,7 @@ final class IrisSessionListViewModel {
             isCreatingSession = false
         }
 
-        let result = await httpService.createSession(mode: .course, entityId: courseId)
+        let result = await httpService.createSession(courseId: courseId)
         switch result {
         case .failure(let error):
             self.error = error
