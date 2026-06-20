@@ -34,6 +34,18 @@ struct LeaderboardScoreCard: View {
                         ProgressView(value: Float(Int(entry.score ?? 0) - pointsRange.lowerBound),
                                      total: Float(pointsRange.upperBound - pointsRange.lowerBound))
                     }
+
+                    Spacer()
+
+                    NavigationLink {
+                        LeagueInfoView(leagues: leagueNames, leaguePoints: leaguePoints)
+                    } label: {
+                        Label("Info", systemImage: "info.circle")
+                    }
+                    .font(.title)
+                    .labelStyle(.iconOnly)
+                    .navigationLinkIndicatorVisibility(.hidden)
+                    .foregroundStyle(.link)
                 }
             }
         }

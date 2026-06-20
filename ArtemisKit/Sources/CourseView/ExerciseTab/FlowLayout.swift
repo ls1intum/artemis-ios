@@ -12,7 +12,7 @@ import SwiftUI
 /// if they exceed the available container width (similar to CSS flex-wrap).
 struct FlowLayout: Layout {
     var spacing: CGFloat
-    var isCentered: Bool = false
+    var isCentered = false
 
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
         let availableWidth: CGFloat

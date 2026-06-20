@@ -93,7 +93,7 @@ struct ShortAnswerQuestionView: View {
     private func solutions(for spot: Int64) -> [String]? {
         guard let mappings = questionWithSolution.correctMappings else { return nil }
         let solutions = mappings.filter { $0.spot?.spotNr ?? -1 == spot }
-        
+
         return solutions.compactMap(\.solution?.text)
     }
 

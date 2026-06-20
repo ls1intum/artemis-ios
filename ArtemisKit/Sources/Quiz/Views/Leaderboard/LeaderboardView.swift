@@ -59,9 +59,13 @@ private struct LeaderboardEntryView: View {
                     .font(.largeTitle.bold().monospacedDigit())
             }
 
-            ArtemisAsyncImage(imageURL: entry.imagePath) {}
-                .frame(width: .xl, height: .xl)
-                .clipShape(.rect(cornerRadius: .m))
+            ArtemisAsyncImage(imageURL: entry.imagePath) {
+                ProfilePictureInitialsView(name: entry.userName,
+                                           userId: "\(entry.userId ?? 0)",
+                                           size: .xl)
+            }
+            .frame(width: .xl, height: .xl)
+            .clipShape(.rect(cornerRadius: .m))
 
             VStack(alignment: .leading) {
                 Text(entry.userName)
