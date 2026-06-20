@@ -74,7 +74,8 @@ struct DNDDropLocations: View {
                                  location: location,
                                  scaleX: geo.size.width,
                                  scaleY: geo.size.height,
-                                 mappings: $mappings)
+                                 mappings: $mappings,
+                                 correctMappings: question.correctMappings ?? [])
                 }
             }
         }
@@ -82,6 +83,8 @@ struct DNDDropLocations: View {
 }
 
 struct DropLocation: View {
+    @Environment(QuizTrainingViewModel.self) private var viewModel
+
     let dragItems: [DTO.DragItem]
     let location: DTO.DropLocation
     let scaleX: CGFloat
@@ -89,6 +92,7 @@ struct DropLocation: View {
 
     @State private var selected = false
     @Binding var mappings: [DTO.DragAndDropMappingFromLiveClient]
+    let correctMappings: [DTO.DragAndDropMapping]
 
     var body: some View {
         // Positions are scaled from 0...200
@@ -106,17 +110,22 @@ struct DropLocation: View {
         } label: {
             Rectangle()
                 .strokeBorder(style: .init(dash: [5]))
-                // TODO: Solution -> in question.correctMappings
-                .background(Color.blue.opacity(selected ? 0.5 : 0.05))
+                .background {
+                    if viewModel.hasSubmitted {
+                        isCorrect ? Color.green : Color.red
+                    } else {
+                        Color.blue.opacity(selected ? 0.5 : 0.05)
+                    }
+                }
                 .animation(.default, value: selected)
                 .frame(width: width, height: height)
                 .overlay {
-                    if let itemId = mappings.first(where: { $0.dropLocation?.id == location.id })?.dragItem?.id,
-                       let item = dragItems.first(where: { $0.id == itemId }) {
-                        DragItemView(item: item)
+                    if let selectedItem {
+                        DragItemView(item: selectedItem)
                     }
                 }
         }
+        .allowsHitTesting(!viewModel.hasSubmitted)
         .popover(isPresented: $selected, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
             DragItemPicker(items: unusedItems,
                            onSelect: updateMapping(selectedRef:))
@@ -125,6 +134,20 @@ struct DropLocation: View {
         .frame(width: width, height: height)
         .position(x: startX + width / 2,
                   y: startY + height / 2)
+    }
+
+    var isCorrect: Bool {
+        let mapping = correctMappings.first { $0.dropLocation?.id == location.id }
+        return mapping?.dragItem?.id == selectedItem?.id
+    }
+
+    var selectedItem: DTO.DragItem? {
+        guard let itemId = mappings.first(where: {
+            $0.dropLocation?.id == location.id
+        })?.dragItem?.id else {
+            return nil
+        }
+        return dragItems.first(where: { $0.id == itemId })
     }
 
     var unusedItems: [DTO.DragItem] {
