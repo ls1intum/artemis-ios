@@ -45,6 +45,7 @@ struct DragItemView: View {
             Text(text)
                 .minimumScaleFactor(0.5)
                 .padding()
+                .background(.background)
                 .border(.primary)
         }
     }
