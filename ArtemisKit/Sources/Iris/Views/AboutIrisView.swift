@@ -81,7 +81,7 @@ private struct FeatureCard: Identifiable {
     let tint: Color
 
     var id: String { title }
-    
+
     init(title: String, description: String, footNote: String? = nil, systemName: String, tint: Color) {
         self.title = title
         self.description = description

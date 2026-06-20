@@ -140,8 +140,7 @@ public struct IrisSessionListView: View {
 
     /// Empty state shown as a list row (rather than an overlay) so the list stays the
     /// scrollable surface and pull-to-refresh moves the screen, consistent with other tabs.
-    @ViewBuilder
-    private var emptyState: some View {
+    @ViewBuilder private var emptyState: some View {
         if !viewModel.searchText.isEmpty {
             ContentUnavailableView.search(text: viewModel.searchText)
         } else {
