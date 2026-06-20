@@ -18,8 +18,6 @@ struct LeaderboardScoreCard: View {
         "Bronze", "Silver", "Gold", "Diamond", "Master"
     ]
 
-    @State private var showLeagueInfo = false
-
     var body: some View {
         if let league = entry.selectedLeague.map({ leaguePoints.count - Int($0) }),
            league < leaguePoints.count && league >= 0 {
