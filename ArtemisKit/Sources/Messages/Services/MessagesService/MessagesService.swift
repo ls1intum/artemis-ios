@@ -151,7 +151,7 @@ protocol MessagesService {
     /**
      * Perform a post request to create a specific oneToOne chat in a specific course to the server.
      */
-    func createOneToOneChat(for courseId: Int, usernames: [String]) async -> DataState<OneToOneChat>
+    func createOneToOneChat(for courseId: Int, username: String) async -> DataState<OneToOneChat>
     func createOneToOneChat(for courseId: Int, userId: Int) async -> DataState<OneToOneChat>
 
     /**

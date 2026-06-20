@@ -71,7 +71,7 @@ extension MessageCellModel {
         guard login != nil || userId != nil else { return nil }
         async let conversations = messagesService.getConversations(for: course.id)
         async let chat = if login != nil {
-            messagesService.createOneToOneChat(for: course.id, usernames: [login ?? ""])
+            messagesService.createOneToOneChat(for: course.id, username: login ?? "")
         } else {
             messagesService.createOneToOneChat(for: course.id, userId: userId ?? -1)
         }

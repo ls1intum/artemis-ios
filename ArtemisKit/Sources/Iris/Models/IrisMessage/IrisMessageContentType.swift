@@ -1,5 +1,5 @@
 //
-//  IrisMessageContent.swift
+//  IrisMessageContentType.swift
 //  ArtemisKit
 //
 //  Created by Senan Aslan on 09.05.26.

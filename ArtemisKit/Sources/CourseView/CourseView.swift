@@ -67,7 +67,7 @@ public struct CourseView: View {
             if viewModel.course.irisEnabledInCourse == true {
                 Tab("Iris", systemImage: "eyes", value: TabIdentifier.iris) {
                     TabBarIpad {
-                        IrisSessionListView(courseId: viewModel.course.id)
+                        IrisSessionListView(course: viewModel.course)
                     }
                 }
             }

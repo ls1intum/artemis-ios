@@ -197,7 +197,7 @@ extension MessagesServiceStub: MessagesService {
         .loading
     }
 
-    func createOneToOneChat(for courseId: Int, usernames: [String]) async -> DataState<OneToOneChat> {
+    func createOneToOneChat(for courseId: Int, username: String) async -> DataState<OneToOneChat> {
         .loading
     }
 

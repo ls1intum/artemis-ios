@@ -12,7 +12,7 @@ import SharedModels
 /// - `MESSAGE` payloads carry a new/updated message together with the current
 ///   stage snapshot.
 /// - `STATUS` payloads carry only stage updates (and optionally suggestions).
-struct IrisChatWebsocketDTO: Codable, Hashable {
+struct IrisChatWebsocketDTO: Decodable, Hashable {
     let type: IrisChatWebsocketPayloadType
     let message: IrisMessageResponseDTO?
     let stages: [IrisStageDTO]?

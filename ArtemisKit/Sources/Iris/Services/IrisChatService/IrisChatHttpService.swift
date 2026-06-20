@@ -8,10 +8,9 @@
 import Common
 
 protocol IrisChatHttpService {
-    func getCurrentOrCreateSession(mode: ChatServiceMode, entityId: Int) async -> DataState<IrisSession>
-    func createSession(mode: ChatServiceMode, entityId: Int) async -> DataState<IrisSession>
+    func getCurrentOrCreateSession(mode: IrisChatMode, entityId: Int) async -> DataState<IrisSession>
+    func createSession(courseId: Int) async -> DataState<IrisSession>
 
-    //TODO: courseId Long ?
     func getChatSessions(courseId: Int) async -> DataState<[IrisSessionDTO]>
     func getChatSession(courseId: Int, sessionId: Int) async -> DataState<IrisSession>
 
