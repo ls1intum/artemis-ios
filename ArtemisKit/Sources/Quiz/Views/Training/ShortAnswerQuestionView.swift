@@ -12,14 +12,16 @@ struct ShortAnswerQuestionView: View {
     @Environment(QuizTrainingViewModel.self) private var viewModel
 
     let question: DTO.QuizQuestionTraining
+    let questionWithSolution: DTO.ShortAnswerQuizQuestionWithSolution
     private let segments: [Segment]
 
     @State private var textInputs: [DTO.ShortAnswerSubmittedTextFromLiveClient]
     @FocusState private var focus: Segment?
 
-    init(question: DTO.QuizQuestionTraining) {
+    init(question: DTO.QuizQuestionTraining, questionWithSolution: DTO.ShortAnswerQuizQuestionWithSolution) {
         self.question = question
-        self.segments = Segment.create(from: question.quizQuestionWithSolutionDTO.text)
+        self.questionWithSolution = questionWithSolution
+        self.segments = Segment.create(from: questionWithSolution.text)
 
         let inputs = segments.filter(\.isInput)
         self.textInputs = inputs.map {
@@ -89,7 +91,7 @@ struct ShortAnswerQuestionView: View {
     }
 
     private func solutions(for spot: Int64) -> [String]? {
-        guard let mappings = question.quizQuestionWithSolutionDTO.correctMappings else { return nil }
+        guard let mappings = questionWithSolution.correctMappings else { return nil }
         let solutions = mappings.filter { $0.spot?.spotNr ?? -1 == spot }
         
         return solutions.compactMap(\.solution?.text)

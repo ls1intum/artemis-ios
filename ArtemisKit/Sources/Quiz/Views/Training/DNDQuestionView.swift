@@ -10,26 +10,28 @@ import Extensions
 import SharedModels
 import SwiftUI
 
-extension DTO.QuizQuestionWithSolution: WithImage {}
+extension DTO.DragAndDropQuizQuestionWithSolution: WithImage {}
 
 struct DNDQuestionView: View {
     let question: DTO.QuizQuestionTraining
+    let questionWithAnswer: DTO.DragAndDropQuizQuestionWithSolution
 
     @State private var mappings: [DTO.DragAndDropMappingFromLiveClient]
 
     var backgroundImage: URL? {
-        question.quizQuestionWithSolutionDTO.image(for: \.backgroundFilePath)
+        questionWithAnswer.image(for: \.backgroundFilePath)
     }
 
-    init(question: DTO.QuizQuestionTraining) {
+    init(question: DTO.QuizQuestionTraining, questionWithAnswer: DTO.DragAndDropQuizQuestionWithSolution) {
         self.question = question
-        self.mappings = (question.quizQuestionWithSolutionDTO.dropLocations ?? []).map {
+        self.questionWithAnswer = questionWithAnswer
+        self.mappings = (questionWithAnswer.dropLocations ?? []).map {
             .init(dragItem: nil, dropLocation: .init(id: $0.id))
         }
     }
 
     var body: some View {
-        if let text = question.quizQuestionWithSolutionDTO.text {
+        if let text = questionWithAnswer.text {
             Text(LocalizedStringKey(text))
                 .padding(.horizontal)
         }
@@ -40,7 +42,7 @@ struct DNDQuestionView: View {
         .scaledToFit()
         .containerRelativeFrame(.horizontal)
         .overlay {
-            DNDDropLocations(mappings: $mappings, question: question.quizQuestionWithSolutionDTO)
+            DNDDropLocations(mappings: $mappings, question: questionWithAnswer)
         }
 
         Text(R.string.localizable.dndInfo())
@@ -61,7 +63,7 @@ struct DNDQuestionView: View {
 struct DNDDropLocations: View {
     @Binding var mappings: [DTO.DragAndDropMappingFromLiveClient]
 
-    let question: DTO.QuizQuestionWithSolution
+    let question: DTO.DragAndDropQuizQuestionWithSolution
 
     var body: some View {
         if let dropLocations = question.dropLocations,
@@ -72,7 +74,8 @@ struct DNDDropLocations: View {
                                  location: location,
                                  scaleX: geo.size.width,
                                  scaleY: geo.size.height,
-                                 mappings: $mappings)
+                                 mappings: $mappings,
+                                 correctMappings: question.correctMappings ?? [])
                 }
             }
         }
@@ -80,6 +83,8 @@ struct DNDDropLocations: View {
 }
 
 struct DropLocation: View {
+    @Environment(QuizTrainingViewModel.self) private var viewModel
+
     let dragItems: [DTO.DragItem]
     let location: DTO.DropLocation
     let scaleX: CGFloat
@@ -87,6 +92,7 @@ struct DropLocation: View {
 
     @State private var selected = false
     @Binding var mappings: [DTO.DragAndDropMappingFromLiveClient]
+    let correctMappings: [DTO.DragAndDropMapping]
 
     var body: some View {
         // Positions are scaled from 0...200
@@ -104,16 +110,22 @@ struct DropLocation: View {
         } label: {
             Rectangle()
                 .strokeBorder(style: .init(dash: [5]))
-                .background(Color.blue.opacity(selected ? 0.5 : 0.05))
+                .background {
+                    if viewModel.hasSubmitted {
+                        isCorrect ? Color.green : Color.red
+                    } else {
+                        Color.blue.opacity(selected ? 0.5 : 0.05)
+                    }
+                }
                 .animation(.default, value: selected)
                 .frame(width: width, height: height)
                 .overlay {
-                    if let itemId = mappings.first(where: { $0.dropLocation?.id == location.id })?.dragItem?.id,
-                       let item = dragItems.first(where: { $0.id == itemId }) {
-                        DragItemView(item: item)
+                    if let selectedItem {
+                        DragItemView(item: selectedItem)
                     }
                 }
         }
+        .allowsHitTesting(!viewModel.hasSubmitted)
         .popover(isPresented: $selected, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
             DragItemPicker(items: unusedItems,
                            onSelect: updateMapping(selectedRef:))
@@ -122,6 +134,20 @@ struct DropLocation: View {
         .frame(width: width, height: height)
         .position(x: startX + width / 2,
                   y: startY + height / 2)
+    }
+
+    var isCorrect: Bool {
+        let mapping = correctMappings.first { $0.dropLocation?.id == location.id }
+        return mapping?.dragItem?.id == selectedItem?.id
+    }
+
+    var selectedItem: DTO.DragItem? {
+        guard let itemId = mappings.first(where: {
+            $0.dropLocation?.id == location.id
+        })?.dragItem?.id else {
+            return nil
+        }
+        return dragItems.first(where: { $0.id == itemId })
     }
 
     var unusedItems: [DTO.DragItem] {

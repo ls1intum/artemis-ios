@@ -62,23 +62,35 @@ struct QuizQuestionView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: .m) {
-                if let title = question.quizQuestionWithSolutionDTO.title {
+                if let title {
                     Text(title)
                         .font(.title)
                         .padding(.horizontal)
                 }
 
-                switch question.quizQuestionWithSolutionDTO._type {
-                case "multiple-choice": MCQuestionView(question: question)
-                case "drag-and-drop": DNDQuestionView(question: question)
-                case "short-answer": ShortAnswerQuestionView(question: question)
-                default: UnsupportedQuestionView(type: question.quizQuestionWithSolutionDTO._type)
+                switch question.quizQuestionWithSolutionDTO {
+                case .multipleChoice(let mcQuestion):
+                    MCQuestionView(question: question, questionWithAnswer: mcQuestion)
+                case .dragAndDrop(let dndQuestion):
+                    DNDQuestionView(question: question, questionWithAnswer: dndQuestion)
+                case .shortAnswer(let saQuestion):
+                    ShortAnswerQuestionView(question: question, questionWithSolution: saQuestion)
+                @unknown default:
+                    UnsupportedQuestionView(type: "\(question.quizQuestionWithSolutionDTO)")
                 }
             }
             .multilineTextAlignment(.leading)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .scrollDismissesKeyboard(.interactively)
+    }
+
+    var title: String? {
+        switch question.quizQuestionWithSolutionDTO {
+        case .dragAndDrop(let question): question.title
+        case .multipleChoice(let question): question.title
+        case .shortAnswer(let question): question.title
+        }
     }
 }
 

@@ -15,21 +15,22 @@ struct MCQuestionView: View {
     @State private var selectedAnswers = [Int64]()
 
     let question: DTO.QuizQuestionTraining
+    let questionWithAnswer: DTO.MultipleChoiceQuizQuestionWithSolution
 
     var body: some View {
-        if let text = question.quizQuestionWithSolutionDTO.text {
+        if let text = questionWithAnswer.text {
             Text(LocalizedStringKey(text))
                 .padding(.horizontal)
         }
 
-        if let answerOptions = question.quizQuestionWithSolutionDTO.answerOptions {
+        if let answerOptions = questionWithAnswer.answerOptions {
             ForEach(answerOptions, id: \.id) { option in
                 let id = option.id ?? -1
                 Button {
                     if selectedAnswers.contains(id) {
                         selectedAnswers.removeAll { $0 == id }
                     } else {
-                        if question.quizQuestionWithSolutionDTO.singleChoice == true {
+                        if questionWithAnswer.singleChoice == true {
                             selectedAnswers.removeAll()
                         }
                         selectedAnswers.append(id)
