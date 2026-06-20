@@ -12,14 +12,16 @@ struct ShortAnswerQuestionView: View {
     @Environment(QuizTrainingViewModel.self) private var viewModel
 
     let question: DTO.QuizQuestionTraining
+    let questionWithSolution: DTO.ShortAnswerQuizQuestionWithSolution
     private let segments: [Segment]
 
     @State private var textInputs: [DTO.ShortAnswerSubmittedTextFromLiveClient]
     @FocusState private var focus: Segment?
 
-    init(question: DTO.QuizQuestionTraining) {
+    init(question: DTO.QuizQuestionTraining, questionWithSolution: DTO.ShortAnswerQuizQuestionWithSolution) {
         self.question = question
-        self.segments = Segment.create(from: question.quizQuestionWithSolutionDTO.text)
+        self.questionWithSolution = questionWithSolution
+        self.segments = Segment.create(from: questionWithSolution.text)
 
         let inputs = segments.filter(\.isInput)
         self.textInputs = inputs.map {

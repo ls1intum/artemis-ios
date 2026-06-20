@@ -26,7 +26,12 @@ class QuizTrainingViewModel {
     }
 
     var currentScore: (reached: Double, total: Double)? {
-        let total = questions.value?.first?.quizQuestionWithSolutionDTO.points
+        let total = switch questions.value?.first?.quizQuestionWithSolutionDTO {
+        case .dragAndDrop(let question): question.points
+        case .multipleChoice(let question): question.points
+        case .shortAnswer(let question): question.points
+        default: 0.0
+        }
         let reached = lastSubmissionResult.value?.scoreInPoints
         if let reached, let total {
             return (reached, total)

@@ -10,26 +10,28 @@ import Extensions
 import SharedModels
 import SwiftUI
 
-extension DTO.QuizQuestionWithSolution: WithImage {}
+extension DTO.DragAndDropQuizQuestionWithSolution: WithImage {}
 
 struct DNDQuestionView: View {
     let question: DTO.QuizQuestionTraining
+    let questionWithAnswer: DTO.DragAndDropQuizQuestionWithSolution
 
     @State private var mappings: [DTO.DragAndDropMappingFromLiveClient]
 
     var backgroundImage: URL? {
-        question.quizQuestionWithSolutionDTO.image(for: \.backgroundFilePath)
+        questionWithAnswer.image(for: \.backgroundFilePath)
     }
 
-    init(question: DTO.QuizQuestionTraining) {
+    init(question: DTO.QuizQuestionTraining, questionWithAnswer: DTO.DragAndDropQuizQuestionWithSolution) {
         self.question = question
-        self.mappings = (question.quizQuestionWithSolutionDTO.dropLocations ?? []).map {
+        self.questionWithAnswer = questionWithAnswer
+        self.mappings = (questionWithAnswer.dropLocations ?? []).map {
             .init(dragItem: nil, dropLocation: .init(id: $0.id))
         }
     }
 
     var body: some View {
-        if let text = question.quizQuestionWithSolutionDTO.text {
+        if let text = questionWithAnswer.text {
             Text(LocalizedStringKey(text))
                 .padding(.horizontal)
         }
@@ -40,7 +42,7 @@ struct DNDQuestionView: View {
         .scaledToFit()
         .containerRelativeFrame(.horizontal)
         .overlay {
-            DNDDropLocations(mappings: $mappings, question: question.quizQuestionWithSolutionDTO)
+            DNDDropLocations(mappings: $mappings, question: questionWithAnswer)
         }
 
         Text(R.string.localizable.dndInfo())
@@ -61,7 +63,7 @@ struct DNDQuestionView: View {
 struct DNDDropLocations: View {
     @Binding var mappings: [DTO.DragAndDropMappingFromLiveClient]
 
-    let question: DTO.QuizQuestionWithSolution
+    let question: DTO.DragAndDropQuizQuestionWithSolution
 
     var body: some View {
         if let dropLocations = question.dropLocations,
@@ -104,6 +106,7 @@ struct DropLocation: View {
         } label: {
             Rectangle()
                 .strokeBorder(style: .init(dash: [5]))
+                // TODO: Solution -> in question.correctMappings
                 .background(Color.blue.opacity(selected ? 0.5 : 0.05))
                 .animation(.default, value: selected)
                 .frame(width: width, height: height)
