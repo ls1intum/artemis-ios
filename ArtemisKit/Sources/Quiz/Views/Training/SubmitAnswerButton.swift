@@ -14,7 +14,7 @@ struct SubmitAnswerButton: View {
 
     let questionId: Int64?
     let isRated: Bool?
-    let answer: QuizTrainingAnswer
+    let answer: DTO.SubmittedAnswerFromLiveClient
 
     @State private var isLoading = false
 

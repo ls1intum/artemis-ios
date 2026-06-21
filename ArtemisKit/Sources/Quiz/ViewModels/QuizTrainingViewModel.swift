@@ -58,7 +58,7 @@ class QuizTrainingViewModel {
         lastSubmissionResult = .loading
     }
 
-    func submitAnswer(questionId: Int64, isRated: Bool, answer: QuizTrainingAnswer) async {
+    func submitAnswer(questionId: Int64, isRated: Bool, answer: DTO.SubmittedAnswerFromLiveClient) async {
         lastSubmissionResult = await APIClient().call { client in
             try await client
                 .submitForTraining(path: .init(courseId: Int64(courseId),
