@@ -83,11 +83,8 @@ struct ShortAnswerQuestionView: View {
         SubmitAnswerButton(questionId: question.id, isRated: question.isRated, answer: answer)
     }
 
-    private var answer: QuizTrainingAnswer {
-        .ShortAnswerSubmittedAnswerFromLiveClient(.init(
-            .init(quizQuestion: .init(id: question.id),
-                  submittedTexts: textInputs))
-        )
+    private var answer: DTO.SubmittedAnswerFromLiveClient {
+        .shortAnswer(.init(quizQuestion: .init(id: question.id), submittedTexts: textInputs))
     }
 
     private func solutions(for spot: Int64) -> [String]? {

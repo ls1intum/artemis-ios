@@ -52,11 +52,8 @@ struct DNDQuestionView: View {
         SubmitAnswerButton(questionId: question.id, isRated: question.isRated, answer: answer)
     }
 
-    var answer: QuizTrainingAnswer {
-        .DragAndDropSubmittedAnswerFromLiveClient(.init(
-            .init(quizQuestion: .init(id: question.id),
-                  mappings: mappings))
-        )
+    var answer: DTO.SubmittedAnswerFromLiveClient {
+        .dragAndDrop(.init(quizQuestion: .init(id: question.id), mappings: mappings))
     }
 }
 

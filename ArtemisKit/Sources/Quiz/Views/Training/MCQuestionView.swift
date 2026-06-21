@@ -68,11 +68,8 @@ struct MCQuestionView: View {
         SubmitAnswerButton(questionId: question.id, isRated: question.isRated, answer: answer)
     }
 
-    var answer: QuizTrainingAnswer {
+    var answer: DTO.SubmittedAnswerFromLiveClient {
         let answers = selectedAnswers.map { DTO.EntityIdRef(id: $0) }
-        return .MultipleChoiceSubmittedAnswerFromLiveClient(.init(
-            .init(quizQuestion: .init(id: question.id),
-                  selectedOptions: answers))
-        )
+        return .multipleChoice(.init(quizQuestion: .init(id: question.id), selectedOptions: answers))
     }
 }
