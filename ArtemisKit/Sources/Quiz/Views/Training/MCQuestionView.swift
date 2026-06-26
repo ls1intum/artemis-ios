@@ -70,6 +70,6 @@ struct MCQuestionView: View {
 
     var answer: DTO.SubmittedAnswerFromLiveClient {
         let answers = selectedAnswers.map { DTO.EntityIdRef(id: $0) }
-        return .multipleChoice(.init(quizQuestion: .init(id: question.id), selectedOptions: answers))
+        return .multipleChoice(.init(quizQuestion: .init(id: question.id), selectedOptions: answers, _type: .multipleChoice))
     }
 }

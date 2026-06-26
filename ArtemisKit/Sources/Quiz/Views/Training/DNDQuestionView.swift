@@ -53,7 +53,7 @@ struct DNDQuestionView: View {
     }
 
     var answer: DTO.SubmittedAnswerFromLiveClient {
-        .dragAndDrop(.init(quizQuestion: .init(id: question.id), mappings: mappings))
+        .dragAndDrop(.init(quizQuestion: .init(id: question.id), mappings: mappings, _type: .dragAndDrop))
     }
 }
 
