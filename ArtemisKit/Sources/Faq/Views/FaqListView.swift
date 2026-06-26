@@ -24,7 +24,7 @@ public struct FaqListView: View {
         navController.selectedPathBinding($navController.selectedPath)
     }
 
-    public init(course: Course, showToolbar: Bool = false) {
+    public init(course: Course, showToolbar: Bool = true) {
         self._viewModel = State(initialValue: FaqViewModel(course: course))
         self.showToolbar = showToolbar
     }
