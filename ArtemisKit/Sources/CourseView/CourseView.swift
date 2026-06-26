@@ -35,7 +35,8 @@ public struct CourseView: View {
                     systemImage: "character.book.closed.fill",
                     value: TabIdentifier.lecture) {
                     TabBarIpad {
-                        LectureListView(viewModel: viewModel)
+                        LectureListView(viewModel: viewModel,
+                                        showFaqButton: !potentiallyVisibleTabs.contains(.faq))
                     }
                 }
             }
@@ -81,6 +82,11 @@ public struct CourseView: View {
         // Add a file and image picker here, inside the navigation it doesn't work sometimes
         .supportsFilePicker()
         .supportsImagePicker()
+        .onChange(of: potentiallyVisibleTabs) {
+            if !potentiallyVisibleTabs.contains(navigationController.courseTab) {
+                navigationController.courseTab = potentiallyVisibleTabs.first ?? .exercise
+            }
+        }
     }
 }
 
