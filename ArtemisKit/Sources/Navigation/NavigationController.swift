@@ -81,6 +81,13 @@ public extension NavigationController {
         tabPath = NavigationPath()
     }
 
+    func openNewIrisChat(courseId: Int, inputText: String) {
+        goToCourse(id: courseId)
+        courseTab = .iris
+        selectedPath = IrisStartChatPath(inputText: inputText, coursePath: selectedCourse ?? CoursePath(id: courseId))
+        tabPath = NavigationPath()
+    }
+
     func setTab(identifier: TabIdentifier) {
         courseTab = identifier
     }
