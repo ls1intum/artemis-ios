@@ -7,17 +7,15 @@
 
 import Navigation
 import Notifications
-import ProfileInfo
 import SwiftUI
 import UserStore
 
 public struct SearchTabView: View {
     @EnvironmentObject private var navController: NavigationController
-    @ModuleFeatureAvailability(.iris) private var irisEnabled
     @State private var viewModel: SearchTabViewModel
 
-    public init(courseId: Int) {
-        _viewModel = State(initialValue: SearchTabViewModel(courseId: courseId))
+    public init(courseId: Int, irisEnabled: Bool) {
+        _viewModel = State(initialValue: SearchTabViewModel(courseId: courseId, irisEnabled: irisEnabled))
     }
 
     public var body: some View {
@@ -64,7 +62,7 @@ public struct SearchTabView: View {
     }
 
     @ViewBuilder private var scopeSuggestions: some View {
-        if irisEnabled && UserSessionFactory.shared.user?.selectedLLMUsage?.isAIEnabled == true {
+        if viewModel.irisEnabled && UserSessionFactory.shared.user?.selectedLLMUsage?.isAIEnabled == true {
             ScopeSuggestion(viewModel: viewModel, filter: .iris) {
                 navController.openNewIrisChat(courseId: viewModel.courseId, inputText: viewModel.searchTerm)
             }

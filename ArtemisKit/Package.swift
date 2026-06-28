@@ -215,7 +215,6 @@ let package = Package(
                 "Notifications",
                 .product(name: "APIClient", package: "artemis-ios-core-modules"),
                 .product(name: "Common", package: "artemis-ios-core-modules"),
-                .product(name: "ProfileInfo", package: "artemis-ios-core-modules"),
                 .product(name: "SharedModels", package: "artemis-ios-core-modules"),
                 .product(name: "SharedServices", package: "artemis-ios-core-modules"),
                 .product(name: "UserStore", package: "artemis-ios-core-modules")
