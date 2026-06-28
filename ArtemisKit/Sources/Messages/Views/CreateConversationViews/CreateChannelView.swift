@@ -82,7 +82,7 @@ struct CreateChannelView: View {
             .navigationTitle(R.string.localizable.createChannelNavTitel())
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button(R.string.localizable.cancel()) {
+                    Button(role: .cancel) {
                         dismiss()
                     }
                 }

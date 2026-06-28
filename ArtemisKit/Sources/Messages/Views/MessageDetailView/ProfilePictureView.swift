@@ -148,7 +148,7 @@ struct ProfileInfoSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(R.string.localizable.done()) {
+                    Button(role: .close) {
                         dismiss()
                     }
                 }

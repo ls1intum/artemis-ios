@@ -45,7 +45,7 @@ struct ConversationInfoSheetView: View {
             .navigationTitle(conversation.baseConversation.conversationName)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(R.string.localizable.done()) {
+                    Button(role: .close) {
                         dismiss()
                     }
                 }
