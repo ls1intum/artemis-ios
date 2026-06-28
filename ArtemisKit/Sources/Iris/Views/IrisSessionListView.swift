@@ -76,6 +76,14 @@ public struct IrisSessionListView: View {
                         viewModel.updateSessionContext(sessionId: path.sessionId, context: context)
                     })
                 .id(path.sessionId)
+            } else if let path = navigationController.selectedPath as? IrisStartChatPath {
+                ProgressView()
+                    .task(id: "startChat") {
+                        if let newSession = await viewModel.createNewSession() {
+                            navigationController.selectedPath = IrisSessionPath(
+                                sessionId: newSession.id, defaultInput: path.inputText, coursePath: CoursePath(course: course))
+                        }
+                    }
             } else {
                 SelectDetailView()
             }

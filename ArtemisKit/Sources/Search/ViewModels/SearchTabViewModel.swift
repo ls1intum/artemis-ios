@@ -11,6 +11,7 @@ import Foundation
 @Observable
 class SearchTabViewModel {
     let courseId: Int
+    let irisEnabled: Bool
 
     var searchTerm = ""
     var scope: SearchScope = .course
@@ -25,8 +26,9 @@ class SearchTabViewModel {
     var searchResults: DataState<[SearchResultDTO]> = .loading
     var isLoading = false
 
-    init(courseId: Int) {
+    init(courseId: Int, irisEnabled: Bool) {
         self.courseId = courseId
+        self.irisEnabled = irisEnabled
     }
 
     private var updateSearchTask: Task<(), Never>?

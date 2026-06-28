@@ -80,6 +80,7 @@ final class IrisChatViewModel {
          session: IrisSessionDTO?,
          httpService: IrisChatHttpService = IrisChatHttpServiceFactory.shared) {
         self.sessionPath = sessionPath
+        self.inputText = sessionPath.defaultInput
         self.httpService = httpService
         self.sessionTitle = session?.title
         self.committedContext = session?.context

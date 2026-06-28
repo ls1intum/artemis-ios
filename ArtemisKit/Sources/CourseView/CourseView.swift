@@ -63,7 +63,9 @@ public struct CourseView: View {
 
             if searchEnabled && potentiallyVisibleTabs.contains(.search) {
                 Tab(value: .search, role: .search) {
-                    SearchTabView(courseId: viewModel.course.id)
+#warning("enable iris when implemented")
+                    SearchTabView(courseId: viewModel.course.id,
+                                  irisEnabled: false)
                     // Search tab does not use split view, so always use compact toolbar
                         .courseToolbar(title: viewModel.course.title ?? R.string.localizable.loading())
                         .environment(\.horizontalSizeClass, .compact)
@@ -102,7 +104,8 @@ private extension CourseView {
 
         // Add tabs in "importance" order after the first 5
         if viewModel.course.irisEnabledInCourse == true {
-            tabs.append(.iris)
+#warning("Enable Iris here when completely implemented")
+//            tabs.append(.iris)
         }
 
         if searchEnabled {
