@@ -11,8 +11,13 @@ import SwiftUI
 public extension View {
     /// Use this modifier at a high level (e.g. CourseView) with title to provide a toolbar.
     /// Use at lower level (e.g. ExerciseList) to attach toolbar where needed.
-    func courseToolbar(title: String? = nil) -> some View {
-        modifier(CourseToolbarViewEnvironmentModifier(title: title))
+    @ViewBuilder
+    func courseToolbar(title: String? = nil, overrideWithDismiss: Bool = false) -> some View {
+        if !overrideWithDismiss {
+            modifier(CourseToolbarViewEnvironmentModifier(title: title))
+        } else {
+            modifier(DismissModifier())
+        }
     }
 }
 
@@ -45,6 +50,22 @@ private struct CourseToolbarViewModifier: ViewModifier {
                 .disableGlass26()
                 ToolbarItem(placement: .topBarTrailing) {
                     NotificationToolbarButton(placement: .navBar, sizeClass: sizeClass)
+                }
+            }
+    }
+}
+
+private struct DismissModifier: ViewModifier {
+    @Environment(\.dismiss) private var dismiss
+
+    func body(content: Content) -> some View {
+        content
+            .toolbarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(R.string.localizable.close()) {
+                        dismiss()
+                    }
                 }
             }
     }

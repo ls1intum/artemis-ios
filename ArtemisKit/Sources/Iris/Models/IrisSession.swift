@@ -11,7 +11,7 @@ import Foundation
 /// `/chat/{courseId}/session/{sessionId}`. Mirrors the server `IrisSession`.
 /// `messages` carries the raw response DTOs; the chat service maps them to the
 /// `IrisMessage` domain type when populating UI state.
-struct IrisSession: Codable, Hashable, Identifiable {
+struct IrisSession: Decodable, Hashable, Identifiable {
     let id: Int
     let userId: Int
     let messages: [IrisMessageResponseDTO]?
@@ -19,7 +19,7 @@ struct IrisSession: Codable, Hashable, Identifiable {
     let latestSuggestions: String?
     let title: String?
     let creationDate: Date
-    let mode: ChatServiceMode?
+    let mode: IrisChatMode?
     let entityId: Int
     let citationInfo: [IrisCitationMetaDTO]?
 }

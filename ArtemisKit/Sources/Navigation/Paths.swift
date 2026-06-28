@@ -90,3 +90,35 @@ public struct ThreadPath: Hashable {
         self.coursePath = coursePath
     }
 }
+
+public struct IrisSessionPath: Hashable {
+    public let sessionId: Int
+    public let defaultInput: String
+    public let coursePath: CoursePath
+
+    /// Convenience for the enclosing course's id.
+    public var courseId: Int {
+        coursePath.id
+    }
+
+    public init(sessionId: Int, defaultInput: String = "", coursePath: CoursePath) {
+        self.sessionId = sessionId
+        self.defaultInput = defaultInput
+        self.coursePath = coursePath
+    }
+}
+
+public struct IrisStartChatPath: Hashable {
+    public let inputText: String
+    public let coursePath: CoursePath
+
+    /// Convenience for the enclosing course's id.
+    public var courseId: Int {
+        coursePath.id
+    }
+
+    public init(inputText: String, coursePath: CoursePath) {
+        self.inputText = inputText
+        self.coursePath = coursePath
+    }
+}

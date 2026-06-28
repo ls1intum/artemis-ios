@@ -6,6 +6,7 @@
 //
 
 import DesignLibrary
+import Faq
 import Navigation
 import Notifications
 import SharedModels
@@ -18,6 +19,9 @@ struct LectureListView: View {
     @State private var columnVisibilty: NavigationSplitViewVisibility = .doubleColumn
 
     @State private var searchText = ""
+
+    @State private var showFaq = false
+    let showFaqButton: Bool
 
     private var selectedLecture: Binding<LecturePath?> {
         navController.selectedPathBinding($navController.selectedPath)
@@ -65,6 +69,25 @@ struct LectureListView: View {
                             value.scrollTo(id, anchor: .top)
                         }
                     }
+                }
+                .safeAreaInset(edge: .bottom) {
+                    if showFaqButton && viewModel.course.numberOfAcceptedFaqs ?? 0 > 0 {
+                        Button {
+                            showFaq = true
+                        } label: {
+                            Image(systemName: "questionmark")
+                                .foregroundStyle(.white)
+                                .font(.title2)
+                                .frame(width: 60, height: 60, alignment: .center)
+                                .background(Color.Artemis.artemisBlue, in: .circle)
+                                .shadow(color: Color.gray.opacity(0.2), radius: .m)
+                        }
+                        .padding()
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                    }
+                }
+                .sheet(isPresented: $showFaq) {
+                    FaqListView(course: viewModel.course, showToolbar: false)
                 }
             }
             .courseToolbar()

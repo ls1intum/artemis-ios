@@ -11,4 +11,5 @@ public enum TabIdentifier {
     case communication
     case faq
     case search
+    case iris
 }

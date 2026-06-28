@@ -1,0 +1,23 @@
+"quizTraining" = "Quiz Training";
+"done" = "Done";
+
+"leaderboard" = "Leaderboard";
+"yourRanking" = "Your Ranking";
+"league" = "League";
+"startTraining" = "Start Training";
+
+"aboutTraining" = "How Training Works";
+"aboutTrainingText" = "Practice quiz questions in a spaced repetition system one question at a time. If there are no questions due, you can still practice in the unrated mode, which will not affect the leaderboard.";
+"leaguesAndScoring" = "Leagues and Scoring";
+"leaguesDetail1" = "You can participate in a leaderboard against other students in the same league. The settings for the leaderboard can be changed in the user settings.";
+"leaguesDetail2" = "Answer questions correctly to collect points and rank up to higher leagues. The more often a question is answered correctly in a row, the more points you earn for it.";
+
+"submit" = "Submit";
+"skip" = "Skip";
+"nextQuestion" = "Next Question";
+"failedToSubmit" = "Failed to submit answer";
+"retry" = "Retry";
+"dndInfo" = "Tap on a location to pick an item to drop.\nTap again to remove.";
+"correct" = "Correct";
+"incorrect" = "Incorrect";
+"solution" = "Solution";

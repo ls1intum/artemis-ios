@@ -5,14 +5,17 @@
 //  Created by Anian Schleyer on 18.03.26.
 //
 
+import Navigation
 import Notifications
 import SwiftUI
+import UserStore
 
 public struct SearchTabView: View {
+    @EnvironmentObject private var navController: NavigationController
     @State private var viewModel: SearchTabViewModel
 
-    public init(courseId: Int) {
-        _viewModel = State(initialValue: SearchTabViewModel(courseId: courseId))
+    public init(courseId: Int, irisEnabled: Bool) {
+        _viewModel = State(initialValue: SearchTabViewModel(courseId: courseId, irisEnabled: irisEnabled))
     }
 
     public var body: some View {
@@ -59,16 +62,13 @@ public struct SearchTabView: View {
     }
 
     @ViewBuilder private var scopeSuggestions: some View {
-        NavigationLink {
-            // TODO: Iris does not exist yet
-            // This could open Iris, providing the entered text as input
-        } label: {
-            ScopeSuggestion(viewModel: viewModel, filter: .iris)
+        if viewModel.irisEnabled && UserSessionFactory.shared.user?.selectedLLMUsage?.isAIEnabled == true {
+            ScopeSuggestion(viewModel: viewModel, filter: .iris) {
+                navController.openNewIrisChat(courseId: viewModel.courseId, inputText: viewModel.searchTerm)
+            }
+            .listRowInsets(EdgeInsets(top: .s, leading: .s, bottom: .s, trailing: .s))
+            .listRowBackground(Color.clear)
         }
-        .navigationLinkIndicatorVisibility(.hidden)
-        .disabled(true)
-        .listRowInsets(EdgeInsets(top: .m, leading: .s, bottom: .s, trailing: .s))
-        .listRowBackground(Color.clear)
 
         if viewModel.selectedFilters.isEmpty && viewModel.searchTerm.isEmpty {
             LazyVGrid(columns: [.init(.adaptive(minimum: 150, maximum: 500))]) {
@@ -85,15 +85,19 @@ public struct SearchTabView: View {
 private struct ScopeSuggestion: View {
     let viewModel: SearchTabViewModel
     let filter: SearchFilter
+    var action: (() -> Void)?
 
     var body: some View {
         Button {
-            viewModel.selectedFilters.append(filter)
+            if let action {
+                action()
+            } else {
+                viewModel.selectedFilters.append(filter)
+            }
         } label: {
             label
         }
         .buttonStyle(.plain)
-        .listRowBackground(filter.color.opacity(0.5))
         .background(filter.color.opacity(0.5), in: .rect(cornerRadius: .m * 1.5))
     }
 

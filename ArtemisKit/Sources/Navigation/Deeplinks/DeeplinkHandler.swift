@@ -60,6 +60,7 @@ public class DeeplinkHandler {
             LectureHandler.build,
             MessageHandler.build,
             MessagesHandler.build,
+            IrisHandler.build,
             CourseHandler.build,
             DashboardHandler.build,
             UnknownLinkHandler.build

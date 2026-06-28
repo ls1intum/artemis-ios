@@ -18,13 +18,15 @@ public struct FaqListView: View {
     @EnvironmentObject var navController: NavigationController
     @State private var columnVisibilty: NavigationSplitViewVisibility = .doubleColumn
     @State var viewModel: FaqViewModel
+    private let showToolbar: Bool
 
     private var selectedFaq: Binding<FaqPath?> {
         navController.selectedPathBinding($navController.selectedPath)
     }
 
-    public init(course: Course) {
+    public init(course: Course, showToolbar: Bool = true) {
         self._viewModel = State(initialValue: FaqViewModel(course: course))
+        self.showToolbar = showToolbar
     }
 
     public var body: some View {
@@ -66,7 +68,7 @@ public struct FaqListView: View {
                         .padding()
                 }
             }
-            .courseToolbar()
+            .courseToolbar(overrideWithDismiss: !showToolbar)
         } detail: {
             NavigationStack(path: $navController.tabPath) {
                 Group {
