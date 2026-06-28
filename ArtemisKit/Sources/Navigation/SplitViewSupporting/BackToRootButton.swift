@@ -35,18 +35,9 @@ public struct BackToRootButton: View {
     }
 
     @ViewBuilder private var backButtonLabel: some View {
-        if #available(iOS 26.0, *) {
-            Image(systemName: "chevron.backward")
-                .frame(width: 45, height: 45)
-                .toolbarStyle26(enabled: placement == .navBar)
-        } else {
-            HStack(spacing: .s) {
-                Image(systemName: "chevron.backward")
-                    .fontWeight(.semibold)
-                Text("Back")
-            }
-            .offset(x: placement == .navBar ? -8 : 0)
-        }
+        Image(systemName: "chevron.backward")
+            .frame(width: 45, height: 45)
+            .glassToolbarStyle(enabled: placement == .navBar)
     }
 
     private var iPad: Bool {
@@ -54,10 +45,9 @@ public struct BackToRootButton: View {
     }
 }
 
-@available(iOS 26.0, *)
 fileprivate extension View {
     @ViewBuilder
-    func toolbarStyle26(enabled: Bool) -> some View {
+    func glassToolbarStyle(enabled: Bool) -> some View {
         if enabled {
             glassEffect(.regular.interactive(), in: .circle)
                 .offset(x: -8)

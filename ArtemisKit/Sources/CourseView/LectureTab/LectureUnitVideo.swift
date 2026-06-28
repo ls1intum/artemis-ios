@@ -41,7 +41,7 @@ struct VideoUnitSheetContent: View {
                     VideoPlayerView(url: videoSource)
                         .frame(width: proxy.size.width,
                                height: min(proxy.size.height, proxy.size.width * 9 / 16))
-                } else if #available(iOS 26.0, *) {
+                } else {
                     WebView(url: videoSource)
                         .webViewOnScrollGeometryChange(for: CGFloat.self) { geometry in
                             geometry.contentSize.height
