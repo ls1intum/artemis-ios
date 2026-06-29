@@ -32,9 +32,9 @@ extension MessagesServiceImpl {
         }
     }
 
-    func createChannel(for courseId: Int, name: String, description: String?, isPrivate: Bool, isAnnouncement: Bool, isCourseWide: Bool) async -> DataState<Channel> {
+    func createChannel(for courseId: Int, name: String, description: String?, traits: ConversationTraits) async -> DataState<Channel> {
         let result = await client.sendRequest(
-            CreateChannelRequest(courseId: courseId, name: name, description: description, isPublic: !isPrivate, isAnnouncementChannel: isAnnouncement, isCourseWide: isCourseWide)
+            CreateChannelRequest(courseId: courseId, name: name, description: description, isPublic: !traits.isPrivate, isAnnouncementChannel: traits.isAnnouncement, isCourseWide: traits.isCourseWide)
         )
 
         switch result {

@@ -30,7 +30,7 @@ struct MessageURLAction {
         if let mention = MentionScheme(url) {
             let coursePath = CoursePath(course: conversationViewModel.course)
             switch mention {
-            case let .attachment(id, lectureId):
+            case let .attachment(_ /*id*/, lectureId):
                 navigationController.outerPath.append(LecturePath(id: lectureId, coursePath: coursePath))
             case let .channel(id):
                 navigationController.tabPath.append(ConversationPath(id: id, coursePath: coursePath))

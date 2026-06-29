@@ -44,8 +44,8 @@ struct ConversationInfoSheetView: View {
             }
             .navigationTitle(conversation.baseConversation.conversationName)
             .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button(R.string.localizable.done()) {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(role: .close) {
                         dismiss()
                     }
                 }
@@ -62,46 +62,19 @@ struct ConversationInfoSheetView: View {
             } content: {
                 CreateOrAddToChatView(courseId: viewModel.course.id, configuration: .addToChat(conversation))
             }
-            .alert(isPresented: $showDeleteConfirmation) {
-                Alert(
-                    title: Text(R.string.localizable.deleteChannel()),
-                    message: Text(R.string.localizable.confirmDeleteMessage(conversation.baseConversation.conversationName)),
-                    primaryButton: .destructive(Text(R.string.localizable.delete())) {
-                        viewModel.isLoading = true
-                        Task {
-                            let success = await viewModel.deleteChannel()
-                            if success {
-                                navigationController.selectedPath = nil
-                            } else {
+            .alert(isPresented: $showTogglePrivacyAlert) {
+                let loc = R.string.localizable
+                return Alert(
+                    title: Text(togglePrivacyTargetIsPublic ? loc.confirmPublicChannelTitle() : loc.confirmPrivateChannelTitle()),
+                    message: Text(togglePrivacyTargetIsPublic ? loc.confirmPublicChannelMessage() : loc.confirmPrivateChannelMessage()),
+                    primaryButton:
+                        .default(Text(togglePrivacyTargetIsPublic ? loc.toggleToPublicButton() : loc.toggleToPrivateButton())) {
+                            viewModel.isLoading = true
+                            Task {
+                                await viewModel.toggleChannelPrivacy()
                                 viewModel.isLoading = false
                             }
-                        }
-                    },
-                    secondaryButton: .cancel()
-                )
-            }
-            .alert(isPresented: $showTogglePrivacyAlert) {
-                Alert(
-                    title: Text(togglePrivacyTargetIsPublic
-                                ? R.string.localizable.confirmPublicChannelTitle()
-                                : R.string.localizable.confirmPrivateChannelTitle()
-                               ),
-                    message: Text(togglePrivacyTargetIsPublic
-                                  ? R.string.localizable.confirmPublicChannelMessage()
-                                  : R.string.localizable.confirmPrivateChannelMessage()
-                                 ),
-                    primaryButton: .default(
-                        Text(togglePrivacyTargetIsPublic
-                             ? R.string.localizable.toggleToPublicButton()
-                             : R.string.localizable.toggleToPrivateButton()
-                            )
-                    ) {
-                        viewModel.isLoading = true
-                        Task {
-                            await viewModel.toggleChannelPrivacy()
-                            viewModel.isLoading = false
-                        }
-                    },
+                        },
                     secondaryButton: .cancel()
                 )
             }
@@ -167,6 +140,23 @@ private extension ConversationInfoSheetView {
                         showDeleteConfirmation = true
                     }
                     .foregroundColor(.Artemis.badgeDangerColor)
+                    .confirmationDialog(R.string.localizable.deleteChannel(), isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
+                        Button(R.string.localizable.delete(), role: .destructive) {
+                            viewModel.isLoading = true
+                            Task {
+                                let success = await viewModel.deleteChannel()
+                                if success {
+                                    navigationController.selectedPath = nil
+                                } else {
+                                    viewModel.isLoading = false
+                                }
+                            }
+                        }
+
+                        Button(R.string.localizable.cancel()) {}
+                    } message: {
+                        Text(R.string.localizable.confirmDeleteMessage(conversation.baseConversation.conversationName))
+                    }
                 }
             }
             if viewModel.canLeaveConversation {
@@ -187,50 +177,44 @@ private extension ConversationInfoSheetView {
     }
 
     private var membersSection: some View {
-        Group {
-            Section {
-                DataStateView(data: $viewModel.members) {
-                    await viewModel.loadMembers()
-                } content: { members in
-                    ForEach(members, id: \.id) { member in
-                        if let name = member.name {
-                            HStack {
-                                ProfilePictureView(
-                                    user: member,
-                                    role: nil,
-                                    course: viewModel.course,
-                                    size: 25,
-                                    actions: [
-                                        ProfileInfoSheetAction(
-                                            title: R.string.localizable.removeUserButtonLabel(),
-                                            iconName: "person.badge.minus",
-                                            isDestructive: true,
-                                            isEnabled: UserSessionFactory.shared.user?.login != member.login && viewModel.canRemoveUsers,
-                                            action: {
-                                                viewModel.isLoading = true
-                                                Task {
-                                                    await viewModel.removeMemberFromConversation(member: member)
-                                                    viewModel.isLoading = false
-                                                }
-                                            })
-                                    ])
-                                Text(name)
-                                Spacer()
-                                if UserSessionFactory.shared.user?.login == member.login {
-                                    Chip(text: R.string.localizable.youLabel(), backgroundColor: .Artemis.artemisBlue)
-                                }
+        Section {
+            DataStateView(data: $viewModel.members) {
+                await viewModel.loadMembers()
+            } content: { members in
+                ForEach(members, id: \.id) { member in
+                    if let name = member.name {
+                        HStack {
+                            ProfilePictureView(
+                                user: member,
+                                role: nil,
+                                course: viewModel.course,
+                                size: 25,
+                                actions: [
+                                    ProfileInfoSheetAction(
+                                        title: R.string.localizable.removeUserButtonLabel(),
+                                        iconName: "person.badge.minus",
+                                        isDestructive: true,
+                                        isEnabled: UserSessionFactory.shared.user?.login != member.login && viewModel.canRemoveUsers,
+                                        action: {
+                                            removeFromConversation(user: member)
+                                        })
+                                ])
+                            Text(name)
+                            Spacer()
+                            if UserSessionFactory.shared.user?.login == member.login {
+                                Chip(text: R.string.localizable.youLabel(), backgroundColor: .Artemis.artemisBlue)
                             }
-                            .swipeActions(edge: .trailing) {
-                                removeUserButton(member: member)
-                            }
+                        }
+                        .swipeActions(edge: .trailing) {
+                            removeUserButton(member: member)
                         }
                     }
                 }
-            } header: {
-                Text(R.string.localizable.membersLabel(conversation.baseConversation.numberOfMembers ?? 0))
-            } footer: {
-                pageActions
             }
+        } header: {
+            Text(R.string.localizable.membersLabel(conversation.baseConversation.numberOfMembers ?? 0))
+        } footer: {
+            pageActions
         }
     }
 
@@ -239,49 +223,49 @@ private extension ConversationInfoSheetView {
         if UserSessionFactory.shared.user?.login != member.login,
            viewModel.canRemoveUsers {
             Button(R.string.localizable.removeUserButtonLabel(), systemImage: "person.badge.minus", role: .destructive) {
-                viewModel.isLoading = true
-                Task {
-                    await viewModel.removeMemberFromConversation(member: member)
-                    viewModel.isLoading = false
-                }
+                removeFromConversation(user: member)
             }
             .foregroundStyle(.red)
         }
     }
 
-    var pageActions: some View {
-        Group {
-            if (conversation.baseConversation.numberOfMembers ?? 0) > PAGINATION_SIZE || viewModel.page > 0 {
-                HStack(spacing: .l) {
-                    Spacer()
-                    Text("\(Image(systemName: "chevron.backward")) \(R.string.localizable.previous())")
-                        .onTapGesture {
-                            Task {
-                                await viewModel.loadPreviousMemberPage()
-                            }
+    private func removeFromConversation(user: ConversationUser) {
+        viewModel.isLoading = true
+        Task {
+            await viewModel.removeMemberFromConversation(member: user)
+            viewModel.isLoading = false
+        }
+    }
+
+    @ViewBuilder var pageActions: some View {
+        if (conversation.baseConversation.numberOfMembers ?? 0) > PAGINATION_SIZE || viewModel.page > 0 {
+            HStack(spacing: .l) {
+                Spacer()
+                Text("\(Image(systemName: "chevron.backward")) \(R.string.localizable.previous())")
+                    .onTapGesture {
+                        Task {
+                            await viewModel.loadPreviousMemberPage()
                         }
-                        .disabled(viewModel.page == 0)
-                        .foregroundColor(viewModel.page == 0 ? .Artemis.buttonDisabledColor : .Artemis.artemisBlue)
-                    Text("\(viewModel.page + 1)")
-                    Text("\(R.string.localizable.next()) \(Image(systemName: "chevron.forward"))")
-                        .onTapGesture {
-                            Task {
-                                await viewModel.loadNextMemberPage()
-                            }
+                    }
+                    .disabled(viewModel.page == 0)
+                    .foregroundColor(viewModel.page == 0 ? .Artemis.buttonDisabledColor : .Artemis.artemisBlue)
+                Text("\(viewModel.page + 1)")
+                Text("\(R.string.localizable.next()) \(Image(systemName: "chevron.forward"))")
+                    .onTapGesture {
+                        Task {
+                            await viewModel.loadNextMemberPage()
                         }
-                        .disabled(
-                            (conversation.baseConversation.numberOfMembers ?? 0) <= (viewModel.page + 1) * PAGINATION_SIZE
-                        )
-                        .foregroundColor(
-                            (conversation.baseConversation.numberOfMembers ?? 0) <= (viewModel.page + 1) * PAGINATION_SIZE
-                                ? .Artemis.buttonDisabledColor
-                                : .Artemis.artemisBlue
-                        )
-                    Spacer()
-                }.font(.body)
-            } else {
-                EmptyView()
-            }
+                    }
+                    .disabled(
+                        (conversation.baseConversation.numberOfMembers ?? 0) <= (viewModel.page + 1) * PAGINATION_SIZE
+                    )
+                    .foregroundColor(
+                        (conversation.baseConversation.numberOfMembers ?? 0) <= (viewModel.page + 1) * PAGINATION_SIZE
+                            ? .Artemis.buttonDisabledColor
+                            : .Artemis.artemisBlue
+                    )
+                Spacer()
+            }.font(.body)
         }
     }
 }
@@ -350,75 +334,74 @@ private struct InfoSection: View {
 }
 
 private extension InfoSection {
-    var channelSections: some View {
-        Group {
-            if let channel = conversation.baseConversation as? Channel {
-                Section(R.string.localizable.nameLabel()) {
-                    HStack {
-                        Text(channel.name ?? R.string.localizable.noNameSet())
-                        if channel.hasChannelModerationRights ?? false {
-                            Spacer()
-                            Button {
-                                showChangeNameAlert = true
-                            } label: {
-                                Image(systemName: "pencil")
-                            }
+    @ViewBuilder var channelSections: some View {
+        if let channel = conversation.baseConversation as? Channel {
+            Section(R.string.localizable.nameLabel()) {
+                HStack {
+                    Text(channel.name ?? R.string.localizable.noNameSet())
+                    if channel.hasChannelModerationRights ?? false {
+                        Spacer()
+                        Button {
+                            showChangeNameAlert = true
+                        } label: {
+                            Image(systemName: "pencil")
                         }
                     }
                 }
-                Section(R.string.localizable.topicLabel()) {
-                    HStack {
-                        Text(channel.topic ?? R.string.localizable.noTopicSet())
-                        if channel.hasChannelModerationRights ?? false {
-                            Spacer()
-                            Button {
-                                showChangeTopicAlert = true
-                            } label: {
-                                Image(systemName: "pencil")
-                            }
-                            .alert(R.string.localizable.editTopicTitle(), isPresented: $showChangeTopicAlert) {
-                                TextField(R.string.localizable.newTopicLabel(), text: $newTopic)
-                                Button(R.string.localizable.ok()) {
-                                    viewModel.isLoading = true
-                                    Task {
-                                        await viewModel.editTopic(newTopic: newTopic)
-                                    }
+            }
+            Section(R.string.localizable.topicLabel()) {
+                HStack {
+                    Text(channel.topic ?? R.string.localizable.noTopicSet())
+                    if channel.hasChannelModerationRights ?? false {
+                        Spacer()
+                        Button {
+                            showChangeTopicAlert = true
+                        } label: {
+                            Image(systemName: "pencil")
+                        }
+                        .alert(R.string.localizable.editTopicTitle(), isPresented: $showChangeTopicAlert) {
+                            TextField(R.string.localizable.newTopicLabel(), text: $newTopic)
+                            Button(R.string.localizable.ok()) {
+                                viewModel.isLoading = true
+                                Task {
+                                    await viewModel.editTopic(newTopic: newTopic)
                                 }
-                                Button(R.string.localizable.cancel(), role: .cancel) { }
                             }
-                            .textCase(nil)
+                            Button(R.string.localizable.cancel(), role: .cancel) { }
                         }
+                        .textCase(nil)
                     }
                 }
-                Section(R.string.localizable.description()) {
-                    HStack {
-                        Text(channel.description ?? R.string.localizable.noDescriptionSet())
-                        if channel.hasChannelModerationRights ?? false {
-                            Spacer()
-                            Button {
-                                showChangeDescriptionAlert = true
-                            } label: {
-                                Image(systemName: "pencil")
-                            }
-                            .alert(R.string.localizable.editDescriptionLabel(), isPresented: $showChangeDescriptionAlert) {
-                                TextField(R.string.localizable.newDescriptionLabel(), text: $newDescription)
-                                Button(R.string.localizable.ok()) {
-                                    viewModel.isLoading = true
-                                    Task {
-                                        await viewModel.editDescription(newDescription: newDescription)
-                                    }
+            }
+            Section(R.string.localizable.description()) {
+                HStack {
+                    Text(channel.description ?? R.string.localizable.noDescriptionSet())
+                    if channel.hasChannelModerationRights ?? false {
+                        Spacer()
+                        Button {
+                            showChangeDescriptionAlert = true
+                        } label: {
+                            Image(systemName: "pencil")
+                        }
+                        .alert(R.string.localizable.editDescriptionLabel(), isPresented: $showChangeDescriptionAlert) {
+                            TextField(R.string.localizable.newDescriptionLabel(), text: $newDescription)
+                            Button(R.string.localizable.ok()) {
+                                viewModel.isLoading = true
+                                Task {
+                                    await viewModel.editDescription(newDescription: newDescription)
                                 }
-                                Button(R.string.localizable.cancel(), role: .cancel) {}
                             }
-                            .textCase(nil)
+                            Button(R.string.localizable.cancel(), role: .cancel) {}
                         }
+                        .textCase(nil)
                     }
                 }
-                .onAppear {
-                    newTopic = channel.topic ?? ""
-                    newDescription = channel.description ?? ""
-                }
+            }
+            .onAppear {
+                newTopic = channel.topic ?? ""
+                newDescription = channel.description ?? ""
             }
         }
     }
 }
+// swiftlint:disable:this file_length

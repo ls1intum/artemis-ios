@@ -28,7 +28,7 @@ public struct QuizTrainingView: View {
             .toolbarTitleDisplayMode(.inlineLarge)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button(R.string.localizable.done()) {
+                    Button(role: .close) {
                         dismiss()
                     }
                 }
@@ -43,7 +43,7 @@ public struct QuizTrainingView: View {
                         .padding(.trailing, .s)
                     }
                     .labelStyle(.titleAndIcon)
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(.glassProminent)
                     .disabled(!canStartRated)
                 }
             }

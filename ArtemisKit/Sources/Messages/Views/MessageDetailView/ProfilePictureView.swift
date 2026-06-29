@@ -96,7 +96,7 @@ struct ProfileInfoSheet: View {
                                 }
                             }
                             .frame(width: 100, height: 100)
-                            .clipShape(.rect(cornerRadius: pictureCornerRadius))
+                            .clipShape(.rect(cornerRadius: 25))
 
                             VStack(alignment: .leading, spacing: .m) {
                                 if let role = viewModel.role {
@@ -147,8 +147,8 @@ struct ProfileInfoSheet: View {
             .navigationTitle(R.string.localizable.profile())
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button(R.string.localizable.done()) {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(role: .close) {
                         dismiss()
                     }
                 }
@@ -173,14 +173,6 @@ struct ProfileInfoSheet: View {
                 .ignoresSafeArea()
                 .blur(radius: .l, opaque: true)
                 .opacity(0.15)
-        }
-    }
-
-    private var pictureCornerRadius: Double {
-        if #available(iOS 26.0, *) {
-            25
-        } else {
-            8
         }
     }
 }

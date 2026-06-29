@@ -40,7 +40,7 @@ struct CreateOrAddToChatView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button(R.string.localizable.cancel()) {
+                    Button(role: .cancel) {
                         dismiss()
                     }
                 }
