@@ -118,7 +118,7 @@ struct CompletePdfDownloadButton: View {
                 .navigationTitle(viewModel.lecture.value?.title ?? "")
                 .toolbarTitleDisplayMode(.inline)
                 .toolbar {
-                    ToolbarItem(placement: .confirmationAction) {
+                    ToolbarItem(placement: .topBarTrailing) {
                         Button(role: .close) {
                             showDetails = false
                         }
@@ -305,7 +305,7 @@ struct BaseLectureUnitCell: View {
                 .navigationTitle(lectureUnit.baseUnit.name ?? "")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
-                    ToolbarItem(placement: .confirmationAction) {
+                    ToolbarItem(placement: .topBarTrailing) {
                         Button(role: .close) {
                             showDetails = false
                         }
@@ -329,45 +329,6 @@ struct TextUnitSheetContent: View {
         ScrollView {
             ArtemisMarkdownView(string: textUnit.content ?? "")
                 .padding(.horizontal)
-        }
-    }
-}
-
-struct AttachmentUnitSheetContent: View {
-
-    let attachmentUnit: AttachmentVideoUnit?
-    var lectureId: Int?
-    var lectureName: String?
-
-    @State private var showAttachment = false
-
-    var body: some View {
-        if let lectureId, let lectureName {
-            LectureAttachmentSheet(attachment: nil, lectureId: lectureId, lectureName: lectureName)
-        } else if let attachment = attachmentUnit?.attachment, attachmentUnit?.videoSource == nil {
-            // Only attachment -> Make it full screen
-            LectureAttachmentSheet(attachment: attachment)
-        } else {
-            ScrollView {
-                if let attachment = attachmentUnit?.attachment {
-                    NavigationLink {
-                        LectureAttachmentSheet(attachment: attachment)
-                    } label: {
-                        BaseLectureUnitCell(viewModel: .init(courseId: nil, lectureId: nil),
-                                            lectureUnit: .attachmentVideo(lectureUnit: attachmentUnit!))
-                        .padding(.horizontal)
-                        .allowsHitTesting(false)
-                    }
-                    .foregroundStyle(.primary)
-                }
-                if let videoSource = attachmentUnit?.videoSource,
-                   let videoUrl = URL(string: videoSource) {
-                    VideoUnitSheetContent(unit: attachmentUnit!, videoSource: videoUrl)
-                } else {
-                    Text(R.string.localizable.attachmentCouldNotBeOpened())
-                        .foregroundColor(.red)
-                }
-            }
         }
     }
 }

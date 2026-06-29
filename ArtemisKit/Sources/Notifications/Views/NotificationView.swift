@@ -52,9 +52,6 @@ struct NotificationView: View {
                     Button(role: .close) {
                         dismiss()
                     }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(.gray)
-                    .font(.title2)
                 }
                 ToolbarItem(placement: .topBarLeading) {
                     NavigationLink {
