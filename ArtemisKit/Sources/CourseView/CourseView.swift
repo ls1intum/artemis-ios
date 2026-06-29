@@ -103,8 +103,7 @@ private extension CourseView {
 
         // Add tabs in "importance" order after the first 5
         if viewModel.course.irisEnabledInCourse == true {
-#warning("Enable Iris here when completely implemented")
-//            tabs.append(.iris)
+            tabs.append(.iris)
         }
 
         if searchEnabled {

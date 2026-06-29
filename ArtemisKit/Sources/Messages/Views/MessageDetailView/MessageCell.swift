@@ -236,13 +236,9 @@ private extension MessageCell {
 
     @ViewBuilder var editedLabel: some View {
         if let updatedDate = message.value?.updatedDate {
-            Group {
-                Text(R.string.localizable.edited() + " (") +
-                Text(updatedDate, formatter: DateFormatter.superShortDateAndTime) +
-                Text(")")
-            }
-            .font(.caption)
-            .foregroundColor(.Artemis.secondaryLabel)
+            Text("\(R.string.localizable.edited()) (\(Text(updatedDate, formatter: DateFormatter.superShortDateAndTime)))")
+                .font(.caption)
+                .foregroundColor(.Artemis.secondaryLabel)
         }
     }
 
