@@ -49,7 +49,7 @@ struct NotificationView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button(R.string.localizable.close(), systemImage: "xmark.circle.fill") {
+                    Button(role: .close) {
                         dismiss()
                     }
                     .buttonStyle(.plain)
