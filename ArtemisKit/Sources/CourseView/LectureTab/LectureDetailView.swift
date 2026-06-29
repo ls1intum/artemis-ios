@@ -28,63 +28,60 @@ public struct LectureDetailView: View {
         DataStateView(data: $viewModel.lecture,
                       retryHandler: { await viewModel.loadLecture() }) { lecture in
             ScrollView {
-                HStack {
-                    VStack(alignment: .leading, spacing: .l) {
-                        if lecture.startDate != nil || lecture.description != nil || viewModel.channel.value != nil {
-                            Text(R.string.localizable.overview())
-                                .font(.title2).bold()
+                VStack(alignment: .leading, spacing: .l) {
+                    if lecture.startDate != nil || lecture.description != nil || viewModel.channel.value != nil {
+                        Text(R.string.localizable.overview())
+                            .font(.title2).bold()
 
-                            if let startDate = lecture.startDate {
-                                Text(R.string.localizable.date())
-                                    .font(.headline)
-                                HStack {
-                                    Text("\(startDate.shortDateAndTime)")
-                                    if let endDate = lecture.endDate {
-                                        Text(" - \(endDate.shortDateAndTime)")
-                                    }
+                        if let startDate = lecture.startDate {
+                            Text(R.string.localizable.date())
+                                .font(.headline)
+                            HStack(spacing: 0) {
+                                Text("\(startDate.shortDateAndTime)")
+                                if let endDate = lecture.endDate {
+                                    Text(" - \(endDate.shortDateAndTime)")
                                 }
                             }
-
-                            if let description = lecture.description {
-                                Text(R.string.localizable.description())
-                                    .font(.headline)
-                                ArtemisMarkdownView(string: description)
-                            }
-
-                            if let channel = viewModel.channel.value {
-                                Text(R.string.localizable.communication())
-                                    .font(.headline)
-                                ChannelCell(courseId: viewModel.courseId, channel: channel)
-                            }
                         }
 
-                        if let lectureUnits = lecture.lectureUnits {
-                            HStack {
-                                Text(R.string.localizable.lectureUnits())
-                                    .font(.title2).bold()
-                                if viewModel.shouldShowDownloadCompletePDFButton {
-                                    CompletePdfDownloadButton(viewModel: viewModel)
-                                }
-                            }
-
-                            ForEach(lectureUnits, id: \.id) { lectureUnit in
-                                LectureUnitCell(viewModel: viewModel, lectureUnit: lectureUnit)
-                            }
+                        if let description = lecture.description {
+                            Text(R.string.localizable.description())
+                                .font(.headline)
+                            ArtemisMarkdownView(string: description)
                         }
 
-                        if let attachments = lecture.attachments {
-                            Text(R.string.localizable.attachments())
-                                .font(.title2).bold()
-
-                            ForEach(attachments, id: \.id) { attachment in
-                                AttachmentCell(attachment: attachment)
-                            }
+                        if let channel = viewModel.channel.value {
+                            Text(R.string.localizable.communication())
+                                .font(.headline)
+                            ChannelCell(courseId: viewModel.courseId, channel: channel)
                         }
-
-                        Spacer()
                     }
-                    Spacer()
-                }.padding(.l)
+
+                    if let lectureUnits = lecture.lectureUnits {
+                        HStack {
+                            Text(R.string.localizable.lectureUnits())
+                                .font(.title2).bold()
+                            if viewModel.shouldShowDownloadCompletePDFButton {
+                                CompletePdfDownloadButton(viewModel: viewModel)
+                            }
+                        }
+
+                        ForEach(lectureUnits, id: \.id) { lectureUnit in
+                            LectureUnitCell(viewModel: viewModel, lectureUnit: lectureUnit)
+                        }
+                    }
+
+                    if let attachments = lecture.attachments {
+                        Text(R.string.localizable.attachments())
+                            .font(.title2).bold()
+
+                        ForEach(attachments, id: \.id) { attachment in
+                            AttachmentCell(attachment: attachment)
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.l)
             }
             .onChange(of: viewModel.course.value, initial: true) { _, newValue in
                 if newValue != nil {
@@ -109,22 +106,20 @@ struct CompletePdfDownloadButton: View {
     @State private var showDetails = false
 
     var body: some View {
-        Button(action: {
+        Button(R.string.localizable.downloadCompletePdf()) {
             showDetails = true
-        }) {
-            Text(R.string.localizable.downloadCompletePdf())
         }
         .buttonStyle(ArtemisButton())
         .sheet(isPresented: $showDetails) {
-            NavigationView {
-                Group {
-                    AttachmentUnitSheetContent(attachmentUnit: nil, lectureId: viewModel.lectureId, lectureName: viewModel.lecture.value?.title ?? "")
-                }
+            NavigationStack {
+                AttachmentUnitSheetContent(attachmentUnit: nil,
+                                           lectureId: viewModel.lectureId,
+                                           lectureName: viewModel.lecture.value?.title ?? "")
                 .navigationTitle(viewModel.lecture.value?.title ?? "")
-                .navigationBarTitleDisplayMode(.inline)
+                .toolbarTitleDisplayMode(.inline)
                 .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button(R.string.localizable.close()) {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button(role: .close) {
                             showDetails = false
                         }
                     }
@@ -175,15 +170,14 @@ private struct ChannelCell: View {
 }
 
 private struct AttachmentCell: View {
-
     let attachment: Attachment
 
     @State private var showAttachmentSheet = false
 
     var body: some View {
-        Button(action: {
+        Button {
             showAttachmentSheet = true
-        }, label: {
+        } label: {
             VStack(alignment: .leading) {
                 HStack {
                     if let name = attachment.name {
@@ -206,10 +200,10 @@ private struct AttachmentCell: View {
                 .font(.caption)
                 .foregroundColor(.Artemis.secondaryLabel)
             }
-        })
-            .sheet(isPresented: $showAttachmentSheet) {
-                LectureAttachmentSheet(attachment: attachment)
-            }
+        }
+        .sheet(isPresented: $showAttachmentSheet) {
+            LectureAttachmentSheet(attachment: attachment)
+        }
     }
 }
 
@@ -244,9 +238,7 @@ struct BaseLectureUnitCell: View {
     @ObservedObject var viewModel: LectureDetailViewModel
 
     @State private var lectureUnit: LectureUnit
-
     @State private var isLoading = false
-
     @State private var showDetails = false
 
     private var isCompleted: Binding<Bool> {
@@ -290,42 +282,42 @@ struct BaseLectureUnitCell: View {
                 }
             }
         }
-            .frame(maxWidth: .infinity)
-            .padding(.l)
-            .cardModifier(backgroundColor: .Artemis.exerciseCardBackgroundColor, cornerRadius: .m)
-            .onTapGesture {
-                showDetails = true
-            }
-            .sheet(isPresented: $showDetails) {
-                NavigationView {
-                    Group {
-                        switch lectureUnit {
-                        case .attachmentVideo(let lectureUnit):
-                            AttachmentUnitSheetContent(attachmentUnit: lectureUnit)
-                        case .text(let lectureUnit):
-                            TextUnitSheetContent(textUnit: lectureUnit)
-                        case .online(let lectureUnit):
-                            OnlineUnitSheetContent(onlineUnit: lectureUnit)
-                        case .unknown, .exercise:
-                            EmptyView()
+        .frame(maxWidth: .infinity)
+        .padding(.l)
+        .cardModifier(backgroundColor: .Artemis.exerciseCardBackgroundColor, cornerRadius: .m)
+        .onTapGesture {
+            showDetails = true
+        }
+        .sheet(isPresented: $showDetails) {
+            NavigationStack {
+                Group {
+                    switch lectureUnit {
+                    case .attachmentVideo(let lectureUnit):
+                        AttachmentUnitSheetContent(attachmentUnit: lectureUnit)
+                    case .text(let lectureUnit):
+                        TextUnitSheetContent(textUnit: lectureUnit)
+                    case .online(let lectureUnit):
+                        OnlineUnitSheetContent(onlineUnit: lectureUnit)
+                    case .unknown, .exercise:
+                        EmptyView()
+                    }
+                }
+                .navigationTitle(lectureUnit.baseUnit.name ?? "")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button(role: .close) {
+                            showDetails = false
                         }
                     }
-                        .navigationTitle(lectureUnit.baseUnit.name ?? "")
-                        .navigationBarTitleDisplayMode(.inline)
-                        .toolbar {
-                            ToolbarItem(placement: .cancellationAction) {
-                                Button(R.string.localizable.close()) {
-                                    showDetails = false
-                                }
-                            }
-                        }
-                        .onAppear {
-                            if !isCompleted.wrappedValue && lectureUnit.baseUnit.visibleToStudents ?? false {
-                                isCompleted.wrappedValue = true
-                            }
-                        }
+                }
+                .onAppear {
+                    if !isCompleted.wrappedValue && lectureUnit.baseUnit.visibleToStudents ?? false {
+                        isCompleted.wrappedValue = true
+                    }
                 }
             }
+        }
     }
 }
 
@@ -388,24 +380,20 @@ struct OnlineUnitSheetContent: View {
         ScrollView {
             VStack(alignment: .leading) {
                 if let description = onlineUnit.description {
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text(R.string.localizable.description())
-                                .font(.headline)
-                            Text(description)
-                        }
-                        Spacer()
-                    }
+                    Text(R.string.localizable.description())
+                        .font(.headline)
+                    Text(description)
                 }
-                if let source = onlineUnit.source,
-                   let url = URL(string: source) {
+                if let source = onlineUnit.source, let url = URL(string: source) {
                     Link(R.string.localizable.openLink(), destination: url)
                         .buttonStyle(ArtemisButton())
                 } else {
                     Text(R.string.localizable.linkCouldNotBeLoaded())
                         .foregroundColor(.red)
                 }
-            }.padding(.l)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.l)
         }
     }
 }
