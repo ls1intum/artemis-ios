@@ -27,9 +27,8 @@ public struct ExerciseDetailView: View {
                     hint
                     ExerciseOverviewChipsRow(exercise: exercise, score: viewModel.score)
                     if case .quiz(let quiz) = exercise {
-                        // TODO: Proper styling, probably make this a sheet
-                        NavigationLink {
-                            QuizParticipationView(exercise: quiz)
+                        Button {
+                            viewModel.showQuizParticipation = true
                         } label: {
                             Text("Participate")
                         }
@@ -57,6 +56,11 @@ public struct ExerciseDetailView: View {
             .overlay(alignment: .bottomTrailing) {
                 feedback(exercise: exercise)
                     .padding()
+            }
+            .sheet(isPresented: $viewModel.showQuizParticipation) {
+                if case .quiz(let quiz) = exercise {
+                    QuizParticipationView(exercise: quiz)
+                }
             }
         }
         .task {

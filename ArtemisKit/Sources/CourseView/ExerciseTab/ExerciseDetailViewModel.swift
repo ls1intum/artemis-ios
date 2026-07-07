@@ -21,6 +21,7 @@ final class ExerciseDetailViewModel {
     var problemStatementRenderedDark: DataState<String> = .loading
     var channel: DataState<Channel> = .loading
 
+    var showQuizParticipation = false
     var isFeedbackPresented = false
     var latestResultId: Int?
     var participationId: Int?

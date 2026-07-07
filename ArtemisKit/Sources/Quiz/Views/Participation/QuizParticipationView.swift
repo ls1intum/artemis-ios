@@ -17,16 +17,21 @@ public struct QuizParticipationView: View {
     }
 
     public var body: some View {
-        switch viewModel.exercise.quizMode {
-        case .synchronized:
-            Text("Sync") // Check for batch -> if no batch, websocket
-        case .batched:
-            Text("Batch") // Password thing?
-        case .individual:
-            Text("Individual") // Empty password?
-        default:
-            Text("Unknown Quiz Type")
+        NavigationStack {
+            Group {
+                switch viewModel.exercise.quizMode {
+                case .synchronized:
+                    SynchronizedQuizView(viewModel: viewModel)
+                case .batched:
+                    Text("Batch Quiz not implemented") // Password thing?
+                case .individual:
+                    Text("Individual Quiz not implemented") // Empty password?
+                default:
+                    Text("Unknown Quiz Type")
+                }
+            }
+            .navigationTitle(viewModel.exercise.title ?? "")
+            .toolbarTitleDisplayMode(.inline)
         }
-        Text("Hi")
     }
 }
