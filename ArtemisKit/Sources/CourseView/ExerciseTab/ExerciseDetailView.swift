@@ -11,6 +11,7 @@ import Navigation
 import SharedModels
 import SwiftUI
 import UserStore
+import Quiz
 
 public struct ExerciseDetailView: View {
     @EnvironmentObject var navigationController: NavigationController
@@ -25,6 +26,15 @@ public struct ExerciseDetailView: View {
                 VStack(alignment: .leading, spacing: .l) {
                     hint
                     ExerciseOverviewChipsRow(exercise: exercise, score: viewModel.score)
+                    if case .quiz(let quiz) = exercise {
+                        // TODO: Proper styling, probably make this a sheet
+                        NavigationLink {
+                            QuizParticipationView(exercise: quiz)
+                        } label: {
+                            Text("Participate")
+                        }
+                        .buttonStyle(.borderedProminent)
+                    }
                     problem
                     detail(exercise: exercise)
                 }
