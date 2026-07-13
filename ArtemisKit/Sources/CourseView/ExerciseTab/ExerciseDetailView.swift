@@ -26,15 +26,14 @@ public struct ExerciseDetailView: View {
                 VStack(alignment: .leading, spacing: .l) {
                     hint
                     ExerciseOverviewChipsRow(exercise: exercise, score: viewModel.score)
-                    if case .quiz(let quiz) = exercise {
+                    if case .quiz(let quiz) = exercise,
+                       // Past due date or has not participated
+                       quiz.dueDate ?? .distantPast < .now || (quiz.studentParticipations ?? []).isEmpty {
                         Button {
                             viewModel.showQuizParticipation = true
                         } label: {
-                            if (quiz.studentParticipations ?? []).isEmpty {
-                                // Has not participated and is before due date
-                                if quiz.dueDate == nil || quiz.dueDate ?? .distantPast > .now {
-                                    Text("Participate")
-                                }
+                            if (quiz.studentParticipations ?? []).isEmpty && quiz.dueDate ?? .distantPast > .now {
+                                Text("Start Quiz")
                             } else if quiz.dueDate ?? .distantPast < .now {
                                 Text("Practice")
                             }

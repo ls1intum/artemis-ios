@@ -23,7 +23,7 @@ struct QuizView: View {
                 Text("Questions without solution not yet supported")
             }
         }
-        .tabViewStyle(.page)
+        .tabViewStyle(.page(indexDisplayMode: .never))
         .environment(QuizTrainingViewModel(courseId: 0))
     }
 
@@ -49,6 +49,8 @@ struct QuizView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
             .tag(index)
+            // Prevent manual swiping between questions
+            .gesture(DragGesture())
         }
     }
 }

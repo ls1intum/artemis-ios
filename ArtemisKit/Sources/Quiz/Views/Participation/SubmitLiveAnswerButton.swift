@@ -18,30 +18,47 @@ struct SubmitLiveAnswerButton: View {
 
     var body: some View {
         Spacer()
+            .onAppear {
+                viewModel.saveAnswer(answer)
+            }
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        submit()
-                    } label: {
-                        Text(R.string.localizable.submit())
+                if viewModel.questionCount >= viewModel.answers.count {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            viewModel.saveAnswer(answer)
+                            submit()
+                        } label: {
+                            Text(R.string.localizable.submit())
+                        }
+                        .buttonStyle(.glassProminent)
+                        .disabled(isLoading)
+                        .loadingIndicator(isLoading: $isLoading)
                     }
-                    .buttonStyle(.glassProminent)
-                    .disabled(isLoading)
-                    .loadingIndicator(isLoading: $isLoading)
                 }
-                ToolbarItemGroup(placement: .bottomBar) {
+
+                ToolbarItem(placement: .bottomBar) {
                     Button {
                         viewModel.saveAnswer(answer)
                         viewModel.previousQuestion()
                     } label: {
-                        Text("Previous question") // TODO: Localize
+                        Image(systemName: "chevron.backward")
                     }
+                }
 
+                ToolbarSpacer(.flexible, placement: .bottomBar)
+
+                ToolbarItem(placement: .bottomBar) {
+                    QuizSubmissionStatusIndicator()
+                }
+
+                ToolbarSpacer(.flexible, placement: .bottomBar)
+
+                ToolbarItem(placement: .bottomBar) {
                     Button {
                         viewModel.saveAnswer(answer)
                         viewModel.nextQuestion()
                     } label: {
-                        Text(R.string.localizable.nextQuestion())
+                        Image(systemName: "chevron.forward")
                     }
                 }
             }

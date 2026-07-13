@@ -16,8 +16,9 @@ class QuizParticipationViewModel {
 
     var participation: DataState<DTO.StudentQuizParticipation> = .loading
     var submissionSuccessful: Bool?
+    var batchStartError: String?
 
-    var selectedQuestion: Int?
+    var selectedQuestion = 0
 
     var answers = [DTO.SubmittedAnswerFromLiveClient]()
 
@@ -56,10 +57,52 @@ class QuizParticipationViewModel {
         }
     }
 
+    func joinBatch(password: String = "") async {
+        struct JoinQuizRequest: APIRequest {
+            typealias Response = JoinQuizResponse
+            
+            let exerciseId: Int
+            let password: String
+
+            var method: HTTPMethod { .post }
+            var resourceName: String { "/api/quiz/quiz-exercises/\(exerciseId)/join" }
+        }
+
+        struct JoinQuizResponse: Codable {
+            let id: Int
+        }
+
+        let response = await APIClient().sendRequest(JoinQuizRequest(exerciseId: exercise.id, password: password))
+
+        switch response {
+        case .success(let (res, _)):
+            startWaitingForBatchStart(batchId: res.id)
+        case .failure(let error):
+            batchStartError = error.localizedDescription
+        }
+        
+    }
+
     func startWaitingForQuizStart() {
         guard syncQuizTask == nil else { return }
         syncQuizTask = Task {
             let stream = stompClient.subscribe(to: "/topic/courses/\(exercise.course?.id ?? 0)/quizExercises")
+
+            for await message in stream {
+                print("Received Socket update")
+                if let data = message as? Data,
+                   let decoded = try? JSONDecoder().decode(DTO.StudentQuizParticipation.self, from: data) {
+                    print("Socket update: \(decoded)")
+                    participation = .done(response: decoded)
+                }
+            }
+        }
+    }
+
+    func startWaitingForBatchStart(batchId: Int) {
+        guard syncQuizTask == nil else { return }
+        syncQuizTask = Task {
+            let stream = stompClient.subscribe(to: "/topic/courses/\(exercise.course?.id ?? 0)/quizExercises/\(batchId)")
 
             for await message in stream {
                 print("Received Socket update")
@@ -80,11 +123,11 @@ class QuizParticipationViewModel {
     func saveAnswer(_ answer: DTO.SubmittedAnswerFromLiveClient) {
         if let existingIndex = answers.firstIndex(where: {
             switch ($0, answer) {
-            case (.dragAndDrop(let dnd), .dragAndDrop(let new)):
+            case let (.dragAndDrop(dnd), .dragAndDrop(new)):
                 return dnd.quizQuestion?.id == new.quizQuestion?.id
-            case (.shortAnswer(let sa), .shortAnswer(let new)):
+            case let (.shortAnswer(sa), .shortAnswer(new)):
                 return sa.quizQuestion?.id == new.quizQuestion?.id
-            case (.multipleChoice(let mc), .multipleChoice(let new)):
+            case let (.multipleChoice(mc), .multipleChoice(new)):
                 return mc.quizQuestion?.id == new.quizQuestion?.id
             default: return false
             }
@@ -96,15 +139,11 @@ class QuizParticipationViewModel {
     }
 
     func nextQuestion() {
-        if let selectedQuestion {
-            self.selectedQuestion = (selectedQuestion + 1) % questionCount
-        }
+        selectedQuestion = (selectedQuestion + 1) % questionCount
     }
 
     func previousQuestion() {
-        if let selectedQuestion {
-            self.selectedQuestion = (selectedQuestion - 1 + questionCount) % questionCount
-        }
+        selectedQuestion = (selectedQuestion - 1 + questionCount) % questionCount
     }
 
     func submit() async {
@@ -133,30 +172,10 @@ class QuizParticipationViewModel {
     }
 
     private func submitAnswersForPractice() async {
-        let studentAnswers: [DTO.SubmittedAnswerFromStudent] = answers.map {
-            switch $0 {
-            case .dragAndDrop(let dnd):
-                let mappings = (dnd.mappings ?? []).map {
-                    DTO.DragAndDropMappingReEvaluate(dragItemId: $0.dragItem?.id ?? 0,
-                                                     dropLocationId: $0.dropLocation?.id ?? 0)
-                }
-                return .dragAndDrop(.init(questionId: dnd.quizQuestion?.id ?? 0,
-                                          mappings: mappings,
-                                          _type: .dragAndDrop))
-            case .multipleChoice(let mc):
-                let selected = (mc.selectedOptions ?? []).compactMap(\.id)
-                return .multipleChoice(.init(questionId: mc.quizQuestion?.id ?? 0,
-                                             selectedOptions: selected,
-                                             _type: .multipleChoice))
-            case .shortAnswer(let sa):
-                let submitted = (sa.submittedTexts ?? []).map {
-                    DTO.ShortAnswerSubmittedTextFromStudent(text: $0.text ?? "", spotId: $0.spot?.id ?? 0)
-                }
-                return .shortAnswer(.init(questionId: sa.quizQuestion?.id ?? 0,
-                                          submittedTexts: submitted,
-                                          _type: .shortAnswer))
-            }
+        let studentAnswers: [DTO.SubmittedAnswerFromStudent] = answers.compactMap {
+            $0.asAnswerFromStudent()
         }
+
         let submission = await APIClient().call { client in
             try await client
                 .submitForPractice(path: .init(exerciseId: Int64(exercise.id)),
@@ -165,7 +184,7 @@ class QuizParticipationViewModel {
         }
 
         switch submission {
-        case .done(let response): submissionSuccessful = response.successful ?? false
+        case .done: submissionSuccessful = true
         default: submissionSuccessful = false
         }
     }

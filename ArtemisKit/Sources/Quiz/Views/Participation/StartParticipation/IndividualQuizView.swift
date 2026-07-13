@@ -2,14 +2,13 @@
 //  SynchronizedQuizView.swift
 //  ArtemisKit
 //
-//  Created by Anian Schleyer on 07.07.26.
+//  Created by Anian Schleyer on 13.07.26.
 //
 
 import DesignLibrary
-import SharedModels
 import SwiftUI
 
-struct SynchronizedQuizView: View {
+struct IndividualQuizView: View {
     @Bindable var viewModel: QuizParticipationViewModel
 
     var body: some View {
@@ -28,27 +27,12 @@ struct SynchronizedQuizView: View {
                 QuizView(endTime: batch?.startTime?.addingTimeInterval(duration),
                          questionsWithSolution: quiz.exercise?.quizQuestions)
             default:
-                WaitForStartView(viewModel: viewModel)
+                StartBatchView(isIndividual: true)
             }
         }
         .environment(viewModel)
         .task(id: "startParticipation") {
             await viewModel.startParticipation()
         }
-    }
-}
-
-private struct WaitForStartView: View {
-    let viewModel: QuizParticipationViewModel
-
-    var body: some View {
-        // TODO: Style
-        Text("Waiting for Quiz Start")
-            .onAppear {
-                viewModel.startWaitingForQuizStart()
-            }
-            .onDisappear {
-                viewModel.onSyncDisappear()
-            }
     }
 }
