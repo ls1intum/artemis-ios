@@ -38,6 +38,7 @@ public struct ExerciseDetailView: View {
                             }
                         }
                         .buttonStyle(.borderedProminent)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     problem
                     detail(exercise: exercise)
@@ -64,7 +65,7 @@ public struct ExerciseDetailView: View {
             }
             .sheet(isPresented: $viewModel.showQuizParticipation) {
                 if case .quiz(let quiz) = exercise {
-                    QuizParticipationView(exercise: quiz)
+                    QuizParticipationView(exercise: quiz, courseId: viewModel.courseId)
                 }
             }
         }

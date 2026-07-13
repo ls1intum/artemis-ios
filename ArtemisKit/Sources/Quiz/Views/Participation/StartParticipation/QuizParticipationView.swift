@@ -14,8 +14,8 @@ public struct QuizParticipationView: View {
 
     @State private var viewModel: QuizParticipationViewModel
 
-    public init(exercise: QuizExercise) {
-        self._viewModel = State(initialValue: .init(exercise: exercise))
+    public init(exercise: QuizExercise, courseId: Int) {
+        self._viewModel = State(initialValue: .init(exercise: exercise, courseId: courseId))
     }
 
     public var body: some View {
@@ -28,14 +28,24 @@ public struct QuizParticipationView: View {
                     let duration = Double(quiz.exercise?.duration ?? 0)
                     let batch = quiz.exercise?.quizBatches?.last
                     let startTime = batch?.ended ?? false ? .now : batch?.startTime
-                    QuizView(endTime: startTime?.addingTimeInterval(duration),
-                             questionsWithoutSolution: quiz.exercise?.quizQuestions)
+                    if let questions = quiz.exercise?.quizQuestions {
+                        QuizView(startTime: startTime,
+                                 endTime: startTime?.addingTimeInterval(duration),
+                                 questionsWithoutSolution: questions)
+                    } else {
+                        StartQuizView()
+                    }
                 case .StudentQuizParticipationWithSolutions(let quiz):
                     let duration = Double(quiz.exercise?.duration ?? 0)
                     let batch = quiz.exercise?.quizBatches?.last
                     let startTime = batch?.ended ?? false ? .now : batch?.startTime
-                    QuizView(endTime: startTime?.addingTimeInterval(duration),
-                             questionsWithSolution: quiz.exercise?.quizQuestions)
+                    if let questions = quiz.exercise?.quizQuestions {
+                        QuizView(startTime: startTime,
+                                 endTime: startTime?.addingTimeInterval(duration),
+                                 questionsWithSolution: questions)
+                    } else {
+                        StartQuizView()
+                    }
                 default:
                     StartQuizView()
                 }

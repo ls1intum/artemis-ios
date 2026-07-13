@@ -32,6 +32,16 @@ struct StartBatchView: View {
                 .disabled(loading)
                 .loadingIndicator(isLoading: $loading)
             }
+            .onAppear {
+                // Existing batch that user has joined -> wait automatically
+                if let party = viewModel.participation.value,
+                   case let .StudentQuizParticipationWithSolutions(withSolutions) = party,
+                   let batches = withSolutions.exercise?.quizBatches,
+                   let notStarted = batches.last(where: { $0.started != true })?.id {
+                    viewModel.startWaitingForBatchStart(batchId: Int(notStarted))
+                    showWaitingScreen = true
+                }
+            }
             .alert(viewModel.batchStartError ?? "Could not join batch", isPresented: Binding {
                 viewModel.batchStartError != nil
             } set: { newValue in

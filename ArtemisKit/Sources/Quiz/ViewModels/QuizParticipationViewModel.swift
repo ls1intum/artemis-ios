@@ -13,6 +13,7 @@ import SharedModels
 @Observable
 class QuizParticipationViewModel {
     let exercise: QuizExercise
+    let courseId: Int
 
     var participation: DataState<DTO.StudentQuizParticipation> = .loading
     var submissionSuccessful: Bool?
@@ -23,8 +24,9 @@ class QuizParticipationViewModel {
 
     var answers = [DTO.SubmittedAnswerFromLiveClient]()
 
-    init(exercise: QuizExercise) {
+    init(exercise: QuizExercise, courseId: Int) {
         self.exercise = exercise
+        self.courseId = courseId
         isLiveQuiz = exercise.canStartLiveQuiz
     }
 
@@ -48,7 +50,6 @@ class QuizParticipationViewModel {
                 return sa.quizQuestion?.id == questionId
             case let .multipleChoice(mc):
                 return mc.quizQuestion?.id == questionId
-            default: return false
             }
         }
     }
@@ -88,7 +89,7 @@ class QuizParticipationViewModel {
     func startWaitingForQuizStart() {
         guard syncQuizTask == nil else { return }
         syncQuizTask = Task {
-            let stream = stompClient.subscribe(to: "/topic/courses/\(exercise.course?.id ?? 0)/quizExercises")
+            let stream = stompClient.subscribe(to: "/topic/courses/\(courseId)/quizExercises")
 
             for await message in stream {
                 print("Received Socket update")
@@ -96,6 +97,8 @@ class QuizParticipationViewModel {
                    let decoded = try? JSONDecoder().decode(DTO.StudentQuizParticipation.self, from: data) {
                     print("Socket update: \(decoded)")
                     participation = .done(response: decoded)
+                } else {
+                    await startParticipation()
                 }
             }
         }
@@ -104,7 +107,7 @@ class QuizParticipationViewModel {
     func startWaitingForBatchStart(batchId: Int) {
         guard syncQuizTask == nil else { return }
         syncQuizTask = Task {
-            let stream = stompClient.subscribe(to: "/topic/courses/\(exercise.course?.id ?? 0)/quizExercises/\(batchId)")
+            let stream = stompClient.subscribe(to: "/topic/courses/\(courseId)/quizExercises/\(batchId)")
 
             for await message in stream {
                 print("Received Socket update")
@@ -112,6 +115,8 @@ class QuizParticipationViewModel {
                    let decoded = try? JSONDecoder().decode(DTO.StudentQuizParticipation.self, from: data) {
                     print("Socket update: \(decoded)")
                     participation = .done(response: decoded)
+                } else {
+                    await startParticipation()
                 }
             }
         }

@@ -10,7 +10,7 @@ import SwiftUI
 
 struct QuizView: View {
     @Environment(QuizParticipationViewModel.self) private var viewModel
-    @State private var startTime = Date.now
+    let startTime: Date?
     let endTime: Date?
     var questionsWithoutSolution: [DTO.QuizQuestionWithoutSolution]?
     var questionsWithSolution: [DTO.QuizQuestionWithSolution]?
@@ -18,7 +18,7 @@ struct QuizView: View {
     var body: some View {
         @Bindable var viewModel = viewModel
         VStack(spacing: 0) {
-            if let endTime, endTime > .now {
+            if let startTime, let endTime, endTime > .now {
                 ProgressView(timerInterval: startTime...endTime, countsDown: false)
                     .labelsHidden()
                     .containerRelativeFrame(.horizontal)
