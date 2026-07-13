@@ -25,15 +25,14 @@ struct StartBatchView: View {
                         TextField("Password", text: $password)
                     }
                 }
-                
+
                 Button("Join Quiz") {
                     startBatch()
                 }
                 .disabled(loading)
                 .loadingIndicator(isLoading: $loading)
             }
-            .alert(viewModel.batchStartError ?? "Could not join batch",
-                   isPresented: Binding {
+            .alert(viewModel.batchStartError ?? "Could not join batch", isPresented: Binding {
                 viewModel.batchStartError != nil
             } set: { newValue in
                 if !newValue {

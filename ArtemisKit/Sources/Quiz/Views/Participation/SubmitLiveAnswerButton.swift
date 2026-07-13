@@ -11,6 +11,7 @@ import SwiftUI
 
 struct SubmitLiveAnswerButton: View {
     @Environment(QuizParticipationViewModel.self) private var viewModel
+    @Environment(\.dismiss) private var dismiss
 
     let answer: DTO.SubmittedAnswerFromLiveClient
 
@@ -27,6 +28,9 @@ struct SubmitLiveAnswerButton: View {
                         Button {
                             viewModel.saveAnswer(answer)
                             submit()
+                            if viewModel.submissionSuccessful == true {
+                                dismiss()
+                            }
                         } label: {
                             Text(R.string.localizable.submit())
                         }

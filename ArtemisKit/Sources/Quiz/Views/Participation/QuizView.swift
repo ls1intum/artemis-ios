@@ -10,20 +10,32 @@ import SwiftUI
 
 struct QuizView: View {
     @Environment(QuizParticipationViewModel.self) private var viewModel
+    @State private var startTime = Date.now
     let endTime: Date?
     var questionsWithoutSolution: [DTO.QuizQuestionWithoutSolution]?
     var questionsWithSolution: [DTO.QuizQuestionWithSolution]?
 
     var body: some View {
         @Bindable var viewModel = viewModel
-        TabView(selection: $viewModel.selectedQuestion) {
-            if let questionsWithSolution {
-                questionViews(questions: questionsWithSolution)
-            } else if let questionsWithoutSolution {
-                Text("Questions without solution not yet supported")
+        VStack(spacing: .s) {
+            if let endTime, endTime > .now {
+                ProgressView(timerInterval: startTime...endTime, countsDown: false)
+                    .labelsHidden()
+                    .containerRelativeFrame(.horizontal)
             }
+            TabView(selection: $viewModel.selectedQuestion) {
+                if let questionsWithSolution {
+                    questionViews(questions: questionsWithSolution)
+                } else if let questionsWithoutSolution {
+                    let asQuestionsWithSolution = questionsWithoutSolution.compactMap { $0.asQuestionWithSolution() }
+                    if asQuestionsWithSolution.count != questionsWithoutSolution.count {
+                        Text("Some questions are not supported, this could cause strange issues! Please report this on GitHub.")
+                    }
+                    questionViews(questions: asQuestionsWithSolution)
+                }
+            }
+            .tabViewStyle(.page(indexDisplayMode: .never))
         }
-        .tabViewStyle(.page(indexDisplayMode: .never))
         .environment(QuizTrainingViewModel(courseId: 0))
     }
 

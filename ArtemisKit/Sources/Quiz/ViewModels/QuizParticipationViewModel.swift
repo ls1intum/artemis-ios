@@ -17,6 +17,7 @@ class QuizParticipationViewModel {
     var participation: DataState<DTO.StudentQuizParticipation> = .loading
     var submissionSuccessful: Bool?
     var batchStartError: String?
+    let isLiveQuiz: Bool
 
     var selectedQuestion = 0
 
@@ -24,23 +25,11 @@ class QuizParticipationViewModel {
 
     init(exercise: QuizExercise) {
         self.exercise = exercise
+        isLiveQuiz = exercise.canStartLiveQuiz
     }
 
     private let stompClient = ArtemisStompClient.shared
     private var syncQuizTask: Task<Void, Never>?
-
-    var isLiveQuiz: Bool {
-        switch participation.value {
-        case .StudentQuizParticipationWithQuestions(let quiz):
-            quiz.exercise?.quizEnded != true
-        case .StudentQuizParticipationWithSolutions(let quiz):
-            quiz.exercise?.quizEnded != true
-        case .StudentQuizParticipationWithoutQuestions(let quiz):
-            quiz.exercise?.quizEnded != true
-        default:
-            false
-        }
-    }
 
     var questionCount: Int {
         switch participation.value {
@@ -60,7 +49,7 @@ class QuizParticipationViewModel {
     func joinBatch(password: String = "") async {
         struct JoinQuizRequest: APIRequest {
             typealias Response = JoinQuizResponse
-            
+
             let exerciseId: Int
             let password: String
 
@@ -80,7 +69,6 @@ class QuizParticipationViewModel {
         case .failure(let error):
             batchStartError = error.localizedDescription
         }
-        
     }
 
     func startWaitingForQuizStart() {

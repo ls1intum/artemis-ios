@@ -21,7 +21,7 @@ struct QuizSubmissionStatusIndicator: View {
                     .fixedSize()
             }
         }
-        .padding(.horizontal, .s)
+        .padding(.horizontal, .m)
         .fixedSize()
     }
 }

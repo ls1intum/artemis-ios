@@ -27,14 +27,13 @@ public struct ExerciseDetailView: View {
                     hint
                     ExerciseOverviewChipsRow(exercise: exercise, score: viewModel.score)
                     if case .quiz(let quiz) = exercise,
-                       // Past due date or has not participated
-                       quiz.dueDate ?? .distantPast < .now || (quiz.studentParticipations ?? []).isEmpty {
+                       quiz.canStartLiveQuiz || quiz.canStartPractice {
                         Button {
                             viewModel.showQuizParticipation = true
                         } label: {
-                            if (quiz.studentParticipations ?? []).isEmpty && quiz.dueDate ?? .distantPast > .now {
+                            if quiz.canStartLiveQuiz {
                                 Text("Start Quiz")
-                            } else if quiz.dueDate ?? .distantPast < .now {
+                            } else {
                                 Text("Practice")
                             }
                         }
