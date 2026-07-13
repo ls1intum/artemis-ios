@@ -39,6 +39,20 @@ class QuizParticipationViewModel {
         }
     }
 
+    func getAnswer(for questionId: Int64?) -> DTO.SubmittedAnswerFromLiveClient? {
+        answers.first {
+            switch $0 {
+            case let .dragAndDrop(dnd):
+                return dnd.quizQuestion?.id == questionId
+            case let .shortAnswer(sa):
+                return sa.quizQuestion?.id == questionId
+            case let .multipleChoice(mc):
+                return mc.quizQuestion?.id == questionId
+            default: return false
+            }
+        }
+    }
+
     func startParticipation() async {
         participation = await APIClient().call { client in
             try await client.startParticipation(path: .init(exerciseId: Int64(exercise.id)))

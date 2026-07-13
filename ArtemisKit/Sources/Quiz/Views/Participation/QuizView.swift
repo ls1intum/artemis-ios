@@ -25,21 +25,27 @@ struct QuizView: View {
             }
             TabView(selection: $viewModel.selectedQuestion) {
                 if let questionsWithSolution {
-                    questionViews(questions: questionsWithSolution)
+                    QuizQuestionViews(questions: questionsWithSolution)
                 } else if let questionsWithoutSolution {
                     let asQuestionsWithSolution = questionsWithoutSolution.compactMap { $0.asQuestionWithSolution() }
                     if asQuestionsWithSolution.count != questionsWithoutSolution.count {
                         Text("Some questions are not supported, this could cause strange issues! Please report this on GitHub.")
+                    } else {
+                        QuizQuestionViews(questions: asQuestionsWithSolution)
                     }
-                    questionViews(questions: asQuestionsWithSolution)
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
         }
         .environment(QuizTrainingViewModel(courseId: 0))
     }
+}
 
-    private func questionViews(questions: [DTO.QuizQuestionWithSolution]) -> some View {
+private struct QuizQuestionViews: View {
+    @Environment(QuizParticipationViewModel.self) private var viewModel
+    let questions: [DTO.QuizQuestionWithSolution]
+
+    var body: some View {
         ForEach(questions.enumerated(), id: \.0) { index, question in
             ScrollView {
                 VStack(alignment: .leading) {
@@ -47,15 +53,18 @@ struct QuizView: View {
                     case .dragAndDrop(let dndQuestion):
                         DNDQuestionView(question: .init(quizQuestionWithSolutionDTO: .dragAndDrop(dndQuestion),
                                                         id: dndQuestion.id),
-                                        questionWithAnswer: dndQuestion)
+                                        questionWithAnswer: dndQuestion,
+                                        previousAnswer: viewModel.getAnswer(for: dndQuestion.id))
                     case .multipleChoice(let mcQuestion):
                         MCQuestionView(question: .init(quizQuestionWithSolutionDTO: .multipleChoice(mcQuestion),
                                                        id: mcQuestion.id),
-                                       questionWithAnswer: mcQuestion)
+                                       questionWithAnswer: mcQuestion,
+                                       previousAnswer: viewModel.getAnswer(for: mcQuestion.id))
                     case .shortAnswer(let saQuestion):
                         ShortAnswerQuestionView(question: .init(quizQuestionWithSolutionDTO: .shortAnswer(saQuestion),
                                                                 id: saQuestion.id),
-                                                questionWithSolution: saQuestion)
+                                                questionWithSolution: saQuestion,
+                                                previousAnswer: viewModel.getAnswer(for: saQuestion.id))
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
