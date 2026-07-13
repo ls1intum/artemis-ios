@@ -17,6 +17,8 @@ class QuizParticipationViewModel {
     var participation: DataState<DTO.StudentQuizParticipation> = .loading
     var submissionSuccessful: Bool?
 
+    var selectedQuestion: Int?
+
     var answers = [DTO.SubmittedAnswerFromLiveClient]()
 
     init(exercise: QuizExercise) {
@@ -36,6 +38,14 @@ class QuizParticipationViewModel {
             quiz.exercise?.quizEnded != true
         default:
             false
+        }
+    }
+
+    var questionCount: Int {
+        switch participation.value {
+        case .StudentQuizParticipationWithQuestions(let p): p.exercise?.quizQuestions?.count ?? 0
+        case .StudentQuizParticipationWithSolutions(let p): p.exercise?.quizQuestions?.count ?? 0
+        default: 0
         }
     }
 
@@ -67,7 +77,45 @@ class QuizParticipationViewModel {
         syncQuizTask = nil
     }
 
-    func submitAnswers(submit: Bool) async {
+    func saveAnswer(_ answer: DTO.SubmittedAnswerFromLiveClient) {
+        if let existingIndex = answers.firstIndex(where: {
+            switch ($0, answer) {
+            case (.dragAndDrop(let dnd), .dragAndDrop(let new)):
+                return dnd.quizQuestion?.id == new.quizQuestion?.id
+            case (.shortAnswer(let sa), .shortAnswer(let new)):
+                return sa.quizQuestion?.id == new.quizQuestion?.id
+            case (.multipleChoice(let mc), .multipleChoice(let new)):
+                return mc.quizQuestion?.id == new.quizQuestion?.id
+            default: return false
+            }
+        }) {
+            answers[existingIndex] = answer
+        } else {
+            answers.append(answer)
+        }
+    }
+
+    func nextQuestion() {
+        if let selectedQuestion {
+            self.selectedQuestion = (selectedQuestion + 1) % questionCount
+        }
+    }
+
+    func previousQuestion() {
+        if let selectedQuestion {
+            self.selectedQuestion = (selectedQuestion - 1 + questionCount) % questionCount
+        }
+    }
+
+    func submit() async {
+        if isLiveQuiz {
+            await submitAnswers(submit: true)
+        } else {
+            await submitAnswersForPractice()
+        }
+    }
+
+    private func submitAnswers(submit: Bool) async {
         let submission = await APIClient().call { client in
             try await client
                 .saveOrSubmitForLiveMode(path: .init(exerciseId: Int64(exercise.id)),
@@ -84,7 +132,7 @@ class QuizParticipationViewModel {
         }
     }
 
-    func submitAnswersForPractice() async {
+    private func submitAnswersForPractice() async {
         let studentAnswers: [DTO.SubmittedAnswerFromStudent] = answers.map {
             switch $0 {
             case .dragAndDrop(let dnd):

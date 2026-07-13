@@ -31,6 +31,7 @@ struct SynchronizedQuizView: View {
                 WaitForStartView(viewModel: viewModel)
             }
         }
+        .environment(viewModel)
         .task(id: "startParticipation") {
             await viewModel.startParticipation()
         }

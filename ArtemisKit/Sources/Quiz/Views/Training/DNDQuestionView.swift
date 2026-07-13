@@ -49,7 +49,7 @@ struct DNDQuestionView: View {
             .font(.caption)
             .padding(.horizontal)
 
-        SubmitAnswerButton(questionId: question.id, isRated: question.isRated, answer: answer)
+        SubmitAnswerButton(isTrainingMode: true, questionId: question.id, isRated: question.isRated, answer: answer)
     }
 
     var answer: DTO.SubmittedAnswerFromLiveClient {

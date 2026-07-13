@@ -65,7 +65,7 @@ struct MCQuestionView: View {
             .disabled(viewModel.hasSubmitted)
         }
 
-        SubmitAnswerButton(questionId: question.id, isRated: question.isRated, answer: answer)
+        SubmitAnswerButton(isTrainingMode: true, questionId: question.id, isRated: question.isRated, answer: answer)
     }
 
     var answer: DTO.SubmittedAnswerFromLiveClient {

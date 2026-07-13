@@ -80,7 +80,7 @@ struct ShortAnswerQuestionView: View {
         .textInputAutocapitalization(.never)
         .disabled(viewModel.hasSubmitted)
 
-        SubmitAnswerButton(questionId: question.id, isRated: question.isRated, answer: answer)
+        SubmitAnswerButton(isTrainingMode: true, questionId: question.id, isRated: question.isRated, answer: answer)
     }
 
     private var answer: DTO.SubmittedAnswerFromLiveClient {
