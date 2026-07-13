@@ -30,7 +30,14 @@ public struct ExerciseDetailView: View {
                         Button {
                             viewModel.showQuizParticipation = true
                         } label: {
-                            Text("Participate")
+                            if (quiz.studentParticipations ?? []).isEmpty {
+                                // Has not participated and is before due date
+                                if quiz.dueDate == nil || quiz.dueDate ?? .distantPast > .now {
+                                    Text("Participate")
+                                }
+                            } else if quiz.dueDate ?? .distantPast < .now {
+                                Text("Practice")
+                            }
                         }
                         .buttonStyle(.borderedProminent)
                     }
