@@ -22,7 +22,7 @@ struct SubmitLiveAnswerButton: View {
                 viewModel.saveAnswer(answer)
             }
             .toolbar {
-                if viewModel.questionCount >= viewModel.answers.count {
+                if viewModel.answers.count >= viewModel.questionCount {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
                             viewModel.saveAnswer(answer)
