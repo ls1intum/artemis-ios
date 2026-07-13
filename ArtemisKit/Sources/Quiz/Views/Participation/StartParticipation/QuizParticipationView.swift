@@ -56,6 +56,7 @@ public struct QuizParticipationView: View {
         }
         .interactiveDismissDisabled()
         .onChange(of: viewModel.submissionSuccessful) { _, newValue in
+            // TODO: Show solutions
             if newValue == true {
                 dismiss()
             }

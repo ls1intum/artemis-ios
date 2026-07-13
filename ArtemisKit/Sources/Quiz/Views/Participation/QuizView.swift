@@ -17,7 +17,7 @@ struct QuizView: View {
 
     var body: some View {
         @Bindable var viewModel = viewModel
-        VStack(spacing: .s) {
+        VStack(spacing: 0) {
             if let endTime, endTime > .now {
                 ProgressView(timerInterval: startTime...endTime, countsDown: false)
                     .labelsHidden()
@@ -60,6 +60,7 @@ struct QuizView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
+            .contentMargins(.top, .m, for: .scrollContent)
             .tag(index)
             // Prevent manual swiping between questions
             .gesture(DragGesture())

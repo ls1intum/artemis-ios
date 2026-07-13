@@ -24,13 +24,13 @@ struct ShortAnswerQuestionView: View {
         self.segments = Segment.create(from: questionWithSolution.text)
 
         let inputs = segments.filter(\.isInput)
-        self.textInputs = inputs.map {
+        self._textInputs = State(initialValue: inputs.map {
             if case let .input(spot) = $0 {
                 return .init(text: "", spot: .init(id: spot))
             } else {
                 return .init()
             }
-        }
+        })
     }
 
     var body: some View {

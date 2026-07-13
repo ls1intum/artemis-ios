@@ -25,9 +25,9 @@ struct DNDQuestionView: View {
     init(question: DTO.QuizQuestionTraining, questionWithAnswer: DTO.DragAndDropQuizQuestionWithSolution) {
         self.question = question
         self.questionWithAnswer = questionWithAnswer
-        self.mappings = (questionWithAnswer.dropLocations ?? []).map {
+        self._mappings = State(initialValue: (questionWithAnswer.dropLocations ?? []).map {
             .init(dragItem: nil, dropLocation: .init(id: $0.id))
-        }
+        })
     }
 
     var body: some View {
