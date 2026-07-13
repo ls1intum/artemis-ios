@@ -49,6 +49,17 @@ private struct QuizQuestionViews: View {
         ForEach(questions.enumerated(), id: \.0) { index, question in
             ScrollView {
                 VStack(alignment: .leading) {
+                    let title = switch question {
+                    case .dragAndDrop(let question): question.title
+                    case .multipleChoice(let question): question.title
+                    case .shortAnswer(let question): question.title
+                    }
+                    if let title {
+                        Text(title)
+                            .font(.title)
+                            .padding(.horizontal)
+                    }
+
                     switch question {
                     case .dragAndDrop(let dndQuestion):
                         DNDQuestionView(question: .init(quizQuestionWithSolutionDTO: .dragAndDrop(dndQuestion),

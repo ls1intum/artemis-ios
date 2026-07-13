@@ -38,7 +38,7 @@ public struct ExerciseDetailView: View {
                             }
                         }
                         .buttonStyle(.borderedProminent)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .frame(maxWidth: .infinity, alignment: .center)
                     }
                     problem
                     detail(exercise: exercise)

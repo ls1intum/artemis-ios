@@ -19,6 +19,7 @@ struct StartBatchView: View {
         if showWaitingScreen {
             WaitForQuizStartView(viewModel: viewModel)
         } else {
+            // TODO: Style + Localize
             Form {
                 if !isIndividual {
                     Section("Password") {

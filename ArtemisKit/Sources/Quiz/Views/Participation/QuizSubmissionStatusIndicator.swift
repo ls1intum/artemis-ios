@@ -12,10 +12,10 @@ struct QuizSubmissionStatusIndicator: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Text("Question \(viewModel.selectedQuestion + 1)/\(viewModel.questionCount)")
+            Text("\(R.string.localizable.question()) \(viewModel.selectedQuestion + 1)/\(viewModel.questionCount)")
                 .fixedSize()
             if viewModel.isLiveQuiz {
-                // TODO: Actual status
+                // TODO: Actual status + auto save
                 Text("Status: Saved")
                     .font(.footnote)
                     .fixedSize()
