@@ -9,14 +9,14 @@ import Common
 
 /// Streams Iris WebSocket payloads for a given chat session.
 ///
-/// One ``AsyncStream`` per ``subscribe(sessionId:)`` call, backed by a single
-/// STOMP subscription on `/user/topic/iris/{sessionId}`. Single-consumer:
-/// re-subscribing to the same session replaces the previous stream.
-/// Cleanup is explicit via ``unsubscribe(sessionId:)`` (or
-/// ``unsubscribeAll()`` whenever the course is closed).
+/// One ``AsyncStream`` per ``subscribe(sessionId:)`` call, all backed by a single
+/// STOMP subscription on `/user/topic/iris/{sessionId}`. Multi-consumer:
+/// overlapping subscriptions to the same session coexist (each gets its own
+/// stream). A consumer is cleaned up automatically when its stream is cancelled,
+/// so callers just drive it from a SwiftUI `.task`. ``unsubscribeAll()`` drops
+/// every subscription, e.g. when the course is closed.
 protocol IrisWebsocketService: Sendable {
     func subscribe(sessionId: Int) async -> AsyncStream<IrisChatWebsocketDTO>
-    func unsubscribe(sessionId: Int) async
     func unsubscribeAll() async
 }
 

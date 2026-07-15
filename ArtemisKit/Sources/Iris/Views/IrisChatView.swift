@@ -187,7 +187,7 @@ struct IrisChatView: View {
             }
         }
         .task { await viewModel.loadMessages() }
-        .task { await viewModel.subscribeToWebsocket() }
+        .task { await viewModel.observeWebsocket() }
         .onChange(of: scenePhase) { _, newPhase in
             // Iris' reply arrives only once over the STOMP topic, which iOS tears
             // down on backgrounding. STOMP doesn't replay messages published while
@@ -203,10 +203,6 @@ struct IrisChatView: View {
         }
         .onChange(of: viewModel.committedContext) { _, newContext in
             if let newContext { onContextChange(newContext) }
-        }
-        .onDisappear { Task {
-            await viewModel.disconnect()
-        }
         }
         .alert(isPresented: viewModel.showError, error: viewModel.error, actions: {})
     }
