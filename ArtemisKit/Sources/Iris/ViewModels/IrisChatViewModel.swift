@@ -15,7 +15,6 @@ import SwiftUI
 final class IrisChatViewModel {
     let sessionPath: IrisSessionPath
     private let httpService: IrisChatHttpService
-    private var websocketTask: Task<Void, Never>?
 
     var messages: DataState<[IrisMessageResponseDTO]> = .loading
     var stages: [IrisStageDTO] = []
@@ -110,13 +109,16 @@ final class IrisChatViewModel {
         }
     }
 
-    func subscribeToWebsocket() async {
-        let stream = await IrisWebsocketServiceFactory.shared.subscribe(sessionId: sessionPath.sessionId)
-        websocketTask = Task { [weak self] in
-            for await dto in stream {
-                guard let self else { return }
-                handleWebsocketDTO(dto)
-            }
+    /// Subscribes to the session's websocket and forwards frames until the
+    /// enclosing `.task` is cancelled (the view is actually removed). Driven from
+    /// `.task` rather than `onAppear`/`onDisappear`, whose spurious callbacks
+    /// during a `NavigationSplitView`/`TabView` transition previously tore down the
+    /// live subscription and left the chat stuck awaiting a reply.
+    func observeWebsocket() async {
+        let sessionId = sessionPath.sessionId
+        let stream = await IrisWebsocketServiceFactory.shared.subscribe(sessionId: sessionId)
+        for await dto in stream {
+            handleWebsocketDTO(dto)
         }
     }
 
@@ -195,12 +197,6 @@ final class IrisChatViewModel {
         case .loading, .notStarted:
             return false
         }
-    }
-
-    func disconnect() async {
-        await IrisWebsocketServiceFactory.shared.unsubscribe(sessionId: sessionPath.sessionId)
-        websocketTask?.cancel()
-        websocketTask = nil
     }
 
     private func handleWebsocketDTO(_ dto: IrisChatWebsocketDTO) {
