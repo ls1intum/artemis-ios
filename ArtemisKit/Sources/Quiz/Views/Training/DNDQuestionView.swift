@@ -55,7 +55,7 @@ struct DNDQuestionView: View {
             .font(.caption)
             .padding(.horizontal)
 
-        SubmitAnswerButton(isTrainingMode: true, questionId: question.id, isRated: question.isRated, answer: answer)
+        SubmitAnswerButton(questionId: question.id, isRated: question.isRated, answer: answer)
     }
 
     var answer: DTO.SubmittedAnswerFromLiveClient {
@@ -86,7 +86,7 @@ struct DNDDropLocations: View {
 }
 
 struct DropLocation: View {
-    @Environment(QuizTrainingViewModel.self) private var viewModel
+    @Environment(QuizViewModel.self) private var viewModel
 
     let dragItems: [DTO.DragItem]
     let location: DTO.DropLocation

@@ -11,7 +11,7 @@ import Foundation
 import SharedModels
 
 @Observable
-class QuizParticipationViewModel {
+class QuizParticipationViewModel: QuizViewModel {
     let exercise: QuizExercise
     let courseId: Int
 

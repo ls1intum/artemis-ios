@@ -50,6 +50,8 @@ public struct QuizParticipationView: View {
                     StartQuizView()
                 }
             }
+            // We need both types, otherwise @Environment only finds the subclass
+            .environment(viewModel as QuizViewModel)
             .environment(viewModel)
             .task(id: "startParticipation") {
                 await viewModel.startParticipation()

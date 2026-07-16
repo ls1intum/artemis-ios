@@ -37,7 +37,6 @@ struct QuizView: View {
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
         }
-        .environment(QuizTrainingViewModel(courseId: 0))
     }
 }
 

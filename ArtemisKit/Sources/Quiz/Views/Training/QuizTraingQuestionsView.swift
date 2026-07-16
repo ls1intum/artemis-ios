@@ -48,6 +48,8 @@ struct QuizTraingQuestionsView: View {
             }
         }
         .interactiveDismissDisabled()
+        // We need to inject it as both types, otherwise @Environment only finds subclasses
+        .environment(viewModel as QuizViewModel)
         .environment(viewModel)
         .task(id: "loadQuestions") {
             viewModel.questions = .loading

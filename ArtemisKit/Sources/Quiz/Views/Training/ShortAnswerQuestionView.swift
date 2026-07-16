@@ -9,7 +9,7 @@ import SharedModels
 import SwiftUI
 
 struct ShortAnswerQuestionView: View {
-    @Environment(QuizTrainingViewModel.self) private var viewModel
+    @Environment(QuizViewModel.self) private var viewModel
 
     let question: DTO.QuizQuestionTraining
     let questionWithSolution: DTO.ShortAnswerQuizQuestionWithSolution
@@ -86,7 +86,7 @@ struct ShortAnswerQuestionView: View {
         .textInputAutocapitalization(.never)
         .disabled(viewModel.hasSubmitted)
 
-        SubmitAnswerButton(isTrainingMode: true, questionId: question.id, isRated: question.isRated, answer: answer)
+        SubmitAnswerButton(questionId: question.id, isRated: question.isRated, answer: answer)
     }
 
     private var answer: DTO.SubmittedAnswerFromLiveClient {

@@ -9,7 +9,7 @@ import SharedModels
 import SwiftUI
 
 struct SubmitAnswerButton: View {
-    let isTrainingMode: Bool
+    @Environment(QuizViewModel.self) private var viewModel
 
     let questionId: Int64?
     let isRated: Bool?
@@ -18,7 +18,7 @@ struct SubmitAnswerButton: View {
     @State private var isLoading = false
 
     var body: some View {
-        if !isTrainingMode {
+        if viewModel is QuizTrainingViewModel {
             SubmitTrainingAnswerButton(questionId: questionId, isRated: isRated, answer: answer)
         } else {
             SubmitLiveAnswerButton(answer: answer)

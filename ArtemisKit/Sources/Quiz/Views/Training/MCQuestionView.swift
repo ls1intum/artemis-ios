@@ -10,7 +10,7 @@ import SharedModels
 import SwiftUI
 
 struct MCQuestionView: View {
-    @Environment(QuizTrainingViewModel.self) private var viewModel
+    @Environment(QuizViewModel.self) private var viewModel
 
     @State private var selectedAnswers = [Int64]()
 
@@ -75,7 +75,7 @@ struct MCQuestionView: View {
             .disabled(viewModel.hasSubmitted)
         }
 
-        SubmitAnswerButton(isTrainingMode: true, questionId: question.id, isRated: question.isRated, answer: answer)
+        SubmitAnswerButton(questionId: question.id, isRated: question.isRated, answer: answer)
     }
 
     var answer: DTO.SubmittedAnswerFromLiveClient {
