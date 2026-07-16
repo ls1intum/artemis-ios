@@ -11,19 +11,10 @@ import Foundation
 import SharedModels
 
 @Observable
-class QuizTrainingViewModel {
+class QuizTrainingViewModel: QuizViewModel {
     let courseId: Int
 
     var questions: DataState<[DTO.QuizQuestionTraining]> = .loading
-
-    var lastSubmissionResult: DataState<DTO.SubmittedAnswerAfterEvaluation> = .loading
-    var hasSubmitted: Bool {
-        if case .done = lastSubmissionResult {
-            return true
-        } else {
-            return false
-        }
-    }
 
     var currentScore: (reached: Double, total: Double)? {
         let total = switch questions.value?.first?.quizQuestionWithSolutionDTO {

@@ -22,11 +22,17 @@ struct DNDQuestionView: View {
         questionWithAnswer.image(for: \.backgroundFilePath)
     }
 
-    init(question: DTO.QuizQuestionTraining, questionWithAnswer: DTO.DragAndDropQuizQuestionWithSolution) {
+    init(question: DTO.QuizQuestionTraining,
+         questionWithAnswer: DTO.DragAndDropQuizQuestionWithSolution,
+         previousAnswer: DTO.SubmittedAnswerFromLiveClient? = nil) {
         self.question = question
         self.questionWithAnswer = questionWithAnswer
-        self.mappings = (questionWithAnswer.dropLocations ?? []).map {
-            .init(dragItem: nil, dropLocation: .init(id: $0.id))
+        if let previousAnswer, case let .dragAndDrop(answer) = previousAnswer, let maps = answer.mappings {
+            _mappings = State(initialValue: maps)
+        } else {
+            _mappings = State(initialValue: (questionWithAnswer.dropLocations ?? []).map {
+                .init(dragItem: nil, dropLocation: .init(id: $0.id))
+            })
         }
     }
 
@@ -80,7 +86,7 @@ struct DNDDropLocations: View {
 }
 
 struct DropLocation: View {
-    @Environment(QuizTrainingViewModel.self) private var viewModel
+    @Environment(QuizViewModel.self) private var viewModel
 
     let dragItems: [DTO.DragItem]
     let location: DTO.DropLocation
