@@ -16,6 +16,7 @@ class QuizParticipationViewModel: QuizViewModel {
     let courseId: Int
 
     var participation: DataState<DTO.StudentQuizParticipation> = .loading
+    var waitingForResults = false
     var submissionSuccessful: Bool?
     var batchStartError: String?
     let isLiveQuiz: Bool
@@ -173,6 +174,7 @@ class QuizParticipationViewModel: QuizViewModel {
         case .done(let response):
             if response.submitted == true {
                 submissionSuccessful = true
+                waitingForResults = true
             }
         default: submissionSuccessful = false
         }
@@ -191,7 +193,11 @@ class QuizParticipationViewModel: QuizViewModel {
         }
 
         switch submission {
-        case .done: submissionSuccessful = true
+        case .done(let result):
+            if let answers = result.submission?.submittedAnswers {
+                lastSubmissionResults = .done(response: answers)
+            }
+            submissionSuccessful = true
         default: submissionSuccessful = false
         }
     }

@@ -67,10 +67,11 @@ public struct QuizParticipationView: View {
             }
         }
         .interactiveDismissDisabled()
-        .onChange(of: viewModel.submissionSuccessful) { _, newValue in
-            // TODO: Show solutions
-            if newValue == true {
-                dismiss()
+        .opacity(viewModel.waitingForResults ? 0.5 : 1)
+        .overlay {
+            if viewModel.waitingForResults {
+                // TODO: Actual design
+                ArtemisHintBox(text: "Wating for results", hintType: .info)
             }
         }
     }
