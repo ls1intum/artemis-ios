@@ -17,8 +17,12 @@ struct IrisChatView: View {
     @State private var showDeleteConfirmation = false
     @State private var isContextSelectionPresented = false
     @State private var showAboutIris = false
-    @State private var bottomSpacerShown = false
     @State private var showScrollToBottom = false
+    // Once the user sends a message we reserve a screenful below the active turn
+    // so their question can sit at the top while the reply fills in. Off until
+    // the first send, so opening a chat just anchors to the latest message.
+    @State private var reservesResponseSpace = false
+    @State private var viewportHeight: CGFloat = 0
     @FocusState private var isInputFocused: Bool
     @Environment(\.scenePhase) private var scenePhase
 
@@ -50,6 +54,8 @@ struct IrisChatView: View {
         DataStateView(data: $viewModel.messages) {
             await viewModel.loadMessages()
         } content: { messages in
+            // Everything from the latest user message onward is the "active turn".
+            let activeTurnStart = messages.lastIndex { $0.sender == .user } ?? messages.endIndex
             VStack(spacing: 0) {
                 ScrollViewReader { proxy in
                     ScrollView {
@@ -58,25 +64,40 @@ struct IrisChatView: View {
                                 .containerRelativeFrame(.vertical)
                         } else {
                             LazyVStack(alignment: .leading, spacing: .m) {
-                                ForEach(messages) { message in
+                                ForEach(messages[..<activeTurnStart]) { message in
                                     MessageRow(message: message, courseId: coursePath.id, viewModel: viewModel)
                                         .id(message.id)
                                 }
-                                if viewModel.isAwaitingResponse {
-                                    LoadingStageRow(stage: viewModel.currentStage)
-                                        .id("loadingStageRow")
-                                } else if messages.last?.sender == .llm {
-                                    DisclaimerView()
-                                        .id("disclaimer")
+                                // The active turn reserves a screenful (`minHeight`) so the
+                                // question can sit at the top while the reply fills in below;
+                                // the reserve collapses by itself once the turn outgrows a
+                                // screen.
+                                VStack(alignment: .leading, spacing: .m) {
+                                    ForEach(messages[activeTurnStart...]) { message in
+                                        MessageRow(message: message, courseId: coursePath.id, viewModel: viewModel)
+                                            .id(message.id)
+                                    }
+                                    if viewModel.isAwaitingResponse {
+                                        LoadingStageRow(stage: viewModel.currentStage)
+                                            .id("loadingStageRow")
+                                    } else if messages.last?.sender == .llm {
+                                        DisclaimerView()
+                                            .id("disclaimer")
+                                    }
                                 }
+                                .frame(minHeight: reservesResponseSpace ? viewportHeight : nil,
+                                       alignment: .top)
+                                .id("activeTurn")
                             }
                             .padding(.l)
                         }
-                        if bottomSpacerShown {
-                            Color.clear.containerRelativeFrame(.vertical)
-                        }
                     }
                     .defaultScrollAnchor(.bottom)
+                    .onScrollGeometryChange(for: CGFloat.self) {
+                        $0.containerSize.height
+                    } action: { _, height in
+                        viewportHeight = height
+                    }
                     .onScrollGeometryChange(for: Bool.self) { geometry in
                         let distanceFromBottom = geometry.contentSize.height
                             - geometry.contentOffset.y
@@ -87,23 +108,23 @@ struct IrisChatView: View {
                     }
                     .onChange(of: messages.count) {
                         guard let last = messages.last, last.sender == .user else { return }
-                        bottomSpacerShown = true
+                        // User just sent a message: reserve a screenful and lift it to the top.
+                        reservesResponseSpace = true
                         Task { @MainActor in
                             withAnimation {
-                                proxy.scrollTo(last.id, anchor: .top)
+                                proxy.scrollTo("activeTurn", anchor: .top)
                             }
                         }
                     }
                     .overlay(alignment: .bottom) {
                         if showScrollToBottom {
                             ScrollToBottomButton {
-                                withAnimation {
-                                    if viewModel.isAwaitingResponse {
-                                        proxy.scrollTo("loadingStageRow", anchor: .bottom)
-                                    } else if messages.last?.sender == .llm {
-                                        proxy.scrollTo("disclaimer", anchor: .bottom)
-                                    } else if let id = messages.last?.id {
-                                        proxy.scrollTo(id, anchor: .bottom)
+                                // Land on the bottom of the active turn: with the reserve
+                                // present that puts the question at the top, otherwise the
+                                // latest reply at the bottom.
+                                Task { @MainActor in
+                                    withAnimation {
+                                        proxy.scrollTo("activeTurn", anchor: .bottom)
                                     }
                                 }
                             }
