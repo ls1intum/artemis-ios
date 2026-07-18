@@ -34,6 +34,10 @@ public struct LectureDetailView: View {
                         Text(R.string.localizable.overview())
                             .font(.title2).bold()
 
+                        if viewModel.course.value?.irisEnabledInCourse == true {
+                            AskIrisButton(courseId: viewModel.courseId, lecture: lecture)
+                        }
+
                         if let startDate = lecture.startDate {
                             Text(R.string.localizable.date())
                                 .font(.headline)
@@ -55,10 +59,6 @@ public struct LectureDetailView: View {
                             Text(R.string.localizable.communication())
                                 .font(.headline)
                             ChannelCell(courseId: viewModel.courseId, channel: channel)
-                        }
-
-                        if viewModel.course.value?.irisEnabledInCourse == true {
-                            AskIrisButton(courseId: viewModel.courseId, lecture: lecture)
                         }
                     }
 
