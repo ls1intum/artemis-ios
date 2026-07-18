@@ -19,6 +19,19 @@ enum IrisChatMode: String, ConstantsEnum {
 }
 
 extension IrisChatMode {
+    /// The chat mode for an exercise, or `nil` for types Iris has no chat for.
+    /// Mirrors the web app's `EXERCISE_TYPE_TO_CHAT_MODE`.
+    init?(exercise: Exercise) {
+        switch exercise {
+        case .programming:
+            self = .programmingExercise
+        case .text:
+            self = .textExercise
+        default:
+            return nil
+        }
+    }
+
     var icon: String {
         switch self {
         case .programmingExercise:
