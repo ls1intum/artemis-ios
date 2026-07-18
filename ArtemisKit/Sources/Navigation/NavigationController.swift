@@ -74,10 +74,12 @@ public extension NavigationController {
         log.debug("LecturePath was appended to queue")
     }
 
-    func goToIrisSession(courseId: Int, sessionId: Int) {
+    func goToIrisSession(courseId: Int, sessionId: Int, contextSource: IrisContextSource? = nil) {
         goToCourse(id: courseId)
         courseTab = .iris
-        selectedPath = IrisSessionPath(sessionId: sessionId, coursePath: selectedCourse ?? CoursePath(id: courseId))
+        selectedPath = IrisSessionPath(sessionId: sessionId,
+                                       contextSource: contextSource,
+                                       coursePath: selectedCourse ?? CoursePath(id: courseId))
         tabPath = NavigationPath()
     }
 
@@ -85,6 +87,15 @@ public extension NavigationController {
         goToCourse(id: courseId)
         courseTab = .iris
         selectedPath = IrisStartChatPath(inputText: inputText, coursePath: selectedCourse ?? CoursePath(id: courseId))
+        tabPath = NavigationPath()
+    }
+
+    /// Opens the Iris tab without selecting a session, e.g. to let the user pick
+    /// their AI experience before a session is created.
+    func goToIris(courseId: Int) {
+        goToCourse(id: courseId)
+        courseTab = .iris
+        selectedPath = nil
         tabPath = NavigationPath()
     }
 
