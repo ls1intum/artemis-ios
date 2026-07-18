@@ -91,19 +91,30 @@ public struct ThreadPath: Hashable {
     }
 }
 
+/// The lecture or exercise an "Ask Iris" button opened a session for. Carries the
+/// source object across the module boundary — the Iris module rebuilds its
+/// `SessionContext` from it, since that type can't be named here.
+public enum IrisContextSource: Hashable {
+    case lecture(Lecture)
+    case exercise(Exercise)
+}
+
 public struct IrisSessionPath: Hashable {
     public let sessionId: Int
     public let defaultInput: String
     public let coursePath: CoursePath
+    /// A context to pre-select when the chat opens, e.g. from an "Ask Iris" button.
+    public let contextSource: IrisContextSource?
 
     /// Convenience for the enclosing course's id.
     public var courseId: Int {
         coursePath.id
     }
 
-    public init(sessionId: Int, defaultInput: String = "", coursePath: CoursePath) {
+    public init(sessionId: Int, defaultInput: String = "", contextSource: IrisContextSource? = nil, coursePath: CoursePath) {
         self.sessionId = sessionId
         self.defaultInput = defaultInput
+        self.contextSource = contextSource
         self.coursePath = coursePath
     }
 }
