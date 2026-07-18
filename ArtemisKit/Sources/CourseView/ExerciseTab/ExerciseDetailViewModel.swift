@@ -15,6 +15,9 @@ import UserStore
 final class ExerciseDetailViewModel {
     let courseId: Int
     let exerciseId: Int
+    /// Whether Iris is enabled for this exercise's course. Drives the "Ask Iris"
+    /// button; `false` when the exercise is opened without a loaded course (deeplink).
+    let irisEnabledInCourse: Bool
 
     var exercise: DataState<Exercise>
     var problemStatementRendered: DataState<String> = .loading
@@ -35,12 +38,14 @@ final class ExerciseDetailViewModel {
     init(
         courseId: Int,
         exerciseId: Int,
+        irisEnabledInCourse: Bool = false,
         exercise: DataState<Exercise>,
         exerciseService: ExerciseService = ExerciseServiceFactory.shared,
         userSession: UserSession = UserSessionFactory.shared
     ) {
         self.courseId = courseId
         self.exerciseId = exerciseId
+        self.irisEnabledInCourse = irisEnabledInCourse
 
         self.exercise = exercise
         self.problemStatementRendered = .loading

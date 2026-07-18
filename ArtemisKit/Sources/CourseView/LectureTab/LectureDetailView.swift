@@ -10,6 +10,7 @@ import Common
 import SharedModels
 import ArtemisMarkdown
 import DesignLibrary
+import Iris
 import Navigation
 
 public struct LectureDetailView: View {
@@ -54,6 +55,10 @@ public struct LectureDetailView: View {
                             Text(R.string.localizable.communication())
                                 .font(.headline)
                             ChannelCell(courseId: viewModel.courseId, channel: channel)
+                        }
+
+                        if viewModel.course.value?.irisEnabledInCourse == true {
+                            AskIrisButton(courseId: viewModel.courseId, lecture: lecture)
                         }
                     }
 
