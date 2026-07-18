@@ -1,5 +1,5 @@
 //
-//  SubmitAnswerButton.swift
+//  SubmitTrainingAnswerButton.swift
 //  ArtemisKit
 //
 //  Created by Anian Schleyer on 07.06.26.
@@ -9,7 +9,7 @@ import DesignLibrary
 import SharedModels
 import SwiftUI
 
-struct SubmitAnswerButton: View {
+struct SubmitTrainingAnswerButton: View {
     @Environment(QuizTrainingViewModel.self) private var viewModel
 
     let questionId: Int64?

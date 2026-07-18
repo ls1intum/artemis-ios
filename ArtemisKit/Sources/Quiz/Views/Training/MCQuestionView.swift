@@ -10,12 +10,22 @@ import SharedModels
 import SwiftUI
 
 struct MCQuestionView: View {
-    @Environment(QuizTrainingViewModel.self) private var viewModel
+    @Environment(QuizViewModel.self) private var viewModel
 
     @State private var selectedAnswers = [Int64]()
 
     let question: DTO.QuizQuestionTraining
     let questionWithAnswer: DTO.MultipleChoiceQuizQuestionWithSolution
+
+    init(question: DTO.QuizQuestionTraining,
+         questionWithAnswer: DTO.MultipleChoiceQuizQuestionWithSolution,
+         previousAnswer: DTO.SubmittedAnswerFromLiveClient? = nil) {
+        self.question = question
+        self.questionWithAnswer = questionWithAnswer
+        if let previousAnswer, case let .multipleChoice(answer) = previousAnswer {
+            _selectedAnswers = State(initialValue: (answer.selectedOptions ?? []).compactMap(\.id))
+        }
+    }
 
     var body: some View {
         if let text = questionWithAnswer.text {

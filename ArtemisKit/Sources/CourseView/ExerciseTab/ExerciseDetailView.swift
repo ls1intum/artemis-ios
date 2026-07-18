@@ -12,6 +12,7 @@ import Navigation
 import SharedModels
 import SwiftUI
 import UserStore
+import Quiz
 
 public struct ExerciseDetailView: View {
     @EnvironmentObject var navigationController: NavigationController
@@ -30,6 +31,20 @@ public struct ExerciseDetailView: View {
                        let askIris = AskIrisButton(courseId: viewModel.courseId, exercise: exercise) {
                         askIris
                             .padding(.horizontal, .m)
+                    }
+                    if case .quiz(let quiz) = exercise,
+                       quiz.canStartLiveQuiz || quiz.canStartPractice {
+                        Button {
+                            viewModel.showQuizParticipation = true
+                        } label: {
+                            if quiz.canStartLiveQuiz {
+                                Text("Start Quiz")
+                            } else {
+                                Text("Practice")
+                            }
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .frame(maxWidth: .infinity, alignment: .center)
                     }
                     problem
                     detail(exercise: exercise)
@@ -53,6 +68,11 @@ public struct ExerciseDetailView: View {
             .overlay(alignment: .bottomTrailing) {
                 feedback(exercise: exercise)
                     .padding()
+            }
+            .sheet(isPresented: $viewModel.showQuizParticipation) {
+                if case .quiz(let quiz) = exercise {
+                    QuizParticipationView(exercise: quiz, courseId: viewModel.courseId)
+                }
             }
         }
         .task {

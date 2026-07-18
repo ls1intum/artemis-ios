@@ -9,7 +9,7 @@ import SharedModels
 import SwiftUI
 
 struct ShortAnswerQuestionView: View {
-    @Environment(QuizTrainingViewModel.self) private var viewModel
+    @Environment(QuizViewModel.self) private var viewModel
 
     let question: DTO.QuizQuestionTraining
     let questionWithSolution: DTO.ShortAnswerQuizQuestionWithSolution
@@ -18,18 +18,24 @@ struct ShortAnswerQuestionView: View {
     @State private var textInputs: [DTO.ShortAnswerSubmittedTextFromLiveClient]
     @FocusState private var focus: Segment?
 
-    init(question: DTO.QuizQuestionTraining, questionWithSolution: DTO.ShortAnswerQuizQuestionWithSolution) {
+    init(question: DTO.QuizQuestionTraining,
+         questionWithSolution: DTO.ShortAnswerQuizQuestionWithSolution,
+         previousAnswer: DTO.SubmittedAnswerFromLiveClient? = nil) {
         self.question = question
         self.questionWithSolution = questionWithSolution
         self.segments = Segment.create(from: questionWithSolution.text)
 
         let inputs = segments.filter(\.isInput)
-        self.textInputs = inputs.map {
-            if case let .input(spot) = $0 {
-                return .init(text: "", spot: .init(id: spot))
-            } else {
-                return .init()
-            }
+        if let previousAnswer, case let .shortAnswer(answer) = previousAnswer, let texts = answer.submittedTexts {
+            _textInputs = State(initialValue: texts)
+        } else {
+            _textInputs = State(initialValue: inputs.map {
+                if case let .input(spot) = $0 {
+                    return .init(text: "", spot: .init(id: spot))
+                } else {
+                    return .init()
+                }
+            })
         }
     }
 
