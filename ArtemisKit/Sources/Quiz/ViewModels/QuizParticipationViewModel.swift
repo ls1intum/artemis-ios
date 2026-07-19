@@ -16,6 +16,7 @@ class QuizParticipationViewModel: QuizViewModel {
     let courseId: Int
 
     var participation: DataState<DTO.StudentQuizParticipation> = .loading
+    var loadingQuizStart = false
     var waitingForResults = false
     var submissionSuccessful: Bool?
     var batchStartError: String?
@@ -56,10 +57,12 @@ class QuizParticipationViewModel: QuizViewModel {
     }
 
     func startParticipation() async {
+        loadingQuizStart = true
         participation = await APIClient().call { client in
             try await client.startParticipation(path: .init(exerciseId: Int64(exercise.id)))
                 .ok.body.json
         }
+        loadingQuizStart = false
     }
 
     func joinBatch(password: String? = nil) async {

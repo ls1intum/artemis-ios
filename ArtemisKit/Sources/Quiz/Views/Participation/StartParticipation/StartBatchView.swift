@@ -39,7 +39,7 @@ struct StartBatchView: View {
                    case let .StudentQuizParticipationWithSolutions(withSolutions) = party,
                    let batches = withSolutions.exercise?.quizBatches,
                    let notStarted = batches.last(where: { $0.started != true })?.id {
-                    viewModel.startWaitingForBatchStart(batchId: Int(notStarted))
+                    viewModel.startWaitingForBatchStart(batchId: Int64(notStarted))
                     showWaitingScreen = true
                 }
             }
