@@ -27,11 +27,11 @@ public struct ExerciseDetailView: View {
                     hint
                     ExerciseOverviewChipsRow(exercise: exercise, score: viewModel.score)
                     if case .quiz(let quiz) = exercise,
-                       quiz.canStartLiveQuiz || quiz.canStartPractice {
+                       quiz.canStartLiveQuiz || quiz.canOpenQuiz || quiz.canStartPractice {
                         Button {
                             viewModel.showQuizParticipation = true
                         } label: {
-                            if quiz.canStartLiveQuiz {
+                            if quiz.canStartLiveQuiz || quiz.canOpenQuiz {
                                 Text("Start Quiz")
                             } else {
                                 Text("Practice")
