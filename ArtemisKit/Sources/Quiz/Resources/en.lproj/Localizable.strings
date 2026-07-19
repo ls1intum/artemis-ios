@@ -22,3 +22,7 @@
 "incorrect" = "Incorrect";
 "solution" = "Solution";
 "question" = "Question";
+
+"refresh" = "Refresh";
+"waitingForStart" = "Waiting for Quiz Start";
+"waitingForStartDetail" = "The quiz has not started yet. This page will refresh automatically when the quiz starts.";

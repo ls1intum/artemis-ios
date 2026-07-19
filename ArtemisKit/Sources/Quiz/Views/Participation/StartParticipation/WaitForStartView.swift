@@ -17,12 +17,13 @@ struct WaitForQuizStartView: View {
                 .progressViewStyle(.circular)
                 .controlSize(.large)
 
-            Text("Waiting for Quiz Start")
+            Text(R.string.localizable.waitingForStart())
                 .font(.title2)
-            Text("The quiz has not started yet. This page will refresh automatically when the quiz starts.")
+            Text(R.string.localizable.waitingForStartDetail())
                 .font(.footnote)
+                .padding(.bottom)
 
-            Button("Refresh") {
+            Button(R.string.localizable.refresh()) {
                 Task {
                     await viewModel.startParticipation()
                 }
