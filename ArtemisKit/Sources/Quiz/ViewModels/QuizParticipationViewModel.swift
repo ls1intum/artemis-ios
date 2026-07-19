@@ -29,7 +29,7 @@ class QuizParticipationViewModel: QuizViewModel {
     init(exercise: QuizExercise, courseId: Int) {
         self.exercise = exercise
         self.courseId = courseId
-        isLiveQuiz = exercise.canStartLiveQuiz
+        isLiveQuiz = exercise.canStartLiveQuiz || exercise.canOpenQuiz && !exercise.canStartPractice
     }
 
     private let stompClient = ArtemisStompClient.shared
