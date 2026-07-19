@@ -15,6 +15,8 @@ struct StartBatchView: View {
     @State private var loading = false
     @State private var showWaitingScreen = false
 
+    @FocusState private var focused
+
     var body: some View {
         if showWaitingScreen {
             WaitForQuizStartView(viewModel: viewModel)
@@ -28,9 +30,14 @@ struct StartBatchView: View {
                         .textFieldStyle(.roundedBorder)
                         .submitLabel(.go)
                         .keyboardType(.numberPad)
+                        .focused($focused)
+                        .onAppear {
+                            focused = true
+                        }
                 }
 
                 Button(R.string.localizable.joinQuiz()) {
+                    focused = false
                     startBatch()
                 }
                 .buttonStyle(.borderedProminent)

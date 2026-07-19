@@ -75,6 +75,9 @@ class QuizParticipationViewModel: QuizViewModel {
         switch response {
         case .done(let response):
             startWaitingForBatchStart(batchId: response.id)
+            if password == nil {
+                await startParticipation()
+            }
         case .failure(let error):
             batchStartError = error.localizedDescription
         default: break
