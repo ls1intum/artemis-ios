@@ -19,20 +19,28 @@ struct StartBatchView: View {
         if showWaitingScreen {
             WaitForQuizStartView(viewModel: viewModel)
         } else {
-            // TODO: Style + Localize
-            Form {
+            VStack(alignment: .center, spacing: .l) {
+                Text(isIndividual ? R.string.localizable.startParticipation() : R.string.localizable.enterPassword())
+                    .font(.title2)
+
                 if !isIndividual {
-                    Section("Password") {
-                        TextField("Password", text: $password)
-                    }
+                    TextField(R.string.localizable.password(), text: $password)
+                        .textFieldStyle(.roundedBorder)
+                        .submitLabel(.go)
+                        .keyboardType(.numberPad)
                 }
 
-                Button("Join Quiz") {
+                Button(R.string.localizable.joinQuiz()) {
                     startBatch()
                 }
-                .disabled(loading)
+                .buttonStyle(.borderedProminent)
+                .disabled(loading || !isIndividual && password.isEmpty)
                 .loadingIndicator(isLoading: $loading)
             }
+            .padding()
+            .background(Color.Artemis.artemisBlue.opacity(0.5), in: .rect(cornerRadius: .l))
+            .padding()
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             .onAppear {
                 // Existing batch that user has joined -> wait automatically
                 if let party = viewModel.participation.value,
@@ -61,7 +69,7 @@ struct StartBatchView: View {
     func startBatch() {
         loading = true
         Task {
-            await viewModel.joinBatch(password: password)
+            await viewModel.joinBatch(password: password.isEmpty ? nil : password)
             loading = false
             if viewModel.batchStartError == nil {
                 showWaitingScreen = true
