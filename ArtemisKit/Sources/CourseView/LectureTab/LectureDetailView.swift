@@ -10,6 +10,7 @@ import Common
 import SharedModels
 import ArtemisMarkdown
 import DesignLibrary
+import Iris
 import Navigation
 
 public struct LectureDetailView: View {
@@ -32,6 +33,10 @@ public struct LectureDetailView: View {
                     if lecture.startDate != nil || lecture.description != nil || viewModel.channel.value != nil {
                         Text(R.string.localizable.overview())
                             .font(.title2).bold()
+
+                        if viewModel.course.value?.irisEnabledInCourse == true {
+                            AskIrisButton(courseId: viewModel.courseId, lecture: lecture)
+                        }
 
                         if let startDate = lecture.startDate {
                             Text(R.string.localizable.date())

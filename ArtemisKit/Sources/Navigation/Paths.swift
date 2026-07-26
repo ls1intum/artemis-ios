@@ -91,19 +91,38 @@ public struct ThreadPath: Hashable {
     }
 }
 
+/// The already-resolved Iris context an "Ask Iris" button opened a session for,
+/// carried across the module boundary as primitives — the Iris module rebuilds its
+/// `SessionContext` from it (that type can't be named here). Mirrors `SessionContext`
+/// one-to-one; `modeRawValue` stands in for its `IrisChatMode`, which also lives in Iris.
+public struct IrisContextSource: Hashable {
+    public let modeRawValue: String
+    public let entityId: Int
+    public let entityName: String?
+
+    public init(modeRawValue: String, entityId: Int, entityName: String?) {
+        self.modeRawValue = modeRawValue
+        self.entityId = entityId
+        self.entityName = entityName
+    }
+}
+
 public struct IrisSessionPath: Hashable {
     public let sessionId: Int
     public let defaultInput: String
     public let coursePath: CoursePath
+    /// A context to pre-select when the chat opens, e.g. from an "Ask Iris" button.
+    public let contextSource: IrisContextSource?
 
     /// Convenience for the enclosing course's id.
     public var courseId: Int {
         coursePath.id
     }
 
-    public init(sessionId: Int, defaultInput: String = "", coursePath: CoursePath) {
+    public init(sessionId: Int, defaultInput: String = "", contextSource: IrisContextSource? = nil, coursePath: CoursePath) {
         self.sessionId = sessionId
         self.defaultInput = defaultInput
+        self.contextSource = contextSource
         self.coursePath = coursePath
     }
 }

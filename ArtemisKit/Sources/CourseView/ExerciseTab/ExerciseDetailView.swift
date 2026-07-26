@@ -7,6 +7,7 @@
 
 import Common
 import DesignLibrary
+import Iris
 import Navigation
 import SharedModels
 import SwiftUI
@@ -26,6 +27,9 @@ public struct ExerciseDetailView: View {
                 VStack(alignment: .leading, spacing: .l) {
                     hint
                     ExerciseOverviewChipsRow(exercise: exercise, score: viewModel.score)
+                    if viewModel.irisEnabledInCourse {
+                        AskIrisButton(courseId: viewModel.courseId, exercise: exercise, horizontalPadding: .m)
+                    }
                     if case .quiz(let quiz) = exercise,
                        quiz.canStartLiveQuiz || quiz.canOpenQuiz || quiz.canStartPractice {
                         Button {
@@ -85,6 +89,7 @@ public extension ExerciseDetailView {
         self.init(viewModel: ExerciseDetailViewModel(
             courseId: course.id,
             exerciseId: exercise.id,
+            irisEnabledInCourse: course.irisEnabledInCourse == true,
             exercise: .done(response: exercise)))
     }
 

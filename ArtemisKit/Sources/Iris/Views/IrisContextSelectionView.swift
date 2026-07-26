@@ -59,12 +59,13 @@ struct IrisContextSelectionView: View {
                 if !exercises.isEmpty {
                     Section(R.string.localizable.exercisesSection()) {
                         ForEach(exercises) { exercise in
-                            let context = viewModel.context(for: exercise)
-                            ContextRow(title: exercise.baseExercise.title,
-                                       icon: context.mode.icon,
-                                       isSelected: viewModel.isSelected(exercise: exercise, current: currentSelection)) {
-                                onSet(context)
-                                dismiss()
+                            if let context = viewModel.context(for: exercise) {
+                                ContextRow(title: exercise.baseExercise.title,
+                                           icon: context.mode.icon,
+                                           isSelected: viewModel.isSelected(exercise: exercise, current: currentSelection)) {
+                                    onSet(context)
+                                    dismiss()
+                                }
                             }
                         }
                     }

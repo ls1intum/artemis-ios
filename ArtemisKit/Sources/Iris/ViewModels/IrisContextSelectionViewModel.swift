@@ -27,20 +27,20 @@ final class IrisContextSelectionViewModel {
     /// the web app's `EXERCISE_TYPE_TO_CHAT_MODE`), so other types are not listed.
     func exercises(in course: Course) -> [Exercise] {
         (course.exercises ?? [])
-            .filter(isSupported)
+            .filter { $0.irisChatMode != nil }
             .filter { matches($0.baseExercise.title) }
     }
 
     func context(for lecture: Lecture) -> SessionContext {
-        SessionContext(mode: .lecture,
-                       entityId: lecture.id,
-                       entityName: lecture.title)
+        SessionContext(lecture: lecture)
     }
 
-    func context(for exercise: Exercise) -> SessionContext {
-        SessionContext(mode: mode(for: exercise),
-                       entityId: exercise.id,
-                       entityName: exercise.baseExercise.title)
+    /// `nil` for an exercise type Iris has no chat mode for; callers only pass
+    /// exercises already filtered by ``exercises(in:)``, so in practice never nil.
+    func context(for exercise: Exercise) -> SessionContext? {
+        exercise.irisChatMode.map {
+            SessionContext(mode: $0, entityId: exercise.id, entityName: exercise.baseExercise.title)
+        }
     }
 
     func isSelected(lecture: Lecture, current: SessionContext?) -> Bool {
@@ -48,29 +48,11 @@ final class IrisContextSelectionViewModel {
     }
 
     func isSelected(exercise: Exercise, current: SessionContext?) -> Bool {
-        current?.mode == mode(for: exercise) && current?.entityId == exercise.id
+        current?.mode == exercise.irisChatMode && current?.entityId == exercise.id
     }
 
     private func matches(_ title: String?) -> Bool {
         guard !searchText.isEmpty else { return true }
         return title?.localizedCaseInsensitiveContains(searchText) ?? false
-    }
-
-    private func isSupported(_ exercise: Exercise) -> Bool {
-        switch exercise {
-        case .text, .programming:
-            return true
-        default:
-            return false
-        }
-    }
-
-    private func mode(for exercise: Exercise) -> IrisChatMode {
-        switch exercise {
-        case .programming:
-            return .programmingExercise
-        default:
-            return .textExercise
-        }
     }
 }
