@@ -27,10 +27,8 @@ public struct ExerciseDetailView: View {
                 VStack(alignment: .leading, spacing: .l) {
                     hint
                     ExerciseOverviewChipsRow(exercise: exercise, score: viewModel.score)
-                    if viewModel.irisEnabledInCourse,
-                       let askIris = AskIrisButton(courseId: viewModel.courseId, exercise: exercise) {
-                        askIris
-                            .padding(.horizontal, .m)
+                    if viewModel.irisEnabledInCourse {
+                        AskIrisButton(courseId: viewModel.courseId, exercise: exercise, horizontalPadding: .m)
                     }
                     if case .quiz(let quiz) = exercise,
                        quiz.canStartLiveQuiz || quiz.canStartPractice {
