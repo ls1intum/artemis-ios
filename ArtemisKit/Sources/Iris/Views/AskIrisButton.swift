@@ -108,7 +108,8 @@ public extension AskIrisButton {
     /// A button for an exercise's Iris chat, or `nil` when the exercise type has no
     /// Iris chat mode (only text & programming do). Callers gate on Iris being enabled.
     init?(courseId: Int, exercise: Exercise) {
-        guard let context = SessionContext(exercise: exercise) else { return nil }
+        guard let mode = exercise.irisChatMode else { return nil }
+        let context = SessionContext(mode: mode, entityId: exercise.id, entityName: exercise.baseExercise.title)
         self.init(courseId: courseId, context: context)
     }
 }

@@ -29,12 +29,6 @@ extension SessionContext {
         self.init(mode: .lecture, entityId: lecture.id, entityName: lecture.title)
     }
 
-    /// The context for an exercise's Iris chat, or `nil` for unsupported types.
-    init?(exercise: Exercise) {
-        guard let mode = IrisChatMode(exercise: exercise) else { return nil }
-        self.init(mode: mode, entityId: exercise.id, entityName: exercise.baseExercise.title)
-    }
-
     /// Rebuilds the context from a navigation ``IrisContextSource`` handed off by
     /// an "Ask Iris" button. Not failable: the source already carries the resolved mode.
     init(source: IrisContextSource) {

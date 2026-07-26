@@ -27,7 +27,7 @@ final class IrisContextSelectionViewModel {
     /// the web app's `EXERCISE_TYPE_TO_CHAT_MODE`), so other types are not listed.
     func exercises(in course: Course) -> [Exercise] {
         (course.exercises ?? [])
-            .filter { IrisChatMode(exercise: $0) != nil }
+            .filter { $0.irisChatMode != nil }
             .filter { matches($0.baseExercise.title) }
     }
 
@@ -38,7 +38,9 @@ final class IrisContextSelectionViewModel {
     /// `nil` for an exercise type Iris has no chat mode for; callers only pass
     /// exercises already filtered by ``exercises(in:)``, so in practice never nil.
     func context(for exercise: Exercise) -> SessionContext? {
-        SessionContext(exercise: exercise)
+        exercise.irisChatMode.map {
+            SessionContext(mode: $0, entityId: exercise.id, entityName: exercise.baseExercise.title)
+        }
     }
 
     func isSelected(lecture: Lecture, current: SessionContext?) -> Bool {
@@ -46,7 +48,7 @@ final class IrisContextSelectionViewModel {
     }
 
     func isSelected(exercise: Exercise, current: SessionContext?) -> Bool {
-        current?.mode == IrisChatMode(exercise: exercise) && current?.entityId == exercise.id
+        current?.mode == exercise.irisChatMode && current?.entityId == exercise.id
     }
 
     private func matches(_ title: String?) -> Bool {
