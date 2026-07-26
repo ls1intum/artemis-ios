@@ -16,6 +16,7 @@ class QuizParticipationViewModel: QuizViewModel {
     let courseId: Int
 
     var participation: DataState<DTO.StudentQuizParticipation> = .loading
+    var loadingQuizStart = false
     var waitingForResults = false
     var submissionSuccessful: Bool?
     var batchStartError: String?
@@ -28,7 +29,7 @@ class QuizParticipationViewModel: QuizViewModel {
     init(exercise: QuizExercise, courseId: Int) {
         self.exercise = exercise
         self.courseId = courseId
-        isLiveQuiz = exercise.canStartLiveQuiz
+        isLiveQuiz = exercise.canStartLiveQuiz || exercise.canOpenQuiz && !exercise.canStartPractice
     }
 
     private let stompClient = ArtemisStompClient.shared
@@ -56,34 +57,30 @@ class QuizParticipationViewModel: QuizViewModel {
     }
 
     func startParticipation() async {
+        loadingQuizStart = true
         participation = await APIClient().call { client in
             try await client.startParticipation(path: .init(exerciseId: Int64(exercise.id)))
                 .ok.body.json
         }
+        loadingQuizStart = false
     }
 
-    func joinBatch(password: String = "") async {
-        struct JoinQuizRequest: APIRequest {
-            typealias Response = JoinQuizResponse
-
-            let exerciseId: Int
-            let password: String
-
-            var method: HTTPMethod { .post }
-            var resourceName: String { "/api/quiz/quiz-exercises/\(exerciseId)/join" }
+    func joinBatch(password: String? = nil) async {
+        let response = await APIClient().call { client in
+            try await client.joinBatch(path: .init(quizExerciseId: Int64(exercise.id)),
+                                       body: .json(.init(password: password)))
+            .ok.body.json
         }
-
-        struct JoinQuizResponse: Codable {
-            let id: Int
-        }
-
-        let response = await APIClient().sendRequest(JoinQuizRequest(exerciseId: exercise.id, password: password))
 
         switch response {
-        case .success(let (res, _)):
-            startWaitingForBatchStart(batchId: res.id)
+        case .done(let response):
+            startWaitingForBatchStart(batchId: response.id)
+            if password == nil {
+                await startParticipation()
+            }
         case .failure(let error):
             batchStartError = error.localizedDescription
+        default: break
         }
     }
 
@@ -105,8 +102,8 @@ class QuizParticipationViewModel: QuizViewModel {
         }
     }
 
-    func startWaitingForBatchStart(batchId: Int) {
-        guard syncQuizTask == nil else { return }
+    func startWaitingForBatchStart(batchId: Int64?) {
+        guard syncQuizTask == nil, let batchId else { return }
         syncQuizTask = Task {
             let stream = stompClient.subscribe(to: "/topic/courses/\(courseId)/quizExercises/\(batchId)")
 
