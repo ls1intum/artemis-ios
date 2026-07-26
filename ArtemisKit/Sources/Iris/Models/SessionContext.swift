@@ -36,14 +36,14 @@ extension SessionContext {
     }
 
     /// Rebuilds the context from a navigation ``IrisContextSource`` handed off by
-    /// an "Ask Iris" button. `nil` for an exercise type Iris has no chat mode for.
-    init?(source: IrisContextSource) {
-        switch source {
-        case .lecture(let lecture):
-            self.init(lecture: lecture)
-        case .exercise(let exercise):
-            guard let context = SessionContext(exercise: exercise) else { return nil }
-            self = context
-        }
+    /// an "Ask Iris" button. Not failable: the source already carries the resolved mode.
+    init(source: IrisContextSource) {
+        self.init(mode: IrisChatMode(rawValue: source.modeRawValue) ?? .unknown,
+                  entityId: source.entityId, entityName: source.entityName)
+    }
+
+    /// This context as a navigation payload for an "Ask Iris" button handoff.
+    var contextSource: IrisContextSource {
+        IrisContextSource(modeRawValue: mode.rawValue, entityId: entityId, entityName: entityName)
     }
 }

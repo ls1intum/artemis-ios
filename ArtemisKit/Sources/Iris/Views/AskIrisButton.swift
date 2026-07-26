@@ -25,17 +25,15 @@ public struct AskIrisButton: View {
 
     private let courseId: Int
     private let context: SessionContext
-    private let source: IrisContextSource
 
     private let httpService: IrisChatHttpService = IrisChatHttpServiceFactory.shared
 
     @State private var isLoading = false
     @State private var error: UserFacingError?
 
-    private init(courseId: Int, context: SessionContext, source: IrisContextSource) {
+    private init(courseId: Int, context: SessionContext) {
         self.courseId = courseId
         self.context = context
-        self.source = source
     }
 
     public var body: some View {
@@ -83,7 +81,7 @@ public struct AskIrisButton: View {
             case .done(let session):
                 // Carry this lecture/exercise on the path so the chat pre-selects it
                 // (chip + next message), even if the server session has no context yet.
-                navigationController.goToIrisSession(courseId: courseId, sessionId: session.id, contextSource: source)
+                navigationController.goToIrisSession(courseId: courseId, sessionId: session.id, contextSource: context.contextSource)
             case .failure(let error):
                 self.error = error
             case .loading:
@@ -104,13 +102,13 @@ public struct AskIrisButton: View {
 public extension AskIrisButton {
     /// A button for a lecture's Iris chat. Callers gate on Iris being enabled in the course.
     init(courseId: Int, lecture: Lecture) {
-        self.init(courseId: courseId, context: SessionContext(lecture: lecture), source: .lecture(lecture))
+        self.init(courseId: courseId, context: SessionContext(lecture: lecture))
     }
 
     /// A button for an exercise's Iris chat, or `nil` when the exercise type has no
     /// Iris chat mode (only text & programming do). Callers gate on Iris being enabled.
     init?(courseId: Int, exercise: Exercise) {
         guard let context = SessionContext(exercise: exercise) else { return nil }
-        self.init(courseId: courseId, context: context, source: .exercise(exercise))
+        self.init(courseId: courseId, context: context)
     }
 }
