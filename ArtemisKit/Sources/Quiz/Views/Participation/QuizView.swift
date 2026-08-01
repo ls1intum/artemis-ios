@@ -37,6 +37,7 @@ struct QuizView: View {
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
         }
+        .ignoresSafeArea(edges: .bottom)
     }
 }
 
@@ -80,6 +81,8 @@ private struct QuizQuestionViews: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
             .contentMargins(.top, .m, for: .scrollContent)
+            .contentMargins(.bottom, .l, for: .scrollContent)
+            .contentMargins(.bottom, .l, for: .scrollIndicators)
             .tag(index)
             // Prevent manual swiping between questions
             .gesture(DragGesture())
