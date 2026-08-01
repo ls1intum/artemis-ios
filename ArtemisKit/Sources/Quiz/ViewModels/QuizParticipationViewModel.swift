@@ -21,6 +21,8 @@ class QuizParticipationViewModel: QuizViewModel {
     var submissionSuccessful: Bool?
     var batchStartError: String?
     let isLiveQuiz: Bool
+    var savedResults = true
+    var autoSaveTimer: Timer?
 
     var selectedQuestion = 0
 
@@ -29,7 +31,7 @@ class QuizParticipationViewModel: QuizViewModel {
     init(exercise: QuizExercise, courseId: Int) {
         self.exercise = exercise
         self.courseId = courseId
-        isLiveQuiz = exercise.canStartLiveQuiz || exercise.canOpenQuiz && !exercise.canStartPractice
+        isLiveQuiz = exercise.canStartLiveQuiz || exercise.canResumeQuiz && !exercise.canStartPractice
     }
 
     private let stompClient = ArtemisStompClient.shared
@@ -120,12 +122,27 @@ class QuizParticipationViewModel: QuizViewModel {
         }
     }
 
+    func startAutoSave() {
+        guard isLiveQuiz else { return }
+        autoSaveTimer?.invalidate()
+        autoSaveTimer = Timer(timeInterval: 30, repeats: true) { [weak self] timer in
+            Task(priority: .utility) {
+                guard let self else {
+                    timer.invalidate()
+                    return
+                }
+                await self.submitAnswers(submit: false)
+            }
+        }
+    }
+
     func onSyncDisappear() {
         syncQuizTask?.cancel()
         syncQuizTask = nil
     }
 
     func saveAnswer(_ answer: DTO.SubmittedAnswerFromLiveClient) {
+        savedResults = false
         if let existingIndex = answers.firstIndex(where: {
             switch ($0, answer) {
             case let (.dragAndDrop(dnd), .dragAndDrop(new)):
@@ -153,6 +170,7 @@ class QuizParticipationViewModel: QuizViewModel {
 
     func submit() async {
         if isLiveQuiz {
+            autoSaveTimer?.invalidate()
             await submitAnswers(submit: true)
         } else {
             await submitAnswersForPractice()
@@ -169,6 +187,7 @@ class QuizParticipationViewModel: QuizViewModel {
         }
         switch submission {
         case .done(let response):
+            savedResults = true
             if response.submitted == true {
                 submissionSuccessful = true
                 waitingForResults = true
