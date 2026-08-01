@@ -31,12 +31,14 @@ public struct ExerciseDetailView: View {
                         AskIrisButton(courseId: viewModel.courseId, exercise: exercise, horizontalPadding: .m)
                     }
                     if case .quiz(let quiz) = exercise,
-                       quiz.canStartLiveQuiz || quiz.canOpenQuiz || quiz.canStartPractice {
+                       quiz.canStartLiveQuiz || quiz.canResumeQuiz || quiz.canStartPractice {
                         Button {
                             viewModel.showQuizParticipation = true
                         } label: {
-                            if quiz.canStartLiveQuiz || quiz.canOpenQuiz {
+                            if quiz.canStartLiveQuiz {
                                 Text("Start Quiz")
+                            } else if quiz.canResumeQuiz {
+                                Text("Open Quiz")
                             } else {
                                 Text("Practice")
                             }
