@@ -15,8 +15,8 @@ struct QuizSubmissionStatusIndicator: View {
             Text("\(R.string.localizable.question()) \(viewModel.selectedQuestion + 1)/\(viewModel.questionCount)")
                 .fixedSize()
             if viewModel.isLiveQuiz {
-                // TODO: Actual status + auto save
-                Text("Status: Saved")
+                let loc = R.string.localizable
+                Text("\(loc.status()): \(viewModel.savedResults ? loc.saved() : loc.unsaved())")
                     .font(.footnote)
                     .fixedSize()
             }

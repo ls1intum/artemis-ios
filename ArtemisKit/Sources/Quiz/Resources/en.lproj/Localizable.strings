@@ -30,3 +30,6 @@
 "enterPassword" = "Enter password to join";
 "joinQuiz" = "Join Quiz";
 "password" = "Password";
+"status" = "Status";
+"saved" = "Saved";
+"unsaved" = "Unsaved";
