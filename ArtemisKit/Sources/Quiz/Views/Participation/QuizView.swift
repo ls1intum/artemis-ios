@@ -38,6 +38,9 @@ struct QuizView: View {
             .tabViewStyle(.page(indexDisplayMode: .never))
         }
         .ignoresSafeArea(edges: .bottom)
+        .onAppear {
+            viewModel.startAutoSave()
+        }
     }
 }
 
