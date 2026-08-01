@@ -36,11 +36,11 @@ public struct ExerciseDetailView: View {
                             viewModel.showQuizParticipation = true
                         } label: {
                             if quiz.canStartLiveQuiz {
-                                Text(R.string.localizable.startExercise())
+                                Label(R.string.localizable.startExercise(), systemImage: "play.fill")
                             } else if quiz.canResumeQuiz {
-                                Text(R.string.localizable.openExercise())
+                                Label(R.string.localizable.openExercise(), systemImage: "play.fill")
                             } else {
-                                Text(R.string.localizable.startPractice())
+                                Label(R.string.localizable.startPractice(), systemImage: "memories")
                             }
                         }
                         .buttonStyle(.borderedProminent)
@@ -107,37 +107,18 @@ private extension ExerciseDetailView {
     // All buttons regarding viewing feedback and for the future, starting an exercise
     func feedback(exercise: Exercise) -> some View {
         HStack(spacing: .m) {
-            if viewModel.isExerciseParticipationAvailable {
-                if let dueDate = exercise.baseExercise.dueDate {
-                    if dueDate > Date() {
-                        if let participationId = viewModel.participationId {
-                            OpenExerciseButton(
-                                exercise: exercise,
-                                participationId: participationId,
-                                problemStatementURL: .init(url: .applicationDirectory))
-                        } else {
-                            StartExerciseButton(exercise: exercise, participationId: $viewModel.participationId)
-                        }
-                    } else {
-                        if let participationId = viewModel.participationId {
-                            if viewModel.latestResultId == nil {
-                                ViewExerciseSubmissionButton(exercise: exercise, participationId: participationId)
-                            } else {
-                                ViewExerciseResultButton(exercise: exercise, participationId: participationId)
-                            }
-                        }
-                    }
-                } else {
-                    if let participationId = viewModel.participationId {
-                        OpenExerciseButton(
-                            exercise: exercise,
-                            participationId: participationId,
-                            problemStatementURL: .init(url: .applicationDirectory))
-                    } else {
-                        StartExerciseButton(exercise: exercise, participationId: $viewModel.participationId)
-                    }
-                }
-            }
+            // TODO: Potentially show Quiz Submissions here
+//            if viewModel.isExerciseParticipationAvailable {
+//                if let dueDate = exercise.baseExercise.dueDate {
+//                    if dueDate < Date(), let participationId = viewModel.participationId {
+//                        if viewModel.latestResultId == nil {
+//                            ViewExerciseSubmissionButton(exercise: exercise, participationId: participationId)
+//                        } else {
+//                            ViewExerciseResultButton(exercise: exercise, participationId: participationId)
+//                        }
+//                    }
+//                }
+//            }
             if let latestResultId = viewModel.latestResultId,
                let participationId = viewModel.participationId,
                viewModel.isFeedbackButtonVisible {
@@ -256,58 +237,6 @@ private struct ExerciseDetailCell<Content: View>: View {
         }
         .frame(height: 25, alignment: .center)
         .padding(.s)
-    }
-}
-
-private struct StartExerciseButton: View {
-    var exercise: Exercise
-    @Binding var participationId: Int?
-
-    var body: some View {
-        Button {
-            Task {
-                let exerciseService = ExerciseSubmissionServiceFactory.service(for: exercise)
-                do {
-                    let response = try await exerciseService.startParticipation(exerciseId: exercise.id)
-                    participationId = response.baseParticipation.id
-                } catch {
-                    log.error(String(describing: error))
-                }
-            }
-        } label: {
-            Text(R.string.localizable.startExercise())
-        }
-        .buttonStyle(ArtemisButton())
-    }
-}
-
-private struct OpenExerciseButton: View {
-    var exercise: Exercise
-    var participationId: Int
-    var problemStatementURL: URLRequest
-
-    var body: some View {
-        // TODO: Fix, then re-enable
-//        switch exercise {
-//        case .modeling:
-//            NavigationLink(R.string.localizable.openModelingEditor()) {
-//                EditModelingExerciseView(
-//                    exercise: exercise,
-//                    participationId: participationId,
-//                    problemStatementURL: problemStatementURL)
-//            }
-//            .buttonStyle(ArtemisButton())
-//        case .text:
-//            NavigationLink(R.string.localizable.openExercise()) {
-//                EditTextExerciseView(
-//                    exercise: exercise,
-//                    participationId: participationId,
-//                    problem: problemStatementURL)
-//            }
-//            .buttonStyle(ArtemisButton())
-//        default:
-            ArtemisHintBox(text: R.string.localizable.exerciseParticipationHint(), hintType: .info)
-//        }
     }
 }
 
