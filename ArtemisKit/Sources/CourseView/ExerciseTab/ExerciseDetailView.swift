@@ -36,11 +36,11 @@ public struct ExerciseDetailView: View {
                             viewModel.showQuizParticipation = true
                         } label: {
                             if quiz.canStartLiveQuiz {
-                                Text("Start Quiz")
+                                Text(R.string.localizable.startExercise())
                             } else if quiz.canResumeQuiz {
-                                Text("Open Quiz")
+                                Text(R.string.localizable.openExercise())
                             } else {
-                                Text("Practice")
+                                Text(R.string.localizable.startPractice())
                             }
                         }
                         .buttonStyle(.borderedProminent)

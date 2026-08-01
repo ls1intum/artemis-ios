@@ -68,6 +68,7 @@
 "showFeedback" = "Show feedback";
 "startExercise" = "Start exercise";
 "openExercise" = "Open exercise";
+"startPractice" = "Practice";
 "openModelingEditor" = "Open modeling editor";
 "submitSubmission" = "Submit";
 "viewSubmission" = "View submission";
