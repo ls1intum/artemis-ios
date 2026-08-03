@@ -436,6 +436,7 @@ private struct InputBar: View {
                 Button(action: onPlusTapped) {
                     Image(systemName: "plus")
                         .imageScale(.large)
+                        .foregroundStyle(.secondary)
                 }
                 .popover(isPresented: $isContextPresented,
                          attachmentAnchor: .point(.top),
