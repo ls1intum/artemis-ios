@@ -39,8 +39,8 @@ class QuizParticipationViewModel: QuizViewModel {
 
     var questionCount: Int {
         switch participation.value {
-        case .StudentQuizParticipationWithQuestions(let p): p.exercise?.quizQuestions?.count ?? 0
-        case .StudentQuizParticipationWithSolutions(let p): p.exercise?.quizQuestions?.count ?? 0
+        case .liveQuiz(let p): p.exercise?.quizQuestions?.count ?? 0
+        case .afterQuizEnd(let p): p.exercise?.quizQuestions?.count ?? 0
         default: 0
         }
     }
