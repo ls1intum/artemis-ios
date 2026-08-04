@@ -1,6 +1,15 @@
 {
-  "originHash" : "1f239882008c074861bd28e88bf00e0c5aaa8dda81492654e4031e1514877876",
+  "originHash" : "a5e45d2ec7f604a8c73539caec5271e46c515b96b70e0781aa74e00cffa2cb6e",
   "pins" : [
+    {
+      "identity" : "artemis-ios-core-modules",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ls1intum/artemis-ios-core-modules",
+      "state" : {
+        "branch" : "431a501",
+        "revision" : "431a501a34dec515ab031f55da11a85e6c5bfc39"
+      }
+    },
     {
       "identity" : "collectionconcurrencykit",
       "kind" : "remoteSourceControl",
