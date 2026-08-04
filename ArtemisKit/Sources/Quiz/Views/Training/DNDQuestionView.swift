@@ -73,7 +73,8 @@ struct DNDDropLocations: View {
            let dragItems = question.dragItems {
             GeometryReader { geo in
                 ForEach(dropLocations, id: \.id) { location in
-                    DropLocation(dragItems: dragItems,
+                    DropLocation(questionId: question.id,
+                                 dragItems: dragItems,
                                  location: location,
                                  scaleX: geo.size.width,
                                  scaleY: geo.size.height,
@@ -88,6 +89,7 @@ struct DNDDropLocations: View {
 struct DropLocation: View {
     @Environment(QuizViewModel.self) private var viewModel
 
+    let questionId: Int64?
     let dragItems: [DTO.DragItem]
     let location: DTO.DropLocation
     let scaleX: CGFloat
@@ -124,13 +126,14 @@ struct DropLocation: View {
                 .frame(width: width, height: height)
                 .overlay {
                     if let selectedItem {
-                        DragItemView(item: selectedItem)
+                        DragItemView(questionId: questionId, item: selectedItem)
                     }
                 }
         }
         .allowsHitTesting(!viewModel.hasSubmitted)
         .popover(isPresented: $selected, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
-            DragItemPicker(items: unusedItems,
+            DragItemPicker(questionId: questionId,
+                           items: unusedItems,
                            onSelect: updateMapping(selectedRef:))
                 .presentationCompactAdaptation(.popover)
         }

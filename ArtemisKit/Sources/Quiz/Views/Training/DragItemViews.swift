@@ -13,6 +13,7 @@ import SwiftUI
 extension DTO.DragItem: WithImage {}
 
 struct DragItemPicker: View {
+    let questionId: Int64?
     let items: [DTO.DragItem]
     let onSelect: (Int64?) -> Void
 
@@ -23,7 +24,7 @@ struct DragItemPicker: View {
                     Button {
                         onSelect(item.id)
                     } label: {
-                        DragItemView(item: item)
+                        DragItemView(questionId: questionId, item: item)
                     }
                 }
             }
@@ -35,11 +36,12 @@ struct DragItemPicker: View {
 }
 
 struct DragItemView: View {
+    let questionId: Int64?
     let item: DTO.DragItem
 
     var body: some View {
-        if let imageUrl = item.image(for: \.pictureFilePath) {
-            ArtemisAsyncImage(imageURL: imageUrl) {}
+        if let expandedImageUrl {
+            ArtemisAsyncImage(imageURL: expandedImageUrl) {}
                 .scaledToFit()
         } else if let text = item.text {
             Text(text)
@@ -48,5 +50,14 @@ struct DragItemView: View {
                 .background(.background)
                 .border(.primary)
         }
+    }
+
+    private var expandedImageUrl: URL? {
+        guard let imageUrl = item.image(for: \.pictureFilePath) else { return nil }
+        guard let questionId else { return imageUrl }
+        let string = imageUrl.absoluteString
+            .replacing("drag-and-drop/drag-items",
+                       with: "drag-and-drop/questions/\(questionId)/drag-items")
+        return URL(string: string)
     }
 }
