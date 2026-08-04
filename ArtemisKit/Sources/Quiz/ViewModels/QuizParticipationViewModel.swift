@@ -125,7 +125,7 @@ class QuizParticipationViewModel: QuizViewModel {
     func startAutoSave() {
         guard isLiveQuiz else { return }
         autoSaveTimer?.invalidate()
-        autoSaveTimer = Timer(timeInterval: 30, repeats: true) { [weak self] timer in
+        autoSaveTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { [weak self] timer in
             Task(priority: .utility) {
                 guard let self else {
                     timer.invalidate()
