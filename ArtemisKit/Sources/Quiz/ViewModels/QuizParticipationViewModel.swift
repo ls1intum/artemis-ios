@@ -142,7 +142,6 @@ class QuizParticipationViewModel: QuizViewModel {
     }
 
     func saveAnswer(_ answer: DTO.SubmittedAnswerFromLiveClient) {
-        savedResults = false
         if let existingIndex = answers.firstIndex(where: {
             switch ($0, answer) {
             case let (.dragAndDrop(dnd), .dragAndDrop(new)):
@@ -154,8 +153,12 @@ class QuizParticipationViewModel: QuizViewModel {
             default: return false
             }
         }) {
+            if answers[existingIndex] != answer {
+                savedResults = false
+            }
             answers[existingIndex] = answer
         } else {
+            savedResults = false
             answers.append(answer)
         }
     }
