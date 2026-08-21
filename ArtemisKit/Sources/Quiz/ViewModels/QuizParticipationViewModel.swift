@@ -39,8 +39,8 @@ class QuizParticipationViewModel: QuizViewModel {
 
     var questionCount: Int {
         switch participation.value {
-        case .StudentQuizParticipationWithQuestions(let p): p.exercise?.quizQuestions?.count ?? 0
-        case .StudentQuizParticipationWithSolutions(let p): p.exercise?.quizQuestions?.count ?? 0
+        case .liveQuiz(let p): p.exercise?.quizQuestions?.count ?? 0
+        case .afterQuizEnd(let p): p.exercise?.quizQuestions?.count ?? 0
         default: 0
         }
     }
@@ -125,7 +125,7 @@ class QuizParticipationViewModel: QuizViewModel {
     func startAutoSave() {
         guard isLiveQuiz else { return }
         autoSaveTimer?.invalidate()
-        autoSaveTimer = Timer(timeInterval: 30, repeats: true) { [weak self] timer in
+        autoSaveTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { [weak self] timer in
             Task(priority: .utility) {
                 guard let self else {
                     timer.invalidate()
@@ -142,7 +142,6 @@ class QuizParticipationViewModel: QuizViewModel {
     }
 
     func saveAnswer(_ answer: DTO.SubmittedAnswerFromLiveClient) {
-        savedResults = false
         if let existingIndex = answers.firstIndex(where: {
             switch ($0, answer) {
             case let (.dragAndDrop(dnd), .dragAndDrop(new)):
@@ -154,8 +153,12 @@ class QuizParticipationViewModel: QuizViewModel {
             default: return false
             }
         }) {
+            if answers[existingIndex] != answer {
+                savedResults = false
+            }
             answers[existingIndex] = answer
         } else {
+            savedResults = false
             answers.append(answer)
         }
     }

@@ -50,9 +50,7 @@ struct StartBatchView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             .onAppear {
                 // Existing batch that user has joined -> wait automatically
-                if let party = viewModel.participation.value,
-                   case let .StudentQuizParticipationWithSolutions(withSolutions) = party,
-                   let batches = withSolutions.exercise?.quizBatches,
+                if let batches = viewModel.participation.value?.quizBatches,
                    let notStarted = batches.last(where: { $0.started != true })?.id {
                     viewModel.startWaitingForBatchStart(batchId: Int64(notStarted))
                     showWaitingScreen = true

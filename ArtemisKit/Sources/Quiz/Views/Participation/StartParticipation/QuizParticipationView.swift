@@ -24,7 +24,7 @@ public struct QuizParticipationView: View {
                 await viewModel.startParticipation()
             } content: { participation in
                 switch participation {
-                case .StudentQuizParticipationWithQuestions(let quiz):
+                case .liveQuiz(let quiz):
                     let duration = Double(quiz.exercise?.duration ?? 0)
                     let batch = quiz.exercise?.quizBatches?.last
                     let startTime = batch?.ended ?? false ? .now : batch?.startTime
@@ -35,7 +35,7 @@ public struct QuizParticipationView: View {
                     } else {
                         StartQuizView()
                     }
-                case .StudentQuizParticipationWithSolutions(let quiz):
+                case .afterQuizEnd(let quiz):
                     let duration = Double(quiz.exercise?.duration ?? 0)
                     let batch = quiz.exercise?.quizBatches?.last
                     let startTime = batch?.ended ?? false ? .now : batch?.startTime
