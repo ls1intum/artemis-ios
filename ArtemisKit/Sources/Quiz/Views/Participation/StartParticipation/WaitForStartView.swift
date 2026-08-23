@@ -41,3 +41,23 @@ struct WaitForQuizStartView: View {
         }
     }
 }
+
+struct WaitForQuizEndView: View {
+    var body: some View {
+        VStack(alignment: .center, spacing: .m) {
+            ProgressView()
+                .progressViewStyle(.circular)
+                .controlSize(.large)
+
+            Text(R.string.localizable.waitingForEnd())
+                .font(.title2)
+            Text(R.string.localizable.waitingForEndDetail())
+                .font(.footnote)
+                .padding(.bottom)
+        }
+        .padding()
+        .background(Color.Artemis.artemisBlue.opacity(0.5), in: .rect(cornerRadius: .l))
+        .padding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+    }
+}

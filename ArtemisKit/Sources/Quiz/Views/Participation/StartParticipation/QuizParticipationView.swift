@@ -70,8 +70,7 @@ public struct QuizParticipationView: View {
         .opacity(viewModel.waitingForResults ? 0.5 : 1)
         .overlay {
             if viewModel.waitingForResults {
-                // TODO: Actual design
-                ArtemisHintBox(text: "Wating for results", hintType: .info)
+                WaitForQuizEndView()
             }
         }
     }
