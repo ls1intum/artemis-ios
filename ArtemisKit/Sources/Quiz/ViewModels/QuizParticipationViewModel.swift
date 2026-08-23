@@ -36,6 +36,7 @@ class QuizParticipationViewModel: QuizViewModel {
 
     private let stompClient = ArtemisStompClient.shared
     private var syncQuizTask: Task<Void, Never>?
+    private var waitForSolutionsTask: Task<Void, Never>?
 
     var questionCount: Int {
         switch participation.value {
@@ -111,12 +112,32 @@ class QuizParticipationViewModel: QuizViewModel {
 
             for await message in stream {
                 print("Received Socket update")
-                if let data = message as? Data,
-                   let decoded = try? JSONDecoder().decode(DTO.StudentQuizParticipation.self, from: data) {
+                if let decoded = JSONDecoder.getTypeFromSocketMessage(type: DTO.StudentQuizParticipation.self, message: message) {
                     print("Socket update: \(decoded)")
                     participation = .done(response: decoded)
                 } else {
                     await startParticipation()
+                }
+            }
+        }
+    }
+
+    func startWaitingForSolutions() {
+        guard waitForSolutionsTask == nil else { return }
+        waitForSolutionsTask = Task {
+            let stream = stompClient.subscribe(to: "/user/topic/exercise/\(exercise.id)/participation")
+
+            for await message in stream {
+                print("Received Socket update")
+                if let decoded = JSONDecoder.getTypeFromSocketMessage(type: DTO.StudentQuizParticipation.self, message: message) {
+                    participation = .done(response: decoded)
+                    switch decoded {
+                    case .afterQuizEnd:
+                        waitingForResults = false
+                        waitForSolutionsTask?.cancel()
+                        waitForSolutionsTask = nil
+                    default: break
+                    }
                 }
             }
         }
@@ -194,6 +215,7 @@ class QuizParticipationViewModel: QuizViewModel {
             if response.submitted == true {
                 submissionSuccessful = true
                 waitingForResults = true
+                startWaitingForSolutions()
             }
         default: submissionSuccessful = false
         }
