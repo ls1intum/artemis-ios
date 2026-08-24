@@ -14,7 +14,7 @@ struct QuizSubmissionStatusIndicator: View {
         VStack(spacing: 0) {
             Text("\(R.string.localizable.question()) \(viewModel.selectedQuestion + 1)/\(viewModel.questionCount)")
                 .fixedSize()
-            if viewModel.isLiveQuiz {
+            if viewModel.isLiveQuiz && !viewModel.hasSubmitted {
                 let loc = R.string.localizable
                 Text("\(loc.status()): \(viewModel.savedResults ? loc.saved() : loc.unsaved())")
                     .font(.footnote)

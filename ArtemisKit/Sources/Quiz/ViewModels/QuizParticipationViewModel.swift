@@ -198,6 +198,7 @@ class QuizParticipationViewModel: QuizViewModel {
     func submit() async {
         if isLiveQuiz {
             autoSaveTimer?.invalidate()
+            autoSaveTimer = nil
             await submitAnswers(submit: true)
         } else {
             await submitAnswersForPractice()

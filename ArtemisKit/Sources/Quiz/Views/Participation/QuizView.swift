@@ -18,7 +18,7 @@ struct QuizView: View {
     var body: some View {
         @Bindable var viewModel = viewModel
         VStack(spacing: 0) {
-            if let startTime, let endTime, endTime > .now {
+            if let startTime, let endTime, endTime > .now, !viewModel.hasSubmitted {
                 ProgressView(timerInterval: startTime...endTime, countsDown: false)
                     .labelsHidden()
                     .containerRelativeFrame(.horizontal)
