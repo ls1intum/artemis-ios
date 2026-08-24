@@ -36,6 +36,7 @@ class QuizParticipationViewModel: QuizViewModel {
 
     private let stompClient = ArtemisStompClient.shared
     private var syncQuizTask: Task<Void, Never>?
+    private var waitForSolutionsTask: Task<Void, Never>?
 
     var questionCount: Int {
         switch participation.value {
@@ -111,8 +112,7 @@ class QuizParticipationViewModel: QuizViewModel {
 
             for await message in stream {
                 print("Received Socket update")
-                if let data = message as? Data,
-                   let decoded = try? JSONDecoder().decode(DTO.StudentQuizParticipation.self, from: data) {
+                if let decoded = JSONDecoder.getTypeFromSocketMessage(type: DTO.StudentQuizParticipation.self, message: message) {
                     print("Socket update: \(decoded)")
                     participation = .done(response: decoded)
                 } else {
@@ -122,8 +122,32 @@ class QuizParticipationViewModel: QuizViewModel {
         }
     }
 
+    func startWaitingForSolutions() {
+        guard waitForSolutionsTask == nil else { return }
+        waitForSolutionsTask = Task {
+            let stream = stompClient.subscribe(to: "/user/topic/exercise/\(exercise.id)/participation")
+
+            for await message in stream {
+                print("Received Socket update")
+                if let decoded = JSONDecoder.getTypeFromSocketMessage(type: DTO.StudentQuizParticipation.self, message: message) {
+                    participation = .done(response: decoded)
+                    switch decoded {
+                    case .afterQuizEnd(let result):
+                        waitingForResults = false
+                        waitForSolutionsTask?.cancel()
+                        waitForSolutionsTask = nil
+                        if let answers = result.submissions?.last(where: { $0.submitted == true })?.submittedAnswers {
+                            lastSubmissionResults = .done(response: answers)
+                        }
+                    default: break
+                    }
+                }
+            }
+        }
+    }
+
     func startAutoSave() {
-        guard isLiveQuiz else { return }
+        guard isLiveQuiz, !hasSubmitted else { return }
         autoSaveTimer?.invalidate()
         autoSaveTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { [weak self] timer in
             Task(priority: .utility) {
@@ -174,6 +198,7 @@ class QuizParticipationViewModel: QuizViewModel {
     func submit() async {
         if isLiveQuiz {
             autoSaveTimer?.invalidate()
+            autoSaveTimer = nil
             await submitAnswers(submit: true)
         } else {
             await submitAnswersForPractice()
@@ -194,6 +219,7 @@ class QuizParticipationViewModel: QuizViewModel {
             if response.submitted == true {
                 submissionSuccessful = true
                 waitingForResults = true
+                startWaitingForSolutions()
             }
         default: submissionSuccessful = false
         }

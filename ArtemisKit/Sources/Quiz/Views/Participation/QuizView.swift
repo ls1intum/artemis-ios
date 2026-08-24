@@ -18,7 +18,7 @@ struct QuizView: View {
     var body: some View {
         @Bindable var viewModel = viewModel
         VStack(spacing: 0) {
-            if let startTime, let endTime, endTime > .now {
+            if let startTime, let endTime, endTime > .now, !viewModel.hasSubmitted {
                 ProgressView(timerInterval: startTime...endTime, countsDown: false)
                     .labelsHidden()
                     .containerRelativeFrame(.horizontal)
@@ -89,6 +89,22 @@ private struct QuizQuestionViews: View {
             .tag(index)
             // Prevent manual swiping between questions
             .gesture(DragGesture())
+            .toolbar {
+                if let score = viewModel.score(questionId: question.id),
+                   let total = question.points {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        let percent = score / total
+                        Button {
+                            // This needs to be a button, otherwise .tint has no effect
+                        } label: {
+                            Text("\(score.formatted(.number)) / \(total.formatted(.number))")
+                                .padding(.horizontal, .s)
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .tint(percent > 0.8 ? .green : percent > 0.4 ? .yellow : .red)
+                    }
+                }
+            }
         }
     }
 }

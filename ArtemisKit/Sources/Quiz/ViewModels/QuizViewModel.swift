@@ -23,4 +23,13 @@ class QuizViewModel {
             return false
         }
     }
+
+    func score(questionId: Int64?) -> Double? {
+        if case .done(let answer) = lastSubmissionResult {
+            return answer.scoreInPoints
+        } else if case .done(let answers) = lastSubmissionResults {
+            return answers.first(where: { $0.quizQuestion?.id == questionId })?.scoreInPoints
+        }
+        return nil
+    }
 }
