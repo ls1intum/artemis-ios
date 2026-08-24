@@ -70,6 +70,10 @@ public struct ExerciseDetailView: View {
                     .padding()
             }
             .sheet(isPresented: $viewModel.showQuizParticipation) {
+                Task {
+                    await viewModel.refreshExercise()
+                }
+            } content: {
                 if case .quiz(let quiz) = exercise {
                     QuizParticipationView(exercise: quiz, courseId: viewModel.courseId)
                 }
