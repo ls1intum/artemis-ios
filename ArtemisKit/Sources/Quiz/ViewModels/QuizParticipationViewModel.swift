@@ -132,10 +132,13 @@ class QuizParticipationViewModel: QuizViewModel {
                 if let decoded = JSONDecoder.getTypeFromSocketMessage(type: DTO.StudentQuizParticipation.self, message: message) {
                     participation = .done(response: decoded)
                     switch decoded {
-                    case .afterQuizEnd:
+                    case .afterQuizEnd(let result):
                         waitingForResults = false
                         waitForSolutionsTask?.cancel()
                         waitForSolutionsTask = nil
+                        if let answers = result.submissions?.last(where: { $0.submitted == true })?.submittedAnswers {
+                            lastSubmissionResults = .done(response: answers)
+                        }
                     default: break
                     }
                 }
@@ -144,7 +147,7 @@ class QuizParticipationViewModel: QuizViewModel {
     }
 
     func startAutoSave() {
-        guard isLiveQuiz else { return }
+        guard isLiveQuiz, !hasSubmitted else { return }
         autoSaveTimer?.invalidate()
         autoSaveTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { [weak self] timer in
             Task(priority: .utility) {
