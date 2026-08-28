@@ -58,18 +58,27 @@ public struct SearchTabView: View {
 
 public struct GlobalSearchSection: View {
     @FeatureAvailability(.globalSearch) private var searchAvailable
-    @EnvironmentObject private var navController: NavigationController
-    @Environment(SearchTabViewModel.self) private var viewModel
 
     public init() {}
 
     public var body: some View {
         if searchAvailable {
-            scopeSuggestions
+            GlobalSearchSectionContent()
+        }
+    }
+}
 
-            Section {
-                SearchResultsView(viewModel: viewModel)
-            }
+// Split into two parts such that @Environment cannot be accessed
+// accidentally when global search is disabled
+private struct GlobalSearchSectionContent: View {
+    @EnvironmentObject private var navController: NavigationController
+    @Environment(SearchTabViewModel.self) private var viewModel
+
+    var body: some View {
+        scopeSuggestions
+
+        Section {
+            SearchResultsView(viewModel: viewModel)
         }
     }
 
