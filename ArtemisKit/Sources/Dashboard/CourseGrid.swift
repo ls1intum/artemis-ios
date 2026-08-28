@@ -24,7 +24,7 @@ struct CourseGrid: View {
             await viewModel.loadCourses()
         } content: { _ in
             ScrollView {
-                if !viewModel.searchText.isEmpty {
+                if !viewModel.searchText.isEmpty || searchFocused {
                     GlobalSearchSection()
                         .padding(.horizontal)
                         .padding(.vertical, .s)

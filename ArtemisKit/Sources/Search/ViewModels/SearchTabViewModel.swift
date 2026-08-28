@@ -54,7 +54,7 @@ class SearchTabViewModel {
     }
 
     func performSearch() async {
-        if searchTerm.count >= 3 || searchTerm.isEmpty {
+        guard searchTerm.count >= 3 || searchTerm.isEmpty else {
             // Only search if there are 3+ characters (or 0 for suggestion)
             observeChanges()
             return
@@ -65,8 +65,8 @@ class SearchTabViewModel {
         let service = SearchServiceFactory.shared
 
         let results = await service.search(for: selectedFilters.first?.apiFilterTypes,
-                                             in: scope == .course ? courseId : nil,
-                                             searchTerm: searchTerm)
+                                           in: scope == .course ? courseId : nil,
+                                           searchTerm: searchTerm)
 
         searchResults = results.map {
             if let limitResults {

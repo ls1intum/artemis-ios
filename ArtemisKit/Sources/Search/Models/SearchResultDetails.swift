@@ -9,7 +9,7 @@ import Foundation
 import Navigation
 import SwiftUI
 
-protocol SearchResultDetails: Decodable {
+protocol SearchResultDetails: Decodable, Hashable {
     var courseId: Int? { get }
     var courseName: String? { get }
 
