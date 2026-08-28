@@ -7,6 +7,7 @@
 
 import Navigation
 import Notifications
+import ProfileInfo
 import SwiftUI
 import UserStore
 
@@ -56,16 +57,19 @@ public struct SearchTabView: View {
 }
 
 public struct GlobalSearchSection: View {
+    @FeatureAvailability(.globalSearch) private var searchAvailable
     @EnvironmentObject private var navController: NavigationController
     @Environment(SearchTabViewModel.self) private var viewModel
 
     public init() {}
 
     public var body: some View {
-        scopeSuggestions
-
-        Section {
-            SearchResultsView(viewModel: viewModel)
+        if searchAvailable {
+            scopeSuggestions
+            
+            Section {
+                SearchResultsView(viewModel: viewModel)
+            }
         }
     }
 
@@ -100,7 +104,9 @@ private struct ScopeSuggestion: View {
             if let action {
                 action()
             } else {
-                viewModel.selectedFilters.append(filter)
+                withAnimation {
+                    viewModel.selectedFilters.append(filter)
+                }
             }
         } label: {
             label
