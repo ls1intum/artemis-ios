@@ -66,7 +66,7 @@ public struct GlobalSearchSection: View {
     public var body: some View {
         if searchAvailable {
             scopeSuggestions
-            
+
             Section {
                 SearchResultsView(viewModel: viewModel)
             }
