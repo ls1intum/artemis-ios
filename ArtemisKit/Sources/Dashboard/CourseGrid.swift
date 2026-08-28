@@ -7,6 +7,7 @@
 
 import CourseRegistration
 import DesignLibrary
+import Search
 import SharedModels
 import SwiftUI
 
@@ -16,12 +17,20 @@ struct CourseGrid: View {
 
     @Bindable var viewModel: DashboardViewModel
     @State private var isCourseRegistrationPresented = false
+    @FocusState private var searchFocused
 
     var body: some View {
         DataStateView(data: $viewModel.coursesForDashboard) {
             await viewModel.loadCourses()
         } content: { _ in
             ScrollView {
+                if !viewModel.searchText.isEmpty {
+                    GlobalSearchSection()
+                        .padding(.horizontal)
+                        .padding(.vertical, .s)
+                        .background(.quinary, in: .rect(cornerRadius: .l))
+                }
+
                 if !viewModel.recentCourses.isEmpty && viewModel.searchText.isEmpty {
                     Text(R.string.localizable.recentlyAccessed())
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -56,7 +65,8 @@ struct CourseGrid: View {
                 .padding(.vertical)
             }
             .contentMargins(.horizontal, .l, for: .scrollContent)
-            .searchable(text: $viewModel.searchText)
+            .searchFocused($searchFocused)
+            .globalSearchable(searchText: $viewModel.searchText)
             .refreshable {
                 await viewModel.loadCourses()
             }

@@ -12,6 +12,7 @@ import Foundation
 class SearchTabViewModel {
     let courseId: Int
     let irisEnabled: Bool
+    let limitResults: Int?
 
     var searchTerm = ""
     var scope: SearchScope
@@ -26,10 +27,11 @@ class SearchTabViewModel {
     var searchResults: DataState<[SearchResultDTO]> = .loading
     var isLoading = false
 
-    init(courseId: Int, irisEnabled: Bool, defaultScope: SearchScope = .course) {
+    init(courseId: Int, irisEnabled: Bool, defaultScope: SearchScope = .course, limitResults: Int? = nil) {
         self.courseId = courseId
         self.irisEnabled = irisEnabled
         self.scope = defaultScope
+        self.limitResults = limitResults
     }
 
     private var updateSearchTask: Task<(), Never>?
@@ -52,13 +54,27 @@ class SearchTabViewModel {
     }
 
     func performSearch() async {
+        if searchTerm.count >= 3 || searchTerm.isEmpty {
+            // Only search if there are 3+ characters (or 0 for suggestion)
+            observeChanges()
+            return
+        }
+
         isLoading = true
 
         let service = SearchServiceFactory.shared
 
-        searchResults = await service.search(for: selectedFilters.first?.apiFilterTypes,
+        let results = await service.search(for: selectedFilters.first?.apiFilterTypes,
                                              in: scope == .course ? courseId : nil,
                                              searchTerm: searchTerm)
+
+        searchResults = results.map {
+            if let limitResults {
+                return Array($0.prefix(limitResults))
+            }
+            return $0
+        }
+
         observeChanges()
         isLoading = false
     }

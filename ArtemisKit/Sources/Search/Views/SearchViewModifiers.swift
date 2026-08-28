@@ -22,7 +22,7 @@ struct ExternalGlobalSearchViewModifier: ViewModifier {
     @Binding var searchText: String
 
     init(searchText: Binding<String>) {
-        self._viewModel = State(initialValue: .init(courseId: 0, irisEnabled: false, defaultScope: .global))
+        self._viewModel = State(initialValue: .init(courseId: 0, irisEnabled: false, defaultScope: .global, limitResults: 3))
         self._searchText = searchText
     }
 
