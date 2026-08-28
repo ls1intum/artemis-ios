@@ -14,7 +14,7 @@ class SearchTabViewModel {
     let irisEnabled: Bool
 
     var searchTerm = ""
-    var scope: SearchScope = .course
+    var scope: SearchScope
     var selectedFilters = [SearchFilter]()
 
     var searchRequest: SearchRequest {
@@ -26,9 +26,10 @@ class SearchTabViewModel {
     var searchResults: DataState<[SearchResultDTO]> = .loading
     var isLoading = false
 
-    init(courseId: Int, irisEnabled: Bool) {
+    init(courseId: Int, irisEnabled: Bool, defaultScope: SearchScope = .course) {
         self.courseId = courseId
         self.irisEnabled = irisEnabled
+        self.scope = defaultScope
     }
 
     private var updateSearchTask: Task<(), Never>?
