@@ -7,11 +7,11 @@
 
 import Navigation
 import Notifications
+import ProfileInfo
 import SwiftUI
 import UserStore
 
 public struct SearchTabView: View {
-    @EnvironmentObject private var navController: NavigationController
     @State private var viewModel: SearchTabViewModel
 
     public init(courseId: Int, irisEnabled: Bool) {
@@ -23,11 +23,7 @@ public struct SearchTabView: View {
             List {
                 scopePicker
 
-                scopeSuggestions
-
-                Section {
-                    SearchResultsView(viewModel: viewModel)
-                }
+                GlobalSearchSection()
 
                 // Search text field does not count to Safe Area while open, so create some space
                 Spacer().listRowBackground(Color.clear)
@@ -35,9 +31,7 @@ public struct SearchTabView: View {
             .animation(.default, value: viewModel.selectedFilters)
             .animation(.default, value: viewModel.searchTerm.isEmpty)
             .submitLabel(.search)
-            .searchable(text: $viewModel.searchTerm, tokens: $viewModel.selectedFilters) { token in
-                Label(token.displayTitle, systemImage: token.systemImage)
-            }
+            .globalSearchable(viewModel: viewModel)
             .listRowSpacing(.m)
             .listSectionSpacing(.compact)
             .courseToolbar()
@@ -58,6 +52,24 @@ public struct SearchTabView: View {
             .pickerStyle(.segmented)
             .listRowBackground(Color.clear)
             .listRowInsets(EdgeInsets())
+        }
+    }
+}
+
+public struct GlobalSearchSection: View {
+    @FeatureAvailability(.globalSearch) private var searchAvailable
+    @EnvironmentObject private var navController: NavigationController
+    @Environment(SearchTabViewModel.self) private var viewModel
+
+    public init() {}
+
+    public var body: some View {
+        if searchAvailable {
+            scopeSuggestions
+
+            Section {
+                SearchResultsView(viewModel: viewModel)
+            }
         }
     }
 
@@ -92,7 +104,9 @@ private struct ScopeSuggestion: View {
             if let action {
                 action()
             } else {
-                viewModel.selectedFilters.append(filter)
+                withAnimation {
+                    viewModel.selectedFilters.append(filter)
+                }
             }
         } label: {
             label

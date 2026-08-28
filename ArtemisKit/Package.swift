@@ -104,6 +104,7 @@ let package = Package(
                 .product(name: "Account", package: "artemis-ios-core-modules"),
                 .product(name: "APIClient", package: "artemis-ios-core-modules"),
                 .product(name: "DesignLibrary", package: "artemis-ios-core-modules"),
+                .product(name: "ProfileInfo", package: "artemis-ios-core-modules"),
                 .product(name: "SharedModels", package: "artemis-ios-core-modules"),
                 .product(name: "SharedServices", package: "artemis-ios-core-modules"),
                 .product(name: "RswiftLibrary", package: "R.swift")
@@ -216,6 +217,7 @@ let package = Package(
                 "Notifications",
                 .product(name: "APIClient", package: "artemis-ios-core-modules"),
                 .product(name: "Common", package: "artemis-ios-core-modules"),
+                .product(name: "ProfileInfo", package: "artemis-ios-core-modules"),
                 .product(name: "SharedModels", package: "artemis-ios-core-modules"),
                 .product(name: "SharedServices", package: "artemis-ios-core-modules"),
                 .product(name: "UserStore", package: "artemis-ios-core-modules")

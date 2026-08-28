@@ -42,6 +42,21 @@ extension SearchResultDTO {
     }
 }
 
+extension SearchResultDTO: Hashable {
+    static func == (lhs: SearchResultDTO, rhs: SearchResultDTO) -> Bool {
+        lhs.hashValue == rhs.hashValue
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+        hasher.combine(type)
+        hasher.combine(title)
+        hasher.combine(description)
+        hasher.combine(badge)
+        hasher.combine(metadata?.hashValue)
+    }
+}
+
 extension SearchResultDTO {
     func navigate(with controller: NavigationController) async {
         await metadata?.navigateToDetail(with: controller, result: self)
