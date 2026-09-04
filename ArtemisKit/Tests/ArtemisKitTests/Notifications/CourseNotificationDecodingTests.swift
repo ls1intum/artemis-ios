@@ -108,6 +108,27 @@ final class CourseNotificationDecodingTests: XCTestCase {
         XCTAssertEqual(post.channelName, "from the payload")
     }
 
+    /// A null payload counts as absent, so the values are still read rather than the decode failing.
+    func testTreatsANullPayloadAsAbsent() throws {
+        let notification = try decode("""
+        {
+          "notificationType": "newPostNotification",
+          "notificationId": 5,
+          "courseId": 42,
+          "creationDate": "2026-09-04T12:00:00Z",
+          "category": "COMMUNICATION",
+          "status": "UNSEEN",
+          "payload": null,
+          "parameters": { "postId": 90037, "channelName": "from the parameters" }
+        }
+        """)
+
+        guard case .newPost(let post) = notification.notification else {
+            return XCTFail("Expected a new post notification, got \(notification.notification)")
+        }
+        XCTAssertEqual(post.channelName, "from the parameters")
+    }
+
     /// A notification type this version does not know must not fail the page it arrives in.
     func testDecodesAnUnknownNotificationType() throws {
         let notification = try decode("""

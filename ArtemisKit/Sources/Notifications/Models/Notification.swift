@@ -41,11 +41,18 @@ struct CourseNotification: Codable, Identifiable {
     /// where they are siblings of `payload` rather than part of it. Nothing on this screen reads them: the list
     /// belongs to one course already, and `communicationInfo`, the one place that does read them, builds from a push
     /// notification body, which keeps the flat shape its version pins it to.
+    ///
+    /// A present but null `payload` counts as absent. The server writes the key for every notification it sends, even
+    /// one whose payload carries nothing, so this only matters if that ever stops being true — and reading a null as
+    /// if it were the values would fail the decode of the whole page, which is the failure this method exists to
+    /// avoid.
     private static func valuesKey(in decoder: any Decoder) -> Keys {
-        guard let container = try? decoder.container(keyedBy: Keys.self) else {
+        guard let container = try? decoder.container(keyedBy: Keys.self),
+              container.contains(.payload),
+              (try? container.decodeNil(forKey: .payload)) == false else {
             return .parameters
         }
-        return container.contains(.payload) ? .payload : .parameters
+        return .payload
     }
 
     private enum Keys: String, CodingKey {
