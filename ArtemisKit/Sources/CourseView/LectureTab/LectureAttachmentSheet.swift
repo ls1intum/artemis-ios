@@ -51,7 +51,7 @@ struct LectureAttachmentSheet: View {
     }
 
     private func loadAttachment(lectureId: Int, lectureName: String) async {
-        let normalizedLink = "/api/core/files/attachments/lecture/\(lectureId)/merge-pdf"
+        let normalizedLink = "/api/core/files/attachments/lectures/\(lectureId)/merge-pdf"
         previewURL = await LectureServiceFactory.shared.getAttachmentFile(link: normalizedLink, name: lectureName)
     }
 }
