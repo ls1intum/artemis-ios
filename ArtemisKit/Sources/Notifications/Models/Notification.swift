@@ -27,13 +27,39 @@ struct CourseNotification: Codable, Identifiable {
         self.category = try container.decode(NotificationCategory.self, forKey: .category)
         self.status = try container.decode(NotificationStatus.self, forKey: .status)
         // Custom decoding required for CoursePushNotification
-        self.notification = try CoursePushNotification(from: decoder, typeKey: Keys.notificationType, parametersKey: Keys.parameters)
+        self.notification = try CoursePushNotification(from: decoder, typeKey: Keys.notificationType, parametersKey: Self.valuesKey(in: decoder))
+    }
+
+    /// Where the values of this notification are, which depends on the version of the server that sent it.
+    ///
+    /// Artemis 10.0 gives every notification type a payload of its own, so the values sit under `payload` and are
+    /// declared rather than being flattened into a map of objects. Older servers only send `parameters`, and an
+    /// install talks to whichever version its institution has deployed, so the shape is read from the response rather
+    /// than assumed. A 10.0 server sends both while the released apps that read `parameters` are still in use.
+    ///
+    /// Note that this leaves `courseTitle` and `courseIconUrl` of the decoded notification empty on the new shape,
+    /// where they are siblings of `payload` rather than part of it. Nothing on this screen reads them: the list
+    /// belongs to one course already, and `communicationInfo`, the one place that does read them, builds from a push
+    /// notification body, which keeps the flat shape its version pins it to.
+    ///
+    /// A present but null `payload` counts as absent. The server writes the key for every notification it sends, even
+    /// one whose payload carries nothing, so this only matters if that ever stops being true — and reading a null as
+    /// if it were the values would fail the decode of the whole page, which is the failure this method exists to
+    /// avoid.
+    private static func valuesKey(in decoder: any Decoder) -> Keys {
+        guard let container = try? decoder.container(keyedBy: Keys.self),
+              container.contains(.payload),
+              (try? container.decodeNil(forKey: .payload)) == false else {
+            return .parameters
+        }
+        return .payload
     }
 
     private enum Keys: String, CodingKey {
         case notificationType
         case courseId
         case parameters
+        case payload
     }
 
     var id: Int { notificationId }
