@@ -737,7 +737,7 @@ struct MessagesServiceImpl: MessagesService {
         }
 
         var resourceName: String {
-            return "api/core/courses/\(courseId)/users/search?loginOrName=\(searchText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&roles=students,tutors,instructors"
+            return "api/course/courses/\(courseId)/users/search?loginOrName=\(searchText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&roles=students,tutors,instructors"
         }
     }
 
