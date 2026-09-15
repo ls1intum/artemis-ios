@@ -116,74 +116,72 @@ struct ExerciseListView: View {
 
 private extension ExerciseListView {
     var hasQuizExercises: Bool {
-//        viewModel.course.exercises?.contains(where: {
-//            if case .quiz = $0 {
-//                true
-//            } else {
-//                false
-//            }
-//        }) ?? false
-        false
+        viewModel.exercisesOverview.value?.exercises?.contains(where: {
+            if case .quiz = $0 {
+                true
+            } else {
+                false
+            }
+        }) ?? false
     }
     var searchResults: [Exercise] {
-//        guard let exercises = viewModel.course.exercises else {
-//            return []
-//        }
-//        return exercises.filter { exercise in
-//            let range = exercise.baseExercise.title?.range(of: searchText, options: [.caseInsensitive, .diacriticInsensitive])
-//            return range != nil
-//        }
-        []
+        guard let exercises = viewModel.exercisesOverview.value?.exercises else {
+            return []
+        }
+        return exercises.filter { exercise in
+            let range = exercise.baseExercise.title?.range(of: searchText, options: [.caseInsensitive, .diacriticInsensitive])
+            return range != nil
+        }
     }
 
     var exerciseGroups: ([ExerciseGroup], ExerciseGroupsInfo) {
-//        guard let exercises = viewModel.course.exercises else {
+        guard let exercises = viewModel.exercisesOverview.value?.exercises else {
             return ([], .init(currentDueCount: 0, futureCount: 0, pastCount: 0))
-//        }
+        }
 
-//        let groupedDates = exercises.reduce(into: [ExerciseGroup.GroupType: [Exercise]]()) { partialResult, exercise in
-//            let start = exercise.baseExercise.releaseDate
-//            let end = exercise.baseExercise.dueDate
-//            let type: ExerciseGroup.GroupType
-//
-//            if let start, start > .now {
-//                type = .future
-//            } else if let end, end < .now {
-//                type = .past
-//            } else if let end, end > .now, end.timeIntervalSince(.now) <= 3 * 24 * 60 * 60 {
-//                type = .dueSoon
-//            } else if let end, end > .now {
-//                type = .current
-//            } else {
-//                type = .noDate
-//            }
-//
-//            if partialResult[type] == nil {
-//                partialResult[type] = [exercise]
-//            } else {
-//                partialResult[type]?.append(exercise)
-//            }
-//        }
+        let groupedDates = exercises.reduce(into: [ExerciseGroup.GroupType: [Exercise]]()) { partialResult, exercise in
+            let start = exercise.baseExercise.releaseDate
+            let end = exercise.baseExercise.dueDate
+            let type: ExerciseGroup.GroupType
 
-//        let groups = groupedDates.map { group in
-//            let exercises = group.value.sorted {
-//                if let lhsDue = $0.baseExercise.dueDate,
-//                   let rhsDue = $1.baseExercise.dueDate {
-//                    return lhsDue.compare(rhsDue) == .orderedDescending
-//                }
-//                let lhs = $0.baseExercise.title?.lowercased() ?? ""
-//                let rhs = $1.baseExercise.title?.lowercased() ?? ""
-//                return lhs.compare(rhs) == .orderedAscending
-//            }
-//            return ExerciseGroup(type: group.key, exercises: exercises)
-//        }
+            if let start, start > .now {
+                type = .future
+            } else if let end, end < .now {
+                type = .past
+            } else if let end, end > .now, end.timeIntervalSince(.now) <= 3 * 24 * 60 * 60 {
+                type = .dueSoon
+            } else if let end, end > .now {
+                type = .current
+            } else {
+                type = .noDate
+            }
 
-//        let currentCount = groups.first(where: { $0.type == .current || $0.type == .dueSoon })?.exercises.count ?? 0
-//        let futureCount = groups.first(where: { $0.type == .future })?.exercises.count ?? 0
-//        let pastCount = groups.first(where: { $0.type == .past })?.exercises.count ?? 0
-//        let info = ExerciseGroupsInfo(currentDueCount: currentCount, futureCount: futureCount, pastCount: pastCount)
-//
-//        return (groups.sorted(by: <), info)
+            if partialResult[type] == nil {
+                partialResult[type] = [exercise]
+            } else {
+                partialResult[type]?.append(exercise)
+            }
+        }
+
+        let groups = groupedDates.map { group in
+            let exercises = group.value.sorted {
+                if let lhsDue = $0.baseExercise.dueDate,
+                   let rhsDue = $1.baseExercise.dueDate {
+                    return lhsDue.compare(rhsDue) == .orderedDescending
+                }
+                let lhs = $0.baseExercise.title?.lowercased() ?? ""
+                let rhs = $1.baseExercise.title?.lowercased() ?? ""
+                return lhs.compare(rhs) == .orderedAscending
+            }
+            return ExerciseGroup(type: group.key, exercises: exercises)
+        }
+
+        let currentCount = groups.first(where: { $0.type == .current || $0.type == .dueSoon })?.exercises.count ?? 0
+        let futureCount = groups.first(where: { $0.type == .future })?.exercises.count ?? 0
+        let pastCount = groups.first(where: { $0.type == .past })?.exercises.count ?? 0
+        let info = ExerciseGroupsInfo(currentDueCount: currentCount, futureCount: futureCount, pastCount: pastCount)
+
+        return (groups.sorted(by: <), info)
     }
 }
 

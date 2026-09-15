@@ -6,7 +6,8 @@ import SharedServices
 @MainActor
 class CourseViewModel: BaseViewModel {
     @Published var course: CourseForOverviewDTO
-    // TODO: Lectures+Exercises overview
+    @Published var exercisesOverview: DataState<CourseExercisesForOverviewDTO> = .loading
+    @Published var lecturesOverview: DataState<CourseLecturesForOverviewDTO> = .loading
 
     private let courseService: CourseService
 
@@ -31,5 +32,13 @@ extension CourseViewModel {
         case let .done(course):
             self.course = course
         }
+    }
+
+    func refreshExercises() async {
+        exercisesOverview = await courseService.getExerciseOverview(courseId: course.id)
+    }
+
+    func refreshLectures() async {
+        lecturesOverview = await courseService.getLectureOverview(courseId: course.id)
     }
 }

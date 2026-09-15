@@ -25,7 +25,7 @@ public struct CourseView: View {
                     systemImage: "list.bullet.clipboard.fill",
                     value: TabIdentifier.exercise) {
                     TabBarIpad {
-                        ExerciseListView(viewModel: viewModel)
+                        ExerciseTabView(viewModel: viewModel)
                     }
                 }
             }
