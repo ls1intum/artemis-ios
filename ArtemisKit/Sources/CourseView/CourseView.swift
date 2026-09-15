@@ -35,8 +35,8 @@ public struct CourseView: View {
                     systemImage: "character.book.closed.fill",
                     value: TabIdentifier.lecture) {
                     TabBarIpad {
-                        LectureListView(viewModel: viewModel,
-                                        showFaqButton: !potentiallyVisibleTabs.contains(.faq))
+                        LectureTabView(viewModel: viewModel,
+                                       showFaqButton: !potentiallyVisibleTabs.contains(.faq))
                     }
                 }
             }

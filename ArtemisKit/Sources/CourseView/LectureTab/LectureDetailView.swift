@@ -76,8 +76,8 @@ public struct LectureDetailView: View {
                         }
                     }
                 }
-//                .frame(maxWidth: .infinity, alignment: .leading)
-//                .padding(.l)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.l)
             }
             .onChange(of: viewModel.course.value, initial: true) { _, newValue in
                 if newValue != nil {

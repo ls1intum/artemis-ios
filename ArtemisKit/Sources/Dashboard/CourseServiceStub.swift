@@ -36,7 +36,7 @@ struct CourseServiceStub: CourseService {
         .loading
     }
 
-    func getLectureOverview(courseId: Int) async -> DataState<CourseLecturesForOverviewDTO> {
+    func getLectureOverview(courseId: Int) async -> DataState<[Lecture]> {
         .loading
     }
 

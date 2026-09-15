@@ -53,7 +53,7 @@ struct ExerciseListView: View {
                 .listRowSpacing(.m)
                 .searchable(text: $searchText, prompt: R.string.localizable.filterExercises())
                 .refreshable {
-                    await viewModel.refreshCourse()
+                    await viewModel.refreshExercises()
                 }
                 .onChange(of: exerciseGroups.0) { _, newValue in
                     withAnimation {

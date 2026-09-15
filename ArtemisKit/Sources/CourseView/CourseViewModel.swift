@@ -7,7 +7,7 @@ import SharedServices
 class CourseViewModel: BaseViewModel {
     @Published var course: CourseForOverviewDTO
     @Published var exercisesOverview: DataState<CourseExercisesForOverviewDTO> = .loading
-    @Published var lecturesOverview: DataState<CourseLecturesForOverviewDTO> = .loading
+    @Published var lecturesOverview: DataState<[Lecture]> = .loading
 
     private let courseService: CourseService
 
