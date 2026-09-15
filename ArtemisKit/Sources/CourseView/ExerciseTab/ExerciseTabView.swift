@@ -10,7 +10,7 @@ import DesignLibrary
 import SwiftUI
 
 struct ExerciseTabView: View {
-    @ObservedObject var viewModel: CourseViewModel
+    @Bindable var viewModel: CourseViewModel
 
     var body: some View {
         DataStateView(data: $viewModel.exercisesOverview) {

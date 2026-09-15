@@ -13,7 +13,7 @@ public struct CourseView: View {
     @EnvironmentObject private var navigationController: NavigationController
     @Environment(\.horizontalSizeClass) private var sizeClass
 
-    @StateObject private var viewModel: CourseViewModel
+    @State private var viewModel: CourseViewModel
     @FeatureAvailability(.globalSearch) private var searchEnabled
 
     private let courseId: Int

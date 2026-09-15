@@ -3,11 +3,11 @@ import SharedModels
 import Common
 import SharedServices
 
-@MainActor
+@Observable
 class CourseViewModel: BaseViewModel {
-    @Published var course: CourseForOverviewDTO
-    @Published var exercisesOverview: DataState<CourseExercisesForOverviewDTO> = .loading
-    @Published var lecturesOverview: DataState<[Lecture]> = .loading
+    let course: CourseForOverviewDTO
+    var exercisesOverview: DataState<CourseExercisesForOverviewDTO> = .loading
+    var lecturesOverview: DataState<[Lecture]> = .loading
 
     private let courseService: CourseService
 
@@ -22,18 +22,6 @@ class CourseViewModel: BaseViewModel {
 }
 
 extension CourseViewModel {
-    func refreshCourse() async {
-        let result = await courseService.getCourse(courseId: course.id)
-        switch result {
-        case .loading:
-            break
-        case let .failure(error):
-            presentError(userFacingError: error)
-        case let .done(course):
-            self.course = course
-        }
-    }
-
     func refreshExercises() async {
         exercisesOverview = await courseService.getExerciseOverview(courseId: course.id)
     }

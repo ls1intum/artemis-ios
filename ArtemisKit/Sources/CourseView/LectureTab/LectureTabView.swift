@@ -10,7 +10,7 @@ import DesignLibrary
 import SwiftUI
 
 struct LectureTabView: View {
-    @ObservedObject var viewModel: CourseViewModel
+    @Bindable var viewModel: CourseViewModel
     let showFaqButton: Bool
 
     var body: some View {

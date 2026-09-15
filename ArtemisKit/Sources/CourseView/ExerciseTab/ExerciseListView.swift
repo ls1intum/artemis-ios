@@ -10,7 +10,7 @@ import DesignLibrary
 
 struct ExerciseListView: View {
     @EnvironmentObject var navController: NavigationController
-    @ObservedObject var viewModel: CourseViewModel
+    var viewModel: CourseViewModel
     @State private var columnVisibilty: NavigationSplitViewVisibility = .doubleColumn
 
     @State private var searchText = ""
