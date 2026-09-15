@@ -83,7 +83,7 @@ struct ConversationInfoSheetView: View {
 }
 
 extension ConversationInfoSheetView {
-    init(course: Course, conversation: Binding<Conversation>) {
+    init(course: CourseForOverviewDTO, conversation: Binding<Conversation>) {
         self.init(viewModel: ConversationInfoSheetViewModel(course: course, conversation: conversation), conversation: conversation)
     }
 }

@@ -106,7 +106,7 @@ struct SendMessageKeyboardToolbar<SendButton: View>: View {
             } label: {
                 Label(R.string.localizable.lectures(), systemImage: "character.book.closed")
             }
-            if (viewModel.course.numberOfAcceptedFaqs ?? 0) > 0 {
+            if /*(viewModel.course.numberOfAcceptedFaqs ?? 0) > 0*/ true {
                 Button {
                     viewModel.wantsToAddMessageMentionContentType = .faq
                 } label: {

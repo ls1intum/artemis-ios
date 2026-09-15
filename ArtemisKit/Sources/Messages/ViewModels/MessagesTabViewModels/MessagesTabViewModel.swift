@@ -13,13 +13,13 @@ import SharedModels
 @MainActor
 class MessagesTabViewModel: BaseViewModel {
 
-    let course: Course
+    let course: CourseForOverviewDTO
     let courseId: Int
 
     @Published var codeOfConduct: DataState<String> = .loading
     @Published var codeOfConductAgreement: DataState<Bool> = .loading
 
-    init(course: Course) {
+    init(course: CourseForOverviewDTO) {
         self.course = course
         self.courseId = course.id
 

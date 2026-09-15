@@ -121,7 +121,7 @@ struct MessagePreview: View {
     let creationDate: Date
     let conversation: Conversation
     let conversationName: String
-    let course: Course
+    let course: CourseForOverviewDTO
 
     var body: some View {
         NavigationLink {

@@ -17,7 +17,7 @@ struct ConversationOfflineSectionModelDelegate {
 @MainActor
 @Observable
 final class ConversationOfflineSectionModel {
-    let course: Course
+    let course: CourseForOverviewDTO
     let conversation: Conversation
     let message: ConversationOfflineMessageModel
     let messageQueue: ArraySlice<ConversationOfflineMessageModel>
@@ -45,7 +45,7 @@ final class ConversationOfflineSectionModel {
     private let messagesService: MessagesService
 
     init(
-        course: Course,
+        course: CourseForOverviewDTO,
         conversation: Conversation,
         message: ConversationOfflineMessageModel,
         messageQueue: ArraySlice<ConversationOfflineMessageModel>,

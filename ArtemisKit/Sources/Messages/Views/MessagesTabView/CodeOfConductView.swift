@@ -14,7 +14,7 @@ struct CodeOfConductView: View {
 
     @StateObject private var viewModel: CodeOfConductViewModel
 
-    init(course: Course) {
+    init(course: CourseForOverviewDTO) {
         self._viewModel = StateObject(wrappedValue: CodeOfConductViewModel(course: course))
     }
 

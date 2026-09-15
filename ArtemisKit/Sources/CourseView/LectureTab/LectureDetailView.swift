@@ -17,7 +17,7 @@ public struct LectureDetailView: View {
 
     @StateObject private var viewModel: LectureDetailViewModel
 
-    public init(course: Course, lectureId: Int) {
+    public init(course: CourseForOverviewDTO, lectureId: Int) {
         self._viewModel = StateObject(wrappedValue: LectureDetailViewModel(course: course, lectureId: lectureId))
     }
 
@@ -34,9 +34,9 @@ public struct LectureDetailView: View {
                         Text(R.string.localizable.overview())
                             .font(.title2).bold()
 
-                        if viewModel.course.value?.irisEnabledInCourse == true {
-                            AskIrisButton(courseId: viewModel.courseId, lecture: lecture)
-                        }
+//                        if viewModel.course.value?.irisEnabledInCourse == true {
+//                            AskIrisButton(courseId: viewModel.courseId, lecture: lecture)
+//                        }
 
                         if let startDate = lecture.startDate {
                             Text(R.string.localizable.date())
@@ -76,8 +76,8 @@ public struct LectureDetailView: View {
                         }
                     }
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.l)
+//                .frame(maxWidth: .infinity, alignment: .leading)
+//                .padding(.l)
             }
             .onChange(of: viewModel.course.value, initial: true) { _, newValue in
                 if newValue != nil {

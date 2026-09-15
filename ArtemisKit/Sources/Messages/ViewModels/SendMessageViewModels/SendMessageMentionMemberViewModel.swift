@@ -14,14 +14,14 @@ import SwiftUI
 @Observable
 final class SendMessageMentionMemberViewModel {
 
-    let course: Course
+    let course: CourseForOverviewDTO
 
     var members: DataState<[UserNameAndLoginDTO]> = .loading
 
     private let courseService: CourseService
 
     init(
-        course: Course,
+        course: CourseForOverviewDTO,
         courseService: CourseService = CourseServiceFactory.shared
     ) {
         self.course = course

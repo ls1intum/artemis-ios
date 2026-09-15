@@ -91,11 +91,11 @@ public struct ExerciseDetailView: View {
 }
 
 public extension ExerciseDetailView {
-    init(course: Course, exercise: Exercise) {
+    init(course: CourseForOverviewDTO, exercise: Exercise) {
         self.init(viewModel: ExerciseDetailViewModel(
             courseId: course.id,
             exerciseId: exercise.id,
-            irisEnabledInCourse: course.irisEnabledInCourse == true,
+            irisEnabledInCourse: /*course.irisEnabledInCourse == true*/ false,
             exercise: .done(response: exercise)))
     }
 

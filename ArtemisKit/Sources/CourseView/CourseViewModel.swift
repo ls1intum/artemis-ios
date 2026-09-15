@@ -5,7 +5,8 @@ import SharedServices
 
 @MainActor
 class CourseViewModel: BaseViewModel {
-    @Published var course: Course
+    @Published var course: CourseForOverviewDTO
+    // TODO: Lectures+Exercises overview
 
     private let courseService: CourseService
 
@@ -13,7 +14,7 @@ class CourseViewModel: BaseViewModel {
         course.courseInformationSharingConfiguration != .disabled
     }
 
-    init(course: Course, courseService: CourseService = CourseServiceFactory.shared) {
+    init(course: CourseForOverviewDTO, courseService: CourseService = CourseServiceFactory.shared) {
         self.course = course
         self.courseService = courseService
     }
@@ -28,7 +29,7 @@ extension CourseViewModel {
         case let .failure(error):
             presentError(userFacingError: error)
         case let .done(course):
-            self.course = course.course
+            self.course = course
         }
     }
 }

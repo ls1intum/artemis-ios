@@ -28,7 +28,7 @@ struct CourseServiceStub: CourseService {
         return .done(response: Self.courses)
     }
 
-    func getCourse(courseId: Int) async -> DataState<CourseForDashboardDTO> {
+    func getCourse(courseId: Int) async -> DataState<CourseForOverviewDTO> {
         .loading
     }
 

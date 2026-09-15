@@ -14,7 +14,7 @@ import SwiftUI
 class SavedMessagesViewModel {
     let service = MessagesServiceFactory.shared
 
-    let course: Course
+    let course: CourseForOverviewDTO
 
     var selectedType: SavedPostStatus = .inProgress
 
@@ -44,7 +44,7 @@ class SavedMessagesViewModel {
         }
     }
 
-    init(course: Course) {
+    init(course: CourseForOverviewDTO) {
         self.course = course
     }
 

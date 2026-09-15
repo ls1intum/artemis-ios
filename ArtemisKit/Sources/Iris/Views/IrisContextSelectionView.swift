@@ -36,42 +36,42 @@ struct IrisContextSelectionView: View {
     }
 
     @ViewBuilder
-    private func content(for course: Course) -> some View {
-        let lectures = viewModel.lectures(in: course)
-        let exercises = viewModel.exercises(in: course)
-        if lectures.isEmpty && exercises.isEmpty {
+    private func content(for course: CourseForOverviewDTO) -> some View {
+//        let lectures = viewModel.lectures(in: course)
+//        let exercises = viewModel.exercises(in: course)
+//        if lectures.isEmpty && exercises.isEmpty {
             ContentUnavailableView(R.string.localizable.noItems(), systemImage: "tray")
-        } else {
-            List {
-                if !lectures.isEmpty {
-                    Section(R.string.localizable.lecturesSection()) {
-                        ForEach(lectures) { lecture in
-                            let context = viewModel.context(for: lecture)
-                            ContextRow(title: lecture.title,
-                                       icon: context.mode.icon,
-                                       isSelected: viewModel.isSelected(lecture: lecture, current: currentSelection)) {
-                                onSet(context)
-                                dismiss()
-                            }
-                        }
-                    }
-                }
-                if !exercises.isEmpty {
-                    Section(R.string.localizable.exercisesSection()) {
-                        ForEach(exercises) { exercise in
-                            if let context = viewModel.context(for: exercise) {
-                                ContextRow(title: exercise.baseExercise.title,
-                                           icon: context.mode.icon,
-                                           isSelected: viewModel.isSelected(exercise: exercise, current: currentSelection)) {
-                                    onSet(context)
-                                    dismiss()
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+//        } else {
+//            List {
+//                if !lectures.isEmpty {
+//                    Section(R.string.localizable.lecturesSection()) {
+//                        ForEach(lectures) { lecture in
+//                            let context = viewModel.context(for: lecture)
+//                            ContextRow(title: lecture.title,
+//                                       icon: context.mode.icon,
+//                                       isSelected: viewModel.isSelected(lecture: lecture, current: currentSelection)) {
+//                                onSet(context)
+//                                dismiss()
+//                            }
+//                        }
+//                    }
+//                }
+//                if !exercises.isEmpty {
+//                    Section(R.string.localizable.exercisesSection()) {
+//                        ForEach(exercises) { exercise in
+//                            if let context = viewModel.context(for: exercise) {
+//                                ContextRow(title: exercise.baseExercise.title,
+//                                           icon: context.mode.icon,
+//                                           isSelected: viewModel.isSelected(exercise: exercise, current: currentSelection)) {
+//                                    onSet(context)
+//                                    dismiss()
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
     }
 }
 

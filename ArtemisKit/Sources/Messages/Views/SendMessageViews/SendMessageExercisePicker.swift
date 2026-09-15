@@ -12,22 +12,22 @@ struct SendMessageExercisePicker: View {
 
     let delegate: SendMessageMentionContentDelegate
 
-    let course: Course
+    let course: CourseForOverviewDTO
 
     var body: some View {
         Group {
-            if let exercises = course.exercises, !exercises.isEmpty {
-                List(exercises) { exercise in
-                    if let title = exercise.baseExercise.title {
-                        Button(title) {
-                            selectMention(for: exercise)
-                        }
-                    }
-                }
-                .listStyle(.plain)
-            } else {
+//            if let exercises = course.exercises, !exercises.isEmpty {
+//                List(exercises) { exercise in
+//                    if let title = exercise.baseExercise.title {
+//                        Button(title) {
+//                            selectMention(for: exercise)
+//                        }
+//                    }
+//                }
+//                .listStyle(.plain)
+//            } else {
                 ContentUnavailableView(R.string.localizable.exercisesUnavailable(), systemImage: "magnifyingglass")
-            }
+//            }
         }
         .navigationTitle("Exercises")
         .navigationBarTitleDisplayMode(.inline)

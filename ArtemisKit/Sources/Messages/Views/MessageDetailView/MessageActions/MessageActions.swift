@@ -228,9 +228,9 @@ private struct MessageActions: View {
             }
 
             // Author as well as Tutors and higher level can mark as resolving
-            if viewModel.course.isAtLeastTutorInCourse || isOriginalMessageAuthor {
-                return true
-            }
+//            if viewModel.course.isAtLeastTutorInCourse || isOriginalMessageAuthor {
+//                return true
+//            }
 
             return false
         }

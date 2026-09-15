@@ -71,7 +71,7 @@ struct LectureListView: View {
                     }
                 }
                 .safeAreaInset(edge: .bottom) {
-                    if showFaqButton && viewModel.course.numberOfAcceptedFaqs ?? 0 > 0 {
+                    if showFaqButton /*&& viewModel.course.numberOfAcceptedFaqs ?? 0 > 0*/ {
                         Button {
                             showFaq = true
                         } label: {
@@ -122,61 +122,62 @@ struct LectureListView: View {
 
 private extension LectureListView {
     var searchResults: [Lecture] {
-        guard let lectures = viewModel.course.lectures else {
-            return []
-        }
-        return lectures.filter { lecture in
-            let range = lecture.title?.range(of: searchText, options: [.caseInsensitive, .diacriticInsensitive])
-            return range != nil
-        }
+//        guard let lectures = viewModel.course.lectures else {
+//            return []
+//        }
+//        return lectures.filter { lecture in
+//            let range = lecture.title?.range(of: searchText, options: [.caseInsensitive, .diacriticInsensitive])
+//            return range != nil
+//        }
+        []
     }
 
     var lectureGroups: ([LectureGroup], LectureGroupsInfo) {
-        guard let lectures = viewModel.course.lectures else {
+//        guard let lectures = viewModel.course.lectures else {
             return ([], .init(currentCount: 0, futureCount: 0, pastCount: 0))
-        }
+//        }
 
-        let groupedDates = lectures.reduce(into: [LectureGroup.GroupType: [Lecture]]()) { partialResult, lecture in
-            let start = lecture.startDate
-            let end = lecture.endDate
-            let type: LectureGroup.GroupType
-
-            if let start, start > .now {
-                type = .future
-            } else if let end, end < .now {
-                type = .past
-            } else if let end, end > .now {
-                type = .current
-            } else {
-                type = .noDate
-            }
-
-            if partialResult[type] == nil {
-                partialResult[type] = [lecture]
-            } else {
-                partialResult[type]?.append(lecture)
-            }
-        }
-
-        let groups = groupedDates.map { group in
-            let lectures = group.value.sorted {
-                if let lhsDue = $0.endDate,
-                   let rhsDue = $1.endDate {
-                    return lhsDue.compare(rhsDue) == .orderedDescending
-                }
-                let lhs = $0.title?.lowercased() ?? ""
-                let rhs = $1.title?.lowercased() ?? ""
-                return lhs.compare(rhs) == .orderedAscending
-            }
-            return LectureGroup(type: group.key, lectures: lectures)
-        }
-
-        let currentCount = groups.first(where: { $0.type == .current })?.lectures.count ?? 0
-        let futureCount = groups.first(where: { $0.type == .future })?.lectures.count ?? 0
-        let pastCount = groups.first(where: { $0.type == .past })?.lectures.count ?? 0
-        let info = LectureGroupsInfo(currentCount: currentCount, futureCount: futureCount, pastCount: pastCount)
-
-        return (groups.sorted(by: <), info)
+//        let groupedDates = lectures.reduce(into: [LectureGroup.GroupType: [Lecture]]()) { partialResult, lecture in
+//            let start = lecture.startDate
+//            let end = lecture.endDate
+//            let type: LectureGroup.GroupType
+//
+//            if let start, start > .now {
+//                type = .future
+//            } else if let end, end < .now {
+//                type = .past
+//            } else if let end, end > .now {
+//                type = .current
+//            } else {
+//                type = .noDate
+//            }
+//
+//            if partialResult[type] == nil {
+//                partialResult[type] = [lecture]
+//            } else {
+//                partialResult[type]?.append(lecture)
+//            }
+//        }
+//
+//        let groups = groupedDates.map { group in
+//            let lectures = group.value.sorted {
+//                if let lhsDue = $0.endDate,
+//                   let rhsDue = $1.endDate {
+//                    return lhsDue.compare(rhsDue) == .orderedDescending
+//                }
+//                let lhs = $0.title?.lowercased() ?? ""
+//                let rhs = $1.title?.lowercased() ?? ""
+//                return lhs.compare(rhs) == .orderedAscending
+//            }
+//            return LectureGroup(type: group.key, lectures: lectures)
+//        }
+//
+//        let currentCount = groups.first(where: { $0.type == .current })?.lectures.count ?? 0
+//        let futureCount = groups.first(where: { $0.type == .future })?.lectures.count ?? 0
+//        let pastCount = groups.first(where: { $0.type == .past })?.lectures.count ?? 0
+//        let info = LectureGroupsInfo(currentCount: currentCount, futureCount: futureCount, pastCount: pastCount)
+//
+//        return (groups.sorted(by: <), info)
     }
 }
 
@@ -187,12 +188,12 @@ private struct LectureGroupsInfo {
 }
 
 private struct LectureListSectionView: View {
-    private let course: Course
+    private let course: CourseForOverviewDTO
     private let lectureGroup: LectureGroup
 
     @State private var isExpanded: Bool
 
-    init(course: Course, lectureGroup: LectureGroup, groupsInfo: LectureGroupsInfo) {
+    init(course: CourseForOverviewDTO, lectureGroup: LectureGroup, groupsInfo: LectureGroupsInfo) {
         self.course = course
         self.lectureGroup = lectureGroup
 
@@ -235,7 +236,7 @@ private struct LectureListSectionView: View {
 
 struct WeeklyLectureView: View {
     fileprivate let weeklyLecture: WeeklyLecture
-    let course: Course
+    let course: CourseForOverviewDTO
 
     var body: some View {
         ForEach(weeklyLecture.lectures) { lecture in
@@ -248,7 +249,7 @@ struct WeeklyLectureView: View {
 private struct LectureListCellView: View {
     @EnvironmentObject var navigationController: NavigationController
 
-    let course: Course
+    let course: CourseForOverviewDTO
     let lecture: Lecture
 
     let rows = [

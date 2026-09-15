@@ -23,7 +23,7 @@ class MessagesAvailableViewModel: BaseViewModel {
         course.courseInformationSharingConfiguration == .communicationAndMessaging
     }
 
-    let course: Course
+    let course: CourseForOverviewDTO
     let courseId: Int
 
     private let messagesService: MessagesService
@@ -32,7 +32,7 @@ class MessagesAvailableViewModel: BaseViewModel {
     private var subscriptions = Set<AnyCancellable>()
 
     init(
-        course: Course,
+        course: CourseForOverviewDTO,
         messagesService: MessagesService = MessagesServiceFactory.shared,
         userSession: UserSession = UserSessionFactory.shared
     ) {

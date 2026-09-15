@@ -14,7 +14,7 @@ import SwiftUI
 @Observable
 final class CoursePathViewModel {
     let path: CoursePath
-    var course: DataState<Course>
+    var course: DataState<CourseForOverviewDTO>
 
     private let courseService: CourseService
 
@@ -25,8 +25,7 @@ final class CoursePathViewModel {
     }
 
     func reloadCourse() async {
-        let result = await courseService.getCourse(courseId: path.id)
-        self.course = result.map(\.course)
+        self.course = await courseService.getCourse(courseId: path.id)
     }
 
     func loadCourse() async {
@@ -38,7 +37,6 @@ final class CoursePathViewModel {
             break
         }
 
-        let result = await courseService.getCourse(courseId: path.id)
-        self.course = result.map(\.course)
+        self.course = await courseService.getCourse(courseId: path.id)
     }
 }

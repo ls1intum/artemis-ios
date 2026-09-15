@@ -33,7 +33,7 @@ struct SendMessageLecturePicker: View {
 
 @MainActor
 extension SendMessageLecturePicker {
-    init(course: Course, delegate: SendMessageMentionContentDelegate) {
+    init(course: CourseForOverviewDTO, delegate: SendMessageMentionContentDelegate) {
         self.init(viewModel: SendMessageLecturePickerViewModel(course: course, delegate: delegate))
     }
 }

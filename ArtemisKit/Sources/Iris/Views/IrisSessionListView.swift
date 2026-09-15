@@ -20,9 +20,9 @@ public struct IrisSessionListView: View {
     @State private var columnVisibility: NavigationSplitViewVisibility = .doubleColumn
     @State private var showAiSettings = false
 
-    private let course: Course
+    private let course: CourseForOverviewDTO
 
-    public init(course: Course) {
+    public init(course: CourseForOverviewDTO) {
         self.course = course
         _viewModel = State(wrappedValue: IrisSessionListViewModel(courseId: course.id))
     }

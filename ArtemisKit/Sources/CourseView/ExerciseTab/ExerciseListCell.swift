@@ -13,7 +13,7 @@ import SwiftUI
 struct ExerciseListCell: View {
     @EnvironmentObject var navigationController: NavigationController
 
-    let course: Course
+    let course: CourseForOverviewDTO
     let exercise: Exercise
 
     var showAdditionalBadges: Bool {

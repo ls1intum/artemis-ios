@@ -12,7 +12,7 @@ import SwiftUI
 
 public struct CoursePathView<Content: View>: View {
     @State var viewModel: CoursePathViewModel
-    let content: (Course) -> Content
+    let content: (CourseForOverviewDTO) -> Content
 
     public var body: some View {
         DataStateView(data: $viewModel.course) {
@@ -29,7 +29,7 @@ public struct CoursePathView<Content: View>: View {
 }
 
 public extension CoursePathView {
-    init(path: CoursePath, @ViewBuilder content: @escaping (Course) -> Content) {
+    init(path: CoursePath, @ViewBuilder content: @escaping (CourseForOverviewDTO) -> Content) {
         self.init(viewModel: CoursePathViewModel(path: path), content: content)
     }
 }
