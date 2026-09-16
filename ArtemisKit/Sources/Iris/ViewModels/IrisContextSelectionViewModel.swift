@@ -19,14 +19,14 @@ final class IrisContextSelectionViewModel {
     var searchText = ""
 
     /// Lectures of the course, filtered by the search text.
-    func lectures(in course: Course) -> [Lecture] {
-        (course.lectures ?? []).filter { matches($0.title) }
+    func lectures(from lectures: [Lecture]) -> [Lecture] {
+        lectures.filter { matches($0.title) }
     }
 
     /// Iris only supports text and programming exercises as a context (mirrors
     /// the web app's `EXERCISE_TYPE_TO_CHAT_MODE`), so other types are not listed.
-    func exercises(in course: Course) -> [Exercise] {
-        (course.exercises ?? [])
+    func exercises(from exercises: [Exercise]) -> [Exercise] {
+        exercises
             .filter { $0.irisChatMode != nil }
             .filter { matches($0.baseExercise.title) }
     }

@@ -14,6 +14,7 @@ import SwiftUI
 import Messages
 
 struct LectureListView: View {
+    @Environment(\.availableTabs) private var tabs
     @EnvironmentObject var navController: NavigationController
     var viewModel: CourseViewModel
     @State private var columnVisibilty: NavigationSplitViewVisibility = .doubleColumn
@@ -71,7 +72,7 @@ struct LectureListView: View {
                     }
                 }
                 .safeAreaInset(edge: .bottom) {
-                    if showFaqButton /*&& viewModel.course.numberOfAcceptedFaqs ?? 0 > 0*/ {
+                    if showFaqButton && tabs.faq {
                         Button {
                             showFaq = true
                         } label: {

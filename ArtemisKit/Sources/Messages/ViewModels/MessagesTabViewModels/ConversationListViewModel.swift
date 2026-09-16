@@ -224,6 +224,9 @@ enum ConversationFilter: FilterPicker {
             return false
         }
 
+        // TODO: Re-implement
+        #warning("Re-implement this")
+
 //        let exercise = course.exercises?.first { $0.id == channel.subTypeReferenceId }
 //        let lecture = course.lectures?.first { $0.id == channel.subTypeReferenceId }
 //        let dateStart = Date.now.addingTimeInterval(-5 * 24 * 60 * 60)

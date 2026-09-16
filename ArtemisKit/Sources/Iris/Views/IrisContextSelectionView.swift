@@ -5,16 +5,17 @@
 //  Created by Senan Aslan on 06.06.26.
 //
 
+import Common
 import DesignLibrary
 import Navigation
 import SharedModels
+import SharedServices
 import SwiftUI
 
 /// Lets the user scope the next Iris message to a lecture or a (text/programming)
 /// exercise of the course. Tapping a row hands the chosen ``SessionContext`` back
 /// via ``onSet`` and dismisses — there is no separate confirm step.
 struct IrisContextSelectionView: View {
-    @Environment(\.dismiss) private var dismiss
     @Bindable var viewModel: IrisContextSelectionViewModel
 
     /// Carries the already-loaded ``Course`` when navigated from within the course,
@@ -37,41 +38,84 @@ struct IrisContextSelectionView: View {
 
     @ViewBuilder
     private func content(for course: CourseForOverviewDTO, tabs: CourseAvailableTabsDTO) -> some View {
-//        let lectures = viewModel.lectures(in: course)
-//        let exercises = viewModel.exercises(in: course)
-//        if lectures.isEmpty && exercises.isEmpty {
+        IrisContextSelectionInnerView(viewModel: viewModel, course: course, currentSelection: currentSelection, onSet: onSet)
+    }
+}
+
+private struct IrisContextSelectionInnerView: View {
+    @Environment(\.dismiss) private var dismiss
+
+    @Bindable var viewModel: IrisContextSelectionViewModel
+    let course: CourseForOverviewDTO
+    let currentSelection: SessionContext?
+    let onSet: (SessionContext) -> Void
+
+    @State private var lectures: DataState<[Lecture]> = .loading
+    @State private var exercises: DataState<CourseExercisesForOverviewDTO> = .loading
+
+    var body: some View {
+        DataStateView(data: $lectures) {
+            await fetchLectures()
+        } content: { lectures in
+            DataStateView(data: $exercises) {
+                await fetchExercises()
+            } content: { exercises in
+                content(lectures: lectures, exercises: exercises.exercises ?? [])
+            }
+        }
+        .task(id: "fetchLectures") {
+            await fetchLectures()
+        }
+        .task(id: "fetchExercises") {
+            await fetchExercises()
+        }
+    }
+        
+    @ViewBuilder
+    private func content(lectures: [Lecture], exercises: [Exercise]) -> some View {
+        let lectures = viewModel.lectures(from: lectures)
+        let exercises = viewModel.exercises(from: exercises)
+        if lectures.isEmpty && exercises.isEmpty {
             ContentUnavailableView(R.string.localizable.noItems(), systemImage: "tray")
-//        } else {
-//            List {
-//                if !lectures.isEmpty {
-//                    Section(R.string.localizable.lecturesSection()) {
-//                        ForEach(lectures) { lecture in
-//                            let context = viewModel.context(for: lecture)
-//                            ContextRow(title: lecture.title,
-//                                       icon: context.mode.icon,
-//                                       isSelected: viewModel.isSelected(lecture: lecture, current: currentSelection)) {
-//                                onSet(context)
-//                                dismiss()
-//                            }
-//                        }
-//                    }
-//                }
-//                if !exercises.isEmpty {
-//                    Section(R.string.localizable.exercisesSection()) {
-//                        ForEach(exercises) { exercise in
-//                            if let context = viewModel.context(for: exercise) {
-//                                ContextRow(title: exercise.baseExercise.title,
-//                                           icon: context.mode.icon,
-//                                           isSelected: viewModel.isSelected(exercise: exercise, current: currentSelection)) {
-//                                    onSet(context)
-//                                    dismiss()
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
+        } else {
+            List {
+                if !lectures.isEmpty {
+                    Section(R.string.localizable.lecturesSection()) {
+                        ForEach(lectures) { lecture in
+                            let context = viewModel.context(for: lecture)
+                            ContextRow(title: lecture.title,
+                                       icon: context.mode.icon,
+                                       isSelected: viewModel.isSelected(lecture: lecture, current: currentSelection)) {
+                                onSet(context)
+                                dismiss()
+                            }
+                        }
+                    }
+                }
+                if !exercises.isEmpty {
+                    Section(R.string.localizable.exercisesSection()) {
+                        ForEach(exercises) { exercise in
+                            if let context = viewModel.context(for: exercise) {
+                                ContextRow(title: exercise.baseExercise.title,
+                                           icon: context.mode.icon,
+                                           isSelected: viewModel.isSelected(exercise: exercise, current: currentSelection)) {
+                                    onSet(context)
+                                    dismiss()
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    func fetchLectures() async {
+        lectures = await CourseServiceFactory.shared.getLectureOverview(courseId: course.id)
+    }
+
+    func fetchExercises() async {
+        exercises = await CourseServiceFactory.shared.getExerciseOverview(courseId: course.id)
     }
 }
 
