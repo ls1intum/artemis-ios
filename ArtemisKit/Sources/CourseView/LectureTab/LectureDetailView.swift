@@ -75,15 +75,6 @@ public struct LectureDetailView: View {
                             LectureUnitCell(viewModel: viewModel, lectureUnit: lectureUnit)
                         }
                     }
-
-                    if let attachments = lecture.attachments {
-                        Text(R.string.localizable.attachments())
-                            .font(.title2).bold()
-
-                        ForEach(attachments, id: \.id) { attachment in
-                            AttachmentCell(attachment: attachment)
-                        }
-                    }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.l)
@@ -170,44 +161,6 @@ private struct ChannelCell: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.l)
             .cardModifier(backgroundColor: .Artemis.exerciseCardBackgroundColor, cornerRadius: .m)
-        }
-    }
-}
-
-private struct AttachmentCell: View {
-    let attachment: Attachment
-
-    @State private var showAttachmentSheet = false
-
-    var body: some View {
-        Button {
-            showAttachmentSheet = true
-        } label: {
-            VStack(alignment: .leading) {
-                HStack {
-                    if let name = attachment.name {
-                        Text(name)
-                    }
-                    if let pathExtension = attachment.pathExtension {
-                        Chip(text: pathExtension, backgroundColor: .Artemis.artemisBlue)
-                    }
-                }
-                HStack(spacing: 0) {
-                    Text("(")
-                    if let version = attachment.version {
-                        Text("\(R.string.localizable.version()): \(version) -")
-                    }
-                    if let uploadDate = attachment.uploadDate {
-                        Text("\(R.string.localizable.date()): \(uploadDate.shortDateAndTime)")
-                    }
-                    Text(")")
-                }
-                .font(.caption)
-                .foregroundColor(.Artemis.secondaryLabel)
-            }
-        }
-        .sheet(isPresented: $showAttachmentSheet) {
-            LectureAttachmentSheet(attachment: attachment)
         }
     }
 }
