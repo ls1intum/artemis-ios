@@ -118,7 +118,6 @@ private extension CourseView {
         } else {
             tabs.append(.exercise)
         }
-        
 
         if viewModel.availableTabs.lectures {
             tabs.append(.lecture)

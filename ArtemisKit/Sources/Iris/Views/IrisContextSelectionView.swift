@@ -70,7 +70,7 @@ private struct IrisContextSelectionInnerView: View {
             await fetchExercises()
         }
     }
-        
+
     @ViewBuilder
     private func content(lectures: [Lecture], exercises: [Exercise]) -> some View {
         let lectures = viewModel.lectures(from: lectures)
