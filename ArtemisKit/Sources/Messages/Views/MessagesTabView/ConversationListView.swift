@@ -142,13 +142,13 @@ struct ConversationListView: View {
             viewModel.parentViewModel.allConversations.value?.contains(where: { conversation in
                 filter.matches(conversation.baseConversation, viewModel: viewModel)
             }) ?? false == false
-        }.filter { _ in
+        }.filter {
             // Tutors should always see the unresolved filter
-//            if viewModel.parentViewModel.course.isAtLeastTutorInCourse && $0 == .unresolved {
-//                return false
-//            } else {
+            if viewModel.parentViewModel.course.isAtLeastTutorInCourse && $0 == .unresolved {
+                return false
+            } else {
                 return true
-//            }
+            }
         }
         if nonNeededFilters.count < ConversationFilter.allCases.count - 1 {
             FilterBarPicker(selectedFilter: $viewModel.filter.animation(),

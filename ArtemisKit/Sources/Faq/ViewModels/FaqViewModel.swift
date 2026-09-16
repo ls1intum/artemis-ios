@@ -23,8 +23,7 @@ class FaqViewModel {
     var isLoading = false
     var error: UserFacingError?
     var canPropose: Bool {
-//        course.isAtLeastTutorInCourse
-        true
+        course.isAtLeastTutorInCourse
     }
 
     init(course: CourseForOverviewDTO) {

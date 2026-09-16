@@ -17,7 +17,7 @@ struct CreateOrAddChannelButton: View {
 
     var body: some View {
         Group {
-            if /*viewModel.course.courseInformationSharingConfiguration == .communicationOnly && !viewModel.course.isAtLeastTutorInCourse*/ true {
+            if viewModel.course.courseInformationSharingConfiguration == .communicationOnly && !viewModel.course.isAtLeastTutorInCourse {
                 // If DMs are disabled and we are no instructor, we can only browse channels
                 Button {
                     isBrowseChannelsPresented = true
@@ -52,7 +52,7 @@ struct CreateOrAddChannelButton: View {
     }
 
     @ViewBuilder private var menuContent: some View {
-        if /*viewModel.course.isAtLeastTutorInCourse*/ true {
+        if viewModel.course.isAtLeastTutorInCourse {
             Button(R.string.localizable.createChannel(), systemImage: "plus.bubble.fill") {
                 isCreateChannelPresented = true
             }
