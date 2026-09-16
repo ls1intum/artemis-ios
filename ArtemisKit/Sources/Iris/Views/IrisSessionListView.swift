@@ -15,6 +15,7 @@ import SwiftUI
 import UserStore
 
 public struct IrisSessionListView: View {
+    @Environment(\.availableTabs) private var tabs
     @EnvironmentObject private var navigationController: NavigationController
     @State private var viewModel: IrisSessionListViewModel
     @State private var columnVisibility: NavigationSplitViewVisibility = .doubleColumn
@@ -80,8 +81,7 @@ public struct IrisSessionListView: View {
                 ProgressView()
                     .task(id: "startChat") {
                         if let newSession = await viewModel.createNewSession() {
-                            navigationController.selectedPath = IrisSessionPath(
-                                sessionId: newSession.id, defaultInput: path.inputText, coursePath: CoursePath(course: course))
+                            navigationController.goToIrisSession(courseId: course.id, sessionId: newSession.id, defaultInput: path.inputText)
                         }
                     }
             } else {
@@ -112,7 +112,7 @@ public struct IrisSessionListView: View {
                     ForEach(viewModel.groupedSessions) { group in
                         Section(group.title) {
                             ForEach(group.sessions) { session in
-                                let path = IrisSessionPath(sessionId: session.id, coursePath: CoursePath(course: course))
+                                let path = IrisSessionPath(sessionId: session.id, coursePath: CoursePath(course: course, tabs: tabs))
                                 NavigationLink(value: path) {
                                     IrisSessionRowView(session: session)
                                 }
@@ -173,8 +173,7 @@ public struct IrisSessionListView: View {
     private func createAndOpenSession() {
         Task {
             if let newSession = await viewModel.createNewSession() {
-                navigationController.selectedPath = IrisSessionPath(
-                    sessionId: newSession.id, coursePath: CoursePath(course: course))
+                navigationController.goToIrisSession(courseId: course.id, sessionId: newSession.id)
             }
         }
     }

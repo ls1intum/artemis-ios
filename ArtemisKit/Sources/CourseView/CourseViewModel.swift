@@ -6,6 +6,7 @@ import SharedServices
 @Observable
 class CourseViewModel: BaseViewModel {
     let course: CourseForOverviewDTO
+    let availableTabs: CourseAvailableTabsDTO
     var exercisesOverview: DataState<CourseExercisesForOverviewDTO> = .loading
     var lecturesOverview: DataState<[Lecture]> = .loading
 
@@ -15,8 +16,9 @@ class CourseViewModel: BaseViewModel {
         course.courseInformationSharingConfiguration != .disabled
     }
 
-    init(course: CourseForOverviewDTO, courseService: CourseService = CourseServiceFactory.shared) {
+    init(course: CourseForOverviewDTO, availableTabs: CourseAvailableTabsDTO, courseService: CourseService = CourseServiceFactory.shared) {
         self.course = course
+        self.availableTabs = availableTabs
         self.courseService = courseService
     }
 }

@@ -10,15 +10,18 @@ import SharedModels
 public struct CoursePath: Hashable, Identifiable {
     public let id: Int
     public let course: CourseForOverviewDTO?
+    public let tabs: CourseAvailableTabsDTO?
 
     public init(id: Int) {
         self.id = id
         self.course = nil
+        self.tabs = nil
     }
 
-    public init(course: CourseForOverviewDTO) {
+    public init(course: CourseForOverviewDTO, tabs: CourseAvailableTabsDTO) {
         self.id = course.id
         self.course = course
+        self.tabs = tabs
     }
 }
 

@@ -114,6 +114,8 @@ private extension SavedMessageView {
 }
 
 struct MessagePreview: View {
+    @Environment(\.availableTabs) private var tabs
+
     let user: ConversationUser
     let userRole: UserRole?
     let content: String?
@@ -127,7 +129,7 @@ struct MessagePreview: View {
         NavigationLink {
             let path = ThreadPath(postId: threadId,
                                   conversation: conversation,
-                                  coursePath: CoursePath(course: course))
+                                  coursePath: CoursePath(course: course, tabs: tabs))
             ThreadPathView(path: path)
                 .id(path.postId)
         } label: {

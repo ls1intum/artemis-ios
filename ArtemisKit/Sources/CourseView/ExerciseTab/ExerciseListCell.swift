@@ -11,6 +11,7 @@ import SharedModels
 import SwiftUI
 
 struct ExerciseListCell: View {
+    @Environment(\.availableTabs) private var tabs
     @EnvironmentObject var navigationController: NavigationController
 
     let course: CourseForOverviewDTO
@@ -28,7 +29,7 @@ struct ExerciseListCell: View {
     }
 
     var body: some View {
-        NavigationLink(value: ExercisePath(exercise: exercise, coursePath: CoursePath(course: course))) {
+        NavigationLink(value: ExercisePath(exercise: exercise, coursePath: CoursePath(course: course, tabs: tabs))) {
             HStack(alignment: .top, spacing: 0) {
                 if let difficulty = exercise.baseExercise.difficulty {
                     Rectangle()
@@ -78,7 +79,7 @@ struct ExerciseListCell: View {
             }
             .foregroundColor(Color.Artemis.primaryLabel)
         }
-        .tag(ExercisePath(exercise: exercise, coursePath: CoursePath(course: course)))
+        .tag(ExercisePath(exercise: exercise, coursePath: CoursePath(course: course, tabs: tabs)))
         .navigationLinkIndicatorVisibility(.hidden)
         .listRowBackground(Color.Artemis.exerciseCardBackgroundColor)
     }

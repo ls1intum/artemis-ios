@@ -246,6 +246,7 @@ struct WeeklyLectureView: View {
 }
 
 private struct LectureListCellView: View {
+    @Environment(\.availableTabs) private var tabs
     @EnvironmentObject var navigationController: NavigationController
 
     let course: CourseForOverviewDTO
@@ -256,7 +257,7 @@ private struct LectureListCellView: View {
     ]
 
     var body: some View {
-        NavigationLink(value: LecturePath(lecture: lecture, coursePath: CoursePath(course: course))) {
+        NavigationLink(value: LecturePath(lecture: lecture, coursePath: CoursePath(course: course, tabs: tabs))) {
             VStack(alignment: .leading, spacing: .m) {
                 HStack(spacing: .l) {
                     lecture.image
@@ -281,7 +282,7 @@ private struct LectureListCellView: View {
         .navigationLinkIndicatorVisibility(.hidden)
         .foregroundColor(Color.Artemis.primaryLabel)
         .listRowBackground(Color.Artemis.exerciseCardBackgroundColor)
-        .tag(LecturePath(lecture: lecture, coursePath: CoursePath(course: course)))
+        .tag(LecturePath(lecture: lecture, coursePath: CoursePath(course: course, tabs: tabs)))
     }
 }
 

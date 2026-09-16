@@ -15,6 +15,7 @@ import Navigation
 
 public struct LectureDetailView: View {
 
+    @Environment(\.availableTabs) private var tabs
     @StateObject private var viewModel: LectureDetailViewModel
 
     public init(course: CourseForOverviewDTO, lectureId: Int) {
@@ -34,9 +35,9 @@ public struct LectureDetailView: View {
                         Text(R.string.localizable.overview())
                             .font(.title2).bold()
 
-//                        if viewModel.course.value?.irisEnabledInCourse == true {
-//                            AskIrisButton(courseId: viewModel.courseId, lecture: lecture)
-//                        }
+                        if tabs.iris {
+                            AskIrisButton(courseId: viewModel.courseId, lecture: lecture)
+                        }
 
                         if let startDate = lecture.startDate {
                             Text(R.string.localizable.date())

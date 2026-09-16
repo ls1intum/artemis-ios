@@ -51,34 +51,35 @@ public struct CourseView: View {
                 }
             }
 
-//            if ((viewModel.course.numberOfAcceptedFaqs ?? 0) > 0) && potentiallyVisibleTabs.contains(.faq) {
-//                Tab(R.string.localizable.faqTabLabel(),
-//                    systemImage: "questionmark.circle",
-//                    value: TabIdentifier.faq) {
-//                    TabBarIpad {
-//                        FaqListView(course: viewModel.course)
-//                    }
-//                }
-//            }
+            if viewModel.availableTabs.faq && potentiallyVisibleTabs.contains(.faq) {
+                Tab(R.string.localizable.faqTabLabel(),
+                    systemImage: "questionmark.circle",
+                    value: TabIdentifier.faq) {
+                    TabBarIpad {
+                        FaqListView(course: viewModel.course)
+                    }
+                }
+            }
 
             if searchEnabled && potentiallyVisibleTabs.contains(.search) {
                 Tab(value: .search, role: .search) {
                     SearchTabView(courseId: viewModel.course.id,
-                                  irisEnabled: /*viewModel.course.irisEnabledInCourse ??*/ false)
+                                  irisEnabled: viewModel.availableTabs.iris)
                     // Search tab does not use split view, so always use compact toolbar
                         .courseToolbar(title: viewModel.course.title ?? R.string.localizable.loading())
                         .environment(\.horizontalSizeClass, .compact)
                 }
             }
 
-//            if viewModel.course.irisEnabledInCourse == true && potentiallyVisibleTabs.contains(.iris) {
-//                Tab("Iris", systemImage: "eyes", value: TabIdentifier.iris) {
-//                    TabBarIpad {
-//                        IrisSessionListView(course: viewModel.course)
-//                    }
-//                }
-//            }
+            if viewModel.availableTabs.iris && potentiallyVisibleTabs.contains(.iris) {
+                Tab("Iris", systemImage: "eyes", value: TabIdentifier.iris) {
+                    TabBarIpad {
+                        IrisSessionListView(course: viewModel.course)
+                    }
+                }
+            }
         }
+        .environment(\.availableTabs, viewModel.availableTabs)
         .courseToolbar(title: viewModel.course.title ?? R.string.localizable.loading())
         // Add a file and image picker here, inside the navigation it doesn't work sometimes
         .supportsFilePicker()
@@ -92,8 +93,8 @@ public struct CourseView: View {
 }
 
 extension CourseView {
-    init(course: CourseForOverviewDTO) {
-        self.init(viewModel: CourseViewModel(course: course), courseId: course.id)
+    init(course: CourseForOverviewDTO, availableTabs: CourseAvailableTabsDTO) {
+        self.init(viewModel: CourseViewModel(course: course, availableTabs: availableTabs), courseId: course.id)
     }
 }
 
@@ -102,30 +103,35 @@ private extension CourseView {
         var tabs = [TabIdentifier]()
 
         // Add tabs in "importance" order after the first 5
-//        if viewModel.course.irisEnabledInCourse == true {
-//            tabs.append(.iris)
-//        }
+        if viewModel.availableTabs.iris {
+            tabs.append(.iris)
+        }
 
         if searchEnabled {
             tabs.append(.search)
         }
 
-//        if viewModel.course.exercises?.isEmpty != true {
-//            tabs.append(.exercise)
-//        }
-//
-//        if viewModel.course.lectures?.isEmpty != true {
-//            tabs.append(.lecture)
-//        }
+        if let exercises = viewModel.exercisesOverview.value {
+            if !(exercises.exercises ?? []).isEmpty {
+                tabs.append(.exercise)
+            }
+        } else {
+            tabs.append(.exercise)
+        }
+        
+
+        if viewModel.availableTabs.lectures {
+            tabs.append(.lecture)
+        }
 
         if viewModel.isMessagesVisible {
             tabs.append(.communication)
         }
 
         // Importance order -> shown if possible
-//        if viewModel.course.numberOfAcceptedFaqs ?? 0 > 0 {
-//            tabs.append(.faq)
-//        }
+        if viewModel.availableTabs.faq {
+            tabs.append(.faq)
+        }
 
         // All necessary tabs visible, but still space -> Show at least exercises/lectures (default)
         if tabs.count < 5 {

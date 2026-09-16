@@ -26,8 +26,8 @@ struct IrisContextSelectionView: View {
 
     var body: some View {
         NavigationStack {
-            CoursePathView(path: coursePath) { course in
-                content(for: course)
+            CoursePathView(path: coursePath) { course, tabs in
+                content(for: course, tabs: tabs)
             }
             .navigationTitle(R.string.localizable.selectTitle())
             .navigationBarTitleDisplayMode(.inline)
@@ -36,7 +36,7 @@ struct IrisContextSelectionView: View {
     }
 
     @ViewBuilder
-    private func content(for course: CourseForOverviewDTO) -> some View {
+    private func content(for course: CourseForOverviewDTO, tabs: CourseAvailableTabsDTO) -> some View {
 //        let lectures = viewModel.lectures(in: course)
 //        let exercises = viewModel.exercises(in: course)
 //        if lectures.isEmpty && exercises.isEmpty {
