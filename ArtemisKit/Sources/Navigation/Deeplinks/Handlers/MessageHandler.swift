@@ -45,10 +45,11 @@ struct MessageHandler: Deeplink {
                 var conversation = Channel(id: conversationId)
                 conversation.name = conversationName
 
-                let course = Course(id: courseId, courseInformationSharingConfiguration: .communicationAndMessaging)
                 await navigationController.goToCourseConversation(courseId: courseId, conversationId: conversationId)
 
-                let threadPath = ThreadPath(postId: threadId, conversation: .channel(conversation: conversation), coursePath: .init(course: course))
+                let threadPath = ThreadPath(postId: threadId,
+                                            conversation: .channel(conversation: conversation),
+                                            coursePath: .init(id: courseId))
                 await MainActor.run {
                     navigationController.tabPath.append(threadPath)
                 }

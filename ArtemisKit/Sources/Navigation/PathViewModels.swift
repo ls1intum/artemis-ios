@@ -14,31 +14,39 @@ import SwiftUI
 @Observable
 final class CoursePathViewModel {
     let path: CoursePath
-    var course: DataState<Course>
+    var course: DataState<CourseForOverviewDTO>
+    var tabs: DataState<CourseAvailableTabsDTO>
 
     private let courseService: CourseService
 
     init(path: CoursePath, courseService: CourseService = CourseServiceFactory.shared) {
         self.path = path
         self.course = path.course.map(DataState.done) ?? .loading
+        self.tabs = path.tabs.map(DataState.done) ?? .loading
         self.courseService = courseService
     }
 
     func reloadCourse() async {
-        let result = await courseService.getCourse(courseId: path.id)
-        self.course = result.map(\.course)
+        self.course = await courseService.getCourse(courseId: path.id)
+    }
+
+    func reloadTabs() async {
+        self.tabs = await courseService.getAvailableTabs(courseId: path.id)
     }
 
     func loadCourse() async {
         // If course is already loaded, skip this
-        switch course {
-        case .done:
+        switch (course, tabs) {
+        case (.done, .done):
             return
         default:
             break
         }
 
-        let result = await courseService.getCourse(courseId: path.id)
-        self.course = result.map(\.course)
+        async let course = await courseService.getCourse(courseId: path.id)
+        async let tabs = await courseService.getAvailableTabs(courseId: path.id)
+
+        self.course = await course
+        self.tabs = await tabs
     }
 }

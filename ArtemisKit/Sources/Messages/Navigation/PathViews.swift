@@ -13,13 +13,13 @@ import SwiftUI
 @MainActor
 public struct ConversationPathView<Content: View>: View {
     @State var viewModel: ConversationPathViewModel
-    let content: (Course, Conversation, Bool) -> Content
+    let content: (CourseForOverviewDTO, Conversation, Bool) -> Content
 
     public var body: some View {
         DataStateView(data: $viewModel.conversation) {
             await viewModel.reloadConversation()
         } content: { conversation in
-            CoursePathView(path: viewModel.path.coursePath) { course in
+            CoursePathView(path: viewModel.path.coursePath) { course, _ in
                 content(course, conversation, viewModel.path.filterToUnresolved)
             }
         }
@@ -42,7 +42,7 @@ struct ThreadPathView: View {
         DataStateView(data: $viewModel.message) {
             await viewModel.loadMessage()
         } content: { _ in
-            CoursePathView(path: viewModel.path.coursePath) { course in
+            CoursePathView(path: viewModel.path.coursePath) { course, _ in
                 MessageDetailView(viewModel: .init(course: course, conversation: viewModel.path.conversation, skipLoadingData: true),
                                   message: $viewModel.message)
             }

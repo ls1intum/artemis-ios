@@ -15,7 +15,7 @@ struct ProfilePictureView: View {
     @State private var viewModel: ProfileViewModel
     let size: CGFloat
 
-    init(user: ConversationUser, role: UserRole?, course: Course, size: CGFloat = 44, actions: [ProfileInfoSheetAction] = []) {
+    init(user: ConversationUser, role: UserRole?, course: CourseForOverviewDTO, size: CGFloat = 44, actions: [ProfileInfoSheetAction] = []) {
         self._viewModel = State(initialValue: ProfileViewModel(course: course, user: user, role: role, actions: actions))
         self.size = size
     }

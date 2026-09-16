@@ -74,10 +74,11 @@ public extension NavigationController {
         log.debug("LecturePath was appended to queue")
     }
 
-    func goToIrisSession(courseId: Int, sessionId: Int, contextSource: IrisContextSource? = nil) {
+    func goToIrisSession(courseId: Int, sessionId: Int, defaultInput: String = "", contextSource: IrisContextSource? = nil) {
         goToCourse(id: courseId)
         courseTab = .iris
         selectedPath = IrisSessionPath(sessionId: sessionId,
+                                       defaultInput: defaultInput,
                                        contextSource: contextSource,
                                        coursePath: selectedCourse ?? CoursePath(id: courseId))
         tabPath = NavigationPath()
@@ -120,8 +121,8 @@ public extension NavigationController {
         tabPath = NavigationPath()
     }
 
-    func goToThread(for messageId: Int64, in conversation: Conversation, of course: Course) {
-        tabPath.append(ThreadPath(postId: messageId, conversation: conversation, coursePath: CoursePath(course: course)))
+    func goToThread(for messageId: Int64, in conversation: Conversation, courseId: Int) {
+        tabPath.append(ThreadPath(postId: messageId, conversation: conversation, coursePath: CoursePath(id: courseId)))
     }
 
     func showDeeplinkNotSupported(url: URL) {

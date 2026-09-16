@@ -11,12 +11,13 @@ import SharedModels
 import SwiftUI
 
 struct ConversationDaySection: View {
+    @Environment(\.availableTabs) private var tabs
     @ObservedObject var viewModel: ConversationViewModel
 
     let day: Date
     let messages: [Message]
     var conversationPath: ConversationPath {
-        ConversationPath(conversation: viewModel.conversation, coursePath: CoursePath(course: viewModel.course))
+        ConversationPath(conversation: viewModel.conversation, coursePath: CoursePath(course: viewModel.course, tabs: tabs))
     }
 
     var body: some View {

@@ -12,13 +12,17 @@ import SwiftUI
 
 public struct CoursePathView<Content: View>: View {
     @State var viewModel: CoursePathViewModel
-    let content: (Course) -> Content
+    let content: (CourseForOverviewDTO, CourseAvailableTabsDTO) -> Content
 
     public var body: some View {
         DataStateView(data: $viewModel.course) {
             await viewModel.reloadCourse()
         } content: { course in
-            content(course)
+            DataStateView(data: $viewModel.tabs) {
+                await viewModel.reloadTabs()
+            } content: { tabs in
+                content(course, tabs)
+            }
         }
         .task {
             await viewModel.loadCourse()
@@ -29,7 +33,7 @@ public struct CoursePathView<Content: View>: View {
 }
 
 public extension CoursePathView {
-    init(path: CoursePath, @ViewBuilder content: @escaping (Course) -> Content) {
+    init(path: CoursePath, @ViewBuilder content: @escaping (CourseForOverviewDTO, CourseAvailableTabsDTO) -> Content) {
         self.init(viewModel: CoursePathViewModel(path: path), content: content)
     }
 }

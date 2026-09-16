@@ -12,14 +12,14 @@ import SwiftUI
 @MainActor
 final class SendMessageLecturePickerViewModel {
 
-    let course: Course
+    let course: CourseForOverviewDTO
     var lectures: [Lecture]
 
     private let delegate: SendMessageMentionContentDelegate
     private let lectureService: LectureService
 
     init(
-        course: Course,
+        course: CourseForOverviewDTO,
         lectures: [Lecture] = [],
         delegate: SendMessageMentionContentDelegate = SendMessageMentionContentDelegate { _ in },
         lectureService: LectureService = LectureServiceFactory.shared

@@ -14,7 +14,7 @@ import SwiftUI
 struct SavedMessagesContainerView: View {
     @State private var viewModel: SavedMessagesViewModel
 
-    init(course: Course) {
+    init(course: CourseForOverviewDTO) {
         _viewModel = State(initialValue: SavedMessagesViewModel(course: course))
     }
 
