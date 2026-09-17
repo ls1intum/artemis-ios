@@ -486,7 +486,7 @@ struct MessagesServiceImpl: MessagesService {
 
     func addReactionToAnswerMessage(for courseId: Int, answerMessage: AnswerMessage, emojiId: String) async -> NetworkResponse {
         let result = await client.sendRequest(
-            AddReactionToMessageRequest(emojiId: emojiId, relatedPostId: answerMessage.id, courseId: courseId)
+            AddReactionToMessageRequest(emojiId: emojiId, relatedPostId: answerMessage.id, postingType: .answer, courseId: courseId)
         )
 
         switch result {
@@ -497,11 +497,16 @@ struct MessagesServiceImpl: MessagesService {
         }
     }
 
+    /// Creates a reaction on a message or an answer message.
+    ///
+    /// `relatedPostId` does not identify the posting on its own: messages and answer messages are numbered
+    /// independently on the server, so the same value regularly denotes one of each. `postingType` says which.
     struct AddReactionToMessageRequest: APIRequest {
         typealias Response = RawResponse
 
         let emojiId: String
         let relatedPostId: Int64
+        let postingType: PostType
         let courseId: Int
 
         var method: HTTPMethod {
@@ -515,7 +520,7 @@ struct MessagesServiceImpl: MessagesService {
 
     func addReactionToMessage(for courseId: Int, message: Message, emojiId: String) async -> NetworkResponse {
         let result = await client.sendRequest(
-            AddReactionToMessageRequest(emojiId: emojiId, relatedPostId: message.id, courseId: courseId)
+            AddReactionToMessageRequest(emojiId: emojiId, relatedPostId: message.id, postingType: .post, courseId: courseId)
         )
 
         switch result {
@@ -737,7 +742,7 @@ struct MessagesServiceImpl: MessagesService {
         }
 
         var resourceName: String {
-            return "api/core/courses/\(courseId)/users/search?loginOrName=\(searchText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&roles=students,tutors,instructors"
+            return "api/course/courses/\(courseId)/users/search?loginOrName=\(searchText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&roles=students,tutors,instructors"
         }
     }
 

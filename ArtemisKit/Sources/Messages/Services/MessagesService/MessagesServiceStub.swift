@@ -15,8 +15,8 @@ struct MessagesServiceStub {
         try! Date("2024-01-08T9:41:32Z", strategy: .iso8601)
     }()
 
-    static let course: Course = {
-        let course = Course(id: 1, courseInformationSharingConfiguration: .communicationAndMessaging)
+    static let course: CourseForOverviewDTO = {
+        let course = CourseForOverviewDTO.mock
         return course
     }()
 
@@ -185,7 +185,7 @@ extension MessagesServiceStub: MessagesService {
         .loading
     }
 
-    func createChannel(for courseId: Int, name: String, description: String?, isPrivate: Bool, isAnnouncement: Bool, isCourseWide: Bool) async -> DataState<Channel> {
+    func createChannel(for courseId: Int, name: String, description: String?, traits: ConversationTraits) async -> DataState<Channel> {
         .loading
     }
 

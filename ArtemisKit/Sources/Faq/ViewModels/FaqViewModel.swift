@@ -11,7 +11,7 @@ import SharedModels
 
 @Observable
 class FaqViewModel {
-    let course: Course
+    let course: CourseForOverviewDTO
 
     private let faqService = FaqServiceFactory.shared
     var faqs: DataState<[FaqDTO]> = .loading
@@ -26,7 +26,7 @@ class FaqViewModel {
         course.isAtLeastTutorInCourse
     }
 
-    init(course: Course) {
+    init(course: CourseForOverviewDTO) {
         self.course = course
     }
 

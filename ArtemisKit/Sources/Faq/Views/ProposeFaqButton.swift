@@ -20,11 +20,10 @@ struct ProposeFaqButton: View {
                     .font(.title2)
                     .padding()
                     .offset(y: -2)
-                    .background(Color.Artemis.artemisBlue, in: .circle)
-                    .shadow(color: Color.gray.opacity(0.2), radius: .m)
-                    .offset(y: 2)
-                // Offsets are for aligning the icon visually
+                    .frame(width: 60, height: 60, alignment: .center)
             }
+            .glassEffect(.clear.tint(.Artemis.artemisBlue).interactive(), in: .circle)
+            .shadow(color: Color.gray.opacity(0.2), radius: .m)
             .sheet(isPresented: $viewModel.showProposalView) {
                 viewModel.proposedFaq = .init()
             } content: {

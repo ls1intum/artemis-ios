@@ -20,10 +20,10 @@ class ProfileViewModel {
 
     let user: ConversationUser
     let role: UserRole?
-    let course: Course
+    let course: CourseForOverviewDTO
     var actions: [ProfileInfoSheetAction]
 
-    init(course: Course, user: ConversationUser, role: UserRole?, actions: [ProfileInfoSheetAction]) {
+    init(course: CourseForOverviewDTO, user: ConversationUser, role: UserRole?, actions: [ProfileInfoSheetAction]) {
         self.course = course
         self.user = user
         self.role = role

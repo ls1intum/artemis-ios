@@ -27,7 +27,7 @@ struct ProposeFaqView: View {
             .navigationTitle(R.string.localizable.proposeFaq())
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button(R.string.localizable.cancel()) {
+                    Button(role: .cancel) {
                         dismiss()
                     }
                 }
@@ -47,7 +47,7 @@ struct ProposeFaqView: View {
     }
 
     var proposeButton: some View {
-        Button(R.string.localizable.propose()) {
+        Button(R.string.localizable.propose(), role: .confirm) {
             Task {
                 await viewModel.proposeFaq()
             }

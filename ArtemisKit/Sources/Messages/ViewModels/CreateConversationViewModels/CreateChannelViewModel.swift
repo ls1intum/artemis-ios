@@ -41,9 +41,9 @@ class CreateChannelViewModel {
         let result = await messagesService.createChannel(for: courseId,
                                                          name: name,
                                                          description: channelDescription,
-                                                         isPrivate: channelType.isPrivate,
-                                                         isAnnouncement: isAnnouncement,
-                                                         isCourseWide: channelType.isCourseWide)
+                                                         traits: .init(isPrivate: channelType.isPrivate,
+                                                                       isAnnouncement: isAnnouncement,
+                                                                       isCourseWide: channelType.isCourseWide))
 
         switch result {
         case .loading:

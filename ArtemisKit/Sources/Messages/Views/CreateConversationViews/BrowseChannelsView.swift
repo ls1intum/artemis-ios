@@ -51,7 +51,7 @@ struct BrowseChannelsView: View {
             .navigationTitle(R.string.localizable.browseChannelsNavTitel())
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button(R.string.localizable.cancel()) {
+                    Button(role: .cancel) {
                         dismiss()
                     }
                 }

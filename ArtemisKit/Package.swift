@@ -1,4 +1,4 @@
-// swift-tools-version: 6.0
+// swift-tools-version: 6.2
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -7,7 +7,7 @@ let package = Package(
     name: "ArtemisKit",
     defaultLocalization: "en",
     platforms: [
-        .iOS(.v18)
+        .iOS(.v26)
     ],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
@@ -20,7 +20,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/onmyway133/Smile", revision: "6bacbf7"),
 //        .package(url: "https://github.com/ls1intum/apollon-ios-module", .upToNextMajor(from: "1.0.9")), // Disabled because not working
-        .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", .upToNextMajor(from: "20.1.0")),
+        .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", .upToNextMajor(from: "21.0.0")),
         .package(url: "https://github.com/mac-cain13/R.swift.git", from: "7.8.0")
     ],
     targets: [
@@ -103,6 +103,7 @@ let package = Package(
                 .product(name: "Account", package: "artemis-ios-core-modules"),
                 .product(name: "APIClient", package: "artemis-ios-core-modules"),
                 .product(name: "DesignLibrary", package: "artemis-ios-core-modules"),
+                .product(name: "ProfileInfo", package: "artemis-ios-core-modules"),
                 .product(name: "SharedModels", package: "artemis-ios-core-modules"),
                 .product(name: "SharedServices", package: "artemis-ios-core-modules"),
                 .product(name: "RswiftLibrary", package: "R.swift")
@@ -215,6 +216,7 @@ let package = Package(
                 "Notifications",
                 .product(name: "APIClient", package: "artemis-ios-core-modules"),
                 .product(name: "Common", package: "artemis-ios-core-modules"),
+                .product(name: "ProfileInfo", package: "artemis-ios-core-modules"),
                 .product(name: "SharedModels", package: "artemis-ios-core-modules"),
                 .product(name: "SharedServices", package: "artemis-ios-core-modules"),
                 .product(name: "UserStore", package: "artemis-ios-core-modules")
@@ -225,7 +227,9 @@ let package = Package(
         .testTarget(
             name: "ArtemisKitTests",
             dependencies: [
-                "Messages"
+                "Messages",
+                "Notifications",
+                .product(name: "PushNotifications", package: "artemis-ios-core-modules")
             ])
     ],
     // TODO: Eventually upgrade

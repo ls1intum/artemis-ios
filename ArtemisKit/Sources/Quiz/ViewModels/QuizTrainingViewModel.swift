@@ -11,19 +11,10 @@ import Foundation
 import SharedModels
 
 @Observable
-class QuizTrainingViewModel {
+class QuizTrainingViewModel: QuizViewModel {
     let courseId: Int
 
     var questions: DataState<[DTO.QuizQuestionTraining]> = .loading
-
-    var lastSubmissionResult: DataState<DTO.SubmittedAnswerAfterEvaluation> = .loading
-    var hasSubmitted: Bool {
-        if case .done = lastSubmissionResult {
-            return true
-        } else {
-            return false
-        }
-    }
 
     var currentScore: (reached: Double, total: Double)? {
         let total = switch questions.value?.first?.quizQuestionWithSolutionDTO {
@@ -32,7 +23,12 @@ class QuizTrainingViewModel {
         case .shortAnswer(let question): question.points
         default: 0.0
         }
-        let reached = lastSubmissionResult.value?.scoreInPoints
+        let reached: Double? = switch lastSubmissionResult.value {
+        case .dragAndDrop(let result): result.scoreInPoints
+        case .multipleChoice(let result): result.scoreInPoints
+        case .shortAnswer(let result): result.scoreInPoints
+        case .none: nil
+        }
         if let reached, let total {
             return (reached, total)
         }

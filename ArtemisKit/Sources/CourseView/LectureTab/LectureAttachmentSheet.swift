@@ -51,7 +51,46 @@ struct LectureAttachmentSheet: View {
     }
 
     private func loadAttachment(lectureId: Int, lectureName: String) async {
-        let normalizedLink = "/api/core/files/attachments/lecture/\(lectureId)/merge-pdf"
+        let normalizedLink = "/api/core/files/attachments/lectures/\(lectureId)/merge-pdf"
         previewURL = await LectureServiceFactory.shared.getAttachmentFile(link: normalizedLink, name: lectureName)
+    }
+}
+
+struct AttachmentUnitSheetContent: View {
+
+    let attachmentUnit: AttachmentVideoUnit?
+    var lectureId: Int?
+    var lectureName: String?
+
+    @State private var showAttachment = false
+
+    var body: some View {
+        if let lectureId, let lectureName {
+            LectureAttachmentSheet(attachment: nil, lectureId: lectureId, lectureName: lectureName)
+        } else if let attachment = attachmentUnit?.attachment, attachmentUnit?.videoSource == nil {
+            // Only attachment -> Make it full screen
+            LectureAttachmentSheet(attachment: attachment)
+        } else {
+            ScrollView {
+                if let attachment = attachmentUnit?.attachment {
+                    NavigationLink {
+                        LectureAttachmentSheet(attachment: attachment)
+                    } label: {
+                        BaseLectureUnitCell(viewModel: .init(courseId: nil, lectureId: nil),
+                                            lectureUnit: .attachmentVideo(lectureUnit: attachmentUnit!))
+                        .padding(.horizontal)
+                        .allowsHitTesting(false)
+                    }
+                    .foregroundStyle(.primary)
+                }
+                if let videoSource = attachmentUnit?.videoSource,
+                   let videoUrl = URL(string: videoSource) {
+                    VideoUnitSheetContent(unit: attachmentUnit!, videoSource: videoUrl)
+                } else {
+                    Text(R.string.localizable.attachmentCouldNotBeOpened())
+                        .foregroundColor(.red)
+                }
+            }
+        }
     }
 }

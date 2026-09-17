@@ -14,14 +14,14 @@ import SwiftUI
 @Observable
 final class SendMessageMentionChannelViewModel {
 
-    let course: Course
+    let course: CourseForOverviewDTO
 
     var channels: DataState<[ChannelIdAndNameDTO]> = .loading
 
     private let messagesService: MessagesService
 
     init(
-        course: Course,
+        course: CourseForOverviewDTO,
         messagesService: MessagesService = MessagesServiceFactory.shared
     ) {
         self.course = course

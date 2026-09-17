@@ -29,7 +29,7 @@ extension SendMessageViewModel {
 @MainActor
 @Observable
 final class SendMessageViewModel {
-    let course: Course
+    let course: CourseForOverviewDTO
     let conversation: Conversation
     let configuration: Configuration
 
@@ -102,7 +102,7 @@ final class SendMessageViewModel {
     // MARK: Life cycle
 
     init(
-        course: Course,
+        course: CourseForOverviewDTO,
         conversation: Conversation,
         configuration: Configuration,
         delegate: SendMessageViewModelDelegate,
