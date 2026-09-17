@@ -20,8 +20,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/onmyway133/Smile", revision: "6bacbf7"),
 //        .package(url: "https://github.com/ls1intum/apollon-ios-module", .upToNextMajor(from: "1.0.9")), // Disabled because not working
-//        .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", .upToNextMajor(from: "20.1.0")),
-        .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", revision: "d981df7"),
+        .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", .upToNextMajor(from: "21.0.0")),
         .package(url: "https://github.com/mac-cain13/R.swift.git", from: "7.8.0")
     ],
     targets: [
@@ -228,7 +227,9 @@ let package = Package(
         .testTarget(
             name: "ArtemisKitTests",
             dependencies: [
-                "Messages"
+                "Messages",
+                "Notifications",
+                .product(name: "PushNotifications", package: "artemis-ios-core-modules")
             ])
     ],
     // TODO: Eventually upgrade

@@ -26,14 +26,9 @@ struct CourseNotification: Codable, Identifiable {
         self.creationDate = try container.decode(Date.self, forKey: .creationDate)
         self.category = try container.decode(NotificationCategory.self, forKey: .category)
         self.status = try container.decode(NotificationStatus.self, forKey: .status)
-        // Custom decoding required for CoursePushNotification
-        self.notification = try CoursePushNotification(from: decoder, typeKey: Keys.notificationType, parametersKey: Keys.parameters)
-    }
-
-    private enum Keys: String, CodingKey {
-        case notificationType
-        case courseId
-        case parameters
+        // Which key the values arrive under depends on the version of the server that sent them, and
+        // CoursePushNotification decides that for both this list and the push body so the two cannot drift apart.
+        self.notification = try CoursePushNotification(from: decoder)
     }
 
     var id: Int { notificationId }

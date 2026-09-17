@@ -1,13 +1,13 @@
 {
-  "originHash" : "23205d32fe2efd61e78352cb5424274ee9acd0e64f0cc30f3650773cfc5b59c4",
+  "originHash" : "c57c95164ef2b06a17db65a4f606680f2d2596010e80e14d67c5c3c12337c15f",
   "pins" : [
     {
       "identity" : "artemis-ios-core-modules",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ls1intum/artemis-ios-core-modules",
       "state" : {
-        "branch" : "d981df7",
-        "revision" : "d981df7bdedf7a4942e9d23e40b8d69cb5b6a852"
+        "revision" : "02cd69693032c6d1ee170d25794b57ef6035191d",
+        "version" : "21.0.0"
       }
     },
     {
@@ -60,8 +60,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/mattpolzin/OpenAPIKit",
       "state" : {
-        "revision" : "5b72eb9a6b23b1fec439d9a0bf38f115400421f9",
-        "version" : "6.4.0"
+        "revision" : "57b6318128e3f901c93f4fbf98d1c1464ec168d3",
+        "version" : "6.2.0"
       }
     },
     {
@@ -141,8 +141,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-http-types",
       "state" : {
-        "revision" : "bff4b6903cdc99dda49649dd52f46c11cfd3ed50",
-        "version" : "1.8.0"
+        "revision" : "db774a277f60063a32d854f2980299caf06da041",
+        "version" : "1.6.0"
       }
     },
     {
@@ -168,8 +168,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-openapi-generator",
       "state" : {
-        "revision" : "39d49cf22abab58a07f02bb76808b5d2839b294a",
-        "version" : "1.13.1"
+        "revision" : "af9a2a1f5dcfb00a278d4bb29c6d75080932e99e",
+        "version" : "1.13.0"
       }
     },
     {
@@ -177,8 +177,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-openapi-runtime",
       "state" : {
-        "revision" : "9e53df53e043b53046a371b31aaf0a1e26eef946",
-        "version" : "1.12.1"
+        "revision" : "3d3a8457661daf7fb260ceeb9f0e24e5204ba5fb",
+        "version" : "1.12.0"
       }
     },
     {
