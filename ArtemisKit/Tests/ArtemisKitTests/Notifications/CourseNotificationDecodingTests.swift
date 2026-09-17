@@ -51,6 +51,10 @@ final class CourseNotificationDecodingTests: XCTestCase {
         XCTAssertEqual(post.authorName, "Some Author")
         // Decoded from the notification rather than from its values, which is where it sits in both shapes
         XCTAssertEqual(post.courseId, 42)
+        // Siblings of the payload rather than part of it on this shape, and folded in by the decoder. Leaving them
+        // empty is what would quietly take the course name out of every communication push.
+        XCTAssertEqual(post.courseTitle, "Introduction to Software Engineering")
+        XCTAssertEqual(post.courseIconUrl, "/courses/42/icon.png")
     }
 
     /// The shape servers before Artemis 10.0 send, and which 10.0 keeps sending alongside the payload.
