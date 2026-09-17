@@ -37,7 +37,7 @@ struct SendMessageFAQPicker: View {
 }
 
 extension SendMessageFAQPicker {
-    init(course: Course, delegate: SendMessageMentionContentDelegate) {
+    init(course: CourseForOverviewDTO, delegate: SendMessageMentionContentDelegate) {
         self.init(viewModel: SendMessageFAQPickerViewModel(course: course, delegate: delegate))
     }
 }

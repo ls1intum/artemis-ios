@@ -11,6 +11,7 @@ import SwiftUI
 
 struct ConversationRow: View {
 
+    @Environment(\.availableTabs) private var tabs
     @EnvironmentObject var navigationController: NavigationController
 
     var viewModel: ConversationListViewModel
@@ -22,7 +23,7 @@ struct ConversationRow: View {
         // should always be non-optional
         if let conversationForPath = Conversation(conversation: conversation) {
             NavigationLink(value: ConversationPath(conversation: conversationForPath,
-                                                   coursePath: CoursePath(course: viewModel.parentViewModel.course),
+                                                   coursePath: CoursePath(course: viewModel.parentViewModel.course, tabs: tabs),
                                                    filterToUnresolved: viewModel.filter == .unresolved)) {
                 HStack {
                     ConversationRowLabel(conversation: conversation, namePrefix: namePrefix)
@@ -40,7 +41,7 @@ struct ConversationRow: View {
                 }
             }
             .navigationLinkIndicatorVisibility(.hidden)
-            .tag(ConversationPath(conversation: conversationForPath, coursePath: CoursePath(course: viewModel.parentViewModel.course), filterToUnresolved: viewModel.filter == .unresolved))
+            .tag(ConversationPath(conversation: conversationForPath, coursePath: CoursePath(course: viewModel.parentViewModel.course, tabs: tabs), filterToUnresolved: viewModel.filter == .unresolved))
             .foregroundStyle((conversation.isMuted ?? false) ? .secondary : .primary)
             .listRowInsets(EdgeInsets(top: 0, leading: .s * -1, bottom: 0, trailing: 0))
             .swipeActions(edge: .leading) {

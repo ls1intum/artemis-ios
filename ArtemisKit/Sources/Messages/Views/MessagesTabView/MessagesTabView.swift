@@ -15,7 +15,7 @@ public struct MessagesTabView: View {
 
     @StateObject private var viewModel: MessagesTabViewModel
 
-    public init(course: Course) {
+    public init(course: CourseForOverviewDTO) {
         self._viewModel = StateObject(wrappedValue: MessagesTabViewModel(course: course))
     }
 

@@ -371,7 +371,7 @@ extension EnvironmentValues {
         message: Binding.constant(DataState<BaseMessage>.done(response: MessagesServiceStub.message)),
         conversationPath: ConversationPath(
             conversation: MessagesServiceStub.conversation,
-            coursePath: CoursePath(course: MessagesServiceStub.course)
+            coursePath: CoursePath(course: .mock, tabs: .init())
         ),
         isHeaderVisible: true,
         roundBottomCorners: true

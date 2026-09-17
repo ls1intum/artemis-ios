@@ -219,27 +219,30 @@ enum ConversationFilter: FilterPicker {
         }
     }
 
-    private func isRecent(channel: BaseConversation, course: Course) -> Bool {
+    private func isRecent(channel: BaseConversation, course: CourseForOverviewDTO) -> Bool {
         guard let channel = channel as? Channel else {
             return false
         }
 
-        let exercise = course.exercises?.first { $0.id == channel.subTypeReferenceId }
-        let lecture = course.lectures?.first { $0.id == channel.subTypeReferenceId }
-        let dateStart = Date.now.addingTimeInterval(-5 * 24 * 60 * 60)
-        let dateEnd = Date.now.addingTimeInterval(10 * 24 * 60 * 60)
-        let range = dateStart...dateEnd
+        // TODO: Re-implement
+        #warning("Re-implement this")
 
-        if let exercise {
-            let start = exercise.baseExercise.releaseDate ?? .distantPast
-            let end = exercise.baseExercise.dueDate ?? .distantFuture
-            return range.contains(start) || range.contains(end)
-        }
-        if let lecture {
-            let start = lecture.startDate ?? .distantPast
-            let end = lecture.endDate ?? .distantFuture
-            return range.contains(start) || range.contains(end)
-        }
+//        let exercise = course.exercises?.first { $0.id == channel.subTypeReferenceId }
+//        let lecture = course.lectures?.first { $0.id == channel.subTypeReferenceId }
+//        let dateStart = Date.now.addingTimeInterval(-5 * 24 * 60 * 60)
+//        let dateEnd = Date.now.addingTimeInterval(10 * 24 * 60 * 60)
+//        let range = dateStart...dateEnd
+//
+//        if let exercise {
+//            let start = exercise.baseExercise.releaseDate ?? .distantPast
+//            let end = exercise.baseExercise.dueDate ?? .distantFuture
+//            return range.contains(start) || range.contains(end)
+//        }
+//        if let lecture {
+//            let start = lecture.startDate ?? .distantPast
+//            let end = lecture.endDate ?? .distantFuture
+//            return range.contains(start) || range.contains(end)
+//        }
 
         return false
     }

@@ -14,8 +14,9 @@ import SwiftUI
 import Messages
 
 struct LectureListView: View {
+    @Environment(\.availableTabs) private var tabs
     @EnvironmentObject var navController: NavigationController
-    @ObservedObject var viewModel: CourseViewModel
+    var viewModel: CourseViewModel
     @State private var columnVisibilty: NavigationSplitViewVisibility = .doubleColumn
 
     @State private var searchText = ""
@@ -58,7 +59,7 @@ struct LectureListView: View {
                 .scrollContentBackground(.hidden)
                 .searchable(text: $searchText, prompt: R.string.localizable.filterLectures())
                 .refreshable {
-                    await viewModel.refreshCourse()
+                    await viewModel.refreshLectures()
                 }
                 .onChange(of: lectureGroups.0) { _, newValue in
                     withAnimation {
@@ -71,7 +72,7 @@ struct LectureListView: View {
                     }
                 }
                 .safeAreaInset(edge: .bottom) {
-                    if showFaqButton && viewModel.course.numberOfAcceptedFaqs ?? 0 > 0 {
+                    if showFaqButton && tabs.faq {
                         Button {
                             showFaq = true
                         } label: {
@@ -122,7 +123,7 @@ struct LectureListView: View {
 
 private extension LectureListView {
     var searchResults: [Lecture] {
-        guard let lectures = viewModel.course.lectures else {
+        guard let lectures = viewModel.lecturesOverview.value else {
             return []
         }
         return lectures.filter { lecture in
@@ -132,7 +133,7 @@ private extension LectureListView {
     }
 
     var lectureGroups: ([LectureGroup], LectureGroupsInfo) {
-        guard let lectures = viewModel.course.lectures else {
+        guard let lectures = viewModel.lecturesOverview.value else {
             return ([], .init(currentCount: 0, futureCount: 0, pastCount: 0))
         }
 
@@ -187,12 +188,12 @@ private struct LectureGroupsInfo {
 }
 
 private struct LectureListSectionView: View {
-    private let course: Course
+    private let course: CourseForOverviewDTO
     private let lectureGroup: LectureGroup
 
     @State private var isExpanded: Bool
 
-    init(course: Course, lectureGroup: LectureGroup, groupsInfo: LectureGroupsInfo) {
+    init(course: CourseForOverviewDTO, lectureGroup: LectureGroup, groupsInfo: LectureGroupsInfo) {
         self.course = course
         self.lectureGroup = lectureGroup
 
@@ -235,7 +236,7 @@ private struct LectureListSectionView: View {
 
 struct WeeklyLectureView: View {
     fileprivate let weeklyLecture: WeeklyLecture
-    let course: Course
+    let course: CourseForOverviewDTO
 
     var body: some View {
         ForEach(weeklyLecture.lectures) { lecture in
@@ -246,9 +247,10 @@ struct WeeklyLectureView: View {
 }
 
 private struct LectureListCellView: View {
+    @Environment(\.availableTabs) private var tabs
     @EnvironmentObject var navigationController: NavigationController
 
-    let course: Course
+    let course: CourseForOverviewDTO
     let lecture: Lecture
 
     let rows = [
@@ -256,7 +258,7 @@ private struct LectureListCellView: View {
     ]
 
     var body: some View {
-        NavigationLink(value: LecturePath(lecture: lecture, coursePath: CoursePath(course: course))) {
+        NavigationLink(value: LecturePath(lecture: lecture, coursePath: CoursePath(course: course, tabs: tabs))) {
             VStack(alignment: .leading, spacing: .m) {
                 HStack(spacing: .l) {
                     lecture.image
@@ -281,7 +283,7 @@ private struct LectureListCellView: View {
         .navigationLinkIndicatorVisibility(.hidden)
         .foregroundColor(Color.Artemis.primaryLabel)
         .listRowBackground(Color.Artemis.exerciseCardBackgroundColor)
-        .tag(LecturePath(lecture: lecture, coursePath: CoursePath(course: course)))
+        .tag(LecturePath(lecture: lecture, coursePath: CoursePath(course: course, tabs: tabs)))
     }
 }
 

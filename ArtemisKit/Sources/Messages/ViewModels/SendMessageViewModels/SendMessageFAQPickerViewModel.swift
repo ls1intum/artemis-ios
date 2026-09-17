@@ -12,14 +12,14 @@ import SwiftUI
 @Observable
 final class SendMessageFAQPickerViewModel {
 
-    let course: Course
+    let course: CourseForOverviewDTO
     var faqs: [FaqDTO]
 
     private let delegate: SendMessageMentionContentDelegate
     private let faqService: FaqService
 
     init(
-        course: Course,
+        course: CourseForOverviewDTO,
         faqs: [FaqDTO] = [],
         delegate: SendMessageMentionContentDelegate = SendMessageMentionContentDelegate { _ in },
         faqService: FaqService = FaqServiceFactory.shared

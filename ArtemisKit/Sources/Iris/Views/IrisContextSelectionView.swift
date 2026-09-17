@@ -5,16 +5,17 @@
 //  Created by Senan Aslan on 06.06.26.
 //
 
+import Common
 import DesignLibrary
 import Navigation
 import SharedModels
+import SharedServices
 import SwiftUI
 
 /// Lets the user scope the next Iris message to a lecture or a (text/programming)
 /// exercise of the course. Tapping a row hands the chosen ``SessionContext`` back
 /// via ``onSet`` and dismisses — there is no separate confirm step.
 struct IrisContextSelectionView: View {
-    @Environment(\.dismiss) private var dismiss
     @Bindable var viewModel: IrisContextSelectionViewModel
 
     /// Carries the already-loaded ``Course`` when navigated from within the course,
@@ -26,8 +27,8 @@ struct IrisContextSelectionView: View {
 
     var body: some View {
         NavigationStack {
-            CoursePathView(path: coursePath) { course in
-                content(for: course)
+            CoursePathView(path: coursePath) { course, tabs in
+                content(for: course, tabs: tabs)
             }
             .navigationTitle(R.string.localizable.selectTitle())
             .navigationBarTitleDisplayMode(.inline)
@@ -36,9 +37,44 @@ struct IrisContextSelectionView: View {
     }
 
     @ViewBuilder
-    private func content(for course: Course) -> some View {
-        let lectures = viewModel.lectures(in: course)
-        let exercises = viewModel.exercises(in: course)
+    private func content(for course: CourseForOverviewDTO, tabs: CourseAvailableTabsDTO) -> some View {
+        IrisContextSelectionInnerView(viewModel: viewModel, course: course, currentSelection: currentSelection, onSet: onSet)
+    }
+}
+
+private struct IrisContextSelectionInnerView: View {
+    @Environment(\.dismiss) private var dismiss
+
+    @Bindable var viewModel: IrisContextSelectionViewModel
+    let course: CourseForOverviewDTO
+    let currentSelection: SessionContext?
+    let onSet: (SessionContext) -> Void
+
+    @State private var lectures: DataState<[Lecture]> = .loading
+    @State private var exercises: DataState<CourseExercisesForOverviewDTO> = .loading
+
+    var body: some View {
+        DataStateView(data: $lectures) {
+            await fetchLectures()
+        } content: { lectures in
+            DataStateView(data: $exercises) {
+                await fetchExercises()
+            } content: { exercises in
+                content(lectures: lectures, exercises: exercises.exercises ?? [])
+            }
+        }
+        .task(id: "fetchLectures") {
+            await fetchLectures()
+        }
+        .task(id: "fetchExercises") {
+            await fetchExercises()
+        }
+    }
+
+    @ViewBuilder
+    private func content(lectures: [Lecture], exercises: [Exercise]) -> some View {
+        let lectures = viewModel.lectures(from: lectures)
+        let exercises = viewModel.exercises(from: exercises)
         if lectures.isEmpty && exercises.isEmpty {
             ContentUnavailableView(R.string.localizable.noItems(), systemImage: "tray")
         } else {
@@ -72,6 +108,14 @@ struct IrisContextSelectionView: View {
                 }
             }
         }
+    }
+
+    func fetchLectures() async {
+        lectures = await CourseServiceFactory.shared.getLectureOverview(courseId: course.id)
+    }
+
+    func fetchExercises() async {
+        exercises = await CourseServiceFactory.shared.getExerciseOverview(courseId: course.id)
     }
 }
 

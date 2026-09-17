@@ -23,7 +23,12 @@ class QuizTrainingViewModel: QuizViewModel {
         case .shortAnswer(let question): question.points
         default: 0.0
         }
-        let reached = lastSubmissionResult.value?.scoreInPoints
+        let reached: Double? = switch lastSubmissionResult.value {
+        case .dragAndDrop(let result): result.scoreInPoints
+        case .multipleChoice(let result): result.scoreInPoints
+        case .shortAnswer(let result): result.scoreInPoints
+        case .none: nil
+        }
         if let reached, let total {
             return (reached, total)
         }

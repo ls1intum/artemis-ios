@@ -61,6 +61,7 @@ class QuizParticipationViewModel: QuizViewModel {
 
     func startParticipation() async {
         loadingQuizStart = true
+        // TODO: Extract old submittedAnswers from submission to continue quiz
         participation = await APIClient().call { client in
             try await client.startParticipation(path: .init(exerciseId: Int64(exercise.id)))
                 .ok.body.json

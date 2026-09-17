@@ -15,7 +15,7 @@ import Navigation
 
 @MainActor
 class ConversationInfoSheetViewModel: BaseViewModel {
-    let course: Course
+    let course: CourseForOverviewDTO
 
     private let _conversation: Binding<Conversation>
     var conversation: Conversation {
@@ -33,7 +33,7 @@ class ConversationInfoSheetViewModel: BaseViewModel {
 
     private let messagesService: MessagesService
 
-    init(course: Course, conversation: Binding<Conversation>, messagesService: MessagesService = MessagesServiceFactory.shared) {
+    init(course: CourseForOverviewDTO, conversation: Binding<Conversation>, messagesService: MessagesService = MessagesServiceFactory.shared) {
         self.course = course
         self._conversation = conversation
         self.messagesService = messagesService

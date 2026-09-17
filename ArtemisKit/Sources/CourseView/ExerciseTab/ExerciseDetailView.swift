@@ -15,6 +15,7 @@ import UserStore
 import Quiz
 
 public struct ExerciseDetailView: View {
+    @Environment(\.availableTabs) private var tabs
     @EnvironmentObject var navigationController: NavigationController
 
     @State private var viewModel: ExerciseDetailViewModel
@@ -27,7 +28,7 @@ public struct ExerciseDetailView: View {
                 VStack(alignment: .leading, spacing: .l) {
                     hint
                     ExerciseOverviewChipsRow(exercise: exercise, score: viewModel.score)
-                    if viewModel.irisEnabledInCourse {
+                    if tabs.iris {
                         AskIrisButton(courseId: viewModel.courseId, exercise: exercise, horizontalPadding: .m)
                     }
                     if case .quiz(let quiz) = exercise,
@@ -91,11 +92,10 @@ public struct ExerciseDetailView: View {
 }
 
 public extension ExerciseDetailView {
-    init(course: Course, exercise: Exercise) {
+    init(course: CourseForOverviewDTO, exercise: Exercise) {
         self.init(viewModel: ExerciseDetailViewModel(
             courseId: course.id,
             exerciseId: exercise.id,
-            irisEnabledInCourse: course.irisEnabledInCourse == true,
             exercise: .done(response: exercise)))
     }
 
