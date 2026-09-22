@@ -13,7 +13,7 @@ public struct CourseView: View {
     @EnvironmentObject private var navigationController: NavigationController
     @Environment(\.horizontalSizeClass) private var sizeClass
 
-    @StateObject private var viewModel: CourseViewModel
+    @State private var viewModel: CourseViewModel
     @FeatureAvailability(.globalSearch) private var searchEnabled
 
     private let courseId: Int
@@ -25,7 +25,7 @@ public struct CourseView: View {
                     systemImage: "list.bullet.clipboard.fill",
                     value: TabIdentifier.exercise) {
                     TabBarIpad {
-                        ExerciseListView(viewModel: viewModel)
+                        ExerciseTabView(viewModel: viewModel)
                     }
                 }
             }
@@ -35,8 +35,8 @@ public struct CourseView: View {
                     systemImage: "character.book.closed.fill",
                     value: TabIdentifier.lecture) {
                     TabBarIpad {
-                        LectureListView(viewModel: viewModel,
-                                        showFaqButton: !potentiallyVisibleTabs.contains(.faq))
+                        LectureTabView(viewModel: viewModel,
+                                       showFaqButton: !potentiallyVisibleTabs.contains(.faq))
                     }
                 }
             }
@@ -51,7 +51,7 @@ public struct CourseView: View {
                 }
             }
 
-            if ((viewModel.course.numberOfAcceptedFaqs ?? 0) > 0) && potentiallyVisibleTabs.contains(.faq) {
+            if viewModel.availableTabs.faq && potentiallyVisibleTabs.contains(.faq) {
                 Tab(R.string.localizable.faqTabLabel(),
                     systemImage: "questionmark.circle",
                     value: TabIdentifier.faq) {
@@ -63,16 +63,15 @@ public struct CourseView: View {
 
             if searchEnabled && potentiallyVisibleTabs.contains(.search) {
                 Tab(value: .search, role: .search) {
-#warning("enable iris when implemented")
                     SearchTabView(courseId: viewModel.course.id,
-                                  irisEnabled: false)
+                                  irisEnabled: viewModel.availableTabs.iris)
                     // Search tab does not use split view, so always use compact toolbar
                         .courseToolbar(title: viewModel.course.title ?? R.string.localizable.loading())
                         .environment(\.horizontalSizeClass, .compact)
                 }
             }
 
-            if viewModel.course.irisEnabledInCourse == true && potentiallyVisibleTabs.contains(.iris) {
+            if viewModel.availableTabs.iris && potentiallyVisibleTabs.contains(.iris) {
                 Tab("Iris", systemImage: "eyes", value: TabIdentifier.iris) {
                     TabBarIpad {
                         IrisSessionListView(course: viewModel.course)
@@ -80,6 +79,7 @@ public struct CourseView: View {
                 }
             }
         }
+        .environment(\.availableTabs, viewModel.availableTabs)
         .courseToolbar(title: viewModel.course.title ?? R.string.localizable.loading())
         // Add a file and image picker here, inside the navigation it doesn't work sometimes
         .supportsFilePicker()
@@ -93,8 +93,8 @@ public struct CourseView: View {
 }
 
 extension CourseView {
-    init(course: Course) {
-        self.init(viewModel: CourseViewModel(course: course), courseId: course.id)
+    init(course: CourseForOverviewDTO, availableTabs: CourseAvailableTabsDTO) {
+        self.init(viewModel: CourseViewModel(course: course, availableTabs: availableTabs), courseId: course.id)
     }
 }
 
@@ -103,20 +103,23 @@ private extension CourseView {
         var tabs = [TabIdentifier]()
 
         // Add tabs in "importance" order after the first 5
-        if viewModel.course.irisEnabledInCourse == true {
-#warning("Enable Iris here when completely implemented")
-//            tabs.append(.iris)
+        if viewModel.availableTabs.iris {
+            tabs.append(.iris)
         }
 
         if searchEnabled {
             tabs.append(.search)
         }
 
-        if viewModel.course.exercises?.isEmpty != true {
+        if let exercises = viewModel.exercisesOverview.value {
+            if !(exercises.exercises ?? []).isEmpty {
+                tabs.append(.exercise)
+            }
+        } else {
             tabs.append(.exercise)
         }
 
-        if viewModel.course.lectures?.isEmpty != true {
+        if viewModel.availableTabs.lectures {
             tabs.append(.lecture)
         }
 
@@ -125,7 +128,7 @@ private extension CourseView {
         }
 
         // Importance order -> shown if possible
-        if viewModel.course.numberOfAcceptedFaqs ?? 0 > 0 {
+        if viewModel.availableTabs.faq {
             tabs.append(.faq)
         }
 

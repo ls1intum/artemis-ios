@@ -72,7 +72,7 @@ struct CreateOrAddChannelButton: View {
             .foregroundStyle(.white)
             .font(.title2)
             .padding()
-            .background(Color.Artemis.artemisBlue, in: .circle)
+            .glassEffect(.clear.tint(.Artemis.artemisBlue).interactive(), in: .circle)
             .shadow(color: Color.gray.opacity(0.2), radius: .m)
     }
 }

@@ -21,3 +21,17 @@
 "correct" = "Correct";
 "incorrect" = "Incorrect";
 "solution" = "Solution";
+"question" = "Question";
+
+"refresh" = "Refresh";
+"waitingForStart" = "Waiting for Quiz Start";
+"waitingForEnd" = "Waiting for Quiz End";
+"waitingForStartDetail" = "The quiz has not started yet. This page will refresh automatically when the quiz starts.";
+"waitingForEndDetail" = "This page will refresh automatically when the quiz ends and solutions are available.";
+"startParticipation" = "Start participation now?";
+"enterPassword" = "Enter password to join";
+"joinQuiz" = "Join Quiz";
+"password" = "Password";
+"status" = "Status";
+"saved" = "Saved";
+"unsaved" = "Unsaved";

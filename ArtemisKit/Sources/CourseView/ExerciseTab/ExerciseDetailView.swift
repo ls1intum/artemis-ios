@@ -7,12 +7,15 @@
 
 import Common
 import DesignLibrary
+import Iris
 import Navigation
 import SharedModels
 import SwiftUI
 import UserStore
+import Quiz
 
 public struct ExerciseDetailView: View {
+    @Environment(\.availableTabs) private var tabs
     @EnvironmentObject var navigationController: NavigationController
 
     @State private var viewModel: ExerciseDetailViewModel
@@ -25,6 +28,25 @@ public struct ExerciseDetailView: View {
                 VStack(alignment: .leading, spacing: .l) {
                     hint
                     ExerciseOverviewChipsRow(exercise: exercise, score: viewModel.score)
+                    if tabs.iris {
+                        AskIrisButton(courseId: viewModel.courseId, exercise: exercise, horizontalPadding: .m)
+                    }
+                    if case .quiz(let quiz) = exercise,
+                       quiz.canStartLiveQuiz || quiz.canResumeQuiz || quiz.canStartPractice {
+                        Button {
+                            viewModel.showQuizParticipation = true
+                        } label: {
+                            if quiz.canStartLiveQuiz {
+                                Label(R.string.localizable.startExercise(), systemImage: "play.fill")
+                            } else if quiz.canResumeQuiz {
+                                Label(R.string.localizable.openExercise(), systemImage: "play.fill")
+                            } else {
+                                Label(R.string.localizable.startPractice(), systemImage: "memories")
+                            }
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                    }
                     problem
                     detail(exercise: exercise)
                 }
@@ -48,6 +70,15 @@ public struct ExerciseDetailView: View {
                 feedback(exercise: exercise)
                     .padding()
             }
+            .sheet(isPresented: $viewModel.showQuizParticipation) {
+                Task {
+                    await viewModel.refreshExercise()
+                }
+            } content: {
+                if case .quiz(let quiz) = exercise {
+                    QuizParticipationView(exercise: quiz, courseId: viewModel.courseId)
+                }
+            }
         }
         .task {
             await viewModel.loadExercise()
@@ -61,7 +92,7 @@ public struct ExerciseDetailView: View {
 }
 
 public extension ExerciseDetailView {
-    init(course: Course, exercise: Exercise) {
+    init(course: CourseForOverviewDTO, exercise: Exercise) {
         self.init(viewModel: ExerciseDetailViewModel(
             courseId: course.id,
             exerciseId: exercise.id,
@@ -80,37 +111,18 @@ private extension ExerciseDetailView {
     // All buttons regarding viewing feedback and for the future, starting an exercise
     func feedback(exercise: Exercise) -> some View {
         HStack(spacing: .m) {
-            if viewModel.isExerciseParticipationAvailable {
-                if let dueDate = exercise.baseExercise.dueDate {
-                    if dueDate > Date() {
-                        if let participationId = viewModel.participationId {
-                            OpenExerciseButton(
-                                exercise: exercise,
-                                participationId: participationId,
-                                problemStatementURL: .init(url: .applicationDirectory))
-                        } else {
-                            StartExerciseButton(exercise: exercise, participationId: $viewModel.participationId)
-                        }
-                    } else {
-                        if let participationId = viewModel.participationId {
-                            if viewModel.latestResultId == nil {
-                                ViewExerciseSubmissionButton(exercise: exercise, participationId: participationId)
-                            } else {
-                                ViewExerciseResultButton(exercise: exercise, participationId: participationId)
-                            }
-                        }
-                    }
-                } else {
-                    if let participationId = viewModel.participationId {
-                        OpenExerciseButton(
-                            exercise: exercise,
-                            participationId: participationId,
-                            problemStatementURL: .init(url: .applicationDirectory))
-                    } else {
-                        StartExerciseButton(exercise: exercise, participationId: $viewModel.participationId)
-                    }
-                }
-            }
+            // TODO: Potentially show Quiz Submissions here
+//            if viewModel.isExerciseParticipationAvailable {
+//                if let dueDate = exercise.baseExercise.dueDate {
+//                    if dueDate < Date(), let participationId = viewModel.participationId {
+//                        if viewModel.latestResultId == nil {
+//                            ViewExerciseSubmissionButton(exercise: exercise, participationId: participationId)
+//                        } else {
+//                            ViewExerciseResultButton(exercise: exercise, participationId: participationId)
+//                        }
+//                    }
+//                }
+//            }
             if let latestResultId = viewModel.latestResultId,
                let participationId = viewModel.participationId,
                viewModel.isFeedbackButtonVisible {
@@ -229,58 +241,6 @@ private struct ExerciseDetailCell<Content: View>: View {
         }
         .frame(height: 25, alignment: .center)
         .padding(.s)
-    }
-}
-
-private struct StartExerciseButton: View {
-    var exercise: Exercise
-    @Binding var participationId: Int?
-
-    var body: some View {
-        Button {
-            Task {
-                let exerciseService = ExerciseSubmissionServiceFactory.service(for: exercise)
-                do {
-                    let response = try await exerciseService.startParticipation(exerciseId: exercise.id)
-                    participationId = response.baseParticipation.id
-                } catch {
-                    log.error(String(describing: error))
-                }
-            }
-        } label: {
-            Text(R.string.localizable.startExercise())
-        }
-        .buttonStyle(ArtemisButton())
-    }
-}
-
-private struct OpenExerciseButton: View {
-    var exercise: Exercise
-    var participationId: Int
-    var problemStatementURL: URLRequest
-
-    var body: some View {
-        // TODO: Fix, then re-enable
-//        switch exercise {
-//        case .modeling:
-//            NavigationLink(R.string.localizable.openModelingEditor()) {
-//                EditModelingExerciseView(
-//                    exercise: exercise,
-//                    participationId: participationId,
-//                    problemStatementURL: problemStatementURL)
-//            }
-//            .buttonStyle(ArtemisButton())
-//        case .text:
-//            NavigationLink(R.string.localizable.openExercise()) {
-//                EditTextExerciseView(
-//                    exercise: exercise,
-//                    participationId: participationId,
-//                    problem: problemStatementURL)
-//            }
-//            .buttonStyle(ArtemisButton())
-//        default:
-            ArtemisHintBox(text: R.string.localizable.exerciseParticipationHint(), hintType: .info)
-//        }
     }
 }
 

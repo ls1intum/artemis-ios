@@ -14,7 +14,7 @@ import UserStore
 @MainActor
 @Observable
 final class MessageCellModel {
-    let course: Course
+    let course: CourseForOverviewDTO
 
     let conversationPath: ConversationPath?
     let isHeaderVisible: Bool
@@ -30,7 +30,7 @@ final class MessageCellModel {
     private let userSession: UserSession
 
     init(
-        course: Course,
+        course: CourseForOverviewDTO,
         conversationPath: ConversationPath?,
         isHeaderVisible: Bool,
         roundBottomCorners: Bool,

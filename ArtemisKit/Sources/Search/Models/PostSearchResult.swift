@@ -28,6 +28,6 @@ struct PostSearchResult: SearchResultDetails {
 
         await controller.goToThread(for: Int64(postId ?? messageId),
                                     in: .unknown(conversation: .init(id: Int64(channelId))),
-                                    of: .init(id: courseId, courseInformationSharingConfiguration: .communicationAndMessaging))
+                                    courseId: courseId)
     }
 }

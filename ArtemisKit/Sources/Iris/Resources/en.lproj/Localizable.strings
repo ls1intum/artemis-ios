@@ -58,6 +58,9 @@
 "aboutIrisPrivacyDescription" = "Iris processes interactions within European data centers. Data handling follows applicable European data protection requirements.";
 "aboutIrisPrivacyDisclaimer" = "Review your institution's privacy policy for details.";
 
+// MARK: AskIrisButton
+"askIris" = "Ask Iris";
+
 // MARK: IrisContextSelectionView
 "selectTitle" = "Select Context";
 "lecturesSection" = "Lectures";

@@ -5,9 +5,12 @@
 //  Created by Anian Schleyer on 31.08.25.
 //
 
+import Navigation
 import SwiftUI
 
 struct SendMessageKeyboardToolbar<SendButton: View>: View {
+    @Environment(\.availableTabs) private var tabs
+    
     let sendButton: SendButton
     @Bindable var viewModel: SendMessageViewModel
 
@@ -106,7 +109,7 @@ struct SendMessageKeyboardToolbar<SendButton: View>: View {
             } label: {
                 Label(R.string.localizable.lectures(), systemImage: "character.book.closed")
             }
-            if (viewModel.course.numberOfAcceptedFaqs ?? 0) > 0 {
+            if tabs.faq {
                 Button {
                     viewModel.wantsToAddMessageMentionContentType = .faq
                 } label: {

@@ -9,30 +9,62 @@ import APIClient
 import Common
 import Foundation
 
-/// Decodes Iris WebSocket payloads for a chat session into a typed stream.
+/// Decodes Iris WebSocket payloads for a chat session into typed streams.
 ///
-/// Single-consumer: each ``subscribe(sessionId:)`` call replaces any
-/// existing subscription for that session. The decode pump runs on a
-/// detached task; cancelling it (via ``unsubscribe(sessionId:)`` or
-/// ``unsubscribeAll()``) drops the STOMP subscription downstream.
+/// Multi-consumer: each ``subscribe(sessionId:)`` returns its own stream, all fed
+/// by a single STOMP subscription per session (a "hub"). This tolerates the
+/// overlapping view instances SwiftUI briefly creates for the same session during
+/// a navigation/tab transition — they no longer cancel each other's subscription.
+/// A consumer is dropped automatically when its stream is cancelled (the view's
+/// `.task` ends); the hub's STOMP subscription is torn down, after a short debounce,
+/// once its last consumer is gone.
 actor IrisWebsocketServiceImpl: IrisWebsocketService {
 
-    // Debounce window for tearing down a STOMP subscription. ArtemisStompClient
+    // Debounce window for tearing down a hub's STOMP subscription. ArtemisStompClient
     // disconnects the socket as soon as its topic list is empty, so a fast
-    // chat-to-chat navigation (unsubscribe A, subscribe B) would otherwise
-    // race the reconnect and surface a network error. Holding the old topic
-    // for a short grace period keeps the socket alive across the swap.
+    // chat-to-chat navigation (last consumer leaves, new one joins) would otherwise
+    // race the reconnect and surface a network error. Holding the topic for a short
+    // grace period keeps the socket alive across the swap.
     private static let unsubscribeDebounce: Duration = .milliseconds(300)
 
-    private var sessions: [Int: Task<Void, Never>] = [:]
+    private struct SessionHub {
+        /// The single STOMP reader fanning out to all consumers of this session.
+        let task: Task<Void, Never>
+        /// Live consumers keyed by an opaque token, each with its own stream.
+        var consumers: [Int: AsyncStream<IrisChatWebsocketDTO>.Continuation] = [:]
+    }
+
+    private var hubs: [Int: SessionHub] = [:]
+    private var nextToken = 0
 
     func subscribe(sessionId: Int) -> AsyncStream<IrisChatWebsocketDTO> {
-        sessions.removeValue(forKey: sessionId)?.cancel()
+        nextToken += 1
+        let token = nextToken
 
         let (stream, continuation) = AsyncStream<IrisChatWebsocketDTO>.makeStream()
-        let topic = IrisWebsocketTopic.makeIrisChat(sessionId: sessionId)
 
-        let task = Task.detached {
+        if hubs[sessionId] == nil {
+            hubs[sessionId] = SessionHub(task: makeReaderTask(sessionId: sessionId))
+        }
+        hubs[sessionId]?.consumers[token] = continuation
+
+        continuation.onTermination = { [weak self] _ in
+            Task { await self?.removeConsumer(sessionId: sessionId, token: token) }
+        }
+
+        return stream
+    }
+
+    func unsubscribeAll() {
+        hubs.values.forEach { $0.task.cancel() }
+        hubs.removeAll()
+    }
+
+    /// The single STOMP reader for a session: decodes frames and fans them out to
+    /// every current consumer. Runs until the hub is torn down (task cancelled).
+    private func makeReaderTask(sessionId: Int) -> Task<Void, Never> {
+        let topic = IrisWebsocketTopic.makeIrisChat(sessionId: sessionId)
+        return Task.detached { [weak self] in
             let raw = ArtemisStompClient.shared.subscribe(to: topic)
             for await message in raw {
                 if Task.isCancelled { break }
@@ -42,33 +74,30 @@ actor IrisWebsocketServiceImpl: IrisWebsocketService {
                 ) else {
                     continue
                 }
-                continuation.yield(dto)
+                await self?.broadcast(sessionId: sessionId, dto: dto)
             }
-            continuation.finish()
         }
-        sessions[sessionId] = task
-
-        continuation.onTermination = { _ in task.cancel() }
-
-        return stream
     }
 
-    func unsubscribe(sessionId: Int) {
-        let task = sessions[sessionId]
+    private func broadcast(sessionId: Int, dto: IrisChatWebsocketDTO) {
+        hubs[sessionId]?.consumers.values.forEach { $0.yield(dto) }
+    }
+
+    private func removeConsumer(sessionId: Int, token: Int) {
+        hubs[sessionId]?.consumers.removeValue(forKey: token)
+        let remaining = hubs[sessionId]?.consumers.count ?? 0
+        guard remaining == 0 else { return }
+        // Debounce: a quick resubscribe (e.g. the surviving instance of a churny
+        // transition) keeps the hub alive instead of bouncing the socket.
         Task { [weak self] in
             try? await Task.sleep(for: Self.unsubscribeDebounce)
-            await self?.cancelIfUnchanged(sessionId: sessionId, task: task)
+            await self?.teardownIfEmpty(sessionId: sessionId)
         }
     }
 
-    func unsubscribeAll() {
-        sessions.values.forEach { $0.cancel() }
-        sessions.removeAll()
-    }
-
-    private func cancelIfUnchanged(sessionId: Int, task: Task<Void, Never>?) {
-        guard sessions[sessionId] == task else { return }
-        sessions.removeValue(forKey: sessionId)
-        task?.cancel()
+    private func teardownIfEmpty(sessionId: Int) {
+        guard let hub = hubs[sessionId], hub.consumers.isEmpty else { return }
+        hub.task.cancel()
+        hubs.removeValue(forKey: sessionId)
     }
 }

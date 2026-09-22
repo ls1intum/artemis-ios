@@ -1,13 +1,13 @@
 {
-  "originHash" : "ef7eb67f3e5017bb30c34c5743d933c4d9773d9e21e1c11ca1b4b82c745d92c3",
+  "originHash" : "c57c95164ef2b06a17db65a4f606680f2d2596010e80e14d67c5c3c12337c15f",
   "pins" : [
     {
       "identity" : "artemis-ios-core-modules",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ls1intum/artemis-ios-core-modules",
       "state" : {
-        "revision" : "ff81668d612f9666ea2181373418edea0ed2b459",
-        "version" : "20.1.0"
+        "revision" : "02cd69693032c6d1ee170d25794b57ef6035191d",
+        "version" : "21.0.0"
       }
     },
     {
@@ -168,8 +168,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-openapi-generator",
       "state" : {
-        "revision" : "d002e5d9a1ac4ff6466bb89ab8fa1c9a0afd820f",
-        "version" : "1.12.2"
+        "revision" : "af9a2a1f5dcfb00a278d4bb29c6d75080932e99e",
+        "version" : "1.13.0"
       }
     },
     {

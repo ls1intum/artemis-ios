@@ -10,7 +10,7 @@ import DesignLibrary
 
 struct ExerciseListView: View {
     @EnvironmentObject var navController: NavigationController
-    @ObservedObject var viewModel: CourseViewModel
+    var viewModel: CourseViewModel
     @State private var columnVisibilty: NavigationSplitViewVisibility = .doubleColumn
 
     @State private var searchText = ""
@@ -53,7 +53,7 @@ struct ExerciseListView: View {
                 .listRowSpacing(.m)
                 .searchable(text: $searchText, prompt: R.string.localizable.filterExercises())
                 .refreshable {
-                    await viewModel.refreshCourse()
+                    await viewModel.refreshExercises()
                 }
                 .onChange(of: exerciseGroups.0) { _, newValue in
                     withAnimation {
@@ -71,7 +71,7 @@ struct ExerciseListView: View {
                                 .foregroundStyle(.white)
                                 .font(.title2)
                                 .frame(width: 60, height: 60, alignment: .center)
-                                .background(Color.Artemis.artemisBlue, in: .circle)
+                                .glassEffect(.clear.tint(.Artemis.artemisBlue).interactive(), in: .circle)
                                 .shadow(color: Color.gray.opacity(0.2), radius: .m)
                         }
                         .padding()
@@ -116,7 +116,7 @@ struct ExerciseListView: View {
 
 private extension ExerciseListView {
     var hasQuizExercises: Bool {
-        viewModel.course.exercises?.contains(where: {
+        viewModel.exercisesOverview.value?.exercises?.contains(where: {
             if case .quiz = $0 {
                 true
             } else {
@@ -125,7 +125,7 @@ private extension ExerciseListView {
         }) ?? false
     }
     var searchResults: [Exercise] {
-        guard let exercises = viewModel.course.exercises else {
+        guard let exercises = viewModel.exercisesOverview.value?.exercises else {
             return []
         }
         return exercises.filter { exercise in
@@ -135,7 +135,7 @@ private extension ExerciseListView {
     }
 
     var exerciseGroups: ([ExerciseGroup], ExerciseGroupsInfo) {
-        guard let exercises = viewModel.course.exercises else {
+        guard let exercises = viewModel.exercisesOverview.value?.exercises else {
             return ([], .init(currentDueCount: 0, futureCount: 0, pastCount: 0))
         }
 
@@ -193,12 +193,12 @@ private struct ExerciseGroupsInfo {
 
 struct ExerciseListSection: View {
 
-    private let course: Course
+    private let course: CourseForOverviewDTO
     private let exerciseGroup: ExerciseGroup
 
     @State private var isExpanded: Bool
 
-    fileprivate init(course: Course, exerciseGroup: ExerciseGroup, groupsInfo: ExerciseGroupsInfo) {
+    fileprivate init(course: CourseForOverviewDTO, exerciseGroup: ExerciseGroup, groupsInfo: ExerciseGroupsInfo) {
         self.course = course
         self.exerciseGroup = exerciseGroup
 
@@ -242,7 +242,7 @@ struct ExerciseListSection: View {
 
 struct WeeklyExerciseView: View {
     fileprivate let weeklyExercise: WeeklyExercise
-    let course: Course
+    let course: CourseForOverviewDTO
 
     var body: some View {
         ForEach(weeklyExercise.exercises) { exercise in

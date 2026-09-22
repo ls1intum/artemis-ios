@@ -24,7 +24,7 @@ public struct MessagesAvailableView: View {
         navController.selectedPathBinding($navController.selectedPath)
     }
 
-    public init(course: Course) {
+    public init(course: CourseForOverviewDTO) {
         self._viewModel = StateObject(wrappedValue: MessagesAvailableViewModel(course: course))
     }
 

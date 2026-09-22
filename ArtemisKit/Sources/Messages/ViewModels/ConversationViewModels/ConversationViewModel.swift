@@ -18,7 +18,7 @@ import UserNotifications
 
 class ConversationViewModel: BaseViewModel {
 
-    let course: Course
+    let course: CourseForOverviewDTO
 
     @Published var conversation: Conversation
 
@@ -68,7 +68,7 @@ class ConversationViewModel: BaseViewModel {
     private let userSession: UserSession
 
     init(
-        course: Course,
+        course: CourseForOverviewDTO,
         conversation: Conversation,
         messagesRepository: MessagesRepository? = nil,
         messagesService: MessagesService = MessagesServiceFactory.shared,

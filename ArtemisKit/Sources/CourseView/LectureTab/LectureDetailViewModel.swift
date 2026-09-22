@@ -13,13 +13,13 @@ import SharedServices
 class LectureDetailViewModel: BaseViewModel {
 
     @Published var lecture: DataState<Lecture> = .loading
-    @Published var course: DataState<Course> = .loading
+    @Published var course: DataState<CourseForOverviewDTO> = .loading
     @Published var channel: DataState<Channel> = .loading
 
     let lectureId: Int
     let courseId: Int
 
-    init(course: Course, lectureId: Int) {
+    init(course: CourseForOverviewDTO, lectureId: Int) {
         self.courseId = course.id
         self.lectureId = lectureId
 
@@ -68,16 +68,7 @@ class LectureDetailViewModel: BaseViewModel {
     }
 
     func loadCourse() async {
-        let result = await CourseServiceFactory.shared.getCourse(courseId: courseId)
-
-        switch result {
-        case .loading:
-            course = .loading
-        case .failure(let error):
-            course = .failure(error: error)
-        case .done(let response):
-            course = .done(response: response.course)
-        }
+        course = await CourseServiceFactory.shared.getCourse(courseId: courseId)
     }
 
     func loadAssociatedChannel() async {

@@ -9,6 +9,7 @@ import DesignLibrary
 import Foundation
 import Faq
 import Navigation
+import SharedModels
 import SwiftUI
 import UserStore
 
@@ -17,20 +18,23 @@ struct MessageURLAction {
     private let conversationViewModel: ConversationViewModel
     private let cellViewModel: MessageCellModel
     private let navigationController: NavigationController
+    private let tabs: CourseAvailableTabsDTO
 
     init(conversationViewModel: ConversationViewModel,
          cellViewModel: MessageCellModel,
-         navigationController: NavigationController) {
+         navigationController: NavigationController,
+         tabs: CourseAvailableTabsDTO) {
         self.conversationViewModel = conversationViewModel
         self.cellViewModel = cellViewModel
         self.navigationController = navigationController
+        self.tabs = tabs
     }
 
     func handle(url: URL) -> OpenURLAction.Result {
         if let mention = MentionScheme(url) {
-            let coursePath = CoursePath(course: conversationViewModel.course)
+            let coursePath = CoursePath(course: conversationViewModel.course, tabs: tabs)
             switch mention {
-            case let .attachment(id, lectureId):
+            case let .attachment(_ /*id*/, lectureId):
                 navigationController.outerPath.append(LecturePath(id: lectureId, coursePath: coursePath))
             case let .channel(id):
                 navigationController.tabPath.append(ConversationPath(id: id, coursePath: coursePath))
@@ -125,6 +129,7 @@ extension OpenURLAction {
 // MARK: ViewModifier
 
 private struct MessageURLHandlerViewModifier: ViewModifier {
+    @Environment(\.availableTabs) private var tabs
     @EnvironmentObject var navigationController: NavigationController
     let conversationViewModel: ConversationViewModel
     let cellViewModel: MessageCellModel
@@ -139,7 +144,8 @@ private struct MessageURLHandlerViewModifier: ViewModifier {
         content
             .environment(\.openURL, .init(.init(conversationViewModel: conversationViewModel,
                                                 cellViewModel: cellViewModel,
-                                                navigationController: navigationController)))
+                                                navigationController: navigationController,
+                                                tabs: tabs)))
             .sheet(isPresented: Binding(
                 get: {
                     cellViewModel.presentingAttachmentURL != nil

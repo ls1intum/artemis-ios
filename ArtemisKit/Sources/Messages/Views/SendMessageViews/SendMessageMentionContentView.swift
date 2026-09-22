@@ -30,7 +30,7 @@ struct SendMessageMentionContentView: View {
             Group {
                 switch type {
                 case .exercise:
-                    SendMessageExercisePicker(delegate: delegate, course: viewModel.course)
+                    SendMessageExercisePicker(course: viewModel.course, delegate: delegate)
                 case .lecture:
                     SendMessageLecturePicker(course: viewModel.course, delegate: delegate)
                 case .faq:

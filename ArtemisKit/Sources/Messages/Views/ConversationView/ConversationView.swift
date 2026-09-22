@@ -173,7 +173,7 @@ public struct ConversationView: View {
 }
 
 extension ConversationView {
-    init(course: Course, conversation: Conversation, filterToUnresolved: Bool = false) {
+    init(course: CourseForOverviewDTO, conversation: Conversation, filterToUnresolved: Bool = false) {
         self.init(viewModel: ConversationViewModel(course: course, conversation: conversation, defaultFilter: .init(filterToUnresolved: filterToUnresolved)))
     }
 }

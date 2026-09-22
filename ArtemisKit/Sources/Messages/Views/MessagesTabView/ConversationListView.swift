@@ -154,19 +154,8 @@ struct ConversationListView: View {
             FilterBarPicker(selectedFilter: $viewModel.filter.animation(),
                             hiddenFilters: nonNeededFilters)
             .scrollClipDisabled()
-            // Needed to prevent corner radius clipping on iOS 26+
-            .padding26()
-        }
-    }
-}
-
-fileprivate extension View {
-    @ViewBuilder
-    func padding26() -> some View {
-        if #available(iOS 26.0, *) {
-            padding(.horizontal, 10)
-        } else {
-            self
+            // Needed to prevent corner radius clipping
+            .padding(.horizontal, 10)
         }
     }
 }
