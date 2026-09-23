@@ -1,13 +1,13 @@
 {
-  "originHash" : "c57c95164ef2b06a17db65a4f606680f2d2596010e80e14d67c5c3c12337c15f",
+  "originHash" : "5409262426ae3a7c1283e7d31b97e2a2ebebc898379ac7e5f107d82da7d06d5c",
   "pins" : [
     {
       "identity" : "artemis-ios-core-modules",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ls1intum/artemis-ios-core-modules",
       "state" : {
-        "revision" : "02cd69693032c6d1ee170d25794b57ef6035191d",
-        "version" : "21.0.0"
+        "branch" : "8184831",
+        "revision" : "81848316508fd787648ba65d24cc7a15737a282d"
       }
     },
     {
@@ -60,8 +60,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/mattpolzin/OpenAPIKit",
       "state" : {
-        "revision" : "57b6318128e3f901c93f4fbf98d1c1464ec168d3",
-        "version" : "6.2.0"
+        "revision" : "5b72eb9a6b23b1fec439d9a0bf38f115400421f9",
+        "version" : "6.4.0"
       }
     },
     {
@@ -123,8 +123,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swiftlang/swift-cmark",
       "state" : {
-        "revision" : "924936d0427cb25a61169739a7660230bffa6ea6",
-        "version" : "0.8.0"
+        "revision" : "08ddb528923cc1a6527e02b7a1aee9e516ca749a",
+        "version" : "0.9.0"
       }
     },
     {
@@ -132,8 +132,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-collections",
       "state" : {
-        "revision" : "a0cb0954ecb21e4e31b0070e6ed5674e8556685a",
-        "version" : "1.6.0"
+        "revision" : "a66de878e87ef5a3d5d390e0f6d9002aa5541a43",
+        "version" : "1.7.0"
       }
     },
     {
@@ -141,8 +141,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-http-types",
       "state" : {
-        "revision" : "db774a277f60063a32d854f2980299caf06da041",
-        "version" : "1.6.0"
+        "revision" : "bff4b6903cdc99dda49649dd52f46c11cfd3ed50",
+        "version" : "1.8.0"
       }
     },
     {
@@ -168,8 +168,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-openapi-generator",
       "state" : {
-        "revision" : "af9a2a1f5dcfb00a278d4bb29c6d75080932e99e",
-        "version" : "1.13.0"
+        "revision" : "39d49cf22abab58a07f02bb76808b5d2839b294a",
+        "version" : "1.13.1"
       }
     },
     {
@@ -177,8 +177,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-openapi-runtime",
       "state" : {
-        "revision" : "3d3a8457661daf7fb260ceeb9f0e24e5204ba5fb",
-        "version" : "1.12.0"
+        "revision" : "9e53df53e043b53046a371b31aaf0a1e26eef946",
+        "version" : "1.12.1"
       }
     },
     {

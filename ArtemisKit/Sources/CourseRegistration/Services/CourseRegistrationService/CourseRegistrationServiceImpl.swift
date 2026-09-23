@@ -8,7 +8,7 @@ class CourseRegistrationServiceImpl: CourseRegistrationService {
     private let client = APIClient()
 
     struct FetchRegistrableCoursesRequest: APIRequest {
-        typealias Response = [Course]
+        typealias Response = [CourseForEnrollmentDTO]
 
         var method: HTTPMethod {
             return .get
@@ -19,7 +19,7 @@ class CourseRegistrationServiceImpl: CourseRegistrationService {
         }
     }
 
-    func fetchRegistrableCourses() async -> DataState<[Course]> {
+    func fetchRegistrableCourses() async -> DataState<[CourseForEnrollmentDTO]> {
         let result = await client.sendRequest(FetchRegistrableCoursesRequest())
 
         switch result {
