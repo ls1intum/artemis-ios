@@ -9,7 +9,7 @@ import Common
 import SharedModels
 
 struct CourseRegistrationServiceStub: CourseRegistrationService {
-    func fetchRegistrableCourses() async -> DataState<[Course]> {
+    func fetchRegistrableCourses() async -> DataState<[CourseForEnrollmentDTO]> {
         .done(response: [])
     }
 
