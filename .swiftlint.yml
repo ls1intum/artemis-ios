@@ -3,6 +3,7 @@ included:
   - ArtemisKit
 excluded:
   - Tests/SwiftLintFrameworkTests/Resources
+  - ArtemisKit/Tests/ArtemisKitTests/Notifications/**
 analyzer_rules:
   - unused_declaration
   - unused_import
