@@ -10,7 +10,7 @@ import SwiftUI
 
 struct SendMessageKeyboardToolbar<SendButton: View>: View {
     @Environment(\.availableTabs) private var tabs
-    
+
     let sendButton: SendButton
     @Bindable var viewModel: SendMessageViewModel
 
