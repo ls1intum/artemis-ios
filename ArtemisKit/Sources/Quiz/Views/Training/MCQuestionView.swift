@@ -66,9 +66,10 @@ struct MCQuestionView: View {
                     let loc = R.string.localizable
                     let optionIsCorrect = option.isCorrect ?? false
 
-                    Text(optionIsCorrect ? loc.correct() : loc.incorrect())
+                    let correctLabel = Text(optionIsCorrect ? loc.correct() : loc.incorrect())
                         .foregroundStyle(optionIsCorrect ? .green : .red)
-                    + Text(option.explanation.map { ": " + $0 } ?? "")
+
+                    Text("\(correctLabel)\(option.explanation.map { ": " + $0 } ?? "")")
                 }
             }
             .padding(.horizontal)
