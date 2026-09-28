@@ -213,36 +213,26 @@ enum ConversationFilter: FilterPicker {
         case .unread:
             conversation.unreadMessagesCount ?? 0 > 0
         case .recent:
-            isRecent(channel: conversation, course: viewModel.parentViewModel.course)
+            isRecent(channel: conversation)
         case .unresolved:
             viewModel.unresolvedIds.contains(conversation.id)
         }
     }
 
-    private func isRecent(channel: BaseConversation, course: CourseForOverviewDTO) -> Bool {
+    private func isRecent(channel: BaseConversation) -> Bool {
         guard let channel = channel as? Channel else {
             return false
         }
 
-        // TODO: Re-implement
-        #warning("Re-implement this")
+        let dateStart = Date.now.addingTimeInterval(-5 * 24 * 60 * 60)
+        let dateEnd = Date.now.addingTimeInterval(10 * 24 * 60 * 60)
+        let range = dateStart...dateEnd
 
-//        let exercise = course.exercises?.first { $0.id == channel.subTypeReferenceId }
-//        let lecture = course.lectures?.first { $0.id == channel.subTypeReferenceId }
-//        let dateStart = Date.now.addingTimeInterval(-5 * 24 * 60 * 60)
-//        let dateEnd = Date.now.addingTimeInterval(10 * 24 * 60 * 60)
-//        let range = dateStart...dateEnd
-//
-//        if let exercise {
-//            let start = exercise.baseExercise.releaseDate ?? .distantPast
-//            let end = exercise.baseExercise.dueDate ?? .distantFuture
-//            return range.contains(start) || range.contains(end)
-//        }
-//        if let lecture {
-//            let start = lecture.startDate ?? .distantPast
-//            let end = lecture.endDate ?? .distantFuture
-//            return range.contains(start) || range.contains(end)
-//        }
+        if channel.subType == .exercise || channel.subType == .lecture {
+            let start = channel.subTypeReferenceStartDate ?? .distantPast
+            let end = channel.subTypeReferenceEndDate ?? .distantFuture
+            return range.contains(start) || range.contains(end)
+        }
 
         return false
     }

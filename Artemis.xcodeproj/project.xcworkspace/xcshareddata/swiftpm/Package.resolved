@@ -1,13 +1,13 @@
 {
-  "originHash" : "5409262426ae3a7c1283e7d31b97e2a2ebebc898379ac7e5f107d82da7d06d5c",
+  "originHash" : "618cef21099e2f3d140051cc51d6ef14685158dd05f4b6b02d0970a605cbde65",
   "pins" : [
     {
       "identity" : "artemis-ios-core-modules",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ls1intum/artemis-ios-core-modules",
       "state" : {
-        "branch" : "8184831",
-        "revision" : "81848316508fd787648ba65d24cc7a15737a282d"
+        "branch" : "7cd098e",
+        "revision" : "7cd098eae4d55f930452edefdfd252a62e49aba7"
       }
     },
     {
@@ -132,8 +132,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-collections",
       "state" : {
-        "revision" : "a66de878e87ef5a3d5d390e0f6d9002aa5541a43",
-        "version" : "1.7.0"
+        "revision" : "98ef3c98609a1e31b7e157b5b619579001a789d6",
+        "version" : "1.7.1"
       }
     },
     {
