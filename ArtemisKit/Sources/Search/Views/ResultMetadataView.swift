@@ -15,7 +15,7 @@ struct ResultMetadataView: View {
         let image = Image(systemName: "list.bullet.rectangle.fill")
 
         details.displayInfo.reduce(Text("\(image)\u{00A0}\(name)")) { partialResult, text in
-            partialResult + Text(" • ") + text
+            Text("\(partialResult) • \(text)")
         }
     }
 }

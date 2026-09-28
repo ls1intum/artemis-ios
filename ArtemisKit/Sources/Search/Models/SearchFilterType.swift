@@ -23,7 +23,7 @@ enum SearchFilterType: String, Codable, ConstantsEnum {
     var apiType: String { rawValue }
 
     /// Returns how to decode the `metadata` property of the `SearchResultDTO` for the given type
-    var codableType: SearchResultDetails.Type? {
+    var codableType: (any SearchResultDetails.Type)? {
         switch self {
         case .exercise:
             ExerciseSearchResult.self
