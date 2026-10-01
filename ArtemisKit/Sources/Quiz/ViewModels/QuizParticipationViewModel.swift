@@ -24,6 +24,8 @@ class QuizParticipationViewModel: QuizViewModel {
     var savedResults = true
     var autoSaveTimer: Timer?
 
+    var autoSubmitTimer: Timer?
+
     var selectedQuestion = 0
 
     var answers = [DTO.SubmittedAnswerFromLiveClient]()
@@ -157,6 +159,38 @@ class QuizParticipationViewModel: QuizViewModel {
                     return
                 }
                 await self.submitAnswers(submit: false)
+            }
+        }
+    }
+
+    func registerSubmit(at time: Date) {
+        autoSubmitTimer?.invalidate()
+
+        if isLiveQuiz {
+            // Live Quizzes are auto submitted -> just listen for changes
+            startWaitingForSolutions()
+        } else {
+            autoSubmitTimer = Timer(fire: time, interval: 0, repeats: false) { [weak self] timer in
+                guard let self, !hasSubmitted else {
+                    return
+                }
+
+                // Live mode -> wait for solutions if not yet available
+                if isLiveQuiz && !waitingForResults {
+                    autoSaveTimer?.invalidate()
+                    autoSaveTimer = nil
+                    waitingForResults = true
+                    submissionSuccessful = true
+                }
+
+                // Practice mode -> submit at deadline
+                if !isLiveQuiz {
+                    Task.detached {
+                        await self.submit()
+                    }
+                }
+
+                timer.invalidate()
             }
         }
     }

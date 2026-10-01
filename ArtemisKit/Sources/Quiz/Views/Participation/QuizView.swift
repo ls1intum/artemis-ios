@@ -23,6 +23,9 @@ struct QuizView: View {
                 ProgressView(timerInterval: startTime...endTime, countsDown: false)
                     .labelsHidden()
                     .containerRelativeFrame(.horizontal)
+                    .onAppear {
+                        viewModel.registerSubmit(at: endTime)
+                    }
                     .accessibilityHidden(!showBar)
                     .opacity(showBar ? 1 : 0)
                 // Only hiding instead of removing, otherwise causes visual bug cutting off question titles
