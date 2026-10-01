@@ -69,8 +69,8 @@ public struct QuizParticipationView: View {
                             dismiss()
                         }
                     }
-                    .confirmationDialog("You have not submitted yet. Cancel anyways?", isPresented: $showDismissConfirmation, titleVisibility: .visible) {
-                        Button("Cancel") {
+                    .confirmationDialog(R.string.localizable.notSubmittedWarning(), isPresented: $showDismissConfirmation, titleVisibility: .visible) {
+                        Button(R.string.localizable.close()) {
                             dismiss()
                         }
                     }
