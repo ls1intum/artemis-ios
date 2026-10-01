@@ -18,7 +18,7 @@ struct SubmitLiveAnswerButton: View {
 
     var body: some View {
         Spacer()
-            .onAppear {
+            .onChange(of: answer, initial: true) {
                 viewModel.saveAnswer(answer)
             }
             .toolbar {
