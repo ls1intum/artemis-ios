@@ -13,6 +13,7 @@ public struct QuizParticipationView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var viewModel: QuizParticipationViewModel
+    @State private var showDismissConfirmation = false
 
     public init(exercise: QuizExercise, courseId: Int) {
         self._viewModel = State(initialValue: .init(exercise: exercise, courseId: courseId))
@@ -61,7 +62,16 @@ public struct QuizParticipationView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button(role: .cancel) {
-                        dismiss()
+                        if viewModel.submissionSuccessful != true {
+                            showDismissConfirmation = true
+                        } else {
+                            dismiss()
+                        }
+                    }
+                    .confirmationDialog("Cancel", isPresented: $showDismissConfirmation) {
+                        Button(role: .cancel) {
+                            dismiss()
+                        }
                     }
                 }
             }
