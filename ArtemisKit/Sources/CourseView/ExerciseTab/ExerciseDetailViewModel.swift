@@ -52,7 +52,12 @@ final class ExerciseDetailViewModel {
 
     func loadExercise() async {
         if let exercise = exercise.value {
-            setParticipationAndResultId(from: exercise)
+            if case .quiz(let quiz) = exercise, quiz.quizMode == nil {
+                // Not enough data available to open quiz -> load new
+                await refreshExercise()
+            } else {
+                setParticipationAndResultId(from: exercise)
+            }
         } else {
             await refreshExercise()
         }

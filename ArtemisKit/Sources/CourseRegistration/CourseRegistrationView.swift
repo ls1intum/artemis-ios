@@ -63,7 +63,7 @@ private struct CourseRegistrationListCell: View {
 
     @State private var showSignUpAlert = false
 
-    let course: Course
+    let course: CourseForEnrollmentDTO
 
     var body: some View {
         if let title = course.title {

@@ -47,12 +47,12 @@ struct MCQuestionView: View {
                     }
                 } label: {
                     HStack(alignment: .center) {
-                        Image(systemName: "circle")
+                        Image(systemName: questionWithAnswer.singleChoice == true ? "circle" : "square")
                             .resizable()
                             .frame(width: 30, height: 30)
                             .overlay(alignment: .center) {
                                 if selectedAnswers.contains(id) {
-                                    Image(systemName: "circle.fill")
+                                    Image(systemName: questionWithAnswer.singleChoice == true ? "circle.fill" : "square.fill")
                                         .resizable()
                                         .frame(width: 20, height: 20, alignment: .center)
                                 }
@@ -66,9 +66,10 @@ struct MCQuestionView: View {
                     let loc = R.string.localizable
                     let optionIsCorrect = option.isCorrect ?? false
 
-                    Text(optionIsCorrect ? loc.correct() : loc.incorrect())
+                    let correctLabel = Text(optionIsCorrect ? loc.correct() : loc.incorrect())
                         .foregroundStyle(optionIsCorrect ? .green : .red)
-                    + Text(option.explanation.map { ": " + $0 } ?? "")
+
+                    Text("\(correctLabel)\(option.explanation.map { ": " + $0 } ?? "")")
                 }
             }
             .padding(.horizontal)

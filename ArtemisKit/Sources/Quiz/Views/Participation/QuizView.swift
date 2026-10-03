@@ -18,10 +18,17 @@ struct QuizView: View {
     var body: some View {
         @Bindable var viewModel = viewModel
         VStack(spacing: 0) {
-            if let startTime, let endTime, endTime > .now, !viewModel.hasSubmitted {
+            if let startTime, let endTime {
+                let showBar = endTime > .now && !viewModel.hasSubmitted
                 ProgressView(timerInterval: startTime...endTime, countsDown: false)
                     .labelsHidden()
                     .containerRelativeFrame(.horizontal)
+                    .onAppear {
+                        viewModel.registerSubmit(at: endTime)
+                    }
+                    .accessibilityHidden(!showBar)
+                    .opacity(showBar ? 1 : 0)
+                // Only hiding instead of removing, otherwise causes visual bug cutting off question titles
             }
             TabView(selection: $viewModel.selectedQuestion) {
                 if let questionsWithSolution {

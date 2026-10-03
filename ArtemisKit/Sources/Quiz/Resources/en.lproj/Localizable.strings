@@ -13,6 +13,8 @@
 "leaguesDetail2" = "Answer questions correctly to collect points and rank up to higher leagues. The more often a question is answered correctly in a row, the more points you earn for it.";
 
 "submit" = "Submit";
+"notSubmittedWarning" = "You have not submitted yet. Close anyway?";
+"close" = "Close";
 "skip" = "Skip";
 "nextQuestion" = "Next Question";
 "failedToSubmit" = "Failed to submit answer";

@@ -10,7 +10,7 @@ public protocol CourseRegistrationService {
      * Fetch the courses the user can register to from the server.
      * Automatically retries if failed.
      */
-    func fetchRegistrableCourses() async -> DataState<[Course]>
+    func fetchRegistrableCourses() async -> DataState<[CourseForEnrollmentDTO]>
 
     func registerInCourse(courseId: Int) async -> NetworkResponse
 }

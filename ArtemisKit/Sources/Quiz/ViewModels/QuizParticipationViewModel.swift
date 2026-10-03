@@ -24,6 +24,8 @@ class QuizParticipationViewModel: QuizViewModel {
     var savedResults = true
     var autoSaveTimer: Timer?
 
+    var autoSubmitTimer: Timer?
+
     var selectedQuestion = 0
 
     var answers = [DTO.SubmittedAnswerFromLiveClient]()
@@ -58,6 +60,8 @@ class QuizParticipationViewModel: QuizViewModel {
             }
         }
     }
+
+    // MARK: Lifecycle
 
     func startParticipation() async {
         loadingQuizStart = true
@@ -161,10 +165,49 @@ class QuizParticipationViewModel: QuizViewModel {
         }
     }
 
+    func registerSubmit(at time: Date) {
+        autoSubmitTimer?.invalidate()
+
+        if isLiveQuiz {
+            // Live Quizzes are auto submitted -> just listen for changes
+            startWaitingForSolutions()
+        }
+        autoSubmitTimer = Timer(fire: time, interval: 0, repeats: false) { [weak self] timer in
+            guard let self else {
+                return
+            }
+
+            autoSaveTimer?.invalidate()
+            autoSaveTimer = nil
+
+            // Live mode -> wait for solutions if not yet available
+            if isLiveQuiz && !waitingForResults {
+                print("DEBUG: waiting for result")
+                waitingForResults = true
+                submissionSuccessful = true
+            }
+
+            // Unsubmitted practice mode -> submit at deadline
+            if !isLiveQuiz && !hasSubmitted  {
+                Task.detached {
+                    await self.submit()
+                }
+            }
+
+            timer.invalidate()
+        }
+
+        if let autoSubmitTimer {
+            RunLoop.main.add(autoSubmitTimer, forMode: .common)
+        }
+    }
+
     func onSyncDisappear() {
         syncQuizTask?.cancel()
         syncQuizTask = nil
     }
+
+    // MARK: Navigation
 
     func saveAnswer(_ answer: DTO.SubmittedAnswerFromLiveClient) {
         if let existingIndex = answers.firstIndex(where: {
@@ -195,6 +238,8 @@ class QuizParticipationViewModel: QuizViewModel {
     func previousQuestion() {
         selectedQuestion = (selectedQuestion - 1 + questionCount) % questionCount
     }
+
+    // MARK: Submit
 
     func submit() async {
         if isLiveQuiz {

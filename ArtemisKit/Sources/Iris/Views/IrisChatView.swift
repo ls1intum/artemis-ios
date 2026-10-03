@@ -5,7 +5,6 @@
 //  Created by Senan Aslan on 25.05.26.
 //
 
-import ArtemisMarkdown
 import DesignLibrary
 import Navigation
 import SwiftUI
@@ -65,7 +64,7 @@ struct IrisChatView: View {
                         } else {
                             LazyVStack(alignment: .leading, spacing: .m) {
                                 ForEach(messages[..<activeTurnStart]) { message in
-                                    MessageRow(message: message, courseId: coursePath.id, viewModel: viewModel)
+                                    IrisMessageRow(message: message, courseId: coursePath.id, viewModel: viewModel)
                                         .id(message.id)
                                 }
                                 // The active turn reserves a screenful (`minHeight`) so the
@@ -74,7 +73,7 @@ struct IrisChatView: View {
                                 // screen.
                                 VStack(alignment: .leading, spacing: .m) {
                                     ForEach(messages[activeTurnStart...]) { message in
-                                        MessageRow(message: message, courseId: coursePath.id, viewModel: viewModel)
+                                        IrisMessageRow(message: message, courseId: coursePath.id, viewModel: viewModel)
                                             .id(message.id)
                                     }
                                     if viewModel.isAwaitingResponse {
@@ -229,105 +228,47 @@ struct IrisChatView: View {
     }
 }
 
-// MARK: Message Row
+// MARK: Empty State
 
-private struct MessageRow: View {
-    let message: IrisMessageResponseDTO
-    let courseId: Int
-    let viewModel: IrisChatViewModel
-
-    private var isUser: Bool {
-        message.sender == .user
-    }
-
-    private var isCtxSwap: Bool {
-        message.sender == .ctxswap
-    }
-
+private struct EmptyChatView: View {
     var body: some View {
-        if isCtxSwap {
-            if let contextSwitch = message.contextSwitch {
-                IrisContextSwitchDivider(info: contextSwitch, courseId: courseId)
-            }
-        } else if isUser {
-            HStack {
-                Spacer()
-                VStack(alignment: .trailing, spacing: .s) {
-                    ForEach(message.content, id: \.id) { block in
-                        if let text = block.textContent {
-                            ArtemisMarkdownView(string: text)
-                                .padding(.m + .xs)
-                                .background(Color.Artemis.reactionCapsuleColor)
-                                .foregroundStyle(.primary)
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
-                        }
-                    }
-                }
-                .frame(maxWidth: 300, alignment: .trailing)
-            }
-        } else {
-            VStack(alignment: .leading, spacing: .s) {
-                ForEach(message.content, id: \.id) { block in
-                    if let text = block.textContent {
-                        ArtemisMarkdownView(string: text)
-                            .foregroundStyle(.primary)
-                    }
-                }
-                if message.id != nil {
-                    MessageActionBar(message: message, viewModel: viewModel)
-                }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
+        VStack(spacing: .m) {
+            Image("iris-colored", bundle: .module)
+                  .resizable()
+                  .scaledToFit()
+                  .frame(width: 80, height: 80)
+                  .shadow(color: .black.opacity(0.15), radius: 4, y: 2)
+            Text(R.string.localizable.emptyChatTitle())
+                .font(.title2)
+                .fontWeight(.semibold)
+                .foregroundStyle(.primary)
         }
+        .frame(maxWidth: .infinity)
     }
 }
 
-// MARK: MessageActionBar
+// MARK: Loading Stage
 
-private struct MessageActionBar: View {
-    let message: IrisMessageResponseDTO
-    let viewModel: IrisChatViewModel
-    @State private var didCopy = false
+private struct LoadingStageRow: View {
+    let stage: IrisStageDTO?
 
-    private var plainText: String {
-        message.content.compactMap(\.textContent).joined(separator: "\n\n")
+    private var label: String {
+        stage?.chatMessage
+            ?? stage?.message
+            ?? stage?.name
+            ?? R.string.localizable.thinking()
     }
 
     var body: some View {
-        HStack(spacing: .l) {
-            Button(R.string.localizable.copyText(),
-                   systemImage: didCopy ? "checkmark" : "doc.on.doc") {
-                UIPasteboard.general.string = plainText
-                didCopy = true
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) { didCopy = false }
-            }
-            .labelStyle(.iconOnly)
-
-            ShareLink(item: plainText) {
-                Label(R.string.localizable.shareMessage(), systemImage: "square.and.arrow.up")
-            }
-            .labelStyle(.iconOnly)
-
-            Button(R.string.localizable.rateHelpful(),
-                   systemImage: message.helpful == true ? "hand.thumbsup.fill" : "hand.thumbsup") {
-                if message.helpful != true, let id = message.id {
-                    viewModel.rateMessage(messageId: id, helpful: true)
-                }
-            }
-            .labelStyle(.iconOnly)
-
-            Button(R.string.localizable.rateUnhelpful(),
-                   systemImage: message.helpful == false ? "hand.thumbsdown.fill" : "hand.thumbsdown") {
-                if message.helpful != false, let id = message.id {
-                    viewModel.rateMessage(messageId: id, helpful: false)
-                }
-            }
-            .labelStyle(.iconOnly)
+        HStack(spacing: .m) {
+            ProgressView()
+                .controlSize(.small)
+            Text(label)
+                .foregroundStyle(.secondary)
+                .font(.callout)
         }
-        .font(.callout)
-        .foregroundStyle(.secondary)
-        .buttonStyle(.plain)
-        .padding(.top, .s)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .transition(.opacity)
     }
 }
 
@@ -359,50 +300,6 @@ private struct ScrollToBottomButton: View {
                 .shadow(color: .black.opacity(0.15), radius: 4, y: 2)
         }
         .accessibilityLabel(R.string.localizable.scrollToBottom())
-    }
-}
-
-// MARK: Loading Stage
-
-private struct LoadingStageRow: View {
-    let stage: IrisStageDTO?
-
-    private var label: String {
-        stage?.chatMessage
-            ?? stage?.message
-            ?? stage?.name
-            ?? R.string.localizable.thinking()
-    }
-
-    var body: some View {
-        HStack(spacing: .m) {
-            ProgressView()
-                .controlSize(.small)
-            Text(label)
-                .foregroundStyle(.secondary)
-                .font(.callout)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .transition(.opacity)
-    }
-}
-
-// MARK: Empty State
-
-private struct EmptyChatView: View {
-    var body: some View {
-        VStack(spacing: .m) {
-            Image("iris-colored", bundle: .module)
-                  .resizable()
-                  .scaledToFit()
-                  .frame(width: 80, height: 80)
-                  .shadow(color: .black.opacity(0.15), radius: 4, y: 2)
-            Text(R.string.localizable.emptyChatTitle())
-                .font(.title2)
-                .fontWeight(.semibold)
-                .foregroundStyle(.primary)
-        }
-        .frame(maxWidth: .infinity)
     }
 }
 
@@ -469,33 +366,6 @@ private struct InputBar: View {
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .padding(.horizontal, .l)
         .padding(.vertical, .m)
-    }
-}
-
-// MARK: Context Chip
-
-private struct IrisContextChip: View {
-    let title: String
-    let onTap: () -> Void
-    let onRemove: () -> Void
-
-    var body: some View {
-        HStack(spacing: .s) {
-            Text(title)
-                .font(.footnote)
-                .lineLimit(1)
-                .foregroundStyle(.primary)
-
-            Button(action: onRemove) {
-                Image(systemName: "xmark")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-            }
-            .buttonStyle(.plain)
-        }
-        .padding(.horizontal, .m)
-        .padding(.vertical, .s)
-        .background(Color.Artemis.reactionCapsuleColor, in: Capsule())
     }
 }
 

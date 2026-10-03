@@ -13,6 +13,8 @@ public struct QuizParticipationView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var viewModel: QuizParticipationViewModel
+    @State private var showDismissConfirmation = false
+    @State private var startDate = Date.now
 
     public init(exercise: QuizExercise, courseId: Int) {
         self._viewModel = State(initialValue: .init(exercise: exercise, courseId: courseId))
@@ -27,7 +29,7 @@ public struct QuizParticipationView: View {
                 case .liveQuiz(let quiz):
                     let duration = Double(quiz.exercise?.duration ?? 0)
                     let batch = quiz.exercise?.quizBatches?.last
-                    let startTime = batch?.ended ?? false ? .now : batch?.startTime
+                    let startTime = batch?.ended ?? false ? startDate : batch?.startTime
                     if let questions = quiz.exercise?.quizQuestions {
                         QuizView(startTime: startTime,
                                  endTime: startTime?.addingTimeInterval(duration),
@@ -38,7 +40,7 @@ public struct QuizParticipationView: View {
                 case .afterQuizEnd(let quiz):
                     let duration = Double(quiz.exercise?.duration ?? 0)
                     let batch = quiz.exercise?.quizBatches?.last
-                    let startTime = batch?.ended ?? false ? .now : batch?.startTime
+                    let startTime = batch?.ended ?? false ? startDate : batch?.startTime
                     if let questions = quiz.exercise?.quizQuestions {
                         QuizView(startTime: startTime,
                                  endTime: startTime?.addingTimeInterval(duration),
@@ -61,7 +63,16 @@ public struct QuizParticipationView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button(role: .cancel) {
-                        dismiss()
+                        if viewModel.submissionSuccessful != true {
+                            showDismissConfirmation = true
+                        } else {
+                            dismiss()
+                        }
+                    }
+                    .confirmationDialog(R.string.localizable.notSubmittedWarning(), isPresented: $showDismissConfirmation, titleVisibility: .visible) {
+                        Button(R.string.localizable.close()) {
+                            dismiss()
+                        }
                     }
                 }
             }

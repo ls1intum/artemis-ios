@@ -46,7 +46,7 @@ class CourseRegistrationViewModel: ObservableObject {
         }
     }
 
-    func signUpForCourse(_ course: Course) async {
+    func signUpForCourse(_ course: CourseForEnrollmentDTO) async {
         let result = await courseRegistrationService.registerInCourse(courseId: course.id)
         isLoading = false
 
@@ -65,7 +65,7 @@ class CourseRegistrationViewModel: ObservableObject {
 
 struct SemesterCourses: Identifiable {
     let semester: String
-    let courses: [Course]
+    let courses: [CourseForEnrollmentDTO]
 
     var id: Int {
         semester.hash
