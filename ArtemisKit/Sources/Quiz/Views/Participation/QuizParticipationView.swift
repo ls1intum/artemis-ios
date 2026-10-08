@@ -56,7 +56,7 @@ public struct QuizParticipationView: View {
         .interactiveDismissDisabled()
         .overlay {
             if viewModel.waitingForResults {
-                WaitForQuizEndView()
+                WaitForQuizEndView(mode: viewModel.exercise.quizMode)
             }
         }
     }

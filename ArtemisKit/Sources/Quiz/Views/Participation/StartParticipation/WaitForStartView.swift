@@ -6,6 +6,7 @@
 //
 
 import DesignLibrary
+import SharedModels
 import SwiftUI
 
 struct WaitForQuizStartView: View {
@@ -43,15 +44,20 @@ struct WaitForQuizStartView: View {
 }
 
 struct WaitForQuizEndView: View {
+    let mode: QuizMode?
+
     var body: some View {
         VStack(alignment: .center, spacing: .m) {
             ProgressView()
                 .progressViewStyle(.circular)
                 .controlSize(.large)
 
-            Text(R.string.localizable.waitingForEnd())
+            let loc = R.string.localizable
+            let title = mode == .individual ? loc.waitingForEndIndividual() : loc.waitingForEnd()
+            let detail = mode == .individual ? loc.waitingForEndIndividualDetail() : loc.waitingForEndDetail()
+            Text(title)
                 .font(.title2)
-            Text(R.string.localizable.waitingForEndDetail())
+            Text(detail)
                 .font(.footnote)
                 .padding(.bottom)
         }
