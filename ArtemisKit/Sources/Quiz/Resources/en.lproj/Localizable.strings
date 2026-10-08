@@ -28,8 +28,10 @@
 "refresh" = "Refresh";
 "waitingForStart" = "Waiting for Quiz Start";
 "waitingForEnd" = "Waiting for Quiz End";
+"waitingForEndIndividual" = "Your submission will be graded as soon as the quiz ends for everyone.";
 "waitingForStartDetail" = "The quiz has not started yet. This page will refresh automatically when the quiz starts.";
 "waitingForEndDetail" = "This page will refresh automatically when the quiz ends and solutions are available.";
+"waitingForEndIndividualDetail" = "You can now leave this page.";
 "startParticipation" = "Start participation now?";
 "enterPassword" = "Enter password to join";
 "joinQuiz" = "Join Quiz";

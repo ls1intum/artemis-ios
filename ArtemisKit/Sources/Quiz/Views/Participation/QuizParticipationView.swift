@@ -14,7 +14,6 @@ public struct QuizParticipationView: View {
 
     @State private var viewModel: QuizParticipationViewModel
     @State private var showDismissConfirmation = false
-    @State private var startDate = Date.now
 
     public init(exercise: QuizExercise, courseId: Int) {
         self._viewModel = State(initialValue: .init(exercise: exercise, courseId: courseId))
@@ -25,32 +24,7 @@ public struct QuizParticipationView: View {
             DataStateView(data: $viewModel.participation) {
                 await viewModel.startParticipation()
             } content: { participation in
-                switch participation {
-                case .liveQuiz(let quiz):
-                    let duration = Double(quiz.exercise?.duration ?? 0)
-                    let batch = quiz.exercise?.quizBatches?.last
-                    let startTime = batch?.ended ?? false ? startDate : batch?.startTime
-                    if let questions = quiz.exercise?.quizQuestions {
-                        QuizView(startTime: startTime,
-                                 endTime: startTime?.addingTimeInterval(duration),
-                                 questionsWithoutSolution: questions)
-                    } else {
-                        StartQuizView()
-                    }
-                case .afterQuizEnd(let quiz):
-                    let duration = Double(quiz.exercise?.duration ?? 0)
-                    let batch = quiz.exercise?.quizBatches?.last
-                    let startTime = batch?.ended ?? false ? startDate : batch?.startTime
-                    if let questions = quiz.exercise?.quizQuestions {
-                        QuizView(startTime: startTime,
-                                 endTime: startTime?.addingTimeInterval(duration),
-                                 questionsWithSolution: questions)
-                    } else {
-                        StartQuizView()
-                    }
-                default:
-                    StartQuizView()
-                }
+                QuizParticipation(participation: participation)
             }
             // We need both types, otherwise @Environment only finds the subclass
             .environment(viewModel as QuizViewModel)
@@ -76,13 +50,48 @@ public struct QuizParticipationView: View {
                     }
                 }
             }
+            .opacity(viewModel.waitingForResults ? 0.5 : 1)
+            .allowsHitTesting(!viewModel.waitingForResults)
         }
         .interactiveDismissDisabled()
-        .opacity(viewModel.waitingForResults ? 0.5 : 1)
         .overlay {
             if viewModel.waitingForResults {
-                WaitForQuizEndView()
+                WaitForQuizEndView(mode: viewModel.exercise.quizMode)
             }
+        }
+    }
+}
+
+private struct QuizParticipation: View {
+    @State private var startDate = Date.now
+    let participation: DTO.StudentQuizParticipation
+
+    var body: some View {
+        switch participation {
+        case .liveQuiz(let quiz):
+            let duration = Double(quiz.exercise?.duration ?? 0)
+            let batch = quiz.exercise?.quizBatches?.last
+            let startTime = batch?.ended ?? false ? startDate : batch?.startTime
+            if let questions = quiz.exercise?.quizQuestions {
+                QuizView(startTime: startTime,
+                         endTime: startTime?.addingTimeInterval(duration),
+                         questionsWithoutSolution: questions)
+            } else {
+                StartQuizView()
+            }
+        case .afterQuizEnd(let quiz):
+            let duration = Double(quiz.exercise?.duration ?? 0)
+            let batch = quiz.exercise?.quizBatches?.last
+            let startTime = batch?.ended ?? false ? startDate : batch?.startTime
+            if let questions = quiz.exercise?.quizQuestions {
+                QuizView(startTime: startTime,
+                         endTime: startTime?.addingTimeInterval(duration),
+                         questionsWithSolution: questions)
+            } else {
+                StartQuizView()
+            }
+        default:
+            StartQuizView()
         }
     }
 }
