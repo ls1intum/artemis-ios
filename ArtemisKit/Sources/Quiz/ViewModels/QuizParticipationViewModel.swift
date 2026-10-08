@@ -98,10 +98,9 @@ class QuizParticipationViewModel: QuizViewModel {
             let stream = stompClient.subscribe(to: "/topic/courses/\(courseId)/quizExercises")
 
             for await message in stream {
-                print("Received Socket update")
+                print("Received Socket update for start")
                 if let data = message as? Data,
                    let decoded = try? JSONDecoder().decode(DTO.StudentQuizParticipation.self, from: data) {
-                    print("Socket update: \(decoded)")
                     participation = .done(response: decoded)
                 } else {
                     await startParticipation()
@@ -116,9 +115,8 @@ class QuizParticipationViewModel: QuizViewModel {
             let stream = stompClient.subscribe(to: "/topic/courses/\(courseId)/quizExercises/\(batchId)")
 
             for await message in stream {
-                print("Received Socket update")
+                print("Received Socket update for start")
                 if let decoded = JSONDecoder.getTypeFromSocketMessage(type: DTO.StudentQuizParticipation.self, message: message) {
-                    print("Socket update: \(decoded)")
                     participation = .done(response: decoded)
                 } else {
                     await startParticipation()
@@ -133,7 +131,7 @@ class QuizParticipationViewModel: QuizViewModel {
             let stream = stompClient.subscribe(to: "/user/topic/exercise/\(exercise.id)/participation")
 
             for await message in stream {
-                print("Received Socket update")
+                print("Received Socket update for solution")
                 if let decoded = JSONDecoder.getTypeFromSocketMessage(type: DTO.StudentQuizParticipation.self, message: message) {
                     participation = .done(response: decoded)
                     switch decoded {
@@ -181,14 +179,13 @@ class QuizParticipationViewModel: QuizViewModel {
             autoSaveTimer = nil
 
             // Live mode -> wait for solutions if not yet available
-            if isLiveQuiz && !waitingForResults {
-                print("DEBUG: waiting for result")
+            if isLiveQuiz && !hasSubmitted {
                 waitingForResults = true
                 submissionSuccessful = true
             }
 
             // Unsubmitted practice mode -> submit at deadline
-            if !isLiveQuiz && !hasSubmitted  {
+            if !isLiveQuiz && !hasSubmitted {
                 Task.detached {
                     await self.submit()
                 }
@@ -265,6 +262,8 @@ class QuizParticipationViewModel: QuizViewModel {
             if response.submitted == true {
                 submissionSuccessful = true
                 waitingForResults = true
+                autoSubmitTimer?.invalidate()
+                autoSubmitTimer = nil
                 startWaitingForSolutions()
             }
         default: submissionSuccessful = false
