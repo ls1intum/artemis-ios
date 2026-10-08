@@ -57,6 +57,7 @@ struct WaitForQuizEndView: View {
         }
         .padding()
         .background(Color.Artemis.artemisBlue.opacity(0.5), in: .rect(cornerRadius: .l))
+        .background(.background, in: .rect(cornerRadius: .l))
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
     }

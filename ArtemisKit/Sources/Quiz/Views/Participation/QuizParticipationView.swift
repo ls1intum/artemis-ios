@@ -21,28 +21,19 @@ public struct QuizParticipationView: View {
 
     public var body: some View {
         NavigationStack {
-            ZStack {
-                DataStateView(data: $viewModel.participation) {
-                    await viewModel.startParticipation()
-                } content: { participation in
-                    QuizParticipation(participation: participation)
-                }
-                // We need both types, otherwise @Environment only finds the subclass
-                .environment(viewModel as QuizViewModel)
-                .environment(viewModel)
-                .task(id: "startParticipation") {
-                    await viewModel.startParticipation()
-                }
-
-                if viewModel.waitingForResults {
-                    WaitForQuizEndView()
-                }
+            DataStateView(data: $viewModel.participation) {
+                await viewModel.startParticipation()
+            } content: { participation in
+                QuizParticipation(participation: participation)
             }
-            .allowsHitTesting(!viewModel.waitingForResults)
+            // We need both types, otherwise @Environment only finds the subclass
+            .environment(viewModel as QuizViewModel)
+            .environment(viewModel)
+            .task(id: "startParticipation") {
+                await viewModel.startParticipation()
+            }
             .navigationTitle(viewModel.exercise.title ?? "")
             .toolbarTitleDisplayMode(.inline)
-            .opacity(viewModel.waitingForResults ? 0.5 : 1)
-            .allowsHitTesting(!viewModel.waitingForResults)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button(role: .cancel) {
@@ -59,8 +50,15 @@ public struct QuizParticipationView: View {
                     }
                 }
             }
+            .opacity(viewModel.waitingForResults ? 0.5 : 1)
+            .allowsHitTesting(!viewModel.waitingForResults)
         }
         .interactiveDismissDisabled()
+        .overlay {
+            if viewModel.waitingForResults {
+                WaitForQuizEndView()
+            }
+        }
     }
 }
 
