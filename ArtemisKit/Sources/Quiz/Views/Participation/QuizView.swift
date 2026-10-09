@@ -64,11 +64,23 @@ private struct QuizQuestionViews: View {
                     case .multipleChoice(let question): question.title
                     case .shortAnswer(let question): question.title
                     }
-                    if let title {
-                        Text(title)
-                            .font(.title)
-                            .padding(.horizontal)
+                    let hint = switch question {
+                    case .dragAndDrop(let question): question.hint
+                    case .multipleChoice(let question): question.hint
+                    case .shortAnswer(let question): question.hint
                     }
+
+                    HStack {
+                        if let title {
+                            Text(title)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        if let hint {
+                            HintButton(hint: hint)
+                        }
+                    }
+                    .font(.title)
+                    .padding(.horizontal)
 
                     switch question {
                     case .dragAndDrop(let dndQuestion):
@@ -112,6 +124,35 @@ private struct QuizQuestionViews: View {
                     }
                 }
             }
+        }
+    }
+}
+
+private struct HintButton: View {
+    let hint: String
+
+    @State private var showHint = false
+
+    var body: some View {
+        Button {
+            showHint = true
+        } label: {
+            Label(R.string.localizable.hint(), systemImage: "questionmark.circle.fill")
+        }
+        .labelStyle(.iconOnly)
+        .popover(isPresented: $showHint, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
+            ScrollView(.vertical) {
+                VStack {
+                    Text(R.string.localizable.hint())
+                        .font(.title2)
+
+                    Text(hint)
+                        .font(.body)
+                }
+                .padding()
+            }
+            .frame(maxWidth: 280, minHeight: 200)
+            .presentationCompactAdaptation(.none)
         }
     }
 }

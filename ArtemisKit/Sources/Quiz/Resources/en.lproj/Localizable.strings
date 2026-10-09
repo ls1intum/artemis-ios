@@ -25,6 +25,7 @@
 "solution" = "Solution";
 "question" = "Question";
 "explanation" = "Explanation";
+"hint" = "Hint";
 
 "refresh" = "Refresh";
 "waitingForStart" = "Waiting for Quiz Start";
