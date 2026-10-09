@@ -27,7 +27,12 @@ struct DNDQuestionView: View {
          previousAnswer: DTO.SubmittedAnswerFromLiveClient? = nil) {
         self.question = question
         self.questionWithAnswer = questionWithAnswer
-        if let previousAnswer, case let .dragAndDrop(answer) = previousAnswer, let maps = answer.mappings {
+        if let previousAnswer, case let .dragAndDrop(answer) = previousAnswer, var maps = answer.mappings {
+            let mappedLocations = maps.compactMap(\.dropLocation).map(\.id)
+            // Ensure all drop locations have a mapping to update!
+            for location in questionWithAnswer.dropLocations ?? [] where !mappedLocations.contains(location.id) {
+                maps.append(.init(dragItem: nil, dropLocation: .init(id: location.id)))
+            }
             _mappings = State(initialValue: maps)
         } else {
             _mappings = State(initialValue: (questionWithAnswer.dropLocations ?? []).map {

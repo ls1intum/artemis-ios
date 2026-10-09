@@ -26,26 +26,12 @@ class QuizViewModel {
 
     func score(questionId: Int64?) -> Double? {
         if case .done(let answer) = lastSubmissionResult {
-            return switch answer {
-            case .dragAndDrop(let answer): answer.scoreInPoints
-            case .multipleChoice(let answer): answer.scoreInPoints
-            case .shortAnswer(let answer): answer.scoreInPoints
-            }
+            return answer.score
         } else if case .done(let answers) = lastSubmissionResults {
             let answer = answers.first(where: {
-                let question = switch $0 {
-                case .dragAndDrop(let answer): answer.quizQuestion
-                case .multipleChoice(let answer): answer.quizQuestion
-                case .shortAnswer(let answer): answer.quizQuestion
-                }
-                return question?.id == questionId
+                $0.question?.id  == questionId
             })
-            return switch answer {
-            case .dragAndDrop(let answer): answer.scoreInPoints
-            case .multipleChoice(let answer): answer.scoreInPoints
-            case .shortAnswer(let answer): answer.scoreInPoints
-            case .none: nil
-            }
+            return answer?.score
         }
         return nil
     }
