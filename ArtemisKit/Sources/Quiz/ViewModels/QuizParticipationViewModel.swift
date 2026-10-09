@@ -80,6 +80,11 @@ class QuizParticipationViewModel: QuizViewModel {
            let submission = quiz.submissions?.last,
            let oldAnswers = submission.submittedAnswers {
             answers = oldAnswers.map { $0.asAnswerFromLiveClient() }
+
+            if submission.submitted == true {
+                submissionSuccessful = true
+                waitingForResults = true
+            }
         }
 
         self.participation = participation
@@ -162,7 +167,7 @@ class QuizParticipationViewModel: QuizViewModel {
     }
 
     func startAutoSave() {
-        guard isLiveQuiz, !hasSubmitted else { return }
+        guard isLiveQuiz, !hasSubmitted, submissionSuccessful != true else { return }
         autoSaveTimer?.invalidate()
         autoSaveTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { [weak self] timer in
             Task(priority: .utility) {
