@@ -81,7 +81,7 @@ class QuizParticipationViewModel: QuizViewModel {
            let oldAnswers = submission.submittedAnswers {
             answers = oldAnswers.map { $0.asAnswerFromLiveClient() }
 
-            if submission.submitted == true {
+            if submission.submitted == true || quiz.exercise?.quizBatches?.last?.ended == true {
                 submissionSuccessful = true
                 waitingForResults = true
             }
