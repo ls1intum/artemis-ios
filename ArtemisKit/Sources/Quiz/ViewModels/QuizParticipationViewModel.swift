@@ -65,12 +65,29 @@ class QuizParticipationViewModel: QuizViewModel {
 
     func startParticipation() async {
         loadingQuizStart = true
-        // TODO: Extract old submittedAnswers from submission to continue quiz
-        participation = await APIClient().call { client in
+        defer {
+            loadingQuizStart = false
+        }
+
+        let participation = await APIClient().call { client in
             try await client.startParticipation(path: .init(exerciseId: Int64(exercise.id)))
                 .ok.body.json
         }
-        loadingQuizStart = false
+
+        // Extract previous submission when quiz is re-opened
+        if exercise.canResumeQuiz && !exercise.canStartPractice,
+           case let .liveQuiz(quiz) = participation.value,
+           let submission = quiz.submissions?.last,
+           let oldAnswers = submission.submittedAnswers {
+            answers = oldAnswers.map { $0.asAnswerFromLiveClient() }
+
+            if submission.submitted == true {
+                submissionSuccessful = true
+                waitingForResults = true
+            }
+        }
+
+        self.participation = participation
     }
 
     func joinBatch(password: String? = nil) async {
@@ -150,7 +167,7 @@ class QuizParticipationViewModel: QuizViewModel {
     }
 
     func startAutoSave() {
-        guard isLiveQuiz, !hasSubmitted else { return }
+        guard isLiveQuiz, !hasSubmitted, submissionSuccessful != true else { return }
         autoSaveTimer?.invalidate()
         autoSaveTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { [weak self] timer in
             Task(priority: .utility) {

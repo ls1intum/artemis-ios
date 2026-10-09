@@ -26,7 +26,13 @@ struct ShortAnswerQuestionView: View {
         self.segments = Segment.create(from: questionWithSolution.text)
 
         let inputs = segments.filter(\.isInput)
-        if let previousAnswer, case let .shortAnswer(answer) = previousAnswer, let texts = answer.submittedTexts {
+        if let previousAnswer, case let .shortAnswer(answer) = previousAnswer, var texts = answer.submittedTexts {
+            for input in inputs {
+                // Ensure all spots have an initial text
+                if case let .input(spot) = input, !texts.contains(where: { $0.spot?.id == spot }) {
+                    texts.append(.init(text: "", spot: .init(id: spot)))
+                }
+            }
             _textInputs = State(initialValue: texts)
         } else {
             _textInputs = State(initialValue: inputs.map {
