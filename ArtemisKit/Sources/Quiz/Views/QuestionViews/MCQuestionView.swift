@@ -67,6 +67,12 @@ struct MCQuestionView: View {
 
                         Text(option.text ?? "No text")
                             .multilineTextAlignment(.leading)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+
+                        if let hint = option.hint {
+                            HintButton(hint: hint)
+                                .font(.title2)
+                        }
                     }
                 }
 
