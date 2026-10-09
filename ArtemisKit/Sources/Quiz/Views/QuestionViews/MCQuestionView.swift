@@ -57,6 +57,14 @@ struct MCQuestionView: View {
                                         .frame(width: 20, height: 20, alignment: .center)
                                 }
                             }
+                            .overlay(alignment: .bottomTrailing) {
+                                if viewModel.hasSubmitted && selectedAnswers.contains(id) != option.isCorrect ?? false {
+                                    Image(systemName: "exclamationmark.triangle.fill")
+                                        .foregroundStyle(.orange)
+                                        .offset(x: 8, y: 4)
+                                }
+                            }
+
                         Text(option.text ?? "No text")
                             .multilineTextAlignment(.leading)
                     }
@@ -69,7 +77,10 @@ struct MCQuestionView: View {
                     let correctLabel = Text(optionIsCorrect ? loc.correct() : loc.incorrect())
                         .foregroundStyle(optionIsCorrect ? .green : .red)
 
-                    Text("\(correctLabel)\(option.explanation.map { ": " + $0 } ?? "")")
+                    Text("\(loc.solution()): \(correctLabel)")
+                    if let explanation = option.explanation {
+                        Text("\(loc.explanation()): \(explanation)")
+                    }
                 }
             }
             .padding(.horizontal)

@@ -24,6 +24,7 @@
 "incorrect" = "Incorrect";
 "solution" = "Solution";
 "question" = "Question";
+"explanation" = "Explanation";
 
 "refresh" = "Refresh";
 "waitingForStart" = "Waiting for Quiz Start";
