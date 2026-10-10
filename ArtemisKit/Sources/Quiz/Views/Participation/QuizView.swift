@@ -64,11 +64,23 @@ private struct QuizQuestionViews: View {
                     case .multipleChoice(let question): question.title
                     case .shortAnswer(let question): question.title
                     }
-                    if let title {
-                        Text(title)
-                            .font(.title)
-                            .padding(.horizontal)
+                    let hint = switch question {
+                    case .dragAndDrop(let question): question.hint
+                    case .multipleChoice(let question): question.hint
+                    case .shortAnswer(let question): question.hint
                     }
+
+                    HStack {
+                        if let title {
+                            Text(title)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        if let hint {
+                            HintButton(hint: hint)
+                        }
+                    }
+                    .font(.title)
+                    .padding(.horizontal)
 
                     switch question {
                     case .dragAndDrop(let dndQuestion):

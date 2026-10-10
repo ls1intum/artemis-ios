@@ -16,7 +16,7 @@ struct QuizSubmissionStatusIndicator: View {
                 .fixedSize()
             if viewModel.isLiveQuiz && !viewModel.hasSubmitted {
                 let loc = R.string.localizable
-                Text("\(loc.status()): \(viewModel.savedResults ? loc.saved() : loc.unsaved())")
+                Text("\(loc.status()): \(viewModel.savedResults || viewModel.submissionSuccessful == true ? loc.saved() : loc.unsaved())")
                     .font(.footnote)
                     .fixedSize()
             }

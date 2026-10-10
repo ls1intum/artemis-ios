@@ -15,7 +15,7 @@ struct ExerciseSearchResult: SearchResultDetails {
 
     let dueDate: Date?
     let releaseDate: Date?
-    let points: Int?
+    let points: Double?
     let difficulty: String?
 
     var displayInfo: [Text] {
@@ -28,7 +28,7 @@ struct ExerciseSearchResult: SearchResultDetails {
 
         if let points {
             let image = Image(systemName: "trophy")
-            info.append(Text("\(image)\u{00A0}\(points)\u{00A0}Points"))
+            info.append(Text("\(image)\u{00A0}\(points.clean)\u{00A0}Points"))
         }
 
         return info
@@ -38,5 +38,11 @@ struct ExerciseSearchResult: SearchResultDetails {
         guard let courseId,
               let exerciseId = Int(result.id ?? "") else { return }
         await controller.goToExercise(courseId: courseId, exerciseId: exerciseId)
+    }
+}
+
+private extension Double {
+    var clean: String {
+        truncatingRemainder(dividingBy: 1) == 0 ? String(format: "%.0f", self) : String(self)
     }
 }
