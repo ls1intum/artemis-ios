@@ -44,20 +44,15 @@ final class SendMessageViewModel {
 
     // MARK: Text
 
-    var text = ""
-    internal var uploadedImages = [String: UIImage]()
-    internal var _selection: TextSelection? // swiftlint:disable:this identifier_name
-    var selection: Binding<TextSelection?> {
-        Binding {
-            return self._selection
-        } set: { newValue in
-            // Ignore updates if text field is not focused
-            if !self.keyboardVisible && newValue != nil {
-                return
-            }
-            self._selection = newValue
-        }
+    let editor = MessageEditorDocument()
+    var text: String {
+        get { editor.markdown }
+        set { editor.load(newValue) }
     }
+    internal var uploadedImages = [String: UIImage]()
+    var formattingExpanded = false
+    var editorExpanded = false
+    var showsLinkEditor = false
 
     var isEditing: Bool {
         switch configuration {
@@ -87,17 +82,12 @@ final class SendMessageViewModel {
         }
     }
 
-    var canPreview: Bool {
-        !text.isEmpty
-    }
-
     var isMemberPickerSuppressed = false
     var isChannelPickerSuppressed = false
 
     var wantsToAddMessageMentionContentType: MessageMentionContentType?
     var presentKeyboardOnAppear: Bool
     var keyboardVisible = false
-    var previewVisible = false
 
     // MARK: Life cycle
 
@@ -186,7 +176,6 @@ extension SendMessageViewModel {
 
     func didTapSendButton() {
         isLoading = true
-        previewVisible = false
         Task { @MainActor in
             var result: NetworkResponse?
             switch configuration {
@@ -215,7 +204,6 @@ extension SendMessageViewModel {
             }
             switch result {
             case .success:
-                _selection = nil
                 text = ""
                 uploadedImages = [:]
             default:

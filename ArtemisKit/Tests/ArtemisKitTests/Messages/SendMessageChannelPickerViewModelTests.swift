@@ -1,3 +1,4 @@
+import SharedModels
 import XCTest
 @testable import Messages
 
@@ -6,7 +7,7 @@ final class SendMessageChannelPickerViewModelTests: XCTestCase {
     func testChannelNameCaseInsensitivity() async throws {
         // given
         let viewModel = SendMessageMentionChannelViewModel(
-            course: .init(id: 1, courseInformationSharingConfiguration: .communicationAndMessaging),
+            course: CourseForOverviewDTO(course: Course(id: 1, courseInformationSharingConfiguration: .communicationAndMessaging)),
             messagesService: MessagesServiceStub())
 
         // when

@@ -218,3 +218,13 @@
 "next" = "Next";
 "confirm" = "Confirm";
 "done" = "Done";
+
+"moreFormatting" = "More formatting";
+"expanded" = "Expanded";
+"collapsed" = "Collapsed";
+"resizeEditor" = "Resize editor";
+"legacyMarkdownEditor" = "This message uses advanced Markdown. Edit its source to preserve all formatting.";
+"linkLabel" = "Display text";
+"linkAddress" = "Link address";
+"removeLink" = "Remove link";
+"saveLink" = "Save link";
