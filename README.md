@@ -31,3 +31,25 @@ The *Push Notification* subsystem handles the registration, notification setting
 ![Subsystem decomposition of the App](docs/APP-subsystem.png)
 
 *Figure: Subsystem decomposition of the `App`.*
+
+## Message composer
+
+Messages, replies, edits, and forwarding comments share a native rich text composer. Bold,
+italic, underline, strikethrough, inline code, links, and Artemis references are edited in
+place and stored using the existing Markdown message format. The compact toolbar exposes
+bold, italic, links, member and channel completion; More reveals additional formatting,
+resource references, attachments, and an editor size toggle. Backspace first selects a
+reference or link, then removes it on the next press. The clipboard includes readable plain text and a private Markdown representation so
+reference identifiers survive copying between Artemis composers.
+
+The first implementation intentionally supports inline formatting. Existing messages with
+block formatting (including headings, lists, quotes, fenced code, tables, or unsupported
+HTML) open automatically in a source editor, with an explanation, to preserve their full
+content. They can still be edited and sent; rich formatting controls are disabled in that
+mode. Pasting supported Markdown produces formatted content, while unsupported pasted
+syntax is inserted as literal text. Sending and saving drafts continue to use the existing
+message, answer, and conversation services.
+
+Reference pills use the appearance and text size from when their content is loaded. Changing
+appearance or Dynamic Type while the same draft remains open does not currently redraw
+existing pills. Native editor text still follows system accessibility and appearance settings.

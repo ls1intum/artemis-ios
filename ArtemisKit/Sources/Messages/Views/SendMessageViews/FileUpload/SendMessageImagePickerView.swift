@@ -9,30 +9,15 @@ import SwiftUI
 
 struct SendMessageImagePickerView: View {
 
-    var sendViewModel: SendMessageViewModel
     @Bindable private var viewModel: SendMessageUploadImageViewModel
 
-    init(sendViewModel: SendMessageViewModel, viewModel: SendMessageUploadImageViewModel) {
+    init(viewModel: SendMessageUploadImageViewModel) {
         self.viewModel = viewModel
-        self.sendViewModel = sendViewModel
     }
 
     var body: some View {
         Button(R.string.localizable.uploadImage(), systemImage: "photo.fill") {
             viewModel.isImagePickerPresented = true
-        }
-        .imagePicker(isPresented: $viewModel.isImagePickerPresented, selectedImage: $viewModel.selection)
-        .onChange(of: viewModel.selection) {
-            viewModel.onChange()
-        }
-        .sheet(isPresented: viewModel.showUploadScreen) {
-            if let path = viewModel.filePath {
-                sendViewModel.insertImageMention(path: path, image: viewModel.image)
-            }
-            viewModel.selection = nil
-            viewModel.image = nil
-        } content: {
-            UploadFileProgressView(viewModel: viewModel)
         }
     }
 }
