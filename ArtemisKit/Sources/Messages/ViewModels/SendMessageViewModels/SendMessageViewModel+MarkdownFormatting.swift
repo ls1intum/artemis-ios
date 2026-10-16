@@ -11,116 +11,46 @@ import SwiftUI
 
 extension SendMessageViewModel {
 
-    // MARK: List formatting
-    func handleListFormatting(_ newValue: String) {
-        let modifiedText = SendMessageListUtil.handleTextChange(newValue, text: text)
-        if modifiedText != text {
-            text = modifiedText
-            moveCursorToEnd()
-        }
-    }
-
-    /// Inserts the list prefix using our utility and updates the text.
-    func insertListPrefix(unordered: Bool) {
-        text = SendMessageListUtil.insertListPrefix(text: text, unordered: unordered)
-        moveCursorToEnd()
-    }
-
-    // MARK: Text formatting
-
-    func didTapBoldButton() {
-        appendToSelection(before: "**", after: "**", placeholder: "bold")
-    }
-
-    func didTapItalicButton() {
-        appendToSelection(before: "*", after: "*", placeholder: "italic")
-    }
-
-    func didTapUnderlineButton() {
-        appendToSelection(before: "<ins>", after: "</ins>", placeholder: "underlined")
-    }
-
-    func didTapStrikethroughButton() {
-        appendToSelection(before: "~~", after: "~~", placeholder: "strikethough")
-    }
-
-    func didTapBlockquoteButton() {
-        appendToSelection(before: "> ", after: "", placeholder: "Reference")
-    }
-
-    func didTapCodeButton() {
-        appendToSelection(before: "`", after: "`", placeholder: "Code")
-    }
-
-    func didTapCodeBlockButton() {
-        appendToSelection(before: "```java\n", after: "\n```", placeholder: "Source Code")
-    }
-
-    func didTapLinkButton() {
-        appendToSelection(before: "[", after: "](https://)", placeholder: "Display Text")
-    }
-
-    // MARK: - Content mentions
+    func didTapLinkButton() { showsLinkEditor = true }
 
     func didTapAtButton() {
-        if conditionalPresentation == .memberPicker {
-            isMemberPickerSuppressed = true
-        } else {
-            isMemberPickerSuppressed = false
-            appendToSelection(before: "@", after: " ", placeholder: " ")
-        }
+        isMemberPickerSuppressed = false
+        editor.beginCompletion("@")
     }
 
     func didTapNumberButton() {
-        if conditionalPresentation == .channelPicker {
-            isChannelPickerSuppressed = true
-        } else {
-            isChannelPickerSuppressed = false
-            appendToSelection(before: "#", after: " ", placeholder: " ")
-        }
+        isChannelPickerSuppressed = false
+        editor.beginCompletion("#")
     }
 
     func searchChannel() -> Substring? {
-        return text.matches(of: #/#(?<candidate>[\w-]*)/#).last?.candidate
+        guard let completion = editor.completion, completion.trigger == "#" else { return nil }
+        return Substring(completion.query)
     }
 
     func replace(channel: ChannelIdAndNameDTO) {
-        guard let candidate = searchChannel() else {
-            return
-        }
-        let channelMention = "[channel]\(channel.name)(\(channel.id))[/channel]"
-        text = text.replacingOccurrences(of: "#" + candidate, with: channelMention)
-        moveCursor(after: channelMention)
+        guard let completion = editor.completion, completion.trigger == "#" else { return }
+        editor.insertMarkup("[channel]\(channel.name)(\(channel.id))[/channel]", replacing: completion.range)
     }
 
     func searchMember() -> Substring? {
-        let matches = text.matches(of: #/@(?<candidate>[\w]*\s?)/#)
-        let candidate = matches.last?.candidate
-        if candidate == " " || candidate?.contains(".") == true {
-            // Either space after @ or a period indicating an email address -> Hide the member picker
-            return nil
-        }
-        return candidate?.filter { $0 != Character(" ") }
+        guard let completion = editor.completion, completion.trigger == "@" else { return nil }
+        return Substring(completion.query)
     }
 
     func replace(member: UserNameAndLoginDTO) {
-        guard let candidate = searchMember(),
-              let name = member.name, let login = member.login else {
-            return
-        }
-        let userMention = "[user]\(name)(\(login))[/user]"
-        text = text.replacingOccurrences(of: "@" + candidate, with: userMention)
-        moveCursor(after: userMention)
+        guard let completion = editor.completion, completion.trigger == "@", let name = member.name, let login = member.login else { return }
+        editor.insertMarkup("[user]\(name)(\(login))[/user]", replacing: completion.range)
     }
 
     // MARK: File uploads
 
     func insertFileMention(path: String, fileName: String) {
-        appendToSelection(before: "[", after: "](\(path))", placeholder: fileName)
+        editor.insertMarkup("[\(fileName)](\(path))")
     }
 
     func insertImageMention(path: String, image: UIImage? = nil) {
-        appendToSelection(before: "![", after: "](\(path))", placeholder: "image")
+        editor.insertMarkup("![image](\(path))")
 
         // Save uploaded image locally for showing attachment preview
         if let image {
@@ -129,9 +59,7 @@ extension SendMessageViewModel {
     }
 
     func removeImage(name: String, path: String) {
-        uploadedImages.removeValue(forKey: path)
-        text = text.replacing("![\(name)](\(path))", with: "")
-        moveCursorToEnd()
+        editor.removeMarkup("![\(name)](\(path))")
     }
 
     var mentionedImages: [(name: String, path: String, image: UIImage)] {
@@ -156,70 +84,5 @@ extension SendMessageViewModel {
             print("Invalid regex: \(error)")
         }
         return results
-    }
-
-    // MARK: Cursor/Selection management
-
-    func moveCursorToEnd() {
-        _selection = TextSelection(insertionPoint: text.endIndex)
-    }
-
-    func makeInsertion(insertionPoint: String.Index) {
-        _selection = TextSelection(insertionPoint: insertionPoint)
-    }
-
-    private func moveCursor(after string: String) {
-        if let range = text.range(of: string) {
-            _selection = TextSelection(insertionPoint: range.upperBound)
-        }
-    }
-
-    /// Inserts the given character at the current position and moves the cursor after the inserted char
-    func insertAtCurrentPosition(_ string: Character) {
-        guard let selection = _selection?.indices else { return }
-        switch selection {
-        case .selection(let range):
-            // Insert newline and move cursor one step
-            text.insert("\n", at: range.upperBound)
-            _selection = .init(insertionPoint: text.index(after: range.upperBound))
-        default:
-            break
-        }
-    }
-
-    /// Prepends/Appends the given snippets to text the user has selected.
-    private func appendToSelection(before: String, after: String, placeholder: String) {
-        let placeholderText = "\(before)\(placeholder)\(after)"
-        var shouldSelectPlaceholder = false
-
-        if let selection = _selection {
-            switch selection.indices {
-            case .selection(let range):
-                let newText: String
-                if text[range].isEmpty {
-                    newText = placeholderText
-                    shouldSelectPlaceholder = true
-                } else {
-                    newText = "\(before)\(text[range])\(after)"
-                }
-                text.replaceSubrange(range, with: newText)
-                if !shouldSelectPlaceholder {
-                    moveCursor(after: newText)
-                }
-            default:
-                break
-            }
-        } else {
-            text.append(placeholderText)
-            shouldSelectPlaceholder = true
-        }
-
-        if shouldSelectPlaceholder {
-            for range in text.ranges(of: placeholderText) {
-                if let placeholderRange = text[range].range(of: placeholder) {
-                    _selection = TextSelection(range: range.clamped(to: placeholderRange))
-                }
-            }
-        }
     }
 }

@@ -5,7 +5,6 @@
 //  Created by Sven Andabaka on 08.04.23.
 //
 
-import ArtemisMarkdown
 import Common
 import DesignLibrary
 import SharedModels
@@ -14,12 +13,11 @@ import SwiftUI
 struct SendMessageView: View {
 
     @State var viewModel: SendMessageViewModel
-    /// This has to be in here, otherwise it gets deinitialized while file picker is open,
-    /// due to the textfield losing focus and the toolbar disappearing
+    /// Attachment state and presentation outlive the toolbar when a picker takes editor focus.
     @State private var uploadFileViewModel: SendMessageUploadFileViewModel
     @State private var uploadImageViewModel: SendMessageUploadImageViewModel
 
-    @FocusState private var isFocused: Bool
+    @State private var isFocused = false
 
     init(viewModel: SendMessageViewModel) {
         self._viewModel = State(initialValue: viewModel)
@@ -51,10 +49,6 @@ struct SendMessageView: View {
                     .padding(.vertical, .m)
             }
             textField
-                .fixedSize(horizontal: false, vertical: true)
-                .overlay {
-                    preview
-                }
                 .padding(isFocused ? .horizontal : [.horizontal, .top], .l)
                 .padding(.bottom, .m)
             ImageAttachmentsPreview(viewModel: viewModel)
@@ -74,11 +68,6 @@ struct SendMessageView: View {
                 viewModel.keyboardVisible = isFocused
             }
         }
-        .onChange(of: viewModel.text) { oldValue, newValue in
-            // Only call change handler if text was entered, not when text was removed
-            guard newValue.count > oldValue.count else { return }
-            viewModel.handleListFormatting(newValue)
-        }
         .onAppear {
             viewModel.performOnAppear()
             if viewModel.presentKeyboardOnAppear {
@@ -95,35 +84,50 @@ struct SendMessageView: View {
                         // down
                         isFocused = false
                         viewModel.keyboardVisible = false
-                        viewModel.previewVisible = false
                         let impactMed = UIImpactFeedbackGenerator(style: .medium)
                         impactMed.impactOccurred()
                     }
                 }
         )
+        .sheet(isPresented: $viewModel.showsLinkEditor) {
+            MessageEditorLinkSheet(editor: viewModel.editor)
+                .presentationDetents([.medium])
+        }
         .sheet(item: $viewModel.wantsToAddMessageMentionContentType) { type in
             SendMessageMentionContentView(viewModel: viewModel, type: type)
                 .presentationDetents([.fraction(0.5), .medium])
+        }
+        .imagePicker(isPresented: $uploadImageViewModel.isImagePickerPresented,
+                     selectedImage: $uploadImageViewModel.selection)
+        .onChange(of: uploadImageViewModel.selection) {
+            uploadImageViewModel.onChange()
+        }
+        .sheet(isPresented: uploadImageViewModel.showUploadScreen) {
+            if let path = uploadImageViewModel.filePath {
+                viewModel.insertImageMention(path: path, image: uploadImageViewModel.image)
+            }
+            uploadImageViewModel.selection = nil
+            uploadImageViewModel.image = nil
+        } content: {
+            UploadFileProgressView(viewModel: uploadImageViewModel)
+        }
+        .filePicker(isPresented: $uploadFileViewModel.isFilePickerPresented,
+                    onFilePicked: uploadFileViewModel.filePicked(at:)) { error in
+            uploadFileViewModel.uploadState = .failed(error: .init(title: error.localizedDescription))
+        }
+        .sheet(isPresented: uploadFileViewModel.showUploadScreen) {
+            if let path = uploadFileViewModel.filePath {
+                viewModel.insertFileMention(path: path, fileName: uploadFileViewModel.fileName ?? "file")
+            }
+            uploadFileViewModel.resetFileSelection()
+        } content: {
+            UploadFileProgressView(viewModel: uploadFileViewModel)
         }
     }
 }
 
 @MainActor
 private extension SendMessageView {
-    @ViewBuilder var preview: some View {
-        if viewModel.previewVisible {
-            ScrollView {
-                ArtemisMarkdownView(string: viewModel.text.surroundingMarkdownImagesWithNewlines())
-                    .allowsHitTesting(false)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-            }
-            .contentMargins(.s, for: .scrollContent)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(.background)
-            .clipShape(.rect(cornerRadius: .s))
-        }
-    }
-
     @ViewBuilder var mentions: some View {
         if let presentation = viewModel.conditionalPresentation {
             VStack(spacing: 0) {
@@ -154,31 +158,24 @@ private extension SendMessageView {
             } else {
                 R.string.localizable.messageAction(conversationName)
             }
-            TextField(placeholder,
-                      text: $viewModel.text,
-                      selection: viewModel.selection,
-                      axis: .vertical)
-                .textFieldStyle(.roundedBorder)
-                .lineLimit(isFocused ? 8 : 5)
-                .animation(.smooth, value: isFocused)
-                .focused($isFocused)
-                .onKeyPress(.escape) {
-                    isFocused = false
-                    viewModel.keyboardVisible = false
-                    viewModel.previewVisible = false
-                    return .handled
+            VStack(alignment: .leading, spacing: .s) {
+                if viewModel.editor.isSourceFallback {
+                    Text(R.string.localizable.legacyMarkdownEditor())
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
-                .onKeyPress { press in
-                    if press.key == .return && press.modifiers.isDisjoint(with: .command) {
-                        viewModel.insertAtCurrentPosition("\n")
-                        // Focus is always removed for some reason, so reset it
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                            isFocused = true
+                MessageRichTextEditor(document: viewModel.editor, placeholder: placeholder,
+                                      isFocused: $isFocused, expanded: viewModel.editorExpanded)
+                    .overlay(alignment: .topLeading) {
+                        if viewModel.text.isEmpty {
+                            Text(placeholder)
+                                .foregroundStyle(.tertiary)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 8)
+                                .allowsHitTesting(false)
                         }
-                        return .handled
                     }
-                    return .ignored
-                }
+            }
             if !isFocused {
                 sendButton
             }
