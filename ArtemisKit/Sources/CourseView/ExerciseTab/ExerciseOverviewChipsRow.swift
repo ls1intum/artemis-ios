@@ -21,10 +21,12 @@ struct ExerciseOverviewChipsRow: View {
     }()
 
     var body: some View {
-            FlowLayout(spacing: .s, isCentered: true) {
-                gridChips
-                specialChips
-            }.padding(.horizontal, .m)
+        FlowLayout(spacing: .s, isCentered: true) {
+            gridChips
+            quizChips
+            specialChips
+        }
+        .padding(.horizontal, .m)
     }
 
     @ViewBuilder private var gridChips: some View {
@@ -124,6 +126,21 @@ struct ExerciseOverviewChipsRow: View {
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+    }
+
+    @ViewBuilder private var quizChips: some View {
+        if case let .quiz(exercise) = exercise {
+            if let duration = exercise.duration {
+                TwoLineChip(title: R.string.localizable.durationTitle()) {
+                    Text(Measurement(value: Double(duration) / 60, unit: UnitDuration.minutes), format: .measurement(width: .wide))
+                }
+            }
+            if let mode = exercise.quizMode {
+                TwoLineChip(title: R.string.localizable.quizModeTitle()) {
+                    Text(mode.rawValue.capitalized)
+                }
             }
         }
     }
