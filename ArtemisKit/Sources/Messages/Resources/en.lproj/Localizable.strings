@@ -38,7 +38,6 @@
 "addMessage" = "Add a message";
 "removeImage" = "Remove";
 "attachments" = "Attachments";
-"preview" = "Preview";
 
 // MARK: SendMessageMentionContentView
 "members" = "Members";
@@ -223,7 +222,8 @@
 "expanded" = "Expanded";
 "collapsed" = "Collapsed";
 "resizeEditor" = "Resize editor";
-"legacyMarkdownEditor" = "This message uses advanced Markdown. Edit its source to preserve all formatting.";
+"unsupportedMessageFormatting" = "This message uses formatting that cannot be edited in this composer.";
+"discardMessageDraft" = "Discard draft";
 "linkLabel" = "Display text";
 "linkAddress" = "Link address";
 "removeLink" = "Remove link";

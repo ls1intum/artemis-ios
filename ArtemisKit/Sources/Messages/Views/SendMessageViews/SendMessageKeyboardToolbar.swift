@@ -68,6 +68,7 @@ struct SendMessageKeyboardToolbar<SendButton: View>: View {
         .buttonStyle(.borderless)
         .padding(.horizontal, .l)
         .padding(.vertical, .m)
+        .disabled(viewModel.editor.hasUnsupportedContent)
     }
 
     private func formatButton(_ label: String, icon: String, style: MessageEditorStyle) -> some View {
@@ -78,7 +79,7 @@ struct SendMessageKeyboardToolbar<SendButton: View>: View {
                 .frame(minWidth: 28, minHeight: 28)
                 .background(viewModel.editor.activeStyle.contains(style) ? Color.accentColor.opacity(0.15) : Color.clear, in: .rect(cornerRadius: 4))
         }
-        .disabled(viewModel.editor.isSourceFallback)
+        .disabled(viewModel.editor.hasUnsupportedContent)
         .accessibilityAddTraits(viewModel.editor.activeStyle.contains(style) ? .isSelected : [])
     }
 

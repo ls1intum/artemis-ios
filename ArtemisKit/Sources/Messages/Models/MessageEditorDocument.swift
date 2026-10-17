@@ -7,7 +7,7 @@ extension NSAttributedString.Key {
 }
 
 /// The attributed display document is separate from the Markdown sent to the server.
-/// Unsupported legacy syntax stays in an explicit source editor instead of being flattened.
+/// Unsupported content keeps its original payload and cannot be edited or sent.
 @MainActor
 @Observable
 final class MessageEditorDocument {
@@ -19,35 +19,36 @@ final class MessageEditorDocument {
 
     private(set) var content = NSAttributedString(string: "")
     private(set) var markdown = ""
-    private(set) var isSourceFallback = false
+    private(set) var hasUnsupportedContent = false
     var selection = NSRange(location: 0, length: 0)
     var typingStyle: MessageEditorStyle = []
     @ObservationIgnored var applyEdit: ((NSAttributedString, NSRange) -> Void)?
 
     func load(_ source: String) {
-        guard source != markdown || (source.isEmpty && isSourceFallback) else { return }
+        guard source != markdown else { return }
         markdown = source
         if let spans = MessageEditorCodec.decode(source) {
-            isSourceFallback = false
+            hasUnsupportedContent = false
             content = Self.attributed(spans)
         } else {
-            isSourceFallback = true
-            content = NSAttributedString(string: source, attributes: Self.attributes([]))
+            hasUnsupportedContent = true
+            content = NSAttributedString(string: "")
         }
         selection = NSRange(location: content.length, length: 0)
         typingStyle = []
     }
 
     func accept(_ value: NSAttributedString, selection: NSRange) {
+        guard !hasUnsupportedContent else { return }
         content = NSAttributedString(attributedString: value)
         self.selection = selection
-        markdown = isSourceFallback ? value.string : MessageEditorCodec.encode(Self.spans(value))
+        markdown = MessageEditorCodec.encode(Self.spans(value))
     }
 
     func markdown(in range: NSRange) -> String {
-        guard NSMaxRange(range) <= content.length else { return "" }
+        guard !hasUnsupportedContent, range.location >= 0, NSMaxRange(range) <= content.length else { return "" }
         let value = content.attributedSubstring(from: range)
-        return isSourceFallback ? value.string : MessageEditorCodec.encode(Self.spans(value))
+        return MessageEditorCodec.encode(Self.spans(value))
     }
 
     func plainText(in range: NSRange) -> String {
@@ -56,7 +57,7 @@ final class MessageEditorDocument {
     }
 
     var canSetLink: Bool {
-        guard !isSourceFallback else { return false }
+        guard !hasUnsupportedContent else { return false }
         var containsReference = false
         content.enumerateAttribute(.attachment, in: selection) { value, _, _ in
             if value != nil { containsReference = true }
@@ -65,13 +66,13 @@ final class MessageEditorDocument {
     }
 
     var completion: Completion? {
-        guard selection.length == 0, selection.location <= content.length else { return nil }
+        guard !hasUnsupportedContent, selection.length == 0, selection.location <= content.length else { return nil }
         let prefix = (content.string as NSString).substring(to: selection.location)
         guard let match = prefix.range(of: #"(?:^|[\s(])([@#])([\p{L}\p{N}_-]*)$"#, options: .regularExpression) else { return nil }
         let candidate = prefix[match].drop(while: { $0 != "@" && $0 != "#" })
         guard let trigger = candidate.first else { return nil }
         let range = NSRange(location: selection.location - candidate.utf16.count, length: candidate.utf16.count)
-        if !isSourceFallback, range.location < content.length {
+        if range.location < content.length {
             let attributes = content.attributes(at: range.location, effectiveRange: nil)
             if attributes[.attachment] != nil || attributes[.link] != nil || Self.style(attributes).contains(.code) { return nil }
         }
@@ -79,7 +80,7 @@ final class MessageEditorDocument {
     }
 
     func toggle(_ style: MessageEditorStyle) {
-        guard !isSourceFallback else { return }
+        guard !hasUnsupportedContent else { return }
         guard selection.length > 0 else {
             typingStyle.formSymmetricDifference(style)
             return
@@ -112,14 +113,16 @@ final class MessageEditorDocument {
 
     /// Toolbar triggers establish a word boundary; ordinary typing still follows email rules.
     func beginCompletion(_ trigger: Character) {
+        guard !hasUnsupportedContent else { return }
         let before = (content.string as NSString).substring(to: selection.location)
         let prefix = before.last.map { $0.isWhitespace || $0 == "(" ? "" : " " } ?? ""
         insertText(prefix + String(trigger))
     }
 
     func insertMarkup(_ source: String, replacing range: NSRange? = nil) {
+        guard !hasUnsupportedContent else { return }
         let replacement: NSAttributedString
-        if !isSourceFallback, let spans = MessageEditorCodec.decode(source) {
+        if let spans = MessageEditorCodec.decode(source) {
             replacement = Self.attributed(spans)
         } else {
             replacement = NSAttributedString(string: source, attributes: Self.attributes([]))
@@ -128,19 +131,15 @@ final class MessageEditorDocument {
     }
 
     func removeMarkup(_ source: String) {
+        guard !hasUnsupportedContent else { return }
         let value = NSMutableAttributedString(attributedString: content)
-        if isSourceFallback {
-            let text = content.string.replacingOccurrences(of: source, with: "")
-            value.setAttributedString(NSAttributedString(string: text, attributes: Self.attributes([])))
-        } else {
-            var ranges: [NSRange] = []
-            content.enumerateAttribute(.attachment, in: NSRange(location: 0, length: content.length)) { attachment, range, _ in
-                if let attachment = attachment as? MessageReferenceAttachment, attachment.reference.markup == source {
-                    ranges.append(range)
-                }
+        var ranges: [NSRange] = []
+        content.enumerateAttribute(.attachment, in: NSRange(location: 0, length: content.length)) { attachment, range, _ in
+            if let attachment = attachment as? MessageReferenceAttachment, attachment.reference.markup == source {
+                ranges.append(range)
             }
-            for range in ranges.reversed() { value.deleteCharacters(in: range) }
         }
+        for range in ranges.reversed() { value.deleteCharacters(in: range) }
         commit(value, selection: NSRange(location: min(selection.location, value.length), length: 0))
     }
 
@@ -190,7 +189,7 @@ final class MessageEditorDocument {
 
     /// Backspace at a reference/link first selects only that atom. A second deletion removes it.
     func atomicSelectionForDeletion(_ proposed: NSRange) -> NSRange? {
-        guard !isSourceFallback, proposed.length > 0, proposed.location < content.length else { return nil }
+        guard !hasUnsupportedContent, proposed.length > 0, proposed.location < content.length else { return nil }
         var atom: NSRange?
         content.enumerateAttributes(in: proposed) { attributes, range, stop in
             if attributes[.attachment] != nil || attributes[.link] != nil {
@@ -208,13 +207,14 @@ final class MessageEditorDocument {
     }
 
     private func replace(_ range: NSRange, with replacement: NSAttributedString) {
-        guard range.location >= 0, NSMaxRange(range) <= content.length else { return }
+        guard !hasUnsupportedContent, range.location >= 0, NSMaxRange(range) <= content.length else { return }
         let value = NSMutableAttributedString(attributedString: content)
         value.replaceCharacters(in: range, with: replacement)
         commit(value, selection: NSRange(location: range.location + replacement.length, length: 0))
     }
 
     private func commit(_ value: NSAttributedString, selection: NSRange) {
+        guard !hasUnsupportedContent else { return }
         if let applyEdit { applyEdit(value, selection) } else { accept(value, selection: selection) }
     }
 

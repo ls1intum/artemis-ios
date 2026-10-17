@@ -11,14 +11,19 @@ import SwiftUI
 
 extension SendMessageViewModel {
 
-    func didTapLinkButton() { showsLinkEditor = true }
+    func didTapLinkButton() {
+        guard editor.canSetLink else { return }
+        showsLinkEditor = true
+    }
 
     func didTapAtButton() {
+        guard !editor.hasUnsupportedContent else { return }
         isMemberPickerSuppressed = false
         editor.beginCompletion("@")
     }
 
     func didTapNumberButton() {
+        guard !editor.hasUnsupportedContent else { return }
         isChannelPickerSuppressed = false
         editor.beginCompletion("#")
     }
@@ -50,6 +55,7 @@ extension SendMessageViewModel {
     }
 
     func insertImageMention(path: String, image: UIImage? = nil) {
+        guard !editor.hasUnsupportedContent else { return }
         editor.insertMarkup("![image](\(path))")
 
         // Save uploaded image locally for showing attachment preview
@@ -63,6 +69,7 @@ extension SendMessageViewModel {
     }
 
     var mentionedImages: [(name: String, path: String, image: UIImage)] {
+        guard !editor.hasUnsupportedContent else { return [] }
         let pattern = #"\!\[([^\]]+)\]\(([^\)]+)\)"#
         var results = [(String, String, UIImage)]()
 

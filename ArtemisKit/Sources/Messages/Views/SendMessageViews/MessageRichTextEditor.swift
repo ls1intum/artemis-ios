@@ -14,6 +14,7 @@ struct MessageRichTextEditor: UIViewRepresentable {
         let view = MessageComposerTextView()
         view.delegate = context.coordinator
         view.document = document
+        view.isEditable = !document.hasUnsupportedContent
         view.backgroundColor = .secondarySystemBackground
         view.layer.cornerRadius = 8
         view.textContainerInset = UIEdgeInsets(top: 8, left: 4, bottom: 8, right: 4)
@@ -32,6 +33,7 @@ struct MessageRichTextEditor: UIViewRepresentable {
         guard view.markedTextRange == nil else { return }
         context.coordinator.applying = true
         defer { context.coordinator.applying = false }
+        view.isEditable = !document.hasUnsupportedContent
         if !view.attributedText.isEqual(to: document.content) {
             view.attributedText = document.content
             view.invalidateIntrinsicContentSize()
@@ -39,9 +41,9 @@ struct MessageRichTextEditor: UIViewRepresentable {
         if view.selectedRange != document.selection { view.selectedRange = document.selection }
         view.typingAttributes = MessageEditorDocument.attributes(document.typingStyle)
         view.accessibilityLabel = placeholder
-        if isFocused && !view.isFirstResponder {
+        if isFocused && !document.hasUnsupportedContent && !view.isFirstResponder {
             view.becomeFirstResponder()
-        } else if !isFocused && view.isFirstResponder {
+        } else if (!isFocused || document.hasUnsupportedContent) && view.isFirstResponder {
             view.resignFirstResponder()
         }
     }
@@ -65,7 +67,7 @@ struct MessageRichTextEditor: UIViewRepresentable {
         init(_ parent: MessageRichTextEditor) { self.parent = parent }
 
         func apply(_ value: NSAttributedString, selection: NSRange) {
-            guard let view = textView, view.markedTextRange == nil else { return }
+            guard !parent.document.hasUnsupportedContent, let view = textView, view.markedTextRange == nil else { return }
             let old = NSAttributedString(attributedString: view.attributedText)
             let oldSelection = view.selectedRange
             view.undoManager?.registerUndo(withTarget: self) { target in target.apply(old, selection: oldSelection) }
@@ -98,6 +100,7 @@ struct MessageRichTextEditor: UIViewRepresentable {
         func textViewDidEndEditing(_ textView: UITextView) { parent.isFocused = false }
 
         func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+            guard !parent.document.hasUnsupportedContent else { return false }
             guard textView.markedTextRange == nil else { return true }
             if text.isEmpty, let atom = parent.document.atomicSelectionForDeletion(range) {
                 textView.selectedRange = atom
