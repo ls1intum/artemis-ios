@@ -47,14 +47,36 @@ final class MessageEditorDocumentTests: XCTestCase {
         XCTAssertNil(editor.completion)
     }
 
-    func testUnsupportedLegacyContentIsPreservedExactly() {
+    func testUnsupportedContentIsPreservedWithoutAnEditableSourceDocument() {
+        for source in ["# Heading\n\n```swift\nlet x = 1\n```", #"**Equation:** $x*y*z + \alpha$"#, "<div>legacy</div>"] {
+            let editor = MessageEditorDocument()
+            editor.load(source)
+            XCTAssertTrue(editor.hasUnsupportedContent)
+            XCTAssertEqual(editor.markdown, source)
+            XCTAssertEqual(editor.content.string, "")
+            XCTAssertFalse(editor.canSetLink)
+            XCTAssertNil(editor.completion)
+
+            editor.insertText("!")
+            editor.insertMarkup("[user]Alice(alice)[/user]")
+            editor.removeMarkup(source)
+            editor.toggle(.bold)
+            editor.beginCompletion("@")
+            editor.setLink(label: "replacement", address: "https://example.org")
+            editor.accept(NSAttributedString(string: "replacement"), selection: NSRange(location: 0, length: 0))
+            XCTAssertEqual(editor.markdown, source)
+            XCTAssertEqual(editor.content.string, "")
+        }
+    }
+
+    func testSupportedLoadRestoresEditingAfterUnsupportedContent() {
         let editor = MessageEditorDocument()
-        let source = "# Heading\n\n```swift\nlet x = 1\n```"
-        editor.load(source)
-        XCTAssertTrue(editor.isSourceFallback)
-        XCTAssertEqual(editor.markdown, source)
+        editor.load("# Heading")
+        editor.load("hello")
+        XCTAssertFalse(editor.hasUnsupportedContent)
         editor.insertText("!")
-        XCTAssertEqual(editor.markdown, source + "!")
+        XCTAssertEqual(editor.content.string, "hello!")
+        XCTAssertEqual(editor.markdown, "hello!")
     }
 
     func testLinkCanBeUpdatedAndUnlinkedWithoutLosingLabel() {

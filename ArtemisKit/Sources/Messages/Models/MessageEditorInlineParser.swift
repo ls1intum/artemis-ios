@@ -36,6 +36,8 @@ struct MessageEditorInlineParser {
                 index += 2
             } else if matches("`") {
                 _ = try parseCode(style: [])
+            } else if startsMath() {
+                throw ParseError.unsupported
             } else if matches("![") {
                 source += protect([try parseImage(style: [])])
                 continue
@@ -99,6 +101,7 @@ struct MessageEditorInlineParser {
 
     private mutating func appendLiteral(style: MessageEditorStyle, to spans: inout [MessageEditorSpan]) throws {
         guard characters[index] != "<", characters[index] != ">", characters[index] != "_" else { throw ParseError.unsupported }
+        guard !startsMath() else { throw ParseError.unsupported }
         // Character entities need a complete HTML entity decoder; preserve that source instead.
         if matches("&"), let end = ((index + 1)..<min(index + 33, characters.count)).first(where: { characters[$0] == ";" }) {
             let candidate = String(characters[index...end])
@@ -108,6 +111,25 @@ struct MessageEditorInlineParser {
         }
         append(MessageEditorSpan(text: String(characters[index]), style: style), to: &spans)
         index += 1
+    }
+
+    /// Math is rendered by the web client. Keep its source intact instead of editing TeX as text.
+    private func startsMath() -> Bool {
+        guard matches("$") else { return false }
+        if matches("$$") { return true }
+        var cursor = index + 1
+        while cursor < characters.count {
+            if characters[cursor] == "\\", cursor + 1 < characters.count {
+                cursor += 2
+                continue
+            }
+            if characters[cursor] == "$",
+               cursor + 1 == characters.count || !"0123456789".contains(characters[cursor + 1]) {
+                return true
+            }
+            cursor += 1
+        }
+        return false
     }
 
     private func isClosing(_ delimiter: String, style: MessageEditorStyle) -> Bool {
@@ -121,7 +143,7 @@ struct MessageEditorInlineParser {
         if matches("*") { return ("*", .italic, "*") }
         if matches("~~") { return ("~~", .strikethrough, "~~") }
         if matches("<ins>") { return ("<ins>", .underline, "</ins>") }
-        // Underscore emphasis has additional intraword rules; leave it in the source editor.
+        // Foundation handles underscore emphasis and its additional intraword rules.
         return nil
     }
 

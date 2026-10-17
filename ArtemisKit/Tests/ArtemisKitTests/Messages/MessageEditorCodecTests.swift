@@ -68,7 +68,7 @@ final class MessageEditorCodecTests: XCTestCase {
         XCTAssertEqual(MessageEditorCodec.decode(MessageEditorCodec.encode(spans)), spans)
     }
 
-    func testUnsupportedOrAmbiguousSourceUsesLosslessFallback() {
+    func testUnsupportedOrAmbiguousSourceIsRejected() {
         let sources = [
             "# Heading", "- list item", "1. numbered", "> quote", "```swift\ncode\n```",
             "| a | b |\n| --- | --- |", "heading\n===", "    indented code",
@@ -101,6 +101,37 @@ final class MessageEditorCodecTests: XCTestCase {
         let text = "@Ada then #one and @Grace"
         XCTAssertEqual(MessageEditorCodec.encode([MessageEditorSpan(text: text)]), text)
         XCTAssertEqual(MessageEditorCodec.encode([MessageEditorSpan(text: "# heading")]), "\\# heading")
+    }
+
+    func testTypedDollarsRemainLiteralOnWebRenderers() {
+        let spans = [MessageEditorSpan(text: "$x+y$ and $5")]
+        XCTAssertEqual(MessageEditorCodec.encode(spans), #"\$x+y\$ and \$5"#)
+        XCTAssertEqual(MessageEditorCodec.decode(MessageEditorCodec.encode(spans)), spans)
+    }
+
+    func testLegacyMathIsUnsupported() {
+        for source in ["$x+y$", "$$x^2$$", "**before** $x*y*z$", "[label $x$](https://example.org)",
+                       "$ x $", "$ x$", "$x $", "$x\ny$", "$$\nx^2\n$$", "Costs $5 and $10; $x+y$", "$x$٢"] {
+            XCTAssertNil(MessageEditorCodec.decode(source), source)
+        }
+    }
+
+    func testDollarsInsideCodeAndReferencePayloadsStaySupported() {
+        for source in ["`$x$`", "[link](https://example.org/$value)", "[user]Alice $1(alice)[/user]"] {
+            XCTAssertEqual(MessageEditorCodec.decode(source).map(MessageEditorCodec.encode), source)
+        }
+    }
+
+    func testCurrencyAndEscapedDollarsKeepRichEditing() {
+        for (source, text) in [
+            ("Costs $5 and $10", "Costs $5 and $10"),
+            (#"\$x+y\$"#, "$x+y$"),
+            (#"\\\$x+y\$"#, #"\$x+y$"#),
+            (#"\$x$"#, "$x$"),
+            (#"$x\$"#, "$x$")
+        ] {
+            XCTAssertEqual(MessageEditorCodec.decode(source), [MessageEditorSpan(text: text)])
+        }
     }
 
     func testFormattingTransitionsShareOuterDelimiter() {

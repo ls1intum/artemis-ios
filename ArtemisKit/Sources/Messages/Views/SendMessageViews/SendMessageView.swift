@@ -51,8 +51,10 @@ struct SendMessageView: View {
             textField
                 .padding(isFocused ? .horizontal : [.horizontal, .top], .l)
                 .padding(.bottom, .m)
-            ImageAttachmentsPreview(viewModel: viewModel)
-            if isFocused || viewModel.keyboardVisible {
+            if !viewModel.editor.hasUnsupportedContent {
+                ImageAttachmentsPreview(viewModel: viewModel)
+            }
+            if !viewModel.editor.hasUnsupportedContent && (isFocused || viewModel.keyboardVisible) {
                 SendMessageKeyboardToolbar(sendButton: sendButton,
                                            viewModel: viewModel,
                                            uploadFileViewModel: uploadFileViewModel,
@@ -70,8 +72,16 @@ struct SendMessageView: View {
         }
         .onAppear {
             viewModel.performOnAppear()
-            if viewModel.presentKeyboardOnAppear {
+            if viewModel.presentKeyboardOnAppear && !viewModel.editor.hasUnsupportedContent {
                 isFocused = true
+            }
+        }
+        .onChange(of: viewModel.editor.hasUnsupportedContent) {
+            if viewModel.editor.hasUnsupportedContent {
+                isFocused = false
+                viewModel.keyboardVisible = false
+                viewModel.showsLinkEditor = false
+                viewModel.wantsToAddMessageMentionContentType = nil
             }
         }
         .onDisappear {
@@ -159,22 +169,28 @@ private extension SendMessageView {
                 R.string.localizable.messageAction(conversationName)
             }
             VStack(alignment: .leading, spacing: .s) {
-                if viewModel.editor.isSourceFallback {
-                    Text(R.string.localizable.legacyMarkdownEditor())
+                if viewModel.editor.hasUnsupportedContent {
+                    Text(R.string.localizable.unsupportedMessageFormatting())
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                }
-                MessageRichTextEditor(document: viewModel.editor, placeholder: placeholder,
-                                      isFocused: $isFocused, expanded: viewModel.editorExpanded)
-                    .overlay(alignment: .topLeading) {
-                        if viewModel.text.isEmpty {
-                            Text(placeholder)
-                                .foregroundStyle(.tertiary)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 8)
-                                .allowsHitTesting(false)
-                        }
+                        .accessibilityIdentifier("unsupported-message-formatting")
+                    if viewModel.canDiscardUnsupportedDraft {
+                        Button(R.string.localizable.discardMessageDraft(), role: .destructive, action: viewModel.discardUnsupportedDraft)
+                            .accessibilityIdentifier("discard-unsupported-message-draft")
                     }
+                } else {
+                    MessageRichTextEditor(document: viewModel.editor, placeholder: placeholder,
+                                          isFocused: $isFocused, expanded: viewModel.editorExpanded)
+                        .overlay(alignment: .topLeading) {
+                            if viewModel.text.isEmpty {
+                                Text(placeholder)
+                                    .foregroundStyle(.tertiary)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 8)
+                                    .allowsHitTesting(false)
+                            }
+                        }
+                }
             }
             if !isFocused {
                 sendButton

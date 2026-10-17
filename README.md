@@ -44,9 +44,10 @@ reference identifiers survive copying between Artemis composers.
 
 The first implementation intentionally supports inline formatting. Existing messages with
 block formatting (including headings, lists, quotes, fenced code, tables, or unsupported
-HTML) open automatically in a source editor, with an explanation, to preserve their full
-content. They can still be edited and sent; rich formatting controls are disabled in that
-mode. Pasting supported Markdown produces formatted content, while unsupported pasted
+HTML or math) show an unsupported-formatting notice. Their original content is preserved,
+and editing, sending, saving and resource actions are blocked; existing edit sheets can be
+cancelled. For saved message or reply drafts, Discard draft clears only that draft and
+restores composing. Pasting supported Markdown produces formatted content, while unsupported pasted
 syntax is inserted as literal text. Sending and saving drafts continue to use the existing
 message, answer, and conversation services.
 

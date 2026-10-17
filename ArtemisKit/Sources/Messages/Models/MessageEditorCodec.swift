@@ -22,8 +22,8 @@ struct MessageEditorSpan: Equatable {
     var reference: MessageEditorReference?
 }
 
-/// A deliberately small inline Markdown dialect. Unsupported source stays in the source editor;
-/// returning nil is preferable to changing a legacy message while hydrating an edit or draft.
+/// A deliberately small inline Markdown dialect. Unsupported content cannot be edited;
+/// returning nil prevents changing a legacy message while hydrating an edit or draft.
 struct MessageEditorCodec {
     static func decode(_ markdown: String) -> [MessageEditorSpan]? {
         guard !hasUnsupportedBlock(markdown) else { return nil }
@@ -126,7 +126,7 @@ struct MessageEditorCodec {
     }
 
     private static func escapeText(_ text: String) -> String {
-        let alwaysEscaped = Set(#"\`*_[]<>~|&"#)
+        let alwaysEscaped = Set(#"\`*_[]<>~|&$"#)
         let characters = Array(text)
         var result = ""
         var atLineStart = true

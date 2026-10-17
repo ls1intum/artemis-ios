@@ -64,9 +64,18 @@ final class SendMessageViewModel {
     }
 
     var canSend: Bool {
-        switch configuration {
+        guard !editor.hasUnsupportedContent else { return false }
+        return switch configuration {
         case .forwardMessage: true
         default: !text.isEmpty
+        }
+    }
+
+    var canDiscardUnsupportedDraft: Bool {
+        guard editor.hasUnsupportedContent else { return false }
+        return switch configuration {
+        case .message, .answerMessage: true
+        default: false
         }
     }
 
@@ -116,6 +125,28 @@ final class SendMessageViewModel {
 // MARK: - Actions
 
 extension SendMessageViewModel {
+    func discardUnsupportedDraft() {
+        guard canDiscardUnsupportedDraft else { return }
+        do {
+            if let host = userSession.institution?.baseURL?.host() {
+                switch configuration {
+                case .message:
+                    try messagesRepository.insertConversation(host: host, courseId: course.id,
+                                                              conversationId: Int(conversation.id), messageDraft: "")
+                case let .answerMessage(message, _):
+                    try messagesRepository.insertMessage(host: host, courseId: course.id, conversationId: Int(conversation.id),
+                                                         messageId: Int(message.id), answerMessageDraft: "")
+                default:
+                    return
+                }
+            }
+            text = ""
+            uploadedImages = [:]
+        } catch {
+            delegate.presentError(UserFacingError(title: error.localizedDescription))
+        }
+    }
+
     func performOnAppear() {
         do {
             switch configuration {
@@ -147,6 +178,7 @@ extension SendMessageViewModel {
 
     func performOnDisappear() {
         keyboardVisible = false
+        guard !editor.hasUnsupportedContent else { return }
         do {
             if let host = userSession.institution?.baseURL?.host() {
                 switch configuration {
@@ -175,8 +207,14 @@ extension SendMessageViewModel {
     // MARK: Send Message
 
     func didTapSendButton() {
+        guard canSend, !isLoading else { return }
         isLoading = true
         Task { @MainActor in
+            guard canSend else {
+                isLoading = false
+                return
+            }
+            let sentText = text
             var result: NetworkResponse?
             switch configuration {
             case .message, .forwardMessage:
@@ -204,8 +242,10 @@ extension SendMessageViewModel {
             }
             switch result {
             case .success:
-                text = ""
-                uploadedImages = [:]
+                if text == sentText {
+                    text = ""
+                    uploadedImages = [:]
+                }
             default:
                 return
             }
