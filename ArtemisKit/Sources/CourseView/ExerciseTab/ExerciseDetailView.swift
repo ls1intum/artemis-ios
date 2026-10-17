@@ -45,6 +45,8 @@ public struct ExerciseDetailView: View {
                             }
                         }
                         .buttonStyle(.borderedProminent)
+                        .font(.title2)
+                        .padding(.m)
                         .frame(maxWidth: .infinity, alignment: .center)
                     }
                     problem
@@ -111,7 +113,6 @@ private extension ExerciseDetailView {
     // All buttons regarding viewing feedback and for the future, starting an exercise
     func feedback(exercise: Exercise) -> some View {
         HStack(spacing: .m) {
-            // TODO: Potentially show Quiz Submissions here
 //            if viewModel.isExerciseParticipationAvailable {
 //                if let dueDate = exercise.baseExercise.dueDate {
 //                    if dueDate < Date(), let participationId = viewModel.participationId {
@@ -151,96 +152,35 @@ private extension ExerciseDetailView {
     }
 
     // Exercise Details
+    @ViewBuilder
     func detail(exercise: Exercise) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
-            // Exercise Details title text
-            Text(R.string.localizable.exerciseDetails)
-                .bold()
-                .frame(height: 25, alignment: .center)
-                .padding(.s)
-
-            Divider()
-                .frame(height: 1.0)
-                .overlay(Color.Artemis.artemisBlue)
-
-            // Release Date
-            if let releaseDate = exercise.baseExercise.releaseDate {
-                ExerciseDetailCell(descriptionText: R.string.localizable.releaseDate()) {
-                    Text(releaseDate.mediumDateShortTime)
+        // Communication
+        if let channel = viewModel.channel.value {
+            HStack {
+                Text(R.string.localizable.communication() + ":")
+                    .bold()
+                Spacer()
+                Button {
+                    navigationController.outerPath = NavigationPath()
+                    navigationController.tabPath.append(
+                        ConversationPath(conversation: .channel(conversation: channel),
+                                         coursePath: .init(id: viewModel.courseId))
+                    )
+                } label: {
+                    let name = channel.conversationName
+                    let displayName = name
+                        .suffix(name.starts(with: "exercise-") ? name.count - 9 : name.count)
+                    Text("\(String(displayName)) \(Image(systemName: "chevron.forward"))")
                 }
             }
-
-            // Due Date
-            if let submissionDate = exercise.baseExercise.dueDate {
-                ExerciseDetailCell(descriptionText: R.string.localizable.submissionDate()) {
-                    Text(submissionDate.mediumDateShortTime)
-                }
-            } else {
-                ExerciseDetailCell(descriptionText: R.string.localizable.submissionDate()) {
-                    Text(R.string.localizable.noDueDate())
-                }
-            }
-
-            // Assessment Due Date
-            if let assessmentDate = exercise.baseExercise.assessmentDueDate {
-                ExerciseDetailCell(descriptionText: R.string.localizable.assessmentDate()) {
-                    Text(assessmentDate.mediumDateShortTime)
-                }
-            }
-
-            // Complaints Possible
-            if let complaintPossible = exercise.baseExercise.allowComplaintsForAutomaticAssessments {
-                ExerciseDetailCell(descriptionText: R.string.localizable.complaintPossible()) {
-                    Text(complaintPossible ? "Yes" : "No")
-                }
-            }
-
-            // Communication
-            if let channel = viewModel.channel.value {
-                Divider()
-                    .frame(height: 1.0)
-                    .overlay(Color.Artemis.artemisBlue)
-
-                ExerciseDetailCell(descriptionText: R.string.localizable.communication() + ":") {
-                    Button {
-                        navigationController.outerPath = NavigationPath()
-                        navigationController.tabPath.append(
-                            ConversationPath(conversation: .channel(conversation: channel),
-                                             coursePath: .init(id: viewModel.courseId))
-                        )
-                    } label: {
-                        let name = channel.conversationName
-                        let displayName = name
-                            .suffix(name.starts(with: "exercise-") ? name.count - 9 : name.count)
-                        Text("\(String(displayName)) \(Image(systemName: "chevron.forward"))")
-                    }
-                }
-            }
+            .padding(.m)
+            .background(Color(uiColor: .secondarySystemBackground), in: .rect(cornerRadius: .m))
+            .padding(.horizontal, .m)
         }
-        .background {
-            RoundedRectangle(cornerRadius: 3.0)
-                .stroke(Color.Artemis.artemisBlue, lineWidth: 1.0)
-        }
-        .padding(.horizontal, .m)
     }
 
     var problem: some View {
         ProblemStatementView(viewModel: viewModel)
-    }
-}
-
-private struct ExerciseDetailCell<Content: View>: View {
-    let descriptionText: String
-    @ViewBuilder let content: Content
-
-    var body: some View {
-        HStack {
-            Text(descriptionText)
-            Spacer()
-            content
-        }
-        .frame(height: 25, alignment: .center)
-        .padding(.s)
     }
 }
 

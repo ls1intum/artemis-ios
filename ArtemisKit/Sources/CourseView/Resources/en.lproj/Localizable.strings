@@ -93,6 +93,8 @@
 "statusTitle" = "Status";
 "difficultyTitle" = "Difficulty";
 "categoryTitle" = "Category";
+"durationTitle" = "Duration";
+"quizModeTitle" = "Quiz Mode";
 
 // Modeling Submission Alerts
 "successfulSubmissionAlertTitle" = "Your submission was successful!";
