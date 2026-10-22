@@ -7,6 +7,7 @@
 
 import Common
 import DesignLibrary
+import PhotosUI
 import SharedModels
 import SwiftUI
 
@@ -99,12 +100,13 @@ struct SendMessageView: View {
             SendMessageMentionContentView(viewModel: viewModel, type: type)
                 .presentationDetents([.fraction(0.5), .medium])
         }
-        .imagePicker(isPresented: $uploadImageViewModel.isImagePickerPresented,
-                     selectedImage: $uploadImageViewModel.selection)
+        .photosPicker(isPresented: $uploadImageViewModel.isImagePickerPresented, selection: $uploadImageViewModel.selection,
+                      matching: .images, preferredItemEncoding: .compatible)
         .onChange(of: uploadImageViewModel.selection) {
             uploadImageViewModel.onChange()
         }
         .sheet(isPresented: uploadImageViewModel.showUploadScreen) {
+            guard !uploadImageViewModel.isUploading else { return }
             if let path = uploadImageViewModel.filePath {
                 viewModel.insertImageMention(path: path, image: uploadImageViewModel.image)
             }
@@ -118,6 +120,7 @@ struct SendMessageView: View {
             uploadFileViewModel.uploadState = .failed(error: .init(title: error.localizedDescription))
         }
         .sheet(isPresented: uploadFileViewModel.showUploadScreen) {
+            guard !uploadFileViewModel.isUploading else { return }
             if let path = uploadFileViewModel.filePath {
                 viewModel.insertFileMention(path: path, fileName: uploadFileViewModel.fileName ?? "file")
             }

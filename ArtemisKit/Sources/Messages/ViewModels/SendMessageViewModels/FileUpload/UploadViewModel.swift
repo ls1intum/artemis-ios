@@ -32,11 +32,15 @@ class UploadViewModel {
         self.conversationId = conversationId
     }
 
+    var isUploading: Bool { uploadState == .compressing || uploadState == .uploading }
+
     var showUploadScreen: Binding<Bool> {
         .init {
             self.uploadState != .idle
         } set: { newValue in
-            if !newValue {
+            // Dismissing the system picker can transiently dismiss this sheet as it
+            // takes over presentation. That must not erase an in-flight upload.
+            if !newValue && !self.isUploading {
                 self.uploadState = .idle
             }
         }

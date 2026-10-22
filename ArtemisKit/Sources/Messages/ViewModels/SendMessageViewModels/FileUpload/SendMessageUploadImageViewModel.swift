@@ -30,6 +30,7 @@ final class SendMessageUploadImageViewModel: UploadViewModel {
 
     /// Register as change handler for selection on View
     func onChange() {
+        isImagePickerPresented = false
         loadTransferable(from: selection)
     }
 
