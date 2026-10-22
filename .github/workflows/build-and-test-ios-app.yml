@@ -25,6 +25,10 @@ jobs:
       - name: Check static code quality of iOS App
         run: eval "$(/opt/homebrew/bin/rbenv init - --no-rehash bash)" && bundle exec fastlane swift_lint
 
+      - name: Install iOS Simulator runtime
+        timeout-minutes: 30
+        run: xcodebuild -downloadPlatform iOS -buildVersion "$(xcrun --sdk iphonesimulator --show-sdk-version)"
+
       - name: Run ArtemisKit tests
         timeout-minutes: 30
         run: eval "$(/opt/homebrew/bin/rbenv init - --no-rehash bash)" && bundle exec fastlane test

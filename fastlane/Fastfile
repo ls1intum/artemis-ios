@@ -38,16 +38,36 @@ platform :ios do
     # The Artemis app scheme contains screenshot tests that require a prepared server.
     # The package scheme includes the unit and native editor integration tests.
     results_path = File.expand_path("../build/test-results", __dir__)
+    runtimes = JSON.parse(sh("xcrun simctl list runtimes --json", log: false)).fetch("runtimes")
+    runtime = runtimes.select do |candidate|
+      candidate["isAvailable"] && candidate["identifier"].include?(".iOS-") &&
+        Gem::Version.new(candidate.fetch("version")) >= Gem::Version.new("26.0")
+    end.max_by { |candidate| Gem::Version.new(candidate.fetch("version")) }
+    UI.user_error!("Install an iOS 26 or newer simulator runtime with xcodebuild -downloadPlatform iOS") unless runtime
+    device_type = runtime.fetch("supportedDeviceTypes").find { |type| type["productFamily"] == "iPhone" }
+    UI.user_error!("No compatible iPhone device type found for #{runtime.fetch('name')}") unless device_type
+    simulator_id = sh(
+      "xcrun simctl create ArtemisKitTests-#{Process.pid} #{device_type.fetch('identifier').shellescape} #{runtime.fetch('identifier').shellescape}",
+      log: false
+    ).strip
     scan(
       clean: true,
       project: "Artemis.xcodeproj",
       scheme: "ArtemisKitTests",
+      destination: "platform=iOS Simulator,id=#{simulator_id}",
+      skip_detect_devices: true,
+      disable_slide_to_type: false,
       parallel_testing: false,
       output_directory: results_path,
       buildlog_path: File.join(results_path, "logs"),
       result_bundle: true,
       xcargs: "-skipMacroValidation -skipPackagePluginValidation CODE_SIGNING_ALLOWED=NO",
     )
+  ensure
+    if simulator_id
+      sh("xcrun simctl shutdown #{simulator_id.shellescape}", log: false, error_callback: ->(_) {})
+      sh("xcrun simctl delete #{simulator_id.shellescape}", log: false)
+    end
   end
 
   desc "[CI] Build Artemis Scheme"
