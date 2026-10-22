@@ -50,6 +50,8 @@ platform :ios do
       "xcrun simctl create ArtemisKitTests-#{Process.pid} #{device_type.fetch('identifier').shellescape} #{runtime.fetch('identifier').shellescape}",
       log: false
     ).strip
+    sh("xcrun simctl boot #{simulator_id.shellescape}", log: false)
+    sh("xcrun simctl bootstatus #{simulator_id.shellescape} -b", log: false)
     scan(
       clean: true,
       project: "Artemis.xcodeproj",

@@ -9,11 +9,45 @@ on:
   workflow_dispatch:
     
 jobs:
+  tests:
+    permissions:
+      contents: read
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Run ArtemisKit tests
+        run: bundle exec fastlane test
+
+      - name: Upload test results
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: ios-test-results
+          path: build/test-results/
+          retention-days: 14
+
   build:
+    needs: tests
+    if: ${{ always() }}
     permissions:
       contents: read
     runs-on: [self-hosted, macOS]
     steps:
+      - name: Require passing tests
+        env:
+          TEST_RESULT: ${{ needs.tests.result }}
+        run: |
+          if [ "$TEST_RESULT" != "success" ]; then
+            echo "::error::ArtemisKit tests did not pass ($TEST_RESULT)."
+            exit 1
+          fi
+
       - uses: actions/checkout@v7
 
       - name: Install Gems
@@ -24,22 +58,6 @@ jobs:
 
       - name: Check static code quality of iOS App
         run: eval "$(/opt/homebrew/bin/rbenv init - --no-rehash bash)" && bundle exec fastlane swift_lint
-
-      - name: Install iOS Simulator runtime
-        timeout-minutes: 30
-        run: xcodebuild -downloadPlatform iOS -buildVersion "$(xcrun --sdk iphonesimulator --show-sdk-version)"
-
-      - name: Run ArtemisKit tests
-        timeout-minutes: 30
-        run: eval "$(/opt/homebrew/bin/rbenv init - --no-rehash bash)" && bundle exec fastlane test
-
-      - name: Upload test results
-        if: ${{ always() }}
-        uses: actions/upload-artifact@v7
-        with:
-          name: ios-test-results
-          path: build/test-results/
-          retention-days: 14
 
       - name: Generate build number
         run: |
