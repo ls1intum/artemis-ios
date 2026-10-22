@@ -6,7 +6,7 @@ import SharedModels
 final class SendMessageViewModelTests: XCTestCase {
     private func makeViewModel() -> SendMessageViewModel {
         SendMessageViewModel(
-            course: Course(id: 1, courseInformationSharingConfiguration: .communicationAndMessaging),
+            course: CourseForOverviewDTO(course: Course(id: 1, courseInformationSharingConfiguration: .communicationAndMessaging)),
             conversation: Conversation(conversation: Channel(id: 1))!,
             configuration: .message,
             delegate: SendMessageViewModelDelegate(

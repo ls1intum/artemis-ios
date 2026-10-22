@@ -25,15 +25,23 @@ jobs:
       - name: Check static code quality of iOS App
         run: eval "$(/opt/homebrew/bin/rbenv init - --no-rehash bash)" && bundle exec fastlane swift_lint
 
-      # Uncomment to run tests
-      # - name: Run Unit and UI Tests
-        # run: eval "$(/opt/homebrew/bin/rbenv init - --no-rehash bash)" && bundle exec fastlane test
+      - name: Run ArtemisKit tests
+        timeout-minutes: 30
+        run: eval "$(/opt/homebrew/bin/rbenv init - --no-rehash bash)" && bundle exec fastlane test
+
+      - name: Upload test results
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: ios-test-results
+          path: build/test-results/
+          retention-days: 14
 
       - name: Generate build number
         run: |
           # Build number is current date/time in format YYYYMMDDHHMM
           BUILD_NUMBER=$(date +'%Y%m%d%H%M')
-          echo "BUILD_NUMBER=$BUILD_NUMBER" >> $GITHUB_ENV
+          echo "BUILD_NUMBER=$BUILD_NUMBER" >> "$GITHUB_ENV"
           echo "Build is $(date +'%Y%m%d%H%M')"
         
       - name: Build iOS App 
