@@ -21,6 +21,12 @@ jobs:
         with:
           bundler-cache: true
 
+      - name: Cache Swift package dependencies
+        uses: actions/cache@v6
+        with:
+          path: build/test-derived-data/SourcePackages
+          key: spm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('ArtemisKit/Package.swift', 'Artemis.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
+
       - name: Run ArtemisKit tests
         run: bundle exec fastlane test
 
