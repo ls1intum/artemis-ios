@@ -69,6 +69,8 @@ final class MessageEditorDocument {
 
     var canSetLink: Bool {
         guard !hasUnsupportedContent, canFormatInline else { return false }
+        let range = linkRange ?? selection
+        guard (content.string as NSString).substring(with: range).rangeOfCharacter(from: .newlines) == nil else { return false }
         var containsReference = false
         content.enumerateAttribute(.attachment, in: selection) { value, _, _ in
             if value != nil { containsReference = true }
@@ -99,12 +101,15 @@ final class MessageEditorDocument {
         }
         let value = NSMutableAttributedString(attributedString: content)
         let remove = activeStyle.contains(style)
+        var common: MessageEditorStyle?
         content.enumerateAttributes(in: selection) { attributes, range, _ in
             guard attributes[.attachment] == nil else { return }
             var combined = Self.style(attributes)
             if remove { combined.subtract(style) } else { combined.formUnion(style) }
+            common = common.map { $0.intersection(combined) } ?? combined
             value.addAttributes(Self.attributes(combined), range: range)
         }
+        typingStyle = common ?? []
         commit(value, selection: selection)
     }
 
@@ -133,16 +138,18 @@ final class MessageEditorDocument {
 
     func insertMarkup(_ source: String, replacing range: NSRange? = nil) {
         guard !hasUnsupportedContent else { return }
-        let range = range ?? selection
+        var range = range ?? selection
         if activeBlockStyle == .codeBlock {
             replace(range, with: NSAttributedString(string: source, attributes: typingAttributes))
             return
         }
         let replacement: NSAttributedString
         if let spans = MessageEditorCodec.decode(source) {
+            if !spans.contains(where: { $0.block != nil }) { range = inlineInsertionRange(range) }
             replacement = markupReplacement(spans, in: range)
         } else {
-            replacement = NSAttributedString(string: source, attributes: typingAttributes)
+            range = inlineInsertionRange(range)
+            replacement = markupReplacement([MessageEditorSpan(text: source, style: typingStyle)], in: range)
         }
         replace(range, with: replacement)
     }
@@ -176,7 +183,7 @@ final class MessageEditorDocument {
     }
 
     func setLink(label: String, address: String) {
-        guard canSetLink, MessageEditorLinkValidation.isValid(address) else { return }
+        guard canSetLink, label.rangeOfCharacter(from: .newlines) == nil, MessageEditorLinkValidation.isValid(address) else { return }
         let range = linkRange ?? selection
         let text = label.isEmpty ? address : label
         let existing = content.attributedSubstring(from: range)
@@ -230,11 +237,15 @@ final class MessageEditorDocument {
         guard !hasUnsupportedContent, range.location >= 0, NSMaxRange(range) <= content.length else { return }
         let value = NSMutableAttributedString(attributedString: content)
         value.replaceCharacters(in: range, with: replacement)
+        normalizeJoinedParagraphs(in: value, around: NSRange(location: range.location, length: replacement.length))
         commit(value, selection: NSRange(location: range.location + replacement.length, length: 0))
     }
 
     func commit(_ value: NSAttributedString, selection: NSRange) {
         guard !hasUnsupportedContent else { return }
+        let value = NSMutableAttributedString(attributedString: value)
+        var selection = selection
+        normalizeNumberedParagraphs(in: value, selection: &selection)
         if let applyEdit { applyEdit(value, selection) } else { accept(value, selection: selection) }
     }
 
@@ -259,6 +270,7 @@ final class MessageEditorDocument {
         for span in spans {
             if let reference = span.reference {
                 let attachment = NSMutableAttributedString(attachment: MessageReferenceAttachment(reference: reference))
+                attachment.addAttributes(attributes(span.style), range: NSRange(location: 0, length: attachment.length))
                 if let block = span.block { attachment.addAttributes(blockAttributes(block), range: NSRange(location: 0, length: attachment.length)) }
                 value.append(attachment)
             } else {
@@ -275,7 +287,7 @@ final class MessageEditorDocument {
         var spans: [MessageEditorSpan] = []
         value.enumerateAttributes(in: NSRange(location: 0, length: value.length)) { attributes, range, _ in
             if let attachment = attributes[.attachment] as? MessageReferenceAttachment {
-                spans.append(MessageEditorSpan(text: "\u{fffc}", reference: attachment.reference, block: block(attributes)))
+                spans.append(MessageEditorSpan(text: "\u{fffc}", style: style(attributes), reference: attachment.reference, block: block(attributes)))
             } else {
                 spans.append(MessageEditorSpan(text: (value.string as NSString).substring(with: range), style: style(attributes),
                                                link: attributes[.link].map { String(describing: $0) }, block: block(attributes)))

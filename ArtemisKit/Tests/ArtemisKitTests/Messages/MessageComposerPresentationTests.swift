@@ -38,6 +38,10 @@ final class MessageComposerPresentationTests: XCTestCase {
             uploadImageViewModel: .init(courseId: model.course.id, conversationId: model.conversation.id))
         let (controller, window) = await host(toolbar.environment(\.verticalSizeClass, .regular), size: CGSize(width: 320, height: 200))
         defer { window.isHidden = true; window.rootViewController = nil }
+        controller.additionalSafeAreaInsets = UIEdgeInsets(top: 62, left: 0, bottom: 34, right: 0)
+        // Measure the toolbar itself; host safe-area insets vary across simulator runtimes.
+        controller.safeAreaRegions = []
+        controller.view.layoutIfNeeded()
         XCTAssertFalse(model.formattingExpanded)
         XCTAssertLessThanOrEqual(controller.sizeThatFits(in: CGSize(width: 320, height: 200)).height, 44)
         attachSnapshot(controller.view, name: "composer-grouped-toolbar")

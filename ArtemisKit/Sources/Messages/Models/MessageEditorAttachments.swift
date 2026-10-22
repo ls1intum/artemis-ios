@@ -15,8 +15,8 @@ extension MessageEditorDocument {
         var result: [MessageEditorAttachment] = []
         content.enumerateAttribute(.attachment, in: range) { value, range, _ in
             guard let reference = (value as? MessageReferenceAttachment)?.reference,
-                  let name = reference.imageName, let path = reference.imagePath else { return }
-            result.append(MessageEditorAttachment(range: range, name: name, path: path, isImage: true))
+                  let name = reference.imageName ?? reference.fileName, let path = reference.imagePath ?? reference.filePath else { return }
+            result.append(MessageEditorAttachment(range: range, name: name, path: path, isImage: reference.imagePath != nil))
         }
         content.enumerateAttribute(.link, in: range) { value, range, _ in
             guard let value else { return }
@@ -34,9 +34,11 @@ extension MessageEditorDocument {
               attachments.contains(attachment) else { return false }
         var attributes = content.attributes(at: attachment.range.location, effectiveRange: nil)
         let replacement: NSAttributedString
-        if attachment.isImage {
-            let markup = "!" + MessageEditorCodec.encode([MessageEditorSpan(text: name, link: attachment.path)])
-            let reference = MessageEditorReference(markup: markup, label: "Image: " + name, imageName: name, imagePath: attachment.path)
+        if attributes[.attachment] != nil {
+            let markup = (attachment.isImage ? "!" : "") + MessageEditorCodec.encode([MessageEditorSpan(text: name, link: attachment.path)])
+            let reference = MessageEditorReference(markup: markup, label: attachment.isImage ? "Image: " + name : name,
+                                                   imageName: attachment.isImage ? name : nil, imagePath: attachment.isImage ? attachment.path : nil,
+                                                   fileName: attachment.isImage ? nil : name, filePath: attachment.isImage ? nil : attachment.path)
             attributes[.attachment] = MessageReferenceAttachment(reference: reference)
             replacement = NSAttributedString(string: "\u{fffc}", attributes: attributes)
         } else {

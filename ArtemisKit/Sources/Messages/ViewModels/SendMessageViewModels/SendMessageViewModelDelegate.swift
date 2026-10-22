@@ -6,10 +6,12 @@
 //
 
 import Common
+import SharedModels
 import SwiftUI
 
 @MainActor
 struct SendMessageViewModelDelegate {
+    var didEditMessage: ((BaseMessage) -> Void)?
     let presentError: (UserFacingError) -> Void
     /// Returns true once the message has been accepted by the persistent queue or server.
     let sendMessage: (String) async -> Bool

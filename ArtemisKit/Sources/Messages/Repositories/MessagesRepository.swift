@@ -11,6 +11,16 @@ import SwiftData
 
 @MainActor
 final class MessagesRepository {
+    struct DraftKey: Hashable {
+        let host: String
+        let courseId: Int
+        let conversationId: Int
+        var messageId: Int?
+    }
+
+    // Send operations and all repository instances run on MainActor. Revisions distinguish
+    // a newly typed identical draft from the message already being sent, without a schema change.
+    private static var draftRevisions: [DraftKey: UUID] = [:]
     static let shared: MessagesRepository = {
         do {
             return try MessagesRepository()
@@ -102,6 +112,9 @@ extension MessagesRepository {
         ?? ConversationModel(course: course,
                              conversationId: conversationId,
                              messageDraft: "")
+        if conversation.messageDraft != messageDraft {
+            Self.draftRevisions[DraftKey(host: host, courseId: courseId, conversationId: conversationId)] = UUID()
+        }
         conversation.messageDraft = messageDraft
         container.mainContext.insert(conversation)
         save()
@@ -176,6 +189,9 @@ extension MessagesRepository {
         ?? MessageModel(conversation: conversation,
                         messageId: messageId,
                         answerMessageDraft: "")
+        if message.answerMessageDraft != answerMessageDraft {
+            Self.draftRevisions[DraftKey(host: host, courseId: courseId, conversationId: conversationId, messageId: messageId)] = UUID()
+        }
         message.answerMessageDraft = answerMessageDraft
         container.mainContext.insert(message)
         save()
@@ -263,5 +279,49 @@ extension MessagesRepository {
             message.conversation == nil
         })
         save()
+    }
+}
+
+extension MessagesRepository {
+    func draftRevision(for key: DraftKey) -> UUID? { Self.draftRevisions[key] }
+
+    func currentDraft(for key: DraftKey) throws -> String {
+        try purge(host: key.host)
+        let fresh = ModelContext(container)
+        let host = key.host
+        let courseId = key.courseId
+        let conversationId = key.conversationId
+        if let messageId = key.messageId {
+            let predicate = #Predicate<MessageModel> { message in
+                if let conversation = message.conversation, let course = conversation.course {
+                    course.server?.host == host && course.courseId == courseId
+                    && conversation.conversationId == conversationId && message.messageId == messageId
+                } else { false }
+            }
+            return try fresh.fetch(FetchDescriptor(predicate: predicate)).first?.answerMessageDraft ?? ""
+        }
+        let predicate = #Predicate<ConversationModel> { conversation in
+            if let course = conversation.course {
+                course.server?.host == host && course.courseId == courseId && conversation.conversationId == conversationId
+            } else { false }
+        }
+        return try fresh.fetch(FetchDescriptor(predicate: predicate)).first?.messageDraft ?? ""
+    }
+
+    /// The comparison and write have no suspension point, so another in-app composer cannot intervene.
+    func draftAfterSending(_ sentText: String, revision: UUID?, for key: DraftKey) throws -> String {
+        let current = try currentDraft(for: key)
+        let unchangedRevision = Self.draftRevisions[key] == revision
+        let remaining = unchangedRevision && current == sentText ? "" : current
+        // Also refresh a registered model in a retained repository with the surviving value.
+        if let messageId = key.messageId {
+            try fetchMessage(host: key.host, courseId: key.courseId, conversationId: key.conversationId,
+                             messageId: messageId)?.answerMessageDraft = remaining
+        } else {
+            try fetchConversation(host: key.host, courseId: key.courseId, conversationId: key.conversationId)?.messageDraft = remaining
+        }
+        try container.mainContext.save()
+        if unchangedRevision && current == sentText { Self.draftRevisions[key] = UUID() }
+        return remaining
     }
 }

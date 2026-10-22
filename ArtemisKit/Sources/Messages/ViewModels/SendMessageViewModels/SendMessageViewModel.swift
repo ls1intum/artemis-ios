@@ -39,6 +39,7 @@ final class SendMessageViewModel {
     private let userSession: UserSession
     private var hasLoadedContent = false
     private var lastPersistedDraft = ""
+    private var isReconcilingDraft = false
 
     // MARK: Loading
 
@@ -153,24 +154,23 @@ extension SendMessageViewModel {
 
     func performOnAppear() {
         // A retained composer can appear again after presenting a sheet or navigating to a thread.
-        guard !hasLoadedContent else { return }
+        if hasLoadedContent {
+            guard let key = draftKey, text == lastPersistedDraft else { return }
+            do {
+                let current = try messagesRepository.currentDraft(for: key)
+                guard current != text else { return }
+                isReconcilingDraft = true
+                defer { isReconcilingDraft = false }
+                text = current
+                lastPersistedDraft = current
+            } catch { log.error(error) }
+            return
+        }
         do {
             switch configuration {
-            case .message:
-                guard let host = userSession.institution?.baseURL?.host() else { return }
-                let conversation = try messagesRepository.fetchConversation(
-                    host: host,
-                    courseId: course.id,
-                    conversationId: Int(conversation.id))
-                text = conversation?.messageDraft ?? ""
-            case let .answerMessage(message, _):
-                guard let host = userSession.institution?.baseURL?.host() else { return }
-                let message = try messagesRepository.fetchMessage(
-                    host: host,
-                    courseId: course.id,
-                    conversationId: Int(conversation.id),
-                    messageId: Int(message.id))
-                text = message?.answerMessageDraft ?? ""
+            case .message, .answerMessage:
+                guard let key = draftKey else { return }
+                text = try messagesRepository.currentDraft(for: key)
             case let .editMessage(message, _): text = message.content ?? ""
             case let .editAnswerMessage(message, _): text = message.content ?? ""
             case .forwardMessage: text = ""
@@ -190,7 +190,7 @@ extension SendMessageViewModel {
     private func persistDraft() {
         // A retained, unchanged composer must not overwrite a newer composer on disappearance.
         // Hydration must also finish before native callbacks can write a draft.
-        guard hasLoadedContent, !editor.hasUnsupportedContent, text != lastPersistedDraft else { return }
+        guard hasLoadedContent, !isReconcilingDraft, !editor.hasUnsupportedContent, text != lastPersistedDraft else { return }
         do {
             if let host = userSession.institution?.baseURL?.host() {
                 switch configuration {
@@ -219,9 +219,37 @@ extension SendMessageViewModel {
 
     // MARK: Send Message
 
+    private var draftKey: MessagesRepository.DraftKey? {
+        guard let host = userSession.institution?.baseURL?.host() else { return nil }
+        switch configuration {
+        case .message:
+            return .init(host: host, courseId: course.id, conversationId: Int(conversation.id))
+        case let .answerMessage(message, _):
+            return .init(host: host, courseId: course.id, conversationId: Int(conversation.id), messageId: Int(message.id))
+        default:
+            return nil
+        }
+    }
+
+    private func finishAcceptedSend(_ sentText: String, key: MessagesRepository.DraftKey?, revision: UUID?) {
+        guard text == sentText, draftKey == key else { return }
+        do {
+            let remaining = try key.map { try messagesRepository.draftAfterSending(sentText, revision: revision, for: $0) } ?? ""
+            isReconcilingDraft = true
+            defer { isReconcilingDraft = false }
+            text = remaining
+            lastPersistedDraft = remaining
+            if remaining.isEmpty { uploadedImages = [:] }
+        } catch {
+            delegate.presentError(UserFacingError(title: error.localizedDescription))
+        }
+    }
+
     func didTapSendButton() {
         guard canSend, !isLoading else { return }
         let sentText = text
+        let sentKey = draftKey
+        let sentRevision = sentKey.flatMap { messagesRepository.draftRevision(for: $0) }
         isLoading = true
         Task { @MainActor in
             guard canSend else {
@@ -242,6 +270,7 @@ extension SendMessageViewModel {
                 let success = await editMessage(message: newMessage)
                 isLoading = false
                 if success {
+                    delegate.didEditMessage?(newMessage)
                     completion()
                 }
             case let .editAnswerMessage(message, completion):
@@ -250,12 +279,12 @@ extension SendMessageViewModel {
                 let success = await editAnswerMessage(answerMessage: newMessage)
                 isLoading = false
                 if success {
+                    delegate.didEditMessage?(newMessage)
                     completion()
                 }
             }
-            if case .success = result, text == sentText {
-                text = ""
-                uploadedImages = [:]
+            if case .success = result {
+                finishAcceptedSend(sentText, key: sentKey, revision: sentRevision)
             }
             // Persist the remaining draft before a thread reload can recreate its composer.
             // A failed send also keeps any text entered while the request was in flight.

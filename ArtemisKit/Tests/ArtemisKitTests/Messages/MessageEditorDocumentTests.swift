@@ -4,6 +4,32 @@ import XCTest
 
 @MainActor
 final class MessageEditorDocumentTests: XCTestCase {
+    func testLinksCannotBeCreatedAcrossParagraphsOrWithMultilineLabels() {
+        for source in ["first\nsecond", "- one\n- two", "> one\n> two"] {
+            let editor = MessageEditorDocument()
+            editor.load(source)
+            editor.selection = NSRange(location: 0, length: editor.content.length)
+            XCTAssertFalse(editor.canSetLink)
+            editor.setLink(label: "link", address: "https://example.org")
+            XCTAssertEqual(editor.markdown, source)
+        }
+        let editor = MessageEditorDocument()
+        editor.setLink(label: "two\nlines", address: "https://example.org")
+        XCTAssertEqual(editor.markdown, "")
+    }
+
+    func testExistingMultilineLinkCanBeConvertedToAListWithoutCorruptingItsMarkdown() {
+        let editor = MessageEditorDocument()
+        editor.load("[first\nsecond](https://example.org)")
+        editor.selection = NSRange(location: 0, length: editor.content.length)
+        editor.toggleBlock(.bulletList)
+        XCTAssertEqual(editor.markdown, "- [first](https://example.org)\n- [second](https://example.org)")
+        let reopened = MessageEditorDocument()
+        reopened.load(editor.markdown)
+        XCTAssertFalse(reopened.hasUnsupportedContent)
+        XCTAssertEqual(reopened.content.string, editor.content.string)
+    }
+
     func testInlineCodeHasDistinctForegroundAndDisablingItRestoresTextColor() {
         let document = MessageEditorDocument()
         document.toggle(.code)

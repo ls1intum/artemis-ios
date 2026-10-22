@@ -15,6 +15,8 @@ struct MessageEditorReference: Equatable {
     let label: String
     var imageName: String?
     var imagePath: String?
+    var fileName: String?
+    var filePath: String?
 }
 
 struct MessageEditorSpan: Equatable {
@@ -53,22 +55,33 @@ struct MessageEditorCodec {
             guard !pending.isEmpty else { return }
             let content = MessageEditorEmphasis.encode(pending) { encodeStyles($0, level: 2) } ?? encodeStyles(pending, level: 0)
             if let link = pending.first?.link {
-                result += "[\(content)](\(escapeDestination(link)))"
+                result += content.components(separatedBy: "\n").map { line in
+                    line.isEmpty ? "" : "[\(line)](\(escapeDestination(link)))"
+                }.joined(separator: "\n")
             } else {
                 result += content
             }
             pending.removeAll()
         }
-        for span in spans where !span.text.isEmpty {
+        // Protect atomic payloads while emphasis is encoded across their boundaries.
+        // Wrapping each atom separately can create ambiguous adjacent CommonMark delimiters.
+        let source = spans.map { $0.reference?.markup ?? $0.text }.joined()
+        var scalar: UInt32 = 0xf0000
+        var references: [(String, String)] = []
+        for var span in spans where !span.text.isEmpty {
             if let reference = span.reference {
-                flush()
-                result += reference.markup
-            } else {
-                if let previous = pending.last, previous.link != span.link { flush() }
-                pending.append(span)
+                while source.unicodeScalars.contains(UnicodeScalar(scalar)!) { scalar += 1 }
+                let marker = String(UnicodeScalar(scalar)!)
+                scalar += 1
+                references.append((marker, reference.markup))
+                span.text = marker
+                span.reference = nil
             }
+            if let previous = pending.last, previous.link != span.link { flush() }
+            pending.append(span)
         }
         flush()
+        for (marker, markup) in references { result = result.replacingOccurrences(of: marker, with: markup) }
         return result
     }
 

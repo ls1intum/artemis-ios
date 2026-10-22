@@ -1,3 +1,4 @@
+import Common
 import SharedModels
 import SwiftUI
 import UIKit
@@ -6,6 +7,90 @@ import XCTest
 @testable import Messages
 
 extension SendMessageDraftTests {
+    func testOlderSuccessfulSendPreservesANewerComposerDraft() async throws {
+        for separateRepository in [false, true] {
+            for reply in [false, true] {
+                for replacement in ["Newer draft", "Old message"] {
+                    let id = Int.random(in: 9_000_000...10_000_000)
+                    let repository = try MessagesRepository()
+                    let started = expectation(description: "Old send started")
+                    let finished = expectation(description: "Old send completed")
+                    var finish: CheckedContinuation<Bool, Never>?
+                    let send: (String) async -> Bool = { value in
+                        XCTAssertEqual(value, "Old message")
+                        return await withCheckedContinuation { continuation in
+                            finish = continuation
+                            started.fulfill()
+                        }
+                    }
+                    let configuration: SendMessageViewModel.Configuration = reply ? .answerMessage(Message(id: Int64(id)), { finished.fulfill() }) : .message
+                    let older = makeDraftViewModel(repository: repository, courseId: id, configuration: configuration,
+                                                   messagesService: DraftMessagesService(answer: { value in
+                                                       _ = await send(value)
+                                                       return .success
+                                                   }), sendMessageWithResult: { value in
+                                                       let accepted = await send(value)
+                                                       finished.fulfill()
+                                                       return accepted
+                                                   })
+                    older.performOnAppear()
+                    older.text = "Old message"
+                    older.didTapSendButton()
+                    await fulfillment(of: [started], timeout: 2)
+                    older.performOnDisappear()
+                    let newerRepository = separateRepository ? try MessagesRepository() : repository
+                    let newer = makeDraftViewModel(repository: newerRepository, courseId: id, configuration: configuration)
+                    newer.performOnAppear()
+                    newer.text = "Interim change"
+                    newer.text = replacement
+                    finish?.resume(returning: true)
+                    await fulfillment(of: [finished], timeout: 2)
+                    let restored = makeDraftViewModel(repository: try MessagesRepository(), courseId: id, configuration: configuration)
+                    restored.performOnAppear()
+                    XCTAssertEqual(restored.text, replacement, "A completed old send must not clear another composer's newer persisted input")
+                    XCTAssertEqual(older.text, replacement, "A retained old composer must adopt the surviving draft when it next appears")
+                }
+            }
+        }
+    }
+
+    func testRetainedComposerReloadsTheLatestDraftOnReappearance() throws {
+        for reply in [false, true] {
+            let id = Int.random(in: 10_000_001...11_000_000)
+            let configuration: SendMessageViewModel.Configuration = reply ? .answerMessage(Message(id: Int64(id)), {}) : .message
+            let older = makeDraftViewModel(repository: try MessagesRepository(), courseId: id, configuration: configuration)
+            older.performOnAppear()
+            older.text = "Original"
+            older.performOnDisappear()
+            let newer = makeDraftViewModel(repository: try MessagesRepository(), courseId: id, configuration: configuration)
+            newer.performOnAppear()
+            newer.text = "Updated elsewhere"
+            older.performOnAppear()
+            XCTAssertEqual(older.text, "Updated elsewhere")
+            older.text += " and continued"
+            let reader = makeDraftViewModel(repository: try MessagesRepository(), courseId: id, configuration: configuration)
+            reader.performOnAppear()
+            XCTAssertEqual(reader.text, "Updated elsewhere and continued")
+        }
+    }
+
+    func testNewComposerUsingAnOlderRepositoryReadsTheLatestPersistedDraft() throws {
+        for reply in [false, true] {
+            let id = Int.random(in: 11_000_001...12_000_000)
+            let configuration: SendMessageViewModel.Configuration = reply ? .answerMessage(Message(id: Int64(id)), {}) : .message
+            let repository = try MessagesRepository()
+            let older = makeDraftViewModel(repository: repository, courseId: id, configuration: configuration)
+            older.performOnAppear()
+            older.text = "Old snapshot"
+            let newer = makeDraftViewModel(repository: try MessagesRepository(), courseId: id, configuration: configuration)
+            newer.performOnAppear()
+            newer.text = "Latest persisted draft"
+            let reader = makeDraftViewModel(repository: repository, courseId: id, configuration: configuration)
+            reader.performOnAppear()
+            XCTAssertEqual(reader.text, "Latest persisted draft")
+        }
+    }
+
     func testUnchangedComposerCannotResurrectAnOlderDraft() throws {
         for replacement in ["Updated draft", ""] {
             let courseId = Int.random(in: 5_000_001...6_000_000)

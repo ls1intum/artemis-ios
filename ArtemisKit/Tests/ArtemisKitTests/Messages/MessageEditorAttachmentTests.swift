@@ -3,6 +3,57 @@ import XCTest
 
 @MainActor
 final class MessageEditorAttachmentTests: XCTestCase {
+    func testAdjacentCopiesOfTheSameFileCanBeRenamedAndRemovedIndividually() throws {
+        let editor = MessageEditorDocument()
+        editor.load("[one](/api/files/file.pdf)[two](/api/files/file.pdf)")
+        XCTAssertEqual(editor.attachments.count, 2)
+        let first = try XCTUnwrap(editor.attachments.first)
+        XCTAssertTrue(editor.renameAttachment(first, to: "Renamed"))
+        XCTAssertEqual(editor.attachments.map(\.name), ["Renamed", "two"])
+        editor.removeAttachment(try XCTUnwrap(editor.attachments.first))
+        XCTAssertEqual(editor.markdown, "[two](/api/files/file.pdf)")
+    }
+
+    func testStyledAttachmentsKeepTheirEnclosingMarksAfterEditingAndRenaming() throws {
+        for prefix in ["", "!"] {
+            for (open, close) in [("**", "**"), ("*", "*"), ("<ins>", "</ins>"), ("~~", "~~")] {
+                let editor = MessageEditorDocument()
+                let source = open + prefix + "[report](/api/files/a)" + close + " rest"
+                editor.load(source)
+                editor.insertText("!")
+                XCTAssertEqual(editor.markdown, source + "!")
+                XCTAssertTrue(editor.renameAttachment(try XCTUnwrap(editor.attachments.first), to: "Renamed"))
+                XCTAssertEqual(editor.markdown, open + prefix + "[Renamed](/api/files/a)" + close + " rest!")
+            }
+        }
+    }
+
+    func testAttachmentNamesThatMatchReferenceTagsReopenNormally() throws {
+        for name in ["text", "user", "lecture", "message", "file-upload"] {
+            let editor = MessageEditorDocument()
+            editor.load("[original](/api/files/a)")
+            XCTAssertTrue(editor.renameAttachment(try XCTUnwrap(editor.attachments.first), to: name))
+            let reopened = MessageEditorDocument()
+            reopened.load(editor.markdown)
+            XCTAssertFalse(reopened.hasUnsupportedContent, name)
+            XCTAssertEqual(reopened.attachments.first?.name, name)
+            XCTAssertEqual(reopened.attachments.first?.path, "/api/files/a")
+        }
+    }
+
+    func testEmphasisAcrossAttachmentBoundariesRendersWithoutLiteralDelimiters() throws {
+        for (open, close, intent) in [("**", "**", InlinePresentationIntent.stronglyEmphasized), ("*", "*", .emphasized)] {
+            let editor = MessageEditorDocument()
+            editor.load(open + "before[report](/api/files/a)after" + close)
+            editor.insertText("!")
+            let rendered = try AttributedString(markdown: editor.markdown, options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace))
+            XCTAssertEqual(String(rendered.characters), "beforereportafter!")
+            for run in rendered.runs where !String(rendered[run.range].characters).contains("!") {
+                XCTAssertEqual(run.inlinePresentationIntent?.contains(intent), true)
+            }
+        }
+    }
+
     func testFileRenamePreservesURLAndSurroundingFormatting() throws {
         let editor = MessageEditorDocument()
         let path = "/api/core/files/attachments/1/original.pdf"

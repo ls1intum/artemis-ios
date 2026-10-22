@@ -6,6 +6,19 @@ import UserStore
 
 @MainActor
 final class SendMessageViewModelTests: XCTestCase {
+    func testUploadedFileNamesKeepMarkdownCharactersAndAttachmentActions() {
+        for name in ["Research [final].pdf", "a*b*.pdf", "Design (2) 😀.pdf"] {
+            let model = makeViewModel()
+            model.insertFileMention(path: "/api/files/upload_(1).pdf", fileName: name)
+            XCTAssertEqual(model.editor.attachments.map(\.name), [name])
+            XCTAssertEqual(model.editor.attachments.map(\.path), ["/api/files/upload_(1).pdf"])
+            let reopened = MessageEditorDocument()
+            reopened.load(model.text)
+            XCTAssertFalse(reopened.hasUnsupportedContent)
+            XCTAssertEqual(reopened.attachments.map(\.name), [name])
+        }
+    }
+
     private func makeViewModel() -> SendMessageViewModel {
         SendMessageViewModel(
             course: CourseForOverviewDTO(course: Course(id: 1, courseInformationSharingConfiguration: .communicationAndMessaging)),
