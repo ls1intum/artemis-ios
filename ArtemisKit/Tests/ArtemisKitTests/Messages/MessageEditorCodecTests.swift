@@ -70,7 +70,7 @@ final class MessageEditorCodecTests: XCTestCase {
 
     func testUnsupportedOrAmbiguousSourceIsRejected() {
         let sources = [
-            "# Heading", "> quote", "- parent\n  - nested", "1. item\n   continuation", "- [ ] task",
+            "# Heading", "> > nested quote", "> - nested list", "> quote\nlazy continuation", "- parent\n  - nested", "1. item\n   continuation", "- [ ] task",
             "| a | b |\n| --- | --- |", "heading\n===", "    indented code",
             "<em>legacy</em>", "[label](url \"title\")", "[reference][id]", "[id]: /target",
             "**unfinished", "[unknown]title(1)[/unknown]", "[user]malformed[/user]", "~~unfinished"
@@ -154,7 +154,8 @@ final class MessageEditorCodecTests: XCTestCase {
             XCTAssertNil(MessageEditorCodec.decode("[label](\(address))"), address)
         }
         for address in ["https://example.org", "http://example.org", "mailto:ada@example.org", "/api/files/test.pdf", "/courses/1/exercises/2"] {
-            XCTAssertEqual(MessageEditorCodec.decode("[label](\(address))")?.first?.link, address)
+            let span = MessageEditorCodec.decode("[label](\(address))")?.first
+            XCTAssertEqual(span?.link ?? span?.reference?.filePath, address)
         }
     }
 
@@ -168,7 +169,8 @@ final class MessageEditorCodecTests: XCTestCase {
     func testEncodedSpacesInDestinationsRemainValid() {
         for address in ["https://example.org/my%20file.pdf", "/api/files/my%20file.pdf"] {
             let source = "[attachment](\(address))"
-            XCTAssertEqual(MessageEditorCodec.decode(source)?.first?.link, address)
+            let span = MessageEditorCodec.decode(source)?.first
+            XCTAssertEqual(span?.link ?? span?.reference?.filePath, address)
             XCTAssertEqual(MessageEditorCodec.decode(source).map(MessageEditorCodec.encode), source)
         }
         for address in ["https://example.org/my file.pdf", "/api/files/my\tfile.pdf", "/api/files/my%09file.pdf", "/api/files/my%0Dfile.pdf"] {

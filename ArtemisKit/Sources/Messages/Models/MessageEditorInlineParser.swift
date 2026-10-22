@@ -43,14 +43,20 @@ struct MessageEditorInlineParser {
                 continue
             } else if matches("[") {
                 if let end = find("]", from: index + 1), Self.referenceTags.contains(String(characters[(index + 1)..<end])) {
-                    source += protect([try parseReference(tag: String(characters[(index + 1)..<end]), tagEnd: end)])
-                    continue
+                    if let reference = try? parseReference(tag: String(characters[(index + 1)..<end]), tagEnd: end) {
+                        source += protect([reference])
+                        continue
+                    }
                 }
                 let label = try bracketLabel()
                 guard var labelSpans = MessageEditorCodec.decode(label), !labelSpans.isEmpty,
                       labelSpans.allSatisfy({ $0.reference == nil && $0.link == nil }) else { throw ParseError.unsupported }
                 let destination = try linkDestination()
-                for offset in labelSpans.indices { labelSpans[offset].link = destination }
+                if let file = fileReference(start: start, destination: destination, spans: labelSpans) {
+                    labelSpans = [file]
+                } else {
+                    for offset in labelSpans.indices { labelSpans[offset].link = destination }
+                }
                 source += protect(labelSpans)
                 continue
             } else {
@@ -172,15 +178,32 @@ struct MessageEditorInlineParser {
     private mutating func parseBracket(style: MessageEditorStyle) throws -> [MessageEditorSpan] {
         if let tagEnd = find("]", from: index + 1) {
             let tag = String(characters[(index + 1)..<tagEnd])
-            if Self.referenceTags.contains(tag) { return [try parseReference(tag: tag, tagEnd: tagEnd)] }
+            if Self.referenceTags.contains(tag), var reference = try? parseReference(tag: tag, tagEnd: tagEnd) {
+                reference.style = style
+                return [reference]
+            }
         }
+        let start = index
         let label = try bracketLabel()
         let destination = try linkDestination()
         var parser = Self(label)
         var spans = try parser.parse(style: style)
         guard !spans.isEmpty, spans.allSatisfy({ $0.link == nil && $0.reference == nil }) else { throw ParseError.unsupported }
+        if let file = fileReference(start: start, destination: destination, spans: spans) {
+            var file = file
+            file.style = style
+            return [file]
+        }
         for offset in spans.indices { spans[offset].link = destination }
         return spans
+    }
+
+    private func fileReference(start: Int, destination: String, spans: [MessageEditorSpan]) -> MessageEditorSpan? {
+        guard URLComponents(string: destination)?.path.contains("/files/") == true else { return nil }
+        let title = spans.map(\.text).joined()
+        let reference = MessageEditorReference(markup: String(characters[start..<index]), label: title,
+                                               fileName: title, filePath: destination)
+        return MessageEditorSpan(text: "\u{fffc}", reference: reference)
     }
 
     private mutating func parseReference(tag: String, tagEnd: Int) throws -> MessageEditorSpan {
@@ -209,13 +232,14 @@ struct MessageEditorInlineParser {
         let start = index
         index += 1
         let label = try bracketLabel()
-        _ = try linkDestination()
+        let path = try linkDestination()
         let markup = String(characters[start..<index])
         var labelParser = Self(label)
         let labelSpans = try labelParser.parse()
         guard labelSpans.allSatisfy({ $0.reference == nil && $0.link == nil }) else { throw ParseError.unsupported }
         let title = labelSpans.map(\.text).joined()
-        return MessageEditorSpan(text: "\u{FFFC}", reference: MessageEditorReference(markup: markup, label: "Image: " + title))
+        let reference = MessageEditorReference(markup: markup, label: "Image: " + title, imageName: title, imagePath: path)
+        return MessageEditorSpan(text: "\u{FFFC}", style: style, reference: reference)
     }
 
     private mutating func bracketLabel() throws -> String {

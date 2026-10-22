@@ -51,7 +51,7 @@ extension SendMessageViewModel {
     // MARK: File uploads
 
     func insertFileMention(path: String, fileName: String) {
-        editor.insertMarkup("[\(fileName)](\(path))")
+        editor.insertMarkup(MessageEditorCodec.encode([MessageEditorSpan(text: fileName, link: path)]))
     }
 
     func insertImageMention(path: String, image: UIImage? = nil) {

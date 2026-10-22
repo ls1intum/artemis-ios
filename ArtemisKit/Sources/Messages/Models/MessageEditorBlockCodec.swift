@@ -4,6 +4,7 @@ enum MessageEditorBlockStyle: String {
     case bulletList
     case numberedList
     case codeBlock
+    case quote
 }
 
 struct MessageEditorBlock: Equatable {
@@ -40,7 +41,7 @@ enum MessageEditorBlockCodec {
                 append([MessageEditorSpan(text: body.isEmpty ? "\n" : body, style: .code,
                                           block: MessageEditorBlock(style: .codeBlock, language: opening.info, identifier: codeIdentifier, isEmpty: body.isEmpty))], to: &result)
                 previousWasList = false
-            } else if let marker = listMarker(line) {
+            } else if let marker = listMarker(line) ?? quoteMarker(line) {
                 let preceding = plain.components(separatedBy: "\n")
                 let interrupts = preceding.count > 1 && !preceding[preceding.count - 2].trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                 guard !interrupts || canInterruptParagraph(style: marker.style, line: marker.display, body: marker.body) else { return nil }
@@ -128,13 +129,18 @@ enum MessageEditorBlockCodec {
         return (numbered ? .numberedList : .bulletList, numbered ? number + ". " : "• ", String(text[match.upperBound...]))
     }
 
+    static func quoteMarker(_ text: String) -> (style: MessageEditorBlockStyle, display: String, body: String)? {
+        guard text.hasPrefix(">"), text.count == 1 || text.dropFirst().first == " " || text.dropFirst().first == "\n" else { return nil }
+        return (.quote, "> ", String(text.dropFirst(text.hasPrefix("> ") ? 2 : 1)))
+    }
+
     static func canInterruptParagraph(style: MessageEditorBlockStyle, line: String, body: String) -> Bool {
         !body.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             && (style != .numberedList || Int(line.prefix(while: \.isNumber)) == 1)
     }
 
     static func displayPrefixLength(_ text: String, style: MessageEditorBlockStyle) -> Int {
-        let pattern = style == .bulletList ? #"^• "# : #"^[0-9]{1,9}\. "#
+        let pattern = style == .quote ? #"^> "# : style == .bulletList ? #"^• "# : #"^[0-9]{1,9}\. "#
         return text.range(of: pattern, options: .regularExpression).map { NSRange($0, in: text).length } ?? 0
     }
 

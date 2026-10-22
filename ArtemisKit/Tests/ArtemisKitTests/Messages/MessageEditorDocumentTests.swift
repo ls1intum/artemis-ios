@@ -1,8 +1,54 @@
+import UIKit
 import XCTest
 @testable import Messages
 
 @MainActor
 final class MessageEditorDocumentTests: XCTestCase {
+    func testLinksCannotBeCreatedAcrossParagraphsOrWithMultilineLabels() {
+        for source in ["first\nsecond", "- one\n- two", "> one\n> two"] {
+            let editor = MessageEditorDocument()
+            editor.load(source)
+            editor.selection = NSRange(location: 0, length: editor.content.length)
+            XCTAssertFalse(editor.canSetLink)
+            editor.setLink(label: "link", address: "https://example.org")
+            XCTAssertEqual(editor.markdown, source)
+        }
+        let editor = MessageEditorDocument()
+        editor.setLink(label: "two\nlines", address: "https://example.org")
+        XCTAssertEqual(editor.markdown, "")
+    }
+
+    func testExistingMultilineLinkCanBeConvertedToAListWithoutCorruptingItsMarkdown() {
+        let editor = MessageEditorDocument()
+        editor.load("[first\nsecond](https://example.org)")
+        editor.selection = NSRange(location: 0, length: editor.content.length)
+        editor.toggleBlock(.bulletList)
+        XCTAssertEqual(editor.markdown, "- [first](https://example.org)\n- [second](https://example.org)")
+        let reopened = MessageEditorDocument()
+        reopened.load(editor.markdown)
+        XCTAssertFalse(reopened.hasUnsupportedContent)
+        XCTAssertEqual(reopened.content.string, editor.content.string)
+    }
+
+    func testInlineCodeHasDistinctForegroundAndDisablingItRestoresTextColor() {
+        let document = MessageEditorDocument()
+        document.toggle(.code)
+        XCTAssertEqual(document.typingAttributes[.foregroundColor] as? UIColor, .systemRed)
+        document.insertText("value")
+        XCTAssertEqual(document.content.attribute(.foregroundColor, at: 0, effectiveRange: nil) as? UIColor, .systemRed)
+        document.toggle(.code)
+        XCTAssertEqual(document.typingAttributes[.foregroundColor] as? UIColor, .label)
+    }
+
+    func testQuoteLoadsAsEditableAndPreservesInlineFormattingOnRoundTrip() {
+        let source = "> A **quoted** line\n> Another line\n\nAfter"
+        let document = MessageEditorDocument()
+        document.load(source)
+        XCTAssertFalse(document.hasUnsupportedContent)
+        XCTAssertTrue(document.content.string.contains("quoted"))
+        XCTAssertEqual(MessageEditorCodec.encode(MessageEditorDocument.spans(document.content)), source)
+    }
+
     func testFormattingUsesSelectedDisplayRange() {
         let editor = MessageEditorDocument()
         editor.load("hello world")

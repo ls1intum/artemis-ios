@@ -98,11 +98,15 @@ struct MessageRichTextEditor: UIViewRepresentable {
             applying = wasApplying
         }
 
-        func apply(_ value: NSAttributedString, selection: NSRange) {
+        func apply(_ value: NSAttributedString, selection: NSRange, typingStyle: MessageEditorStyle? = nil) {
             guard !parent.document.hasUnsupportedContent, let view = textView, view.markedTextRange == nil else { return }
             let old = NSAttributedString(attributedString: view.attributedText)
             let oldSelection = view.selectedRange
-            view.undoManager?.registerUndo(withTarget: self) { target in target.apply(old, selection: oldSelection) }
+            let oldTypingStyle = MessageEditorDocument.style(view.typingAttributes)
+            view.undoManager?.registerUndo(withTarget: self) { target in
+                target.apply(old, selection: oldSelection, typingStyle: oldTypingStyle)
+            }
+            if let typingStyle { parent.document.typingStyle = typingStyle }
             applying = true
             view.textStorage.setAttributedString(value)
             view.selectedRange = selection
@@ -173,6 +177,22 @@ final class MessageComposerTextView: UITextView {
     private static let markdownPasteboardType = "de.tum.cit.aet.artemis.message-markdown"
     weak var document: MessageEditorDocument?
 
+    override init(frame: CGRect = .zero, textContainer: NSTextContainer? = nil) {
+        if let textContainer {
+            super.init(frame: frame, textContainer: textContainer)
+        } else {
+            let storage = NSTextStorage()
+            let layout = MessageComposerLayoutManager()
+            let container = NSTextContainer(size: .zero)
+            container.widthTracksTextView = true
+            storage.addLayoutManager(layout)
+            layout.addTextContainer(container)
+            super.init(frame: frame, textContainer: container)
+        }
+    }
+
+    required init?(coder: NSCoder) { super.init(coder: coder) }
+
     func updateTypingTraits(for document: MessageEditorDocument) {
         let code = document.activeBlockStyle == .codeBlock || document.typingStyle.contains(.code)
         let correction: UITextAutocorrectionType = code ? .no : .default
@@ -187,8 +207,28 @@ final class MessageComposerTextView: UITextView {
     }
 
     override var keyCommands: [UIKeyCommand]? {
-        (super.keyCommands ?? []) + [UIKeyCommand(input: UIKeyCommand.inputEscape, modifierFlags: [], action: #selector(dismissComposer))]
+        let undo = UIKeyCommand(input: "z", modifierFlags: .command, action: #selector(undoComposer))
+        let redo = UIKeyCommand(input: "z", modifierFlags: [.command, .shift], action: #selector(redoComposer))
+        undo.wantsPriorityOverSystemBehavior = true
+        redo.wantsPriorityOverSystemBehavior = true
+        let inherited = (super.keyCommands ?? []).filter { !($0.input?.lowercased() == "z" && $0.modifierFlags.contains(.command)) }
+        return inherited + [
+            undo, redo,
+            UIKeyCommand(input: UIKeyCommand.inputEscape, modifierFlags: [], action: #selector(dismissComposer))
+        ]
     }
+
+    override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
+        if action == #selector(undoComposer) { return undoManager?.canUndo == true }
+        if action == #selector(redoComposer) { return undoManager?.canRedo == true }
+        return super.canPerformAction(action, withSender: sender)
+    }
+
+    @objc
+    private func undoComposer(_ sender: UIKeyCommand) { undoManager?.undo() }
+
+    @objc
+    private func redoComposer(_ sender: UIKeyCommand) { undoManager?.redo() }
 
     @objc
     private func dismissComposer() { resignFirstResponder() }

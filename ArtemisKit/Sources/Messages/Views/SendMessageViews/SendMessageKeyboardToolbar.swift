@@ -44,7 +44,6 @@ struct SendMessageKeyboardToolbar<SendButton: View>: View {
                     formatButton(R.string.localizable.italic(), icon: "italic", style: .italic)
                     formatButton(R.string.localizable.underline(), icon: "underline", style: .underline)
                     formatButton(R.string.localizable.strikethrough(), icon: "strikethrough", style: .strikethrough)
-                    formatButton(R.string.localizable.inlineCode(), icon: "curlybraces", style: .code)
                 } label: {
                     toolbarLabel(R.string.localizable.textFormatting(), icon: "textformat")
                 }
@@ -52,14 +51,20 @@ struct SendMessageKeyboardToolbar<SendButton: View>: View {
                     toolbarLabel(R.string.localizable.link(), icon: "link")
                 }
                 .disabled(!viewModel.editor.canSetLink)
-                Button(action: viewModel.didTapAtButton) {
-                    toolbarLabel(R.string.localizable.members(), icon: "at")
+                Menu {
+                    formatButton(R.string.localizable.inlineCode(), icon: "curlybraces", style: .code)
+                    blockMenuButton(R.string.localizable.codeBlock(), icon: "chevron.left.forwardslash.chevron.right", style: .codeBlock)
+                } label: {
+                    toolbarLabel(R.string.localizable.code(), icon: "curlybraces")
                 }
-                .disabled(!viewModel.editor.canFormatInline)
-                Button(action: viewModel.didTapNumberButton) {
-                    toolbarLabel(R.string.localizable.channels(), icon: "number")
+                .accessibilityIdentifier("message-code-menu")
+                Menu {
+                    blockMenuButton(R.string.localizable.unorderedList(), icon: "list.bullet", style: .bulletList)
+                    blockMenuButton(R.string.localizable.orderedList(), icon: "list.number", style: .numberedList)
+                } label: {
+                    toolbarLabel(R.string.localizable.lists(), icon: "list.bullet")
                 }
-                .disabled(!viewModel.editor.canFormatInline)
+                .accessibilityIdentifier("message-lists-menu")
                 Button {
                     withAnimation { viewModel.formattingExpanded.toggle() }
                 } label: {
@@ -71,9 +76,7 @@ struct SendMessageKeyboardToolbar<SendButton: View>: View {
             }
             if viewModel.formattingExpanded {
                 HStack(spacing: 0) {
-                    blockButton(R.string.localizable.unorderedList(), icon: "list.bullet", style: .bulletList)
-                    blockButton(R.string.localizable.orderedList(), icon: "list.number", style: .numberedList)
-                    blockButton(R.string.localizable.codeBlock(), icon: "chevron.left.forwardslash.chevron.right", style: .codeBlock)
+                    blockButton(R.string.localizable.quote(), icon: "text.quote", style: .quote)
                     mentionContentMenu
                         .disabled(!viewModel.editor.canFormatInline)
                     Menu {
@@ -84,12 +87,6 @@ struct SendMessageKeyboardToolbar<SendButton: View>: View {
                     }
                     .disabled(!viewModel.editor.canFormatInline)
                     Spacer(minLength: 0)
-                    Button {
-                        withAnimation { viewModel.editorExpanded.toggle() }
-                    } label: {
-                        toolbarLabel(R.string.localizable.resizeEditor(), icon: viewModel.editorExpanded ? "arrow.down.right.and.arrow.up.left" : "arrow.up.left.and.arrow.down.right")
-                    }
-                    .accessibilityValue(viewModel.editorExpanded ? R.string.localizable.expanded() : R.string.localizable.collapsed())
                 }
             }
         }
@@ -102,13 +99,17 @@ struct SendMessageKeyboardToolbar<SendButton: View>: View {
     }
 
     private func formatButton(_ label: String, icon: String, style: MessageEditorStyle) -> some View {
-        Button {
-            viewModel.editor.toggle(style)
-        } label: {
+        Toggle(isOn: Binding(get: { viewModel.editor.activeStyle.contains(style) }, set: { _ in viewModel.editor.toggle(style) })) {
             Label(label, systemImage: icon)
         }
         .disabled(!viewModel.editor.canFormatInline)
         .accessibilityAddTraits(viewModel.editor.activeStyle.contains(style) ? .isSelected : [])
+    }
+
+    private func blockMenuButton(_ label: String, icon: String, style: MessageEditorBlockStyle) -> some View {
+        Toggle(isOn: Binding(get: { viewModel.editor.activeBlockStyle == style }, set: { _ in viewModel.editor.toggleBlock(style) })) {
+            Label(label, systemImage: icon)
+        }
     }
 
     private func blockButton(_ label: String, icon: String, style: MessageEditorBlockStyle) -> some View {

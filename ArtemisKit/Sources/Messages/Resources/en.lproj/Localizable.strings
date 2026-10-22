@@ -228,3 +228,9 @@
 "linkAddress" = "Link address";
 "removeLink" = "Remove link";
 "saveLink" = "Save link";
+
+"lists" = "Lists";
+"renameAttachment" = "Rename";
+"attachmentName" = "Attachment name";
+"removeAttachment" = "Remove";
+"previewAttachment" = "Preview";

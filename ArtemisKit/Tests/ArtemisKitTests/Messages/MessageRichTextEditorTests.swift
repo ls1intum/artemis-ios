@@ -5,6 +5,31 @@ import XCTest
 
 @MainActor
 final class MessageRichTextEditorTests: XCTestCase {
+    func testCodeBlockBackgroundExtendsBeyondShortTextAndStopsBeforePlainText() throws {
+        let document = MessageEditorDocument()
+        document.load("```\nx\na longer line\n```\n\nPlain text")
+        let view = MessageComposerTextView(frame: CGRect(x: 0, y: 0, width: 320, height: 180))
+        view.backgroundColor = .systemBackground
+        view.document = document
+        view.attributedText = document.content
+        view.layoutIfNeeded()
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        let image = UIGraphicsImageRenderer(size: view.bounds.size, format: format).image { context in
+            view.layer.render(in: context.cgContext)
+        }
+        let cgImage = try XCTUnwrap(image.cgImage)
+        let data = try XCTUnwrap(cgImage.dataProvider?.data)
+        let bytes = try XCTUnwrap(CFDataGetBytePtr(data))
+        func pixel(_ x: Int, _ y: Int) -> [UInt8] {
+            let start = y * cgImage.bytesPerRow + x * (cgImage.bitsPerPixel / 8)
+            return Array(UnsafeBufferPointer(start: bytes + start, count: 3))
+        }
+        XCTAssertNotEqual(pixel(280, 15), pixel(280, 150), "Even the short first code line needs a full-width background")
+        XCTAssertEqual(pixel(280, 15), pixel(280, 35), "Code lines must have a consistent background width")
+        XCTAssertEqual(pixel(280, 80), pixel(280, 150), "Code styling must not extend into the following paragraph")
+    }
+
     func testProgrammaticFocusReconciliationDoesNotWriteSwiftUIState() {
         var focus = true
         var writes = 0

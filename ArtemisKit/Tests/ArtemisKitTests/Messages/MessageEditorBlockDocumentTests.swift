@@ -3,6 +3,107 @@ import XCTest
 
 @MainActor
 final class MessageEditorBlockDocumentTests: XCTestCase {
+    func testMultilinePasteIntoPrefixedBlocksRemainsEditableAfterReopening() {
+        for (source, expected) in [("- Hello", "- Heone\n- twollo"), ("1. Hello", "1. Heone\n2. twollo"), ("> Hello", "> Heone\n> twollo")] {
+            let editor = MessageEditorDocument()
+            editor.load(source)
+            let body = (editor.content.string as NSString).range(of: "Hello")
+            editor.selection = NSRange(location: body.location + 2, length: 0)
+            editor.insertMarkup("one\ntwo")
+            XCTAssertEqual(editor.markdown, expected)
+            let reopened = MessageEditorDocument()
+            reopened.load(editor.markdown)
+            XCTAssertFalse(reopened.hasUnsupportedContent)
+            XCTAssertEqual(reopened.content.string, editor.content.string)
+        }
+    }
+
+    func testInsertingAnOrderedItemRenumbersFollowingItemsAndKeepsTheCaret() {
+        let editor = MessageEditorDocument()
+        editor.load("9. first\n10. second")
+        editor.selection = NSRange(location: 8, length: 0)
+        XCTAssertTrue(editor.handleReplacement(in: editor.selection, text: "\n"))
+        XCTAssertEqual(editor.markdown, "9. first\n10. \n11. second")
+        XCTAssertEqual(editor.selection, NSRange(location: 13, length: 0))
+        editor.insertText("inserted")
+        XCTAssertEqual(editor.markdown, "9. first\n10. inserted\n11. second")
+        let reopened = MessageEditorDocument()
+        reopened.load(editor.markdown)
+        XCTAssertEqual(reopened.content.string, editor.content.string)
+    }
+
+    func testMultilinePasteOverMarkersAndBeforeItemsKeepsConsistentBlocks() {
+        for (source, expected) in [("- Hello", "- one\n- two"), ("1. Hello", "1. one\n2. two"), ("> Hello", "> one\n> two")] {
+            let editor = MessageEditorDocument()
+            editor.load(source)
+            editor.selection = NSRange(location: 0, length: editor.content.length)
+            editor.insertMarkup("one\ntwo")
+            XCTAssertEqual(editor.markdown, expected)
+            editor.load(source)
+            editor.selection = NSRange(location: 0, length: 0)
+            editor.insertMarkup("one\ntwo")
+            XCTAssertEqual(editor.markdown, expected + "Hello")
+            let reopened = MessageEditorDocument()
+            reopened.load(editor.markdown)
+            XCTAssertFalse(reopened.hasUnsupportedContent)
+            XCTAssertEqual(reopened.content.string, editor.content.string)
+        }
+    }
+
+    func testPasteJoiningAListBodyToPlainTextKeepsOneParagraphStyle() {
+        for (source, expected) in [("- first\n\nlast", "- fione\n- twost"), ("1. first\n\nlast", "1. fione\n2. twost"), ("> first\n\nlast", "> fione\n> twost")] {
+            let editor = MessageEditorDocument()
+            editor.load(source)
+            let start = (editor.content.string as NSString).range(of: "rst").location
+            editor.selection = NSRange(location: start, length: 7)
+            editor.insertMarkup("one\ntwo")
+            XCTAssertEqual(editor.markdown, expected)
+            let reopened = MessageEditorDocument()
+            reopened.load(editor.markdown)
+            XCTAssertEqual(reopened.content.string, editor.content.string)
+        }
+    }
+
+    func testForwardDeleteAtBlockBodyStartDoesNotRemoveItsMarker() {
+        for source in ["- Hello", "1. Hello", "> Hello"] {
+            let editor = MessageEditorDocument()
+            editor.load(source)
+            let body = (editor.content.string as NSString).range(of: "Hello")
+            editor.selection = NSRange(location: body.location, length: 0)
+            XCTAssertFalse(editor.handleReplacement(in: NSRange(location: body.location, length: 1), text: ""))
+            XCTAssertEqual(editor.markdown, source)
+        }
+    }
+
+    func testQuoteToolbarPreservesFormattingAndUnicodeWhenToggledOff() {
+        let editor = MessageEditorDocument()
+        editor.load("😀 **one**\ntwo")
+        editor.selection = NSRange(location: 0, length: editor.content.length)
+        editor.toggleBlock(.quote)
+        XCTAssertEqual(editor.markdown, "> 😀 **one**\n> two")
+        XCTAssertEqual(editor.activeBlockStyle, .quote)
+        editor.toggleBlock(.quote)
+        XCTAssertEqual(editor.markdown, "😀 **one**\ntwo")
+        XCTAssertNil(editor.activeBlockStyle)
+    }
+
+    func testTypedQuoteContinuesAndExitsOnEmptyLineOrBackspace() {
+        let editor = MessageEditorDocument()
+        editor.insertText(">")
+        XCTAssertTrue(editor.handleReplacement(in: editor.selection, text: " "))
+        XCTAssertEqual(editor.activeBlockStyle, .quote)
+        editor.insertText("Quoted")
+        XCTAssertTrue(editor.handleReplacement(in: editor.selection, text: "\n"))
+        XCTAssertEqual(editor.markdown, "> Quoted\n> ")
+        XCTAssertTrue(editor.handleReplacement(in: editor.selection, text: "\n"))
+        XCTAssertEqual(editor.markdown, "> Quoted\n\n")
+        XCTAssertNil(editor.activeBlockStyle)
+        editor.toggleBlock(.quote)
+        let caret = editor.selection.location
+        XCTAssertTrue(editor.handleReplacement(in: NSRange(location: caret - 1, length: 1), text: ""))
+        XCTAssertNil(editor.activeBlockStyle)
+    }
+
     func testBulletToolbarPreservesInlineFormattingAndUnicodeSelection() {
         let editor = MessageEditorDocument()
         editor.load("😀 **one**\ntwo")

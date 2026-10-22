@@ -25,7 +25,7 @@ enum MessageEditorCommonMark {
             for character in text {
                 if let payload = references[character] {
                     for var span in payload {
-                        if span.reference == nil { span.style.formUnion(style) }
+                        span.style.formUnion(style)
                         emphasisFound = emphasisFound || !span.style.isDisjoint(with: [.bold, .italic])
                         append(span, to: &spans)
                     }

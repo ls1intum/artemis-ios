@@ -5,6 +5,121 @@ import XCTest
 
 @MainActor
 final class MessageEditorNativeIntegrationTests: XCTestCase {
+    func testEveryInlineStyleCombinationSurvivesNativeTypingAndReopening() async throws {
+        let document = MessageEditorDocument()
+        let (controller, window) = try await host(document)
+        defer { window.isHidden = true }
+        let view = try XCTUnwrap(findEditor(controller.view))
+        let styles: [MessageEditorStyle] = [.bold, .italic, .underline, .strikethrough, .code]
+        for mask in 0..<32 {
+            document.load("Hello 😀")
+            await updateLayout(controller)
+            document.selection = NSRange(location: 0, length: document.content.length)
+            let expected = MessageEditorStyle(rawValue: mask)
+            for style in styles where expected.contains(style) { document.toggle(style) }
+            XCTAssertEqual(document.activeStyle, expected, "Selected style combination \(mask)")
+            XCTAssertEqual(view.attributedText.string, "Hello 😀")
+            let reopened = MessageEditorDocument()
+            reopened.load(document.markdown)
+            XCTAssertFalse(reopened.hasUnsupportedContent, "Combination \(mask): \(document.markdown)")
+            XCTAssertEqual(reopened.content.string, "Hello 😀")
+            reopened.selection = NSRange(location: 0, length: reopened.content.length)
+            XCTAssertEqual(reopened.activeStyle, expected)
+            view.selectedRange = NSRange(location: document.content.length, length: 0)
+            (view.delegate as? MessageRichTextEditor.Coordinator)?.textViewDidChangeSelection(view)
+            view.insertText("!")
+            XCTAssertEqual(document.content.string, "Hello 😀!")
+            XCTAssertEqual(MessageEditorDocument.style(view.attributedText.attributes(at: view.attributedText.length - 1, effectiveRange: nil)), expected)
+        }
+    }
+
+    func testSequentialNativeTypingKeepsEveryCharacterAcrossSwiftUIUpdates() async throws {
+        let document = MessageEditorDocument()
+        let (controller, window) = try await host(document)
+        defer { window.isHidden = true }
+        let view = try XCTUnwrap(findEditor(controller.view))
+        let input = "Hello hello, verified reply edit. let answer = 42 😀"
+        for code in [false, true] {
+            document.load("")
+            if code { document.toggleBlock(.codeBlock) }
+            await updateLayout(controller)
+            // Code blocks retain their terminating paragraph; typing occurs before it.
+            let terminator = code ? "\n" : ""
+            XCTAssertEqual(document.content.string, terminator)
+            var expected = ""
+            for character in input {
+                let next = String(character)
+                view.insertText(next)
+                expected += next
+                await updateLayout(controller)
+                XCTAssertEqual(view.text, expected + terminator, "Native typing must not lose or reorder characters during redraw")
+                XCTAssertEqual(document.content.string, expected + terminator)
+                XCTAssertEqual(view.selectedRange, NSRange(location: (expected as NSString).length, length: 0))
+            }
+            let reopened = MessageEditorDocument()
+            reopened.load(document.markdown)
+            XCTAssertEqual(reopened.content.string, input + terminator)
+            XCTAssertFalse(reopened.hasUnsupportedContent)
+        }
+    }
+
+    func testHardwareUndoAndRedoCommandsRestoreToolbarEdits() async throws {
+        let document = MessageEditorDocument()
+        document.load("Hello")
+        let (controller, window) = try await host(document)
+        defer { window.isHidden = true }
+        let view = try XCTUnwrap(findEditor(controller.view))
+        let manager = try XCTUnwrap(view.undoManager)
+        let undo = try XCTUnwrap(view.keyCommands?.first { $0.input == "z" && $0.modifierFlags == .command })
+        let redo = try XCTUnwrap(view.keyCommands?.first { $0.input == "z" && $0.modifierFlags == [.command, .shift] })
+        let undoAction = try XCTUnwrap(undo.action)
+        XCTAssertEqual(NSStringFromSelector(undoAction), "undoComposer:")
+        let redoAction = try XCTUnwrap(redo.action)
+        manager.removeAllActions()
+        manager.beginUndoGrouping()
+        document.selection = NSRange(location: 0, length: 5)
+        document.toggle(.bold)
+        manager.endUndoGrouping()
+        XCTAssertIdentical(view.undoManager, manager)
+        XCTAssertTrue(view.canPerformAction(undoAction, withSender: undo))
+        XCTAssertTrue(view.responds(to: undoAction))
+        view.perform(undoAction, with: undo)
+        XCTAssertEqual(document.markdown, "Hello")
+        XCTAssertEqual(document.typingStyle, [])
+        XCTAssertEqual(MessageEditorDocument.style(view.typingAttributes), [])
+        XCTAssertTrue(view.canPerformAction(redoAction, withSender: redo))
+        XCTAssertTrue(view.responds(to: redoAction))
+        view.perform(redoAction, with: redo)
+        XCTAssertEqual(document.markdown, "**Hello**")
+        XCTAssertEqual(document.typingStyle, .bold)
+        XCTAssertEqual(MessageEditorDocument.style(view.typingAttributes), .bold)
+    }
+
+    func testAttachmentRenameCanBeUndoneAndRedoneInTheNativeEditor() async throws {
+        for source in ["[original.pdf](/api/files/file.pdf)", "![original](/api/files/image.png)"] {
+            let document = MessageEditorDocument()
+            document.load(source)
+            let (controller, window) = try await host(document)
+            defer { window.isHidden = true }
+            let view = try XCTUnwrap(findEditor(controller.view))
+            let undo = try XCTUnwrap(view.undoManager)
+            undo.removeAllActions()
+            undo.beginUndoGrouping()
+            let attachment = try XCTUnwrap(document.attachments.first)
+            XCTAssertTrue(document.renameAttachment(attachment, to: "Renamed [final]"))
+            undo.endUndoGrouping()
+            let renamed = document.markdown
+            XCTAssertNotEqual(renamed, source)
+            XCTAssertEqual(document.attachments.first?.name, "Renamed [final]")
+            undo.undo()
+            XCTAssertEqual(document.markdown, source)
+            XCTAssertEqual(view.attributedText, document.content)
+            undo.redo()
+            XCTAssertEqual(document.markdown, renamed)
+            XCTAssertEqual(view.attributedText, document.content)
+        }
+    }
+
     func testNativeFormattingMenuRetainsSystemActionsAndSerializesSelectedFormatting() async throws {
         let document = MessageEditorDocument()
         document.load("Hello")
