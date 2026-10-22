@@ -83,13 +83,16 @@ private struct MessageActions: View {
     struct ForwardButton: View {
         @EnvironmentObject var navigationController: NavigationController
         @State private var viewModel: MessageActionsViewModel
+        @Binding private var message: DataState<BaseMessage>
 
         init(viewModel: ConversationViewModel, message: Binding<DataState<BaseMessage>>) {
             _viewModel = State(initialValue: MessageActionsViewModel(conversationViewModel: viewModel, message: message))
+            _message = message
         }
 
         var body: some View {
             Button(R.string.localizable.forwardMessageShort(), systemImage: "arrowshape.turn.up.right") {
+                viewModel.updateMessageBinding($message)
                 viewModel.showForwardSheet = true
             }
             .sheet(isPresented: $viewModel.showForwardSheet) {
@@ -158,14 +161,17 @@ private struct MessageActions: View {
     struct EditDeleteSection: View {
         @EnvironmentObject var navigationController: NavigationController
         @State private var viewModel: MessageActionsViewModel
+        @Binding private var message: DataState<BaseMessage>
 
         init(viewModel: ConversationViewModel, message: Binding<DataState<BaseMessage>>) {
             _viewModel = State(initialValue: MessageActionsViewModel(conversationViewModel: viewModel, message: message))
+            _message = message
         }
 
         var body: some View {
             if viewModel.canEdit {
                 Button(R.string.localizable.editMessage(), systemImage: "pencil") {
+                    viewModel.updateMessageBinding($message)
                     viewModel.showEditSheet = true
                 }
                 .sheet(isPresented: $viewModel.showEditSheet) {

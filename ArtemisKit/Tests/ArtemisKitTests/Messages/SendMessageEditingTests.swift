@@ -1,5 +1,6 @@
 import Common
 import SharedModels
+import SwiftUI
 import XCTest
 @testable import Messages
 
@@ -37,6 +38,26 @@ extension SendMessageDraftTests {
         }
     }
 
+    func testRetainedActionModelUsesTheCurrentBindingWhenReopeningSheets() throws {
+        let composer = makeDraftViewModel(repository: try MessagesRepository(), courseId: 14_000_042)
+        var original = Message(id: 42)
+        original.content = "Before edit"
+        let actions = MessageActionsViewModel(
+            conversationViewModel: ConversationViewModel(course: composer.course, conversation: composer.conversation, skipLoadingData: true),
+            message: .constant(.done(response: original)))
+        var latest = original
+        latest.content = "Accepted edit"
+        latest.answers = [AnswerMessage(id: 7)]
+        var state = DataState<BaseMessage>.done(response: latest)
+        actions.updateMessageBinding(Binding(get: { state }, set: { state = $0 }))
+        XCTAssertEqual(actions.message.value?.content, "Accepted edit", "Reopening forward/edit must use the latest text")
+        XCTAssertEqual((actions.message.value as? Message)?.answers?.map(\.id), [7])
+        var next = latest
+        next.content = "Second edit"
+        actions.message = .done(response: next)
+        XCTAssertEqual(state.value?.content, "Second edit", "The refreshed binding must still publish accepted edits to its owner")
+    }
+
     func testAcceptedEditMergesOnlyContentIntoTheLatestMatchingMessage() throws {
         var latest = Message(id: 42)
         latest.content = "Before"
@@ -60,5 +81,4 @@ extension SendMessageDraftTests {
         XCTAssertNil(MessageActionsViewModel.mergeAcceptedEdit(accepted, into: Message(id: 43)))
         XCTAssertNil(MessageActionsViewModel.mergeAcceptedEdit(accepted, into: answer))
     }
-
 }

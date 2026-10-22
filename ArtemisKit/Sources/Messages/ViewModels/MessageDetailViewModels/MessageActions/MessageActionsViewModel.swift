@@ -79,6 +79,11 @@ class MessageActionsViewModel {
         self._message = message
     }
 
+    /// State retains action models across redraws; refresh the SwiftUI binding before opening a sheet.
+    func updateMessageBinding(_ message: Binding<DataState<BaseMessage>>) {
+        _message = message
+    }
+
     /// Preserve replies, reactions and other updates received while the edit request was pending.
     static func mergeAcceptedEdit(_ updated: BaseMessage, into current: BaseMessage?) -> BaseMessage? {
         guard let current, current.id == updated.id else { return nil }
