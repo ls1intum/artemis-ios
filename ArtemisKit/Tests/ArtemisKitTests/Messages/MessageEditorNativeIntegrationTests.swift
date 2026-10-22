@@ -33,6 +33,36 @@ final class MessageEditorNativeIntegrationTests: XCTestCase {
         }
     }
 
+    func testSequentialNativeTypingKeepsEveryCharacterAcrossSwiftUIUpdates() async throws {
+        let document = MessageEditorDocument()
+        let (controller, window) = try await host(document)
+        defer { window.isHidden = true }
+        let view = try XCTUnwrap(findEditor(controller.view))
+        let input = "Hello hello, verified reply edit. let answer = 42 😀"
+        for code in [false, true] {
+            document.load("")
+            if code { document.toggleBlock(.codeBlock) }
+            await updateLayout(controller)
+            // Code blocks retain their terminating paragraph; typing occurs before it.
+            let terminator = code ? "\n" : ""
+            XCTAssertEqual(document.content.string, terminator)
+            var expected = ""
+            for character in input {
+                let next = String(character)
+                view.insertText(next)
+                expected += next
+                await updateLayout(controller)
+                XCTAssertEqual(view.text, expected + terminator, "Native typing must not lose or reorder characters during redraw")
+                XCTAssertEqual(document.content.string, expected + terminator)
+                XCTAssertEqual(view.selectedRange, NSRange(location: (expected as NSString).length, length: 0))
+            }
+            let reopened = MessageEditorDocument()
+            reopened.load(document.markdown)
+            XCTAssertEqual(reopened.content.string, input + terminator)
+            XCTAssertFalse(reopened.hasUnsupportedContent)
+        }
+    }
+
     func testHardwareUndoAndRedoCommandsRestoreToolbarEdits() async throws {
         let document = MessageEditorDocument()
         document.load("Hello")
