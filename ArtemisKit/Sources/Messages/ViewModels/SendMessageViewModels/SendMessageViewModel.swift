@@ -37,6 +37,7 @@ final class SendMessageViewModel {
     private let messagesRepository: MessagesRepository
     private let messagesService: MessagesService
     private let userSession: UserSession
+    private var hasLoadedContent = false
 
     // MARK: Loading
 
@@ -148,29 +149,30 @@ extension SendMessageViewModel {
     }
 
     func performOnAppear() {
+        // A retained composer can appear again after presenting a sheet or navigating to a thread.
+        guard !hasLoadedContent else { return }
         do {
             switch configuration {
             case .message:
-                if let host = userSession.institution?.baseURL?.host() {
-                    let conversation = try messagesRepository.fetchConversation(
-                        host: host,
-                        courseId: course.id,
-                        conversationId: Int(conversation.id))
-                    text = conversation?.messageDraft ?? ""
-                }
+                guard let host = userSession.institution?.baseURL?.host() else { return }
+                let conversation = try messagesRepository.fetchConversation(
+                    host: host,
+                    courseId: course.id,
+                    conversationId: Int(conversation.id))
+                text = conversation?.messageDraft ?? ""
             case let .answerMessage(message, _):
-                if let host = userSession.institution?.baseURL?.host() {
-                    let message = try messagesRepository.fetchMessage(
-                        host: host,
-                        courseId: course.id,
-                        conversationId: Int(conversation.id),
-                        messageId: Int(message.id))
-                    text = message?.answerMessageDraft ?? ""
-                }
+                guard let host = userSession.institution?.baseURL?.host() else { return }
+                let message = try messagesRepository.fetchMessage(
+                    host: host,
+                    courseId: course.id,
+                    conversationId: Int(conversation.id),
+                    messageId: Int(message.id))
+                text = message?.answerMessageDraft ?? ""
             case let .editMessage(message, _): text = message.content ?? ""
             case let .editAnswerMessage(message, _): text = message.content ?? ""
             case .forwardMessage: text = ""
             }
+            hasLoadedContent = true
         } catch {
             log.error(error)
         }
@@ -178,6 +180,10 @@ extension SendMessageViewModel {
 
     func performOnDisappear() {
         keyboardVisible = false
+        persistDraft()
+    }
+
+    private func persistDraft() {
         guard !editor.hasUnsupportedContent else { return }
         do {
             if let host = userSession.institution?.baseURL?.host() {
@@ -208,24 +214,24 @@ extension SendMessageViewModel {
 
     func didTapSendButton() {
         guard canSend, !isLoading else { return }
+        let sentText = text
         isLoading = true
         Task { @MainActor in
             guard canSend else {
                 isLoading = false
+                persistDraft()
                 return
             }
-            let sentText = text
             var result: NetworkResponse?
             switch configuration {
             case .message, .forwardMessage:
-                await delegate.sendMessage(text)
-                result = .success
+                result = await delegate.sendMessage(sentText) ? .success : .notStarted
                 isLoading = false
-            case let .answerMessage(message, completion):
-                result = await sendAnswerMessage(text: text, for: message, completion: completion)
+            case let .answerMessage(message, _):
+                result = await sendAnswerMessage(text: sentText, for: message)
             case let .editMessage(message, completion):
                 var newMessage = message
-                newMessage.content = text
+                newMessage.content = sentText
                 let success = await editMessage(message: newMessage)
                 isLoading = false
                 if success {
@@ -233,35 +239,34 @@ extension SendMessageViewModel {
                 }
             case let .editAnswerMessage(message, completion):
                 var newMessage = message
-                newMessage.content = text
+                newMessage.content = sentText
                 let success = await editAnswerMessage(answerMessage: newMessage)
                 isLoading = false
                 if success {
                     completion()
                 }
             }
-            switch result {
-            case .success:
-                if text == sentText {
-                    text = ""
-                    uploadedImages = [:]
-                }
-            default:
-                return
+            if case .success = result, text == sentText {
+                text = ""
+                uploadedImages = [:]
+            }
+            // Persist the remaining draft before a thread reload can recreate its composer.
+            // A failed send also keeps any text entered while the request was in flight.
+            persistDraft()
+            if case .success = result, case let .answerMessage(_, completion) = configuration {
+                await completion()
             }
         }
     }
 
-    private func sendAnswerMessage(text: String, for message: Message, completion: () async -> Void) async -> NetworkResponse {
+    private func sendAnswerMessage(text: String, for message: Message) async -> NetworkResponse {
         isLoading = true
         let result = await messagesService.sendAnswerMessage(for: course.id, message: message, content: text)
         switch result {
         case .notStarted, .loading:
             isLoading = false
         case .success:
-            await completion()
             isLoading = false
-            uploadedImages = [:]
         case .failure(let error):
             isLoading = false
             if let apiClientError = error as? APIClientError {

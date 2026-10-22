@@ -35,21 +35,26 @@ The *Push Notification* subsystem handles the registration, notification setting
 ## Message composer
 
 Messages, replies, edits, and forwarding comments share a native rich text composer. Bold,
-italic, underline, strikethrough, inline code, links, and Artemis references are edited in
-place and stored using the existing Markdown message format. The compact toolbar exposes
-bold, italic, links, member and channel completion; More reveals additional formatting,
-resource references, attachments, and an editor size toggle. Backspace first selects a
-reference or link, then removes it on the next press. The clipboard includes readable plain text and a private Markdown representation so
-reference identifiers survive copying between Artemis composers.
+italic, underline, strikethrough, inline code, links, flat bullet/numbered lists, fenced code
+blocks, and Artemis references are edited in place and stored using the existing Markdown
+message format. Inline formatting is available in the native text-selection menu and the
+compact toolbar's formatting menu. More reveals list and code-block buttons, resource
+references, attachments, and an editor size toggle that expands the writing area.
 
-The first implementation intentionally supports inline formatting. Existing messages with
-block formatting (including headings, lists, quotes, fenced code, tables, or unsupported
-HTML or math) show an unsupported-formatting notice. Their original content is preserved,
-and editing, sending, saving and resource actions are blocked; existing edit sheets can be
-cancelled. For saved message or reply drafts, Discard draft clears only that draft and
-restores composing. Pasting supported Markdown produces formatted content, while unsupported pasted
-syntax is inserted as literal text. Sending and saving drafts continue to use the existing
-message, answer, and conversation services.
+Typing `- ` or `1. ` starts a list. Return continues the list; Return on an empty item or
+Backspace at its start returns to ordinary text. Code typing disables automatic correction,
+capitalization, and smart punctuation. In a code block, Markdown stays literal;
+Return on its final empty line exits the block. Backspace first selects a reference or link,
+then removes it on the next press. The clipboard includes readable plain text and a private
+Markdown representation so reference identifiers survive copying between Artemis composers.
+
+Headings, quotes, nested/task lists, tables, unsupported HTML, and math remain read-only.
+Their original content is preserved, and editing, sending, saving and resource actions are
+blocked; existing edit sheets can be cancelled. For saved message or reply drafts, Discard
+draft clears only that draft and restores composing. Pasting supported Markdown produces
+formatted content, while unsupported pasted syntax is inserted as literal text. Drafts are
+restored when reopening a conversation or thread. Sending preserves any newer text entered
+while the request is in flight and clears the saved draft only after acceptance.
 
 Reference pills use the appearance and text size from when their content is loaded. Changing
 appearance or Dynamic Type while the same draft remains open does not currently redraw

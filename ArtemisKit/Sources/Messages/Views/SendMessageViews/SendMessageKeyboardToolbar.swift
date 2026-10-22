@@ -6,10 +6,12 @@
 //
 
 import Navigation
+import SharedModels
 import SwiftUI
 
 struct SendMessageKeyboardToolbar<SendButton: View>: View {
     @Environment(\.availableTabs) private var tabs
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
 
     let sendButton: SendButton
     @Bindable var viewModel: SendMessageViewModel
@@ -18,57 +20,85 @@ struct SendMessageKeyboardToolbar<SendButton: View>: View {
     let uploadImageViewModel: SendMessageUploadImageViewModel
 
     var body: some View {
-        VStack(spacing: .s) {
-            HStack(spacing: .m) {
-                formatButton(R.string.localizable.bold(), icon: "bold", style: .bold)
-                formatButton(R.string.localizable.italic(), icon: "italic", style: .italic)
+        Group {
+            if verticalSizeClass == .compact {
+                ScrollView(.horizontal) { toolbarContent }
+                    .scrollIndicators(.hidden)
+            } else {
+                toolbarContent
+            }
+        }
+        .labelStyle(.iconOnly)
+        .font(.body)
+        .buttonStyle(.borderless)
+        .padding(.horizontal, .m)
+        .disabled(viewModel.editor.hasUnsupportedContent)
+    }
+
+    private var toolbarContent: some View {
+        let layout = verticalSizeClass == .compact ? AnyLayout(HStackLayout(spacing: 0)) : AnyLayout(VStackLayout(spacing: 0))
+        return layout {
+            HStack(spacing: 0) {
+                Menu {
+                    formatButton(R.string.localizable.bold(), icon: "bold", style: .bold)
+                    formatButton(R.string.localizable.italic(), icon: "italic", style: .italic)
+                    formatButton(R.string.localizable.underline(), icon: "underline", style: .underline)
+                    formatButton(R.string.localizable.strikethrough(), icon: "strikethrough", style: .strikethrough)
+                    formatButton(R.string.localizable.inlineCode(), icon: "curlybraces", style: .code)
+                } label: {
+                    toolbarLabel(R.string.localizable.textFormatting(), icon: "textformat")
+                }
                 Button(action: viewModel.didTapLinkButton) {
-                    Label(R.string.localizable.link(), systemImage: "link")
+                    toolbarLabel(R.string.localizable.link(), icon: "link")
                 }
                 .disabled(!viewModel.editor.canSetLink)
                 Button(action: viewModel.didTapAtButton) {
-                    Label(R.string.localizable.members(), systemImage: "at")
+                    toolbarLabel(R.string.localizable.members(), icon: "at")
                 }
+                .disabled(!viewModel.editor.canFormatInline)
                 Button(action: viewModel.didTapNumberButton) {
-                    Label(R.string.localizable.channels(), systemImage: "number")
+                    toolbarLabel(R.string.localizable.channels(), icon: "number")
                 }
+                .disabled(!viewModel.editor.canFormatInline)
                 Button {
                     withAnimation { viewModel.formattingExpanded.toggle() }
                 } label: {
-                    Label(R.string.localizable.moreFormatting(), systemImage: viewModel.formattingExpanded ? "chevron.up" : "ellipsis")
+                    toolbarLabel(R.string.localizable.moreFormatting(), icon: viewModel.formattingExpanded ? "chevron.up" : "ellipsis")
                 }
                 .accessibilityValue(viewModel.formattingExpanded ? R.string.localizable.expanded() : R.string.localizable.collapsed())
                 Spacer(minLength: 0)
                 sendButton
             }
             if viewModel.formattingExpanded {
-                HStack(spacing: .l) {
-                    formatButton(R.string.localizable.underline(), icon: "underline", style: .underline)
-                    formatButton(R.string.localizable.strikethrough(), icon: "strikethrough", style: .strikethrough)
-                    formatButton(R.string.localizable.inlineCode(), icon: "curlybraces", style: .code)
+                HStack(spacing: 0) {
+                    blockButton(R.string.localizable.unorderedList(), icon: "list.bullet", style: .bulletList)
+                    blockButton(R.string.localizable.orderedList(), icon: "list.number", style: .numberedList)
+                    blockButton(R.string.localizable.codeBlock(), icon: "chevron.left.forwardslash.chevron.right", style: .codeBlock)
                     mentionContentMenu
+                        .disabled(!viewModel.editor.canFormatInline)
                     Menu {
                         SendMessageImagePickerView(viewModel: uploadImageViewModel)
                         SendMessageFilePickerView(viewModel: uploadFileViewModel)
                     } label: {
-                        Label(R.string.localizable.attachments(), systemImage: "paperclip")
+                        toolbarLabel(R.string.localizable.attachments(), icon: "paperclip")
                     }
+                    .disabled(!viewModel.editor.canFormatInline)
                     Spacer(minLength: 0)
                     Button {
                         withAnimation { viewModel.editorExpanded.toggle() }
                     } label: {
-                        Label(R.string.localizable.resizeEditor(), systemImage: viewModel.editorExpanded ? "arrow.down.right.and.arrow.up.left" : "arrow.up.left.and.arrow.down.right")
+                        toolbarLabel(R.string.localizable.resizeEditor(), icon: viewModel.editorExpanded ? "arrow.down.right.and.arrow.up.left" : "arrow.up.left.and.arrow.down.right")
                     }
+                    .accessibilityValue(viewModel.editorExpanded ? R.string.localizable.expanded() : R.string.localizable.collapsed())
                 }
-                .padding(.top, .s)
             }
         }
-        .labelStyle(.iconOnly)
-        .font(.body)
-        .buttonStyle(.borderless)
-        .padding(.horizontal, .l)
-        .padding(.vertical, .m)
-        .disabled(viewModel.editor.hasUnsupportedContent)
+    }
+
+    private func toolbarLabel(_ title: String, icon: String) -> some View {
+        Label(title, systemImage: icon)
+            .frame(width: 44, height: 44)
+            .contentShape(.rect)
     }
 
     private func formatButton(_ label: String, icon: String, style: MessageEditorStyle) -> some View {
@@ -76,11 +106,19 @@ struct SendMessageKeyboardToolbar<SendButton: View>: View {
             viewModel.editor.toggle(style)
         } label: {
             Label(label, systemImage: icon)
-                .frame(minWidth: 28, minHeight: 28)
-                .background(viewModel.editor.activeStyle.contains(style) ? Color.accentColor.opacity(0.15) : Color.clear, in: .rect(cornerRadius: 4))
         }
-        .disabled(viewModel.editor.hasUnsupportedContent)
+        .disabled(!viewModel.editor.canFormatInline)
         .accessibilityAddTraits(viewModel.editor.activeStyle.contains(style) ? .isSelected : [])
+    }
+
+    private func blockButton(_ label: String, icon: String, style: MessageEditorBlockStyle) -> some View {
+        Button {
+            viewModel.editor.toggleBlock(style)
+        } label: {
+            toolbarLabel(label, icon: icon)
+                .background(viewModel.editor.activeBlockStyle == style ? Color.accentColor.opacity(0.15) : Color.clear, in: .rect(cornerRadius: 8))
+        }
+        .accessibilityAddTraits(viewModel.editor.activeBlockStyle == style ? .isSelected : [])
     }
 
     var mentionContentMenu: some View {
@@ -113,7 +151,7 @@ struct SendMessageKeyboardToolbar<SendButton: View>: View {
                 }
             }
         } label: {
-            Label(R.string.localizable.mention(), systemImage: "plus.circle.fill")
+            toolbarLabel(R.string.localizable.mention(), icon: "plus.circle.fill")
         }
     }
 }

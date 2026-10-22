@@ -20,7 +20,7 @@ struct ForwardMessageView: View {
         let course = viewModel.conversationViewModel.course
         let conversation = viewModel.conversationViewModel.conversation
         let delegate = SendMessageViewModelDelegate(presentError: viewModel.conversationViewModel.presentError,
-                                                    sendMessage: viewModel.forwardMessage)
+                                                    sendMessageWithResult: viewModel.forwardMessage)
 
         _sendViewModel = State(initialValue: SendMessageViewModel(course: course,
                                                                   conversation: conversation,

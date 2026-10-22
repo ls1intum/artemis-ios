@@ -18,6 +18,7 @@ struct SendMessageView: View {
     @State private var uploadImageViewModel: SendMessageUploadImageViewModel
 
     @State private var isFocused = false
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
 
     init(viewModel: SendMessageViewModel) {
         self._viewModel = State(initialValue: viewModel)
@@ -27,9 +28,7 @@ struct SendMessageView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            if viewModel.isEditing {
-                Spacer()
-            } else {
+            if !viewModel.isEditing {
                 Divider()
             }
 
@@ -38,19 +37,13 @@ struct SendMessageView: View {
                     .fontWeight(.semibold)
                     .padding(.horizontal, .l)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.bottom, isFocused ? .m : .m * -1)
+                    .padding(.top, .m)
             }
 
             mentions
-            if isFocused && !viewModel.isEditing {
-                Capsule()
-                    .fill(Color.secondary)
-                    .frame(width: .xl, height: .s)
-                    .padding(.vertical, .m)
-            }
             textField
-                .padding(isFocused ? .horizontal : [.horizontal, .top], .l)
-                .padding(.bottom, .m)
+                .padding(.horizontal, .l)
+                .padding(.vertical, .s)
             if !viewModel.editor.hasUnsupportedContent {
                 ImageAttachmentsPreview(viewModel: viewModel)
             }
@@ -60,7 +53,6 @@ struct SendMessageView: View {
                                            uploadFileViewModel: uploadFileViewModel,
                                            uploadImageViewModel: uploadImageViewModel)
                     .background(.bar)
-                    .padding(.top, .s)
             }
         }
         .onChange(of: isFocused, initial: true) {
@@ -141,18 +133,23 @@ private extension SendMessageView {
     @ViewBuilder var mentions: some View {
         if let presentation = viewModel.conditionalPresentation {
             VStack(spacing: 0) {
-                switch presentation {
-                case .memberPicker:
-                    SendMessageMentionMemberView(
-                        viewModel: SendMessageMentionMemberViewModel(course: viewModel.course),
-                        sendMessageViewModel: viewModel
-                    )
-                case .channelPicker:
-                    SendMessageMentionChannelView(
-                        viewModel: SendMessageMentionChannelViewModel(course: viewModel.course),
-                        sendMessageViewModel: viewModel
-                    )
+                Group {
+                    switch presentation {
+                    case .memberPicker:
+                        SendMessageMentionMemberView(
+                            viewModel: SendMessageMentionMemberViewModel(course: viewModel.course),
+                            sendMessageViewModel: viewModel
+                        )
+                    case .channelPicker:
+                        SendMessageMentionChannelView(
+                            viewModel: SendMessageMentionChannelViewModel(course: viewModel.course),
+                            sendMessageViewModel: viewModel
+                        )
+                    }
                 }
+                .frame(height: verticalSizeClass == .compact ? 76 : 144)
+                .clipped()
+                .layoutPriority(1)
                 if !viewModel.isEditing {
                     Divider()
                 }
@@ -161,7 +158,7 @@ private extension SendMessageView {
     }
 
     var textField: some View {
-        HStack(alignment: .bottom) {
+        HStack(alignment: .center, spacing: .s) {
             let conversationName = viewModel.isEditing ? "" : viewModel.conversation.baseConversation.conversationName
             let placeholder = if case .answerMessage = viewModel.configuration {
                 R.string.localizable.replyAction()
@@ -180,19 +177,22 @@ private extension SendMessageView {
                     }
                 } else {
                     MessageRichTextEditor(document: viewModel.editor, placeholder: placeholder,
-                                          isFocused: $isFocused, expanded: viewModel.editorExpanded)
+                                          isFocused: $isFocused, expanded: viewModel.editorExpanded,
+                                          showsCompletions: viewModel.conditionalPresentation != nil)
                         .overlay(alignment: .topLeading) {
                             if viewModel.text.isEmpty {
                                 Text(placeholder)
+                                    .font(.body)
+                                    .lineLimit(1)
                                     .foregroundStyle(.tertiary)
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 8)
+                                    .padding(.horizontal, 9)
+                                    .padding(.vertical, 12)
                                     .allowsHitTesting(false)
                             }
                         }
                 }
             }
-            if !isFocused {
+            if !isFocused && !viewModel.keyboardVisible {
                 sendButton
             }
         }
@@ -202,9 +202,11 @@ private extension SendMessageView {
         Button(action: viewModel.didTapSendButton) {
             Image(systemName: "paperplane.fill")
                 .imageScale(.large)
+                .frame(width: 44, height: 44)
+                .contentShape(.rect)
         }
         .keyboardShortcut(.return, modifiers: .command)
-        .padding(isFocused ? .trailing : .leading, .l)
+        .accessibilityLabel(R.string.localizable.sendMessage())
         .disabled(!viewModel.canSend)
         .loadingIndicator(isLoading: $viewModel.isLoading)
     }

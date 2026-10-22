@@ -70,7 +70,7 @@ final class MessageEditorCodecTests: XCTestCase {
 
     func testUnsupportedOrAmbiguousSourceIsRejected() {
         let sources = [
-            "# Heading", "- list item", "1. numbered", "> quote", "```swift\ncode\n```",
+            "# Heading", "> quote", "- parent\n  - nested", "1. item\n   continuation", "- [ ] task",
             "| a | b |\n| --- | --- |", "heading\n===", "    indented code",
             "<em>legacy</em>", "[label](url \"title\")", "[reference][id]", "[id]: /target",
             "**unfinished", "[unknown]title(1)[/unknown]", "[user]malformed[/user]", "~~unfinished"
@@ -203,6 +203,81 @@ final class MessageEditorCodecTests: XCTestCase {
             for second in styles {
                 for third in styles { try assertEmphasisRoundTrip([first, second, third]) }
             }
+        }
+    }
+
+    func testLiteralLoneBlockMarkersAreEscapedOnTheWire() {
+        for (text, source) in [("-", "\\-"), ("+", "\\+"), ("before\n=", "before\n\\=")] {
+            let spans = [MessageEditorSpan(text: text)]
+            XCTAssertEqual(MessageEditorCodec.encode(spans), source)
+            XCTAssertEqual(MessageEditorCodec.decode(source), spans)
+        }
+        XCTAssertNil(MessageEditorCodec.decode("-"))
+        XCTAssertNil(MessageEditorCodec.decode("+"))
+        XCTAssertNil(MessageEditorCodec.decode("Heading\n-"))
+    }
+
+    func testAmbiguousParagraphListInterruptionsRemainReadOnly() {
+        for source in ["before\n- ", "before\n- \n", "before\n4. item", "before\n0. item", "before\n1. "] {
+            XCTAssertNil(MessageEditorCodec.decode(source), source)
+        }
+        for source in ["before\n- item", "before\n1. item", "before\n\n- ", "before\n\n4. item"] {
+            XCTAssertNotNil(MessageEditorCodec.decode(source), source)
+        }
+    }
+
+    func testFlatListsReopenWithInlineFormattingAndAtomicReferences() throws {
+        let source = "- **one**\n- [user]Alice(alice)[/user]\n\n3. three\n4. four"
+        let spans = try XCTUnwrap(MessageEditorCodec.decode(source))
+        XCTAssertEqual(spans.map(\.text).joined(), "• one\n• \u{fffc}\n\n3. three\n4. four")
+        XCTAssertEqual(spans.filter { $0.style.contains(.bold) }.map(\.text), ["one"])
+        XCTAssertEqual(spans.compactMap { $0.reference?.markup }, ["[user]Alice(alice)[/user]"])
+        XCTAssertEqual(MessageEditorCodec.encode(spans), source)
+        XCTAssertEqual(MessageEditorCodec.decode(MessageEditorCodec.encode(spans)), spans)
+    }
+
+    func testFencedCodePreservesLiteralMarkdownLanguageAndNewlines() throws {
+        let source = "Before\n\n````swift\nlet x = `value`\n**literal** $math$ [user]Alice(alice)[/user]\n```\n\n````\nAfter"
+        let spans = try XCTUnwrap(MessageEditorCodec.decode(source))
+        XCTAssertEqual(spans.map(\.text).joined(), "Before\n\nlet x = `value`\n**literal** $math$ [user]Alice(alice)[/user]\n```\n\nAfter")
+        XCTAssertTrue(spans.compactMap(\.reference).isEmpty)
+        let encoded = MessageEditorCodec.encode(spans)
+        XCTAssertEqual(MessageEditorCodec.decode(encoded), spans)
+        XCTAssertTrue(encoded.contains("````swift\nlet x"))
+        XCTAssertTrue(encoded.contains("**literal** $math$"))
+    }
+
+    func testIndentedFenceLinesStayLiteralCodeContents() throws {
+        for indent in ["    ", "\t", "\u{00a0}"] {
+            XCTAssertNil(MessageEditorCodec.decode("```\nline\n" + indent + "```"))
+            let spans = try XCTUnwrap(MessageEditorCodec.decode("```\nline\n" + indent + "```\n```"))
+            XCTAssertEqual(spans.map(\.text).joined(), "line\n" + indent + "```\n")
+            XCTAssertEqual(MessageEditorCodec.decode(MessageEditorCodec.encode(spans)), spans)
+        }
+    }
+
+    func testTildeFenceWithBacktickInInfoRemainsSupportedAfterSave() throws {
+        let spans = try XCTUnwrap(MessageEditorCodec.decode("~~~a`b\ncode\n~~~"))
+        let encoded = MessageEditorCodec.encode(spans)
+        XCTAssertEqual(MessageEditorCodec.decode(encoded), spans)
+        XCTAssertEqual(encoded, "~~~a`b\ncode\n~~~")
+    }
+
+    func testEmptyCodeFenceDoesNotAddLiteralBlankLine() throws {
+        let spans = try XCTUnwrap(MessageEditorCodec.decode("```\n```"))
+        XCTAssertEqual(MessageEditorCodec.encode(spans), "```\n```")
+    }
+
+    func testFencedCodeMayUseTildesAndEmptyContent() throws {
+        for source in ["~~~python\nx = 1\n~~~", "```\n```", "```\nline\r\n\r\n```"] {
+            let spans = try XCTUnwrap(MessageEditorCodec.decode(source), source)
+            XCTAssertEqual(MessageEditorCodec.decode(MessageEditorCodec.encode(spans)), spans, source)
+        }
+    }
+
+    func testUnclosedFenceAndUnsupportedListStructureArePreservedSafely() {
+        for source in ["```swift\nunfinished", "- one\nparagraph", "- one\n\n  continuation", "- # heading", "- [x] task"] {
+            XCTAssertNil(MessageEditorCodec.decode(source), source)
         }
     }
 

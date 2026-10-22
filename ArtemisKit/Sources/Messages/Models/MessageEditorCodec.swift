@@ -20,18 +20,31 @@ struct MessageEditorSpan: Equatable {
     var style: MessageEditorStyle = []
     var link: String?
     var reference: MessageEditorReference?
+    var block: MessageEditorBlock?
 }
 
 /// A deliberately small inline Markdown dialect. Unsupported content cannot be edited;
 /// returning nil prevents changing a legacy message while hydrating an edit or draft.
 struct MessageEditorCodec {
     static func decode(_ markdown: String) -> [MessageEditorSpan]? {
+        if markdown.range(of: #"(?m)^(?:[-+*] |[0-9]{1,9}[.)] |`{3,}|~{3,})"#, options: .regularExpression) != nil {
+            return MessageEditorBlockCodec.decode(markdown, inline: decodeInline)
+        }
+        return decodeInline(markdown)
+    }
+
+    private static func decodeInline(_ markdown: String) -> [MessageEditorSpan]? {
         guard !hasUnsupportedBlock(markdown) else { return nil }
         var parser = MessageEditorInlineParser(markdown)
         return (try? parser.parse()) ?? MessageEditorCommonMark.decode(markdown)
     }
 
     static func encode(_ spans: [MessageEditorSpan]) -> String {
+        if spans.contains(where: { $0.block != nil }) { return MessageEditorBlockCodec.encode(spans, inline: encodeInline) }
+        return encodeInline(spans)
+    }
+
+    private static func encodeInline(_ spans: [MessageEditorSpan]) -> String {
         var result = ""
         var pending: [MessageEditorSpan] = []
         func flush() {
@@ -136,7 +149,7 @@ struct MessageEditorCodec {
             var startsBlock = false
             if atLineStart && "#-+!=".contains(character) {
                 startsBlock = String(characters[offset...]).range(
-                    of: #"^(?:#{1,6}(?:\s|$)|[-+!]\s|[-=]{2,}(?:\s|$))"#,
+                    of: #"^(?:#{1,6}(?:\s|$)|[-+](?:\s|$)|!\s|=[ \t]*(?:\r?\n|$)|[-=]{2,}(?:\s|$))"#,
                     options: .regularExpression) != nil
             }
             let startsNumberedList = (character == "." || character == ")")
@@ -164,7 +177,8 @@ struct MessageEditorCodec {
     }
 
     private static func hasUnsupportedBlock(_ text: String) -> Bool {
-        let pattern = #"(?m)^(?: {0,3}(?:#{1,6}(?:\s|$)|>|[-+*]\s|\d+[.)]\s|`{3,}[^`\r\n]*$|~{3}|\||\[[^\]\n]+\]:|(?:[-*_]\s*){3,}$|[=-]+\s*$)|(?: {4}|\t)\S)"#
-        return text.range(of: pattern, options: .regularExpression) != nil
+        let pattern = #"(?m)^(?: {0,3}(?:#{1,6}(?:\s|$)|>|[-+](?:\s|$)|\*\s|\d+[.)]\s|`{3,}[^`\r\n]*$|~{3}|\||\[[^\]\n]+\]:|(?:[-*_]\s*){3,}$)|(?: {4}|\t)\S)"#
+        let setext = #"(?m)^.*\S.*\r?\n {0,3}[=-]+[ \t]*\r?$"#
+        return text.range(of: pattern, options: .regularExpression) != nil || text.range(of: setext, options: .regularExpression) != nil
     }
 }

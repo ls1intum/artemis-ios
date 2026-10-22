@@ -7,28 +7,42 @@ struct MessageRichTextEditor: UIViewRepresentable {
     var placeholder: String
     @Binding var isFocused: Bool
     var expanded: Bool
+    var showsCompletions = false
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
 
     func makeCoordinator() -> Coordinator { Coordinator(self) }
 
     func makeUIView(context: Context) -> MessageComposerTextView {
         let view = MessageComposerTextView()
-        view.delegate = context.coordinator
         view.document = document
         view.isEditable = !document.hasUnsupportedContent
         view.backgroundColor = .secondarySystemBackground
         view.layer.cornerRadius = 8
-        view.textContainerInset = UIEdgeInsets(top: 8, left: 4, bottom: 8, right: 4)
+        view.textContainerInset = UIEdgeInsets(top: 12, left: 4, bottom: 12, right: 4)
         view.adjustsFontForContentSizeCategory = true
         view.allowsEditingTextAttributes = false
         view.accessibilityIdentifier = "message-rich-text-editor"
         view.accessibilityLabel = placeholder
         view.font = .preferredFont(forTextStyle: .body)
+        view.attributedText = document.content
+        view.selectedRange = document.selection
+        view.typingAttributes = document.typingAttributes
+        view.updateTypingTraits(for: document)
+        view.delegate = context.coordinator
         context.coordinator.textView = view
         document.applyEdit = { [weak coordinator = context.coordinator] value, range in coordinator?.apply(value, selection: range) }
+        document.applyTypingAttributes = { [weak coordinator = context.coordinator] in coordinator?.refreshTypingAttributes() }
         return view
     }
 
     func updateUIView(_ view: MessageComposerTextView, context: Context) {
+        if view.document !== document {
+            view.document?.applyEdit = nil
+            view.document?.applyTypingAttributes = nil
+            view.document = document
+            document.applyEdit = { [weak coordinator = context.coordinator] value, range in coordinator?.apply(value, selection: range) }
+            document.applyTypingAttributes = { [weak coordinator = context.coordinator] in coordinator?.refreshTypingAttributes() }
+        }
         context.coordinator.parent = self
         guard view.markedTextRange == nil else { return }
         context.coordinator.applying = true
@@ -39,7 +53,8 @@ struct MessageRichTextEditor: UIViewRepresentable {
             view.invalidateIntrinsicContentSize()
         }
         if view.selectedRange != document.selection { view.selectedRange = document.selection }
-        view.typingAttributes = MessageEditorDocument.attributes(document.typingStyle)
+        view.typingAttributes = document.typingAttributes
+        view.updateTypingTraits(for: document)
         view.accessibilityLabel = placeholder
         if isFocused && !document.hasUnsupportedContent && !view.isFirstResponder {
             view.becomeFirstResponder()
@@ -51,11 +66,19 @@ struct MessageRichTextEditor: UIViewRepresentable {
     func sizeThatFits(_ proposal: ProposedViewSize, uiView: MessageComposerTextView, context: Context) -> CGSize? {
         let width = proposal.width ?? 300
         let measured = uiView.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude))
-        return CGSize(width: width, height: min(expanded ? 320 : 160, max(44, measured.height)))
+        let compact = verticalSizeClass == .compact
+        let maximum: CGFloat = showsCompletions ? (compact ? 44 : 80) : expanded ? (compact ? 120 : 320) : (compact ? 80 : 160)
+        let minimum: CGFloat = expanded && !showsCompletions ? (compact ? 100 : 200) : 44
+        // VStack probes with zero height to learn our minimum. Honouring that proposal here
+        // would report 44 points even when expanded, preventing it from allocating writing space.
+        return CGSize(width: width, height: min(maximum, max(minimum, measured.height)))
     }
 
     static func dismantleUIView(_ uiView: MessageComposerTextView, coordinator: Coordinator) {
-        coordinator.parent.document.applyEdit = nil
+        uiView.delegate = nil
+        uiView.document?.applyEdit = nil
+        uiView.document?.applyTypingAttributes = nil
+        uiView.document = nil
     }
 
     @MainActor
@@ -66,6 +89,15 @@ struct MessageRichTextEditor: UIViewRepresentable {
 
         init(_ parent: MessageRichTextEditor) { self.parent = parent }
 
+        func refreshTypingAttributes() {
+            guard let view = textView, view.markedTextRange == nil else { return }
+            let wasApplying = applying
+            applying = true
+            view.typingAttributes = parent.document.typingAttributes
+            view.updateTypingTraits(for: parent.document)
+            applying = wasApplying
+        }
+
         func apply(_ value: NSAttributedString, selection: NSRange) {
             guard !parent.document.hasUnsupportedContent, let view = textView, view.markedTextRange == nil else { return }
             let old = NSAttributedString(attributedString: view.attributedText)
@@ -75,7 +107,8 @@ struct MessageRichTextEditor: UIViewRepresentable {
             view.textStorage.setAttributedString(value)
             view.selectedRange = selection
             parent.document.accept(value, selection: selection)
-            view.typingAttributes = MessageEditorDocument.attributes(parent.document.typingStyle)
+            view.typingAttributes = parent.document.typingAttributes
+            view.updateTypingTraits(for: parent.document)
             view.invalidateIntrinsicContentSize()
             applying = false
         }
@@ -83,21 +116,44 @@ struct MessageRichTextEditor: UIViewRepresentable {
         func textViewDidChange(_ textView: UITextView) {
             guard !applying, textView.markedTextRange == nil else { return }
             parent.document.accept(textView.attributedText, selection: textView.selectedRange)
+            textView.typingAttributes = parent.document.typingAttributes
             textView.invalidateIntrinsicContentSize()
         }
 
         func textViewDidChangeSelection(_ textView: UITextView) {
             guard !applying, textView.markedTextRange == nil else { return }
-            parent.document.selection = textView.selectedRange
+            let moved = parent.document.selection != textView.selectedRange
+            // UIKit can advance the caret before textViewDidChange. Derive the next typing
+            // attributes from the new content rather than an out-of-bounds old selection.
+            let edited = !parent.document.content.isEqual(to: textView.attributedText)
+            if edited {
+                parent.document.accept(textView.attributedText, selection: textView.selectedRange)
+            } else {
+                parent.document.selection = textView.selectedRange
+            }
             if textView.selectedRange.length == 0 {
-                parent.document.typingStyle = MessageEditorDocument.style(textView.typingAttributes)
-                // Never continue reference/link attributes when typing beyond an atom.
-                textView.typingAttributes = MessageEditorDocument.attributes(parent.document.typingStyle)
+                if moved && !edited, textView.attributedText.length > 0 {
+                    let caret = textView.selectedRange.location
+                    let paragraph = (textView.attributedText.string as NSString).paragraphRange(for: textView.selectedRange)
+                    let index = caret == paragraph.location ? caret : caret - 1
+                    parent.document.typingStyle = index < textView.attributedText.length
+                        ? MessageEditorDocument.style(textView.attributedText.attributes(at: index, effectiveRange: nil)) : []
+                }
+                // Preserve an explicitly selected typing style across native attribute normalization,
+                // while never continuing reference/link attributes beyond an atom.
+                textView.typingAttributes = parent.document.typingAttributes
             }
         }
 
-        func textViewDidBeginEditing(_ textView: UITextView) { parent.isFocused = true }
-        func textViewDidEndEditing(_ textView: UITextView) { parent.isFocused = false }
+        func textViewDidBeginEditing(_ textView: UITextView) {
+            guard !applying, !parent.isFocused else { return }
+            parent.isFocused = true
+        }
+
+        func textViewDidEndEditing(_ textView: UITextView) {
+            guard !applying, parent.isFocused else { return }
+            parent.isFocused = false
+        }
 
         func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
             guard !parent.document.hasUnsupportedContent else { return false }
@@ -107,7 +163,7 @@ struct MessageRichTextEditor: UIViewRepresentable {
                 parent.document.selection = atom
                 return false
             }
-            return true
+            return !parent.document.handleReplacement(in: range, text: text)
         }
     }
 }
@@ -116,6 +172,19 @@ struct MessageRichTextEditor: UIViewRepresentable {
 final class MessageComposerTextView: UITextView {
     private static let markdownPasteboardType = "de.tum.cit.aet.artemis.message-markdown"
     weak var document: MessageEditorDocument?
+
+    func updateTypingTraits(for document: MessageEditorDocument) {
+        let code = document.activeBlockStyle == .codeBlock || document.typingStyle.contains(.code)
+        let correction: UITextAutocorrectionType = code ? .no : .default
+        guard autocorrectionType != correction else { return }
+        autocorrectionType = correction
+        autocapitalizationType = code ? .none : .sentences
+        spellCheckingType = code ? .no : .default
+        smartQuotesType = code ? .no : .default
+        smartDashesType = code ? .no : .default
+        smartInsertDeleteType = code ? .no : .default
+        if isFirstResponder { reloadInputViews() }
+    }
 
     override var keyCommands: [UIKeyCommand]? {
         (super.keyCommands ?? []) + [UIKeyCommand(input: UIKeyCommand.inputEscape, modifierFlags: [], action: #selector(dismissComposer))]

@@ -4,6 +4,10 @@ import UIKit
 
 extension NSAttributedString.Key {
     static let messageStyle = NSAttributedString.Key("artemis.message.style")
+    static let messageBlock = NSAttributedString.Key("artemis.message.block")
+    static let messageCodeLanguage = NSAttributedString.Key("artemis.message.code.language")
+    static let messageCodeIdentifier = NSAttributedString.Key("artemis.message.code.identifier")
+    static let messageCodeEmpty = NSAttributedString.Key("artemis.message.code.empty")
 }
 
 /// The attributed display document is separate from the Markdown sent to the server.
@@ -22,6 +26,7 @@ final class MessageEditorDocument {
     private(set) var hasUnsupportedContent = false
     var selection = NSRange(location: 0, length: 0)
     var typingStyle: MessageEditorStyle = []
+    @ObservationIgnored var applyTypingAttributes: (() -> Void)?
     @ObservationIgnored var applyEdit: ((NSAttributedString, NSRange) -> Void)?
 
     func load(_ source: String) {
@@ -35,6 +40,9 @@ final class MessageEditorDocument {
             content = NSAttributedString(string: "")
         }
         selection = NSRange(location: content.length, length: 0)
+        if content.length == 1, Self.block(content.attributes(at: 0, effectiveRange: nil))?.isEmpty == true {
+            selection = NSRange(location: 0, length: 0)
+        }
         typingStyle = []
     }
 
@@ -57,7 +65,7 @@ final class MessageEditorDocument {
     }
 
     var canSetLink: Bool {
-        guard !hasUnsupportedContent else { return false }
+        guard !hasUnsupportedContent, canFormatInline else { return false }
         var containsReference = false
         content.enumerateAttribute(.attachment, in: selection) { value, _, _ in
             if value != nil { containsReference = true }
@@ -66,7 +74,7 @@ final class MessageEditorDocument {
     }
 
     var completion: Completion? {
-        guard !hasUnsupportedContent, selection.length == 0, selection.location <= content.length else { return nil }
+        guard !hasUnsupportedContent, activeBlockStyle != .codeBlock, selection.length == 0, selection.location <= content.length else { return nil }
         let prefix = (content.string as NSString).substring(to: selection.location)
         guard let match = prefix.range(of: #"(?:^|[\s(])([@#])([\p{L}\p{N}_-]*)$"#, options: .regularExpression) else { return nil }
         let candidate = prefix[match].drop(while: { $0 != "@" && $0 != "#" })
@@ -80,9 +88,10 @@ final class MessageEditorDocument {
     }
 
     func toggle(_ style: MessageEditorStyle) {
-        guard !hasUnsupportedContent else { return }
+        guard !hasUnsupportedContent, canFormatInline else { return }
         guard selection.length > 0 else {
             typingStyle.formSymmetricDifference(style)
+            applyTypingAttributes?()
             return
         }
         let value = NSMutableAttributedString(attributedString: content)
@@ -108,7 +117,7 @@ final class MessageEditorDocument {
     }
 
     func insertText(_ text: String) {
-        replace(selection, with: NSAttributedString(string: text, attributes: Self.attributes(typingStyle)))
+        replace(selection, with: NSAttributedString(string: text, attributes: typingAttributes))
     }
 
     /// Toolbar triggers establish a word boundary; ordinary typing still follows email rules.
@@ -121,13 +130,18 @@ final class MessageEditorDocument {
 
     func insertMarkup(_ source: String, replacing range: NSRange? = nil) {
         guard !hasUnsupportedContent else { return }
+        let range = range ?? selection
+        if activeBlockStyle == .codeBlock {
+            replace(range, with: NSAttributedString(string: source, attributes: typingAttributes))
+            return
+        }
         let replacement: NSAttributedString
         if let spans = MessageEditorCodec.decode(source) {
-            replacement = Self.attributed(spans)
+            replacement = markupReplacement(spans, in: range)
         } else {
-            replacement = NSAttributedString(string: source, attributes: Self.attributes([]))
+            replacement = NSAttributedString(string: source, attributes: typingAttributes)
         }
-        replace(range ?? selection, with: replacement)
+        replace(range, with: replacement)
     }
 
     func removeMarkup(_ source: String) {
@@ -174,6 +188,9 @@ final class MessageEditorDocument {
             }
             replacement = NSMutableAttributedString(string: text, attributes: Self.attributes(common ?? typingStyle))
         }
+        if let block = block(at: range.location) {
+            replacement.addAttributes(Self.blockAttributes(block), range: NSRange(location: 0, length: replacement.length))
+        }
         replacement.addAttribute(.link, value: address, range: NSRange(location: 0, length: replacement.length))
         let value = NSMutableAttributedString(attributedString: content)
         value.replaceCharacters(in: range, with: replacement)
@@ -206,14 +223,14 @@ final class MessageEditorDocument {
         return atom
     }
 
-    private func replace(_ range: NSRange, with replacement: NSAttributedString) {
+    func replace(_ range: NSRange, with replacement: NSAttributedString) {
         guard !hasUnsupportedContent, range.location >= 0, NSMaxRange(range) <= content.length else { return }
         let value = NSMutableAttributedString(attributedString: content)
         value.replaceCharacters(in: range, with: replacement)
         commit(value, selection: NSRange(location: range.location + replacement.length, length: 0))
     }
 
-    private func commit(_ value: NSAttributedString, selection: NSRange) {
+    func commit(_ value: NSAttributedString, selection: NSRange) {
         guard !hasUnsupportedContent else { return }
         if let applyEdit { applyEdit(value, selection) } else { accept(value, selection: selection) }
     }
@@ -234,28 +251,31 @@ final class MessageEditorDocument {
         MessageEditorStyle(rawValue: attributes[.messageStyle] as? Int ?? 0)
     }
 
-    private static func attributed(_ spans: [MessageEditorSpan]) -> NSAttributedString {
+    static func attributed(_ spans: [MessageEditorSpan]) -> NSAttributedString {
         let value = NSMutableAttributedString(string: "")
         for span in spans {
             if let reference = span.reference {
-                value.append(NSAttributedString(attachment: MessageReferenceAttachment(reference: reference)))
+                let attachment = NSMutableAttributedString(attachment: MessageReferenceAttachment(reference: reference))
+                if let block = span.block { attachment.addAttributes(blockAttributes(block), range: NSRange(location: 0, length: attachment.length)) }
+                value.append(attachment)
             } else {
                 var attributes = attributes(span.style)
                 if let link = span.link { attributes[.link] = link }
+                if let block = span.block { attributes.merge(blockAttributes(block)) { _, value in value } }
                 value.append(NSAttributedString(string: span.text, attributes: attributes))
             }
         }
         return value
     }
 
-    private static func spans(_ value: NSAttributedString) -> [MessageEditorSpan] {
+    static func spans(_ value: NSAttributedString) -> [MessageEditorSpan] {
         var spans: [MessageEditorSpan] = []
         value.enumerateAttributes(in: NSRange(location: 0, length: value.length)) { attributes, range, _ in
             if let attachment = attributes[.attachment] as? MessageReferenceAttachment {
-                spans.append(MessageEditorSpan(text: "\u{fffc}", reference: attachment.reference))
+                spans.append(MessageEditorSpan(text: "\u{fffc}", reference: attachment.reference, block: block(attributes)))
             } else {
                 spans.append(MessageEditorSpan(text: (value.string as NSString).substring(with: range), style: style(attributes),
-                                               link: attributes[.link].map { String(describing: $0) }))
+                                               link: attributes[.link].map { String(describing: $0) }, block: block(attributes)))
             }
         }
         return spans
