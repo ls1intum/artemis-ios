@@ -5,6 +5,31 @@ import XCTest
 
 @MainActor
 final class MessageEditorNativeIntegrationTests: XCTestCase {
+    func testAttachmentRenameCanBeUndoneAndRedoneInTheNativeEditor() async throws {
+        for source in ["[original.pdf](/api/files/file.pdf)", "![original](/api/files/image.png)"] {
+            let document = MessageEditorDocument()
+            document.load(source)
+            let (controller, window) = try await host(document)
+            defer { window.isHidden = true }
+            let view = try XCTUnwrap(findEditor(controller.view))
+            let undo = try XCTUnwrap(view.undoManager)
+            undo.removeAllActions()
+            undo.beginUndoGrouping()
+            let attachment = try XCTUnwrap(document.attachments.first)
+            XCTAssertTrue(document.renameAttachment(attachment, to: "Renamed [final]"))
+            undo.endUndoGrouping()
+            let renamed = document.markdown
+            XCTAssertNotEqual(renamed, source)
+            XCTAssertEqual(document.attachments.first?.name, "Renamed [final]")
+            undo.undo()
+            XCTAssertEqual(document.markdown, source)
+            XCTAssertEqual(view.attributedText, document.content)
+            undo.redo()
+            XCTAssertEqual(document.markdown, renamed)
+            XCTAssertEqual(view.attributedText, document.content)
+        }
+    }
+
     func testNativeFormattingMenuRetainsSystemActionsAndSerializesSelectedFormatting() async throws {
         let document = MessageEditorDocument()
         document.load("Hello")

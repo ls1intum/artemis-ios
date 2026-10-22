@@ -295,38 +295,41 @@ final class SendMessageDraftTests: XCTestCase {
         let restoredEditor = try XCTUnwrap(findNativeEditor(in: restoredController.view))
         XCTAssertEqual(restoredEditor.text, "Typed in the native editor")
     }
+}
 
-    private func findNativeEditor(in view: UIView) -> MessageComposerTextView? {
-        if let editor = view as? MessageComposerTextView { return editor }
-        for child in view.subviews {
-            if let editor = findNativeEditor(in: child) { return editor }
-        }
-        return nil
+// Shared by the draft lifecycle and persistence regression tests.
+@MainActor
+func findNativeEditor(in view: UIView) -> MessageComposerTextView? {
+    if let editor = view as? MessageComposerTextView { return editor }
+    for child in view.subviews {
+        if let editor = findNativeEditor(in: child) { return editor }
     }
+    return nil
+}
 
-    private func makeDraftViewModel(
-        repository: MessagesRepository,
-        courseId: Int,
-        conversationId: Int? = nil,
-        configuration: SendMessageViewModel.Configuration = .message,
-        messagesService: MessagesService = MessagesServiceStub(),
-        presentError: @escaping (UserFacingError) -> Void = { _ in },
-        sendMessage: @escaping (String) async -> Void = { _ in },
-        sendMessageWithResult: ((String) async -> Bool)? = nil
-    ) -> SendMessageViewModel {
-        let delegate: SendMessageViewModelDelegate
-        if let sendMessageWithResult {
-            delegate = SendMessageViewModelDelegate(presentError: presentError, sendMessageWithResult: sendMessageWithResult)
-        } else {
-            delegate = SendMessageViewModelDelegate(presentError: presentError, sendMessage: sendMessage)
-        }
-        return SendMessageViewModel(
-            course: CourseForOverviewDTO(course: Course(id: courseId, courseInformationSharingConfiguration: .communicationAndMessaging)),
-            conversation: Conversation(conversation: Channel(id: Int64(conversationId ?? courseId)))!,
-            configuration: configuration,
-            delegate: delegate,
-            messagesRepository: repository, messagesService: messagesService, userSession: UserSessionFactory.shared)
+@MainActor
+func makeDraftViewModel(
+    repository: MessagesRepository,
+    courseId: Int,
+    conversationId: Int? = nil,
+    configuration: SendMessageViewModel.Configuration = .message,
+    messagesService: MessagesService = MessagesServiceStub(),
+    presentError: @escaping (UserFacingError) -> Void = { _ in },
+    sendMessage: @escaping (String) async -> Void = { _ in },
+    sendMessageWithResult: ((String) async -> Bool)? = nil
+) -> SendMessageViewModel {
+    let delegate: SendMessageViewModelDelegate
+    if let sendMessageWithResult {
+        delegate = SendMessageViewModelDelegate(presentError: presentError, sendMessageWithResult: sendMessageWithResult)
+    } else {
+        delegate = SendMessageViewModelDelegate(presentError: presentError, sendMessage: sendMessage)
     }
+    return SendMessageViewModel(
+        course: CourseForOverviewDTO(course: Course(id: courseId, courseInformationSharingConfiguration: .communicationAndMessaging)),
+        conversation: Conversation(conversation: Channel(id: Int64(conversationId ?? courseId)))!,
+        configuration: configuration,
+        delegate: delegate,
+        messagesRepository: repository, messagesService: messagesService, userSession: UserSessionFactory.shared)
 }
 
 private struct DraftMessagesService: MessagesService {

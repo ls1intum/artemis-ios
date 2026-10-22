@@ -45,7 +45,7 @@ struct SendMessageView: View {
                 .padding(.horizontal, .l)
                 .padding(.vertical, .s)
             if !viewModel.editor.hasUnsupportedContent {
-                ImageAttachmentsPreview(viewModel: viewModel)
+                MessageAttachmentsPreview(viewModel: viewModel)
             }
             if !viewModel.editor.hasUnsupportedContent && (isFocused || viewModel.keyboardVisible) {
                 SendMessageKeyboardToolbar(sendButton: sendButton,
@@ -158,7 +158,7 @@ private extension SendMessageView {
     }
 
     var textField: some View {
-        HStack(alignment: .center, spacing: .s) {
+        HStack(alignment: .top, spacing: .s) {
             let conversationName = viewModel.isEditing ? "" : viewModel.conversation.baseConversation.conversationName
             let placeholder = if case .answerMessage = viewModel.configuration {
                 R.string.localizable.replyAction()
@@ -192,8 +192,22 @@ private extension SendMessageView {
                         }
                 }
             }
-            if !isFocused && !viewModel.keyboardVisible {
-                sendButton
+            HStack(spacing: 0) {
+                if !viewModel.editor.hasUnsupportedContent {
+                    Button {
+                        withAnimation { viewModel.editorExpanded.toggle() }
+                    } label: {
+                        Image(systemName: viewModel.editorExpanded ? "arrow.down.right.and.arrow.up.left" : "arrow.up.left.and.arrow.down.right")
+                            .frame(width: 44, height: 44)
+                            .contentShape(.rect)
+                    }
+                    .accessibilityLabel(R.string.localizable.resizeEditor())
+                    .accessibilityValue(viewModel.editorExpanded ? R.string.localizable.expanded() : R.string.localizable.collapsed())
+                    .accessibilityIdentifier("message-resize-editor")
+                }
+                if !isFocused && !viewModel.keyboardVisible {
+                    sendButton
+                }
             }
         }
     }

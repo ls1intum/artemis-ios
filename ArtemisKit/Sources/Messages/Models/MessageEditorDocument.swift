@@ -28,6 +28,7 @@ final class MessageEditorDocument {
     var typingStyle: MessageEditorStyle = []
     @ObservationIgnored var applyTypingAttributes: (() -> Void)?
     @ObservationIgnored var applyEdit: ((NSAttributedString, NSRange) -> Void)?
+    @ObservationIgnored var onContentChange: (() -> Void)?
 
     func load(_ source: String) {
         guard source != markdown else { return }
@@ -44,6 +45,7 @@ final class MessageEditorDocument {
             selection = NSRange(location: 0, length: 0)
         }
         typingStyle = []
+        onContentChange?()
     }
 
     func accept(_ value: NSAttributedString, selection: NSRange) {
@@ -51,6 +53,7 @@ final class MessageEditorDocument {
         content = NSAttributedString(attributedString: value)
         self.selection = selection
         markdown = MessageEditorCodec.encode(Self.spans(value))
+        onContentChange?()
     }
 
     func markdown(in range: NSRange) -> String {
@@ -242,7 +245,7 @@ final class MessageEditorDocument {
         let base = UIFont.preferredFont(forTextStyle: .body)
         let font = style.contains(.code) ? UIFont.monospacedSystemFont(ofSize: base.pointSize, weight: style.contains(.bold) ? .bold : .regular) :
             UIFont(descriptor: base.fontDescriptor.withSymbolicTraits(traits) ?? base.fontDescriptor, size: 0)
-        return [.font: font, .foregroundColor: UIColor.label, .messageStyle: style.rawValue,
+        return [.font: font, .foregroundColor: style.contains(.code) ? UIColor.systemRed : UIColor.label, .messageStyle: style.rawValue,
                 .underlineStyle: style.contains(.underline) ? NSUnderlineStyle.single.rawValue : 0,
                 .strikethroughStyle: style.contains(.strikethrough) ? NSUnderlineStyle.single.rawValue : 0]
     }

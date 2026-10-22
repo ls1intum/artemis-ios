@@ -13,6 +13,8 @@ struct MessageEditorStyle: OptionSet {
 struct MessageEditorReference: Equatable {
     let markup: String
     let label: String
+    var imageName: String?
+    var imagePath: String?
 }
 
 struct MessageEditorSpan: Equatable {
@@ -27,7 +29,7 @@ struct MessageEditorSpan: Equatable {
 /// returning nil prevents changing a legacy message while hydrating an edit or draft.
 struct MessageEditorCodec {
     static func decode(_ markdown: String) -> [MessageEditorSpan]? {
-        if markdown.range(of: #"(?m)^(?:[-+*] |[0-9]{1,9}[.)] |`{3,}|~{3,})"#, options: .regularExpression) != nil {
+        if markdown.range(of: #"(?m)^(?:>|[-+*] |[0-9]{1,9}[.)] |`{3,}|~{3,})"#, options: .regularExpression) != nil {
             return MessageEditorBlockCodec.decode(markdown, inline: decodeInline)
         }
         return decodeInline(markdown)

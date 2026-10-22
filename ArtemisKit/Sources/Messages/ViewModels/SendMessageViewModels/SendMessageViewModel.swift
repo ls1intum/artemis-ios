@@ -38,6 +38,7 @@ final class SendMessageViewModel {
     private let messagesService: MessagesService
     private let userSession: UserSession
     private var hasLoadedContent = false
+    private var lastPersistedDraft = ""
 
     // MARK: Loading
 
@@ -120,6 +121,7 @@ final class SendMessageViewModel {
         self.messagesRepository = messagesRepository ?? .shared
         self.messagesService = messagesService
         self.userSession = userSession
+        editor.onContentChange = { [weak self] in self?.persistDraft() }
     }
 }
 
@@ -143,6 +145,7 @@ extension SendMessageViewModel {
             }
             text = ""
             uploadedImages = [:]
+            lastPersistedDraft = ""
         } catch {
             delegate.presentError(UserFacingError(title: error.localizedDescription))
         }
@@ -172,6 +175,7 @@ extension SendMessageViewModel {
             case let .editAnswerMessage(message, _): text = message.content ?? ""
             case .forwardMessage: text = ""
             }
+            lastPersistedDraft = text
             hasLoadedContent = true
         } catch {
             log.error(error)
@@ -184,7 +188,9 @@ extension SendMessageViewModel {
     }
 
     private func persistDraft() {
-        guard !editor.hasUnsupportedContent else { return }
+        // A retained, unchanged composer must not overwrite a newer composer on disappearance.
+        // Hydration must also finish before native callbacks can write a draft.
+        guard hasLoadedContent, !editor.hasUnsupportedContent, text != lastPersistedDraft else { return }
         do {
             if let host = userSession.institution?.baseURL?.host() {
                 switch configuration {
@@ -202,8 +208,9 @@ extension SendMessageViewModel {
                         messageId: Int(message.id),
                         answerMessageDraft: text)
                 default:
-                    break
+                    return
                 }
+                lastPersistedDraft = text
             }
         } catch {
             log.error(error)

@@ -70,7 +70,7 @@ final class MessageEditorCodecTests: XCTestCase {
 
     func testUnsupportedOrAmbiguousSourceIsRejected() {
         let sources = [
-            "# Heading", "> quote", "- parent\n  - nested", "1. item\n   continuation", "- [ ] task",
+            "# Heading", "> > nested quote", "> - nested list", "> quote\nlazy continuation", "- parent\n  - nested", "1. item\n   continuation", "- [ ] task",
             "| a | b |\n| --- | --- |", "heading\n===", "    indented code",
             "<em>legacy</em>", "[label](url \"title\")", "[reference][id]", "[id]: /target",
             "**unfinished", "[unknown]title(1)[/unknown]", "[user]malformed[/user]", "~~unfinished"

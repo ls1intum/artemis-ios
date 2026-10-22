@@ -209,13 +209,14 @@ struct MessageEditorInlineParser {
         let start = index
         index += 1
         let label = try bracketLabel()
-        _ = try linkDestination()
+        let path = try linkDestination()
         let markup = String(characters[start..<index])
         var labelParser = Self(label)
         let labelSpans = try labelParser.parse()
         guard labelSpans.allSatisfy({ $0.reference == nil && $0.link == nil }) else { throw ParseError.unsupported }
         let title = labelSpans.map(\.text).joined()
-        return MessageEditorSpan(text: "\u{FFFC}", reference: MessageEditorReference(markup: markup, label: "Image: " + title))
+        let reference = MessageEditorReference(markup: markup, label: "Image: " + title, imageName: title, imagePath: path)
+        return MessageEditorSpan(text: "\u{FFFC}", reference: reference)
     }
 
     private mutating func bracketLabel() throws -> String {

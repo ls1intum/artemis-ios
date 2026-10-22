@@ -42,7 +42,8 @@ extension MessageEditorDocument {
         let prefix = (line as NSString).substring(to: offset)
         let suffix = (line as NSString).substring(from: offset)
         guard suffix.allSatisfy(\.isNewline),
-              let marker = MessageEditorBlockCodec.listMarker(prefix + text), marker.body.isEmpty else { return false }
+              let marker = MessageEditorBlockCodec.listMarker(prefix + text) ?? MessageEditorBlockCodec.quoteMarker(prefix + text),
+              marker.body.isEmpty else { return false }
         let block = MessageEditorBlock(style: marker.style)
         let attributes = Self.attributes(typingStyle).merging(Self.blockAttributes(block)) { _, value in value }
         let value = NSMutableAttributedString(attributedString: content)
@@ -59,7 +60,7 @@ extension MessageEditorDocument {
             attributes[.messageCodeLanguage] = block.language
             attributes[.messageCodeIdentifier] = block.identifier
             attributes[.messageCodeEmpty] = block.isEmpty
-            attributes[.backgroundColor] = UIColor.secondarySystemFill
+            attributes[.foregroundColor] = UIColor.label
         }
         return attributes
     }
@@ -148,7 +149,7 @@ extension MessageEditorDocument {
             let line = (content.string as NSString).substring(with: paragraph)
             let oldBlock = paragraph.length > 0 ? Self.block(content.attributes(at: paragraph.location, effectiveRange: nil)) : nil
             let removed = oldBlock.map { MessageEditorBlockCodec.displayPrefixLength(line, style: $0.style) } ?? 0
-            let prefix = remove ? "" : style == .bulletList ? "• " : "\(offset + 1). "
+            let prefix = remove ? "" : style == .quote ? "> " : style == .bulletList ? "• " : "\(offset + 1). "
             let body = NSRange(location: paragraph.location + removed, length: paragraph.length - removed)
             let replacement = NSMutableAttributedString(attributedString: content.attributedSubstring(from: body))
             clearBlock(in: replacement, range: NSRange(location: 0, length: replacement.length))
@@ -254,7 +255,7 @@ extension MessageEditorDocument {
             removeListMarker(in: paragraph, length: paragraph.length - ending)
         } else {
             let number = Int(line.prefix(while: \.isNumber)) ?? 0
-            let prefix = block.style == .bulletList ? "• " : "\(number + 1). "
+            let prefix = block.style == .quote ? "> " : block.style == .bulletList ? "• " : "\(number + 1). "
             let attributes = Self.attributes(typingStyle).merging(Self.blockAttributes(block)) { _, value in value }
             replace(range, with: NSAttributedString(string: "\n" + prefix, attributes: attributes))
         }

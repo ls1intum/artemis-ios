@@ -1,8 +1,28 @@
+import UIKit
 import XCTest
 @testable import Messages
 
 @MainActor
 final class MessageEditorDocumentTests: XCTestCase {
+    func testInlineCodeHasDistinctForegroundAndDisablingItRestoresTextColor() {
+        let document = MessageEditorDocument()
+        document.toggle(.code)
+        XCTAssertEqual(document.typingAttributes[.foregroundColor] as? UIColor, .systemRed)
+        document.insertText("value")
+        XCTAssertEqual(document.content.attribute(.foregroundColor, at: 0, effectiveRange: nil) as? UIColor, .systemRed)
+        document.toggle(.code)
+        XCTAssertEqual(document.typingAttributes[.foregroundColor] as? UIColor, .label)
+    }
+
+    func testQuoteLoadsAsEditableAndPreservesInlineFormattingOnRoundTrip() {
+        let source = "> A **quoted** line\n> Another line\n\nAfter"
+        let document = MessageEditorDocument()
+        document.load(source)
+        XCTAssertFalse(document.hasUnsupportedContent)
+        XCTAssertTrue(document.content.string.contains("quoted"))
+        XCTAssertEqual(MessageEditorCodec.encode(MessageEditorDocument.spans(document.content)), source)
+    }
+
     func testFormattingUsesSelectedDisplayRange() {
         let editor = MessageEditorDocument()
         editor.load("hello world")

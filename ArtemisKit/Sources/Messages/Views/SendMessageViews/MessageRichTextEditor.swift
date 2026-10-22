@@ -173,6 +173,22 @@ final class MessageComposerTextView: UITextView {
     private static let markdownPasteboardType = "de.tum.cit.aet.artemis.message-markdown"
     weak var document: MessageEditorDocument?
 
+    override init(frame: CGRect = .zero, textContainer: NSTextContainer? = nil) {
+        if let textContainer {
+            super.init(frame: frame, textContainer: textContainer)
+        } else {
+            let storage = NSTextStorage()
+            let layout = MessageComposerLayoutManager()
+            let container = NSTextContainer(size: .zero)
+            container.widthTracksTextView = true
+            storage.addLayoutManager(layout)
+            layout.addTextContainer(container)
+            super.init(frame: frame, textContainer: container)
+        }
+    }
+
+    required init?(coder: NSCoder) { super.init(coder: coder) }
+
     func updateTypingTraits(for document: MessageEditorDocument) {
         let code = document.activeBlockStyle == .codeBlock || document.typingStyle.contains(.code)
         let correction: UITextAutocorrectionType = code ? .no : .default

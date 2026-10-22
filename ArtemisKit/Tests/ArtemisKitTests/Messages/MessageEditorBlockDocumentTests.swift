@@ -3,6 +3,35 @@ import XCTest
 
 @MainActor
 final class MessageEditorBlockDocumentTests: XCTestCase {
+    func testQuoteToolbarPreservesFormattingAndUnicodeWhenToggledOff() {
+        let editor = MessageEditorDocument()
+        editor.load("😀 **one**\ntwo")
+        editor.selection = NSRange(location: 0, length: editor.content.length)
+        editor.toggleBlock(.quote)
+        XCTAssertEqual(editor.markdown, "> 😀 **one**\n> two")
+        XCTAssertEqual(editor.activeBlockStyle, .quote)
+        editor.toggleBlock(.quote)
+        XCTAssertEqual(editor.markdown, "😀 **one**\ntwo")
+        XCTAssertNil(editor.activeBlockStyle)
+    }
+
+    func testTypedQuoteContinuesAndExitsOnEmptyLineOrBackspace() {
+        let editor = MessageEditorDocument()
+        editor.insertText(">")
+        XCTAssertTrue(editor.handleReplacement(in: editor.selection, text: " "))
+        XCTAssertEqual(editor.activeBlockStyle, .quote)
+        editor.insertText("Quoted")
+        XCTAssertTrue(editor.handleReplacement(in: editor.selection, text: "\n"))
+        XCTAssertEqual(editor.markdown, "> Quoted\n> ")
+        XCTAssertTrue(editor.handleReplacement(in: editor.selection, text: "\n"))
+        XCTAssertEqual(editor.markdown, "> Quoted\n\n")
+        XCTAssertNil(editor.activeBlockStyle)
+        editor.toggleBlock(.quote)
+        let caret = editor.selection.location
+        XCTAssertTrue(editor.handleReplacement(in: NSRange(location: caret - 1, length: 1), text: ""))
+        XCTAssertNil(editor.activeBlockStyle)
+    }
+
     func testBulletToolbarPreservesInlineFormattingAndUnicodeSelection() {
         let editor = MessageEditorDocument()
         editor.load("😀 **one**\ntwo")
