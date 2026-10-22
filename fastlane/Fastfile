@@ -36,7 +36,7 @@ platform :ios do
   desc "[CI] Run ArtemisKit tests on an iOS simulator"
   lane :test do
     # The Artemis app scheme contains screenshot tests that require a prepared server.
-    # The package scheme includes the unit and native editor integration tests.
+    # The Swift package's scheme includes its unit and native integration tests.
     results_path = File.expand_path("../build/test-results", __dir__)
     runtimes = JSON.parse(sh("xcrun simctl list runtimes --json", log: false)).fetch("runtimes")
     runtime = runtimes.select do |candidate|
@@ -54,8 +54,9 @@ platform :ios do
     sh("xcrun simctl bootstatus #{simulator_id.shellescape} -b", log: false)
     scan(
       clean: true,
-      project: "Artemis.xcodeproj",
-      scheme: "ArtemisKitTests",
+      package_path: "ArtemisKit",
+      scheme: "ArtemisKit",
+      derived_data_path: File.expand_path("../build/test-derived-data", __dir__),
       destination: "platform=iOS Simulator,id=#{simulator_id}",
       skip_detect_devices: true,
       disable_slide_to_type: false,
