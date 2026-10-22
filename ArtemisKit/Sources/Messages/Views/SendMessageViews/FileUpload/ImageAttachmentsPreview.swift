@@ -12,7 +12,7 @@ struct ImageAttachmentsPreview: View {
 
     var body: some View {
         let mentionedImages = viewModel.mentionedImages
-        if !mentionedImages.isEmpty && !viewModel.previewVisible {
+        if !mentionedImages.isEmpty {
             ScrollView(.horizontal) {
                 HStack {
                     ForEach(viewModel.mentionedImages, id: \.image.hashValue) { name, path, image in

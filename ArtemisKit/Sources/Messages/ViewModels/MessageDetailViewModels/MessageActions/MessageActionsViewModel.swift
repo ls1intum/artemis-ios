@@ -158,9 +158,9 @@ class MessageActionsViewModel {
         }
     }
 
-    func forwardMessage(content: String) async {
+    func forwardMessage(content: String) async -> Bool {
         guard let source = message.value, let selectedConversation else {
-            return
+            return false
         }
 
         let course = conversationViewModel.course.id
@@ -179,17 +179,20 @@ class MessageActionsViewModel {
             switch forwardResult {
             case .failure(let error):
                 conversationViewModel.presentError(userFacingError: error)
-                return
-            default:
+                return false
+            case .done:
                 break
+            default:
+                return false
             }
         case .failure(let error):
             conversationViewModel.presentError(userFacingError: error)
-            return
+            return false
         default:
-            break
+            return false
         }
         showForwardSheet = false
+        return true
     }
 
     func loadConversations() async {

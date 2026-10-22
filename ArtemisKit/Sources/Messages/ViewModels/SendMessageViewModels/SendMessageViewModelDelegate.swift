@@ -11,5 +11,18 @@ import SwiftUI
 @MainActor
 struct SendMessageViewModelDelegate {
     let presentError: (UserFacingError) -> Void
-    let sendMessage: (String) async -> Void
+    /// Returns true once the message has been accepted by the persistent queue or server.
+    let sendMessage: (String) async -> Bool
+
+    init(presentError: @escaping (UserFacingError) -> Void, sendMessageWithResult: @escaping (String) async -> Bool) {
+        self.presentError = presentError
+        self.sendMessage = sendMessageWithResult
+    }
+
+    init(presentError: @escaping (UserFacingError) -> Void, sendMessage: @escaping (String) async -> Void) {
+        self.init(presentError: presentError, sendMessageWithResult: { text in
+            await sendMessage(text)
+            return true
+        })
+    }
 }

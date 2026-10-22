@@ -5,7 +5,6 @@
 //  Created by Sven Andabaka on 08.04.23.
 //
 
-import ArtemisMarkdown
 import Common
 import DesignLibrary
 import SharedModels
@@ -14,12 +13,12 @@ import SwiftUI
 struct SendMessageView: View {
 
     @State var viewModel: SendMessageViewModel
-    /// This has to be in here, otherwise it gets deinitialized while file picker is open,
-    /// due to the textfield losing focus and the toolbar disappearing
+    /// Attachment state and presentation outlive the toolbar when a picker takes editor focus.
     @State private var uploadFileViewModel: SendMessageUploadFileViewModel
     @State private var uploadImageViewModel: SendMessageUploadImageViewModel
 
-    @FocusState private var isFocused: Bool
+    @State private var isFocused = false
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
 
     init(viewModel: SendMessageViewModel) {
         self._viewModel = State(initialValue: viewModel)
@@ -29,9 +28,7 @@ struct SendMessageView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            if viewModel.isEditing {
-                Spacer()
-            } else {
+            if !viewModel.isEditing {
                 Divider()
             }
 
@@ -40,31 +37,22 @@ struct SendMessageView: View {
                     .fontWeight(.semibold)
                     .padding(.horizontal, .l)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.bottom, isFocused ? .m : .m * -1)
+                    .padding(.top, .m)
             }
 
             mentions
-            if isFocused && !viewModel.isEditing {
-                Capsule()
-                    .fill(Color.secondary)
-                    .frame(width: .xl, height: .s)
-                    .padding(.vertical, .m)
-            }
             textField
-                .fixedSize(horizontal: false, vertical: true)
-                .overlay {
-                    preview
-                }
-                .padding(isFocused ? .horizontal : [.horizontal, .top], .l)
-                .padding(.bottom, .m)
-            ImageAttachmentsPreview(viewModel: viewModel)
-            if isFocused || viewModel.keyboardVisible {
+                .padding(.horizontal, .l)
+                .padding(.vertical, .s)
+            if !viewModel.editor.hasUnsupportedContent {
+                ImageAttachmentsPreview(viewModel: viewModel)
+            }
+            if !viewModel.editor.hasUnsupportedContent && (isFocused || viewModel.keyboardVisible) {
                 SendMessageKeyboardToolbar(sendButton: sendButton,
                                            viewModel: viewModel,
                                            uploadFileViewModel: uploadFileViewModel,
                                            uploadImageViewModel: uploadImageViewModel)
                     .background(.bar)
-                    .padding(.top, .s)
             }
         }
         .onChange(of: isFocused, initial: true) {
@@ -74,15 +62,18 @@ struct SendMessageView: View {
                 viewModel.keyboardVisible = isFocused
             }
         }
-        .onChange(of: viewModel.text) { oldValue, newValue in
-            // Only call change handler if text was entered, not when text was removed
-            guard newValue.count > oldValue.count else { return }
-            viewModel.handleListFormatting(newValue)
-        }
         .onAppear {
             viewModel.performOnAppear()
-            if viewModel.presentKeyboardOnAppear {
+            if viewModel.presentKeyboardOnAppear && !viewModel.editor.hasUnsupportedContent {
                 isFocused = true
+            }
+        }
+        .onChange(of: viewModel.editor.hasUnsupportedContent) {
+            if viewModel.editor.hasUnsupportedContent {
+                isFocused = false
+                viewModel.keyboardVisible = false
+                viewModel.showsLinkEditor = false
+                viewModel.wantsToAddMessageMentionContentType = nil
             }
         }
         .onDisappear {
@@ -95,50 +86,70 @@ struct SendMessageView: View {
                         // down
                         isFocused = false
                         viewModel.keyboardVisible = false
-                        viewModel.previewVisible = false
                         let impactMed = UIImpactFeedbackGenerator(style: .medium)
                         impactMed.impactOccurred()
                     }
                 }
         )
+        .sheet(isPresented: $viewModel.showsLinkEditor) {
+            MessageEditorLinkSheet(editor: viewModel.editor)
+                .presentationDetents([.medium])
+        }
         .sheet(item: $viewModel.wantsToAddMessageMentionContentType) { type in
             SendMessageMentionContentView(viewModel: viewModel, type: type)
                 .presentationDetents([.fraction(0.5), .medium])
+        }
+        .imagePicker(isPresented: $uploadImageViewModel.isImagePickerPresented,
+                     selectedImage: $uploadImageViewModel.selection)
+        .onChange(of: uploadImageViewModel.selection) {
+            uploadImageViewModel.onChange()
+        }
+        .sheet(isPresented: uploadImageViewModel.showUploadScreen) {
+            if let path = uploadImageViewModel.filePath {
+                viewModel.insertImageMention(path: path, image: uploadImageViewModel.image)
+            }
+            uploadImageViewModel.selection = nil
+            uploadImageViewModel.image = nil
+        } content: {
+            UploadFileProgressView(viewModel: uploadImageViewModel)
+        }
+        .filePicker(isPresented: $uploadFileViewModel.isFilePickerPresented,
+                    onFilePicked: uploadFileViewModel.filePicked(at:)) { error in
+            uploadFileViewModel.uploadState = .failed(error: .init(title: error.localizedDescription))
+        }
+        .sheet(isPresented: uploadFileViewModel.showUploadScreen) {
+            if let path = uploadFileViewModel.filePath {
+                viewModel.insertFileMention(path: path, fileName: uploadFileViewModel.fileName ?? "file")
+            }
+            uploadFileViewModel.resetFileSelection()
+        } content: {
+            UploadFileProgressView(viewModel: uploadFileViewModel)
         }
     }
 }
 
 @MainActor
 private extension SendMessageView {
-    @ViewBuilder var preview: some View {
-        if viewModel.previewVisible {
-            ScrollView {
-                ArtemisMarkdownView(string: viewModel.text.surroundingMarkdownImagesWithNewlines())
-                    .allowsHitTesting(false)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-            }
-            .contentMargins(.s, for: .scrollContent)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(.background)
-            .clipShape(.rect(cornerRadius: .s))
-        }
-    }
-
     @ViewBuilder var mentions: some View {
         if let presentation = viewModel.conditionalPresentation {
             VStack(spacing: 0) {
-                switch presentation {
-                case .memberPicker:
-                    SendMessageMentionMemberView(
-                        viewModel: SendMessageMentionMemberViewModel(course: viewModel.course),
-                        sendMessageViewModel: viewModel
-                    )
-                case .channelPicker:
-                    SendMessageMentionChannelView(
-                        viewModel: SendMessageMentionChannelViewModel(course: viewModel.course),
-                        sendMessageViewModel: viewModel
-                    )
+                Group {
+                    switch presentation {
+                    case .memberPicker:
+                        SendMessageMentionMemberView(
+                            viewModel: SendMessageMentionMemberViewModel(course: viewModel.course),
+                            sendMessageViewModel: viewModel
+                        )
+                    case .channelPicker:
+                        SendMessageMentionChannelView(
+                            viewModel: SendMessageMentionChannelViewModel(course: viewModel.course),
+                            sendMessageViewModel: viewModel
+                        )
+                    }
                 }
+                .frame(height: verticalSizeClass == .compact ? 76 : 144)
+                .clipped()
+                .layoutPriority(1)
                 if !viewModel.isEditing {
                     Divider()
                 }
@@ -147,39 +158,41 @@ private extension SendMessageView {
     }
 
     var textField: some View {
-        HStack(alignment: .bottom) {
+        HStack(alignment: .center, spacing: .s) {
             let conversationName = viewModel.isEditing ? "" : viewModel.conversation.baseConversation.conversationName
             let placeholder = if case .answerMessage = viewModel.configuration {
                 R.string.localizable.replyAction()
             } else {
                 R.string.localizable.messageAction(conversationName)
             }
-            TextField(placeholder,
-                      text: $viewModel.text,
-                      selection: viewModel.selection,
-                      axis: .vertical)
-                .textFieldStyle(.roundedBorder)
-                .lineLimit(isFocused ? 8 : 5)
-                .animation(.smooth, value: isFocused)
-                .focused($isFocused)
-                .onKeyPress(.escape) {
-                    isFocused = false
-                    viewModel.keyboardVisible = false
-                    viewModel.previewVisible = false
-                    return .handled
-                }
-                .onKeyPress { press in
-                    if press.key == .return && press.modifiers.isDisjoint(with: .command) {
-                        viewModel.insertAtCurrentPosition("\n")
-                        // Focus is always removed for some reason, so reset it
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                            isFocused = true
-                        }
-                        return .handled
+            VStack(alignment: .leading, spacing: .s) {
+                if viewModel.editor.hasUnsupportedContent {
+                    Text(R.string.localizable.unsupportedMessageFormatting())
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .accessibilityIdentifier("unsupported-message-formatting")
+                    if viewModel.canDiscardUnsupportedDraft {
+                        Button(R.string.localizable.discardMessageDraft(), role: .destructive, action: viewModel.discardUnsupportedDraft)
+                            .accessibilityIdentifier("discard-unsupported-message-draft")
                     }
-                    return .ignored
+                } else {
+                    MessageRichTextEditor(document: viewModel.editor, placeholder: placeholder,
+                                          isFocused: $isFocused, expanded: viewModel.editorExpanded,
+                                          showsCompletions: viewModel.conditionalPresentation != nil)
+                        .overlay(alignment: .topLeading) {
+                            if viewModel.text.isEmpty {
+                                Text(placeholder)
+                                    .font(.body)
+                                    .lineLimit(1)
+                                    .foregroundStyle(.tertiary)
+                                    .padding(.horizontal, 9)
+                                    .padding(.vertical, 12)
+                                    .allowsHitTesting(false)
+                            }
+                        }
                 }
-            if !isFocused {
+            }
+            if !isFocused && !viewModel.keyboardVisible {
                 sendButton
             }
         }
@@ -189,9 +202,11 @@ private extension SendMessageView {
         Button(action: viewModel.didTapSendButton) {
             Image(systemName: "paperplane.fill")
                 .imageScale(.large)
+                .frame(width: 44, height: 44)
+                .contentShape(.rect)
         }
         .keyboardShortcut(.return, modifiers: .command)
-        .padding(isFocused ? .trailing : .leading, .l)
+        .accessibilityLabel(R.string.localizable.sendMessage())
         .disabled(!viewModel.canSend)
         .loadingIndicator(isLoading: $viewModel.isLoading)
     }

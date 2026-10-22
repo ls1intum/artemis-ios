@@ -29,6 +29,8 @@ final class SendMessageMentionMemberViewModel {
     }
 
     func search(loginOrName: String) async {
-        members = await courseService.getCourseMembers(courseId: course.id, searchLoginOrName: loginOrName)
+        let result = await courseService.getCourseMembers(courseId: course.id, searchLoginOrName: loginOrName)
+        guard !Task.isCancelled else { return }
+        members = result
     }
 }

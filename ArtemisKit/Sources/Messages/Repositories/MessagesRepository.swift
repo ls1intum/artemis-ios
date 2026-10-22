@@ -135,6 +135,7 @@ extension MessagesRepository {
         try touch(server: conversation.course?.server)
         let message = ConversationOfflineMessageModel(conversation: conversation, date: date, text: text)
         container.mainContext.insert(message)
+        try container.mainContext.save()
         return message
     }
 

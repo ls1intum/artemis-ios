@@ -361,19 +361,21 @@ fileprivate extension ConversationViewModel {
 
     // MARK: Send message
 
-    func sendMessage(text: String) async {
+    func sendMessage(text: String) async -> Bool {
         if let host = userSession.institution?.baseURL?.host() {
             do {
                 let offlineMessage = try messagesRepository.insertConversationOfflineMessage(
                     host: host, courseId: course.id, conversationId: Int(conversation.id), date: .now, text: text
                 )
                 offlineMessages.append(offlineMessage)
+                return true
             } catch {
-                log.error(error)
+                presentError(userFacingError: UserFacingError(title: error.localizedDescription))
             }
         } else {
             log.verbose("Host is nil")
         }
+        return false
     }
 }
 
@@ -522,8 +524,7 @@ private extension ConversationViewModel {
 
 extension SendMessageViewModelDelegate {
     init(_ conversationViewModel: ConversationViewModel) {
-        self.presentError = conversationViewModel.presentError
-        self.sendMessage = conversationViewModel.sendMessage
+        self.init(presentError: conversationViewModel.presentError, sendMessageWithResult: conversationViewModel.sendMessage)
     }
 }
 

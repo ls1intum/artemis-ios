@@ -31,3 +31,31 @@ The *Push Notification* subsystem handles the registration, notification setting
 ![Subsystem decomposition of the App](docs/APP-subsystem.png)
 
 *Figure: Subsystem decomposition of the `App`.*
+
+## Message composer
+
+Messages, replies, edits, and forwarding comments share a native rich text composer. Bold,
+italic, underline, strikethrough, inline code, links, flat bullet/numbered lists, fenced code
+blocks, and Artemis references are edited in place and stored using the existing Markdown
+message format. Inline formatting is available in the native text-selection menu and the
+compact toolbar's formatting menu. More reveals list and code-block buttons, resource
+references, attachments, and an editor size toggle that expands the writing area.
+
+Typing `- ` or `1. ` starts a list. Return continues the list; Return on an empty item or
+Backspace at its start returns to ordinary text. Code typing disables automatic correction,
+capitalization, and smart punctuation. In a code block, Markdown stays literal;
+Return on its final empty line exits the block. Backspace first selects a reference or link,
+then removes it on the next press. The clipboard includes readable plain text and a private
+Markdown representation so reference identifiers survive copying between Artemis composers.
+
+Headings, quotes, nested/task lists, tables, unsupported HTML, and math remain read-only.
+Their original content is preserved, and editing, sending, saving and resource actions are
+blocked; existing edit sheets can be cancelled. For saved message or reply drafts, Discard
+draft clears only that draft and restores composing. Pasting supported Markdown produces
+formatted content, while unsupported pasted syntax is inserted as literal text. Drafts are
+restored when reopening a conversation or thread. Sending preserves any newer text entered
+while the request is in flight and clears the saved draft only after acceptance.
+
+Reference pills use the appearance and text size from when their content is loaded. Changing
+appearance or Dynamic Type while the same draft remains open does not currently redraw
+existing pills. Native editor text still follows system accessibility and appearance settings.

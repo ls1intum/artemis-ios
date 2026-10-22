@@ -43,17 +43,8 @@ struct SendMessageMentionMemberView: View {
                 .contentMargins([.horizontal, .top], .l, for: .scrollContent)
             }
         }
-        .onChange(of: sendMessageViewModel.text, initial: true) {
-            search()
-        }
-    }
-}
-
-@MainActor
-private extension SendMessageMentionMemberView {
-    func search() {
-        if let candidate = sendMessageViewModel.searchMember().map(String.init) {
-            Task {
+        .task(id: sendMessageViewModel.editor.completion) {
+            if let candidate = sendMessageViewModel.searchMember().map(String.init) {
                 await viewModel.search(loginOrName: candidate)
             }
         }

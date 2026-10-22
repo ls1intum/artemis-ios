@@ -6,10 +6,12 @@
 //
 
 import Navigation
+import SharedModels
 import SwiftUI
 
 struct SendMessageKeyboardToolbar<SendButton: View>: View {
     @Environment(\.availableTabs) private var tabs
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
 
     let sendButton: SendButton
     @Bindable var viewModel: SendMessageViewModel
@@ -17,74 +19,106 @@ struct SendMessageKeyboardToolbar<SendButton: View>: View {
     let uploadFileViewModel: SendMessageUploadFileViewModel
     let uploadImageViewModel: SendMessageUploadImageViewModel
 
-    @Namespace private var namespace
-
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(alignment: .firstTextBaseline, spacing: .l) {
-                mentionContentMenu
-
-                InlineExpandableMenu {
-                    SendMessageImagePickerView(sendViewModel: viewModel, viewModel: uploadImageViewModel)
-                    SendMessageFilePickerView(sendViewModel: viewModel, viewModel: uploadFileViewModel)
-                } label: {
-                    Label(R.string.localizable.attachments(), systemImage: "paperclip")
-                }
-
-                InlineExpandableMenu {
-                    textFormatMenu
-                    listFormatMenu
-                    codeFormatMenu
-
-                    Button {
-                        viewModel.didTapLinkButton()
-                    } label: {
-                        Label(R.string.localizable.link(), systemImage: "link")
-                    }
-                    Button {
-                        viewModel.didTapBlockquoteButton()
-                    } label: {
-                        Label(R.string.localizable.quote(), systemImage: "quote.opening")
-                    }
-                } label: {
-                    Label(R.string.localizable.textFormatting(), systemImage: "textformat")
-                }
+        Group {
+            if verticalSizeClass == .compact {
+                ScrollView(.horizontal) { toolbarContent }
+                    .scrollIndicators(.hidden)
+            } else {
+                toolbarContent
             }
-            .labelStyle(.iconOnly)
-            .font(.title3)
-            .padding(.trailing)
         }
-        .contentMargins(.horizontal, .l, for: .scrollContent)
-        .contentMargins(.vertical, .m, for: .scrollContent)
-        .mask {
-            LinearGradient(stops: [
-                .init(color: .black.opacity(1), location: 0.9),
-                .init(color: .black.opacity(0), location: 1)
-            ], startPoint: .leading, endPoint: .trailing)
-        }
-        .safeAreaInset(edge: .trailing) {
-            HStack(spacing: .l) {
-                previewButton
+        .labelStyle(.iconOnly)
+        .font(.body)
+        .buttonStyle(.borderless)
+        .padding(.horizontal, .m)
+        .disabled(viewModel.editor.hasUnsupportedContent)
+    }
+
+    private var toolbarContent: some View {
+        let layout = verticalSizeClass == .compact ? AnyLayout(HStackLayout(spacing: 0)) : AnyLayout(VStackLayout(spacing: 0))
+        return layout {
+            HStack(spacing: 0) {
+                Menu {
+                    formatButton(R.string.localizable.bold(), icon: "bold", style: .bold)
+                    formatButton(R.string.localizable.italic(), icon: "italic", style: .italic)
+                    formatButton(R.string.localizable.underline(), icon: "underline", style: .underline)
+                    formatButton(R.string.localizable.strikethrough(), icon: "strikethrough", style: .strikethrough)
+                    formatButton(R.string.localizable.inlineCode(), icon: "curlybraces", style: .code)
+                } label: {
+                    toolbarLabel(R.string.localizable.textFormatting(), icon: "textformat")
+                }
+                Button(action: viewModel.didTapLinkButton) {
+                    toolbarLabel(R.string.localizable.link(), icon: "link")
+                }
+                .disabled(!viewModel.editor.canSetLink)
+                Button(action: viewModel.didTapAtButton) {
+                    toolbarLabel(R.string.localizable.members(), icon: "at")
+                }
+                .disabled(!viewModel.editor.canFormatInline)
+                Button(action: viewModel.didTapNumberButton) {
+                    toolbarLabel(R.string.localizable.channels(), icon: "number")
+                }
+                .disabled(!viewModel.editor.canFormatInline)
+                Button {
+                    withAnimation { viewModel.formattingExpanded.toggle() }
+                } label: {
+                    toolbarLabel(R.string.localizable.moreFormatting(), icon: viewModel.formattingExpanded ? "chevron.up" : "ellipsis")
+                }
+                .accessibilityValue(viewModel.formattingExpanded ? R.string.localizable.expanded() : R.string.localizable.collapsed())
+                Spacer(minLength: 0)
                 sendButton
+            }
+            if viewModel.formattingExpanded {
+                HStack(spacing: 0) {
+                    blockButton(R.string.localizable.unorderedList(), icon: "list.bullet", style: .bulletList)
+                    blockButton(R.string.localizable.orderedList(), icon: "list.number", style: .numberedList)
+                    blockButton(R.string.localizable.codeBlock(), icon: "chevron.left.forwardslash.chevron.right", style: .codeBlock)
+                    mentionContentMenu
+                        .disabled(!viewModel.editor.canFormatInline)
+                    Menu {
+                        SendMessageImagePickerView(viewModel: uploadImageViewModel)
+                        SendMessageFilePickerView(viewModel: uploadFileViewModel)
+                    } label: {
+                        toolbarLabel(R.string.localizable.attachments(), icon: "paperclip")
+                    }
+                    .disabled(!viewModel.editor.canFormatInline)
+                    Spacer(minLength: 0)
+                    Button {
+                        withAnimation { viewModel.editorExpanded.toggle() }
+                    } label: {
+                        toolbarLabel(R.string.localizable.resizeEditor(), icon: viewModel.editorExpanded ? "arrow.down.right.and.arrow.up.left" : "arrow.up.left.and.arrow.down.right")
+                    }
+                    .accessibilityValue(viewModel.editorExpanded ? R.string.localizable.expanded() : R.string.localizable.collapsed())
+                }
             }
         }
     }
 
-    @ViewBuilder var previewButton: some View {
-        Group {
-            if viewModel.canPreview && !viewModel.previewVisible {
-                Button(R.string.localizable.preview(), systemImage: "eye") {
-                    viewModel.previewVisible = true
-                }
-                .labelStyle(.iconOnly)
-                .matchedGeometryEffect(id: "previewBtn", in: namespace, anchor: .leading)
-            } else if viewModel.previewVisible {
-                Toggle(R.string.localizable.preview(), systemImage: "eye", isOn: $viewModel.previewVisible)
-                    .toggleStyle(.button)
-                    .matchedGeometryEffect(id: "previewBtn", in: namespace, anchor: .leading)
-            }
+    private func toolbarLabel(_ title: String, icon: String) -> some View {
+        Label(title, systemImage: icon)
+            .frame(width: 44, height: 44)
+            .contentShape(.rect)
+    }
+
+    private func formatButton(_ label: String, icon: String, style: MessageEditorStyle) -> some View {
+        Button {
+            viewModel.editor.toggle(style)
+        } label: {
+            Label(label, systemImage: icon)
         }
-        .animation(.snappy, value: viewModel.previewVisible)
+        .disabled(!viewModel.editor.canFormatInline)
+        .accessibilityAddTraits(viewModel.editor.activeStyle.contains(style) ? .isSelected : [])
+    }
+
+    private func blockButton(_ label: String, icon: String, style: MessageEditorBlockStyle) -> some View {
+        Button {
+            viewModel.editor.toggleBlock(style)
+        } label: {
+            toolbarLabel(label, icon: icon)
+                .background(viewModel.editor.activeBlockStyle == style ? Color.accentColor.opacity(0.15) : Color.clear, in: .rect(cornerRadius: 8))
+        }
+        .accessibilityAddTraits(viewModel.editor.activeBlockStyle == style ? .isSelected : [])
     }
 
     var mentionContentMenu: some View {
@@ -117,118 +151,7 @@ struct SendMessageKeyboardToolbar<SendButton: View>: View {
                 }
             }
         } label: {
-            Label(R.string.localizable.mention(), systemImage: "plus.circle.fill")
-        }
-    }
-
-    var textFormatMenu: some View {
-        Menu {
-            Button {
-                viewModel.didTapBoldButton()
-            } label: {
-                Label(R.string.localizable.bold(), systemImage: "bold")
-            }
-            Button {
-                viewModel.didTapItalicButton()
-            } label: {
-                Label(R.string.localizable.italic(), systemImage: "italic")
-            }
-            Button {
-                viewModel.didTapUnderlineButton()
-            } label: {
-                Label(R.string.localizable.underline(), systemImage: "underline")
-            }
-            Button {
-                viewModel.didTapStrikethroughButton()
-            } label: {
-                Label(R.string.localizable.strikethrough(), systemImage: "strikethrough")
-            }
-        } label: {
-            Label(R.string.localizable.style(), systemImage: "bold.italic.underline")
-        }
-    }
-
-    var listFormatMenu: some View {
-        Menu {
-            Button {
-                viewModel.insertListPrefix(unordered: true)
-            } label: {
-                Label(R.string.localizable.unorderedList(), systemImage: "list.bullet")
-            }
-            Button {
-                viewModel.insertListPrefix(unordered: false)
-            } label: {
-                Label(R.string.localizable.orderedList(), systemImage: "list.number")
-            }
-        } label: {
-            Label(R.string.localizable.listFormatting(), systemImage: "list.triangle")
-        }
-    }
-
-    var codeFormatMenu: some View {
-        Menu {
-            Button {
-                viewModel.didTapCodeButton()
-            } label: {
-                Label(R.string.localizable.inlineCode(), systemImage: "curlybraces")
-            }
-            Button {
-                viewModel.didTapCodeBlockButton()
-            } label: {
-                Label(R.string.localizable.codeBlock(), systemImage: "curlybraces.square.fill")
-            }
-        } label: {
-            Label(R.string.localizable.code(), systemImage: "curlybraces")
-        }
-    }
-}
-
-struct InlineExpandableMenu<Content: View, Label: View>: View {
-    @State private var isExpanded = false
-    @Namespace private var namespace
-
-    @ViewBuilder var content: () -> Content
-    @ViewBuilder var label: () -> Label
-
-    var body: some View {
-        if isExpanded {
-            HStack(alignment: .firstTextBaseline, spacing: .l) {
-                Button("Close", systemImage: "xmark.circle") {
-                    withAnimation {
-                        isExpanded = false
-                    }
-                }
-                .labelsHidden()
-                .opacity(0.7)
-                .matchedGeometryEffect(id: "btn", in: namespace)
-                .padding(.leading, .l)
-                Group(subviews: content()) { subviews in
-                    ForEach(Array(subviews.enumerated()), id: \.0) { offset, subview in
-                        subview
-                        .matchedGeometryEffect(id: offset, in: namespace)
-                    }
-                }
-                // Spacer (0) + spacing (.l) ensures separability to nearby menus
-                Spacer().frame(width: 0)
-            }
-        } else {
-            ZStack(alignment: .leading) {
-                Group(subviews: content()) { subviews in
-                    ForEach(Array(subviews.enumerated()), id: \.0) { offset, subview in
-                        subview.disabled(true).opacity(0)
-                            .matchedGeometryEffect(id: offset, in: namespace)
-                            .accessibilityHidden(true)
-                    }
-                }
-                Button {
-                    withAnimation {
-                        isExpanded = true
-                    }
-                } label: {
-                    label()
-                }
-                .matchedGeometryEffect(id: "btn", in: namespace)
-            }
+            toolbarLabel(R.string.localizable.mention(), icon: "plus.circle.fill")
         }
     }
 }

@@ -37,6 +37,7 @@ final class SendMessageViewModel {
     private let messagesRepository: MessagesRepository
     private let messagesService: MessagesService
     private let userSession: UserSession
+    private var hasLoadedContent = false
 
     // MARK: Loading
 
@@ -44,20 +45,15 @@ final class SendMessageViewModel {
 
     // MARK: Text
 
-    var text = ""
-    internal var uploadedImages = [String: UIImage]()
-    internal var _selection: TextSelection? // swiftlint:disable:this identifier_name
-    var selection: Binding<TextSelection?> {
-        Binding {
-            return self._selection
-        } set: { newValue in
-            // Ignore updates if text field is not focused
-            if !self.keyboardVisible && newValue != nil {
-                return
-            }
-            self._selection = newValue
-        }
+    let editor = MessageEditorDocument()
+    var text: String {
+        get { editor.markdown }
+        set { editor.load(newValue) }
     }
+    internal var uploadedImages = [String: UIImage]()
+    var formattingExpanded = false
+    var editorExpanded = false
+    var showsLinkEditor = false
 
     var isEditing: Bool {
         switch configuration {
@@ -69,9 +65,18 @@ final class SendMessageViewModel {
     }
 
     var canSend: Bool {
-        switch configuration {
+        guard !editor.hasUnsupportedContent else { return false }
+        return switch configuration {
         case .forwardMessage: true
         default: !text.isEmpty
+        }
+    }
+
+    var canDiscardUnsupportedDraft: Bool {
+        guard editor.hasUnsupportedContent else { return false }
+        return switch configuration {
+        case .message, .answerMessage: true
+        default: false
         }
     }
 
@@ -87,17 +92,12 @@ final class SendMessageViewModel {
         }
     }
 
-    var canPreview: Bool {
-        !text.isEmpty
-    }
-
     var isMemberPickerSuppressed = false
     var isChannelPickerSuppressed = false
 
     var wantsToAddMessageMentionContentType: MessageMentionContentType?
     var presentKeyboardOnAppear: Bool
     var keyboardVisible = false
-    var previewVisible = false
 
     // MARK: Life cycle
 
@@ -126,30 +126,53 @@ final class SendMessageViewModel {
 // MARK: - Actions
 
 extension SendMessageViewModel {
+    func discardUnsupportedDraft() {
+        guard canDiscardUnsupportedDraft else { return }
+        do {
+            if let host = userSession.institution?.baseURL?.host() {
+                switch configuration {
+                case .message:
+                    try messagesRepository.insertConversation(host: host, courseId: course.id,
+                                                              conversationId: Int(conversation.id), messageDraft: "")
+                case let .answerMessage(message, _):
+                    try messagesRepository.insertMessage(host: host, courseId: course.id, conversationId: Int(conversation.id),
+                                                         messageId: Int(message.id), answerMessageDraft: "")
+                default:
+                    return
+                }
+            }
+            text = ""
+            uploadedImages = [:]
+        } catch {
+            delegate.presentError(UserFacingError(title: error.localizedDescription))
+        }
+    }
+
     func performOnAppear() {
+        // A retained composer can appear again after presenting a sheet or navigating to a thread.
+        guard !hasLoadedContent else { return }
         do {
             switch configuration {
             case .message:
-                if let host = userSession.institution?.baseURL?.host() {
-                    let conversation = try messagesRepository.fetchConversation(
-                        host: host,
-                        courseId: course.id,
-                        conversationId: Int(conversation.id))
-                    text = conversation?.messageDraft ?? ""
-                }
+                guard let host = userSession.institution?.baseURL?.host() else { return }
+                let conversation = try messagesRepository.fetchConversation(
+                    host: host,
+                    courseId: course.id,
+                    conversationId: Int(conversation.id))
+                text = conversation?.messageDraft ?? ""
             case let .answerMessage(message, _):
-                if let host = userSession.institution?.baseURL?.host() {
-                    let message = try messagesRepository.fetchMessage(
-                        host: host,
-                        courseId: course.id,
-                        conversationId: Int(conversation.id),
-                        messageId: Int(message.id))
-                    text = message?.answerMessageDraft ?? ""
-                }
+                guard let host = userSession.institution?.baseURL?.host() else { return }
+                let message = try messagesRepository.fetchMessage(
+                    host: host,
+                    courseId: course.id,
+                    conversationId: Int(conversation.id),
+                    messageId: Int(message.id))
+                text = message?.answerMessageDraft ?? ""
             case let .editMessage(message, _): text = message.content ?? ""
             case let .editAnswerMessage(message, _): text = message.content ?? ""
             case .forwardMessage: text = ""
             }
+            hasLoadedContent = true
         } catch {
             log.error(error)
         }
@@ -157,6 +180,11 @@ extension SendMessageViewModel {
 
     func performOnDisappear() {
         keyboardVisible = false
+        persistDraft()
+    }
+
+    private func persistDraft() {
+        guard !editor.hasUnsupportedContent else { return }
         do {
             if let host = userSession.institution?.baseURL?.host() {
                 switch configuration {
@@ -185,20 +213,25 @@ extension SendMessageViewModel {
     // MARK: Send Message
 
     func didTapSendButton() {
+        guard canSend, !isLoading else { return }
+        let sentText = text
         isLoading = true
-        previewVisible = false
         Task { @MainActor in
+            guard canSend else {
+                isLoading = false
+                persistDraft()
+                return
+            }
             var result: NetworkResponse?
             switch configuration {
             case .message, .forwardMessage:
-                await delegate.sendMessage(text)
-                result = .success
+                result = await delegate.sendMessage(sentText) ? .success : .notStarted
                 isLoading = false
-            case let .answerMessage(message, completion):
-                result = await sendAnswerMessage(text: text, for: message, completion: completion)
+            case let .answerMessage(message, _):
+                result = await sendAnswerMessage(text: sentText, for: message)
             case let .editMessage(message, completion):
                 var newMessage = message
-                newMessage.content = text
+                newMessage.content = sentText
                 let success = await editMessage(message: newMessage)
                 isLoading = false
                 if success {
@@ -206,34 +239,34 @@ extension SendMessageViewModel {
                 }
             case let .editAnswerMessage(message, completion):
                 var newMessage = message
-                newMessage.content = text
+                newMessage.content = sentText
                 let success = await editAnswerMessage(answerMessage: newMessage)
                 isLoading = false
                 if success {
                     completion()
                 }
             }
-            switch result {
-            case .success:
-                _selection = nil
+            if case .success = result, text == sentText {
                 text = ""
                 uploadedImages = [:]
-            default:
-                return
+            }
+            // Persist the remaining draft before a thread reload can recreate its composer.
+            // A failed send also keeps any text entered while the request was in flight.
+            persistDraft()
+            if case .success = result, case let .answerMessage(_, completion) = configuration {
+                await completion()
             }
         }
     }
 
-    private func sendAnswerMessage(text: String, for message: Message, completion: () async -> Void) async -> NetworkResponse {
+    private func sendAnswerMessage(text: String, for message: Message) async -> NetworkResponse {
         isLoading = true
         let result = await messagesService.sendAnswerMessage(for: course.id, message: message, content: text)
         switch result {
         case .notStarted, .loading:
             isLoading = false
         case .success:
-            await completion()
             isLoading = false
-            uploadedImages = [:]
         case .failure(let error):
             isLoading = false
             if let apiClientError = error as? APIClientError {

@@ -47,6 +47,6 @@ struct EditMessageView: View {
             }
         }
         .fontWeight(.regular)
-        .presentationDetents([.height(200), .medium])
+        .presentationDetents([.medium, .large])
     }
 }
