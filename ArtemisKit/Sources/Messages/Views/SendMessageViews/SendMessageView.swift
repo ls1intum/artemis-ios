@@ -62,6 +62,7 @@ struct SendMessageView: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
+            .layoutPriority(1)
         }
         .onAppear {
             viewModel.performOnAppear()
@@ -146,9 +147,10 @@ private extension SendMessageView {
                         )
                     }
                 }
-                .frame(height: verticalSizeClass == .compact ? 76 : 144)
+                // Suggestions yield first when the keyboard or a small window limits space.
+                .frame(minHeight: 0, idealHeight: verticalSizeClass == .compact ? 76 : 144,
+                       maxHeight: verticalSizeClass == .compact ? 76 : 144)
                 .clipped()
-                .layoutPriority(1)
                 if !viewModel.isEditing {
                     Divider()
                 }
@@ -182,6 +184,7 @@ private extension SendMessageView {
                 MessageRichTextEditor(document: viewModel.editor, placeholder: placeholder,
                                       isFocused: $isFocused,
                                       showsCompletions: viewModel.conditionalPresentation != nil)
+                    .frame(minHeight: 44)
                     .overlay(alignment: .topLeading) {
                         if viewModel.text.isEmpty {
                             Text(placeholder)

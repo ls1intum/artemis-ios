@@ -57,6 +57,7 @@ struct ForwardMessageView: View {
 
                     ForwardMessagePreviewView(viewModel: viewModel)
                 }
+                .scrollDismissesKeyboard(.interactively)
 
                 SendMessageView(viewModel: sendViewModel)
             }

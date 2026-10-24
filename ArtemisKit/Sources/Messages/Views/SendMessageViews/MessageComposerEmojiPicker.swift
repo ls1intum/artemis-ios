@@ -5,38 +5,40 @@ struct MessageComposerEmojiPicker: View {
     @Environment(\.dismiss) private var dismiss
     @State private var query = ""
     let insert: (String) -> Void
-    private static let commonEmojis = ["😀", "😊", "😂", "🙂", "😉", "😍", "🤔", "👍", "👎", "👋", "🙌", "🎉", "❤️", "🔥", "✅", "🚀"]
-
-    private var results: [String] {
-        let search = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        let matches = Emojis.all.filter { name, symbol in
-            search.isEmpty || name.replacingOccurrences(of: "_", with: " ").localizedCaseInsensitiveContains(search) || symbol.contains(search)
-        }
-        let first = search.isEmpty ? Self.commonEmojis : []
-        return first + Set(matches.values).subtracting(first).sorted()
-    }
+    private var sections: [Emojis.PickerSection] { Emojis.pickerSections(matching: query) }
 
     var body: some View {
         NavigationStack {
             ScrollView {
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 44))], spacing: 8) {
-                    ForEach(results, id: \.self) { emoji in
-                        Button {
-                            insert(emoji)
-                            dismiss()
-                        } label: {
-                            Text(emoji)
-                                .font(.title)
-                                .frame(minWidth: 44, minHeight: 44)
-                                .contentShape(.rect)
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 44))], spacing: 8, pinnedViews: [.sectionHeaders]) {
+                    ForEach(sections) { section in
+                        Section {
+                            ForEach(section.emojis, id: \.self) { emoji in
+                                Button {
+                                    insert(emoji)
+                                    dismiss()
+                                } label: {
+                                    Text(emoji)
+                                        .font(.title)
+                                        .frame(minWidth: 44, minHeight: 44)
+                                        .contentShape(.rect)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        } header: {
+                            Text(section.category.title)
+                                .font(.headline)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.vertical, 12)
+                                .background(.background)
+                                .accessibilityAddTraits(.isHeader)
                         }
-                        .buttonStyle(.plain)
                     }
                 }
                 .padding()
             }
             .overlay {
-                if results.isEmpty { ContentUnavailableView.search(text: query) }
+                if sections.isEmpty { ContentUnavailableView.search(text: query) }
             }
             .searchable(text: $query, prompt: R.string.localizable.searchEmojis())
             .navigationTitle(R.string.localizable.emojis())

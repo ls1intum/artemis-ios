@@ -19,4 +19,10 @@ Restyling the existing stacked toolbar would retain its extra height and discove
 
 ## Validation
 
-Run native iOS Simulator package tests and the unsigned app build; inspect light/dark, narrow/wide, long-text, formatting, and accessibility-size captures. The installed runtime supports iPhone Duo only; report that device-coverage limit. No new dependencies.
+Run native iOS Simulator package tests and the unsigned app build; inspect light/dark, narrow/wide, long-text, formatting, and accessibility-size captures. Verify native interaction on iPhone and iPad simulators in portrait and landscape. No new dependencies.
+
+## Review follow-up
+
+Keep the emoji button as requested. Use Smile's existing ordered categories and classify the app's newer emojis in the same groups; preserve search and every available emoji without adding a dependency. A flat alphabetical list would be predictable but harder to browse than the familiar category order.
+
+Completion suggestions must yield space to the text and toolbar when the keyboard or a small window limits height. Keep the current inline suggestions; a separate sheet would interrupt typing. Enable native interactive keyboard dismissal in the conversation, thread and forwarding scroll views, including empty conversations. Verify constrained layout and native interactions on iPhone and iPad simulators.

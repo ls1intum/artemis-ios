@@ -8,6 +8,12 @@
 
 **Tech stack:** SwiftUI, UIKit/TextKit, XCTest, iOS 26+.
 
+## Review follow-up
+
+- [x] Reproduce completion overflow in a 170-point-high host for users and channels in both size classes. Let suggestions shrink before the editor and toolbar; rerun presentation tests.
+- [x] Keep the existing emoji button. Add ordered, localized sections using Smile's existing categories, categorize newer emojis, and test complete coverage, deduplication and search.
+- [x] Enable interactive keyboard dismissal on conversation, thread and forwarding scroll views, including empty conversations. Verify the gestures and completion selection on iPhone and iPad simulators, then run package tests, build, lint and review before committing and pushing to PR #554.
+
 **Spec:** ../specs/2026-10-24-message-composer-design.md
 
 ## Tasks
@@ -31,3 +37,5 @@ Native attribute normalization after intercepted Return; structural prefix edits
 - Visual review confirmed the requested composition, quote preview and native materials. Its light-placeholder contrast finding is addressed with adaptive primary gray at 60% opacity; the follow-up visual review measured approximately **5.69:1** contrast and scored the fix resolved. The final unsigned production app build succeeds with original app/test entry points restored.
 
 Native captures and logs are local under `/tmp/artemis-ios-composer-review` and `/tmp/artemis-ios-composer-*.log`. The installed iOS 27.1 runtime supports iPhone Duo only; unit hosting covers narrow/wide sizes, while physical-device, tablet, VoiceOver and live-upload checks remain outside this run.
+
+Follow-up validation: 186 package tests pass on both iPhone 17 Pro and iPad Pro 11-inch (M4), iOS/iPadOS 26.2. Native populated-completion, portrait/landscape, keyboard-dismissal and emoji-search/insertion checks pass. The restored production app builds; SwiftLint passes for all eight changed Swift files. Independent review found no actionable issues. Five updated native screenshots are saved in the Desktop review folder.

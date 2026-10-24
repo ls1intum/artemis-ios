@@ -96,6 +96,30 @@ final class MessageComposerPresentationTests: XCTestCase {
         attachSnapshot(controller.view, name: "composer-wide-large-text")
     }
 
+    func testCompletionsLeaveTheEditorAndToolbarVisibleInAShortWindow() async throws {
+        for query in ["@alex", "#general"] {
+            for sizeClass in [UserInterfaceSizeClass.regular, .compact] {
+                let model = try makeComposer()
+                model.performOnAppear()
+                model.text = "A longer message\nAnother line\n\(query)"
+                model.editor.selection = NSRange(location: model.editor.content.length, length: 0)
+                XCTAssertNotNil(model.conditionalPresentation)
+                let content = VStack(spacing: 0) { Spacer(minLength: 0); SendMessageView(viewModel: model) }
+                    .environment(\.verticalSizeClass, sizeClass)
+                let (controller, window) = await host(content, size: CGSize(width: 390, height: 170))
+                defer { window.isHidden = true; window.rootViewController = nil }
+                controller.safeAreaRegions = []
+                controller.view.layoutIfNeeded()
+                let editor = try XCTUnwrap(findEditor(in: controller.view))
+                let frame = editor.convert(editor.bounds, to: controller.view)
+                XCTAssertGreaterThanOrEqual(frame.minY, 0, "Completion suggestions must yield space to the composer")
+                XCTAssertGreaterThanOrEqual(frame.height, 44, "Keep at least one line of the message visible")
+                XCTAssertLessThanOrEqual(frame.maxY + 44, controller.view.bounds.maxY, "Keep the toolbar above the keyboard")
+                attachSnapshot(controller.view, name: "composer-completion-\(query.first!)-\(sizeClass)")
+            }
+        }
+    }
+
     private func makeComposer() throws -> SendMessageViewModel {
         let id = Int.random(in: 7_000_001...8_000_000)
         var channel = Channel(id: Int64(id))

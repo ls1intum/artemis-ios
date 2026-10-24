@@ -237,3 +237,14 @@
 "attachmentName" = "Attachment name";
 "removeAttachment" = "Remove";
 "previewAttachment" = "Preview";
+
+// Emoji picker categories
+"emojiCategorySmileys" = "Smileys & Emotion";
+"emojiCategoryPeople" = "People & Body";
+"emojiCategoryNature" = "Animals & Nature";
+"emojiCategoryFood" = "Food & Drink";
+"emojiCategoryTravel" = "Travel & Places";
+"emojiCategoryActivities" = "Activities";
+"emojiCategoryObjects" = "Objects";
+"emojiCategorySymbols" = "Symbols";
+"emojiCategoryFlags" = "Flags";
