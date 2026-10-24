@@ -10,7 +10,7 @@ enum WebSocketTopic {
     ///
     /// E.g., notifications for writing in a channel.
     static func makeChannelNotifications(courseId: Int) -> String {
-        "/topic/metis/courses/\(courseId)"
+        "/topic/communication/courses/\(courseId)"
     }
 
     /// Makes a topic for conversation notifications of a user.
@@ -26,6 +26,6 @@ enum WebSocketTopic {
     ///
     /// E.g., notifications for starting a group chat.
     static func makeConversationMembershipNotifications(courseId: Int, userId: Int64) -> String {
-        "/user/topic/metis/courses/\(courseId)/conversations/user/\(userId)"
+        "/user/topic/communication/courses/\(courseId)/conversations/user/\(userId)"
     }
 }
