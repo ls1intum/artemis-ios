@@ -7,6 +7,7 @@ struct MessageRichTextEditor: UIViewRepresentable {
     var placeholder: String
     @Binding var isFocused: Bool
     var showsCompletions = false
+    var extraHeight: CGFloat = 0
     @Environment(\.verticalSizeClass) private var verticalSizeClass
 
     func makeCoordinator() -> Coordinator { Coordinator(self) }
@@ -67,9 +68,10 @@ struct MessageRichTextEditor: UIViewRepresentable {
         let measured = uiView.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude))
         let compact = verticalSizeClass == .compact
         let maximum: CGFloat = showsCompletions ? (compact ? 44 : 80) : (compact ? 80 : 160)
+        let desired = min(maximum, max(44, measured.height)) + max(0, extraHeight)
         // Report a shrinkable minimum to VStack, then respect its keyboard/sheet height budget.
-        let available = proposal.height.flatMap { $0 == 0 ? 44 : $0 > 0 && $0.isFinite ? $0 : nil } ?? maximum
-        return CGSize(width: width, height: min(maximum, available, max(44, measured.height)))
+        let available = proposal.height.flatMap { $0 == 0 ? 44 : $0 > 0 && $0.isFinite ? $0 : nil } ?? desired
+        return CGSize(width: width, height: min(available, desired))
     }
 
     static func dismantleUIView(_ uiView: MessageComposerTextView, coordinator: Coordinator) {

@@ -248,3 +248,7 @@
 "emojiCategoryObjects" = "Objects";
 "emojiCategorySymbols" = "Symbols";
 "emojiCategoryFlags" = "Flags";
+
+"expandMessageInput" = "Expand message input";
+"collapseMessageInput" = "Collapse message input";
+"resizeMessageInputHint" = "Drag up to expand or down to collapse. Double-tap to switch sizes.";

@@ -10,7 +10,7 @@ struct MessageComposerEmojiPicker: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 44))], spacing: 8, pinnedViews: [.sectionHeaders]) {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 44))], spacing: 8) {
                     ForEach(sections) { section in
                         Section {
                             ForEach(section.emojis, id: \.self) { emoji in
@@ -27,10 +27,11 @@ struct MessageComposerEmojiPicker: View {
                             }
                         } header: {
                             Text(section.category.title)
-                                .font(.headline)
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(.secondary)
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(.vertical, 12)
-                                .background(.background)
+                                .padding(.top, 12)
+                                .padding(.bottom, 4)
                                 .accessibilityAddTraits(.isHeader)
                         }
                     }

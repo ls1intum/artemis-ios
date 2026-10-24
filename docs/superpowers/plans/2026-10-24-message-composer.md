@@ -39,3 +39,11 @@ Native attribute normalization after intercepted Return; structural prefix edits
 Native captures and logs are local under `/tmp/artemis-ios-composer-review` and `/tmp/artemis-ios-composer-*.log`. The installed iOS 27.1 runtime supports iPhone Duo only; unit hosting covers narrow/wide sizes, while physical-device, tablet, VoiceOver and live-upload checks remain outside this run.
 
 Follow-up validation: 186 package tests pass on both iPhone 17 Pro and iPad Pro 11-inch (M4), iOS/iPadOS 26.2. Native populated-completion, portrait/landscape, keyboard-dismissal and emoji-search/insertion checks pass. The restored production app builds; SwiftLint passes for all eight changed Swift files. Independent review found no actionable issues. Five updated native screenshots are saved in the Desktop review folder.
+
+## Drag resizing and transparent emoji headings
+
+- [x] Add regressions for bounded drag tracking, snapping, interruption and compact-window recovery, plus native editor growth within a height budget.
+- [x] Add the accessible grabber and bounded extra editor height; preserve keyboard focus, selection, and reachable controls. Remove the emoji header backing and pinned behavior, using quieter typography.
+- [x] Run the package suite on iPhone/iPad, inspect native interaction captures, obtain code review, restore app/test entry points, build/lint, and save screencasts before committing and pushing.
+
+Drag-resize validation (2026-10-25): 194 package tests pass on each simulator. A parent-layout regression reproduced the message list stealing composer height; the whole composer now has layout priority ahead of sibling scroll views. Native drag up/down, tap fallback, continued typing, emoji search/insertion, and portrait/landscape reachability pass on iPhone 17 Pro and iPad Pro 11-inch (M4), iOS/iPadOS 26.2. Light/dark native captures confirm transparent category headers. Both 27-second H.264 screencasts decode fully. App/test entry points are restored; unsigned production build, strict SwiftLint on six changed Swift files and diff checks pass. The iPad capture passed after a Simulator restart resolved a SpringBoard automation wait.

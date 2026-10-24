@@ -21,6 +21,9 @@ struct SendMessageView: View {
     @State private var isFocused = false
     @State private var showsEmojiPicker = false
     @State private var restoreFocusAfterEmojiPicker = false
+    @State private var resize = MessageComposerResizeState()
+    @GestureState private var isResizing = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @Environment(\.verticalSizeClass) private var verticalSizeClass
 
@@ -51,6 +54,7 @@ struct SendMessageView: View {
                         .padding(.horizontal, 6)
                 }
             }
+            .padding(.top, viewModel.editor.hasUnsupportedContent ? 0 : 16)
             .padding(.bottom, 6)
             .background {
                 let shape = RoundedRectangle(cornerRadius: 24)
@@ -60,9 +64,19 @@ struct SendMessageView: View {
                     Color.clear.glassEffect(.regular, in: shape)
                 }
             }
+            .overlay(alignment: .top) {
+                if !viewModel.editor.hasUnsupportedContent {
+                    resizeHandle.offset(y: -16)
+                }
+            }
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
             .layoutPriority(1)
+        }
+        // Reserve the composer's bounded height before sibling message/preview scroll views.
+        .layoutPriority(1)
+        .onChange(of: isResizing) {
+            if !isResizing { resize.cancelGesture() }
         }
         .onAppear {
             viewModel.performOnAppear()
@@ -130,6 +144,52 @@ struct SendMessageView: View {
 
 @MainActor
 private extension SendMessageView {
+    var maximumExpansion: CGFloat { verticalSizeClass == .compact ? 120 : 240 }
+
+    var resizeHandle: some View {
+        Button {
+            setExpanded(resize.extraHeight == 0)
+        } label: {
+            Capsule()
+                .fill(.secondary)
+                .frame(width: 36, height: 4)
+                .frame(width: 80, height: 44)
+                .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("message-resize")
+        .accessibilityLabel(resize.extraHeight == 0 ? R.string.localizable.expandMessageInput() : R.string.localizable.collapseMessageInput())
+        .accessibilityValue(resize.extraHeight == 0 ? R.string.localizable.collapsed() : R.string.localizable.expanded())
+        .accessibilityHint(R.string.localizable.resizeMessageInputHint())
+        .accessibilityAdjustableAction { direction in
+            switch direction {
+            case .increment: setExpanded(true)
+            case .decrement: setExpanded(false)
+            @unknown default: break
+            }
+        }
+        .highPriorityGesture(
+            DragGesture(minimumDistance: 8, coordinateSpace: .global)
+                .updating($isResizing) { _, state, _ in state = true }
+                .onChanged { value in
+                    guard abs(value.translation.height) > abs(value.translation.width) else { return }
+                    resize.update(translation: value.translation.height, maximum: maximumExpansion)
+                }
+                .onEnded { value in
+                    withAnimation(reduceMotion ? nil : .snappy(duration: 0.22)) {
+                        resize.finish(translation: value.translation.height, horizontalTranslation: value.translation.width,
+                                      maximum: maximumExpansion)
+                    }
+                }
+        )
+    }
+
+    func setExpanded(_ expanded: Bool) {
+        withAnimation(reduceMotion ? nil : .snappy(duration: 0.22)) {
+            resize.setExpanded(expanded, maximum: maximumExpansion)
+        }
+    }
+
     @ViewBuilder var mentions: some View {
         if let presentation = viewModel.conditionalPresentation {
             VStack(spacing: 0) {
@@ -183,7 +243,8 @@ private extension SendMessageView {
             } else {
                 MessageRichTextEditor(document: viewModel.editor, placeholder: placeholder,
                                       isFocused: $isFocused,
-                                      showsCompletions: viewModel.conditionalPresentation != nil)
+                                      showsCompletions: viewModel.conditionalPresentation != nil,
+                                      extraHeight: min(resize.extraHeight, maximumExpansion))
                     .frame(minHeight: 44)
                     .overlay(alignment: .topLeading) {
                         if viewModel.text.isEmpty {
