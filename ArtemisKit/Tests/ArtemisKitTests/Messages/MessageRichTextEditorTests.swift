@@ -5,6 +5,23 @@ import XCTest
 
 @MainActor
 final class MessageRichTextEditorTests: XCTestCase {
+    func testNativeAttributeNormalizationInLaterListItemsKeepsContinuation() {
+        for style in [MessageEditorBlockStyle.bulletList, .numberedList] {
+            let document = MessageEditorDocument()
+            document.toggleBlock(style)
+            document.insertText("First")
+            XCTAssertTrue(document.handleReplacement(in: document.selection, text: "\n"))
+            let native = NSMutableAttributedString(attributedString: document.content)
+            // Native replacement/autocorrection may supply standard attributes for the item body.
+            native.append(NSAttributedString(string: "Second", attributes: MessageEditorDocument.attributes([])))
+            document.accept(native, selection: NSRange(location: native.length, length: 0))
+            XCTAssertEqual(document.activeBlockStyle, style)
+            XCTAssertTrue(document.handleReplacement(in: document.selection, text: "\n"))
+            document.insertText("Third")
+            XCTAssertEqual(document.markdown, style == .bulletList ? "- First\n- Second\n- Third" : "1. First\n2. Second\n3. Third")
+        }
+    }
+
     func testCodeBlockBackgroundExtendsBeyondShortTextAndStopsBeforePlainText() throws {
         let document = MessageEditorDocument()
         document.load("```\nx\na longer line\n```\n\nPlain text")
@@ -34,7 +51,7 @@ final class MessageRichTextEditorTests: XCTestCase {
         var focus = true
         var writes = 0
         let binding = Binding(get: { focus }, set: { focus = $0; writes += 1 })
-        let parent = MessageRichTextEditor(document: MessageEditorDocument(), placeholder: "Message", isFocused: binding, expanded: false)
+        let parent = MessageRichTextEditor(document: MessageEditorDocument(), placeholder: "Message", isFocused: binding)
         let coordinator = parent.makeCoordinator()
         let view = MessageComposerTextView()
         coordinator.applying = true
@@ -48,7 +65,7 @@ final class MessageRichTextEditorTests: XCTestCase {
         var focus = false
         var writes = 0
         let binding = Binding(get: { focus }, set: { focus = $0; writes += 1 })
-        let parent = MessageRichTextEditor(document: MessageEditorDocument(), placeholder: "Message", isFocused: binding, expanded: false)
+        let parent = MessageRichTextEditor(document: MessageEditorDocument(), placeholder: "Message", isFocused: binding)
         let coordinator = parent.makeCoordinator()
         let view = MessageComposerTextView()
         coordinator.textViewDidBeginEditing(view)
@@ -64,7 +81,7 @@ final class MessageRichTextEditorTests: XCTestCase {
     func testDuplicateCaretNotificationKeepsPendingInlineCodeForNativeTyping() {
         let document = MessageEditorDocument()
         document.load("Before ")
-        let parent = MessageRichTextEditor(document: document, placeholder: "Message", isFocused: .constant(false), expanded: false)
+        let parent = MessageRichTextEditor(document: document, placeholder: "Message", isFocused: .constant(false))
         let coordinator = parent.makeCoordinator()
         let view = MessageComposerTextView()
         view.attributedText = document.content
@@ -83,7 +100,7 @@ final class MessageRichTextEditorTests: XCTestCase {
         for style in [MessageEditorBlockStyle.bulletList, .numberedList, .codeBlock] {
             let document = MessageEditorDocument()
             document.toggleBlock(style)
-            let parent = MessageRichTextEditor(document: document, placeholder: "Message", isFocused: .constant(false), expanded: false)
+            let parent = MessageRichTextEditor(document: document, placeholder: "Message", isFocused: .constant(false))
             let coordinator = parent.makeCoordinator()
             let view = MessageComposerTextView()
             view.attributedText = document.content
@@ -111,7 +128,7 @@ final class MessageRichTextEditorTests: XCTestCase {
             let document = MessageEditorDocument()
             document.load("Before ")
             document.toggle(style)
-            let parent = MessageRichTextEditor(document: document, placeholder: "Message", isFocused: .constant(false), expanded: false)
+            let parent = MessageRichTextEditor(document: document, placeholder: "Message", isFocused: .constant(false))
             let coordinator = parent.makeCoordinator()
             let view = MessageComposerTextView()
             view.attributedText = document.content
@@ -138,7 +155,7 @@ final class MessageRichTextEditorTests: XCTestCase {
         document.load("```\ncode\n```\nplain")
         document.selection = NSRange(location: 2, length: 0)
         document.typingStyle = .code
-        let parent = MessageRichTextEditor(document: document, placeholder: "Message", isFocused: .constant(false), expanded: false)
+        let parent = MessageRichTextEditor(document: document, placeholder: "Message", isFocused: .constant(false))
         let coordinator = parent.makeCoordinator()
         let view = MessageComposerTextView()
         view.attributedText = document.content
@@ -157,33 +174,37 @@ final class MessageRichTextEditorTests: XCTestCase {
         XCTAssertEqual(document.markdown, "```\ncode\n```\nnew plain")
     }
 
-    func testExpandingAnEmptyEditorActuallyCreatesMoreWritingSpace() {
+    func testEditorGrowsWithContentAndCapsLongDrafts() {
         let document = MessageEditorDocument()
-        let compact = fittedHeight(document: document, expanded: false)
-        let expanded = fittedHeight(document: document, expanded: true)
-        XCTAssertGreaterThanOrEqual(expanded - compact, 100)
-        XCTAssertLessThanOrEqual(expanded, 320)
+        let empty = fittedHeight(document: document)
+        document.load("First\nSecond\nThird")
+        XCTAssertGreaterThan(fittedHeight(document: document), empty)
+        document.load(String(repeating: "A long draft line\n", count: 40))
+        XCTAssertLessThanOrEqual(fittedHeight(document: document), 160)
     }
 
-    func testExpandedEditorRequestsSpaceDuringParentMinimumHeightMeasurement() {
-        let editor = MessageRichTextEditor(document: MessageEditorDocument(), placeholder: "Message", isFocused: .constant(false), expanded: true)
+    func testEditorRespectsSmallHeightBudgetAndMinimumMeasurement() {
+        let document = MessageEditorDocument()
+        document.load(String(repeating: "line\n", count: 40))
+        let editor = MessageRichTextEditor(document: document, placeholder: "Message", isFocused: .constant(false))
         let host = UIHostingController(rootView: editor)
-        // VStack asks for a minimum with zero proposed height before allocating its children.
-        XCTAssertGreaterThanOrEqual(host.sizeThatFits(in: CGSize(width: 320, height: 0)).height, 200)
+        XCTAssertLessThanOrEqual(host.sizeThatFits(in: CGSize(width: 320, height: 65)).height, 65)
+        XCTAssertEqual(host.sizeThatFits(in: CGSize(width: 320, height: 0)).height, 44,
+                       "VStack's minimum-height probe must allow a long draft to shrink above the keyboard")
     }
 
     func testNativeHostingPreservesRestoredDraftAndReferencePayload() {
         let document = MessageEditorDocument()
         let draft = "**Draft** for [user]Alice(alice)[/user]"
         document.load(draft)
-        _ = fittedHeight(document: document, expanded: false)
+        _ = fittedHeight(document: document)
         XCTAssertEqual(document.markdown, draft)
         XCTAssertTrue(document.content.string.contains("Draft"))
         XCTAssertFalse(document.hasUnsupportedContent)
     }
 
-    private func fittedHeight(document: MessageEditorDocument, expanded: Bool) -> CGFloat {
-        let editor = MessageRichTextEditor(document: document, placeholder: "Message", isFocused: .constant(false), expanded: expanded)
+    private func fittedHeight(document: MessageEditorDocument) -> CGFloat {
+        let editor = MessageRichTextEditor(document: document, placeholder: "Message", isFocused: .constant(false))
         let host = UIHostingController(rootView: editor)
         return host.sizeThatFits(in: CGSize(width: 320, height: 600)).height
     }

@@ -6,7 +6,6 @@ struct MessageRichTextEditor: UIViewRepresentable {
     var document: MessageEditorDocument
     var placeholder: String
     @Binding var isFocused: Bool
-    var expanded: Bool
     var showsCompletions = false
     @Environment(\.verticalSizeClass) private var verticalSizeClass
 
@@ -16,8 +15,8 @@ struct MessageRichTextEditor: UIViewRepresentable {
         let view = MessageComposerTextView()
         view.document = document
         view.isEditable = !document.hasUnsupportedContent
-        view.backgroundColor = .secondarySystemBackground
-        view.layer.cornerRadius = 8
+        view.backgroundColor = .clear
+        view.keyboardDismissMode = .interactive
         view.textContainerInset = UIEdgeInsets(top: 12, left: 4, bottom: 12, right: 4)
         view.adjustsFontForContentSizeCategory = true
         view.allowsEditingTextAttributes = false
@@ -67,11 +66,10 @@ struct MessageRichTextEditor: UIViewRepresentable {
         let width = proposal.width ?? 300
         let measured = uiView.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude))
         let compact = verticalSizeClass == .compact
-        let maximum: CGFloat = showsCompletions ? (compact ? 44 : 80) : expanded ? (compact ? 120 : 320) : (compact ? 80 : 160)
-        let minimum: CGFloat = expanded && !showsCompletions ? (compact ? 100 : 200) : 44
-        // VStack probes with zero height to learn our minimum. Honouring that proposal here
-        // would report 44 points even when expanded, preventing it from allocating writing space.
-        return CGSize(width: width, height: min(maximum, max(minimum, measured.height)))
+        let maximum: CGFloat = showsCompletions ? (compact ? 44 : 80) : (compact ? 80 : 160)
+        // Report a shrinkable minimum to VStack, then respect its keyboard/sheet height budget.
+        let available = proposal.height.flatMap { $0 == 0 ? 44 : $0 > 0 && $0.isFinite ? $0 : nil } ?? maximum
+        return CGSize(width: width, height: min(maximum, available, max(44, measured.height)))
     }
 
     static func dismantleUIView(_ uiView: MessageComposerTextView, coordinator: Coordinator) {
@@ -193,6 +191,16 @@ final class MessageComposerTextView: UITextView {
 
     required init?(coder: NSCoder) { super.init(coder: coder) }
 
+    override func insertText(_ text: String) {
+        // UIKeyInput insertion is also used by keyboards and dictation. It does not always
+        // traverse shouldChangeTextIn, so structural edits must be handled here as well.
+        if markedTextRange == nil, let document, !document.hasUnsupportedContent {
+            document.selection = selectedRange
+            if document.handleReplacement(in: selectedRange, text: text) { return }
+        }
+        super.insertText(text)
+    }
+
     func updateTypingTraits(for document: MessageEditorDocument) {
         let code = document.activeBlockStyle == .codeBlock || document.typingStyle.contains(.code)
         let correction: UITextAutocorrectionType = code ? .no : .default
@@ -247,8 +255,9 @@ final class MessageComposerTextView: UITextView {
     }
 
     override func paste(_ sender: Any?) {
-        if let data = UIPasteboard.general.data(forPasteboardType: Self.markdownPasteboardType) {
-            document?.insertMarkup(String(decoding: data, as: UTF8.self))
+        if let data = UIPasteboard.general.data(forPasteboardType: Self.markdownPasteboardType),
+           let value = String(bytes: data, encoding: .utf8) {
+            document?.insertMarkup(value)
         } else if let value = UIPasteboard.general.string {
             document?.insertMarkup(value)
         }

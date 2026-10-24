@@ -9,6 +9,8 @@ import Smile
 
 /// Adds support for emojis unavailable in Smile.
 struct Emojis {
+    static let all = Smile.emojiList.merging(newEmojis) { _, newer in newer }
+
     // Emojis newer than our Smile version, we need to add them manually
     private static let newEmojis: [String: String] = [
         "melting_face": "🫠",

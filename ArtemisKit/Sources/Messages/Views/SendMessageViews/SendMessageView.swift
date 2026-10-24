@@ -19,6 +19,9 @@ struct SendMessageView: View {
     @State private var uploadImageViewModel: SendMessageUploadImageViewModel
 
     @State private var isFocused = false
+    @State private var showsEmojiPicker = false
+    @State private var restoreFocusAfterEmojiPicker = false
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @Environment(\.verticalSizeClass) private var verticalSizeClass
 
     init(viewModel: SendMessageViewModel) {
@@ -29,39 +32,36 @@ struct SendMessageView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            if !viewModel.isEditing {
-                Divider()
-            }
-
-            if case .forwardMessage = viewModel.configuration {
-                Text(R.string.localizable.addMessage())
-                    .fontWeight(.semibold)
-                    .padding(.horizontal, .l)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.top, .m)
-            }
-
             mentions
-            textField
-                .padding(.horizontal, .l)
-                .padding(.vertical, .s)
-            if !viewModel.editor.hasUnsupportedContent {
-                MessageAttachmentsPreview(viewModel: viewModel)
+            VStack(spacing: 0) {
+                textField
+                    .padding(.horizontal, 8)
+                if !viewModel.editor.hasUnsupportedContent {
+                    MessageAttachmentsPreview(viewModel: viewModel)
+                    SendMessageKeyboardToolbar(sendButton: sendButton,
+                                               viewModel: viewModel,
+                                               uploadFileViewModel: uploadFileViewModel,
+                                               uploadImageViewModel: uploadImageViewModel,
+                                               focusEditor: { isFocused = true },
+                                               showEmojiPicker: {
+                                                   restoreFocusAfterEmojiPicker = isFocused
+                                                   isFocused = false
+                                                   showsEmojiPicker = true
+                                               })
+                        .padding(.horizontal, 6)
+                }
             }
-            if !viewModel.editor.hasUnsupportedContent && (isFocused || viewModel.keyboardVisible) {
-                SendMessageKeyboardToolbar(sendButton: sendButton,
-                                           viewModel: viewModel,
-                                           uploadFileViewModel: uploadFileViewModel,
-                                           uploadImageViewModel: uploadImageViewModel)
-                    .background(.bar)
+            .padding(.bottom, 6)
+            .background {
+                let shape = RoundedRectangle(cornerRadius: 24)
+                if reduceTransparency {
+                    shape.fill(Color(uiColor: .secondarySystemBackground))
+                } else {
+                    Color.clear.glassEffect(.regular, in: shape)
+                }
             }
-        }
-        .onChange(of: isFocused, initial: true) {
-            // Don't set keyboardVisible to false automatically on iPad
-            // Focus with hardware keyboard is messed up, this is a workaround
-            if UIDevice.current.userInterfaceIdiom != .pad || isFocused {
-                viewModel.keyboardVisible = isFocused
-            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
         }
         .onAppear {
             viewModel.performOnAppear()
@@ -72,7 +72,6 @@ struct SendMessageView: View {
         .onChange(of: viewModel.editor.hasUnsupportedContent) {
             if viewModel.editor.hasUnsupportedContent {
                 isFocused = false
-                viewModel.keyboardVisible = false
                 viewModel.showsLinkEditor = false
                 viewModel.wantsToAddMessageMentionContentType = nil
             }
@@ -80,23 +79,20 @@ struct SendMessageView: View {
         .onDisappear {
             viewModel.performOnDisappear()
         }
-        .gesture(
-            DragGesture(minimumDistance: 30, coordinateSpace: .local)
-                .onEnded { value in
-                    if value.translation.height > 0 {
-                        // down
-                        isFocused = false
-                        viewModel.keyboardVisible = false
-                        let impactMed = UIImpactFeedbackGenerator(style: .medium)
-                        impactMed.impactOccurred()
-                    }
-                }
-        )
-        .sheet(isPresented: $viewModel.showsLinkEditor) {
+        .sheet(isPresented: $showsEmojiPicker, onDismiss: {
+            if restoreFocusAfterEmojiPicker { isFocused = true }
+        }) {
+            MessageComposerEmojiPicker { emoji in
+                viewModel.editor.insertText(emoji)
+                restoreFocusAfterEmojiPicker = true
+            }
+            .presentationDetents([.medium, .large])
+        }
+        .sheet(isPresented: $viewModel.showsLinkEditor, onDismiss: { isFocused = true }) {
             MessageEditorLinkSheet(editor: viewModel.editor)
                 .presentationDetents([.medium])
         }
-        .sheet(item: $viewModel.wantsToAddMessageMentionContentType) { type in
+        .sheet(item: $viewModel.wantsToAddMessageMentionContentType, onDismiss: { isFocused = true }) { type in
             SendMessageMentionContentView(viewModel: viewModel, type: type)
                 .presentationDetents([.fraction(0.5), .medium])
         }
@@ -160,71 +156,70 @@ private extension SendMessageView {
         }
     }
 
+    var placeholder: String {
+        switch viewModel.configuration {
+        case .answerMessage:
+            R.string.localizable.replyAction()
+        case .forwardMessage:
+            R.string.localizable.addMessage()
+        default:
+            R.string.localizable.messageAction(viewModel.conversation.baseConversation.conversationName)
+        }
+    }
+
     var textField: some View {
-        HStack(alignment: .top, spacing: .s) {
-            let conversationName = viewModel.isEditing ? "" : viewModel.conversation.baseConversation.conversationName
-            let placeholder = if case .answerMessage = viewModel.configuration {
-                R.string.localizable.replyAction()
+        VStack(alignment: .leading, spacing: .s) {
+            if viewModel.editor.hasUnsupportedContent {
+                Text(R.string.localizable.unsupportedMessageFormatting())
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .accessibilityIdentifier("unsupported-message-formatting")
+                if viewModel.canDiscardUnsupportedDraft {
+                    Button(R.string.localizable.discardMessageDraft(), role: .destructive, action: viewModel.discardUnsupportedDraft)
+                        .accessibilityIdentifier("discard-unsupported-message-draft")
+                }
             } else {
-                R.string.localizable.messageAction(conversationName)
-            }
-            VStack(alignment: .leading, spacing: .s) {
-                if viewModel.editor.hasUnsupportedContent {
-                    Text(R.string.localizable.unsupportedMessageFormatting())
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .accessibilityIdentifier("unsupported-message-formatting")
-                    if viewModel.canDiscardUnsupportedDraft {
-                        Button(R.string.localizable.discardMessageDraft(), role: .destructive, action: viewModel.discardUnsupportedDraft)
-                            .accessibilityIdentifier("discard-unsupported-message-draft")
-                    }
-                } else {
-                    MessageRichTextEditor(document: viewModel.editor, placeholder: placeholder,
-                                          isFocused: $isFocused, expanded: viewModel.editorExpanded,
-                                          showsCompletions: viewModel.conditionalPresentation != nil)
-                        .overlay(alignment: .topLeading) {
-                            if viewModel.text.isEmpty {
-                                Text(placeholder)
-                                    .font(.body)
-                                    .lineLimit(1)
-                                    .foregroundStyle(.tertiary)
-                                    .padding(.horizontal, 9)
-                                    .padding(.vertical, 12)
-                                    .allowsHitTesting(false)
-                            }
+                MessageRichTextEditor(document: viewModel.editor, placeholder: placeholder,
+                                      isFocused: $isFocused,
+                                      showsCompletions: viewModel.conditionalPresentation != nil)
+                    .overlay(alignment: .topLeading) {
+                        if viewModel.text.isEmpty {
+                            Text(placeholder)
+                                .font(.body)
+                                .lineLimit(1)
+                                .foregroundStyle(Color.primary.opacity(0.6))
+                                .padding(.horizontal, 9)
+                                .padding(.vertical, 12)
+                                .allowsHitTesting(false)
+                                .accessibilityHidden(true)
                         }
-                }
-            }
-            HStack(spacing: 0) {
-                if !viewModel.editor.hasUnsupportedContent {
-                    Button {
-                        withAnimation { viewModel.editorExpanded.toggle() }
-                    } label: {
-                        Image(systemName: viewModel.editorExpanded ? "arrow.down.right.and.arrow.up.left" : "arrow.up.left.and.arrow.down.right")
-                            .frame(width: 44, height: 44)
-                            .contentShape(.rect)
                     }
-                    .accessibilityLabel(R.string.localizable.resizeEditor())
-                    .accessibilityValue(viewModel.editorExpanded ? R.string.localizable.expanded() : R.string.localizable.collapsed())
-                    .accessibilityIdentifier("message-resize-editor")
-                }
-                if !isFocused && !viewModel.keyboardVisible {
-                    sendButton
-                }
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     var sendButton: some View {
         Button(action: viewModel.didTapSendButton) {
-            Image(systemName: "paperplane.fill")
-                .imageScale(.large)
-                .frame(width: 44, height: 44)
-                .contentShape(.rect)
+            ZStack {
+                Circle()
+                    .fill(viewModel.canSend ? Color.accentColor : Color(uiColor: .tertiarySystemFill))
+                if viewModel.isLoading {
+                    ProgressView().tint(.white)
+                } else {
+                    Image(systemName: "arrow.up")
+                        .font(.system(size: 19, weight: .semibold))
+                        .foregroundStyle(viewModel.canSend ? Color.white : Color.secondary)
+                }
+            }
+            .frame(width: 36, height: 36)
+            .frame(width: 44, height: 44)
+            .contentShape(.rect)
         }
+        .buttonStyle(.plain)
         .keyboardShortcut(.return, modifiers: .command)
         .accessibilityLabel(R.string.localizable.sendMessage())
-        .disabled(!viewModel.canSend)
-        .loadingIndicator(isLoading: $viewModel.isLoading)
+        .accessibilityIdentifier("message-send")
+        .disabled(!viewModel.canSend || viewModel.isLoading)
     }
 }

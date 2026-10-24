@@ -54,7 +54,6 @@ final class SendMessageViewModel {
     }
     internal var uploadedImages = [String: UIImage]()
     var formattingExpanded = false
-    var editorExpanded = false
     var showsLinkEditor = false
 
     var isEditing: Bool {
@@ -70,7 +69,7 @@ final class SendMessageViewModel {
         guard !editor.hasUnsupportedContent else { return false }
         return switch configuration {
         case .forwardMessage: true
-        default: !text.isEmpty
+        default: editor.hasMessageBody
         }
     }
 
@@ -99,7 +98,6 @@ final class SendMessageViewModel {
 
     var wantsToAddMessageMentionContentType: MessageMentionContentType?
     var presentKeyboardOnAppear: Bool
-    var keyboardVisible = false
 
     // MARK: Life cycle
 
@@ -183,7 +181,6 @@ extension SendMessageViewModel {
     }
 
     func performOnDisappear() {
-        keyboardVisible = false
         persistDraft()
     }
 

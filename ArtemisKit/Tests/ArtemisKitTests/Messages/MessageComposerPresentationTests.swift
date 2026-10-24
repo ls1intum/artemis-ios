@@ -6,31 +6,21 @@ import XCTest
 
 @MainActor
 final class MessageComposerPresentationTests: XCTestCase {
-    func testFullscreenControlRendersBesideUnfocusedEditorAndExpandedLayoutGainsSpace() async throws {
+    func testEditorUsesFullComposerWidthWithoutAResizeColumn() async throws {
         let model = try makeComposer()
         let content = VStack { Spacer(); SendMessageView(viewModel: model) }
         let (controller, window) = await host(content)
         defer { window.isHidden = true; window.rootViewController = nil }
-        XCTAssertFalse(model.keyboardVisible)
         XCTAssertFalse(model.formattingExpanded)
         let editor = try XCTUnwrap(findEditor(in: controller.view))
+        XCTAssertFalse(editor.isFirstResponder)
         let editorFrame = editor.convert(editor.bounds, to: controller.view)
-        let controls = CGRect(x: editorFrame.maxX, y: editorFrame.minY,
-                              width: controller.view.bounds.width - editorFrame.maxX, height: 44)
-        let image = attachSnapshot(controller.view, name: "composer-unfocused-resize-control")
-        XCTAssertTrue(containsBlueControl(in: controls, image: image), "The resize icon must render beside the field while keyboard and More are closed")
-        let collapsedHeight = editor.bounds.height
-        model.editorExpanded = true
-        controller.rootView = AnyView(content)
-        controller.view.layoutIfNeeded()
-        _ = controller.sizeThatFits(in: window.bounds.size)
-        controller.view.layoutIfNeeded()
-        let expandedEditor = try XCTUnwrap(findEditor(in: controller.view))
-        XCTAssertGreaterThanOrEqual(expandedEditor.bounds.height - collapsedHeight, 100)
-        attachSnapshot(controller.view, name: "composer-expanded-without-keyboard")
+        XCTAssertGreaterThanOrEqual(editorFrame.width, 340, "Actions belong below the text so the editor can use the full width")
+        XCTAssertLessThanOrEqual(editorFrame.height, 60)
+        attachSnapshot(controller.view, name: "composer-empty")
     }
 
-    func testGroupedToolbarFitsNarrowPortraitAndCompactLandscape() async throws {
+    func testFormattingReplacesTheSameToolbarRowAtEveryWidth() async throws {
         let model = try makeComposer()
         let toolbar = SendMessageKeyboardToolbar(
             sendButton: Text("Send"), viewModel: model,
@@ -44,27 +34,26 @@ final class MessageComposerPresentationTests: XCTestCase {
         controller.view.layoutIfNeeded()
         XCTAssertFalse(model.formattingExpanded)
         XCTAssertLessThanOrEqual(controller.sizeThatFits(in: CGSize(width: 320, height: 200)).height, 44)
-        attachSnapshot(controller.view, name: "composer-grouped-toolbar")
+        attachSnapshot(controller.view, name: "composer-default-toolbar")
         model.formattingExpanded = true
         controller.rootView = AnyView(toolbar.environment(\.verticalSizeClass, .regular))
-        XCTAssertGreaterThanOrEqual(controller.sizeThatFits(in: CGSize(width: 320, height: 200)).height, 88)
+        XCTAssertLessThanOrEqual(controller.sizeThatFits(in: CGSize(width: 320, height: 200)).height, 44)
         controller.rootView = AnyView(toolbar.environment(\.verticalSizeClass, .compact))
         XCTAssertLessThanOrEqual(controller.sizeThatFits(in: CGSize(width: 844, height: 200)).height, 44)
-        attachSnapshot(controller.view, name: "composer-expanded-toolbar")
+        attachSnapshot(controller.view, name: "composer-formatting-toolbar")
     }
 
     func testComposerRendersCodeQuotesAndRestoredAttachmentNames() async throws {
         let model = try makeComposer()
         model.performOnAppear()
         model.text = "`inline`\n\n> A **quote**\n\n```swift\nx\na longer line\n```\n\n[Report.pdf](/api/files/report.pdf) ![Diagram](/api/files/image.png)"
-        model.editorExpanded = true
         let (controller, window) = await host(VStack { Spacer(); SendMessageView(viewModel: model) })
         defer { window.isHidden = true; window.rootViewController = nil }
         let nativeEditor = try XCTUnwrap(findEditor(in: controller.view))
         XCTAssertEqual(nativeEditor.attributedText.string, model.editor.content.string)
         XCTAssertEqual(MessageEditorCodec.encode(MessageEditorDocument.spans(nativeEditor.attributedText)), model.text)
         XCTAssertEqual(model.editor.attachments.map(\.name), ["Report.pdf", "Diagram"])
-        XCTAssertGreaterThanOrEqual(nativeEditor.bounds.height, 200)
+        XCTAssertLessThanOrEqual(nativeEditor.bounds.height, 160)
         attachSnapshot(controller.view, name: "composer-code-quotes-attachments")
         controller.overrideUserInterfaceStyle = .dark
         controller.view.setNeedsLayout()
@@ -72,10 +61,47 @@ final class MessageComposerPresentationTests: XCTestCase {
         attachSnapshot(controller.view, name: "composer-dark-code-quotes-attachments")
     }
 
+    func testLongDraftKeepsToolbarInTheAvailableHeight() async throws {
+        let model = try makeComposer()
+        model.performOnAppear()
+        model.text = String(repeating: "A longer message line\n", count: 30)
+        model.formattingExpanded = true
+        let content = VStack(spacing: 0) { Spacer(minLength: 0); SendMessageView(viewModel: model) }
+            .environment(\.verticalSizeClass, .compact)
+        let (controller, window) = await host(content, size: CGSize(width: 320, height: 200))
+        defer { window.isHidden = true; window.rootViewController = nil }
+        controller.safeAreaRegions = []
+        controller.view.layoutIfNeeded()
+        let editor = try XCTUnwrap(findEditor(in: controller.view))
+        let frame = editor.convert(editor.bounds, to: controller.view)
+        XCTAssertGreaterThanOrEqual(frame.minY, 0)
+        XCTAssertLessThanOrEqual(editor.bounds.height, 80)
+        XCTAssertLessThanOrEqual(frame.maxY + 44, controller.view.bounds.maxY)
+        XCTAssertTrue(editor.isScrollEnabled)
+        attachSnapshot(controller.view, name: "composer-narrow-short-height")
+    }
+
+    func testWideAndLargeTextComposerKeepsOneToolbarRow() async throws {
+        let model = try makeComposer()
+        model.performOnAppear()
+        model.text = "> A **quoted** message\n> Another line\n\nA reply with `code`."
+        model.formattingExpanded = true
+        let content = VStack { Spacer(); SendMessageView(viewModel: model) }
+            .environment(\.dynamicTypeSize, .accessibility3)
+        let (controller, window) = await host(content, size: CGSize(width: 768, height: 700))
+        defer { window.isHidden = true; window.rootViewController = nil }
+        let editor = try XCTUnwrap(findEditor(in: controller.view))
+        XCTAssertGreaterThanOrEqual(editor.bounds.width, 700)
+        XCTAssertLessThanOrEqual(editor.bounds.height, 160)
+        attachSnapshot(controller.view, name: "composer-wide-large-text")
+    }
+
     private func makeComposer() throws -> SendMessageViewModel {
         let id = Int.random(in: 7_000_001...8_000_000)
+        var channel = Channel(id: Int64(id))
+        channel.name = "general"
         return SendMessageViewModel(course: CourseForOverviewDTO(course: Course(id: id, courseInformationSharingConfiguration: .communicationAndMessaging)),
-                                    conversation: Conversation(conversation: Channel(id: Int64(id)))!, configuration: .message,
+                                    conversation: Conversation(conversation: channel)!, configuration: .message,
                                     delegate: SendMessageViewModelDelegate(presentError: { _ in }, sendMessage: { _ in }),
                                     messagesRepository: try MessagesRepository())
     }
@@ -97,24 +123,9 @@ final class MessageComposerPresentationTests: XCTestCase {
         return view.subviews.lazy.compactMap { self.findEditor(in: $0) }.first
     }
 
-    private func containsBlueControl(in rect: CGRect, image: UIImage) -> Bool {
-        guard let cgImage = image.cgImage, let data = cgImage.dataProvider?.data,
-              let bytes = CFDataGetBytePtr(data) else { return false }
-        let scale = image.scale
-        let region = rect.applying(CGAffineTransform(scaleX: scale, y: scale)).intersection(CGRect(x: 0, y: 0, width: cgImage.width, height: cgImage.height))
-        guard !region.isNull else { return false }
-        // UIKit renderer images use BGRA storage. Look for the blue accent in the resize control.
-        for y in Int(region.minY)..<Int(region.maxY) {
-            for x in Int(region.minX)..<Int(region.maxX) {
-                let offset = y * cgImage.bytesPerRow + x * (cgImage.bitsPerPixel / 8)
-                if Int(bytes[offset]) > Int(bytes[offset + 2]) + 30, Int(bytes[offset]) > Int(bytes[offset + 1]) + 10 { return true }
-            }
-        }
-        return false
-    }
-
     @discardableResult
     private func attachSnapshot(_ view: UIView, name: String) -> UIImage {
+        // These unhosted test captures verify layout. Inspect materials with Simulator screenshots.
         let image = UIGraphicsImageRenderer(bounds: view.bounds).image { view.layer.render(in: $0.cgContext) }
         let attachment = XCTAttachment(image: image)
         attachment.name = name

@@ -3,6 +3,32 @@ import XCTest
 
 @MainActor
 final class MessageEditorBlockDocumentTests: XCTestCase {
+    func testQuoteStartIsACompletionBoundaryForTypedAndToolbarMentions() {
+        for trigger: Character in ["@", "#"] {
+            let editor = MessageEditorDocument()
+            editor.toggleBlock(.quote)
+            editor.insertText(String(trigger) + "alice")
+            XCTAssertEqual(editor.completion?.trigger, trigger)
+            XCTAssertEqual(editor.completion?.query, "alice")
+            editor.load("")
+            editor.toggleBlock(.quote)
+            editor.beginCompletion(trigger)
+            XCTAssertEqual(editor.markdown, trigger == "#" ? "> \\#" : "> @")
+            XCTAssertEqual(editor.completion?.trigger, trigger)
+        }
+    }
+
+    func testRemovingOnlyTheQuotePrefixTurnsTheRemainingParagraphIntoPlainText() {
+        let editor = MessageEditorDocument()
+        editor.load("> hello")
+        let native = NSMutableAttributedString(attributedString: editor.content)
+        native.deleteCharacters(in: NSRange(location: 0, length: MessageEditorBlockCodec.quoteDisplayPrefix.utf16.count))
+        editor.accept(native, selection: NSRange(location: 0, length: 0))
+        XCTAssertNil(editor.activeBlockStyle)
+        XCTAssertEqual(editor.markdown, "hello")
+        XCTAssertNil(editor.content.attribute(.paragraphStyle, at: 0, effectiveRange: nil))
+    }
+
     func testMultilinePasteIntoPrefixedBlocksRemainsEditableAfterReopening() {
         for (source, expected) in [("- Hello", "- Heone\n- twollo"), ("1. Hello", "1. Heone\n2. twollo"), ("> Hello", "> Heone\n> twollo")] {
             let editor = MessageEditorDocument()

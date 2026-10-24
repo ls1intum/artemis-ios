@@ -12,7 +12,7 @@ struct SendMessageFilePickerView: View {
         Button {
             viewModel.isFilePickerPresented = true
         } label: {
-            Label("Upload File", systemImage: "doc.fill")
+            Label(R.string.localizable.uploadFile(), systemImage: "doc.fill")
         }
     }
 }

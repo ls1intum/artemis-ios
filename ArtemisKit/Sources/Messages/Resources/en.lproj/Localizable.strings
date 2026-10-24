@@ -219,6 +219,9 @@
 "done" = "Done";
 
 "moreFormatting" = "More formatting";
+"hideFormatting" = "Hide formatting";
+"addAttachmentOrReference" = "Add attachment or course reference";
+"searchEmojis" = "Search emojis";
 "expanded" = "Expanded";
 "collapsed" = "Collapsed";
 "resizeEditor" = "Resize editor";

@@ -9,150 +9,166 @@ import Navigation
 import SharedModels
 import SwiftUI
 
+/// Both modes occupy one row. Only the middle scrolls, keeping close and send reachable.
 struct SendMessageKeyboardToolbar<SendButton: View>: View {
     @Environment(\.availableTabs) private var tabs
-    @Environment(\.verticalSizeClass) private var verticalSizeClass
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     let sendButton: SendButton
     @Bindable var viewModel: SendMessageViewModel
-
     let uploadFileViewModel: SendMessageUploadFileViewModel
     let uploadImageViewModel: SendMessageUploadImageViewModel
+    var focusEditor: () -> Void = {}
+    var showEmojiPicker: () -> Void = {}
 
     var body: some View {
-        Group {
-            if verticalSizeClass == .compact {
-                ScrollView(.horizontal) { toolbarContent }
-                    .scrollIndicators(.hidden)
+        HStack(spacing: 0) {
+            if viewModel.formattingExpanded {
+                Button(action: toggleFormatting) {
+                    Image(systemName: "xmark")
+                        .frame(width: 32, height: 32)
+                        .background(Color.accentColor.opacity(0.15), in: .circle)
+                        .frame(width: 44, height: 44)
+                        .contentShape(.rect)
+                }
+                .accessibilityLabel(R.string.localizable.hideFormatting())
+                .accessibilityIdentifier("message-close-formatting")
             } else {
-                toolbarContent
+                addMenu
             }
+            ScrollView(.horizontal) {
+                HStack(spacing: 0) {
+                    if viewModel.formattingExpanded {
+                        formattingControls
+                    } else {
+                        compositionControls
+                    }
+                }
+            }
+            .scrollIndicators(.hidden)
+            .frame(height: 44)
+            .id(viewModel.formattingExpanded)
+            sendButton
         }
         .labelStyle(.iconOnly)
-        .font(.body)
-        .buttonStyle(.borderless)
-        .padding(.horizontal, .m)
+        .font(.system(size: 20))
+        .buttonStyle(.plain)
+        .foregroundStyle(.secondary)
         .disabled(viewModel.editor.hasUnsupportedContent)
     }
 
-    private var toolbarContent: some View {
-        let layout = verticalSizeClass == .compact ? AnyLayout(HStackLayout(spacing: 0)) : AnyLayout(VStackLayout(spacing: 0))
-        return layout {
-            HStack(spacing: 0) {
-                Menu {
-                    formatButton(R.string.localizable.bold(), icon: "bold", style: .bold)
-                    formatButton(R.string.localizable.italic(), icon: "italic", style: .italic)
-                    formatButton(R.string.localizable.underline(), icon: "underline", style: .underline)
-                    formatButton(R.string.localizable.strikethrough(), icon: "strikethrough", style: .strikethrough)
-                } label: {
-                    toolbarLabel(R.string.localizable.textFormatting(), icon: "textformat")
-                }
-                Button(action: viewModel.didTapLinkButton) {
-                    toolbarLabel(R.string.localizable.link(), icon: "link")
-                }
-                .disabled(!viewModel.editor.canSetLink)
-                Menu {
-                    formatButton(R.string.localizable.inlineCode(), icon: "curlybraces", style: .code)
-                    blockMenuButton(R.string.localizable.codeBlock(), icon: "chevron.left.forwardslash.chevron.right", style: .codeBlock)
-                } label: {
-                    toolbarLabel(R.string.localizable.code(), icon: "curlybraces")
-                }
-                .accessibilityIdentifier("message-code-menu")
-                Menu {
-                    blockMenuButton(R.string.localizable.unorderedList(), icon: "list.bullet", style: .bulletList)
-                    blockMenuButton(R.string.localizable.orderedList(), icon: "list.number", style: .numberedList)
-                } label: {
-                    toolbarLabel(R.string.localizable.lists(), icon: "list.bullet")
-                }
-                .accessibilityIdentifier("message-lists-menu")
-                Button {
-                    withAnimation { viewModel.formattingExpanded.toggle() }
-                } label: {
-                    toolbarLabel(R.string.localizable.moreFormatting(), icon: viewModel.formattingExpanded ? "chevron.up" : "ellipsis")
-                }
-                .accessibilityValue(viewModel.formattingExpanded ? R.string.localizable.expanded() : R.string.localizable.collapsed())
-                Spacer(minLength: 0)
-                sendButton
+    private var compositionControls: some View {
+        Group {
+            Button(action: toggleFormatting) {
+                toolbarLabel(R.string.localizable.textFormatting(), icon: "textformat")
             }
-            if viewModel.formattingExpanded {
-                HStack(spacing: 0) {
-                    blockButton(R.string.localizable.quote(), icon: "text.quote", style: .quote)
-                    mentionContentMenu
-                        .disabled(!viewModel.editor.canFormatInline)
-                    Menu {
-                        SendMessageImagePickerView(viewModel: uploadImageViewModel)
-                        SendMessageFilePickerView(viewModel: uploadFileViewModel)
-                    } label: {
-                        toolbarLabel(R.string.localizable.attachments(), icon: "paperclip")
-                    }
-                    .disabled(!viewModel.editor.canFormatInline)
-                    Spacer(minLength: 0)
-                }
+            .accessibilityIdentifier("message-show-formatting")
+            Button(action: showEmojiPicker) {
+                toolbarLabel(R.string.localizable.emojis(), icon: "face.smiling")
             }
+            .disabled(!viewModel.editor.canFormatInline)
+            Button {
+                focusEditor()
+                viewModel.didTapAtButton()
+            } label: {
+                toolbarLabel(R.string.localizable.members(), icon: "at")
+            }
+            .disabled(!viewModel.editor.canFormatInline)
+            Button {
+                focusEditor()
+                viewModel.didTapNumberButton()
+            } label: {
+                toolbarLabel(R.string.localizable.channels(), icon: "number")
+            }
+            .disabled(!viewModel.editor.canFormatInline)
         }
     }
 
-    private func toolbarLabel(_ title: String, icon: String) -> some View {
+    private var formattingControls: some View {
+        Group {
+            formatButton(R.string.localizable.bold(), icon: "bold", style: .bold)
+            formatButton(R.string.localizable.italic(), icon: "italic", style: .italic)
+            formatButton(R.string.localizable.underline(), icon: "underline", style: .underline)
+            formatButton(R.string.localizable.strikethrough(), icon: "strikethrough", style: .strikethrough)
+            Button(action: viewModel.didTapLinkButton) {
+                toolbarLabel(R.string.localizable.link(), icon: "link", selected: viewModel.editor.linkRange != nil)
+            }
+            .disabled(!viewModel.editor.canSetLink)
+            blockButton(R.string.localizable.orderedList(), icon: "list.number", style: .numberedList)
+            blockButton(R.string.localizable.unorderedList(), icon: "list.bullet", style: .bulletList)
+            blockButton(R.string.localizable.quote(), icon: "text.quote", style: .quote)
+            formatButton(R.string.localizable.inlineCode(), icon: "curlybraces", style: .code)
+            blockButton(R.string.localizable.codeBlock(), icon: "chevron.left.forwardslash.chevron.right", style: .codeBlock)
+        }
+    }
+
+    private var addMenu: some View {
+        Menu {
+            Section {
+                SendMessageImagePickerView(viewModel: uploadImageViewModel)
+                SendMessageFilePickerView(viewModel: uploadFileViewModel)
+            }
+            Section {
+                Button(R.string.localizable.exercises(), systemImage: "list.bullet.clipboard") {
+                    viewModel.wantsToAddMessageMentionContentType = .exercise
+                }
+                Button(R.string.localizable.lectures(), systemImage: "character.book.closed") {
+                    viewModel.wantsToAddMessageMentionContentType = .lecture
+                }
+                if tabs.faq {
+                    Button(R.string.localizable.faqs(), systemImage: "questionmark.circle") {
+                        viewModel.wantsToAddMessageMentionContentType = .faq
+                    }
+                }
+            }
+        } label: {
+            Image(systemName: "plus")
+                .frame(width: 32, height: 32)
+                .background(.quaternary, in: .circle)
+                .frame(width: 44, height: 44)
+                .contentShape(.rect)
+        }
+        .accessibilityLabel(R.string.localizable.addAttachmentOrReference())
+        .accessibilityIdentifier("message-add-attachment")
+        .disabled(!viewModel.editor.canFormatInline)
+    }
+
+    private func toggleFormatting() {
+        focusEditor()
+        withAnimation(reduceMotion ? nil : .easeOut(duration: 0.18)) {
+            viewModel.formattingExpanded.toggle()
+        }
+    }
+
+    private func toolbarLabel(_ title: String, icon: String, selected: Bool = false) -> some View {
         Label(title, systemImage: icon)
+            .foregroundStyle(selected ? Color.accentColor : Color.secondary)
+            .frame(width: 36, height: 32)
+            .background(selected ? Color.accentColor.opacity(0.15) : Color.clear, in: .rect(cornerRadius: 8))
             .frame(width: 44, height: 44)
             .contentShape(.rect)
     }
 
-    private func formatButton(_ label: String, icon: String, style: MessageEditorStyle) -> some View {
-        Toggle(isOn: Binding(get: { viewModel.editor.activeStyle.contains(style) }, set: { _ in viewModel.editor.toggle(style) })) {
-            Label(label, systemImage: icon)
+    private func formatButton(_ title: String, icon: String, style: MessageEditorStyle) -> some View {
+        let selected = viewModel.editor.activeStyle.contains(style)
+        return Button {
+            focusEditor()
+            viewModel.editor.toggle(style)
+        } label: {
+            toolbarLabel(title, icon: icon, selected: selected)
         }
         .disabled(!viewModel.editor.canFormatInline)
-        .accessibilityAddTraits(viewModel.editor.activeStyle.contains(style) ? .isSelected : [])
+        .accessibilityAddTraits(selected ? .isSelected : [])
     }
 
-    private func blockMenuButton(_ label: String, icon: String, style: MessageEditorBlockStyle) -> some View {
-        Toggle(isOn: Binding(get: { viewModel.editor.activeBlockStyle == style }, set: { _ in viewModel.editor.toggleBlock(style) })) {
-            Label(label, systemImage: icon)
-        }
-    }
-
-    private func blockButton(_ label: String, icon: String, style: MessageEditorBlockStyle) -> some View {
-        Button {
+    private func blockButton(_ title: String, icon: String, style: MessageEditorBlockStyle) -> some View {
+        let selected = viewModel.editor.activeBlockStyle == style
+        return Button {
+            focusEditor()
             viewModel.editor.toggleBlock(style)
         } label: {
-            toolbarLabel(label, icon: icon)
-                .background(viewModel.editor.activeBlockStyle == style ? Color.accentColor.opacity(0.15) : Color.clear, in: .rect(cornerRadius: 8))
+            toolbarLabel(title, icon: icon, selected: selected)
         }
-        .accessibilityAddTraits(viewModel.editor.activeBlockStyle == style ? .isSelected : [])
-    }
-
-    var mentionContentMenu: some View {
-        Menu {
-            Button {
-                viewModel.didTapAtButton()
-            } label: {
-                Label(R.string.localizable.members(), systemImage: "at")
-            }
-            Button {
-                viewModel.didTapNumberButton()
-            } label: {
-                Label(R.string.localizable.channels(), systemImage: "number")
-            }
-            Button {
-                viewModel.wantsToAddMessageMentionContentType = .exercise
-            } label: {
-                Label(R.string.localizable.exercises(), systemImage: "list.bullet.clipboard")
-            }
-            Button {
-                viewModel.wantsToAddMessageMentionContentType = .lecture
-            } label: {
-                Label(R.string.localizable.lectures(), systemImage: "character.book.closed")
-            }
-            if tabs.faq {
-                Button {
-                    viewModel.wantsToAddMessageMentionContentType = .faq
-                } label: {
-                    Label(R.string.localizable.faqs(), systemImage: "questionmark.circle")
-                }
-            }
-        } label: {
-            toolbarLabel(R.string.localizable.mention(), icon: "plus.circle.fill")
-        }
+        .accessibilityAddTraits(selected ? .isSelected : [])
     }
 }

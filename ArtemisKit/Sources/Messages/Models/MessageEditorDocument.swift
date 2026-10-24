@@ -50,9 +50,13 @@ final class MessageEditorDocument {
 
     func accept(_ value: NSAttributedString, selection: NSRange) {
         guard !hasUnsupportedContent else { return }
-        content = NSAttributedString(attributedString: value)
+        // Native typing and autocorrection can replace custom attributes on an item body.
+        // Its surviving paragraph start owns the block style, including at the end caret.
+        let normalized = NSMutableAttributedString(attributedString: value)
+        normalizeJoinedParagraphs(in: normalized, around: selection)
+        content = NSAttributedString(attributedString: normalized)
         self.selection = selection
-        markdown = MessageEditorCodec.encode(Self.spans(value))
+        markdown = MessageEditorCodec.encode(Self.spans(content))
         onContentChange?()
     }
 
@@ -64,7 +68,28 @@ final class MessageEditorDocument {
 
     func plainText(in range: NSRange) -> String {
         guard NSMaxRange(range) <= content.length else { return "" }
-        return Self.spans(content.attributedSubstring(from: range)).map { $0.reference?.label ?? $0.text }.joined()
+        return Self.spans(content.attributedSubstring(from: range)).map { span in
+            if let reference = span.reference { return reference.label }
+            guard span.block?.style == .quote else { return span.text }
+            let prefix = MessageEditorBlockCodec.quoteDisplayPrefix
+            let text = span.text.replacingOccurrences(of: "\n" + prefix, with: "\n")
+            return text.hasPrefix(prefix) ? String(text.dropFirst(prefix.count)) : text
+        }.joined()
+    }
+
+    /// Formatting markers alone do not make a message sendable; atomic references do.
+    var hasMessageBody: Bool {
+        let text = content.string as NSString
+        var position = 0
+        while position < content.length {
+            let paragraph = text.paragraphRange(for: NSRange(location: position, length: 0))
+            let line = text.substring(with: paragraph)
+            let block = Self.block(content.attributes(at: position, effectiveRange: nil))
+            let prefix = block.map { $0.style == .codeBlock ? 0 : MessageEditorBlockCodec.displayPrefixLength(line, style: $0.style) } ?? 0
+            if !(line as NSString).substring(from: prefix).trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { return true }
+            position = NSMaxRange(paragraph)
+        }
+        return false
     }
 
     var canSetLink: Bool {
@@ -81,7 +106,7 @@ final class MessageEditorDocument {
     var completion: Completion? {
         guard !hasUnsupportedContent, activeBlockStyle != .codeBlock, selection.length == 0, selection.location <= content.length else { return nil }
         let prefix = (content.string as NSString).substring(to: selection.location)
-        guard let match = prefix.range(of: #"(?:^|[\s(])([@#])([\p{L}\p{N}_-]*)$"#, options: .regularExpression) else { return nil }
+        guard let match = prefix.range(of: #"(?:^|[\s(\u200B])([@#])([\p{L}\p{N}_-]*)$"#, options: .regularExpression) else { return nil }
         let candidate = prefix[match].drop(while: { $0 != "@" && $0 != "#" })
         guard let trigger = candidate.first else { return nil }
         let range = NSRange(location: selection.location - candidate.utf16.count, length: candidate.utf16.count)
@@ -132,7 +157,7 @@ final class MessageEditorDocument {
     func beginCompletion(_ trigger: Character) {
         guard !hasUnsupportedContent else { return }
         let before = (content.string as NSString).substring(to: selection.location)
-        let prefix = before.last.map { $0.isWhitespace || $0 == "(" ? "" : " " } ?? ""
+        let prefix = before.last.map { $0.isWhitespace || $0 == "(" || String($0) == MessageEditorBlockCodec.quoteDisplayPrefix ? "" : " " } ?? ""
         insertText(prefix + String(trigger))
     }
 
