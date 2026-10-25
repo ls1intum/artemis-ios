@@ -1,6 +1,7 @@
 included:
   - Artemis
   - ArtemisKit
+  - ArtemisKitTestHost
 excluded:
   - Tests/SwiftLintFrameworkTests/Resources
   - ArtemisKit/Tests/ArtemisKitTests/Notifications/**

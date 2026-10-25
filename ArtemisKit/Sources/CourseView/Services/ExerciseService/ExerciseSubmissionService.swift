@@ -18,7 +18,7 @@ protocol ExerciseSubmissionService {
     func updateSubmission(exerciseId: Int, submission: BaseSubmission) async throws
 }
 
-// TODO: Add ExerciseSubmission for all other exercise types
+// Native submission services currently cover modeling and text; other types use the fallback.
 enum ExerciseSubmissionServiceFactory {
     static func service(for exercise: Exercise) -> ExerciseSubmissionService {
         switch exercise {

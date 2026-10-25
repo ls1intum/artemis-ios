@@ -315,9 +315,7 @@ final class MessageEditorNativeIntegrationTests: XCTestCase {
     }
 
     private func host(_ document: MessageEditorDocument) async throws -> (UIHostingController<EditorHarness>, UIWindow) {
-        let scene = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first
-        let window = scene.map(UIWindow.init(windowScene:)) ?? UIWindow()
-        window.frame = CGRect(x: 0, y: 0, width: 390, height: 844)
+        let window = try makeTestWindow(frame: CGRect(x: 0, y: 0, width: 390, height: 844))
         let appeared = expectation(description: "Native editor appeared")
         let host = UIHostingController(rootView: EditorHarness(document: document, appeared: { appeared.fulfill() }))
         window.rootViewController = host

@@ -10,7 +10,7 @@ final class MessageComposerPresentationTests: XCTestCase {
     func testEditorUsesFullComposerWidthWithoutAResizeColumn() async throws {
         let model = try makeComposer()
         let content = VStack { Spacer(); SendMessageView(viewModel: model) }
-        let (controller, window) = await host(content)
+        let (controller, window) = try await host(content)
         defer { window.isHidden = true; window.rootViewController = nil }
         XCTAssertFalse(model.formattingExpanded)
         let editor = try XCTUnwrap(findEditor(in: controller.view))
@@ -27,7 +27,7 @@ final class MessageComposerPresentationTests: XCTestCase {
             sendButton: Text("Send"), viewModel: model,
             uploadFileViewModel: .init(courseId: model.course.id, conversationId: model.conversation.id),
             uploadImageViewModel: .init(courseId: model.course.id, conversationId: model.conversation.id))
-        let (controller, window) = await host(toolbar.environment(\.verticalSizeClass, .regular), size: CGSize(width: 320, height: 200))
+        let (controller, window) = try await host(toolbar.environment(\.verticalSizeClass, .regular), size: CGSize(width: 320, height: 200))
         defer { window.isHidden = true; window.rootViewController = nil }
         controller.additionalSafeAreaInsets = UIEdgeInsets(top: 62, left: 0, bottom: 34, right: 0)
         // Measure the toolbar itself; host safe-area insets vary across simulator runtimes.
@@ -48,7 +48,7 @@ final class MessageComposerPresentationTests: XCTestCase {
         let model = try makeComposer()
         model.performOnAppear()
         model.text = "`inline`\n\n> A **quote**\n\n```swift\nx\na longer line\n```\n\n[Report.pdf](/api/files/report.pdf) ![Diagram](/api/files/image.png)"
-        let (controller, window) = await host(VStack { Spacer(); SendMessageView(viewModel: model) })
+        let (controller, window) = try await host(VStack { Spacer(); SendMessageView(viewModel: model) })
         defer { window.isHidden = true; window.rootViewController = nil }
         let nativeEditor = try XCTUnwrap(findEditor(in: controller.view))
         XCTAssertEqual(nativeEditor.attributedText.string, model.editor.content.string)
@@ -69,7 +69,7 @@ final class MessageComposerPresentationTests: XCTestCase {
         model.formattingExpanded = true
         let content = VStack(spacing: 0) { Spacer(minLength: 0); SendMessageView(viewModel: model) }
             .environment(\.verticalSizeClass, .compact)
-        let (controller, window) = await host(content, size: CGSize(width: 320, height: 200))
+        let (controller, window) = try await host(content, size: CGSize(width: 320, height: 200))
         defer { window.isHidden = true; window.rootViewController = nil }
         controller.safeAreaRegions = []
         controller.view.layoutIfNeeded()
@@ -89,7 +89,7 @@ final class MessageComposerPresentationTests: XCTestCase {
         model.formattingExpanded = true
         let content = VStack { Spacer(); SendMessageView(viewModel: model) }
             .environment(\.dynamicTypeSize, .accessibility3)
-        let (controller, window) = await host(content, size: CGSize(width: 768, height: 700))
+        let (controller, window) = try await host(content, size: CGSize(width: 768, height: 700))
         defer { window.isHidden = true; window.rootViewController = nil }
         let editor = try XCTUnwrap(findEditor(in: controller.view))
         XCTAssertGreaterThanOrEqual(editor.bounds.width, 700)
@@ -107,7 +107,7 @@ final class MessageComposerPresentationTests: XCTestCase {
                 XCTAssertNotNil(model.conditionalPresentation)
                 let content = VStack(spacing: 0) { Spacer(minLength: 0); SendMessageView(viewModel: model) }
                     .environment(\.verticalSizeClass, sizeClass)
-                let (controller, window) = await host(content, size: CGSize(width: 390, height: 170))
+                let (controller, window) = try await host(content, size: CGSize(width: 390, height: 170))
                 defer { window.isHidden = true; window.rootViewController = nil }
                 controller.safeAreaRegions = []
                 controller.view.layoutIfNeeded()
@@ -130,7 +130,7 @@ final class MessageComposerPresentationTests: XCTestCase {
                 MessageRichTextEditor(document: document, placeholder: "Message", isFocused: .constant(false), extraHeight: 240)
                 Color.clear.frame(height: 44)
             }
-            let (controller, window) = await host(content, size: CGSize(width: 390, height: height))
+            let (controller, window) = try await host(content, size: CGSize(width: 390, height: height))
             defer { window.isHidden = true; window.rootViewController = nil }
             controller.safeAreaRegions = []
             controller.view.layoutIfNeeded()
@@ -160,7 +160,7 @@ final class MessageComposerPresentationTests: XCTestCase {
             .navigationBarTitleDisplayMode(.inline)
         }
         .environment(\.verticalSizeClass, .regular)
-        let (controller, window) = await host(content, size: CGSize(width: 390, height: 450))
+        let (controller, window) = try await host(content, size: CGSize(width: 390, height: 450))
         defer { window.isHidden = true; window.rootViewController = nil }
         controller.safeAreaRegions = []
         controller.view.layoutIfNeeded()
@@ -179,11 +179,11 @@ final class MessageComposerPresentationTests: XCTestCase {
                                     messagesService: MessagesServiceStub(), courseService: CourseServiceFactory.testValue)
     }
 
-    private func host(_ view: some View, size: CGSize = CGSize(width: 390, height: 844)) async -> (UIHostingController<AnyView>, UIWindow) {
+    private func host(_ view: some View, size: CGSize = CGSize(width: 390, height: 844)) async throws -> (UIHostingController<AnyView>, UIWindow) {
         let appeared = expectation(description: "Composer presentation appeared")
         appeared.assertForOverFulfill = false
         let controller = UIHostingController(rootView: AnyView(view.onAppear { appeared.fulfill() }))
-        let window = UIWindow(frame: CGRect(origin: .zero, size: size))
+        let window = try makeTestWindow(frame: CGRect(origin: .zero, size: size))
         window.rootViewController = controller
         window.makeKeyAndVisible()
         await fulfillment(of: [appeared], timeout: 2)

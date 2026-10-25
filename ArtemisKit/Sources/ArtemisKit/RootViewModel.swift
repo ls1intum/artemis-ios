@@ -62,7 +62,7 @@ class RootViewModel: ObservableObject {
 
 private extension RootViewModel {
     func start() {
-        userSession.objectWillChange.sink {
+        userSession.objectWillChange.sink { [weak self] in
             DispatchQueue.main.async { [weak self] in
                 guard let self else {
                     return

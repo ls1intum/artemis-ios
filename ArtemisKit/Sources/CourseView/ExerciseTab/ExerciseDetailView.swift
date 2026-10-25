@@ -113,17 +113,6 @@ private extension ExerciseDetailView {
     // All buttons regarding viewing feedback and for the future, starting an exercise
     func feedback(exercise: Exercise) -> some View {
         HStack(spacing: .m) {
-//            if viewModel.isExerciseParticipationAvailable {
-//                if let dueDate = exercise.baseExercise.dueDate {
-//                    if dueDate < Date(), let participationId = viewModel.participationId {
-//                        if viewModel.latestResultId == nil {
-//                            ViewExerciseSubmissionButton(exercise: exercise, participationId: participationId)
-//                        } else {
-//                            ViewExerciseResultButton(exercise: exercise, participationId: participationId)
-//                        }
-//                    }
-//                }
-//            }
             if let latestResultId = viewModel.latestResultId,
                let participationId = viewModel.participationId,
                viewModel.isFeedbackButtonVisible {
@@ -181,62 +170,6 @@ private extension ExerciseDetailView {
 
     var problem: some View {
         ProblemStatementView(viewModel: viewModel)
-    }
-}
-
-private struct ViewExerciseSubmissionButton: View {
-    var exercise: Exercise
-    var participationId: Int
-
-    var body: some View {
-        // TODO: Fix, then re-enable
-//        switch exercise {
-//        case .modeling:
-//            NavigationLink {
-//                ViewModelingExerciseView(exercise: exercise, participationId: participationId)
-//            } label: {
-//                Text(R.string.localizable.viewSubmission())
-//            }
-//            .buttonStyle(ArtemisButton())
-//        case .text:
-//            NavigationLink {
-//                ViewTextExerciseView(exercise: exercise, participationId: participationId)
-//            } label: {
-//                Text(R.string.localizable.viewSubmission())
-//            }
-//            .buttonStyle(ArtemisButton())
-//        default:
-            ArtemisHintBox(text: R.string.localizable.exerciseParticipationHint(), hintType: .info)
-//        }
-    }
-}
-
-private struct ViewExerciseResultButton: View {
-    var exercise: Exercise
-    var participationId: Int
-
-    var body: some View {
-        // TODO: Fix, then re-enable
-//        switch exercise {
-//        case .modeling:
-//            NavigationLink {
-//                ViewModelingExerciseResultView(
-//                    exercise: exercise,
-//                    participationId: participationId)
-//            } label: {
-//                Text(R.string.localizable.viewResult())
-//            }
-//            .buttonStyle(ArtemisButton())
-//        case .text:
-//            NavigationLink {
-//                ViewTextExerciseView(exercise: exercise, participationId: participationId)
-//            } label: {
-//                Text(R.string.localizable.viewSubmission())
-//            }
-//            .buttonStyle(ArtemisButton())
-//        default:
-            ArtemisHintBox(text: R.string.localizable.exerciseParticipationHint(), hintType: .info)
-//        }
     }
 }
 

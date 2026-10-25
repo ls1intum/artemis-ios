@@ -17,6 +17,7 @@ public struct ConversationView: View {
     @EnvironmentObject var navigationController: NavigationController
 
     @StateObject var viewModel: ConversationViewModel
+    @State private var scrollPosition: Int64?
 
     var dailyMessages: [(key: Date?, value: [Message])] {
         Dictionary(grouping: viewModel.messages, by: \.rawValue.creationDate?.startOfDay)
@@ -67,14 +68,17 @@ public struct ConversationView: View {
                         }
                     }
                     .coordinateSpace(name: "pullToRefresh")
-                    .defaultScrollAnchor(.bottom)
+                    .defaultScrollAnchor(.bottom, for: .initialOffset)
+                    .defaultScrollAnchor(.bottom, for: .alignment)
+                    .scrollPosition(id: $scrollPosition, anchor: .bottom)
                     .scrollDismissesKeyboard(.interactively)
                     .onChange(of: viewModel.messages, initial: true) {
-                        #warning("does not work correctly when loadFurtherMessages is called -> is called to early")
-                        if let id = viewModel.shouldScrollToId {
+                        if let id = viewModel.shouldScrollToId.flatMap(Int64.init) {
                             withAnimation {
-                                value.scrollTo(id, anchor: .bottom)
+                                // SwiftUI resolves this identity after laying out the updated rows.
+                                scrollPosition = id
                             }
+                            viewModel.shouldScrollToId = nil
                         }
                     }
                     .animation(.default, value: viewModel.selectedMessageId)

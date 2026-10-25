@@ -91,7 +91,7 @@ struct MessageDetailView: View {
                 navController.tabPath = .init()
             }
         }
-        .onChange(of: message) {
+        .onChange(of: MessageObservationSnapshot(message)) {
             switch message {
             case .loading:
                 // Message was deleted

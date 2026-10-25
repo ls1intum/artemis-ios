@@ -7,6 +7,7 @@
 
 import SharedModels
 import SwiftUI
+import WidgetKit
 
 public struct HomeScreenWidgetView: View {
     @Environment(\.widgetFamily) private var family
