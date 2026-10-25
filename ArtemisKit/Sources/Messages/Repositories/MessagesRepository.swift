@@ -33,14 +33,14 @@ final class MessagesRepository {
     private let container: ModelContainer
     private let seconds: Int
 
-    init(timeoutInSeconds: Int = 24 * 60 * 60) throws {
+    init(timeoutInSeconds: Int = 24 * 60 * 60, inMemory: Bool = false) throws {
         let schema = Schema(versionedSchema: SchemaV1.self)
-        let configuration = ModelConfiguration(schema: schema)
+        let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: inMemory)
         self.container = try ModelContainer(for: schema, configurations: configuration)
         self.seconds = timeoutInSeconds
     }
 
-    /// Saves the current starte of the ModelContext/Container.
+    /// Saves the current state of the ModelContext/Container.
     /// Call this method before dismissing the View.
     func save() {
         do {
@@ -112,9 +112,9 @@ extension MessagesRepository {
         ?? ConversationModel(course: course,
                              conversationId: conversationId,
                              messageDraft: "")
-        if conversation.messageDraft != messageDraft {
-            Self.draftRevisions[DraftKey(host: host, courseId: courseId, conversationId: conversationId)] = UUID()
-        }
+        // An explicit write represents new draft input even when this context's
+        // registered model still contains the same value from an older snapshot.
+        Self.draftRevisions[DraftKey(host: host, courseId: courseId, conversationId: conversationId)] = UUID()
         conversation.messageDraft = messageDraft
         container.mainContext.insert(conversation)
         save()
@@ -189,9 +189,7 @@ extension MessagesRepository {
         ?? MessageModel(conversation: conversation,
                         messageId: messageId,
                         answerMessageDraft: "")
-        if message.answerMessageDraft != answerMessageDraft {
-            Self.draftRevisions[DraftKey(host: host, courseId: courseId, conversationId: conversationId, messageId: messageId)] = UUID()
-        }
+        Self.draftRevisions[DraftKey(host: host, courseId: courseId, conversationId: conversationId, messageId: messageId)] = UUID()
         message.answerMessageDraft = answerMessageDraft
         container.mainContext.insert(message)
         save()
@@ -217,8 +215,8 @@ extension MessagesRepository {
 
     // MARK: Message Offline Answer
 
+    // swiftlint:disable function_parameter_count
     @discardableResult
-    // swiftlint:disable:next function_parameter_count
     func insertMessageOfflineAnswer(
         host: String, courseId: Int, conversationId: Int, messageId: Int, date: Date, text: String
     ) throws -> MessageOfflineAnswerModel {
@@ -230,6 +228,7 @@ extension MessagesRepository {
         container.mainContext.insert(answer)
         return answer
     }
+    // swiftlint:enable function_parameter_count
 
     func fetchMessageOfflineAnswers(
         host: String, courseId: Int, conversationId: Int, messageId: Int

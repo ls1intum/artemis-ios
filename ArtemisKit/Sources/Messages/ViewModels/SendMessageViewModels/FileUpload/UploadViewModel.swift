@@ -17,6 +17,7 @@ enum UploadState: Equatable {
     case failed(error: UserFacingError)
 }
 
+@MainActor
 @Observable
 class UploadViewModel {
     var uploadState: UploadState = .idle

@@ -8,6 +8,7 @@
 import APIClient
 import Common
 import SharedModels
+import SharedServices
 import SwiftUI
 import UserStore
 
@@ -36,6 +37,7 @@ final class SendMessageViewModel {
     private let delegate: SendMessageViewModelDelegate
     private let messagesRepository: MessagesRepository
     private let messagesService: MessagesService
+    private let courseService: CourseService
     private let userSession: UserSession
     private var hasLoadedContent = false
     private var lastPersistedDraft = ""
@@ -109,6 +111,7 @@ final class SendMessageViewModel {
         presentKeyboardOnAppear: Bool = false,
         messagesRepository: MessagesRepository? = nil,
         messagesService: MessagesService = MessagesServiceFactory.shared,
+        courseService: CourseService = CourseServiceFactory.shared,
         userSession: UserSession = UserSessionFactory.shared
     ) {
         self.course = course
@@ -119,6 +122,7 @@ final class SendMessageViewModel {
         self.delegate = delegate
         self.messagesRepository = messagesRepository ?? .shared
         self.messagesService = messagesService
+        self.courseService = courseService
         self.userSession = userSession
         editor.onContentChange = { [weak self] in self?.persistDraft() }
     }
@@ -127,6 +131,14 @@ final class SendMessageViewModel {
 // MARK: - Actions
 
 extension SendMessageViewModel {
+    func makeMemberMentionViewModel() -> SendMessageMentionMemberViewModel {
+        .init(course: course, courseService: courseService)
+    }
+
+    func makeChannelMentionViewModel() -> SendMessageMentionChannelViewModel {
+        .init(course: course, messagesService: messagesService)
+    }
+
     func discardUnsupportedDraft() {
         guard canDiscardUnsupportedDraft else { return }
         do {

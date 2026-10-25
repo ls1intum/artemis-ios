@@ -47,3 +47,16 @@ Follow-up validation: 186 package tests pass on both iPhone 17 Pro and iPad Pro 
 - [x] Run the package suite on iPhone/iPad, inspect native interaction captures, obtain code review, restore app/test entry points, build/lint, and save screencasts before committing and pushing.
 
 Drag-resize validation (2026-10-25): 194 package tests pass on each simulator. A parent-layout regression reproduced the message list stealing composer height; the whole composer now has layout priority ahead of sibling scroll views. Native drag up/down, tap fallback, continued typing, emoji search/insertion, and portrait/landscape reachability pass on iPhone 17 Pro and iPad Pro 11-inch (M4), iOS/iPadOS 26.2. Light/dark native captures confirm transparent category headers. Both 27-second H.264 screencasts decode fully. App/test entry points are restored; unsigned production build, strict SwiftLint on six changed Swift files and diff checks pass. The iPad capture passed after a Simulator restart resolved a SpringBoard automation wait.
+
+## Full PR correctness audit (2026-10-25)
+
+- [x] Reproduce and fix quote-prefix loss when inserting emoji, completion triggers, or links from the toolbar.
+- [x] Preserve reference payloads and literal private-use scalars beside combining accents and variation selectors, including decode, CommonMark fallback, encode, and reopening. Disambiguate file labels matching Artemis reference tags from following references.
+- [x] Preserve newly edited identical conversation/reply drafts when another composer finishes sending from a separate repository context.
+- [x] Reset native undo and unfinished IME composition when replacing the editor document; retain both for ordinary updates to the same document.
+- [x] Handle missing, invalid, or failed image transfers; expose cancellation while loading/compressing; discard cancelled and superseded results. Isolate upload state on MainActor and perform image decoding/JPEG compression outside it.
+- [x] Isolate hosted completion tests with in-memory storage and injected service stubs. Verify file/image attachments yield to the editor and toolbar in compact and regular height constraints. Expose the selected Link accessibility trait and correct the README's composer description.
+
+Red runs reproduced the data-loss and stalled-upload defects before their fixes. Final package verification passes **221 tests with zero failures on each of iPhone 17 Pro and iPad Pro 11-inch (M4), iOS/iPadOS 26.2**. The unsigned production Simulator app builds successfully. Strict SwiftLint 0.55.1 passes for **all 47 changed Swift files** without cache; diff checks pass. Independent reviews found no remaining actionable defect. The original app and UI-test entry points are unchanged by this audit.
+
+The previous GitHub Actions package test job passed. Its signed build failed before compilation because Fastlane could not authenticate to the GitLab certificates repository (`IOS_MATCH_GITLAB_AUTH`); no signing checks are bypassed.

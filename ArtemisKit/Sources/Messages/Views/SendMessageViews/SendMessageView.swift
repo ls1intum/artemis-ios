@@ -197,12 +197,12 @@ private extension SendMessageView {
                     switch presentation {
                     case .memberPicker:
                         SendMessageMentionMemberView(
-                            viewModel: SendMessageMentionMemberViewModel(course: viewModel.course),
+                            viewModel: viewModel.makeMemberMentionViewModel(),
                             sendMessageViewModel: viewModel
                         )
                     case .channelPicker:
                         SendMessageMentionChannelView(
-                            viewModel: SendMessageMentionChannelViewModel(course: viewModel.course),
+                            viewModel: viewModel.makeChannelMentionViewModel(),
                             sendMessageViewModel: viewModel
                         )
                     }

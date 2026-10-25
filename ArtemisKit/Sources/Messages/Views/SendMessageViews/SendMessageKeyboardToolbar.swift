@@ -94,6 +94,7 @@ struct SendMessageKeyboardToolbar<SendButton: View>: View {
                 toolbarLabel(R.string.localizable.link(), icon: "link", selected: viewModel.editor.linkRange != nil)
             }
             .disabled(!viewModel.editor.canSetLink)
+            .accessibilityAddTraits(viewModel.editor.linkRange != nil ? .isSelected : [])
             blockButton(R.string.localizable.orderedList(), icon: "list.number", style: .numberedList)
             blockButton(R.string.localizable.unorderedList(), icon: "list.bullet", style: .bulletList)
             blockButton(R.string.localizable.quote(), icon: "text.quote", style: .quote)

@@ -2,6 +2,17 @@ import XCTest
 @testable import Messages
 
 final class MessageEditorCodecTests: XCTestCase {
+    func testCommonMarkFallbackKeepsTagNamedFileSeparateFromFollowingReference() throws {
+        let source = "*a **b* c** [user](/api/files/report.pdf) [user]Alice(alice)[/user]"
+        let spans = try XCTUnwrap(MessageEditorCodec.decode(source))
+        let references = spans.compactMap(\.reference)
+        XCTAssertEqual(references.count, 2)
+        XCTAssertEqual(references.first?.fileName, "user")
+        XCTAssertEqual(references.first?.filePath, "/api/files/report.pdf")
+        XCTAssertEqual(references.last?.markup, "[user]Alice(alice)[/user]")
+        XCTAssertEqual(references.last?.label, "@Alice")
+    }
+
     func testDecodesInlineFormattingAndBalancedLinkDestination() throws {
         let markdown = "**Bold** *italic* ~~removed~~ <ins>underlined</ins> `a*b` [site](https://example.org/a_(b))"
         let spans = try XCTUnwrap(MessageEditorCodec.decode(markdown))

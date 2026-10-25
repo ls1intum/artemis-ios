@@ -7,6 +7,80 @@ import XCTest
 @testable import Messages
 
 extension SendMessageDraftTests {
+    func testRetainedSeparateRepositoryDraftSurvivesAnotherComposersMatchingSend() async throws {
+        for reply in [false, true] {
+            let id = Int.random(in: 15_000_001...16_000_000)
+            let started = expectation(description: "Matching send started")
+            let finished = expectation(description: "Matching send finished")
+            var finish: CheckedContinuation<Bool, Never>?
+            let send: (String) async -> Bool = { value in
+                XCTAssertEqual(value, "Original")
+                return await withCheckedContinuation { continuation in
+                    finish = continuation
+                    started.fulfill()
+                }
+            }
+            let configuration: SendMessageViewModel.Configuration = reply
+                ? .answerMessage(Message(id: Int64(id)), { finished.fulfill() }) : .message
+            let retained = makeDraftViewModel(repository: try MessagesRepository(), courseId: id, configuration: configuration)
+            retained.performOnAppear()
+            retained.text = "Original"
+            retained.performOnDisappear()
+
+            let sending = makeDraftViewModel(
+                repository: try MessagesRepository(), courseId: id, configuration: configuration,
+                messagesService: DraftMessagesService(answer: { value in
+                    _ = await send(value)
+                    return .success
+                }), sendMessageWithResult: { value in
+                    let accepted = await send(value)
+                    finished.fulfill()
+                    return accepted
+                })
+            sending.performOnAppear()
+            sending.text = "Updated elsewhere"
+            retained.performOnAppear()
+            XCTAssertEqual(retained.text, "Updated elsewhere")
+
+            sending.text = "Original"
+            sending.didTapSendButton()
+            await fulfillment(of: [started], timeout: 2)
+            // This is new input in the retained composer, even though its repository
+            // registered this same value before the other composer changed the draft.
+            retained.text = "Original"
+            finish?.resume(returning: true)
+            await fulfillment(of: [finished], timeout: 2)
+
+            let restored = makeDraftViewModel(repository: try MessagesRepository(), courseId: id, configuration: configuration)
+            restored.performOnAppear()
+            XCTAssertEqual(restored.text, "Original", "An accepted matching send must preserve the retained composer's newer input")
+            retained.performOnAppear()
+            XCTAssertEqual(retained.text, "Original", "Reappearing must not replace the new draft with the cleared sent value")
+        }
+    }
+
+    func testRehydratedComposerCanPersistTheValueCachedByItsOlderRepository() throws {
+        for reply in [false, true] {
+            let id = Int.random(in: 16_000_001...17_000_000)
+            let configuration: SendMessageViewModel.Configuration = reply ? .answerMessage(Message(id: Int64(id)), {}) : .message
+            let retained = makeDraftViewModel(repository: try MessagesRepository(), courseId: id, configuration: configuration)
+            retained.performOnAppear()
+            retained.text = "Original"
+            retained.performOnDisappear()
+
+            let newer = makeDraftViewModel(repository: try MessagesRepository(), courseId: id, configuration: configuration)
+            newer.performOnAppear()
+            newer.text = "Updated elsewhere"
+            retained.performOnAppear()
+            XCTAssertEqual(retained.text, "Updated elsewhere")
+
+            retained.text = "Original"
+            let restored = makeDraftViewModel(repository: try MessagesRepository(), courseId: id, configuration: configuration)
+            restored.performOnAppear()
+            XCTAssertEqual(restored.text, "Original", "Replacing a refreshed draft with a cached old value must still reach disk")
+        }
+    }
+
     func testOlderSuccessfulSendPreservesANewerComposerDraft() async throws {
         for separateRepository in [false, true] {
             for reply in [false, true] {

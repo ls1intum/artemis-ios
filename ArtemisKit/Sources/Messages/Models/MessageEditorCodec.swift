@@ -81,7 +81,7 @@ struct MessageEditorCodec {
             pending.append(span)
         }
         flush()
-        for (marker, markup) in references { result = result.replacingOccurrences(of: marker, with: markup) }
+        for (marker, markup) in references { result = result.replacingOccurrences(of: marker, with: markup, options: .literal) }
         return result
     }
 

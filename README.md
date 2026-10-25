@@ -38,9 +38,10 @@ Messages, replies, edits, and forwarding comments share a native rich text compo
 italic, underline, strikethrough, inline code, links, flat bullet/numbered lists, block quotes, fenced code
 blocks, and Artemis references are edited in place and stored using the existing Markdown
 message format. Inline formatting is available in the native text-selection menu and the
-compact toolbar's formatting menu. Code groups inline and block code; Lists groups bullet
-and numbered lists. More reveals quotes, resource references, and attachments. The editor
-size toggle sits beside the text field and remains visible with the keyboard dismissed.
+single action row. **Aa** switches that row to horizontally scrolling formatting controls;
+close and send stay reachable. **+** opens attachments and course references. Emoji, user
+and channel actions are available in the default row. The grabber above the text expands
+or collapses the editor by dragging or tapping, within the available keyboard/window height.
 
 Typing `- ` or `1. ` starts a list; `> ` starts a quote. Return continues the list; Return on an empty item or
 Backspace at its start returns to ordinary text. Code typing disables automatic correction,

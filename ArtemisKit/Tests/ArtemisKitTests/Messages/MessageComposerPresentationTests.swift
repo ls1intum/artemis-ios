@@ -1,4 +1,5 @@
 import SharedModels
+import SharedServices
 import SwiftUI
 import UIKit
 import XCTest
@@ -174,7 +175,8 @@ final class MessageComposerPresentationTests: XCTestCase {
         return SendMessageViewModel(course: CourseForOverviewDTO(course: Course(id: id, courseInformationSharingConfiguration: .communicationAndMessaging)),
                                     conversation: Conversation(conversation: channel)!, configuration: .message,
                                     delegate: SendMessageViewModelDelegate(presentError: { _ in }, sendMessage: { _ in }),
-                                    messagesRepository: try MessagesRepository())
+                                    messagesRepository: try MessagesRepository(inMemory: true),
+                                    messagesService: MessagesServiceStub(), courseService: CourseServiceFactory.testValue)
     }
 
     private func host(_ view: some View, size: CGSize = CGSize(width: 390, height: 844)) async -> (UIHostingController<AnyView>, UIWindow) {

@@ -15,7 +15,15 @@ struct MessageEditorInlineParser {
     }
 
     init(_ source: String) {
-        characters = Array(source)
+        // A combining tail can share a grapheme with an ASCII Markdown closer.
+        // Keep ordinary graphemes intact while exposing reference/link boundaries.
+        characters = source.flatMap { character -> [Character] in
+            guard let first = character.unicodeScalars.first, first == "]" || first == ")",
+                  character.unicodeScalars.count > 1 else { return [character] }
+            var tail = String(character)
+            tail.unicodeScalars.removeFirst()
+            return [Character(first)] + Array(tail)
+        }
     }
 
     /// Protect Artemis payloads before Foundation handles CommonMark delimiter runs.
@@ -23,8 +31,9 @@ struct MessageEditorInlineParser {
         var source = ""
         var references: [Character: [MessageEditorSpan]] = [:]
         var scalar = 0xf0000
+        let sourceScalars = Set(characters.flatMap { $0.unicodeScalars })
         func protect(_ spans: [MessageEditorSpan]) -> String {
-            while characters.contains(Character(UnicodeScalar(scalar)!)) { scalar += 1 }
+            while sourceScalars.contains(UnicodeScalar(scalar)!) { scalar += 1 }
             let character = Character(UnicodeScalar(scalar)!)
             references[character] = spans
             scalar += 1
@@ -42,7 +51,8 @@ struct MessageEditorInlineParser {
                 source += protect([try parseImage(style: [])])
                 continue
             } else if matches("[") {
-                if let end = find("]", from: index + 1), Self.referenceTags.contains(String(characters[(index + 1)..<end])) {
+                if let end = find("]", from: index + 1), Self.referenceTags.contains(String(characters[(index + 1)..<end])),
+                   !hasLinkDestination(after: end) {
                     if let reference = try? parseReference(tag: String(characters[(index + 1)..<end]), tagEnd: end) {
                         source += protect([reference])
                         continue
@@ -178,7 +188,8 @@ struct MessageEditorInlineParser {
     private mutating func parseBracket(style: MessageEditorStyle) throws -> [MessageEditorSpan] {
         if let tagEnd = find("]", from: index + 1) {
             let tag = String(characters[(index + 1)..<tagEnd])
-            if Self.referenceTags.contains(tag), var reference = try? parseReference(tag: tag, tagEnd: tagEnd) {
+            if Self.referenceTags.contains(tag), !hasLinkDestination(after: tagEnd),
+               var reference = try? parseReference(tag: tag, tagEnd: tagEnd) {
                 reference.style = style
                 return [reference]
             }
@@ -196,6 +207,12 @@ struct MessageEditorInlineParser {
         }
         for offset in spans.indices { spans[offset].link = destination }
         return spans
+    }
+
+    private func hasLinkDestination(after labelEnd: Int) -> Bool {
+        var parser = self
+        parser.index = labelEnd + 1
+        return (try? parser.linkDestination()) != nil
     }
 
     private func fileReference(start: Int, destination: String, spans: [MessageEditorSpan]) -> MessageEditorSpan? {

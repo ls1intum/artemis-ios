@@ -36,7 +36,15 @@ struct MessageRichTextEditor: UIViewRepresentable {
     }
 
     func updateUIView(_ view: MessageComposerTextView, context: Context) {
+        context.coordinator.applying = true
+        defer { context.coordinator.applying = false }
         if view.document !== document {
+            // End the old composition before rebinding; its delegate callbacks must
+            // not publish pending text into either document during this update.
+            view.unmarkText()
+            // Native edits and coordinator undo closures belong to the old document.
+            // Equal replacement content skips the attributedText setter below.
+            view.undoManager?.removeAllActions()
             view.document?.applyEdit = nil
             view.document?.applyTypingAttributes = nil
             view.document = document
@@ -45,8 +53,6 @@ struct MessageRichTextEditor: UIViewRepresentable {
         }
         context.coordinator.parent = self
         guard view.markedTextRange == nil else { return }
-        context.coordinator.applying = true
-        defer { context.coordinator.applying = false }
         view.isEditable = !document.hasUnsupportedContent
         if !view.attributedText.isEqual(to: document.content) {
             view.attributedText = document.content

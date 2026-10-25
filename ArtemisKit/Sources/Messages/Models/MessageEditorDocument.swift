@@ -150,7 +150,7 @@ final class MessageEditorDocument {
     }
 
     func insertText(_ text: String) {
-        replace(selection, with: NSAttributedString(string: text, attributes: typingAttributes))
+        replace(inlineInsertionRange(selection), with: NSAttributedString(string: text, attributes: typingAttributes))
     }
 
     /// Toolbar triggers establish a word boundary; ordinary typing still follows email rules.
@@ -209,7 +209,7 @@ final class MessageEditorDocument {
 
     func setLink(label: String, address: String) {
         guard canSetLink, label.rangeOfCharacter(from: .newlines) == nil, MessageEditorLinkValidation.isValid(address) else { return }
-        let range = linkRange ?? selection
+        let range = inlineInsertionRange(linkRange ?? selection)
         let text = label.isEmpty ? address : label
         let existing = content.attributedSubstring(from: range)
         let replacement: NSMutableAttributedString

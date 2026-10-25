@@ -203,9 +203,184 @@ final class MessageRichTextEditorTests: XCTestCase {
         XCTAssertFalse(document.hasUnsupportedContent)
     }
 
+    func testReplacingDocumentClearsUndoEvenWhenItsAttributedContentIsUnchanged() async throws {
+        for replacement in ["**First**", "Second"] {
+            let first = MessageEditorDocument()
+            first.load("First")
+            let previousKeyWindow = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+                .flatMap(\.windows).first(where: \.isKeyWindow)
+            let (host, window) = await hostRebindingEditor(first)
+            defer {
+                window.isHidden = true
+                window.rootViewController = nil
+                previousKeyWindow?.makeKeyAndVisible()
+            }
+            let original = try XCTUnwrap(findEditor(in: host.view))
+            let undo = try XCTUnwrap(original.undoManager)
+            undo.removeAllActions()
+            undo.beginUndoGrouping()
+            first.selection = NSRange(location: 0, length: first.content.length)
+            first.toggle(.bold)
+            undo.endUndoGrouping()
+            XCTAssertEqual(first.markdown, "**First**")
+            XCTAssertTrue(undo.canUndo, "The old document must have a real native undo operation")
+
+            let second = MessageEditorDocument()
+            second.load(replacement)
+            if replacement == first.markdown {
+                XCTAssertEqual(original.attributedText, second.content, "Exercise the path that skips assigning attributedText")
+            }
+            host.rootView = RebindingEditorHarness(document: second)
+            await updateRebindingEditor(host)
+            let reused = try XCTUnwrap(findEditor(in: host.view))
+            XCTAssertIdentical(reused, original)
+            XCTAssertIdentical(reused.document, second)
+            XCTAssertNil(first.applyEdit)
+            XCTAssertNil(first.applyTypingAttributes)
+
+            let replacementUndo = try XCTUnwrap(reused.undoManager)
+            XCTAssertFalse(replacementUndo.canUndo, "Undo belongs to a document, even when the native view is reused")
+            replacementUndo.undo()
+            XCTAssertEqual(second.markdown, replacement, "Undo must not import the previous document's content")
+            XCTAssertEqual(first.markdown, "**First**")
+            XCTAssertEqual(reused.attributedText, second.content)
+        }
+    }
+
+    func testUpdatingTheSameDocumentPreservesNativeUndo() async throws {
+        let document = MessageEditorDocument()
+        document.load("First")
+        let previousKeyWindow = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+            .flatMap(\.windows).first(where: \.isKeyWindow)
+        let (host, window) = await hostRebindingEditor(document)
+        defer {
+            window.isHidden = true
+            window.rootViewController = nil
+            previousKeyWindow?.makeKeyAndVisible()
+        }
+        let editor = try XCTUnwrap(findEditor(in: host.view))
+        let undo = try XCTUnwrap(editor.undoManager)
+        undo.removeAllActions()
+        undo.beginUndoGrouping()
+        document.selection = NSRange(location: 0, length: document.content.length)
+        document.toggle(.bold)
+        undo.endUndoGrouping()
+        host.rootView = RebindingEditorHarness(document: document)
+        await updateRebindingEditor(host)
+
+        XCTAssertTrue(undo.canUndo)
+        undo.undo()
+        XCTAssertEqual(document.markdown, "First")
+        XCTAssertEqual(editor.attributedText, document.content)
+    }
+
+    func testReplacingDocumentDuringCompositionDoesNotCommitOldMarkedTextIntoReplacement() async throws {
+        let first = MessageEditorDocument()
+        first.load("First ")
+        let previousKeyWindow = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+            .flatMap(\.windows).first(where: \.isKeyWindow)
+        let (host, window) = await hostRebindingEditor(first, isFocused: true)
+        defer {
+            window.isHidden = true
+            window.rootViewController = nil
+            previousKeyWindow?.makeKeyAndVisible()
+        }
+        let original = try XCTUnwrap(findEditor(in: host.view))
+        XCTAssertTrue(original.becomeFirstResponder())
+        original.selectedRange = NSRange(location: first.content.length, length: 0)
+        original.setMarkedText("pending", selectedRange: NSRange(location: 7, length: 0))
+        XCTAssertNotNil(original.markedTextRange, "Exercise a real native composition before reusing the editor")
+        XCTAssertEqual(original.text, "First pending")
+
+        let second = MessageEditorDocument()
+        second.load("Second")
+        host.rootView = RebindingEditorHarness(document: second, isFocused: true)
+        await updateRebindingEditor(host)
+        let reused = try XCTUnwrap(findEditor(in: host.view))
+        XCTAssertIdentical(reused, original)
+        XCTAssertIdentical(reused.document, second)
+        reused.unmarkText()
+        // UIKit can deliver the final edit callback after SwiftUI has replaced the document.
+        let coordinator = try XCTUnwrap(reused.delegate as? MessageRichTextEditor.Coordinator)
+        coordinator.textViewDidChange(reused)
+
+        XCTAssertEqual(second.markdown, "Second", "Finishing the old composition must not overwrite the replacement document")
+        XCTAssertEqual(reused.text, "Second")
+    }
+
+    func testUpdatingSameDocumentPreservesMarkedTextUntilCompositionEnds() async throws {
+        let document = MessageEditorDocument()
+        document.load("First ")
+        let previousKeyWindow = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+            .flatMap(\.windows).first(where: \.isKeyWindow)
+        let (host, window) = await hostRebindingEditor(document, isFocused: true)
+        defer {
+            window.isHidden = true
+            window.rootViewController = nil
+            previousKeyWindow?.makeKeyAndVisible()
+        }
+        let editor = try XCTUnwrap(findEditor(in: host.view))
+        XCTAssertTrue(editor.becomeFirstResponder())
+        editor.selectedRange = NSRange(location: document.content.length, length: 0)
+        editor.setMarkedText("pending", selectedRange: NSRange(location: 7, length: 0))
+        XCTAssertNotNil(editor.markedTextRange)
+
+        host.rootView = RebindingEditorHarness(document: document, isFocused: true)
+        await updateRebindingEditor(host)
+        XCTAssertIdentical(findEditor(in: host.view), editor)
+        XCTAssertNotNil(editor.markedTextRange, "An ordinary update must let the input method finish its composition")
+        XCTAssertEqual(editor.text, "First pending")
+        editor.unmarkText()
+        let coordinator = try XCTUnwrap(editor.delegate as? MessageRichTextEditor.Coordinator)
+        coordinator.textViewDidChange(editor)
+        XCTAssertEqual(document.markdown, "First pending")
+    }
+
+    private func hostRebindingEditor(_ document: MessageEditorDocument, isFocused: Bool = false) async
+        -> (UIHostingController<RebindingEditorHarness>, UIWindow) {
+        let scene = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first
+        let window = scene.map(UIWindow.init(windowScene:)) ?? UIWindow()
+        window.frame = CGRect(x: 0, y: 0, width: 390, height: 600)
+        let appeared = expectation(description: "Rebinding editor appeared")
+        appeared.assertForOverFulfill = false
+        let host = UIHostingController(rootView: RebindingEditorHarness(document: document, isFocused: isFocused,
+                                                                        appeared: { appeared.fulfill() }))
+        window.rootViewController = host
+        window.makeKeyAndVisible()
+        await fulfillment(of: [appeared], timeout: 2)
+        host.view.layoutIfNeeded()
+        return (host, window)
+    }
+
+    private func updateRebindingEditor(_ host: UIHostingController<RebindingEditorHarness>) async {
+        let updated = expectation(description: "Rebinding editor updated")
+        DispatchQueue.main.async {
+            _ = host.sizeThatFits(in: CGSize(width: 390, height: 600))
+            host.view.layoutIfNeeded()
+            updated.fulfill()
+        }
+        await fulfillment(of: [updated], timeout: 2)
+    }
+
+    private func findEditor(in view: UIView) -> MessageComposerTextView? {
+        if let editor = view as? MessageComposerTextView { return editor }
+        return view.subviews.lazy.compactMap { self.findEditor(in: $0) }.first
+    }
+
     private func fittedHeight(document: MessageEditorDocument) -> CGFloat {
         let editor = MessageRichTextEditor(document: document, placeholder: "Message", isFocused: .constant(false))
         let host = UIHostingController(rootView: editor)
         return host.sizeThatFits(in: CGSize(width: 320, height: 600)).height
+    }
+}
+
+private struct RebindingEditorHarness: View {
+    let document: MessageEditorDocument
+    var isFocused = false
+    var appeared: () -> Void = {}
+
+    var body: some View {
+        MessageRichTextEditor(document: document, placeholder: "Message", isFocused: .constant(isFocused))
+            .onAppear(perform: appeared)
     }
 }

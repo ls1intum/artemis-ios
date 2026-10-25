@@ -4,6 +4,65 @@ import XCTest
 
 @MainActor
 final class MessageEditorDocumentTests: XCTestCase {
+    func testEmojiInsertionBeforeQuotePrefixPreservesTheQuote() {
+        let editor = MessageEditorDocument()
+        editor.load("> Hello")
+        editor.selection = NSRange(location: 0, length: 0)
+        editor.insertText("😀")
+        XCTAssertEqual(editor.markdown, "> 😀Hello")
+        XCTAssertEqual(editor.activeBlockStyle, .quote)
+        XCTAssertEqual(editor.selection, NSRange(location: 3, length: 0))
+    }
+
+    func testToolbarCompletionBeforeQuotePrefixPreservesTheQuote() {
+        for (trigger, expected) in [(Character("@"), "> @Hello"), (Character("#"), "> #Hello")] {
+            let editor = MessageEditorDocument()
+            editor.load("> Hello")
+            editor.selection = NSRange(location: 0, length: 0)
+            editor.beginCompletion(trigger)
+            XCTAssertEqual(editor.markdown, expected)
+            XCTAssertEqual(editor.activeBlockStyle, .quote)
+            XCTAssertEqual(editor.completion?.trigger, trigger)
+            XCTAssertEqual(editor.completion?.range, NSRange(location: 1, length: 1))
+        }
+    }
+
+    func testLinkInsertionBeforeQuotePrefixPreservesTheQuote() {
+        let editor = MessageEditorDocument()
+        editor.load("> Hello")
+        editor.selection = NSRange(location: 0, length: 0)
+        editor.setLink(label: "site", address: "https://example.org")
+        XCTAssertEqual(editor.markdown, "> [site](https://example.org)Hello")
+        XCTAssertEqual(editor.activeBlockStyle, .quote)
+        XCTAssertEqual(editor.selection, NSRange(location: 1, length: 4))
+    }
+
+    func testLinkReplacementOfWholeQuotePreservesItsStructuralPrefix() {
+        let editor = MessageEditorDocument()
+        editor.load("> Hello")
+        editor.selection = NSRange(location: 0, length: editor.content.length)
+        editor.setLink(label: "site", address: "https://example.org")
+        XCTAssertEqual(editor.markdown, "> [site](https://example.org)")
+        XCTAssertEqual(editor.activeBlockStyle, .quote)
+        XCTAssertEqual(editor.selection, NSRange(location: 1, length: 4))
+    }
+
+    func testCombiningTextAfterAtomicReferencesPreservesTheirWirePayloads() {
+        for source in ["[user]Alice(alice)[/user]", "[report](/api/files/report.pdf)", "![image](/api/files/image.png)"] {
+            for suffix in ["\u{0301}", "\u{FE0F}"] {
+                let editor = MessageEditorDocument()
+                editor.load(source)
+                editor.insertText(suffix)
+                XCTAssertEqual(editor.markdown, source + suffix)
+                let reopened = MessageEditorDocument()
+                reopened.load(editor.markdown)
+                XCTAssertFalse(reopened.hasUnsupportedContent)
+                XCTAssertEqual(reopened.content.string, editor.content.string)
+                XCTAssertEqual(MessageEditorDocument.spans(reopened.content).compactMap(\.reference).map(\.markup), [source])
+            }
+        }
+    }
+
     func testLinksCannotBeCreatedAcrossParagraphsOrWithMultilineLabels() {
         for source in ["first\nsecond", "- one\n- two", "> one\n> two"] {
             let editor = MessageEditorDocument()

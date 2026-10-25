@@ -3,6 +3,23 @@ import XCTest
 
 @MainActor
 final class MessageEditorAttachmentTests: XCTestCase {
+    func testRenamedAttachmentMatchingReferenceTagStaysSeparateFromFollowingReference() throws {
+        for (name, reference, label) in [("user", "[user]Alice(alice)[/user]", "@Alice"), ("lecture", "[lecture]Introduction(1)[/lecture]", "Introduction")] {
+            let editor = MessageEditorDocument()
+            editor.load("[report](/api/files/report.pdf) " + reference)
+            XCTAssertTrue(editor.renameAttachment(try XCTUnwrap(editor.attachments.first), to: name))
+            let reopened = MessageEditorDocument()
+            reopened.load(editor.markdown)
+            XCTAssertFalse(reopened.hasUnsupportedContent)
+            XCTAssertEqual(reopened.attachments.map(\.name), [name])
+            XCTAssertEqual(reopened.attachments.map(\.path), ["/api/files/report.pdf"])
+            XCTAssertEqual(reopened.plainText(in: NSRange(location: 0, length: reopened.content.length)), name + " " + label)
+            let references = MessageEditorDocument.spans(reopened.content).compactMap(\.reference)
+            XCTAssertEqual(references.count, 2)
+            XCTAssertEqual(references.last?.markup, reference)
+        }
+    }
+
     func testAdjacentCopiesOfTheSameFileCanBeRenamedAndRemovedIndividually() throws {
         let editor = MessageEditorDocument()
         editor.load("[one](/api/files/file.pdf)[two](/api/files/file.pdf)")
