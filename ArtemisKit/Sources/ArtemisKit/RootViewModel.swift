@@ -113,7 +113,7 @@ private extension RootViewModel {
                     // 2. Attempt registration for remote notifications on the main thread
                     UIApplication.shared.registerForRemoteNotifications()
                 } catch {
-                    log.error("Error registering for remote notification", error.localizedDescription)
+                    log.error("Error registering for remote notification: \(error.localizedDescription)")
                 }
             }
         }
