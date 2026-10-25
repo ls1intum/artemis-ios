@@ -13,8 +13,12 @@ import SharedServices
 class LectureDetailViewModel: BaseViewModel {
 
     @Published var lecture: DataState<Lecture> = .loading
+    @Published var studentVersions: [Int: String] = [:]
     @Published var course: DataState<CourseForOverviewDTO> = .loading
     @Published var channel: DataState<Channel> = .loading
+
+    private let mediaSession = LectureMediaSession.capture()
+    private var lectureGeneration = LectureMediaLoadGeneration()
 
     let lectureId: Int
     let courseId: Int
@@ -64,18 +68,35 @@ class LectureDetailViewModel: BaseViewModel {
     }
 
     func loadLecture() async {
-        lecture = await LectureServiceFactory.shared.getLectureDetails(lectureId: lectureId)
+        let generation = lectureGeneration.begin()
+        let result = await LectureServiceFactory.shared.getLectureDetails(lectureId: lectureId)
+        guard !Task.isCancelled, lectureGeneration.accepts(generation) else { return }
+        guard mediaSession?.isCurrent == true else {
+            lecture = .failure(error: UserFacingError(title: LectureMediaError.sessionChanged.localizedDescription))
+            return
+        }
+        switch result {
+        case .done(let details):
+            studentVersions = details.studentVersions
+            lecture = .done(response: details.lecture)
+        case .failure(let error): lecture = .failure(error: error)
+        case .loading: lecture = .loading
+        }
     }
 
     func loadCourse() async {
-        course = await CourseServiceFactory.shared.getCourse(courseId: courseId)
+        let result = await CourseServiceFactory.shared.getCourse(courseId: courseId)
+        guard !Task.isCancelled, mediaSession?.isCurrent == true else { return }
+        course = result
     }
 
     func loadAssociatedChannel() async {
         // We only have a channel if communication is enabled
         guard course.value?.courseInformationSharingConfiguration != .disabled else { return }
 
-        channel = await LectureServiceFactory.shared.getAssociatedChannel(for: lectureId, in: courseId)
+        let result = await LectureServiceFactory.shared.getAssociatedChannel(for: lectureId, in: courseId)
+        guard !Task.isCancelled, mediaSession?.isCurrent == true else { return }
+        channel = result
     }
 
     func updateLectureUnitCompletion(lectureUnit: LectureUnit, completed: Bool) async -> LectureUnit {

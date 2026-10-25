@@ -67,10 +67,10 @@ public extension NavigationController {
         log.debug("ExercisePath was appended to queue")
     }
 
-    func goToLecture(courseId: Int, lectureId: Int) {
+    func goToLecture(courseId: Int, lectureId: Int, target: LectureMediaTarget? = nil) {
         goToCourse(id: courseId)
         courseTab = .lecture
-        selectedPath = LecturePath(id: lectureId, coursePath: CoursePath(id: courseId))
+        selectedPath = LecturePath(id: lectureId, coursePath: CoursePath(id: courseId), target: target)
         log.debug("LecturePath was appended to queue")
     }
 

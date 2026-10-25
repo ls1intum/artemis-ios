@@ -5,6 +5,7 @@
 //  Created by Anian Schleyer on 24.12.24.
 //
 
+import Common
 import DesignLibrary
 import Foundation
 import Faq
@@ -34,8 +35,8 @@ struct MessageURLAction {
         if let mention = MentionScheme(url) {
             let coursePath = CoursePath(course: conversationViewModel.course, tabs: tabs)
             switch mention {
-            case let .attachment(_ /*id*/, lectureId):
-                navigationController.outerPath.append(LecturePath(id: lectureId, coursePath: coursePath))
+            case let .attachment(id, lectureId):
+                navigationController.outerPath.append(LecturePath(id: lectureId, coursePath: coursePath, target: .init(attachmentId: Int(id), attachmentFilename: Int(id) == nil ? id : nil)))
             case let .channel(id):
                 navigationController.tabPath.append(ConversationPath(id: id, coursePath: coursePath))
             case let .exercise(id):
@@ -48,8 +49,10 @@ struct MessageURLAction {
                 handleMember(login: login, coursePath: coursePath)
             case let .message(id):
                 handleMessage(id: id, coursePath: coursePath)
+            case let .slideId(id):
+                handleSlideReference(slideId: id, unitId: nil, number: nil, coursePath: coursePath)
             case let .slide(number, attachmentUnit):
-                handleSlide(number: number, attachmentUnit: attachmentUnit, coursePath: coursePath)
+                handleSlideReference(slideId: nil, unitId: Int64(attachmentUnit), number: number, coursePath: coursePath)
             case let .faq(id):
                 navigationController.tabPath.append(FaqPath(id: id, courseId: conversationViewModel.course.id))
             }
@@ -67,12 +70,18 @@ struct MessageURLAction {
 private extension MessageURLAction {
     func handleLectureUnit(id: String, attachmentUnit: Int, coursePath: CoursePath) {
         Task {
+            let account = UserSessionFactory.shared.user?.login ?? UserSessionFactory.shared.username
+            let token = UserSessionFactory.shared.getToken()
+            let server = UserSessionFactory.shared.institution?.baseURL
             let delegate = SendMessageLecturePickerViewModel(course: conversationViewModel.course)
 
             await delegate.loadLecturesWithSlides()
 
+            guard !Task.isCancelled, account == (UserSessionFactory.shared.user?.login ?? UserSessionFactory.shared.username),
+                  token == UserSessionFactory.shared.getToken(), UserSessionFactory.shared.isLoggedIn,
+                  server == UserSessionFactory.shared.institution?.baseURL else { return }
             if let lecture = delegate.firstLectureContains(attachmentUnit: attachmentUnit) {
-                navigationController.outerPath.append(LecturePath(id: lecture.id, coursePath: coursePath))
+                navigationController.outerPath.append(LecturePath(id: lecture.id, coursePath: coursePath, target: .init(unitId: Int64(attachmentUnit))))
                 return
             }
         }
@@ -98,15 +107,20 @@ private extension MessageURLAction {
         navigationController.tabPath.append(messagePath)
     }
 
-    func handleSlide(number: Int, attachmentUnit: Int, coursePath: CoursePath) {
+    func handleSlideReference(slideId: Int?, unitId: Int64?, number: Int?, coursePath: CoursePath) {
         Task {
+            let account = UserSessionFactory.shared.user?.login ?? UserSessionFactory.shared.username
+            let token = UserSessionFactory.shared.getToken()
+            let server = UserSessionFactory.shared.institution?.baseURL
             let delegate = SendMessageLecturePickerViewModel(course: conversationViewModel.course)
-
             await delegate.loadLecturesWithSlides()
-
-            if let lecture = delegate.firstLectureContains(attachmentUnit: attachmentUnit) {
-                navigationController.outerPath.append(LecturePath(id: lecture.id, coursePath: coursePath))
-                return
+            guard !Task.isCancelled, account == (UserSessionFactory.shared.user?.login ?? UserSessionFactory.shared.username),
+                  token == UserSessionFactory.shared.getToken(), UserSessionFactory.shared.isLoggedIn,
+                  server == UserSessionFactory.shared.institution?.baseURL else { return }
+            if let resolved = LectureSlideReference.resolve(slideId: slideId, unitId: unitId, number: number, lectures: delegate.lectures) {
+                navigationController.outerPath.append(LecturePath(id: resolved.lecture.id, coursePath: coursePath, target: resolved.target))
+            } else {
+                conversationViewModel.presentError(userFacingError: UserFacingError(title: "The referenced slide is unavailable. Try again from the lecture."))
             }
         }
     }

@@ -98,9 +98,9 @@ struct LectureListView: View {
                     if let path = navController.selectedPath as? LecturePath {
                         Group {
                             if let course = path.coursePath.course {
-                                LectureDetailView(course: course, lectureId: path.id)
+                                LectureDetailView(course: course, lectureId: path.id, target: path.target)
                             } else {
-                                LectureDetailView(courseId: path.coursePath.id, lectureId: path.id)
+                                LectureDetailView(courseId: path.coursePath.id, lectureId: path.id, target: path.target)
                             }
                         }
                         .id(path.id)
@@ -111,9 +111,9 @@ struct LectureListView: View {
                 .modifier(NavigationDestinationMessagesModifier())
                 .navigationDestination(for: LecturePath.self) { lecturePath in
                     if let course = lecturePath.coursePath.course {
-                        LectureDetailView(course: course, lectureId: lecturePath.id)
+                        LectureDetailView(course: course, lectureId: lecturePath.id, target: lecturePath.target)
                     } else {
-                        LectureDetailView(courseId: lecturePath.coursePath.id, lectureId: lecturePath.id)
+                        LectureDetailView(courseId: lecturePath.coursePath.id, lectureId: lecturePath.id, target: lecturePath.target)
                     }
                 }
             }
