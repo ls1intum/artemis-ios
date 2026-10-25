@@ -99,20 +99,16 @@ final class ConversationScrollLayoutTests: XCTestCase {
 
     private func host(_ model: ConversationViewModel) async throws
         -> (UIHostingController<AnyView>, UIWindow, UIWindow?) {
-        let appeared = expectation(description: "Conversation appeared")
-        appeared.assertForOverFulfill = false
         let navigationController = NavigationController()
         navigationController.courseTab = .communication
         let content = ConversationView(viewModel: model)
             .environmentObject(navigationController)
-            .onAppear { appeared.fulfill() }
         let controller = UIHostingController(rootView: AnyView(content))
         controller.safeAreaRegions = []
         let window = try makeTestWindow(frame: CGRect(x: 0, y: 0, width: 390, height: 760))
         let previousKeyWindow = window.windowScene?.windows.first(where: \.isKeyWindow)
         window.rootViewController = controller
         window.makeKeyAndVisible()
-        await fulfillment(of: [appeared], timeout: 2)
         try await waitForLayout(controller, description: "The conversation scroll hierarchy is laid out") {
             guard let scrollView = self.conversationScrollViewCandidate(in: controller.view) else { return false }
             return scrollView.contentSize.height > scrollView.bounds.height + 200

@@ -118,6 +118,17 @@ class ConversationViewModel: BaseViewModel {
 
 extension ConversationViewModel {
 
+    func makeMessageComposer() -> SendMessageViewModel {
+        SendMessageViewModel(
+            course: course,
+            conversation: conversation,
+            configuration: .message,
+            delegate: SendMessageViewModelDelegate(self),
+            messagesRepository: messagesRepository,
+            messagesService: messagesService,
+            userSession: userSession)
+    }
+
     // MARK: Load
 
     func loadEarlierMessages() async {

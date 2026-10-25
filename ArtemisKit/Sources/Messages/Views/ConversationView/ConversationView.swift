@@ -92,14 +92,7 @@ public struct ConversationView: View {
                 }
             }
             if viewModel.isAllowedToPost {
-                SendMessageView(
-                    viewModel: SendMessageViewModel(
-                        course: viewModel.course,
-                        conversation: viewModel.conversation,
-                        configuration: .message,
-                        delegate: SendMessageViewModelDelegate(viewModel)
-                    )
-                )
+                SendMessageView(viewModel: viewModel.makeMessageComposer())
             }
         }
         .loadingIndicator(isLoading: $viewModel.isLoadingMessages)
