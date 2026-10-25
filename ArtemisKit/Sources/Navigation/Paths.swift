@@ -50,14 +50,16 @@ public struct LectureMediaTarget: Hashable {
     public let attachmentId: Int?
     public let page: Int?
     public let attachmentFilename: String?
+    public let slideId: Int?
     public let originalSlideNumber: Int?
     public let visibleSlideNumbers: [Int]?
 
-    public init(unitId: Int64? = nil, attachmentId: Int? = nil, page: Int? = nil, attachmentFilename: String? = nil, originalSlideNumber: Int? = nil, visibleSlideNumbers: [Int]? = nil) {
+    public init(unitId: Int64? = nil, attachmentId: Int? = nil, page: Int? = nil, attachmentFilename: String? = nil, slideId: Int? = nil, originalSlideNumber: Int? = nil, visibleSlideNumbers: [Int]? = nil) {
         self.unitId = unitId
         self.attachmentId = attachmentId
         self.page = page
         self.attachmentFilename = attachmentFilename
+        self.slideId = slideId
         self.originalSlideNumber = originalSlideNumber
         self.visibleSlideNumbers = visibleSlideNumbers
     }

@@ -11,7 +11,7 @@ enum LectureMediaSource: Equatable {
               components.host?.isEmpty == false, components.user == nil, components.password == nil else { return .invalid }
         let mime = mimeType?.lowercased().split(separator: ";").first.map(String.init)
         if ["video/mp4", "application/vnd.apple.mpegurl", "application/x-mpegurl"].contains(mime ?? "") { return .video }
-        return ["mp4", "m3u8"].contains(url.pathExtension.lowercased()) ? .video : .web
+        return ["mp4", "m3u8", "m3u"].contains(url.pathExtension.lowercased()) ? .video : .web
     }
 }
 
@@ -87,10 +87,22 @@ struct LectureMediaLoadGeneration {
     func accepts(_ generation: UUID) -> Bool { current == generation }
 }
 
+enum LectureMediaResourceRole: Hashable {
+    case playlist, media
+    static func source(_ url: URL) -> Self {
+        ["m3u", "m3u8"].contains(url.pathExtension.lowercased()) ? .playlist : .media
+    }
+}
+
 enum LectureMediaPlaylist {
     enum Failure: Error { case unsupported }
 
     static func rewrite(_ playlist: String, relativeTo base: URL, map: (URL) throws -> URL) throws -> String {
+        try rewrite(playlist, relativeTo: base, mapResource: { url, _ in try map(url) })
+    }
+
+    static func rewrite(_ playlist: String, relativeTo base: URL,
+                        mapResource: (URL, LectureMediaResourceRole) throws -> URL) throws -> String {
         guard playlist.trimmingCharacters(in: .whitespacesAndNewlines).hasPrefix("#EXTM3U"),
               !playlist.contains("{$"), !playlist.contains("#EXT-X-CONTENT-STEERING"),
               !playlist.contains("METHOD=SAMPLE-AES"), !playlist.contains("KEYFORMAT="),
@@ -105,17 +117,23 @@ enum LectureMediaPlaylist {
             "#EXT-X-STREAM-INF", "#EXT-X-I-FRAME-STREAM-INF", "#EXT-X-SESSION-DATA", "#EXT-X-SESSION-KEY", "#EXT-X-ALLOW-CACHE"
         ]
         let expression = try NSRegularExpression(pattern: #"URI="([^"]+)""#)
-        func rewriteURL(_ raw: String) throws -> String {
+        func rewriteURL(_ raw: String, role: LectureMediaResourceRole) throws -> String {
             guard let url = URL(string: raw, relativeTo: base)?.absoluteURL,
                   LectureMediaSource.classify(url) != .invalid else { throw Failure.unsupported }
-            return try map(url).absoluteString
+            return try mapResource(url, role == .playlist ? .playlist : .source(url)).absoluteString
         }
+        var nextIsPlaylist = false
         return try playlist.components(separatedBy: .newlines).map { line in
             let trimmed = line.trimmingCharacters(in: .whitespaces)
             if trimmed.isEmpty { return line }
-            if !trimmed.hasPrefix("#") { return try rewriteURL(trimmed) }
+            if !trimmed.hasPrefix("#") {
+                defer { nextIsPlaylist = false }
+                return try rewriteURL(trimmed, role: nextIsPlaylist ? .playlist : .media)
+            }
             let tag = String(trimmed.split(separator: ":", maxSplits: 1).first ?? "")
             if tag.hasPrefix("#EXT"), !supportedTags.contains(tag) { throw Failure.unsupported }
+            if tag == "#EXT-X-STREAM-INF" { nextIsPlaylist = true }
+            let attributeRole: LectureMediaResourceRole = ["#EXT-X-MEDIA", "#EXT-X-I-FRAME-STREAM-INF"].contains(tag) ? .playlist : .media
             let range = NSRange(line.startIndex..., in: line)
             let withoutURIs = expression.stringByReplacingMatches(in: line, range: range, withTemplate: "")
             guard !withoutURIs.contains("URI=") else { throw Failure.unsupported }
@@ -124,7 +142,7 @@ enum LectureMediaPlaylist {
             for match in matches.reversed() {
                 guard let valueRange = Range(match.range(at: 1), in: line),
                       let replacementRange = Range(match.range(at: 1), in: rewritten) else { throw Failure.unsupported }
-                rewritten.replaceSubrange(replacementRange, with: try rewriteURL(String(line[valueRange])))
+                rewritten.replaceSubrange(replacementRange, with: try rewriteURL(String(line[valueRange]), role: attributeRole))
             }
             return rewritten
         }.joined(separator: "\n")

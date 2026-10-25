@@ -21,7 +21,7 @@ enum LectureSlideReference {
                 let slides = attachment.slides ?? []
                 guard let slide = slides.first(where: { slideId != nil ? $0.id == slideId : $0.slideNumber == number }),
                       let original = slide.slideNumber else { continue }
-                return (lecture, LectureMediaTarget(unitId: unit.id, originalSlideNumber: original,
+                return (lecture, LectureMediaTarget(unitId: unit.id, slideId: slideId, originalSlideNumber: original,
                                                     visibleSlideNumbers: slides.compactMap(\.slideNumber).sorted()))
             }
         }

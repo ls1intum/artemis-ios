@@ -93,6 +93,88 @@ final class LectureMediaProxyTests: XCTestCase {
         XCTAssertFalse(try XCTUnwrap(other.requests.first).lowercased().contains("cookie:"))
     }
 
+    func testRootAndDeclaredChildPlaylistKeepTheirRoleAcrossTextRedirects() async throws {
+        let fixture = try await MediaHTTPFixture.start()
+        let external = try await MediaHTTPFixture.start()
+        defer { fixture.stop(); external.stop() }
+        fixture.respond("/root.m3u8", status: 302, headers: ["Location": fixture.base.appending(path: "master-content").absoluteString])
+        fixture.respond("/master-content", body: "#EXTM3U\n#EXT-X-STREAM-INF:BANDWIDTH=200000\nchild\n")
+        fixture.respond("/child", status: 302, headers: ["Location": fixture.base.appending(path: "child-content").absoluteString])
+        fixture.respond("/child-content", body: "#EXTM3U\n#EXT-X-TARGETDURATION:10\n#EXTINF:10,\n\(external.base)/segment.ts\n#EXT-X-ENDLIST\n")
+        let sentinel = try XCTUnwrap(HTTPCookie(properties: [.domain: "127.0.0.1", .path: "/", .name: "jwt", .value: "shared-sentinel"]))
+        HTTPCookieStorage.shared.setCookie(sentinel)
+        defer { HTTPCookieStorage.shared.deleteCookie(sentinel) }
+        let proxy = LectureMediaProxy(policy: .init(origin: fixture.base, token: "captured"), isCurrent: { true })
+        defer { proxy.stop() }
+        let root = try await proxy.start(source: fixture.base.appending(path: "root.m3u8"))
+        let (master, _) = try await URLSession.shared.data(from: root)
+        let child = try XCTUnwrap(String(decoding: master, as: UTF8.self).split(separator: "\n").last.flatMap { URL(string: String($0)) })
+        XCTAssertEqual(child.port, root.port)
+        let (playlist, response) = try await URLSession.shared.data(from: child)
+        XCTAssertEqual((response as? HTTPURLResponse)?.statusCode, 200)
+        let text = String(decoding: playlist, as: UTF8.self)
+        XCTAssertFalse(text.contains(external.base.absoluteString))
+        let segment = try XCTUnwrap(text.components(separatedBy: .newlines).first(where: { $0.hasPrefix("http://") }).flatMap(URL.init(string:)))
+        XCTAssertEqual(segment.port, root.port)
+        _ = try await URLSession.shared.data(from: segment)
+        XCTAssertFalse(try XCTUnwrap(external.requests.first).lowercased().contains("cookie:"))
+        XCTAssertFalse(fixture.requests.contains { $0.lowercased().contains("range:") })
+    }
+
+    func testUnexpectedPlaylistCannotEscapeThroughAMediaRoute() async throws {
+        let fixture = try await MediaHTTPFixture.start()
+        defer { fixture.stop() }
+        fixture.respond("/video.mp4", body: "#EXTM3U\nhttps://remote.example/segment.ts\n")
+        let proxy = LectureMediaProxy(policy: .init(origin: fixture.base, token: nil), isCurrent: { true })
+        defer { proxy.stop() }
+        let local = try await proxy.start(source: fixture.base.appending(path: "video.mp4"))
+        let (data, response) = try await URLSession.shared.data(from: local)
+        XCTAssertEqual((response as? HTTPURLResponse)?.statusCode, 502)
+        XCTAssertFalse(String(decoding: data, as: UTF8.self).contains("remote.example"))
+    }
+
+    func testLongMultirenditionVODHasNoLifetimeRouteQuota() async throws {
+        let fixture = try await MediaHTTPFixture.start()
+        defer { fixture.stop() }
+        fixture.respond("/long.m3u8", body: "#EXTM3U\n" + (0..<4).map { "#EXT-X-STREAM-INF:BANDWIDTH=\(100000 + $0)\ntrack-\($0).m3u8" }.joined(separator: "\n"))
+        for track in 0..<4 {
+            let segments = (0..<5400).map { "#EXTINF:2,\nsegment-\($0).ts?track=\(track)" }.joined(separator: "\n")
+            fixture.respond("/track-\(track).m3u8", body: "#EXTM3U\n#EXT-X-TARGETDURATION:2\n" + segments + "\n#EXT-X-ENDLIST\n")
+        }
+        let proxy = LectureMediaProxy(policy: .init(origin: fixture.base, token: nil), isCurrent: { true })
+        defer { proxy.stop() }
+        let root = try await proxy.start(source: fixture.base.appending(path: "long.m3u8"))
+        let (master, _) = try await URLSession.shared.data(from: root)
+        for line in String(decoding: master, as: UTF8.self).components(separatedBy: .newlines) where line.hasPrefix("http") {
+            let (_, response) = try await URLSession.shared.data(from: XCTUnwrap(URL(string: line)))
+            XCTAssertEqual((response as? HTTPURLResponse)?.statusCode, 200)
+        }
+    }
+
+    func testRollingSignedWindowsReclaimOldRoutesAndKeepRepeatedRangeIdentity() async throws {
+        let fixture = try await MediaHTTPFixture.start()
+        defer { fixture.stop() }
+        let proxy = LectureMediaProxy(policy: .init(origin: fixture.base, token: nil), isCurrent: { true })
+        defer { proxy.stop() }
+        let root = try await proxy.start(source: fixture.base.appending(path: "live.m3u8"))
+        var first: URL?
+        var current: URL?
+        for generation in 0..<30 {
+            let segments = (0..<100).map { "#EXTINF:2,\nsegment-\($0).ts?signature=\(generation)" }.joined(separator: "\n")
+            fixture.respond("/live.m3u8", body: "#EXTM3U\n#EXT-X-TARGETDURATION:2\n" + segments + "\n#EXT-X-BYTERANGE:2@0\nshared.ts\n#EXT-X-BYTERANGE:2\nshared.ts\n")
+            let (data, response) = try await URLSession.shared.data(from: root)
+            XCTAssertEqual((response as? HTTPURLResponse)?.statusCode, 200)
+            let routes = String(decoding: data, as: UTF8.self).components(separatedBy: .newlines).filter { $0.hasPrefix("http") }
+            XCTAssertEqual(routes.suffix(2).first, routes.last)
+            current = routes.first.flatMap(URL.init(string:))
+            if first == nil { first = current }
+        }
+        let (_, removed) = try await URLSession.shared.data(from: XCTUnwrap(first))
+        XCTAssertEqual((removed as? HTTPURLResponse)?.statusCode, 404)
+        let (_, available) = try await URLSession.shared.data(from: XCTUnwrap(current))
+        XCTAssertEqual((available as? HTTPURLResponse)?.statusCode, 200)
+    }
+
     func testStoppedOrChangedSessionCannotStartPlayback() async throws {
         let proxy = LectureMediaProxy(policy: .init(origin: URL(string: "https://example.org")!, token: "private"), isCurrent: { false })
         do {
@@ -108,6 +190,7 @@ final class MediaHTTPFixture {
     var base: URL { URL(string: "http://127.0.0.1:\(listener.port?.rawValue ?? 0)")! }
     var requests: [String] = []
     var redirectURL: URL?
+    var responses: [String: Data] = [:]
     private var connections: [NWConnection] = []
 
     init(listener: NWListener) { self.listener = listener }
@@ -135,6 +218,12 @@ final class MediaHTTPFixture {
 
     func stop() { listener.cancel(); connections.forEach { $0.cancel() } }
 
+    func respond(_ path: String, body: String = "", mime: String = "text/plain", status: Int = 200, headers: [String: String] = [:]) {
+        var response = "HTTP/1.1 \(status) Response\r\nContent-Type: \(mime)\r\nContent-Length: \(body.utf8.count)\r\nConnection: close\r\n"
+        for (key, value) in headers { response += "\(key): \(value)\r\n" }
+        responses[path] = Data((response + "\r\n" + body).utf8)
+    }
+
     private func receive(_ connection: NWConnection, buffer: Data) {
         connection.receive(minimumIncompleteLength: 1, maximumLength: 16384) { [weak self] data, _, _, _ in
             guard let self, let data else { return }
@@ -143,6 +232,11 @@ final class MediaHTTPFixture {
                 self.receive(connection, buffer: buffer); return
             }
             self.requests.append(request)
+            let path = String(request.split(separator: " ")[1]).components(separatedBy: "?")[0]
+            if let response = self.responses[path] {
+                connection.send(content: response, completion: .contentProcessed { _ in connection.cancel() })
+                return
+            }
             if request.contains("/redirect.mp4"), let destination = self.redirectURL {
                 let response = "HTTP/1.1 302 Found\r\nLocation: \(destination.absoluteString)\r\nContent-Length: 0\r\nConnection: close\r\n\r\n"
                 connection.send(content: Data(response.utf8), completion: .contentProcessed { _ in connection.cancel() })

@@ -17,8 +17,19 @@ final class LectureVideoPlayback: ObservableObject {
     private var timeObserver: Any?
     private var failureObserver: NSObjectProtocol?
     private var restored = false
+    private var restorePending = false
+    private let makeItem: (URL) -> AVPlayerItem
+    private let seek: (AVPlayer, CMTime, @escaping (Bool) -> Void) -> Void
+    private let preparationTimeout: Duration
 
-    init(source: URL, identity: String, snapshot: LectureMediaSession? = .capture(), isCurrent: (() -> Bool)? = nil) {
+    init(source: URL, identity: String, snapshot: LectureMediaSession? = .capture(), isCurrent: (() -> Bool)? = nil,
+         makeItem: @escaping (URL) -> AVPlayerItem = { AVPlayerItem(url: $0) },
+         seek: @escaping (AVPlayer, CMTime, @escaping (Bool) -> Void) -> Void = { player, time, completion in
+             player.seek(to: time, toleranceBefore: .zero, toleranceAfter: .zero, completionHandler: completion)
+         }, preparationTimeout: Duration = .seconds(40)) {
+        self.makeItem = makeItem
+        self.seek = seek
+        self.preparationTimeout = preparationTimeout
         self.source = source
         self.snapshot = snapshot
         self.isCurrent = isCurrent ?? { snapshot?.isCurrent == true }
@@ -30,6 +41,7 @@ final class LectureVideoPlayback: ObservableObject {
         let request = generation.begin()
         state = .loading
         restored = false
+        restorePending = false
         guard let snapshot, isCurrent() else { state = .failed(LectureMediaError.sessionChanged.localizedDescription); return }
         guard LectureMediaSource.classify(source) == .video else { state = .failed(LectureMediaError.invalidURL.localizedDescription); return }
         let isCurrent = self.isCurrent
@@ -43,7 +55,7 @@ final class LectureVideoPlayback: ObservableObject {
                 state = .failed(LectureMediaError.sessionChanged.localizedDescription)
                 return
             }
-            let item = AVPlayerItem(url: url)
+            let item = makeItem(url)
             let player = AVPlayer(playerItem: item)
             player.allowsExternalPlayback = false // A remote receiver cannot access device loopback.
             player.preventsDisplaySleepDuringVideoPlayback = true
@@ -53,12 +65,18 @@ final class LectureVideoPlayback: ObservableObject {
                     guard let self, self.generation.accepts(request), isCurrent() else { return }
                     switch item.status {
                     case .readyToPlay:
+                        guard self.state == .loading, !self.restorePending else { return }
                         if !self.restored {
                             let duration = item.duration.seconds
                             if duration.isFinite, duration > 0, let seconds = self.progress?.seconds, seconds > 0 {
-                                player.seek(to: CMTime(seconds: min(seconds, max(0, duration - 1)), preferredTimescale: 600), toleranceBefore: .zero, toleranceAfter: .zero) { _ in
+                                self.restorePending = true
+                                self.seek(player, CMTime(seconds: min(seconds, max(0, duration - 1)), preferredTimescale: 600)) { [weak self, weak item] finished in
                                     Task { @MainActor in
-                                        guard self.generation.accepts(request), isCurrent() else { return }
+                                        guard let self, let item, self.generation.accepts(request), isCurrent(),
+                                              self.state == .loading, self.restorePending,
+                                              self.player?.currentItem === item, item.status == .readyToPlay else { return }
+                                        guard finished else { self.fail(); return }
+                                        self.restorePending = false
                                         self.restored = true
                                         self.state = .ready
                                     }
@@ -87,8 +105,9 @@ final class LectureVideoPlayback: ObservableObject {
                 }
             }
             // Preparation has a recovery deadline. User playback can take as long as needed.
+            let timeout = preparationTimeout
             Task { [weak self] in
-                try? await Task.sleep(for: .seconds(40))
+                try? await Task.sleep(for: timeout)
                 guard let self, self.generation.accepts(request), self.state == .loading else { return }
                 self.fail()
             }
@@ -104,6 +123,8 @@ final class LectureVideoPlayback: ObservableObject {
     func stop() {
         pause()
         generation.cancel()
+        restorePending = false
+        player?.currentItem?.cancelPendingSeeks()
         observation?.invalidate(); observation = nil
         if let timeObserver, let player { player.removeTimeObserver(timeObserver) }
         timeObserver = nil
@@ -126,7 +147,17 @@ final class LectureVideoPlayback: ObservableObject {
     }
 
     private func fail() {
+        if case .failed = state { return }
         pause()
+        // Failure is terminal for this generation, including a pending seek.
+        generation.cancel()
+        restorePending = false
+        player?.currentItem?.cancelPendingSeeks()
+        observation?.invalidate(); observation = nil
+        if let timeObserver, let player { player.removeTimeObserver(timeObserver) }
+        timeObserver = nil
+        if let failureObserver { NotificationCenter.default.removeObserver(failureObserver) }
+        failureObserver = nil
         state = .failed(LectureMediaError.unavailable.localizedDescription)
         proxy?.stop()
     }

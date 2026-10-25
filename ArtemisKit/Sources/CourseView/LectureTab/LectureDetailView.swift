@@ -18,7 +18,6 @@ public struct LectureDetailView: View {
     @Environment(\.availableTabs) private var tabs
     @StateObject private var viewModel: LectureDetailViewModel
     private let target: LectureMediaTarget?
-    @State private var targetedUnit: LectureUnitPresentation?
 
     public init(course: CourseForOverviewDTO, lectureId: Int, target: LectureMediaTarget? = nil) {
         self.target = target
@@ -28,6 +27,11 @@ public struct LectureDetailView: View {
     public init(courseId: Int, lectureId: Int, target: LectureMediaTarget? = nil) {
         self.target = target
         self._viewModel = StateObject(wrappedValue: LectureDetailViewModel(courseId: courseId, lectureId: lectureId))
+    }
+
+    init(viewModel: LectureDetailViewModel, target: LectureMediaTarget?) {
+        self.target = target
+        self._viewModel = StateObject(wrappedValue: viewModel)
     }
 
     public var body: some View {
@@ -95,26 +99,26 @@ public struct LectureDetailView: View {
         .navigationTitle(viewModel.lecture.value?.title ?? R.string.localizable.loading())
         .navigationBarTitleDisplayMode(.inline)
         .task(id: target) {
+            viewModel.configureTarget(target)
             await viewModel.loadLecture()
-            guard !Task.isCancelled, let target, let lecture = viewModel.lecture.value else { return }
-            if let unit = target.resolve(in: lecture.lectureUnits ?? []) {
-                targetedUnit = LectureUnitPresentation(unit: unit)
-            } else {
-                viewModel.presentError(userFacingError: UserFacingError(title: "The referenced lecture attachment is unavailable."))
-            }
         }
-        .sheet(item: $targetedUnit) { presentation in
+        .sheet(item: $viewModel.targetPresentation) { presentation in
             NavigationStack {
                 LectureUnitSheetContent(unit: presentation.unit,
                                         identity: "course/\(viewModel.courseId)/lecture/\(viewModel.lectureId)/unit/\(presentation.unit.id)",
-                                        explicitPage: target?.page,
-                                        originalSlideNumber: target?.originalSlideNumber,
-                                        visibleSlideNumbers: target?.visibleSlideNumbers,
-                                        studentVersions: viewModel.studentVersions)
+                                        explicitPage: presentation.target?.page,
+                                        originalSlideNumber: presentation.target?.originalSlideNumber,
+                                        visibleSlideNumbers: presentation.target?.visibleSlideNumbers,
+                                        studentVersion: presentation.studentVersion,
+                                        refreshSlide: presentation.target.flatMap { reference in
+                                            guard reference.slideId != nil || reference.originalSlideNumber != nil else { return nil }
+                                            return { await viewModel.refreshSlideAccess(for: reference) }
+                                        })
+                .id(presentation.target)
                 .navigationTitle(presentation.unit.baseUnit.name ?? "")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) { Button(role: .close) { targetedUnit = nil } }
+                    ToolbarItem(placement: .topBarTrailing) { Button(role: .close) { viewModel.targetPresentation = nil } }
                 }
                 .task {
                     if !(presentation.unit.baseUnit.completed ?? false), presentation.unit.baseUnit.visibleToStudents ?? false {
@@ -231,6 +235,7 @@ struct BaseLectureUnitCell: View {
     @State private var lectureUnit: LectureUnit
     @State private var isLoading = false
     @State private var showDetails = false
+    @State private var presentedUnit: LectureUnitPresentation?
 
     private var isCompleted: Binding<Bool> {
         Binding(get: {
@@ -277,13 +282,19 @@ struct BaseLectureUnitCell: View {
         .padding(.l)
         .cardModifier(backgroundColor: .Artemis.exerciseCardBackgroundColor, cornerRadius: .m)
         .onTapGesture {
+            let fresh = viewModel.lecture.value?.lectureUnits?.first(where: { $0.id == lectureUnit.id }) ?? lectureUnit
+            let version: String?
+            if case .attachmentVideo(let attachment) = fresh {
+                version = attachment.attachment.flatMap { viewModel.studentVersions[$0.id] }
+            } else { version = nil }
+            presentedUnit = LectureUnitPresentation(unit: fresh, studentVersion: version)
             showDetails = true
         }
         .sheet(isPresented: $showDetails) {
             NavigationStack {
-                LectureUnitSheetContent(unit: lectureUnit,
+                LectureUnitSheetContent(unit: presentedUnit?.unit ?? lectureUnit,
                                         identity: "course/\(viewModel.courseId)/lecture/\(viewModel.lectureId)/unit/\(lectureUnit.id)",
-                                        studentVersions: viewModel.studentVersions)
+                                        studentVersion: presentedUnit?.studentVersion)
                 .navigationTitle(lectureUnit.baseUnit.name ?? "")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
@@ -369,8 +380,10 @@ struct RoundGreenCheckbox: View {
     }
 }
 
-private struct LectureUnitPresentation: Identifiable {
+struct LectureUnitPresentation: Identifiable {
     let unit: LectureUnit
+    var target: LectureMediaTarget? = nil
+    var studentVersion: String? = nil
     var id: Int64 { unit.id }
 }
 
@@ -380,12 +393,13 @@ private struct LectureUnitSheetContent: View {
     var explicitPage: Int?
     var originalSlideNumber: Int?
     var visibleSlideNumbers: [Int]?
-    var studentVersions: [Int: String] = [:]
+    var studentVersion: String?
+    var refreshSlide: (() async -> DataState<LectureSlideAccess>)?
 
     var body: some View {
         switch unit {
         case .attachmentVideo(let attachment):
-            AttachmentUnitSheetContent(attachmentUnit: attachment, identity: identity, explicitPage: explicitPage, originalSlideNumber: originalSlideNumber, visibleSlideNumbers: visibleSlideNumbers, studentVersion: attachment.attachment.flatMap { studentVersions[$0.id] })
+            AttachmentUnitSheetContent(attachmentUnit: attachment, identity: identity, explicitPage: explicitPage, originalSlideNumber: originalSlideNumber, visibleSlideNumbers: visibleSlideNumbers, studentVersion: studentVersion, refreshSlide: refreshSlide)
         case .text(let text): TextUnitSheetContent(textUnit: text)
         case .online(let online): OnlineUnitSheetContent(onlineUnit: online)
         case .unknown, .exercise:

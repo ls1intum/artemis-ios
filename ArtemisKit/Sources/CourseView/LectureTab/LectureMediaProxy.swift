@@ -10,8 +10,8 @@ final class LectureMediaProxy {
     private let nonce = UUID().uuidString
     private var listener: NWListener?
     private var port: UInt16?
-    private var resources: [String: URL] = [:]
-    private var identifiers: [URL: String] = [:]
+    private let registry = LectureMediaResourceRegistry()
+    private var leases: [UUID: String] = [:]
     private var connections: [UUID: NWConnection] = [:]
     private var fetches: [UUID: Fetch] = [:]
 
@@ -42,7 +42,7 @@ final class LectureMediaProxy {
             listener.start(queue: .main)
         }
         guard isCurrent() else { stop(); throw LectureMediaError.sessionChanged }
-        return try route(source)
+        return try localURL(registry.addRoot(source, role: .source(source)))
     }
 
     deinit {
@@ -68,21 +68,13 @@ final class LectureMediaProxy {
         fetches.removeAll()
         for connection in connections.values { connection.cancel() }
         connections.removeAll()
-        resources.removeAll()
-        identifiers.removeAll()
+        leases.removeAll()
+        registry.reset()
         port = nil
     }
 
-    private func route(_ source: URL) throws -> URL {
-        guard let port, LectureMediaSource.classify(source) != .invalid else { throw LectureMediaError.invalidURL }
-        // Reuse IDs across playlist reloads (including implicit byte-range references).
-        let suffix = source.pathExtension.lowercased()
-        let safeExtensions: Set<String> = ["mp4", "m3u8", "ts", "m4s", "aac", "mp3", "vtt"]
-        let identifier = identifiers[source] ?? (UUID().uuidString + (safeExtensions.contains(suffix) ? "." + suffix : ""))
-        guard resources.count < 20000 || resources[identifier] != nil else { throw LectureMediaError.unavailable }
-        identifiers[source] = identifier
-        resources[identifier] = source
-        guard let url = URL(string: "http://127.0.0.1:\(port)/\(nonce)/\(identifier)") else { throw LectureMediaError.invalidURL }
+    private func localURL(_ identifier: String) throws -> URL {
+        guard let port, let url = URL(string: "http://127.0.0.1:\(port)/\(nonce)/\(identifier)") else { throw LectureMediaError.invalidURL }
         return url
     }
 
@@ -120,7 +112,7 @@ final class LectureMediaProxy {
         let request = lines.first?.split(separator: " ") ?? []
         guard request.count == 3, ["GET", "HEAD"].contains(String(request[0])), request[2].hasPrefix("HTTP/1."),
               request[1].hasPrefix("/\(nonce)/"), !request[1].contains("?"),
-              let source = resources[String(request[1].dropFirst(nonce.count + 2))], isCurrent() else {
+              let resource = registry.resource(String(request[1].dropFirst(nonce.count + 2))), isCurrent() else {
             reject(connection, id: id, status: 404); return
         }
         var range: String?
@@ -131,10 +123,13 @@ final class LectureMediaProxy {
                 guard let range, LectureMediaProxyRequest.validRange(range) else { reject(connection, id: id); return }
             }
         }
-        let fetch = Fetch(source: source, method: String(request[0]), range: range, policy: policy,
-                          connection: connection, isCurrent: isCurrent, route: { [weak self] url in
+        let identifier = String(request[1].dropFirst(nonce.count + 2))
+        guard registry.acquire(identifier) != nil else { reject(connection, id: id, status: 404); return }
+        leases[id] = identifier
+        let fetch = Fetch(source: resource.url, role: resource.role, method: String(request[0]), range: range, policy: policy,
+                          connection: connection, isCurrent: isCurrent, rewrite: { [weak self] value, base in
             guard let self else { throw CancellationError() }
-            return try self.route(url)
+            return try self.registry.rewrite(value, relativeTo: base, owner: identifier, localURL: self.localURL)
         }, finish: { [weak self] in self?.finish(id) })
         fetches[id] = fetch
         fetch.start()
@@ -151,6 +146,7 @@ final class LectureMediaProxy {
 
     private func finish(_ id: UUID) {
         fetches.removeValue(forKey: id)?.cancel()
+        if let resource = leases.removeValue(forKey: id) { registry.release(resource) }
         connections.removeValue(forKey: id)?.cancel()
     }
 }
@@ -158,31 +154,33 @@ final class LectureMediaProxy {
 private extension LectureMediaProxy {
     final class Fetch: NSObject, URLSessionDataDelegate, @unchecked Sendable {
         let source: URL
+        let role: LectureMediaResourceRole
         let method: String
         let range: String?
         let policy: LectureMediaRequestPolicy
         let connection: NWConnection
         let isCurrent: () -> Bool
-        let route: (URL) throws -> URL
+        let rewrite: (String, URL) throws -> String
         let finish: () -> Void
         private var session: URLSession?
         private var task: URLSessionDataTask?
         private var response: HTTPURLResponse?
         private var playlist = false
+        private var sniffedMedia = false
         private var buffer = Data()
         private var closed = false
         private var headersSent = false
 
-        init(source: URL, method: String, range: String?, policy: LectureMediaRequestPolicy, connection: NWConnection,
-             isCurrent: @escaping () -> Bool, route: @escaping (URL) throws -> URL, finish: @escaping () -> Void) {
-            self.source = source; self.method = method; self.range = range; self.policy = policy
-            self.connection = connection; self.isCurrent = isCurrent; self.route = route; self.finish = finish
+        init(source: URL, role: LectureMediaResourceRole, method: String, range: String?, policy: LectureMediaRequestPolicy, connection: NWConnection,
+             isCurrent: @escaping () -> Bool, rewrite: @escaping (String, URL) throws -> String, finish: @escaping () -> Void) {
+            self.source = source; self.role = role; self.method = method; self.range = range; self.policy = policy
+            self.connection = connection; self.isCurrent = isCurrent; self.rewrite = rewrite; self.finish = finish
         }
 
         func start() {
             var request = policy.request(for: source)
-            request.httpMethod = method
-            request.setValue(source.pathExtension.lowercased() == "m3u8" ? nil : range, forHTTPHeaderField: "Range")
+            request.httpMethod = role == .playlist ? "GET" : method
+            request.setValue(role == .playlist ? nil : range, forHTTPHeaderField: "Range")
             request.setValue("identity", forHTTPHeaderField: "Accept-Encoding")
             let session = URLSession(configuration: LectureMediaDownloader.configuration(), delegate: self, delegateQueue: .main)
             self.session = session
@@ -201,8 +199,8 @@ private extension LectureMediaProxy {
                         newRequest request: URLRequest, completionHandler: @escaping (URLRequest?) -> Void) {
             guard isCurrent(), let destination = request.url, let from = response.url,
                   var redirect = policy.redirect(from: from, to: destination) else { completionHandler(nil); return }
-            redirect.httpMethod = method
-            redirect.setValue(destination.pathExtension.lowercased() == "m3u8" ? nil : range, forHTTPHeaderField: "Range")
+            redirect.httpMethod = role == .playlist ? "GET" : method
+            redirect.setValue(role == .playlist ? nil : range, forHTTPHeaderField: "Range")
             redirect.setValue("identity", forHTTPHeaderField: "Accept-Encoding")
             completionHandler(redirect)
         }
@@ -218,11 +216,14 @@ private extension LectureMediaProxy {
                 completionHandler(.cancel); fail(); return
             }
             let mime = response.mimeType?.lowercased() ?? ""
-            playlist = response.url?.pathExtension.lowercased() == "m3u8" || mime.contains("mpegurl")
+            playlist = role == .playlist
+            if !playlist && (mime.contains("mpegurl") || response.url.map({ LectureMediaResourceRole.source($0) == .playlist }) == true) {
+                completionHandler(.cancel); fail(); return
+            }
             // A server may ignore AVFoundation’s sniff range and return a complete playlist.
             // Only complete playlists can be rewritten; partial upstream responses fail closed.
             if playlist && response.statusCode != 200 { completionHandler(.cancel); fail(); return }
-            if !playlist || method == "HEAD" { sendHeaders(response) }
+            if !playlist && method == "HEAD" { sendHeaders(response) }
             completionHandler(.allow)
         }
 
@@ -232,28 +233,48 @@ private extension LectureMediaProxy {
                 guard buffer.count + data.count <= 2 * 1024 * 1024 else { fail(); return }
                 buffer.append(data)
             } else {
-                // URLSession delegates are serial; each pending send owns one suspend.
-                // Resume only after Network has processed the bytes, bounding buffering.
-                dataTask.suspend()
-                connection.send(content: data, completion: .contentProcessed { [weak self, weak dataTask] error in
-                    if error != nil { self?.cancel(); self?.finish() }
-                    else { dataTask?.resume() }
-                })
+                if !sniffedMedia {
+                    buffer.append(data)
+                    let prefix = buffer.drop(while: { [9, 10, 13, 32].contains($0) })
+                    guard buffer.count <= 4096 || !prefix.isEmpty else { fail(); return }
+                    let marker = Data("#EXTM3U".utf8)
+                    if prefix.starts(with: marker) || prefix.starts(with: Data([0xef, 0xbb, 0xbf])) { fail(); return }
+                    if prefix.isEmpty || (prefix.count < marker.count && marker.starts(with: prefix)) { return }
+                    sniffedMedia = true
+                    guard let response else { fail(); return }
+                    sendHeaders(response)
+                    let pending = buffer
+                    buffer.removeAll(keepingCapacity: false)
+                    send(pending, task: dataTask)
+                } else { send(data, task: dataTask) }
             }
+        }
+
+        private func send(_ data: Data, task: URLSessionDataTask) {
+            task.suspend()
+            connection.send(content: data, completion: .contentProcessed { [weak self, weak task] error in
+                if error != nil { self?.cancel(); self?.finish() }
+                else { task?.resume() }
+            })
         }
 
         func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
             guard !closed else { return }
             guard error == nil, isCurrent(), let response else { fail(); return }
-            if playlist && method != "HEAD" {
+            if playlist {
                 do {
                     guard let value = String(data: buffer, encoding: .utf8) else { throw LectureMediaError.unavailable }
-                    let rewritten = try LectureMediaPlaylist.rewrite(value, relativeTo: response.url ?? source, map: route)
+                    let rewritten = try rewrite(value, response.url ?? source)
                     let data = Data(rewritten.utf8)
                     let header = "HTTP/1.1 200 OK\r\nContent-Type: application/vnd.apple.mpegurl\r\nContent-Length: \(data.count)\r\nCache-Control: no-store\r\nConnection: close\r\n\r\n"
-                    connection.send(content: Data(header.utf8) + data, completion: .contentProcessed { [weak self] _ in self?.finish() })
+                    connection.send(content: Data(header.utf8) + (method == "HEAD" ? Data() : data), completion: .contentProcessed { [weak self] _ in self?.finish() })
                 } catch { fail() }
             } else {
+                if !headersSent { sendHeaders(response) }
+                if !buffer.isEmpty {
+                    // A truncated possible playlist prefix is not safe to expose.
+                    fail(); return
+                }
                 connection.send(content: nil, isComplete: true, completion: .contentProcessed { [weak self] _ in self?.finish() })
             }
             session.finishTasksAndInvalidate()

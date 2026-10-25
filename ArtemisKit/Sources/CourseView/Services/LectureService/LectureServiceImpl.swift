@@ -15,6 +15,21 @@ class LectureServiceImpl: LectureService {
 
     let client = APIClient()
 
+    struct GetVisibleLectureSlidesRequest: APIRequest {
+        typealias Response = [LectureMediaDetails]
+        let courseId: Int
+        var method: HTTPMethod { .get }
+        var resourceName: String { "api/lecture/courses/\(courseId)/lectures-with-slides" }
+    }
+
+    func getLecturesWithSlides(courseId: Int) async -> DataState<[LectureMediaDetails]> {
+        let result = await client.sendRequest(GetVisibleLectureSlidesRequest(courseId: courseId))
+        switch result {
+        case .success((let response, _)): return .done(response: response)
+        case .failure(let error): return .failure(error: UserFacingError(error: error))
+        }
+    }
+
     struct GetLectureDetailsRequest: APIRequest {
         typealias Response = LectureMediaDetails
 

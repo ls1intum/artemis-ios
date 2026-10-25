@@ -8,6 +8,7 @@ final class LectureMediaTests: XCTestCase {
         XCTAssertEqual(LectureMediaSource.classify(URL(string: "https://example.org/live.m3u8?token=secret")!), .video)
         XCTAssertEqual(LectureMediaSource.classify(URL(string: "https://example.org/watch?id=2")!), .web)
         XCTAssertEqual(LectureMediaSource.classify(URL(string: "https://example.org/download")!, mimeType: "video/mp4"), .video)
+        XCTAssertEqual(LectureMediaSource.classify(URL(string: "https://example.org/MASTER.M3U?token=secret")!), .video)
         for value in ["javascript:alert(1)", "file:///video.mp4", "data:video/mp4,a", "https://user:pass@example.org/a"] {
             XCTAssertEqual(LectureMediaSource.classify(URL(string: value)!), .invalid)
         }

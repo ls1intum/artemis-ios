@@ -69,22 +69,33 @@ struct MessageURLAction {
 // MARK: Handle Mentions
 private extension MessageURLAction {
     func handleLectureUnit(id: String, attachmentUnit: Int, coursePath: CoursePath) {
-        Task {
-            let account = UserSessionFactory.shared.user?.login ?? UserSessionFactory.shared.username
-            let token = UserSessionFactory.shared.getToken()
-            let server = UserSessionFactory.shared.institution?.baseURL
-            let delegate = SendMessageLecturePickerViewModel(course: conversationViewModel.course)
+        let lookup = makeLectureLookup(coursePath: coursePath)
+        Task { await lookup.openUnit(Int64(attachmentUnit)) }
+    }
 
-            await delegate.loadLecturesWithSlides()
-
-            guard !Task.isCancelled, account == (UserSessionFactory.shared.user?.login ?? UserSessionFactory.shared.username),
-                  token == UserSessionFactory.shared.getToken(), UserSessionFactory.shared.isLoggedIn,
-                  server == UserSessionFactory.shared.institution?.baseURL else { return }
-            if let lecture = delegate.firstLectureContains(attachmentUnit: attachmentUnit) {
-                navigationController.outerPath.append(LecturePath(id: lecture.id, coursePath: coursePath, target: .init(unitId: Int64(attachmentUnit))))
-                return
-            }
-        }
+    func makeLectureLookup(coursePath: CoursePath) -> LectureReferenceLookup {
+        let navigation = navigationController
+        let session = UserSessionFactory.shared
+        let account = session.user?.login ?? session.username
+        let server = session.institution?.baseURL
+        let token = session.getToken()
+        cellViewModel.lectureReferenceLookup?.cancel()
+        let lookup = LectureReferenceLookup(coursePath: coursePath, loader: {
+            await LectureServiceFactory.shared.getLecturesWithSlides(courseId: coursePath.id)
+        }, navigate: { path in
+            navigation.outerPath.append(path)
+        }, openLectures: {
+            navigation.goToCourse(id: coursePath.id)
+            navigation.outerPath = NavigationPath()
+            navigation.tabPath = NavigationPath()
+            navigation.selectedPath = nil
+            navigation.courseTab = .lecture
+        }, isCurrent: {
+            session.isLoggedIn && account == (session.user?.login ?? session.username) &&
+                server == session.institution?.baseURL && token == session.getToken()
+        })
+        cellViewModel.lectureReferenceLookup = lookup
+        return lookup
     }
 
     func handleMember(login: String, coursePath: CoursePath) {
@@ -108,21 +119,8 @@ private extension MessageURLAction {
     }
 
     func handleSlideReference(slideId: Int?, unitId: Int64?, number: Int?, coursePath: CoursePath) {
-        Task {
-            let account = UserSessionFactory.shared.user?.login ?? UserSessionFactory.shared.username
-            let token = UserSessionFactory.shared.getToken()
-            let server = UserSessionFactory.shared.institution?.baseURL
-            let delegate = SendMessageLecturePickerViewModel(course: conversationViewModel.course)
-            await delegate.loadLecturesWithSlides()
-            guard !Task.isCancelled, account == (UserSessionFactory.shared.user?.login ?? UserSessionFactory.shared.username),
-                  token == UserSessionFactory.shared.getToken(), UserSessionFactory.shared.isLoggedIn,
-                  server == UserSessionFactory.shared.institution?.baseURL else { return }
-            if let resolved = LectureSlideReference.resolve(slideId: slideId, unitId: unitId, number: number, lectures: delegate.lectures) {
-                navigationController.outerPath.append(LecturePath(id: resolved.lecture.id, coursePath: coursePath, target: resolved.target))
-            } else {
-                conversationViewModel.presentError(userFacingError: UserFacingError(title: "The referenced slide is unavailable. Try again from the lecture."))
-            }
-        }
+        let lookup = makeLectureLookup(coursePath: coursePath)
+        Task { await lookup.openSlide(id: slideId, unit: unitId, number: number) }
     }
 }
 
@@ -160,6 +158,24 @@ private struct MessageURLHandlerViewModifier: ViewModifier {
                                                 cellViewModel: cellViewModel,
                                                 navigationController: navigationController,
                                                 tabs: tabs)))
+            .overlay(alignment: .topTrailing) {
+                if cellViewModel.lectureReferenceLookup?.loading == true {
+                    ProgressView().accessibilityLabel("Opening lecture")
+                }
+            }
+            .onDisappear { cellViewModel.lectureReferenceLookup?.cancel() }
+            .alert("Lecture could not be opened", isPresented: Binding(
+                get: { cellViewModel.lectureReferenceLookup?.failure != nil },
+                set: { if !$0 { cellViewModel.lectureReferenceLookup?.failure = nil } }
+            )) {
+                Button("Retry") {
+                    if let lookup = cellViewModel.lectureReferenceLookup { Task { await lookup.retry() } }
+                }
+                Button("Open lectures") { cellViewModel.lectureReferenceLookup?.showLectures() }
+                Button("Cancel", role: .cancel) { cellViewModel.lectureReferenceLookup?.failure = nil }
+            } message: {
+                Text(cellViewModel.lectureReferenceLookup?.failure?.message ?? "")
+            }
             .sheet(isPresented: Binding(
                 get: {
                     cellViewModel.presentingAttachmentURL != nil

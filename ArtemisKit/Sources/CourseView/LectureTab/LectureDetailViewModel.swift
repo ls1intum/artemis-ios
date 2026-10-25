@@ -9,10 +9,19 @@ import Foundation
 import Common
 import SharedModels
 import SharedServices
+import Navigation
 
 class LectureDetailViewModel: BaseViewModel {
 
     @Published var lecture: DataState<Lecture> = .loading
+    @Published var targetPresentation: LectureUnitPresentation?
+    private var pendingTarget: LectureMediaTarget?
+    private var requestedTarget: LectureMediaTarget?
+    private var targetConsumed = false
+    private var lectureService: LectureService = LectureServiceFactory.shared
+    private var sessionCheck: (() -> Bool)?
+    private var isCurrent: Bool { sessionCheck?() ?? (mediaSession?.isCurrent == true) }
+
     @Published var studentVersions: [Int: String] = [:]
     @Published var course: DataState<CourseForOverviewDTO> = .loading
     @Published var channel: DataState<Channel> = .loading
@@ -23,7 +32,9 @@ class LectureDetailViewModel: BaseViewModel {
     let lectureId: Int
     let courseId: Int
 
-    init(course: CourseForOverviewDTO, lectureId: Int) {
+    init(course: CourseForOverviewDTO, lectureId: Int, lectureService: LectureService = LectureServiceFactory.shared, isCurrent: (() -> Bool)? = nil) {
+        self.lectureService = lectureService
+        self.sessionCheck = isCurrent
         self.courseId = course.id
         self.lectureId = lectureId
 
@@ -67,11 +78,50 @@ class LectureDetailViewModel: BaseViewModel {
         !visibleLectureUnitsWithPDF.isEmpty
     }
 
+    func configureTarget(_ target: LectureMediaTarget?) {
+        guard requestedTarget != target else { return }
+        requestedTarget = target
+        pendingTarget = target
+        targetConsumed = false
+        targetPresentation = nil
+    }
+
+    func refreshSlideAccess(for target: LectureMediaTarget) async -> DataState<LectureSlideAccess> {
+        guard isCurrent else { return .failure(error: UserFacingError(title: LectureMediaError.sessionChanged.localizedDescription)) }
+        let result = await lectureService.getLecturesWithSlides(courseId: courseId)
+        guard !Task.isCancelled, isCurrent else { return .failure(error: UserFacingError(title: LectureMediaError.sessionChanged.localizedDescription)) }
+        switch result {
+        case .done(let lectures):
+            guard let snapshot = lectures.first(where: { $0.lecture.id == lectureId }),
+                  let access = LectureSlideAccess.resolve(target: target, details: snapshot) else {
+                return .failure(error: UserFacingError(title: "The referenced slide is no longer available."))
+            }
+            return .done(response: access)
+        case .failure(let error): return .failure(error: error)
+        case .loading: return .failure(error: UserFacingError(title: "Slide information could not be loaded. Try again."))
+        }
+    }
+
+    private func resolvePendingTarget(in details: LectureMediaDetails) {
+        guard !targetConsumed, let pendingTarget else { return }
+        guard let unit = pendingTarget.resolve(in: details.lecture.lectureUnits ?? []) else {
+            targetConsumed = true
+            presentError(userFacingError: UserFacingError(title: "The referenced lecture attachment is unavailable."))
+            return
+        }
+        let studentVersion: String?
+        if case .attachmentVideo(let attachment) = unit {
+            studentVersion = attachment.attachment.flatMap { details.studentVersions[$0.id] }
+        } else { studentVersion = nil }
+        targetConsumed = true
+        targetPresentation = LectureUnitPresentation(unit: unit, target: pendingTarget, studentVersion: studentVersion)
+    }
+
     func loadLecture() async {
         let generation = lectureGeneration.begin()
-        let result = await LectureServiceFactory.shared.getLectureDetails(lectureId: lectureId)
+        let result = await lectureService.getLectureDetails(lectureId: lectureId)
         guard !Task.isCancelled, lectureGeneration.accepts(generation) else { return }
-        guard mediaSession?.isCurrent == true else {
+        guard isCurrent else {
             lecture = .failure(error: UserFacingError(title: LectureMediaError.sessionChanged.localizedDescription))
             return
         }
@@ -79,6 +129,7 @@ class LectureDetailViewModel: BaseViewModel {
         case .done(let details):
             studentVersions = details.studentVersions
             lecture = .done(response: details.lecture)
+            resolvePendingTarget(in: details)
         case .failure(let error): lecture = .failure(error: error)
         case .loading: lecture = .loading
         }
@@ -86,7 +137,7 @@ class LectureDetailViewModel: BaseViewModel {
 
     func loadCourse() async {
         let result = await CourseServiceFactory.shared.getCourse(courseId: courseId)
-        guard !Task.isCancelled, mediaSession?.isCurrent == true else { return }
+        guard !Task.isCancelled, isCurrent else { return }
         course = result
     }
 
@@ -94,13 +145,13 @@ class LectureDetailViewModel: BaseViewModel {
         // We only have a channel if communication is enabled
         guard course.value?.courseInformationSharingConfiguration != .disabled else { return }
 
-        let result = await LectureServiceFactory.shared.getAssociatedChannel(for: lectureId, in: courseId)
-        guard !Task.isCancelled, mediaSession?.isCurrent == true else { return }
+        let result = await lectureService.getAssociatedChannel(for: lectureId, in: courseId)
+        guard !Task.isCancelled, isCurrent else { return }
         channel = result
     }
 
     func updateLectureUnitCompletion(lectureUnit: LectureUnit, completed: Bool) async -> LectureUnit {
-        let result = await LectureServiceFactory.shared.updateLectureUnitCompletion(lectureId: lectureId,
+        let result = await lectureService.updateLectureUnitCompletion(lectureId: lectureId,
                                                                                     lectureUnitId: lectureUnit.id,
                                                                                     completed: completed)
 

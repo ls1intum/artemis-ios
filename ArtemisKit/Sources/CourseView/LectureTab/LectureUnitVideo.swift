@@ -12,6 +12,7 @@ struct VideoUnitSheetContent: View {
     @Environment(\.scenePhase) private var scenePhase
     @ObservedObject private var session = UserSessionFactory.shared
     @StateObject private var playback: LectureVideoPlayback
+    @StateObject private var providerPlayback = LectureProviderPlayback()
     @State private var snapshot = LectureMediaSession.capture()
     @State private var sessionValid = true
 
@@ -49,7 +50,7 @@ struct VideoUnitSheetContent: View {
                             }
                         }
                     } else {
-                        LectureProviderContent(url: videoSource, active: scenePhase == .active)
+                        LectureProviderContent(url: videoSource, active: scenePhase == .active, playback: providerPlayback)
                     }
                 }
                 .frame(maxWidth: .infinity)
@@ -74,9 +75,9 @@ struct VideoUnitSheetContent: View {
         .task {
             if LectureMediaSource.classify(videoSource) == .video { await playback.load() }
         }
-        .onDisappear { playback.stop() }
-        .onChange(of: scenePhase) { _, phase in if phase != .active { playback.pause() } }
-        .onReceive(NotificationCenter.default.publisher(for: AVAudioSession.interruptionNotification)) { _ in playback.pause() }
+        .onDisappear { playback.stop(); providerPlayback.pause() }
+        .onChange(of: scenePhase) { _, phase in if phase != .active { playback.pause(); providerPlayback.pause() } }
+        .onReceive(NotificationCenter.default.publisher(for: AVAudioSession.interruptionNotification)) { _ in playback.pause(); providerPlayback.pause() }
         .onReceive(session.objectWillChange) { _ in
             Task { @MainActor in
                 await Task.yield()
@@ -111,13 +112,14 @@ private struct LectureVideoPlayer: UIViewControllerRepresentable {
 private struct LectureProviderContent: View {
     let url: URL
     let active: Bool
+    let playback: LectureProviderPlayback
     @State private var loading = true
     @State private var failed = false
     @State private var attempt = UUID()
 
     var body: some View {
         ZStack {
-            LectureProviderPlayer(url: url, active: active, loading: $loading, failed: $failed).id(attempt)
+            LectureProviderPlayer(url: url, active: active, playback: playback, loading: $loading, failed: $failed).id(attempt)
             if loading { ProgressView("Loading provider…") }
             if failed {
                 VStack(spacing: 12) {
@@ -137,6 +139,7 @@ private struct LectureProviderContent: View {
 private struct LectureProviderPlayer: UIViewRepresentable {
     let url: URL
     let active: Bool
+    let playback: LectureProviderPlayback
     @Binding var loading: Bool
     @Binding var failed: Bool
     func makeCoordinator() -> Coordinator { Coordinator(self) }
@@ -147,6 +150,7 @@ private struct LectureProviderPlayer: UIViewRepresentable {
         configuration.mediaTypesRequiringUserActionForPlayback = .all
         let view = WKWebView(frame: .zero, configuration: configuration)
         view.navigationDelegate = context.coordinator
+        playback.attach(view)
         view.isOpaque = false
         view.load(URLRequest(url: url))
         return view
@@ -156,7 +160,7 @@ private struct LectureProviderPlayer: UIViewRepresentable {
         if !active { view.pauseAllMediaPlayback() }
     }
     static func dismantleUIView(_ view: WKWebView, coordinator: Coordinator) {
-        view.pauseAllMediaPlayback()
+        coordinator.parent.playback.detach(view)
         view.stopLoading()
         view.loadHTMLString("", baseURL: nil)
     }
@@ -176,5 +180,19 @@ private struct LectureProviderPlayer: UIViewRepresentable {
             if action.targetFrame == nil { webView.load(action.request); decisionHandler(.cancel) }
             else { decisionHandler(.allow) }
         }
+    }
+}
+
+@MainActor
+final class LectureProviderPlayback: ObservableObject {
+    private weak var webView: WKWebView?
+    func attach(_ view: WKWebView) {
+        if webView !== view { webView?.pauseAllMediaPlayback() }
+        webView = view
+    }
+    func pause() { webView?.pauseAllMediaPlayback() }
+    func detach(_ view: WKWebView) {
+        view.pauseAllMediaPlayback()
+        if webView === view { webView = nil }
     }
 }
