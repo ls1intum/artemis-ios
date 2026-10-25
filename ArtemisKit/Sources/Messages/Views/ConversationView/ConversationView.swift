@@ -35,14 +35,18 @@ public struct ConversationView: View {
     public var body: some View {
         VStack(spacing: 0) {
             if viewModel.messages.isEmpty && viewModel.offlineMessages.isEmpty {
-                ContentUnavailableView(
-                    R.string.localizable.noMessages(),
-                    systemImage: "bubble.right",
-                    description:
-                        viewModel.filter.selectedFilter == "all" ?
-                            Text(R.string.localizable.noMessagesDescription()) :
-                            Text(R.string.localizable.noMatchingMessages())
-                )
+                ScrollView {
+                    ContentUnavailableView(
+                        R.string.localizable.noMessages(),
+                        systemImage: "bubble.right",
+                        description:
+                            viewModel.filter.selectedFilter == "all" ?
+                                Text(R.string.localizable.noMessagesDescription()) :
+                                Text(R.string.localizable.noMatchingMessages())
+                    )
+                }
+                .defaultScrollAnchor(.center)
+                .scrollDismissesKeyboard(.interactively)
             } else {
                 ScrollViewReader { value in
                     ScrollView {
@@ -64,6 +68,7 @@ public struct ConversationView: View {
                     }
                     .coordinateSpace(name: "pullToRefresh")
                     .defaultScrollAnchor(.bottom)
+                    .scrollDismissesKeyboard(.interactively)
                     .onChange(of: viewModel.messages, initial: true) {
                         #warning("does not work correctly when loadFurtherMessages is called -> is called to early")
                         if let id = viewModel.shouldScrollToId {

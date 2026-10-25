@@ -23,11 +23,16 @@ enum MessageEditorCommonMark {
             if let link = run.link, !MessageEditorLinkValidation.isValid(link.absoluteString) { return nil }
             if !style.contains(.code) { literalStars += text.filter { $0 == "*" }.count }
             for character in text {
-                if let payload = references[character] {
+                if let first = character.unicodeScalars.first, let payload = references[Character(first)] {
                     for var span in payload {
-                        if span.reference == nil { span.style.formUnion(style) }
+                        span.style.formUnion(style)
                         emphasisFound = emphasisFound || !span.style.isDisjoint(with: [.bold, .italic])
                         append(span, to: &spans)
+                    }
+                    var tail = String(character)
+                    tail.unicodeScalars.removeFirst()
+                    if !tail.isEmpty {
+                        append(MessageEditorSpan(text: tail, style: style, link: run.link?.absoluteString), to: &spans)
                     }
                 } else {
                     append(MessageEditorSpan(text: String(character), style: style, link: run.link?.absoluteString), to: &spans)

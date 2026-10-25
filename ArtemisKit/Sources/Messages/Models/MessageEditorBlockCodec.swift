@@ -4,6 +4,7 @@ enum MessageEditorBlockStyle: String {
     case bulletList
     case numberedList
     case codeBlock
+    case quote
 }
 
 struct MessageEditorBlock: Equatable {
@@ -16,6 +17,9 @@ struct MessageEditorBlock: Equatable {
 /// Flat lists and fenced code retain their paragraph semantics independently of inline marks.
 /// Nested lists, task lists and continuation paragraphs stay read-only rather than being flattened.
 enum MessageEditorBlockCodec {
+    /// Keeps an empty quote editable without exposing wire Markdown in the native document.
+    static let quoteDisplayPrefix = "\u{200B}"
+
     static func decode(_ source: String, inline: (String) -> [MessageEditorSpan]?) -> [MessageEditorSpan]? {
         let lines = lines(source)
         var result: [MessageEditorSpan] = []
@@ -40,7 +44,7 @@ enum MessageEditorBlockCodec {
                 append([MessageEditorSpan(text: body.isEmpty ? "\n" : body, style: .code,
                                           block: MessageEditorBlock(style: .codeBlock, language: opening.info, identifier: codeIdentifier, isEmpty: body.isEmpty))], to: &result)
                 previousWasList = false
-            } else if let marker = listMarker(line) {
+            } else if let marker = listMarker(line) ?? quoteMarker(line) {
                 let preceding = plain.components(separatedBy: "\n")
                 let interrupts = preceding.count > 1 && !preceding[preceding.count - 2].trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                 guard !interrupts || canInterruptParagraph(style: marker.style, line: marker.display, body: marker.body) else { return nil }
@@ -128,12 +132,18 @@ enum MessageEditorBlockCodec {
         return (numbered ? .numberedList : .bulletList, numbered ? number + ". " : "• ", String(text[match.upperBound...]))
     }
 
+    static func quoteMarker(_ text: String) -> (style: MessageEditorBlockStyle, display: String, body: String)? {
+        guard text.hasPrefix(">"), text.count == 1 || text.dropFirst().first == " " || text.dropFirst().first == "\n" else { return nil }
+        return (.quote, quoteDisplayPrefix, String(text.dropFirst(text.hasPrefix("> ") ? 2 : 1)))
+    }
+
     static func canInterruptParagraph(style: MessageEditorBlockStyle, line: String, body: String) -> Bool {
         !body.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             && (style != .numberedList || Int(line.prefix(while: \.isNumber)) == 1)
     }
 
     static func displayPrefixLength(_ text: String, style: MessageEditorBlockStyle) -> Int {
+        if style == .quote { return text.hasPrefix(quoteDisplayPrefix) ? quoteDisplayPrefix.utf16.count : 0 }
         let pattern = style == .bulletList ? #"^• "# : #"^[0-9]{1,9}\. "#
         return text.range(of: pattern, options: .regularExpression).map { NSRange($0, in: text).length } ?? 0
     }
@@ -147,7 +157,7 @@ enum MessageEditorBlockCodec {
             let text = line.map(\.text).joined()
             let length = displayPrefixLength(text, style: style)
             let prefix = String(text.prefix(length))
-            let marker = style == .bulletList ? "- " : prefix
+            let marker = style == .quote ? "> " : style == .bulletList ? "- " : prefix
             var remaining = length
             let body = line.compactMap { span -> MessageEditorSpan? in
                 var copy = span

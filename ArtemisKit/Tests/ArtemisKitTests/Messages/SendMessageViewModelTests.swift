@@ -6,6 +6,31 @@ import UserStore
 
 @MainActor
 final class SendMessageViewModelTests: XCTestCase {
+    func testEmptyFormattingAndWhitespaceDoNotEnableSend() {
+        let model = makeViewModel()
+        for empty in ["", " \n ", "- ", "1. ", "> ", "```\n```"] {
+            model.text = empty
+            XCTAssertFalse(model.canSend, "No message body in \(empty.debugDescription)")
+        }
+        for message in ["Hello", "- Item", "1. Item", "> Quote", "```\ncode\n```", "[File](/api/files/file.pdf)"] {
+            model.text = message
+            XCTAssertTrue(model.canSend, message)
+        }
+    }
+
+    func testUploadedFileNamesKeepMarkdownCharactersAndAttachmentActions() {
+        for name in ["Research [final].pdf", "a*b*.pdf", "Design (2) 😀.pdf"] {
+            let model = makeViewModel()
+            model.insertFileMention(path: "/api/files/upload_(1).pdf", fileName: name)
+            XCTAssertEqual(model.editor.attachments.map(\.name), [name])
+            XCTAssertEqual(model.editor.attachments.map(\.path), ["/api/files/upload_(1).pdf"])
+            let reopened = MessageEditorDocument()
+            reopened.load(model.text)
+            XCTAssertFalse(reopened.hasUnsupportedContent)
+            XCTAssertEqual(reopened.attachments.map(\.name), [name])
+        }
+    }
+
     private func makeViewModel() -> SendMessageViewModel {
         SendMessageViewModel(
             course: CourseForOverviewDTO(course: Course(id: 1, courseInformationSharingConfiguration: .communicationAndMessaging)),

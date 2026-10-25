@@ -57,6 +57,7 @@ struct ForwardMessageView: View {
 
                     ForwardMessagePreviewView(viewModel: viewModel)
                 }
+                .scrollDismissesKeyboard(.interactively)
 
                 SendMessageView(viewModel: sendViewModel)
             }
@@ -79,33 +80,13 @@ struct ForwardMessageView: View {
 
 private struct ForwardMessagePreviewView: View {
     let viewModel: MessageActionsViewModel
-    @StateObject var conversationViewModel: ConversationViewModel
-
-    init(viewModel: MessageActionsViewModel) {
-        self.viewModel = viewModel
-
-        let cViewModel = ConversationViewModel(course: viewModel.conversationViewModel.course, conversation: viewModel.conversationViewModel.conversation, skipLoadingData: true)
-        // Add viewModel's message as source for Message with id 0
-        cViewModel.forwardedSourcePosts = [
-            .init(id: 0, messages: [
-                .init(sourceId: 0, sourceType: .post, destinationPostId: nil)
-            ], sourceMessage: viewModel.message.value)
-        ]
-        self._conversationViewModel = StateObject(wrappedValue: cViewModel)
-    }
-
     var body: some View {
-        ForwardedMessageView(viewModel: conversationViewModel, message: previewContainer)
-            .fixedSize(horizontal: false, vertical: true)
-            .padding()
-            .allowsHitTesting(false)
-    }
-
-    var previewContainer: Message {
-        // Message with id 0 for preview
-        var message = Message(id: 0)
-        message.hasForwardedMessages = true
-        return message
+        if let message = viewModel.message.value {
+            ForwardedMessageCell(message: message)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding()
+                .allowsHitTesting(false)
+        }
     }
 }
 

@@ -1,0 +1,34 @@
+# Communication composer
+
+The requested Slack iOS interaction is the design authority for this scoped replacement. Preserve Artemis's native selection, undo, drafts, attachments, course references, and Markdown protocol.
+
+## Experience
+
+- One rounded system-glass container, with full-width text above one always-visible toolbar. Use a solid system surface with Reduce Transparency.
+- Show the conversation or reply placeholder in secondary text. Grow naturally as text wraps, then scroll inside a bounded editor; remove fullscreen and the old resize column. Keep bounded inline expansion on the grabber described below.
+- Default row: attachment/add menu, Aa, emoji, @, #, and a fixed circular send control. The add menu preserves exercise, lecture and FAQ references.
+- Aa replaces the middle of the same row with horizontally scrolling direct formatting actions. A fixed close control restores the default row; send remains visible. All targets are at least 44 points, with names and selected states for accessibility.
+- Keep Send disabled for whitespace and empty formatting; allow an empty optional forwarding comment.
+- Keep native keyboard focus and selection through formatting actions. Emoji selection inserts at the saved caret. Keep uploads and picker presentation owned by the composer.
+- Quotes render as indented text with a vertical rule, without visible Markdown punctuation. Preserve inline styles and quote Markdown through paste, copy, undo and reopening.
+- Continue bullet and numbered lists on every Return. Return on an empty item exits the list. Test with actual native editing across SwiftUI updates.
+
+## Approach
+
+Restyling the existing stacked toolbar would retain its extra height and discovery problems. Replacing the editing engine would risk draft and serialization regressions. Keep the existing UITextView/document bridge and replace only the composer shell and toolbar, fixing structural editing at its source.
+
+## Validation
+
+Run native iOS Simulator package tests and the unsigned app build; inspect light/dark, narrow/wide, long-text, formatting, and accessibility-size captures. Verify native interaction on iPhone and iPad simulators in portrait and landscape. No new dependencies.
+
+## Review follow-up
+
+Keep the emoji button as requested. Use Smile's existing ordered categories and classify the app's newer emojis in the same groups; preserve search and every available emoji without adding a dependency. A flat alphabetical list would be predictable but harder to browse than the familiar category order.
+
+Completion suggestions must yield space to the text and toolbar when the keyboard or a small window limits height. Keep the current inline suggestions; a separate sheet would interrupt typing. Enable native interactive keyboard dismissal in the conversation, thread and forwarding scroll views, including empty conversations. Verify constrained layout and native interactions on iPhone and iPad simulators.
+
+## Drag resizing and emoji header refinement
+
+The requested follow-up adds a centered grabber to the composer. Upward/downward dragging adjusts the native text area continuously and settles at a bounded expanded/collapsed size; tapping and accessibility adjustment provide the same actions. Keep selection, draft, keyboard focus, toolbar and send available. Respect the actual height proposal, including keyboard, small windows and orientation changes; expansion remains inside the conversation rather than opening fullscreen. Use the existing native document bridge, with at most 240 additional points in regular height and 120 in compact height.
+
+Category headers use smaller secondary semibold text directly on the native sheet surface, with no backing rectangle. They scroll with their section so they cannot overlap emoji rows. Verify native dragging, collapse, tap fallback, subsequent typing and emoji search/insertion on iPhone and iPad, and save real screencasts on the Desktop.

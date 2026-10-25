@@ -35,25 +35,30 @@ The *Push Notification* subsystem handles the registration, notification setting
 ## Message composer
 
 Messages, replies, edits, and forwarding comments share a native rich text composer. Bold,
-italic, underline, strikethrough, inline code, links, flat bullet/numbered lists, fenced code
+italic, underline, strikethrough, inline code, links, flat bullet/numbered lists, block quotes, fenced code
 blocks, and Artemis references are edited in place and stored using the existing Markdown
 message format. Inline formatting is available in the native text-selection menu and the
-compact toolbar's formatting menu. More reveals list and code-block buttons, resource
-references, attachments, and an editor size toggle that expands the writing area.
+single action row. **Aa** switches that row to horizontally scrolling formatting controls;
+close and send stay reachable. **+** opens attachments and course references. Emoji, user
+and channel actions are available in the default row. The grabber above the text expands
+or collapses the editor by dragging or tapping, within the available keyboard/window height.
 
-Typing `- ` or `1. ` starts a list. Return continues the list; Return on an empty item or
+Typing `- ` or `1. ` starts a list; `> ` starts a quote. Return continues the list; Return on an empty item or
 Backspace at its start returns to ordinary text. Code typing disables automatic correction,
 capitalization, and smart punctuation. In a code block, Markdown stays literal;
 Return on its final empty line exits the block. Backspace first selects a reference or link,
 then removes it on the next press. The clipboard includes readable plain text and a private
 Markdown representation so reference identifiers survive copying between Artemis composers.
 
-Headings, quotes, nested/task lists, tables, unsupported HTML, and math remain read-only.
+Headings, nested quotes/lists, task lists, tables, unsupported HTML, and math remain read-only.
 Their original content is preserved, and editing, sending, saving and resource actions are
 blocked; existing edit sheets can be cancelled. For saved message or reply drafts, Discard
 draft clears only that draft and restores composing. Pasting supported Markdown produces
 formatted content, while unsupported pasted syntax is inserted as literal text. Drafts are
-restored when reopening a conversation or thread. Sending preserves any newer text entered
+saved as editing occurs and restored when reopening a conversation or thread. Unchanged
+older composers cannot overwrite newer edits or deletions when they disappear. File and
+image attachment menus allow renaming their display names while keeping upload URLs intact,
+including after restoring a draft. Sending preserves any newer text entered
 while the request is in flight and clears the saved draft only after acceptance.
 
 Reference pills use the appearance and text size from when their content is loaded. Changing

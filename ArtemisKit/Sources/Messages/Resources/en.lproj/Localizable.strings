@@ -30,6 +30,8 @@
 "code" = "Code";
 "link" = "Link";
 "uploadImage" = "Upload Image";
+"imageLoadFailed" = "Failed to load the selected image. Please try again.";
+"imageTooLarge" = "Image too large. Please select a smaller image.";
 "uploadFile" = "Upload File";
 "unorderedList" = "Unordered List";
 "orderedList" = "Ordered List";
@@ -219,6 +221,9 @@
 "done" = "Done";
 
 "moreFormatting" = "More formatting";
+"hideFormatting" = "Hide formatting";
+"addAttachmentOrReference" = "Add attachment or course reference";
+"searchEmojis" = "Search emojis";
 "expanded" = "Expanded";
 "collapsed" = "Collapsed";
 "resizeEditor" = "Resize editor";
@@ -228,3 +233,24 @@
 "linkAddress" = "Link address";
 "removeLink" = "Remove link";
 "saveLink" = "Save link";
+
+"lists" = "Lists";
+"renameAttachment" = "Rename";
+"attachmentName" = "Attachment name";
+"removeAttachment" = "Remove";
+"previewAttachment" = "Preview";
+
+// Emoji picker categories
+"emojiCategorySmileys" = "Smileys & Emotion";
+"emojiCategoryPeople" = "People & Body";
+"emojiCategoryNature" = "Animals & Nature";
+"emojiCategoryFood" = "Food & Drink";
+"emojiCategoryTravel" = "Travel & Places";
+"emojiCategoryActivities" = "Activities";
+"emojiCategoryObjects" = "Objects";
+"emojiCategorySymbols" = "Symbols";
+"emojiCategoryFlags" = "Flags";
+
+"expandMessageInput" = "Expand message input";
+"collapseMessageInput" = "Collapse message input";
+"resizeMessageInputHint" = "Drag up to expand or down to collapse. Double-tap to switch sizes.";

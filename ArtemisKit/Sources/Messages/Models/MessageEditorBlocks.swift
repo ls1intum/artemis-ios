@@ -35,6 +35,14 @@ extension MessageEditorDocument {
         let paragraph = (content.string as NSString).paragraphRange(for: NSRange(location: range.location, length: 0))
         let line = (content.string as NSString).substring(with: paragraph)
         if let block = selectedBlock, block.style != .codeBlock {
+            // Home and selection gestures can place the caret before the invisible quote
+            // prefix. Keep native insertion/replacement inside its structural paragraph.
+            let bodyRange = inlineInsertionRange(range)
+            if block.style == .quote, bodyRange != range, !text.isEmpty {
+                if handleListReplacement(in: bodyRange, text: text, paragraph: paragraph, line: line, block: block) { return true }
+                replace(bodyRange, with: markupReplacement([MessageEditorSpan(text: text, style: typingStyle)], in: bodyRange))
+                return true
+            }
             return handleListReplacement(in: range, text: text, paragraph: paragraph, line: line, block: block)
         }
         guard range.length == 0, text == " " else { return false }
@@ -42,7 +50,8 @@ extension MessageEditorDocument {
         let prefix = (line as NSString).substring(to: offset)
         let suffix = (line as NSString).substring(from: offset)
         guard suffix.allSatisfy(\.isNewline),
-              let marker = MessageEditorBlockCodec.listMarker(prefix + text), marker.body.isEmpty else { return false }
+              let marker = MessageEditorBlockCodec.listMarker(prefix + text) ?? MessageEditorBlockCodec.quoteMarker(prefix + text),
+              marker.body.isEmpty else { return false }
         let block = MessageEditorBlock(style: marker.style)
         let attributes = Self.attributes(typingStyle).merging(Self.blockAttributes(block)) { _, value in value }
         let value = NSMutableAttributedString(attributedString: content)
@@ -55,11 +64,17 @@ extension MessageEditorDocument {
 
     static func blockAttributes(_ block: MessageEditorBlock) -> [NSAttributedString.Key: Any] {
         var attributes: [NSAttributedString.Key: Any] = [.messageBlock: block.style.rawValue]
+        if block.style == .quote {
+            let paragraph = NSMutableParagraphStyle()
+            paragraph.firstLineHeadIndent = 16
+            paragraph.headIndent = 16
+            attributes[.paragraphStyle] = paragraph
+        }
         if block.style == .codeBlock {
             attributes[.messageCodeLanguage] = block.language
             attributes[.messageCodeIdentifier] = block.identifier
             attributes[.messageCodeEmpty] = block.isEmpty
-            attributes[.backgroundColor] = UIColor.secondarySystemFill
+            attributes[.foregroundColor] = UIColor.label
         }
         return attributes
     }
@@ -76,6 +91,16 @@ extension MessageEditorDocument {
         let block = Self.block(content.attributes(at: index, effectiveRange: nil))
         if location == content.length, content.string.utf16.last == 10, block?.style != .codeBlock { return nil }
         return block
+    }
+
+    /// Inline paste replaces the item body; its paragraph marker remains structural.
+    func inlineInsertionRange(_ range: NSRange) -> NSRange {
+        guard let block = block(at: range.location), block.style != .codeBlock else { return range }
+        let paragraph = (content.string as NSString).paragraphRange(for: NSRange(location: range.location, length: 0))
+        let line = (content.string as NSString).substring(with: paragraph)
+        let bodyStart = paragraph.location + MessageEditorBlockCodec.displayPrefixLength(line, style: block.style)
+        guard range.location < bodyStart else { return range }
+        return NSRange(location: bodyStart, length: max(0, NSMaxRange(range) - bodyStart))
     }
 
     func markupReplacement(_ spans: [MessageEditorSpan], in range: NSRange) -> NSAttributedString {
@@ -98,6 +123,17 @@ extension MessageEditorDocument {
             }
         } else if let block = block(at: range.location) {
             replacement.addAttributes(Self.blockAttributes(block), range: NSRange(location: 0, length: replacement.length))
+            if block.style != .codeBlock {
+                let paragraph = (content.string as NSString).paragraphRange(for: NSRange(location: range.location, length: 0))
+                let line = (content.string as NSString).substring(with: paragraph)
+                let number = Int(line.prefix(while: \.isNumber)) ?? 0
+                let newlines = replacement.string.utf16.enumerated().filter { $0.element == 10 }.map(\.offset)
+                for (offset, position) in newlines.enumerated().reversed() {
+                    let prefix = block.style == .quote ? MessageEditorBlockCodec.quoteDisplayPrefix : block.style == .bulletList ? "• " : "\(number + offset + 1). "
+                    let attributes = Self.attributes([]).merging(Self.blockAttributes(block)) { _, value in value }
+                    replacement.insert(NSAttributedString(string: prefix, attributes: attributes), at: position + 1)
+                }
+            }
         }
         return replacement
     }
@@ -148,7 +184,7 @@ extension MessageEditorDocument {
             let line = (content.string as NSString).substring(with: paragraph)
             let oldBlock = paragraph.length > 0 ? Self.block(content.attributes(at: paragraph.location, effectiveRange: nil)) : nil
             let removed = oldBlock.map { MessageEditorBlockCodec.displayPrefixLength(line, style: $0.style) } ?? 0
-            let prefix = remove ? "" : style == .bulletList ? "• " : "\(offset + 1). "
+            let prefix = remove ? "" : style == .quote ? MessageEditorBlockCodec.quoteDisplayPrefix : style == .bulletList ? "• " : "\(offset + 1). "
             let body = NSRange(location: paragraph.location + removed, length: paragraph.length - removed)
             let replacement = NSMutableAttributedString(attributedString: content.attributedSubstring(from: body))
             clearBlock(in: replacement, range: NSRange(location: 0, length: replacement.length))
@@ -243,7 +279,8 @@ extension MessageEditorDocument {
         let prefixLength = MessageEditorBlockCodec.displayPrefixLength(line, style: block.style)
         guard prefixLength > 0 else { return false }
         let bodyStart = paragraph.location + prefixLength
-        if text.isEmpty, range.length == 1, selection.length == 0, selection.location == bodyStart {
+        if text.isEmpty, range.length == 1, range.location == bodyStart - 1,
+           selection.length == 0, selection.location == bodyStart {
             removeListMarker(in: paragraph, length: prefixLength)
             return true
         }
@@ -254,7 +291,7 @@ extension MessageEditorDocument {
             removeListMarker(in: paragraph, length: paragraph.length - ending)
         } else {
             let number = Int(line.prefix(while: \.isNumber)) ?? 0
-            let prefix = block.style == .bulletList ? "• " : "\(number + 1). "
+            let prefix = block.style == .quote ? MessageEditorBlockCodec.quoteDisplayPrefix : block.style == .bulletList ? "• " : "\(number + 1). "
             let attributes = Self.attributes(typingStyle).merging(Self.blockAttributes(block)) { _, value in value }
             replace(range, with: NSAttributedString(string: "\n" + prefix, attributes: attributes))
         }
@@ -274,7 +311,9 @@ extension MessageEditorDocument {
     }
 
     private func clearBlock(in value: NSMutableAttributedString, range: NSRange) {
-        for key: NSAttributedString.Key in [.messageBlock, .messageCodeLanguage, .messageCodeIdentifier, .messageCodeEmpty, .backgroundColor] { value.removeAttribute(key, range: range) }
+        for key: NSAttributedString.Key in [.messageBlock, .messageCodeLanguage, .messageCodeIdentifier, .messageCodeEmpty, .backgroundColor, .paragraphStyle] {
+            value.removeAttribute(key, range: range)
+        }
     }
 
     private func containsCode(in range: NSRange) -> Bool {
@@ -299,5 +338,48 @@ extension MessageEditorDocument {
         }
         let start = adjusted(selection.location)
         return NSRange(location: start, length: adjusted(NSMaxRange(selection)) - start)
+    }
+
+    /// A paste can join an existing plain suffix to a list body. A paragraph has one
+    /// block style, determined by its surviving start, including the untouched suffix.
+    func normalizeJoinedParagraphs(in value: NSMutableAttributedString, around range: NSRange) {
+        guard value.length > 0 else { return }
+        let text = value.string as NSString
+        let affected = text.paragraphRange(for: NSRange(location: min(range.location, value.length), length: min(range.length, value.length - min(range.location, value.length))))
+        var position = affected.location
+        while position < NSMaxRange(affected) {
+            let paragraph = text.paragraphRange(for: NSRange(location: position, length: 0))
+            var block = Self.block(value.attributes(at: position, effectiveRange: nil))
+            if block?.style == .quote, !text.substring(with: paragraph).hasPrefix(MessageEditorBlockCodec.quoteDisplayPrefix) {
+                block = nil
+            }
+            clearBlock(in: value, range: paragraph)
+            if let block { value.addAttributes(Self.blockAttributes(block), range: paragraph) }
+            position = NSMaxRange(paragraph)
+        }
+    }
+
+    func normalizeNumberedParagraphs(in value: NSMutableAttributedString, selection: inout NSRange) {
+        var position = 0
+        var previousNumber: Int?
+        while position < value.length {
+            let paragraph = (value.string as NSString).paragraphRange(for: NSRange(location: position, length: 0))
+            let line = (value.string as NSString).substring(with: paragraph)
+            let attributes = value.attributes(at: position, effectiveRange: nil)
+            let length = MessageEditorBlockCodec.displayPrefixLength(line, style: .numberedList)
+            if Self.block(attributes)?.style == .numberedList, length > 0 {
+                let number = previousNumber.map { $0 + 1 } ?? Int(line.prefix(while: \.isNumber)) ?? 1
+                let prefix = "\(number). "
+                if (line as NSString).substring(to: length) != prefix {
+                    value.replaceCharacters(in: NSRange(location: position, length: length), with: NSAttributedString(string: prefix, attributes: attributes))
+                    selection = adjustedSelection(selection, at: position, removed: length, inserted: prefix.utf16.count)
+                }
+                position = NSMaxRange(paragraph) + prefix.utf16.count - length
+                previousNumber = number
+            } else {
+                position = NSMaxRange(paragraph)
+                previousNumber = nil
+            }
+        }
     }
 }

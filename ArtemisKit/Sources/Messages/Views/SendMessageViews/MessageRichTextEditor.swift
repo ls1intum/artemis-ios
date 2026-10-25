@@ -6,8 +6,8 @@ struct MessageRichTextEditor: UIViewRepresentable {
     var document: MessageEditorDocument
     var placeholder: String
     @Binding var isFocused: Bool
-    var expanded: Bool
     var showsCompletions = false
+    var extraHeight: CGFloat = 0
     @Environment(\.verticalSizeClass) private var verticalSizeClass
 
     func makeCoordinator() -> Coordinator { Coordinator(self) }
@@ -16,8 +16,8 @@ struct MessageRichTextEditor: UIViewRepresentable {
         let view = MessageComposerTextView()
         view.document = document
         view.isEditable = !document.hasUnsupportedContent
-        view.backgroundColor = .secondarySystemBackground
-        view.layer.cornerRadius = 8
+        view.backgroundColor = .clear
+        view.keyboardDismissMode = .interactive
         view.textContainerInset = UIEdgeInsets(top: 12, left: 4, bottom: 12, right: 4)
         view.adjustsFontForContentSizeCategory = true
         view.allowsEditingTextAttributes = false
@@ -36,7 +36,15 @@ struct MessageRichTextEditor: UIViewRepresentable {
     }
 
     func updateUIView(_ view: MessageComposerTextView, context: Context) {
+        context.coordinator.applying = true
+        defer { context.coordinator.applying = false }
         if view.document !== document {
+            // End the old composition before rebinding; its delegate callbacks must
+            // not publish pending text into either document during this update.
+            view.unmarkText()
+            // Native edits and coordinator undo closures belong to the old document.
+            // Equal replacement content skips the attributedText setter below.
+            view.undoManager?.removeAllActions()
             view.document?.applyEdit = nil
             view.document?.applyTypingAttributes = nil
             view.document = document
@@ -45,8 +53,6 @@ struct MessageRichTextEditor: UIViewRepresentable {
         }
         context.coordinator.parent = self
         guard view.markedTextRange == nil else { return }
-        context.coordinator.applying = true
-        defer { context.coordinator.applying = false }
         view.isEditable = !document.hasUnsupportedContent
         if !view.attributedText.isEqual(to: document.content) {
             view.attributedText = document.content
@@ -67,11 +73,11 @@ struct MessageRichTextEditor: UIViewRepresentable {
         let width = proposal.width ?? 300
         let measured = uiView.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude))
         let compact = verticalSizeClass == .compact
-        let maximum: CGFloat = showsCompletions ? (compact ? 44 : 80) : expanded ? (compact ? 120 : 320) : (compact ? 80 : 160)
-        let minimum: CGFloat = expanded && !showsCompletions ? (compact ? 100 : 200) : 44
-        // VStack probes with zero height to learn our minimum. Honouring that proposal here
-        // would report 44 points even when expanded, preventing it from allocating writing space.
-        return CGSize(width: width, height: min(maximum, max(minimum, measured.height)))
+        let maximum: CGFloat = showsCompletions ? (compact ? 44 : 80) : (compact ? 80 : 160)
+        let desired = min(maximum, max(44, measured.height)) + max(0, extraHeight)
+        // Report a shrinkable minimum to VStack, then respect its keyboard/sheet height budget.
+        let available = proposal.height.flatMap { $0 == 0 ? 44 : $0 > 0 && $0.isFinite ? $0 : nil } ?? desired
+        return CGSize(width: width, height: min(available, desired))
     }
 
     static func dismantleUIView(_ uiView: MessageComposerTextView, coordinator: Coordinator) {
@@ -98,11 +104,15 @@ struct MessageRichTextEditor: UIViewRepresentable {
             applying = wasApplying
         }
 
-        func apply(_ value: NSAttributedString, selection: NSRange) {
+        func apply(_ value: NSAttributedString, selection: NSRange, typingStyle: MessageEditorStyle? = nil) {
             guard !parent.document.hasUnsupportedContent, let view = textView, view.markedTextRange == nil else { return }
             let old = NSAttributedString(attributedString: view.attributedText)
             let oldSelection = view.selectedRange
-            view.undoManager?.registerUndo(withTarget: self) { target in target.apply(old, selection: oldSelection) }
+            let oldTypingStyle = MessageEditorDocument.style(view.typingAttributes)
+            view.undoManager?.registerUndo(withTarget: self) { target in
+                target.apply(old, selection: oldSelection, typingStyle: oldTypingStyle)
+            }
+            if let typingStyle { parent.document.typingStyle = typingStyle }
             applying = true
             view.textStorage.setAttributedString(value)
             view.selectedRange = selection
@@ -173,6 +183,32 @@ final class MessageComposerTextView: UITextView {
     private static let markdownPasteboardType = "de.tum.cit.aet.artemis.message-markdown"
     weak var document: MessageEditorDocument?
 
+    override init(frame: CGRect = .zero, textContainer: NSTextContainer? = nil) {
+        if let textContainer {
+            super.init(frame: frame, textContainer: textContainer)
+        } else {
+            let storage = NSTextStorage()
+            let layout = MessageComposerLayoutManager()
+            let container = NSTextContainer(size: .zero)
+            container.widthTracksTextView = true
+            storage.addLayoutManager(layout)
+            layout.addTextContainer(container)
+            super.init(frame: frame, textContainer: container)
+        }
+    }
+
+    required init?(coder: NSCoder) { super.init(coder: coder) }
+
+    override func insertText(_ text: String) {
+        // UIKeyInput insertion is also used by keyboards and dictation. It does not always
+        // traverse shouldChangeTextIn, so structural edits must be handled here as well.
+        if markedTextRange == nil, let document, !document.hasUnsupportedContent {
+            document.selection = selectedRange
+            if document.handleReplacement(in: selectedRange, text: text) { return }
+        }
+        super.insertText(text)
+    }
+
     func updateTypingTraits(for document: MessageEditorDocument) {
         let code = document.activeBlockStyle == .codeBlock || document.typingStyle.contains(.code)
         let correction: UITextAutocorrectionType = code ? .no : .default
@@ -187,8 +223,28 @@ final class MessageComposerTextView: UITextView {
     }
 
     override var keyCommands: [UIKeyCommand]? {
-        (super.keyCommands ?? []) + [UIKeyCommand(input: UIKeyCommand.inputEscape, modifierFlags: [], action: #selector(dismissComposer))]
+        let undo = UIKeyCommand(input: "z", modifierFlags: .command, action: #selector(undoComposer))
+        let redo = UIKeyCommand(input: "z", modifierFlags: [.command, .shift], action: #selector(redoComposer))
+        undo.wantsPriorityOverSystemBehavior = true
+        redo.wantsPriorityOverSystemBehavior = true
+        let inherited = (super.keyCommands ?? []).filter { !($0.input?.lowercased() == "z" && $0.modifierFlags.contains(.command)) }
+        return inherited + [
+            undo, redo,
+            UIKeyCommand(input: UIKeyCommand.inputEscape, modifierFlags: [], action: #selector(dismissComposer))
+        ]
     }
+
+    override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
+        if action == #selector(undoComposer) { return undoManager?.canUndo == true }
+        if action == #selector(redoComposer) { return undoManager?.canRedo == true }
+        return super.canPerformAction(action, withSender: sender)
+    }
+
+    @objc
+    private func undoComposer(_ sender: UIKeyCommand) { undoManager?.undo() }
+
+    @objc
+    private func redoComposer(_ sender: UIKeyCommand) { undoManager?.redo() }
 
     @objc
     private func dismissComposer() { resignFirstResponder() }
@@ -207,8 +263,9 @@ final class MessageComposerTextView: UITextView {
     }
 
     override func paste(_ sender: Any?) {
-        if let data = UIPasteboard.general.data(forPasteboardType: Self.markdownPasteboardType) {
-            document?.insertMarkup(String(decoding: data, as: UTF8.self))
+        if let data = UIPasteboard.general.data(forPasteboardType: Self.markdownPasteboardType),
+           let value = String(bytes: data, encoding: .utf8) {
+            document?.insertMarkup(value)
         } else if let value = UIPasteboard.general.string {
             document?.insertMarkup(value)
         }

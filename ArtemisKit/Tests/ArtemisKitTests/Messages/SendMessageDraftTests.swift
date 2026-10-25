@@ -295,42 +295,48 @@ final class SendMessageDraftTests: XCTestCase {
         let restoredEditor = try XCTUnwrap(findNativeEditor(in: restoredController.view))
         XCTAssertEqual(restoredEditor.text, "Typed in the native editor")
     }
-
-    private func findNativeEditor(in view: UIView) -> MessageComposerTextView? {
-        if let editor = view as? MessageComposerTextView { return editor }
-        for child in view.subviews {
-            if let editor = findNativeEditor(in: child) { return editor }
-        }
-        return nil
-    }
-
-    private func makeDraftViewModel(
-        repository: MessagesRepository,
-        courseId: Int,
-        conversationId: Int? = nil,
-        configuration: SendMessageViewModel.Configuration = .message,
-        messagesService: MessagesService = MessagesServiceStub(),
-        presentError: @escaping (UserFacingError) -> Void = { _ in },
-        sendMessage: @escaping (String) async -> Void = { _ in },
-        sendMessageWithResult: ((String) async -> Bool)? = nil
-    ) -> SendMessageViewModel {
-        let delegate: SendMessageViewModelDelegate
-        if let sendMessageWithResult {
-            delegate = SendMessageViewModelDelegate(presentError: presentError, sendMessageWithResult: sendMessageWithResult)
-        } else {
-            delegate = SendMessageViewModelDelegate(presentError: presentError, sendMessage: sendMessage)
-        }
-        return SendMessageViewModel(
-            course: CourseForOverviewDTO(course: Course(id: courseId, courseInformationSharingConfiguration: .communicationAndMessaging)),
-            conversation: Conversation(conversation: Channel(id: Int64(conversationId ?? courseId)))!,
-            configuration: configuration,
-            delegate: delegate,
-            messagesRepository: repository, messagesService: messagesService, userSession: UserSessionFactory.shared)
-    }
 }
 
-private struct DraftMessagesService: MessagesService {
+// Shared by the draft lifecycle and persistence regression tests.
+@MainActor
+func findNativeEditor(in view: UIView) -> MessageComposerTextView? {
+    if let editor = view as? MessageComposerTextView { return editor }
+    for child in view.subviews {
+        if let editor = findNativeEditor(in: child) { return editor }
+    }
+    return nil
+}
+
+@MainActor
+func makeDraftViewModel(
+    repository: MessagesRepository,
+    courseId: Int,
+    conversationId: Int? = nil,
+    configuration: SendMessageViewModel.Configuration = .message,
+    messagesService: MessagesService = MessagesServiceStub(),
+    presentError: @escaping (UserFacingError) -> Void = { _ in },
+    sendMessage: @escaping (String) async -> Void = { _ in },
+    sendMessageWithResult: ((String) async -> Bool)? = nil,
+    didEditMessage: ((BaseMessage) -> Void)? = nil
+) -> SendMessageViewModel {
+    var delegate: SendMessageViewModelDelegate
+    if let sendMessageWithResult {
+        delegate = SendMessageViewModelDelegate(presentError: presentError, sendMessageWithResult: sendMessageWithResult)
+    } else {
+        delegate = SendMessageViewModelDelegate(presentError: presentError, sendMessage: sendMessage)
+    }
+    delegate.didEditMessage = didEditMessage
+    return SendMessageViewModel(
+        course: CourseForOverviewDTO(course: Course(id: courseId, courseInformationSharingConfiguration: .communicationAndMessaging)),
+        conversation: Conversation(conversation: Channel(id: Int64(conversationId ?? courseId)))!,
+        configuration: configuration,
+        delegate: delegate,
+        messagesRepository: repository, messagesService: messagesService, userSession: UserSessionFactory.shared)
+}
+
+struct DraftMessagesService: MessagesService {
     let answer: (String) async -> NetworkResponse
+    var editResponse: NetworkResponse = .loading
 
     func getConversations(for courseId: Int) async -> DataState<[Conversation]> { .loading }
     func updateIsConversationFavorite(for courseId: Int, and conversationId: Int64, isFavorite: Bool) async -> NetworkResponse { .loading }
@@ -345,8 +351,8 @@ private struct DraftMessagesService: MessagesService {
     func deleteMessage(for courseId: Int, messageId: Int64) async -> NetworkResponse { .loading }
     func deleteAnswerMessage(for courseId: Int, anserMessageId: Int64) async -> NetworkResponse { .loading }
     func updateMessageDisplayPriority(for courseId: Int64, messageId: Int64, displayPriority: DisplayPriority) async -> DataState<any BaseMessage> { .loading }
-    func editMessage(for courseId: Int, message: Message) async -> NetworkResponse { .loading }
-    func editAnswerMessage(for courseId: Int, answerMessage: AnswerMessage) async -> NetworkResponse { .loading }
+    func editMessage(for courseId: Int, message: Message) async -> NetworkResponse { editResponse }
+    func editAnswerMessage(for courseId: Int, answerMessage: AnswerMessage) async -> NetworkResponse { editResponse }
     func addReactionToAnswerMessage(for courseId: Int, answerMessage: AnswerMessage, emojiId: String) async -> NetworkResponse { .loading }
     func addReactionToMessage(for courseId: Int, message: Message, emojiId: String) async -> NetworkResponse { .loading }
     func removeReactionFromMessage(for courseId: Int, reaction: Reaction) async -> NetworkResponse { .loading }
