@@ -16,6 +16,8 @@ final class LectureVideoPlayback: ObservableObject {
     private var observation: NSKeyValueObservation?
     private var timeObserver: Any?
     private var failureObserver: NSObjectProtocol?
+    private(set) var fullScreenPresented = false
+    private var inlineVisible = false
     private var restored = false
     private var restorePending = false
     private let makeItem: (URL) -> AVPlayerItem
@@ -118,9 +120,25 @@ final class LectureVideoPlayback: ObservableObject {
         }
     }
 
+    func prepareIfNeeded() async {
+        guard player == nil else { return }
+        await load()
+    }
+    func viewDidAppear() { inlineVisible = true }
+    func viewDidDisappear() {
+        inlineVisible = false
+        if !fullScreenPresented { stop() }
+    }
+    func beginFullScreenPresentation() { fullScreenPresented = true }
+    func endFullScreenPresentation(inlineAttached: Bool) {
+        fullScreenPresented = false
+        if !inlineVisible && !inlineAttached { stop() }
+    }
+
     func pause() { save(); player?.pause() }
 
     func stop() {
+        fullScreenPresented = false
         pause()
         generation.cancel()
         restorePending = false

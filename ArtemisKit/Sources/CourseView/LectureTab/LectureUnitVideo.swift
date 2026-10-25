@@ -31,7 +31,7 @@ struct VideoUnitSheetContent: View {
                         Text(LectureMediaError.sessionChanged.localizedDescription).padding()
                     } else if LectureMediaSource.classify(videoSource) == .video {
                         ZStack {
-                            if let player = playback.player { LectureVideoPlayer(player: player) }
+                            if let player = playback.player { LectureVideoPlayer(player: player, playback: playback) }
                             switch playback.state {
                             case .loading:
                                 ProgressView("Loading video…")
@@ -73,9 +73,10 @@ struct VideoUnitSheetContent: View {
             }
         }
         .task {
-            if LectureMediaSource.classify(videoSource) == .video { await playback.load() }
+            if LectureMediaSource.classify(videoSource) == .video { await playback.prepareIfNeeded() }
         }
-        .onDisappear { playback.stop(); providerPlayback.pause() }
+        .onAppear { playback.viewDidAppear() }
+        .onDisappear { playback.viewDidDisappear(); providerPlayback.pause() }
         .onChange(of: scenePhase) { _, phase in if phase != .active { playback.pause(); providerPlayback.pause() } }
         .onReceive(NotificationCenter.default.publisher(for: AVAudioSession.interruptionNotification)) { _ in playback.pause(); providerPlayback.pause() }
         .onReceive(session.objectWillChange) { _ in
@@ -90,21 +91,61 @@ struct VideoUnitSheetContent: View {
 
 private struct LectureVideoPlayer: UIViewControllerRepresentable {
     let player: AVPlayer
+    let playback: LectureVideoPlayback
+
+    func makeCoordinator() -> Coordinator { Coordinator(playback) }
     func makeUIViewController(context: Context) -> AVPlayerViewController {
-        let controller = AVPlayerViewController()
+        let controller = LectureAVPlayerController()
         controller.player = player
         controller.videoGravity = .resizeAspect
         controller.allowsPictureInPicturePlayback = false
         controller.canStartPictureInPictureAutomaticallyFromInline = false
+        controller.delegate = context.coordinator
+        controller.continuityDelegate = context.coordinator
         return controller
     }
     func updateUIViewController(_ controller: AVPlayerViewController, context: Context) {
         if controller.player !== player { controller.player = player }
     }
-    static func dismantleUIViewController(_ controller: AVPlayerViewController, coordinator: ()) {
+    static func dismantleUIViewController(_ controller: AVPlayerViewController, coordinator: Coordinator) {
+        // AVKit can temporarily cover/reparent the inline SwiftUI hierarchy.
+        // The model releases its item on actual viewer departure, not fullscreen.
+        guard !coordinator.playback.fullScreenPresented else { return }
         controller.player?.pause()
         controller.player = nil
+        controller.delegate = nil
+        (controller as? LectureAVPlayerController)?.continuityDelegate = nil
     }
+
+    @MainActor
+    final class Coordinator: NSObject, AVPlayerViewControllerDelegate {
+        let playback: LectureVideoPlayback
+        init(_ playback: LectureVideoPlayback) { self.playback = playback }
+
+        func playerViewController(_ controller: AVPlayerViewController,
+                                  willBeginFullScreenPresentationWithAnimationCoordinator transition: any UIViewControllerTransitionCoordinator) {
+            playback.beginFullScreenPresentation()
+            transition.animate(alongsideTransition: nil) { [weak self, weak controller] context in
+                guard context.isCancelled, let self else { return }
+                self.playback.endFullScreenPresentation(inlineAttached: controller?.viewIfLoaded?.window != nil)
+            }
+        }
+
+        func playerViewController(_ controller: AVPlayerViewController,
+                                  willEndFullScreenPresentationWithAnimationCoordinator transition: any UIViewControllerTransitionCoordinator) {
+            let completed = transition.animate(alongsideTransition: nil) { [weak self, weak controller] context in
+                guard !context.isCancelled, let self else { return }
+                self.playback.endFullScreenPresentation(inlineAttached: controller?.viewIfLoaded?.window != nil)
+            }
+            if !completed { playback.endFullScreenPresentation(inlineAttached: controller.viewIfLoaded?.window != nil) }
+        }
+    }
+}
+
+private final class LectureAVPlayerController: AVPlayerViewController {
+    // AVPlayerViewController.delegate is weak; retain its continuity bridge for
+    // the duration of AVKit's fullscreen ownership, even if SwiftUI is covered.
+    var continuityDelegate: LectureVideoPlayer.Coordinator?
 }
 
 /// A separate, ephemeral website store never receives Artemis cookies. The fixed

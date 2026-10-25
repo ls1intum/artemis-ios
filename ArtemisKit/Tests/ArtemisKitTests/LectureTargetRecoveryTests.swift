@@ -68,7 +68,11 @@ private final class RecoveryLectureService: LectureService {
         loads += 1
         if loads == 1 { return .failure(error: UserFacingError(title: "Offline")) }
         let data = Data(#"{"id":2,"lectureUnits":[{"type":"text","id":5,"name":"Requested unit","content":"Requested unit content","visibleToStudents":true,"completed":true}]}"#.utf8)
-        return .done(response: try! JSONDecoder().decode(LectureMediaDetails.self, from: data))
+        do { return .done(response: try JSONDecoder().decode(LectureMediaDetails.self, from: data)) }
+        catch {
+            XCTFail("Invalid lecture recovery fixture: \(error)")
+            return .failure(error: UserFacingError(title: "Invalid test fixture"))
+        }
     }
     func getLecturesWithSlides(courseId: Int) async -> DataState<[LectureMediaDetails]> {
         defer { slideLoads += 1 }
