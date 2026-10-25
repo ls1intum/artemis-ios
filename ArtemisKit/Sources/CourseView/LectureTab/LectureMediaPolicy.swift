@@ -174,3 +174,26 @@ enum LectureMediaSlidePage {
         return studentVersion ? index + 1 : original
     }
 }
+
+/// Decide before any media response bytes are exposed to AVFoundation.
+enum LectureMediaPrefix {
+    enum Decision: Equatable { case waiting, media, reject }
+    static func classify(_ data: Data) -> Decision {
+        let whitespace: Set<UInt8> = [9, 10, 13, 32]
+        let bom = Data([0xef, 0xbb, 0xbf])
+        var prefix = data.drop(while: { whitespace.contains($0) })
+        if prefix.isEmpty { return data.count > 4096 ? .reject : .waiting }
+        if prefix.count < bom.count && bom.starts(with: prefix) { return .waiting }
+        if prefix.starts(with: bom) {
+            prefix = prefix.dropFirst(bom.count).drop(while: { whitespace.contains($0) })
+            if data.count - prefix.count > 4099 { return .reject }
+            if prefix.isEmpty { return .waiting }
+            if prefix.count < bom.count && bom.starts(with: prefix) { return .waiting }
+            if prefix.starts(with: bom) { return .reject }
+        }
+        let marker = Data("#EXTM3U".utf8)
+        if prefix.starts(with: marker) { return .reject }
+        if prefix.count < marker.count && marker.starts(with: prefix) { return .waiting }
+        return .media
+    }
+}

@@ -20,6 +20,7 @@ final class LectureMediaProxy {
         self.isCurrent = isCurrent
     }
 
+    @MainActor
     func start(source: URL) async throws -> URL {
         guard LectureMediaSource.classify(source) == .video, isCurrent() else { throw LectureMediaError.invalidURL }
         let parameters = NWParameters.tcp
@@ -61,6 +62,7 @@ final class LectureMediaProxy {
         }
     }
 
+    @MainActor
     func stop() {
         listener?.cancel()
         listener = nil
@@ -235,11 +237,11 @@ private extension LectureMediaProxy {
             } else {
                 if !sniffedMedia {
                     buffer.append(data)
-                    let prefix = buffer.drop(while: { [9, 10, 13, 32].contains($0) })
-                    guard buffer.count <= 4096 || !prefix.isEmpty else { fail(); return }
-                    let marker = Data("#EXTM3U".utf8)
-                    if prefix.starts(with: marker) || prefix.starts(with: Data([0xef, 0xbb, 0xbf])) { fail(); return }
-                    if prefix.isEmpty || (prefix.count < marker.count && marker.starts(with: prefix)) { return }
+                    switch LectureMediaPrefix.classify(buffer) {
+                    case .reject: fail(); return
+                    case .waiting: return
+                    case .media: break
+                    }
                     sniffedMedia = true
                     guard let response else { fail(); return }
                     sendHeaders(response)
@@ -270,11 +272,11 @@ private extension LectureMediaProxy {
                     connection.send(content: Data(header.utf8) + (method == "HEAD" ? Data() : data), completion: .contentProcessed { [weak self] _ in self?.finish() })
                 } catch { fail() }
             } else {
-                if !headersSent { sendHeaders(response) }
                 if !buffer.isEmpty {
                     // A truncated possible playlist prefix is not safe to expose.
                     fail(); return
                 }
+                if !headersSent { sendHeaders(response) }
                 connection.send(content: nil, isComplete: true, completion: .contentProcessed { [weak self] _ in self?.finish() })
             }
             session.finishTasksAndInvalidate()

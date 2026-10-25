@@ -175,6 +175,22 @@ final class LectureMediaProxyTests: XCTestCase {
         XCTAssertEqual((available as? HTTPURLResponse)?.statusCode, 200)
     }
 
+    func testBOMPrefixedWebVTTPreservesItsOriginalBytes() async throws {
+        let fixture = try await MediaHTTPFixture.start()
+        defer { fixture.stop() }
+        let body = "\u{feff}WEBVTT\n\n00:00:00.000 --> 00:00:01.000\nCaption\n"
+        fixture.respond("/master.m3u8", body: "#EXTM3U\n#EXTINF:1,\ncaptions.vtt\n#EXT-X-ENDLIST\n")
+        fixture.respond("/captions.vtt", body: body, mime: "text/vtt")
+        let proxy = LectureMediaProxy(policy: .init(origin: fixture.base, token: nil), isCurrent: { true })
+        defer { proxy.stop() }
+        let root = try await proxy.start(source: fixture.base.appending(path: "master.m3u8"))
+        let (playlist, _) = try await URLSession.shared.data(from: root)
+        let route = try XCTUnwrap(String(decoding: playlist, as: UTF8.self).components(separatedBy: .newlines).first(where: { $0.hasPrefix("http") }).flatMap(URL.init(string:)))
+        let (data, response) = try await URLSession.shared.data(from: route)
+        XCTAssertEqual((response as? HTTPURLResponse)?.statusCode, 200)
+        XCTAssertEqual(data, Data(body.utf8))
+    }
+
     func testStoppedOrChangedSessionCannotStartPlayback() async throws {
         let proxy = LectureMediaProxy(policy: .init(origin: URL(string: "https://example.org")!, token: "private"), isCurrent: { false })
         do {
