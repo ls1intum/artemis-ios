@@ -97,7 +97,7 @@ final class SendMessageUploadImageViewModel: UploadViewModel {
         image = nil
     }
 
-    private nonisolated static func prepareImage(from data: Data) throws -> (image: UIImage, data: Data) {
+    nonisolated private static func prepareImage(from data: Data) throws -> (image: UIImage, data: Data) {
         try Task.checkCancellation()
         guard let image = UIImage(data: data) else { throw ImagePreparationError.invalidImage }
 

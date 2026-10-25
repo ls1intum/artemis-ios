@@ -77,4 +77,4 @@ xcodebuild test -project Artemis.xcodeproj -scheme ArtemisKitHostedTests \
 
 This scheme uses a minimal app host with a real window scene; it starts no production app services. The same test sources remain in the Swift package, but scene-dependent tests need this hosted scheme.
 
-`scripts/lint.sh` runs strict SwiftLint, preferring the resolved package binary. `ruby scripts/tests/check_build_warnings_test.rb` checks the build-log gate. CI rejects compiler/tool warnings in test and archive-compilation logs.
+`scripts/lint.sh` runs strict SwiftLint using the package identity and version pinned in `Package.resolved`, rejecting stale cached binaries. The checks in `scripts/tests/` cover lint selection, Ruby setup and build-log diagnostics. CI rejects compiler/tool warnings in test and archive-compilation logs.

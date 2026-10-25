@@ -21,7 +21,7 @@ let package = Package(
         .package(url: "https://github.com/onmyway133/Smile", revision: "6bacbf7"),
 //        .package(url: "https://github.com/ls1intum/apollon-ios-module", .upToNextMajor(from: "1.0.9")), // Disabled because not working
 //        .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", .upToNextMajor(from: "21.1.0")),
-        .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", revision: "b4461a9e942e6057365cc75954a89e7a7d8c4d1d"),
+        .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", revision: "7b501cb76a4a07fdb677a74728f05ad1d8ce381c"),
         .package(url: "https://github.com/mac-cain13/R.swift.git", from: "7.8.0")
     ],
     targets: [

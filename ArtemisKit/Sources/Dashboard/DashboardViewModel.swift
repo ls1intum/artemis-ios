@@ -83,6 +83,6 @@ extension Array: @retroactive RawRepresentable where Element: Codable {
 
     public var rawValue: String {
         guard let data = try? JSONEncoder().encode(self) else { return "[]" }
-        return String(decoding: data, as: UTF8.self)
+        return String(bytes: data, encoding: .utf8) ?? "[]"
     }
 }

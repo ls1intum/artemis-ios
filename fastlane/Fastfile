@@ -13,6 +13,10 @@
 require "rbconfig"
 require "fileutils"
 
+# Cold package graphs exceed Fastlane's three-second build-settings lookup default.
+ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] ||= "120"
+ENV["FASTLANE_XCODEBUILD_SETTINGS_RETRIES"] ||= "1"
+
 default_platform(:ios)
 
 platform :ios do
