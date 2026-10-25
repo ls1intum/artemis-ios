@@ -31,6 +31,7 @@ jobs:
         run: |
           ruby scripts/tests/check_build_warnings_test.rb
           ruby scripts/tests/setup_ci_ruby_test.rb
+          ruby scripts/tests/xcodebuild_diagnostics_test.rb
 
       - name: Run ArtemisKit tests
         run: bundle exec fastlane test

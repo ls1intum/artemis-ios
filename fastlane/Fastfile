@@ -53,6 +53,7 @@ platform :ios do
     sh("xcrun simctl boot #{simulator_id.shellescape}", log: false)
     sh("xcrun simctl bootstatus #{simulator_id.shellescape} -b", log: false)
     scan(
+      xcodebuild_command: File.expand_path("../scripts/xcodebuild-with-diagnostics.sh", __dir__).shellescape,
       clean: true,
       project: "Artemis.xcodeproj",
       scheme: "ArtemisKitHostedTests",
@@ -126,6 +127,7 @@ platform :ios do
       xcodeproj: "Artemis.xcodeproj"
     )
     build_app(
+      xcodebuild_command: File.expand_path("../scripts/xcodebuild-with-diagnostics.sh", __dir__).shellescape,
       scheme: "Artemis",
       clean: true,
       output_name: "App.ipa",

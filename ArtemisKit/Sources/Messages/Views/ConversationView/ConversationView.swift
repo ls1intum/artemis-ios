@@ -68,8 +68,7 @@ public struct ConversationView: View {
                         }
                     }
                     .coordinateSpace(name: "pullToRefresh")
-                    .defaultScrollAnchor(.bottom, for: .initialOffset)
-                    .defaultScrollAnchor(.bottom, for: .alignment)
+                    .defaultScrollAnchor(.bottom)
                     .scrollPosition(id: $scrollPosition, anchor: .bottom)
                     .scrollDismissesKeyboard(.interactively)
                     .onChange(of: viewModel.messages, initial: true) {
