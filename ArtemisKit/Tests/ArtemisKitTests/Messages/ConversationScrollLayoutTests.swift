@@ -106,6 +106,11 @@ final class ConversationScrollLayoutTests: XCTestCase {
         navigationController.courseTab = .communication
         let content = ConversationView(viewModel: model)
             .environmentObject(navigationController)
+            // Measure final positions without the initial requested scroll animating into place.
+            .transaction { transaction in
+                transaction.animation = nil
+                transaction.disablesAnimations = true
+            }
         let controller = UIHostingController(rootView: AnyView(content))
         controller.safeAreaRegions = []
         let window = try makeTestWindow(frame: CGRect(x: 0, y: 0, width: 390, height: 760))
@@ -165,19 +170,28 @@ final class ConversationScrollLayoutTests: XCTestCase {
                                file: StaticString = #filePath, line: UInt = #line,
                                until mutationIsVisible: () -> Bool) async throws {
         let clock = ContinuousClock()
-        let deadline = clock.now.advanced(by: .seconds(3))
+        let startedAt = clock.now
+        let deadline = startedAt.advanced(by: .seconds(3))
         var previousSample: LayoutSample?
         var stableSamples = 0
+        var totalSamples = 0
+        var peakStableSamples = 0
+        var firstVisibleAfter: Duration?
+        var lastLayoutChange: (previous: LayoutSample, current: LayoutSample)?
         // Start measuring stability only after the requested change is visible;
         // an unchanged hierarchy before SwiftUI commits is not a settled result.
         while clock.now < deadline {
+            totalSamples += 1
             controller.view.setNeedsLayout()
             controller.view.layoutIfNeeded()
             if mutationIsVisible(), let scrollView = conversationScrollViewCandidate(in: controller.view) {
+                firstVisibleAfter = firstVisibleAfter ?? startedAt.duration(to: clock.now)
                 let sample = LayoutSample(hostBounds: controller.view.bounds, viewport: scrollView.bounds,
                                           contentSize: scrollView.contentSize, contentOffset: scrollView.contentOffset,
                                           contentInset: scrollView.adjustedContentInset)
+                if let previousSample, sample != previousSample { lastLayoutChange = (previousSample, sample) }
                 stableSamples = sample == previousSample ? stableSamples + 1 : 0
+                peakStableSamples = max(peakStableSamples, stableSamples)
                 previousSample = sample
                 if stableSamples >= 5 { return }
             } else {
@@ -186,7 +200,9 @@ final class ConversationScrollLayoutTests: XCTestCase {
             }
             try await Task.sleep(for: .milliseconds(20))
         }
-        XCTFail("Timed out waiting for stable layout: \(description). Last geometry: \(String(describing: previousSample))",
+        XCTFail("Timed out waiting for stable layout: \(description). Iterations: \(totalSamples), max stable: \(peakStableSamples), " +
+                "first visible after: \(String(describing: firstVisibleAfter)). Last change: \(String(describing: lastLayoutChange)). " +
+                "Last geometry: \(String(describing: previousSample))",
                 file: file, line: line)
     }
 
