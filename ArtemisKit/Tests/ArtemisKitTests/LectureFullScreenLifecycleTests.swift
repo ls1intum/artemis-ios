@@ -16,12 +16,12 @@ final class LectureFullScreenLifecycleTests: XCTestCase {
         let original = try XCTUnwrap(model.player)
         model.beginFullScreenPresentation()
         model.viewDidDisappear() // AVKit temporarily covers the inline SwiftUI view.
-        XCTAssertTrue(model.player === original)
+        XCTAssertIdentical(model.player, original)
         XCTAssertNotNil(original.currentItem)
         model.viewDidAppear()
         model.endFullScreenPresentation(inlineAttached: true)
         await model.prepareIfNeeded()
-        XCTAssertTrue(model.player === original)
+        XCTAssertIdentical(model.player, original)
         model.viewDidDisappear() // Actual unit navigation/dismissal after fullscreen ends.
         XCTAssertNil(model.player)
         XCTAssertNil(original.currentItem)
@@ -46,7 +46,7 @@ final class LectureFullScreenLifecycleTests: XCTestCase {
         player.play()
         XCTAssertEqual(player.rate, 1)
         LectureVideoPlayer.dismantleUIViewController(retired, coordinator: .init(model))
-        XCTAssertTrue(model.player === player)
+        XCTAssertIdentical(model.player, player)
         XCTAssertEqual(player.rate, 1, "Only the playback owner may pause the shared player")
         XCTAssertNil(retired.player)
         player.pause()

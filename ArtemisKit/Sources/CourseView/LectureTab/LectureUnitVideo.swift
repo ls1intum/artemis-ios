@@ -121,7 +121,7 @@ struct LectureVideoPlayer: UIViewControllerRepresentable {
     }
 
     @MainActor
-    final class Coordinator: NSObject, AVPlayerViewControllerDelegate {
+    final class Coordinator: NSObject, @MainActor AVPlayerViewControllerDelegate {
         let playback: LectureVideoPlayback
         init(_ playback: LectureVideoPlayback) { self.playback = playback }
 
@@ -139,7 +139,7 @@ struct LectureVideoPlayer: UIViewControllerRepresentable {
             let exit = playback.beginFullScreenExit()
             let completed = transition.animate(alongsideTransition: nil) { [weak self, weak controller] context in
                 self?.playback.completeFullScreenExit(exit, cancelled: context.isCancelled,
-                                                     inlineAttached: controller?.viewIfLoaded?.window != nil)
+                                                      inlineAttached: controller?.viewIfLoaded?.window != nil)
             }
             if !completed {
                 playback.completeFullScreenExit(exit, cancelled: transition.isCancelled,
@@ -225,8 +225,7 @@ private struct LectureProviderPlayer: UIViewRepresentable {
         func webViewWebContentProcessDidTerminate(_ webView: WKWebView) { parent.loading = false; parent.failed = true }
         func webView(_ webView: WKWebView, decidePolicyFor action: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
             guard let url = action.request.url, LectureMediaSource.classify(url) != .invalid else { decisionHandler(.cancel); return }
-            if action.targetFrame == nil { webView.load(action.request); decisionHandler(.cancel) }
-            else { decisionHandler(.allow) }
+            if action.targetFrame == nil { webView.load(action.request); decisionHandler(.cancel) } else { decisionHandler(.allow) }
         }
     }
 }

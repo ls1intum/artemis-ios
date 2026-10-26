@@ -327,8 +327,8 @@ struct RoundGreenCheckbox: View {
 
 struct LectureUnitPresentation: Identifiable {
     let unit: LectureUnit
-    var target: LectureMediaTarget? = nil
-    var studentVersion: String? = nil
+    var target: LectureMediaTarget?
+    var studentVersion: String?
     var id: Int64 { unit.id }
 }
 
@@ -344,7 +344,15 @@ struct LectureUnitContent: View {
     var body: some View {
         switch unit {
         case .attachmentVideo(let attachment):
-            AttachmentUnitContent(attachmentUnit: attachment, identity: identity, explicitPage: explicitPage, originalSlideNumber: originalSlideNumber, visibleSlideNumbers: visibleSlideNumbers, studentVersion: studentVersion, refreshSlide: refreshSlide)
+            AttachmentUnitContent(
+                attachmentUnit: attachment,
+                identity: identity,
+                explicitPage: explicitPage,
+                originalSlideNumber: originalSlideNumber,
+                visibleSlideNumbers: visibleSlideNumbers,
+                studentVersion: studentVersion,
+                refreshSlide: refreshSlide
+            )
         case .text(let text): TextUnitContent(textUnit: text)
         case .online(let online): OnlineUnitContent(onlineUnit: online)
         case .unknown, .exercise:

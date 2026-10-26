@@ -6,13 +6,22 @@ import SharedModels
 
 final class LectureSlideReferenceTests: XCTestCase {
     func testLectureDetailsRetainTheActualStudentFilename() throws {
-        let details = try JSONDecoder().decode(LectureMediaDetails.self, from: Data(#"{"id":2,"lectureUnits":[{"type":"attachment","id":5,"attachment":{"id":10,"link":"attachments/unit/5/original.pdf","studentVersion":"attachments/unit/5/student/visible-pages.pdf"}}]}"#.utf8))
+        let details = try JSONDecoder().decode(LectureMediaDetails.self, from: Data(#"""
+        {"id":2,"lectureUnits":[
+        {"type":"attachment","id":5,
+        "attachment":{"id":10,"link":"attachments/unit/5/original.pdf","studentVersion":"attachments/unit/5/student/visible-pages.pdf"}}]}
+        """#.utf8))
         XCTAssertEqual(details.lecture.id, 2)
         XCTAssertEqual(details.studentVersions[10], "attachments/unit/5/student/visible-pages.pdf")
     }
 
     func testFreshSnapshotReplacesOldVisibleIndicesAndBindsItsStudentFile() throws {
-        let details = try JSONDecoder().decode(LectureMediaDetails.self, from: Data(#"{"id":2,"lectureUnits":[{"type":"attachment","id":5,"attachment":{"id":10,"link":"original.pdf","studentVersion":"fresh-student.pdf"},"slides":[{"id":41,"slideNumber":1},{"id":99,"slideNumber":2},{"id":42,"slideNumber":3},{"id":43,"slideNumber":8}]}]}"#.utf8))
+        let details = try JSONDecoder().decode(LectureMediaDetails.self, from: Data(#"""
+        {"id":2,"lectureUnits":[
+        {"type":"attachment","id":5,
+        "attachment":{"id":10,"link":"original.pdf","studentVersion":"fresh-student.pdf"},
+        "slides":[{"id":41,"slideNumber":1},{"id":99,"slideNumber":2},{"id":42,"slideNumber":3},{"id":43,"slideNumber":8}]}]}
+        """#.utf8))
         let target = LectureMediaTarget(unitId: 5, slideId: 43, originalSlideNumber: 8, visibleSlideNumbers: [1, 3, 8])
         let access = try XCTUnwrap(LectureSlideAccess.resolve(target: target, details: details))
         XCTAssertEqual(access.visibleSlideNumbers, [1, 2, 3, 8])
@@ -21,7 +30,12 @@ final class LectureSlideReferenceTests: XCTestCase {
     }
 
     func testModernSlideIdentityMustStillExistEvenIfOriginalNumberWasReused() throws {
-        let details = try JSONDecoder().decode(LectureMediaDetails.self, from: Data(#"{"id":2,"lectureUnits":[{"type":"attachment","id":5,"attachment":{"id":10,"link":"original.pdf"},"slides":[{"id":44,"slideNumber":8}]}]}"#.utf8))
+        let details = try JSONDecoder().decode(LectureMediaDetails.self, from: Data(#"""
+        {"id":2,"lectureUnits":[
+        {"type":"attachment","id":5,
+        "attachment":{"id":10,"link":"original.pdf"},
+        "slides":[{"id":44,"slideNumber":8}]}]}
+        """#.utf8))
         XCTAssertNil(LectureSlideAccess.resolve(target: .init(unitId: 5, slideId: 43, originalSlideNumber: 8, visibleSlideNumbers: [8]), details: details))
         XCTAssertNotNil(LectureSlideAccess.resolve(target: .init(unitId: 5, originalSlideNumber: 8), details: details))
     }
@@ -45,7 +59,12 @@ final class LectureSlideReferenceTests: XCTestCase {
     }
 
     func testModernIdAndLegacyNumberResolveToActualUnitWithOriginalNumber() throws {
-        let lecture = try JSONDecoder().decode(Lecture.self, from: Data(#"{"id":2,"lectureUnits":[{"type":"attachment","id":5,"attachment":{"id":10,"link":"/api/core/files/attachment-unit/5/slides.pdf"},"slides":[{"id":41,"slideNumber":1},{"id":42,"slideNumber":3},{"id":43,"slideNumber":8}]}]}"#.utf8))
+        let lecture = try JSONDecoder().decode(Lecture.self, from: Data(#"""
+        {"id":2,"lectureUnits":[
+        {"type":"attachment","id":5,
+        "attachment":{"id":10,"link":"/api/core/files/attachment-unit/5/slides.pdf"},
+        "slides":[{"id":41,"slideNumber":1},{"id":42,"slideNumber":3},{"id":43,"slideNumber":8}]}]}
+        """#.utf8))
         let modern = LectureSlideReference.resolve(slideId: 43, unitId: nil, number: nil, lectures: [lecture])
         XCTAssertEqual(modern?.lecture.id, 2)
         XCTAssertEqual(modern?.target.unitId, 5)

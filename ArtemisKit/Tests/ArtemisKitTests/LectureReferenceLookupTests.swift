@@ -25,8 +25,8 @@ final class LectureReferenceLookupTests: XCTestCase {
     func testMissingUnitOffersOpenLecturesRecovery() async {
         var courseOpened = false
         let lookup = LectureReferenceLookup(coursePath: CoursePath(id: 1), loader: { .done(response: []) },
-            navigate: { _ in XCTFail("A missing unit must not navigate to an unrelated lecture") },
-            openLectures: { courseOpened = true }, isCurrent: { true })
+                                            navigate: { _ in XCTFail("A missing unit must not navigate to an unrelated lecture") },
+                                            openLectures: { courseOpened = true }, isCurrent: { true })
         await lookup.openUnit(999)
         XCTAssertEqual(lookup.failure, .missing)
         lookup.showLectures()

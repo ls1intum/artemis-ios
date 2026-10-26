@@ -49,7 +49,7 @@ final class LectureAttachmentTargetTests: XCTestCase {
                                                 return .done(response: LectureAttachmentFile(url: url, studentVersion: false))
                                             })
         let host = UIHostingController(rootView: reader)
-        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 580, height: 640))
+        let window = try makeTestWindow(frame: CGRect(x: 0, y: 0, width: 580, height: 640))
         window.rootViewController = host; window.makeKeyAndVisible()
         defer { window.isHidden = true; window.rootViewController = nil }
         var native: PDFView?

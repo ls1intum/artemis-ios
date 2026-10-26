@@ -10,7 +10,7 @@ final class LecturePDFLayoutTests: XCTestCase {
         let url = try makePDF()
         defer { try? FileManager.default.removeItem(at: url) }
         let progress = LectureMediaProgress(account: "pdf-layout", server: URL(string: "https://example.org")!, identity: UUID().uuidString)
-        let (host, window) = mount(LecturePDFReader(url: url, explicitPage: nil, progress: progress))
+        let (host, window) = try mount(LecturePDFReader(url: url, explicitPage: nil, progress: progress))
         defer { window.isHidden = true; window.rootViewController = nil }
         let first = try await pdf(in: host)
         first.go(to: try XCTUnwrap(first.document?.page(at: 2)))
@@ -41,7 +41,7 @@ final class LecturePDFLayoutTests: XCTestCase {
         defer { try? FileManager.default.removeItem(at: url) }
         let progress = LectureMediaProgress(account: "pdf-target", server: URL(string: "https://example.org")!, identity: UUID().uuidString)
         progress.save(page: 7)
-        let (host, window) = mount(LecturePDFReader(url: url, explicitPage: 3, progress: progress))
+        let (host, window) = try mount(LecturePDFReader(url: url, explicitPage: 3, progress: progress))
         defer { window.isHidden = true; window.rootViewController = nil }
         let view = try await pdf(in: host)
         XCTAssertEqual(index(view), 2)
@@ -53,7 +53,7 @@ final class LecturePDFLayoutTests: XCTestCase {
         defer { try? FileManager.default.removeItem(at: url) }
         let progress = LectureMediaProgress(account: "pdf-ready", server: URL(string: "https://example.org")!, identity: UUID().uuidString)
         let reader = LecturePDFReader(url: url, explicitPage: 3, progress: progress)
-        let (host, window) = mount(reader.frame(width: 390, height: 0))
+        let (host, window) = try mount(reader.frame(width: 390, height: 0))
         defer { window.isHidden = true; window.rootViewController = nil }
         for _ in 0..<200 where findPDF(in: host.view)?.document?.pageCount != 8 {
             host.view.setNeedsLayout(); host.view.layoutIfNeeded()
@@ -68,9 +68,9 @@ final class LecturePDFLayoutTests: XCTestCase {
     }
 
     private func index(_ view: PDFView) -> Int? { view.currentPage.flatMap { view.document?.index(for: $0) } }
-    private func mount(_ reader: some View) -> (UIHostingController<AnyView>, UIWindow) {
+    private func mount(_ reader: some View) throws -> (UIHostingController<AnyView>, UIWindow) {
         let host = UIHostingController(rootView: AnyView(reader))
-        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 390, height: 844))
+        let window = try makeTestWindow(frame: CGRect(x: 0, y: 0, width: 390, height: 844))
         window.rootViewController = host; window.makeKeyAndVisible()
         host.view.frame = window.bounds; host.view.layoutIfNeeded()
         return (host, window)

@@ -98,7 +98,7 @@ final class LectureFullScreenExitTests: XCTestCase {
             let replacedExit = model.beginFullScreenExit()
             await model.load()
             model.completeFullScreenExit(replacedExit, cancelled: false, inlineAttached: true)
-            XCTAssertFalse(model.player === replacement)
+            XCTAssertNotIdentical(model.player, replacement)
             XCTAssertEqual(model.player?.rate, 0)
             XCTAssertTrue(environment.resumes.isEmpty)
         }
@@ -113,7 +113,7 @@ final class LectureFullScreenExitTests: XCTestCase {
             player.replaceCurrentItem(with: replacement)
             player.pause()
             model.completeFullScreenExit(transition, cancelled: false, inlineAttached: true)
-            XCTAssertTrue(player.currentItem === replacement)
+            XCTAssertIdentical(player.currentItem, replacement)
             XCTAssertEqual(player.rate, 0)
             XCTAssertTrue(environment.resumes.isEmpty)
         }
@@ -151,8 +151,8 @@ final class LectureFullScreenExitTests: XCTestCase {
         let environment = ExitEnvironment()
         let snapshot = LectureMediaSession(account: "fullscreen-exit", origin: fixture.base, token: nil)
         let model = LectureVideoPlayback(source: fixture.base.appending(path: "video.mp4"), identity: UUID().uuidString,
-            snapshot: snapshot, isCurrent: { environment.current }, makeItem: { FullscreenReadyItem(url: $0) },
-            isActive: { environment.active }, resumePlayback: { player, rate in environment.resumes.append(rate); player.rate = rate })
+                                         snapshot: snapshot, isCurrent: { environment.current }, makeItem: { FullscreenReadyItem(url: $0) },
+                                         isActive: { environment.active }, resumePlayback: { player, rate in environment.resumes.append(rate); player.rate = rate })
         defer { model.stop() }
         model.viewDidAppear()
         await model.load()

@@ -40,7 +40,8 @@ struct MessageURLAction {
             let coursePath = CoursePath(course: conversationViewModel.course, tabs: tabs)
             switch mention {
             case let .attachment(id, lectureId):
-                Self.lectureNavigation(using: navigationController)(LecturePath(id: lectureId, coursePath: coursePath, target: .init(attachmentId: Int(id), attachmentFilename: Int(id) == nil ? id : nil)))
+                let target = LectureMediaTarget(attachmentId: Int(id), attachmentFilename: Int(id) == nil ? id : nil)
+                Self.lectureNavigation(using: navigationController)(LecturePath(id: lectureId, coursePath: coursePath, target: target))
             case let .channel(id):
                 navigationController.tabPath.append(ConversationPath(id: id, coursePath: coursePath))
             case let .exercise(id):

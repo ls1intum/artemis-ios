@@ -25,8 +25,18 @@ final class LectureTargetRecoveryTests: XCTestCase {
 
     func testSlideRefreshReadsACompleteNewSnapshotAndRejectsHiddenIdentity() async throws {
         let service = RecoveryLectureService()
-        let first = try JSONDecoder().decode(LectureMediaDetails.self, from: Data(#"{"id":2,"lectureUnits":[{"type":"attachment","id":5,"attachment":{"id":10,"studentVersion":"new-student.pdf"},"slides":[{"id":41,"slideNumber":1},{"id":99,"slideNumber":2},{"id":42,"slideNumber":3},{"id":43,"slideNumber":8}]}]}"#.utf8))
-        let hidden = try JSONDecoder().decode(LectureMediaDetails.self, from: Data(#"{"id":2,"lectureUnits":[{"type":"attachment","id":5,"attachment":{"id":10,"studentVersion":"later-student.pdf"},"slides":[{"id":41,"slideNumber":1}]}]}"#.utf8))
+        let first = try JSONDecoder().decode(LectureMediaDetails.self, from: Data(#"""
+        {"id":2,"lectureUnits":[
+        {"type":"attachment","id":5,
+        "attachment":{"id":10,"studentVersion":"new-student.pdf"},
+        "slides":[{"id":41,"slideNumber":1},{"id":99,"slideNumber":2},{"id":42,"slideNumber":3},{"id":43,"slideNumber":8}]}]}
+        """#.utf8))
+        let hidden = try JSONDecoder().decode(LectureMediaDetails.self, from: Data(#"""
+        {"id":2,"lectureUnits":[
+        {"type":"attachment","id":5,
+        "attachment":{"id":10,"studentVersion":"later-student.pdf"},
+        "slides":[{"id":41,"slideNumber":1}]}]}
+        """#.utf8))
         service.slideSnapshots = [first, hidden]
         service.detailSnapshots = [first, first, first, first]
         let model = LectureDetailViewModel(course: CourseForOverviewDTO(course: Course(id: 1, courseInformationSharingConfiguration: .communicationAndMessaging)), lectureId: 2,
@@ -69,7 +79,7 @@ final class LectureTargetRecoveryTests: XCTestCase {
                                            lectureService: service, isCurrent: { true })
         let path = LectureMediaPath(courseId: 1, lectureId: 2, target: .init(unitId: 5))
         let host = UIHostingController(rootView: NavigationStack { LectureMediaPage(viewModel: model, path: path) })
-        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 1000, height: 800))
+        let window = try makeTestWindow(frame: CGRect(x: 0, y: 0, width: 1000, height: 800))
         window.rootViewController = host; window.makeKeyAndVisible()
         defer { host.dismiss(animated: false); window.isHidden = true; window.rootViewController = nil }
         for _ in 0..<100 where model.targetPresentation == nil { try await Task.sleep(for: .milliseconds(10)) }
@@ -86,7 +96,7 @@ final class LectureTargetRecoveryTests: XCTestCase {
                                            lectureService: service, isCurrent: { true })
         let path = LectureMediaPath(courseId: 1, lectureId: 2, target: .init(unitId: 5, page: 3))
         let host = UIHostingController(rootView: NavigationStack { LectureMediaPage(viewModel: model, path: path) })
-        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 1000, height: 800))
+        let window = try makeTestWindow(frame: CGRect(x: 0, y: 0, width: 1000, height: 800))
         window.rootViewController = host
         window.makeKeyAndVisible()
         defer { window.isHidden = true; window.rootViewController = nil }
@@ -116,8 +126,7 @@ private final class RecoveryLectureService: LectureService {
         if !detailSnapshots.isEmpty { return .done(response: detailSnapshots.removeFirst()) }
         if failsFirstLoad, loads == 1 { return .failure(error: UserFacingError(title: "Offline")) }
         let data = Data(#"{"id":2,"lectureUnits":[{"type":"text","id":5,"name":"Requested unit","content":"Requested unit content","visibleToStudents":true,"completed":true}]}"#.utf8)
-        do { return .done(response: try JSONDecoder().decode(LectureMediaDetails.self, from: data)) }
-        catch {
+        do { return .done(response: try JSONDecoder().decode(LectureMediaDetails.self, from: data)) } catch {
             XCTFail("Invalid lecture recovery fixture: \(error)")
             return .failure(error: UserFacingError(title: "Invalid test fixture"))
         }

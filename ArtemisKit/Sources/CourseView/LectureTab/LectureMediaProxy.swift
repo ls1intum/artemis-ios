@@ -96,16 +96,15 @@ final class LectureMediaProxy {
     }
 
     private func receiveHeaders(_ connection: NWConnection, id: UUID, accumulated: Data) {
-        connection.receive(minimumIncompleteLength: 1, maximumLength: 16384) { [weak self] data, _, done, error in
+        connection.receive(minimumIncompleteLength: 1, maximumLength: 16_384) { [weak self] data, _, done, error in
             guard let self, self.isCurrent(), error == nil else { self?.finish(id); return }
             var buffer = accumulated
             if let data { buffer.append(data) }
-            guard buffer.count <= 16384 else { self.reject(connection, id: id, status: 431); return }
+            guard buffer.count <= 16_384 else { self.reject(connection, id: id, status: 431); return }
             if let boundary = buffer.range(of: Data("\r\n\r\n".utf8)) {
                 guard let headers = String(data: buffer[..<boundary.lowerBound], encoding: .utf8) else { self.reject(connection, id: id); return }
                 self.request(headers, connection: connection, id: id)
-            } else if done { self.finish(id) }
-            else { self.receiveHeaders(connection, id: id, accumulated: buffer) }
+            } else if done { self.finish(id) } else { self.receiveHeaders(connection, id: id, accumulated: buffer) }
         }
     }
 
@@ -118,12 +117,10 @@ final class LectureMediaProxy {
             reject(connection, id: id, status: 404); return
         }
         var range: String?
-        for line in lines.dropFirst() {
-            if line.lowercased().hasPrefix("range:") {
-                guard range == nil else { reject(connection, id: id); return }
-                range = String(line.dropFirst(6)).trimmingCharacters(in: .whitespaces)
-                guard let range, LectureMediaProxyRequest.validRange(range) else { reject(connection, id: id); return }
-            }
+        for line in lines.dropFirst() where line.lowercased().hasPrefix("range:") {
+            guard range == nil else { reject(connection, id: id); return }
+            range = String(line.dropFirst(6)).trimmingCharacters(in: .whitespaces)
+            guard let range, LectureMediaProxyRequest.validRange(range) else { reject(connection, id: id); return }
         }
         let identifier = String(request[1].dropFirst(nonce.count + 2))
         guard registry.acquire(identifier) != nil else { reject(connection, id: id, status: 404); return }
@@ -255,8 +252,7 @@ private extension LectureMediaProxy {
         private func send(_ data: Data, task: URLSessionDataTask) {
             task.suspend()
             connection.send(content: data, completion: .contentProcessed { [weak self, weak task] error in
-                if error != nil { self?.cancel(); self?.finish() }
-                else { task?.resume() }
+                if error != nil { self?.cancel(); self?.finish() } else { task?.resume() }
             })
         }
 
@@ -300,8 +296,7 @@ private extension LectureMediaProxy {
             closed = true
             task?.cancel()
             session?.invalidateAndCancel()
-            if headersSent { finish() }
-            else {
+            if headersSent { finish() } else {
                 connection.send(content: Data("HTTP/1.1 502 Media unavailable\r\nContent-Length: 0\r\nConnection: close\r\n\r\n".utf8),
                                 completion: .contentProcessed { [weak self] _ in self?.finish() })
             }

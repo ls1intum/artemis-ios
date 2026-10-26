@@ -181,9 +181,11 @@ class LectureDetailViewModel: BaseViewModel {
 
     func updateLectureUnitCompletion(lectureUnit: LectureUnit, completed: Bool) async -> LectureUnit {
         guard isCurrent else { return lectureUnit }
-        let result = await lectureService.updateLectureUnitCompletion(lectureId: lectureId,
-                                                                     lectureUnitId: lectureUnit.id,
-                                                                     completed: completed)
+        let result = await lectureService.updateLectureUnitCompletion(
+            lectureId: lectureId,
+            lectureUnitId: lectureUnit.id,
+            completed: completed
+        )
         guard isCurrent else { return lectureUnit }
         switch result {
         case .failure(let error):

@@ -8,7 +8,7 @@ final class LectureVideoPageTests: XCTestCase {
     func testNativePlayerEntersFullscreenOnPlayAndUsesThePageBounds() async throws {
         let playback = LectureVideoPlayback(source: URL(string: "https://example.org/lecture.mp4")!, identity: "page-test")
         let host = UIHostingController(rootView: LectureVideoPlayer(player: AVPlayer(), playback: playback))
-        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 1100, height: 800))
+        let window = try makeTestWindow(frame: CGRect(x: 0, y: 0, width: 1100, height: 800))
         window.rootViewController = host
         window.makeKeyAndVisible()
         defer { window.isHidden = true; window.rootViewController = nil }

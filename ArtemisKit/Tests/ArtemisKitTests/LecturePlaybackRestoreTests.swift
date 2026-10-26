@@ -22,8 +22,8 @@ final class LecturePlaybackRestoreTests: XCTestCase {
         snapshot.progress(identity: identity).save(seconds: 10)
         var completion: ((Bool) -> Void)?
         let model = LectureVideoPlayback(source: fixture.base.appending(path: "video.mp4"), identity: identity,
-            snapshot: snapshot, isCurrent: { true }, makeItem: { ReadyMediaItem(url: $0) },
-            seek: { _, _, callback in completion = callback }, preparationTimeout: timeout ? .milliseconds(20) : .seconds(40))
+                                         snapshot: snapshot, isCurrent: { true }, makeItem: { ReadyMediaItem(url: $0) },
+                                         seek: { _, _, callback in completion = callback }, preparationTimeout: timeout ? .milliseconds(20) : .seconds(40))
         defer { model.stop() }
         await model.load()
         for _ in 0..<100 where completion == nil { await Task.yield() }

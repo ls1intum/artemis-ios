@@ -28,7 +28,7 @@ final class LectureProviderPlaybackTests: XCTestCase {
 
 private final class RecordingProviderView: WKWebView {
     var pauses = 0
-    override func pauseAllMediaPlayback(completionHandler: (() -> Void)? = nil) {
+    override func pauseAllMediaPlayback(completionHandler: (@MainActor () -> Void)? = nil) {
         pauses += 1
         completionHandler?()
     }

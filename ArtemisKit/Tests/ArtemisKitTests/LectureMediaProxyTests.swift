@@ -1,4 +1,3 @@
-import AVKit
 import Foundation
 import Network
 import XCTest
@@ -18,7 +17,7 @@ final class LectureMediaProxyTests: XCTestCase {
         request.setValue("jwt=must-not-forward", forHTTPHeaderField: "Cookie")
         request.setValue("Bearer must-not-forward", forHTTPHeaderField: "Authorization")
         let (data, response) = try await URLSession.shared.data(for: request)
-        XCTAssertEqual(String(decoding: data, as: UTF8.self), "2345")
+        XCTAssertEqual(String(bytes: data, encoding: .utf8), "2345")
         XCTAssertEqual((response as? HTTPURLResponse)?.statusCode, 206)
         XCTAssertEqual((response as? HTTPURLResponse)?.value(forHTTPHeaderField: "Content-Range"), "bytes 2-5/10")
         XCTAssertTrue(fixture.requests[0].contains("Cookie: jwt=account-a"))
@@ -60,13 +59,13 @@ final class LectureMediaProxyTests: XCTestCase {
         sniff.setValue("bytes=0-1", forHTTPHeaderField: "Range")
         let (data, response) = try await URLSession.shared.data(for: sniff)
         XCTAssertEqual((response as? HTTPURLResponse)?.statusCode, 200)
-        let text = String(decoding: data, as: UTF8.self)
+        let text = try XCTUnwrap(String(bytes: data, encoding: .utf8))
         let segment = try XCTUnwrap(text.components(separatedBy: .newlines).first(where: { $0.hasPrefix("http://") }).flatMap(URL.init(string:)))
         XCTAssertEqual(segment.host, "127.0.0.1")
         XCTAssertNotEqual(segment.port, fixture.base.port)
         XCTAssertFalse(text.contains("secret"))
         let (segmentData, _) = try await URLSession.shared.data(from: segment)
-        XCTAssertEqual(String(decoding: segmentData, as: UTF8.self), "0123456789")
+        XCTAssertEqual(String(bytes: segmentData, encoding: .utf8), "0123456789")
         XCTAssertEqual(fixture.requests.count, 2)
     }
 
@@ -88,7 +87,7 @@ final class LectureMediaProxyTests: XCTestCase {
         let redirect = try await redirectProxy.start(source: fixture.base.appending(path: "redirect.mp4"))
         let (redirectedBody, redirectedResponse) = try await URLSession.shared.data(from: redirect)
         XCTAssertEqual((redirectedResponse as? HTTPURLResponse)?.statusCode, 200)
-        XCTAssertEqual(String(decoding: redirectedBody, as: UTF8.self), "0123456789")
+        XCTAssertEqual(String(bytes: redirectedBody, encoding: .utf8), "0123456789")
         XCTAssertEqual(other.requests.count, 1)
         XCTAssertFalse(try XCTUnwrap(other.requests.first).lowercased().contains("cookie:"))
     }
@@ -107,12 +106,13 @@ final class LectureMediaProxyTests: XCTestCase {
         let proxy = LectureMediaProxy(policy: .init(origin: fixture.base, token: "captured"), isCurrent: { true })
         defer { proxy.stop() }
         let root = try await proxy.start(source: fixture.base.appending(path: "root.m3u8"))
-        let (master, _) = try await URLSession.shared.data(from: root)
-        let child = try XCTUnwrap(String(decoding: master, as: UTF8.self).split(separator: "\n").last.flatMap { URL(string: String($0)) })
+        let (main, _) = try await URLSession.shared.data(from: root)
+        let rootPlaylist = try XCTUnwrap(String(bytes: main, encoding: .utf8))
+        let child = try XCTUnwrap(rootPlaylist.split(separator: "\n").last.flatMap { URL(string: String($0)) })
         XCTAssertEqual(child.port, root.port)
         let (playlist, response) = try await URLSession.shared.data(from: child)
         XCTAssertEqual((response as? HTTPURLResponse)?.statusCode, 200)
-        let text = String(decoding: playlist, as: UTF8.self)
+        let text = try XCTUnwrap(String(bytes: playlist, encoding: .utf8))
         XCTAssertFalse(text.contains(external.base.absoluteString))
         let segment = try XCTUnwrap(text.components(separatedBy: .newlines).first(where: { $0.hasPrefix("http://") }).flatMap(URL.init(string:)))
         XCTAssertEqual(segment.port, root.port)
@@ -130,13 +130,13 @@ final class LectureMediaProxyTests: XCTestCase {
         let local = try await proxy.start(source: fixture.base.appending(path: "video.mp4"))
         let (data, response) = try await URLSession.shared.data(from: local)
         XCTAssertEqual((response as? HTTPURLResponse)?.statusCode, 502)
-        XCTAssertFalse(String(decoding: data, as: UTF8.self).contains("remote.example"))
+        XCTAssertFalse(try XCTUnwrap(String(bytes: data, encoding: .utf8)).contains("remote.example"))
     }
 
     func testLongMultirenditionVODHasNoLifetimeRouteQuota() async throws {
         let fixture = try await MediaHTTPFixture.start()
         defer { fixture.stop() }
-        fixture.respond("/long.m3u8", body: "#EXTM3U\n" + (0..<4).map { "#EXT-X-STREAM-INF:BANDWIDTH=\(100000 + $0)\ntrack-\($0).m3u8" }.joined(separator: "\n"))
+        fixture.respond("/long.m3u8", body: "#EXTM3U\n" + (0..<4).map { "#EXT-X-STREAM-INF:BANDWIDTH=\(100_000 + $0)\ntrack-\($0).m3u8" }.joined(separator: "\n"))
         for track in 0..<4 {
             let segments = (0..<5400).map { "#EXTINF:2,\nsegment-\($0).ts?track=\(track)" }.joined(separator: "\n")
             fixture.respond("/track-\(track).m3u8", body: "#EXTM3U\n#EXT-X-TARGETDURATION:2\n" + segments + "\n#EXT-X-ENDLIST\n")
@@ -144,8 +144,8 @@ final class LectureMediaProxyTests: XCTestCase {
         let proxy = LectureMediaProxy(policy: .init(origin: fixture.base, token: nil), isCurrent: { true })
         defer { proxy.stop() }
         let root = try await proxy.start(source: fixture.base.appending(path: "long.m3u8"))
-        let (master, _) = try await URLSession.shared.data(from: root)
-        for line in String(decoding: master, as: UTF8.self).components(separatedBy: .newlines) where line.hasPrefix("http") {
+        let (main, _) = try await URLSession.shared.data(from: root)
+        for line in try XCTUnwrap(String(bytes: main, encoding: .utf8)).components(separatedBy: .newlines) where line.hasPrefix("http") {
             let (_, response) = try await URLSession.shared.data(from: XCTUnwrap(URL(string: line)))
             XCTAssertEqual((response as? HTTPURLResponse)?.statusCode, 200)
         }
@@ -164,7 +164,7 @@ final class LectureMediaProxyTests: XCTestCase {
             fixture.respond("/live.m3u8", body: "#EXTM3U\n#EXT-X-TARGETDURATION:2\n" + segments + "\n#EXT-X-BYTERANGE:2@0\nshared.ts\n#EXT-X-BYTERANGE:2\nshared.ts\n")
             let (data, response) = try await URLSession.shared.data(from: root)
             XCTAssertEqual((response as? HTTPURLResponse)?.statusCode, 200)
-            let routes = String(decoding: data, as: UTF8.self).components(separatedBy: .newlines).filter { $0.hasPrefix("http") }
+            let routes = try XCTUnwrap(String(bytes: data, encoding: .utf8)).components(separatedBy: .newlines).filter { $0.hasPrefix("http") }
             XCTAssertEqual(routes.suffix(2).first, routes.last)
             current = routes.first.flatMap(URL.init(string:))
             if first == nil { first = current }
@@ -185,7 +185,8 @@ final class LectureMediaProxyTests: XCTestCase {
         defer { proxy.stop() }
         let root = try await proxy.start(source: fixture.base.appending(path: "master.m3u8"))
         let (playlist, _) = try await URLSession.shared.data(from: root)
-        let route = try XCTUnwrap(String(decoding: playlist, as: UTF8.self).components(separatedBy: .newlines).first(where: { $0.hasPrefix("http") }).flatMap(URL.init(string:)))
+        let text = try XCTUnwrap(String(bytes: playlist, encoding: .utf8))
+        let route = try XCTUnwrap(text.components(separatedBy: .newlines).first(where: { $0.hasPrefix("http") }).flatMap(URL.init(string:)))
         let (data, response) = try await URLSession.shared.data(from: route)
         XCTAssertEqual((response as? HTTPURLResponse)?.statusCode, 200)
         XCTAssertEqual(data, Data(body.utf8))
@@ -241,7 +242,7 @@ final class MediaHTTPFixture {
     }
 
     private func receive(_ connection: NWConnection, buffer: Data) {
-        connection.receive(minimumIncompleteLength: 1, maximumLength: 16384) { [weak self] data, _, _, _ in
+        connection.receive(minimumIncompleteLength: 1, maximumLength: 16_384) { [weak self] data, _, _, _ in
             guard let self, let data else { return }
             let buffer = buffer + data
             guard let request = String(data: buffer, encoding: .utf8), request.contains("\r\n\r\n") else {
@@ -277,72 +278,5 @@ private final class FixtureStartup: @unchecked Sendable {
     func finish(_ result: Result<UInt16, Error>) {
         let pending = lock.withLock { let value = continuation; continuation = nil; return value }
         pending?.resume(with: result)
-    }
-}
-
-@MainActor
-final class LectureVideoLifecycleTests: XCTestCase {
-    func testPreparationDoesNotAutoplayAndClosingReleasesTheItem() async throws {
-        let fixture = try await MediaHTTPFixture.start()
-        defer { fixture.stop() }
-        let snapshot = LectureMediaSession(account: "test", origin: fixture.base, token: nil)
-        let model = LectureVideoPlayback(source: fixture.base.appending(path: "video.mp4"), identity: UUID().uuidString, snapshot: snapshot, isCurrent: { true })
-        await model.load()
-        let player = try XCTUnwrap(model.player)
-        XCTAssertEqual(player.rate, 0)
-        model.stop()
-        XCTAssertNil(model.player)
-        XCTAssertNil(player.currentItem)
-    }
-
-    func testLateFailureFromPreviousItemCannotCancelARetry() async throws {
-        let fixture = try await MediaHTTPFixture.start()
-        defer { fixture.stop() }
-        let snapshot = LectureMediaSession(account: "test", origin: fixture.base, token: nil)
-        let model = LectureVideoPlayback(source: fixture.base.appending(path: "video.mp4"), identity: UUID().uuidString, snapshot: snapshot, isCurrent: { true })
-        defer { model.stop() }
-        await model.load()
-        let oldItem = try XCTUnwrap(model.player?.currentItem)
-        // Queue the old notification's main-actor work just before retry yields.
-        NotificationCenter.default.post(name: .AVPlayerItemFailedToPlayToEndTime, object: oldItem)
-        await model.load()
-        XCTAssertNotNil(model.player)
-        XCTAssertEqual(model.state, .loading)
-    }
-
-    func testFailedMediaCanCreateANewPausedPlayerOnRetry() async throws {
-        let fixture = try await MediaHTTPFixture.start()
-        defer { fixture.stop() }
-        let snapshot = LectureMediaSession(account: "test", origin: fixture.base, token: nil)
-        let model = LectureVideoPlayback(source: fixture.base.appending(path: "video.mp4"), identity: UUID().uuidString, snapshot: snapshot, isCurrent: { true })
-        defer { model.stop() }
-        await model.load()
-        for _ in 0..<100 {
-            if case .failed = model.state { break }
-            try await Task.sleep(for: .milliseconds(20))
-        }
-        guard case .failed = model.state else { XCTFail("Invalid media must produce a recoverable failure"); return }
-        let oldPlayer = model.player
-        await model.load()
-        XCTAssertNotNil(model.player)
-        XCTAssertFalse(model.player === oldPlayer)
-        XCTAssertEqual(model.player?.rate, 0)
-        XCTAssertNil(oldPlayer?.currentItem)
-    }
-
-    func testSessionChangeCancelsPlayerAndLatePreparation() async throws {
-        let fixture = try await MediaHTTPFixture.start()
-        defer { fixture.stop() }
-        var current = true
-        let snapshot = LectureMediaSession(account: "test", origin: fixture.base, token: nil)
-        let model = LectureVideoPlayback(source: fixture.base.appending(path: "video.mp4"), identity: UUID().uuidString, snapshot: snapshot, isCurrent: { current })
-        let loading = Task { await model.load() }
-        await Task.yield()
-        current = false
-        model.sessionChanged()
-        await loading.value
-        XCTAssertNil(model.player)
-        if case .failed = model.state {} else { XCTFail("A changed session must be visible as an error") }
-        model.stop()
     }
 }

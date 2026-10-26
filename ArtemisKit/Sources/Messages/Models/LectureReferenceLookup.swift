@@ -56,7 +56,7 @@ final class LectureReferenceLookup {
             if let lecture = lectures.first(where: { $0.lectureUnits?.contains(where: { $0.id == id }) == true }) {
                 navigate(LecturePath(id: lecture.id, coursePath: coursePath, target: .init(unitId: id)))
             } else { failure = .missing }
-        case .slide(let id, let unit, let number):
+        case let .slide(id, unit, number):
             if let resolved = LectureSlideReference.resolve(slideId: id, unitId: unit, number: number, lectures: lectures) {
                 navigate(LecturePath(id: resolved.lecture.id, coursePath: coursePath, target: resolved.target))
             } else { failure = .missing }

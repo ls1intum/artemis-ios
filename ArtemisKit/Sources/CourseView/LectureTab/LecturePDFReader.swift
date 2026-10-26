@@ -37,7 +37,11 @@ struct LecturePDFReader: View {
                     .accessibilityValue("\(page + 1) of \(document.pageCount)")
                 }
             } else if loaded {
-                ContentUnavailableView(targetUnavailable ? "Referenced slide is unavailable" : "PDF could not be opened", systemImage: "doc.questionmark", description: Text(targetUnavailable ? "This slide is not present in the available PDF. Export the file or return to the lecture." : "Export the file to try another app."))
+                let title = targetUnavailable ? "Referenced slide is unavailable" : "PDF could not be opened"
+                let message = targetUnavailable
+                    ? "This slide is not present in the available PDF. Export the file or return to the lecture."
+                    : "Export the file to try another app."
+                ContentUnavailableView(title, systemImage: "doc.questionmark", description: Text(message))
             } else {
                 ProgressView("Opening PDF…")
             }
@@ -183,8 +187,7 @@ private struct LecturePDFView: UIViewRepresentable {
                         view.isUserInteractionEnabled = true
                     } else {
                         self.attempts += 1
-                        if self.attempts < 5 { view.setNeedsLayout(); view.layoutIfNeeded() }
-                        else { self.stop(); self.parent.onRestoreFailure() }
+                        if self.attempts < 5 { view.setNeedsLayout(); view.layoutIfNeeded() } else { self.stop(); self.parent.onRestoreFailure() }
                     }
                 }
             }
