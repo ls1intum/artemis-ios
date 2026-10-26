@@ -51,6 +51,8 @@ struct QuizTraingQuestionsView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .navigationTitle(TrainingCopy.text("title"))
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
+        .preference(key: QuizTrainingSessionVisibilityKey.self, value: true)
         .environment(viewModel as QuizViewModel)
         .environment(viewModel)
         .toolbar {

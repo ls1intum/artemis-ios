@@ -36,7 +36,7 @@ class QuizTrainingViewModel: QuizViewModel {
     var inputsLocked: Bool { phase != .answering }
     var hasActiveSession: Bool { phase != .idle && phase != .accessLost }
     var currentScore: (reached: Double, total: Double)? {
-        guard let question = currentQuestion, let result = lastSubmissionResult.value, let reached = TrainingProjection.points(result) else { return nil }
+        guard let question = presentation?.question, let result = lastSubmissionResult.value, let reached = TrainingProjection.points(result) else { return nil }
         let total: Double?
         switch question.quizQuestionWithSolutionDTO {
         case .multipleChoice(let value): total = value.points
