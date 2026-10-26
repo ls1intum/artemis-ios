@@ -108,6 +108,7 @@ private struct LecturePDFView: UIViewRepresentable {
     final class Coordinator: NSObject {
         var parent: LecturePDFView
         private var observer: NSObjectProtocol?
+        private weak var readingView: LectureReadingPDFView?
         private var desiredPage: Int
         private var lastSize = CGSize.zero
         private var restoring = true
@@ -119,6 +120,9 @@ private struct LecturePDFView: UIViewRepresentable {
         init(_ parent: LecturePDFView) { self.parent = parent; desiredPage = parent.page }
 
         func attach(_ view: LectureReadingPDFView) {
+            readingView = view
+            // A gesture during deferred placement would be discarded by the restore gate.
+            view.isUserInteractionEnabled = false
             view.willLayout = { [weak self, weak view] in
                 guard let self, let view, self.active, view.bounds.size != self.lastSize else { return }
                 // PDFKit can emit page zero while rebuilding its document view.
@@ -147,6 +151,7 @@ private struct LecturePDFView: UIViewRepresentable {
 
         func beginRestoration(to page: Int) {
             desiredPage = page
+            readingView?.isUserInteractionEnabled = false
             restoring = true; scheduled = false; attempts = 0
             restorationID = UUID()
         }
@@ -175,6 +180,7 @@ private struct LecturePDFView: UIViewRepresentable {
                     self.scheduled = false
                     if let current = view.currentPage, self.parent.document.index(for: current) == self.desiredPage {
                         self.restoring = false
+                        view.isUserInteractionEnabled = true
                     } else {
                         self.attempts += 1
                         if self.attempts < 5 { view.setNeedsLayout(); view.layoutIfNeeded() }
@@ -185,6 +191,7 @@ private struct LecturePDFView: UIViewRepresentable {
         }
 
         func stop() {
+            readingView?.isUserInteractionEnabled = false
             active = false; restorationID = UUID(); scheduled = false
             if let observer { NotificationCenter.default.removeObserver(observer) }
             observer = nil

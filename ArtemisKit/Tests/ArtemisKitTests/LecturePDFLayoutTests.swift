@@ -13,24 +13,26 @@ final class LecturePDFLayoutTests: XCTestCase {
         let (host, window) = mount(LecturePDFReader(url: url, explicitPage: nil, progress: progress))
         defer { window.isHidden = true; window.rootViewController = nil }
         let first = try await pdf(in: host)
-        // User navigation starts after the initial PDFKit layout has settled.
-        try await Task.sleep(for: .milliseconds(100))
         first.go(to: try XCTUnwrap(first.document?.page(at: 2)))
         for _ in 0..<100 where progress.pageIndex(explicitPage: nil, pageCount: 8) != 2 { try await Task.sleep(for: .milliseconds(10)) }
         XCTAssertEqual(progress.pageIndex(explicitPage: nil, pageCount: 8), 2)
         host.rootView = AnyView(EmptyView())
         host.view.layoutIfNeeded()
-        try await Task.sleep(for: .milliseconds(50))
+        for _ in 0..<200 where findPDF(in: host.view) != nil {
+            host.view.setNeedsLayout(); host.view.layoutIfNeeded()
+            try await Task.sleep(for: .milliseconds(10))
+        }
+        XCTAssertNil(findPDF(in: host.view), "The previous reader must be unmounted before reopening")
         host.rootView = AnyView(LecturePDFReader(url: url, explicitPage: nil, progress: progress))
         let reopened = try await pdf(in: host)
-        try await Task.sleep(for: .milliseconds(100))
         XCTAssertEqual(index(reopened), 2)
         window.frame = CGRect(x: 0, y: 0, width: 844, height: 390)
         host.view.frame = window.bounds
         host.view.setNeedsLayout(); host.view.layoutIfNeeded()
         reopened.setNeedsLayout(); reopened.layoutIfNeeded()
-        try await Task.sleep(for: .milliseconds(100))
-        XCTAssertEqual(index(reopened), 2)
+        let rotated = try await pdf(in: host)
+        XCTAssertEqual(index(rotated), 2)
+        XCTAssertGreaterThan(rotated.bounds.width, rotated.bounds.height)
         XCTAssertEqual(progress.pageIndex(explicitPage: nil, pageCount: 8), 2)
     }
 
@@ -42,13 +44,31 @@ final class LecturePDFLayoutTests: XCTestCase {
         let (host, window) = mount(LecturePDFReader(url: url, explicitPage: 3, progress: progress))
         defer { window.isHidden = true; window.rootViewController = nil }
         let view = try await pdf(in: host)
-        try await Task.sleep(for: .milliseconds(100))
         XCTAssertEqual(index(view), 2)
         XCTAssertEqual(progress.pageIndex(explicitPage: nil, pageCount: 8), 2)
     }
 
+    func testNativePDFDoesNotAcceptInputUntilInitialPlacementIsVerified() async throws {
+        let url = try makePDF()
+        defer { try? FileManager.default.removeItem(at: url) }
+        let progress = LectureMediaProgress(account: "pdf-ready", server: URL(string: "https://example.org")!, identity: UUID().uuidString)
+        let reader = LecturePDFReader(url: url, explicitPage: 3, progress: progress)
+        let (host, window) = mount(reader.frame(width: 390, height: 0))
+        defer { window.isHidden = true; window.rootViewController = nil }
+        for _ in 0..<200 where findPDF(in: host.view)?.document?.pageCount != 8 {
+            host.view.setNeedsLayout(); host.view.layoutIfNeeded()
+            try await Task.sleep(for: .milliseconds(10))
+        }
+        let initial = try XCTUnwrap(findPDF(in: host.view))
+        XCTAssertEqual(initial.bounds.height, 0, accuracy: 0.5)
+        XCTAssertFalse(initial.isUserInteractionEnabled, "Gestures cannot be accepted while initial positioning would discard them")
+        host.rootView = AnyView(reader.frame(width: 390, height: 844))
+        let ready = try await pdf(in: host)
+        XCTAssertEqual(index(ready), 2)
+    }
+
     private func index(_ view: PDFView) -> Int? { view.currentPage.flatMap { view.document?.index(for: $0) } }
-    private func mount(_ reader: LecturePDFReader) -> (UIHostingController<AnyView>, UIWindow) {
+    private func mount(_ reader: some View) -> (UIHostingController<AnyView>, UIWindow) {
         let host = UIHostingController(rootView: AnyView(reader))
         let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 390, height: 844))
         window.rootViewController = host; window.makeKeyAndVisible()
@@ -56,16 +76,17 @@ final class LecturePDFLayoutTests: XCTestCase {
         return (host, window)
     }
     private func pdf(in host: UIHostingController<AnyView>) async throws -> PDFView {
-        func find(_ view: UIView) -> PDFView? {
-            if let pdf = view as? PDFView { return pdf }
-            return view.subviews.lazy.compactMap(find).first
-        }
         for _ in 0..<200 {
             host.view.setNeedsLayout(); host.view.layoutIfNeeded()
-            if let view = find(host.view), view.document?.pageCount == 8, view.bounds.width > 0 { return view }
+            if let view = findPDF(in: host.view), view.document?.pageCount == 8, view.bounds.width > 0, view.bounds.height > 0, view.isUserInteractionEnabled { return view }
             try await Task.sleep(for: .milliseconds(10))
         }
-        return try XCTUnwrap(find(host.view))
+        XCTFail("PDF must finish layout and enable input before navigation")
+        throw NSError(domain: "LecturePDFLayoutTests", code: 1)
+    }
+    private func findPDF(in view: UIView) -> PDFView? {
+        if let pdf = view as? PDFView { return pdf }
+        return view.subviews.lazy.compactMap { self.findPDF(in: $0) }.first
     }
     private func makePDF() throws -> URL {
         let document = PDFDocument()
