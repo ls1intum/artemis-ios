@@ -58,12 +58,12 @@ struct SubmissionResultView: View {
     }
 
     var score: String? {
-        guard let result else {
+        guard let result, let resultScore = result.score else {
             return nil
         }
 
-        let relativeScore = Course.roundValueSpecifiedByCourseSettings(value: result.score ?? 0, for: nil).clean
-        let points = Course.roundValueSpecifiedByCourseSettings(value: (result.score ?? 0) * (exercise.baseExercise.maxPoints ?? 0) / 100, for: nil).clean
+        let relativeScore = Course.roundValueSpecifiedByCourseSettings(value: resultScore, for: nil).clean
+        let points = ReviewScore.points(score: resultScore, maximum: exercise.baseExercise.maxPoints, precision: 1)?.clean ?? "—"
         switch exercise {
         case .programming:
             var resultString = ""

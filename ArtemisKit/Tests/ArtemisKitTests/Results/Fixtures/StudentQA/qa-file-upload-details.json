@@ -1,0 +1,20 @@
+[
+  {
+    "id": 4,
+    "text": "Clear structure",
+    "detailText": "The report separates the approach, worked example and conclusion.",
+    "hasLongFeedbackText": false,
+    "credits": 7.5,
+    "positive": true,
+    "type": "MANUAL_UNREFERENCED"
+  },
+  {
+    "id": 5,
+    "text": "Boundary cases",
+    "detailText": "Discuss empty input and repeated values in the evaluation.",
+    "hasLongFeedbackText": false,
+    "credits": -1.0,
+    "positive": false,
+    "type": "MANUAL_UNREFERENCED"
+  }
+]

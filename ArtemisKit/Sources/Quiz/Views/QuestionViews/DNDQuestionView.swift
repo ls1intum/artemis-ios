@@ -13,6 +13,7 @@ import SwiftUI
 extension DTO.DragAndDropQuizQuestionWithSolution: WithImage {}
 
 struct DNDQuestionView: View {
+    @Environment(QuizViewModel.self) private var viewModel
     let question: DTO.QuizQuestionTraining
     let questionWithAnswer: DTO.DragAndDropQuizQuestionWithSolution
 
@@ -56,9 +57,11 @@ struct DNDQuestionView: View {
             DNDDropLocations(mappings: $mappings, question: questionWithAnswer)
         }
 
-        Text(R.string.localizable.dndInfo())
-            .font(.caption)
-            .padding(.horizontal)
+        if !viewModel.hasSubmitted {
+            Text(R.string.localizable.dndInfo())
+                .font(.caption)
+                .padding(.horizontal)
+        }
 
         SubmitAnswerButton(questionId: question.id, isRated: question.isRated, answer: answer)
     }
@@ -84,7 +87,7 @@ struct DNDDropLocations: View {
                                  scaleX: geo.size.width,
                                  scaleY: geo.size.height,
                                  mappings: $mappings,
-                                 correctMappings: question.correctMappings ?? [])
+                                 correctMappings: question.correctMappings)
                 }
             }
         }
@@ -102,7 +105,7 @@ struct DropLocation: View {
 
     @State private var selected = false
     @Binding var mappings: [DTO.DragAndDropMappingFromLiveClient]
-    let correctMappings: [DTO.DragAndDropMapping]
+    let correctMappings: [DTO.DragAndDropMapping]?
 
     var body: some View {
         // Positions are scaled from 0...200
@@ -111,17 +114,38 @@ struct DropLocation: View {
         let width = (location.width ?? 0) / 200 * scaleX
         let height = (location.height ?? 0) / 200 * scaleY
 
-        Button {
-            if mappings.first(where: { $0.dropLocation?.id == location.id })?.dragItem?.id == nil {
-                selected = true
+        Group {
+            if viewModel.hasSubmitted {
+                locationContent(width: width, height: height)
+                    .foregroundStyle(.primary)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityAddTraits(selectedItem != nil ? .isSelected : [])
             } else {
-                updateMapping(selectedRef: nil)
+                Button {
+                    if mappings.first(where: { $0.dropLocation?.id == location.id })?.dragItem?.id == nil {
+                        selected = true
+                    } else {
+                        updateMapping(selectedRef: nil)
+                    }
+                } label: { locationContent(width: width, height: height) }
             }
-        } label: {
+        }
+        .popover(isPresented: $selected, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
+            DragItemPicker(questionId: questionId,
+                           items: unusedItems,
+                           onSelect: updateMapping(selectedRef:))
+                .presentationCompactAdaptation(.popover)
+        }
+        .frame(width: width, height: height)
+        .position(x: startX + width / 2,
+                  y: startY + height / 2)
+    }
+
+    private func locationContent(width: CGFloat, height: CGFloat) -> some View {
             Rectangle()
                 .strokeBorder(style: .init(dash: [5]))
                 .background {
-                    if viewModel.hasSubmitted {
+                    if viewModel.hasSubmitted, let isCorrect {
                         isCorrect ? Color.green : Color.red
                     } else {
                         Color.blue.opacity(selected ? 0.5 : 0.05)
@@ -134,20 +158,10 @@ struct DropLocation: View {
                         DragItemView(questionId: questionId, item: selectedItem)
                     }
                 }
-        }
-        .allowsHitTesting(!viewModel.hasSubmitted)
-        .popover(isPresented: $selected, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
-            DragItemPicker(questionId: questionId,
-                           items: unusedItems,
-                           onSelect: updateMapping(selectedRef:))
-                .presentationCompactAdaptation(.popover)
-        }
-        .frame(width: width, height: height)
-        .position(x: startX + width / 2,
-                  y: startY + height / 2)
     }
 
-    var isCorrect: Bool {
+    var isCorrect: Bool? {
+        guard let correctMappings else { return nil }
         let mapping = correctMappings.first { $0.dropLocation?.id == location.id }
         return mapping?.dragItem?.id == selectedItem?.id
     }

@@ -91,6 +91,7 @@ let package = Package(
                 .product(name: "UserStore", package: "artemis-ios-core-modules"),
                 .product(name: "RswiftLibrary", package: "R.swift")
             ],
+            resources: [.copy("Resources/ModelReview")],
             plugins: [
                 .plugin(name: "RswiftGeneratePublicResources", package: "R.swift")
             ]),
@@ -228,10 +229,13 @@ let package = Package(
         .testTarget(
             name: "ArtemisKitTests",
             dependencies: [
+                "CourseView",
+                "Quiz",
                 "Messages",
                 "Notifications",
                 .product(name: "PushNotifications", package: "artemis-ios-core-modules")
-            ])
+            ],
+            resources: [.copy("Results/Fixtures")])
     ],
     // Swift 5 language mode keeps the current modules compatible during concurrency migration.
     swiftLanguageModes: [.v5]

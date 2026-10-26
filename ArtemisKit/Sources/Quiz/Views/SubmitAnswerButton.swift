@@ -18,7 +18,9 @@ struct SubmitAnswerButton: View {
     @State private var isLoading = false
 
     var body: some View {
-        if viewModel is QuizTrainingViewModel {
+        if viewModel.isReadOnly {
+            EmptyView()
+        } else if viewModel is QuizTrainingViewModel {
             SubmitTrainingAnswerButton(questionId: questionId, isRated: isRated, answer: answer)
         } else {
             SubmitLiveAnswerButton(answer: answer)

@@ -36,49 +36,15 @@ struct MCQuestionView: View {
         if let answerOptions = questionWithAnswer.answerOptions {
             ForEach(answerOptions, id: \.id) { option in
                 let id = option.id ?? -1
-                Button {
-                    if selectedAnswers.contains(id) {
-                        selectedAnswers.removeAll { $0 == id }
-                    } else {
-                        if questionWithAnswer.singleChoice == true {
-                            selectedAnswers.removeAll()
-                        }
-                        selectedAnswers.append(id)
-                    }
-                } label: {
-                    HStack(alignment: .center) {
-                        Image(systemName: questionWithAnswer.singleChoice == true ? "circle" : "square")
-                            .resizable()
-                            .frame(width: 30, height: 30)
-                            .overlay(alignment: .center) {
-                                if selectedAnswers.contains(id) {
-                                    Image(systemName: questionWithAnswer.singleChoice == true ? "circle.fill" : "square.fill")
-                                        .resizable()
-                                        .frame(width: 20, height: 20, alignment: .center)
-                                }
-                            }
-                            .overlay(alignment: .bottomTrailing) {
-                                if viewModel.hasSubmitted && selectedAnswers.contains(id) != option.isCorrect ?? false {
-                                    Image(systemName: "exclamationmark.triangle.fill")
-                                        .foregroundStyle(.orange)
-                                        .offset(x: 8, y: 4)
-                                }
-                            }
-
-                        Text(option.text ?? "No text")
-                            .multilineTextAlignment(.leading)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-
-                        if let hint = option.hint {
-                            HintButton(hint: hint)
-                                .font(.title2)
-                        }
-                    }
+                if viewModel.hasSubmitted {
+                    choiceLabel(option).foregroundStyle(.primary)
+                } else {
+                    Button { toggleAnswer(id) } label: { choiceLabel(option) }
                 }
 
-                if viewModel.hasSubmitted {
+                if QuizReviewCorrectness.resolve(submitted: viewModel.hasSubmitted, correct: option.isCorrect) != .unknown {
+                    let optionIsCorrect = QuizReviewCorrectness.resolve(submitted: viewModel.hasSubmitted, correct: option.isCorrect) == .correct
                     let loc = R.string.localizable
-                    let optionIsCorrect = option.isCorrect ?? false
 
                     let correctLabel = Text(optionIsCorrect ? loc.correct() : loc.incorrect())
                         .foregroundStyle(optionIsCorrect ? .green : .red)
@@ -90,10 +56,52 @@ struct MCQuestionView: View {
                 }
             }
             .padding(.horizontal)
-            .disabled(viewModel.hasSubmitted)
         }
 
         SubmitAnswerButton(questionId: question.id, isRated: question.isRated, answer: answer)
+    }
+
+    private func choiceLabel(_ option: DTO.AnswerOptionWithSolution) -> some View {
+        let id = option.id ?? -1
+                    return HStack(alignment: .center) {
+                        Image(systemName: questionWithAnswer.singleChoice == true ? "circle" : "square")
+                            .resizable()
+                            .frame(width: 30, height: 30)
+                            .overlay(alignment: .center) {
+                                if selectedAnswers.contains(id) {
+                                    Image(systemName: questionWithAnswer.singleChoice == true ? "circle.fill" : "square.fill")
+                                        .resizable()
+                                        .frame(width: 20, height: 20, alignment: .center)
+                                }
+                            }
+                            .accessibilityHidden(true)
+                            .overlay(alignment: .bottomTrailing) {
+                                if viewModel.hasSubmitted, let correct = option.isCorrect, selectedAnswers.contains(id) != correct {
+                                    Image(systemName: "exclamationmark.triangle.fill")
+                                        .foregroundStyle(.orange)
+                                        .offset(x: 8, y: 4)
+                                }
+                            }
+
+                        Text(option.text ?? "No text")
+                            .multilineTextAlignment(.leading)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .accessibilityAddTraits(selectedAnswers.contains(id) ? .isSelected : [])
+
+                        if let hint = option.hint {
+                            HintButton(hint: hint)
+                                .font(.title2)
+                        }
+                    }
+    }
+
+    private func toggleAnswer(_ id: Int64) {
+        if selectedAnswers.contains(id) {
+            selectedAnswers.removeAll { $0 == id }
+        } else {
+            if questionWithAnswer.singleChoice == true { selectedAnswers.removeAll() }
+            selectedAnswers.append(id)
+        }
     }
 
     var answer: DTO.SubmittedAnswerFromLiveClient {
