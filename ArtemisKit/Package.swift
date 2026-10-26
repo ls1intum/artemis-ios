@@ -228,6 +228,7 @@ let package = Package(
         .testTarget(
             name: "ArtemisKitTests",
             dependencies: [
+                "CourseView",
                 "Messages",
                 "Notifications",
                 .product(name: "PushNotifications", package: "artemis-ios-core-modules")
