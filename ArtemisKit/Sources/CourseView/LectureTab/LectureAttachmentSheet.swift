@@ -4,6 +4,12 @@ import DesignLibrary
 import Common
 import UserStore
 
+private struct LectureAttachmentPreview {
+    let file: LectureAttachmentFile
+    let page: Int?
+    let identity: String
+}
+
 struct LectureAttachmentSheet: View {
     let attachment: Attachment?
     var lectureId: Int?
@@ -14,19 +20,21 @@ struct LectureAttachmentSheet: View {
     var visibleSlideNumbers: [Int]?
     var studentVersion: String?
     var refreshSlide: (() async -> DataState<LectureSlideAccess>)?
+    var loadFile: (String, String?) async -> DataState<LectureAttachmentFile> = { link, name in
+        await LectureServiceFactory.shared.getAttachmentFile(link: link, name: name)
+    }
 
     @ObservedObject private var session = UserSessionFactory.shared
     @State private var snapshot = LectureMediaSession.capture()
-    @State private var previewURL: DataState<LectureAttachmentFile> = .loading
-    @State private var resolvedPage: Int?
-    @State private var loadedIdentity = "attachment"
+    @State private var previewState: DataState<LectureAttachmentPreview> = .loading
     @State private var generation = LectureMediaLoadGeneration()
 
     var body: some View {
-        DataStateView(data: $previewURL, retryHandler: { await loadAttachment() }) { file in
+        DataStateView(data: $previewState, retryHandler: { await loadAttachment() }) { preview in
+            let file = preview.file
             let url = file.url
             if url.pathExtension.lowercased() == "pdf" {
-                LecturePDFReader(url: url, explicitPage: resolvedPage, progress: snapshot?.progress(identity: loadedIdentity + (file.studentVersion ? "/student" : "/original")), requiresExactPage: originalSlideNumber != nil || refreshSlide != nil)
+                LecturePDFReader(url: url, explicitPage: preview.page, progress: snapshot?.progress(identity: preview.identity + (file.studentVersion ? "/student" : "/original")), requiresExactPage: originalSlideNumber != nil || refreshSlide != nil)
             } else {
                 QuickLookController(url: url)
             }
@@ -34,15 +42,15 @@ struct LectureAttachmentSheet: View {
         .task { await loadAttachment() }
         .onDisappear {
             generation.cancel()
-            removeTemporaryPreview(previewURL)
+            removeTemporaryFile(previewState.value?.file)
         }
         .onReceive(session.objectWillChange) { _ in
             Task { @MainActor in
                 await Task.yield()
                 if snapshot?.isCurrent != true {
                     generation.cancel()
-                    removeTemporaryPreview(previewURL)
-                    previewURL = .failure(error: UserFacingError(title: LectureMediaError.sessionChanged.localizedDescription))
+                    removeTemporaryFile(previewState.value?.file)
+                    previewState = .failure(error: UserFacingError(title: LectureMediaError.sessionChanged.localizedDescription))
                 }
             }
         }
@@ -51,11 +59,11 @@ struct LectureAttachmentSheet: View {
     private func loadAttachment() async {
         let request = generation.begin()
         guard let snapshot, snapshot.isCurrent else {
-            previewURL = .failure(error: UserFacingError(title: LectureMediaError.sessionChanged.localizedDescription))
+            previewState = .failure(error: UserFacingError(title: LectureMediaError.sessionChanged.localizedDescription))
             return
         }
-        removeTemporaryPreview(previewURL)
-        previewURL = .loading
+        removeTemporaryFile(previewState.value?.file)
+        previewState = .loading
         var selectedAttachment = attachment
         var selectedStudentVersion = studentVersion
         var original = originalSlideNumber
@@ -64,29 +72,29 @@ struct LectureAttachmentSheet: View {
             let refreshed = await refreshSlide()
             guard !Task.isCancelled, generation.accepts(request) else { return }
             guard snapshot.isCurrent else {
-                previewURL = .failure(error: UserFacingError(title: LectureMediaError.sessionChanged.localizedDescription))
+                previewState = .failure(error: UserFacingError(title: LectureMediaError.sessionChanged.localizedDescription))
                 return
             }
             switch refreshed {
             case .done(let access):
-                // File identity and visible indices come from this same fresh payload.
+                // File details and visibility were validated against one unchanged revision.
                 selectedAttachment = access.attachment
                 selectedStudentVersion = access.studentVersion
                 original = access.originalSlideNumber
                 visible = access.visibleSlideNumbers
-            case .failure(let error): previewURL = .failure(error: error); return
+            case .failure(let error): previewState = .failure(error: error); return
             case .loading:
-                previewURL = .failure(error: UserFacingError(title: "Slide information could not be loaded. Try again.")); return
+                previewState = .failure(error: UserFacingError(title: "Slide information could not be loaded. Try again.")); return
             }
         }
-        loadedIdentity = identity + (selectedAttachment.map { "/attachment/\($0.id)" } ?? "")
+        let loadedIdentity = identity + (selectedAttachment.map { "/attachment/\($0.id)" } ?? "")
         var result: DataState<LectureAttachmentFile>
         if let lectureId, let lectureName {
-            result = await LectureServiceFactory.shared.getAttachmentFile(link: "/api/core/files/attachments/lectures/\(lectureId)/merge-pdf", name: lectureName)
+            result = await loadFile("/api/core/files/attachments/lectures/\(lectureId)/merge-pdf", lectureName)
         } else if let link = selectedStudentVersion ?? selectedAttachment?.link, !link.isEmpty {
             // Preserve absolute links for origin validation in the authenticated loader.
             let normalized = link.hasPrefix("/api/core/files/") || URL(string: link)?.scheme != nil ? link : "/api/core/files/\(link)"
-            result = await LectureServiceFactory.shared.getAttachmentFile(link: normalized, name: selectedAttachment?.name)
+            result = await loadFile(normalized, selectedAttachment?.name)
         } else {
             result = .failure(error: UserFacingError(title: "There is no download link for this attachment."))
         }
@@ -94,27 +102,35 @@ struct LectureAttachmentSheet: View {
             result = .done(response: LectureAttachmentFile(url: file.url, studentVersion: true))
         }
         guard !Task.isCancelled, generation.accepts(request) else {
-            removeTemporaryPreview(result)
+            removeTemporaryFile(result.value)
             return
         }
         guard snapshot.isCurrent else {
-            removeTemporaryPreview(result)
-            previewURL = .failure(error: UserFacingError(title: LectureMediaError.sessionChanged.localizedDescription))
+            removeTemporaryFile(result.value)
+            previewState = .failure(error: UserFacingError(title: LectureMediaError.sessionChanged.localizedDescription))
             return
         }
-        resolvedPage = explicitPage
+        var resolvedPage = explicitPage
         if let original, case .done(let file) = result {
             guard let page = LectureMediaSlidePage.page(original: original, visibleNumbers: visible ?? [], studentVersion: file.studentVersion) else {
-                removeTemporaryPreview(result)
-                previewURL = .failure(error: UserFacingError(title: "The referenced slide is unavailable."))
+                removeTemporaryFile(result.value)
+                previewState = .failure(error: UserFacingError(title: "The referenced slide is unavailable."))
                 return
             }
             resolvedPage = page
         }
-        previewURL = result
+        switch result {
+        case .done(let file):
+            // Publish the document and its target as one value. A separate State
+            // read inside DataStateView's closure can retain its initial page.
+            previewState = .done(response: LectureAttachmentPreview(file: file, page: resolvedPage, identity: loadedIdentity))
+        case .failure(let error): previewState = .failure(error: error)
+        case .loading:
+            previewState = .failure(error: UserFacingError(title: "The attachment could not be loaded. Try again."))
+        }
     }
-    private func removeTemporaryPreview(_ state: DataState<LectureAttachmentFile>) {
-        guard case .done(let file) = state else { return }
+    private func removeTemporaryFile(_ file: LectureAttachmentFile?) {
+        guard let file else { return }
         let directory = file.url.deletingLastPathComponent()
         guard directory.lastPathComponent.hasPrefix("lecture-media-") else { return }
         try? FileManager.default.removeItem(at: directory)

@@ -54,6 +54,29 @@ struct LectureSlideAccess {
     let originalSlideNumber: Int
     let visibleSlideNumbers: [Int]
 
+    static func resolve(target: LectureMediaTarget, before: LectureMediaDetails,
+                        projection: LectureMediaDetails, after: LectureMediaDetails) -> Self? {
+        guard let previous = attachment(target: target, details: before),
+              let current = attachment(target: target, details: after),
+              previous.id == current.id, previous.link == current.link,
+              previous.version == current.version, previous.uploadDate == current.uploadDate,
+              before.studentVersions[previous.id] == after.studentVersions[current.id],
+              let visible = resolve(target: target, details: projection),
+              visible.attachment.id == current.id,
+              visible.attachment.link == nil || visible.attachment.link == current.link,
+              visible.attachment.version == nil || visible.attachment.version == current.version,
+              visible.attachment.uploadDate == nil || visible.attachment.uploadDate == current.uploadDate,
+              visible.studentVersion == nil || visible.studentVersion == after.studentVersions[current.id] else { return nil }
+        return Self(attachment: current, studentVersion: after.studentVersions[current.id],
+                    originalSlideNumber: visible.originalSlideNumber, visibleSlideNumbers: visible.visibleSlideNumbers)
+    }
+
+    private static func attachment(target: LectureMediaTarget, details: LectureMediaDetails) -> Attachment? {
+        guard let unit = target.resolve(in: details.lecture.lectureUnits ?? []),
+              case .attachmentVideo(let attachment) = unit else { return nil }
+        return attachment.attachment
+    }
+
     static func resolve(target: LectureMediaTarget, details: LectureMediaDetails) -> Self? {
         guard let unit = target.resolve(in: details.lecture.lectureUnits ?? []),
               case .attachmentVideo(let attachmentUnit) = unit,

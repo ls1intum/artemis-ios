@@ -88,18 +88,27 @@ class LectureDetailViewModel: BaseViewModel {
 
     func refreshSlideAccess(for target: LectureMediaTarget) async -> DataState<LectureSlideAccess> {
         guard isCurrent else { return .failure(error: UserFacingError(title: LectureMediaError.sessionChanged.localizedDescription)) }
-        let result = await lectureService.getLecturesWithSlides(courseId: courseId)
+        // The visibility endpoint omits file-access fields. Validate complete
+        // details on both sides rather than interpreting omission as removal.
+        let firstResult = await lectureService.getLectureDetails(lectureId: lectureId)
         guard !Task.isCancelled, isCurrent else { return .failure(error: UserFacingError(title: LectureMediaError.sessionChanged.localizedDescription)) }
-        switch result {
-        case .done(let lectures):
-            guard let snapshot = lectures.first(where: { $0.lecture.id == lectureId }),
-                  let access = LectureSlideAccess.resolve(target: target, details: snapshot) else {
-                return .failure(error: UserFacingError(title: "The referenced slide is no longer available."))
-            }
-            return .done(response: access)
-        case .failure(let error): return .failure(error: error)
-        case .loading: return .failure(error: UserFacingError(title: "Slide information could not be loaded. Try again."))
+        guard let before = firstResult.value else { return slideFailure(firstResult) }
+        let projectionResult = await lectureService.getLecturesWithSlides(courseId: courseId)
+        guard !Task.isCancelled, isCurrent else { return .failure(error: UserFacingError(title: LectureMediaError.sessionChanged.localizedDescription)) }
+        guard let lectures = projectionResult.value else { return slideFailure(projectionResult) }
+        let finalResult = await lectureService.getLectureDetails(lectureId: lectureId)
+        guard !Task.isCancelled, isCurrent else { return .failure(error: UserFacingError(title: LectureMediaError.sessionChanged.localizedDescription)) }
+        guard let after = finalResult.value else { return slideFailure(finalResult) }
+        guard let projection = lectures.first(where: { $0.lecture.id == lectureId }),
+              let access = LectureSlideAccess.resolve(target: target, before: before, projection: projection, after: after) else {
+            return .failure(error: UserFacingError(title: "The referenced slide or attachment changed or is unavailable. Try again."))
         }
+        return .done(response: access)
+    }
+
+    private func slideFailure<Value>(_ state: DataState<Value>) -> DataState<LectureSlideAccess> {
+        if case .failure(let error) = state { return .failure(error: error) }
+        return .failure(error: UserFacingError(title: "Slide information could not be loaded. Try again."))
     }
 
     private func resolvePendingTarget(in details: LectureMediaDetails) {

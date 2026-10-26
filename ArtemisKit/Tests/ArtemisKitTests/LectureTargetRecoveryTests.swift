@@ -28,6 +28,7 @@ final class LectureTargetRecoveryTests: XCTestCase {
         let first = try JSONDecoder().decode(LectureMediaDetails.self, from: Data(#"{"id":2,"lectureUnits":[{"type":"attachment","id":5,"attachment":{"id":10,"studentVersion":"new-student.pdf"},"slides":[{"id":41,"slideNumber":1},{"id":99,"slideNumber":2},{"id":42,"slideNumber":3},{"id":43,"slideNumber":8}]}]}"#.utf8))
         let hidden = try JSONDecoder().decode(LectureMediaDetails.self, from: Data(#"{"id":2,"lectureUnits":[{"type":"attachment","id":5,"attachment":{"id":10,"studentVersion":"later-student.pdf"},"slides":[{"id":41,"slideNumber":1}]}]}"#.utf8))
         service.slideSnapshots = [first, hidden]
+        service.detailSnapshots = [first, first, first, first]
         let model = LectureDetailViewModel(course: CourseForOverviewDTO(course: Course(id: 1, courseInformationSharingConfiguration: .communicationAndMessaging)), lectureId: 2,
                                            lectureService: service, isCurrent: { true })
         let target = LectureMediaTarget(unitId: 5, slideId: 43, originalSlideNumber: 8, visibleSlideNumbers: [1, 3, 8])
@@ -104,8 +105,10 @@ private final class RecoveryLectureService: LectureService {
     var loads = 0
     var slideLoads = 0
     var slideSnapshots: [LectureMediaDetails] = []
+    var detailSnapshots: [LectureMediaDetails] = []
     func getLectureDetails(lectureId: Int) async -> DataState<LectureMediaDetails> {
         loads += 1
+        if !detailSnapshots.isEmpty { return .done(response: detailSnapshots.removeFirst()) }
         if failsFirstLoad, loads == 1 { return .failure(error: UserFacingError(title: "Offline")) }
         let data = Data(#"{"id":2,"lectureUnits":[{"type":"text","id":5,"name":"Requested unit","content":"Requested unit content","visibleToStudents":true,"completed":true}]}"#.utf8)
         do { return .done(response: try JSONDecoder().decode(LectureMediaDetails.self, from: data)) }
