@@ -27,8 +27,18 @@ jobs:
           path: build/test-derived-data/SourcePackages
           key: spm-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('ArtemisKit/Package.swift', 'Artemis.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
 
+      - name: Test CI verification helpers
+        run: |
+          ruby scripts/tests/check_build_warnings_test.rb
+          ruby scripts/tests/setup_ci_ruby_test.rb
+          ruby scripts/tests/xcodebuild_diagnostics_test.rb
+          ruby scripts/tests/lint_test.rb
+
       - name: Run ArtemisKit tests
         run: bundle exec fastlane test
+
+      - name: Require warning-free static code quality
+        run: bundle exec fastlane swift_lint
 
       - name: Upload test results
         if: ${{ always() }}
@@ -56,14 +66,17 @@ jobs:
 
       - uses: actions/checkout@v7
 
-      - name: Install Gems
-        run: eval "$(/opt/homebrew/bin/rbenv init - --no-rehash bash)" && bundle install
+      - name: Install required Ruby and gems
+        run: scripts/setup-ci-ruby.sh
 
       - name: Print versions
-        run: eval "ruby -v"
+        run: ruby -v
+
+      - name: Resolve build dependencies
+        run: xcodebuild -resolvePackageDependencies -project Artemis.xcodeproj -scheme Artemis -clonedSourcePackagesDirPath .SwiftPackages -skipMacroValidation -skipPackagePluginValidation
 
       - name: Check static code quality of iOS App
-        run: eval "$(/opt/homebrew/bin/rbenv init - --no-rehash bash)" && bundle exec fastlane swift_lint
+        run: bundle exec fastlane swift_lint
 
       - name: Generate build number
         run: |
@@ -73,7 +86,7 @@ jobs:
           echo "Build is $(date +'%Y%m%d%H%M')"
         
       - name: Build iOS App 
-        run: eval "$(/opt/homebrew/bin/rbenv init - --no-rehash bash)" &&  bundle exec fastlane build
+        run: bundle exec fastlane build
         env: 
           MATCH_GITLAB_AUTH: ${{ secrets.IOS_MATCH_GITLAB_AUTH }}
           MATCH_PASSWORD: ${{ secrets.IOS_MATCH_PASSWORD }}

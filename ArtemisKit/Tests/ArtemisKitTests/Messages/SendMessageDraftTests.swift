@@ -254,14 +254,7 @@ final class SendMessageDraftTests: XCTestCase {
         let controller = UIHostingController(rootView: SendMessageView(viewModel: composer)
             .onAppear { appeared.fulfill() }
             .onDisappear { disappeared.fulfill() })
-        let window: UIWindow
-        if let scene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first {
-            window = UIWindow(windowScene: scene)
-        } else {
-            // The Swift package test runner has no application window scene.
-            window = UIWindow()
-        }
-        window.frame = CGRect(x: 0, y: 0, width: 390, height: 844)
+        let window = try makeTestWindow(frame: CGRect(x: 0, y: 0, width: 390, height: 844))
         let previousKeyWindow = window.windowScene?.windows.first(where: \.isKeyWindow)
         window.rootViewController = controller
         window.makeKeyAndVisible()

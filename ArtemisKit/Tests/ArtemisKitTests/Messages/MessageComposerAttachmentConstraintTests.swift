@@ -17,7 +17,7 @@ final class MessageComposerAttachmentConstraintTests: XCTestCase {
                     .flatMap(\.windows).first(where: \.isKeyWindow)
                 let content = VStack(spacing: 0) { Spacer(minLength: 0); SendMessageView(viewModel: model) }
                     .environment(\.verticalSizeClass, sizeClass)
-                let (controller, window) = await host(content)
+                let (controller, window) = try await host(content)
                 defer {
                     window.isHidden = true
                     window.rootViewController = nil
@@ -43,12 +43,12 @@ final class MessageComposerAttachmentConstraintTests: XCTestCase {
                                     messagesRepository: try MessagesRepository(inMemory: true), messagesService: MessagesServiceStub())
     }
 
-    private func host(_ view: some View) async -> (UIHostingController<AnyView>, UIWindow) {
+    private func host(_ view: some View) async throws -> (UIHostingController<AnyView>, UIWindow) {
         let appeared = expectation(description: "Attachment composer appeared")
         appeared.assertForOverFulfill = false
         let controller = UIHostingController(rootView: AnyView(view.onAppear { appeared.fulfill() }))
         controller.safeAreaRegions = []
-        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 390, height: 170))
+        let window = try makeTestWindow(frame: CGRect(x: 0, y: 0, width: 390, height: 170))
         window.rootViewController = controller
         window.makeKeyAndVisible()
         await fulfillment(of: [appeared], timeout: 2)

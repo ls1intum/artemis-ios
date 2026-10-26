@@ -65,7 +65,6 @@ struct ExerciseListCell: View {
                                 ForEach(exercise.baseExercise.categories ?? [], id: \.category) { category in
                                     Chip(text: category.category, backgroundColor: UIColor(hexString: category.colorCode).suColor, padding: .s)
                                 }
-                                // TODO: maybe add isActiveQuiz in presentationMode badge
                                 if exercise.baseExercise.includedInOverallScore != .includedCompletely {
                                     Chip(
                                         text: exercise.baseExercise.includedInOverallScore.description,

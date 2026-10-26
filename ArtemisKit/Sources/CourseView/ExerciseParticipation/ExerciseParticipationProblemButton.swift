@@ -16,7 +16,7 @@ struct ExerciseParticipationProblemButton: View {
         } label: {
             Image(systemName: "newspaper")
                 .resizable()
-                .aspectRatio(contentMode: .fit)
+                .scaledToFit()
                 .foregroundColor(.white)
                 .font(.headline)
                 .padding(.vertical, .m)

@@ -191,7 +191,7 @@ extension SendMessageDraftTests {
         appeared.assertForOverFulfill = false
         let controller = UIHostingController(rootView: SendMessageView(viewModel: composer)
             .onAppear { appeared.fulfill() })
-        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 390, height: 844))
+        let window = try makeTestWindow(frame: CGRect(x: 0, y: 0, width: 390, height: 844))
         defer { window.isHidden = true; window.rootViewController = nil }
         window.rootViewController = controller
         window.makeKeyAndVisible()
@@ -207,7 +207,7 @@ extension SendMessageDraftTests {
 
     func testNativeEditsReplaceAndDeleteARestoredDraft() async throws {
         let courseId = Int.random(in: 4_000_001...5_000_000)
-        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 390, height: 844))
+        let window = try makeTestWindow(frame: CGRect(x: 0, y: 0, width: 390, height: 844))
         defer { window.isHidden = true; window.rootViewController = nil }
         for expected in ["Original draft", "Changed draft", ""] {
             let composer = makeDraftViewModel(repository: try MessagesRepository(), courseId: courseId)

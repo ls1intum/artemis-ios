@@ -94,7 +94,7 @@ private extension SendMessageLecturePicker {
 
     @ViewBuilder
     func rowContent(lectureUnit: LectureUnit, slide: Slide) -> some View {
-        if let slideImagePath = slide.slideImagePath, let slideNumber = slide.slideNumber {
+        if slide.slideImagePath != nil, let slideNumber = slide.slideNumber {
             Button {
                 viewModel.select(lectureUnit: lectureUnit, slide: slide)
             } label: {

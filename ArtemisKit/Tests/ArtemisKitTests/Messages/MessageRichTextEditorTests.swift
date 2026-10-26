@@ -209,7 +209,7 @@ final class MessageRichTextEditorTests: XCTestCase {
             first.load("First")
             let previousKeyWindow = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
                 .flatMap(\.windows).first(where: \.isKeyWindow)
-            let (host, window) = await hostRebindingEditor(first)
+            let (host, window) = try await hostRebindingEditor(first)
             defer {
                 window.isHidden = true
                 window.rootViewController = nil
@@ -252,7 +252,7 @@ final class MessageRichTextEditorTests: XCTestCase {
         document.load("First")
         let previousKeyWindow = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
             .flatMap(\.windows).first(where: \.isKeyWindow)
-        let (host, window) = await hostRebindingEditor(document)
+        let (host, window) = try await hostRebindingEditor(document)
         defer {
             window.isHidden = true
             window.rootViewController = nil
@@ -279,7 +279,7 @@ final class MessageRichTextEditorTests: XCTestCase {
         first.load("First ")
         let previousKeyWindow = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
             .flatMap(\.windows).first(where: \.isKeyWindow)
-        let (host, window) = await hostRebindingEditor(first, isFocused: true)
+        let (host, window) = try await hostRebindingEditor(first, isFocused: true)
         defer {
             window.isHidden = true
             window.rootViewController = nil
@@ -313,7 +313,7 @@ final class MessageRichTextEditorTests: XCTestCase {
         document.load("First ")
         let previousKeyWindow = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
             .flatMap(\.windows).first(where: \.isKeyWindow)
-        let (host, window) = await hostRebindingEditor(document, isFocused: true)
+        let (host, window) = try await hostRebindingEditor(document, isFocused: true)
         defer {
             window.isHidden = true
             window.rootViewController = nil
@@ -336,11 +336,9 @@ final class MessageRichTextEditorTests: XCTestCase {
         XCTAssertEqual(document.markdown, "First pending")
     }
 
-    private func hostRebindingEditor(_ document: MessageEditorDocument, isFocused: Bool = false) async
+    private func hostRebindingEditor(_ document: MessageEditorDocument, isFocused: Bool = false) async throws
         -> (UIHostingController<RebindingEditorHarness>, UIWindow) {
-        let scene = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first
-        let window = scene.map(UIWindow.init(windowScene:)) ?? UIWindow()
-        window.frame = CGRect(x: 0, y: 0, width: 390, height: 600)
+        let window = try makeTestWindow(frame: CGRect(x: 0, y: 0, width: 390, height: 600))
         let appeared = expectation(description: "Rebinding editor appeared")
         appeared.assertForOverFulfill = false
         let host = UIHostingController(rootView: RebindingEditorHarness(document: document, isFocused: isFocused,

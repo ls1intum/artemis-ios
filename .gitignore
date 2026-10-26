@@ -12,3 +12,8 @@ build/
 *.xccheckout
 xcuserdata/
 Artemis.xcworkspace/xcuserdata
+
+.SwiftPackages/
+.DerivedData/
+vendor/bundle/
+.bundle/

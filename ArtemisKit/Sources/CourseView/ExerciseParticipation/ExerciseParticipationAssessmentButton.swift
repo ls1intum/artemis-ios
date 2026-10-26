@@ -16,7 +16,7 @@ struct ExerciseParticipationAssessmentButton: View {
         } label: {
             Image(systemName: "ellipsis.message")
                 .resizable()
-                .aspectRatio(contentMode: .fit)
+                .scaledToFit()
                 .foregroundColor(.white)
                 .font(.headline)
                 .padding(.vertical, .m)

@@ -27,7 +27,7 @@ jobs:
             exit 1
           fi
 
-          echo "pr=$PR_VERSION" >> $GITHUB_OUTPUT
+          echo "pr=$PR_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Read version on main
         id: main_version
@@ -44,7 +44,7 @@ jobs:
             exit 1
           fi
 
-          echo "main=$MAIN_VERSION" >> $GITHUB_OUTPUT
+          echo "main=$MAIN_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Compare versions
         run: |

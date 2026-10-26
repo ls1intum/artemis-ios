@@ -56,7 +56,8 @@ extension ConversationOfflineSection {
                     conversation: conversationViewModel.conversation,
                     message: message,
                     messageQueue: messageQueue,
-                    delegate: ConversationOfflineSectionModelDelegate(conversationViewModel)),
+                    delegate: ConversationOfflineSectionModelDelegate(conversationViewModel),
+                    messagesService: conversationViewModel.messagesService),
                 conversationViewModel: conversationViewModel)
         } else {
             return nil
