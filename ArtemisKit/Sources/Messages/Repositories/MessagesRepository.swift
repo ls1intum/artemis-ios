@@ -36,6 +36,9 @@ final class MessagesRepository {
     init(timeoutInSeconds: Int = 24 * 60 * 60, inMemory: Bool = false) throws {
         let schema = Schema(versionedSchema: SchemaV1.self)
         let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: inMemory)
+        if !inMemory {
+            try FileManager.default.createDirectory(at: configuration.url.deletingLastPathComponent(), withIntermediateDirectories: true)
+        }
         self.container = try ModelContainer(for: schema, configurations: configuration)
         self.seconds = timeoutInSeconds
     }
