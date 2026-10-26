@@ -134,11 +134,15 @@ struct LectureVideoPlayer: UIViewControllerRepresentable {
 
         func playerViewController(_ controller: AVPlayerViewController,
                                   willEndFullScreenPresentationWithAnimationCoordinator transition: any UIViewControllerTransitionCoordinator) {
+            let exit = playback.beginFullScreenExit()
             let completed = transition.animate(alongsideTransition: nil) { [weak self, weak controller] context in
-                guard !context.isCancelled, let self else { return }
-                self.playback.endFullScreenPresentation(inlineAttached: controller?.viewIfLoaded?.window != nil)
+                self?.playback.completeFullScreenExit(exit, cancelled: context.isCancelled,
+                                                     inlineAttached: controller?.viewIfLoaded?.window != nil)
             }
-            if !completed { playback.endFullScreenPresentation(inlineAttached: controller.viewIfLoaded?.window != nil) }
+            if !completed {
+                playback.completeFullScreenExit(exit, cancelled: transition.isCancelled,
+                                                inlineAttached: controller.viewIfLoaded?.window != nil)
+            }
         }
     }
 }

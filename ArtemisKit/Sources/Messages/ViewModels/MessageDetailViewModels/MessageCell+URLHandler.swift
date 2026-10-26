@@ -31,18 +31,22 @@ struct MessageURLAction {
         self.tabs = tabs
     }
 
+    static func lectureNavigation(using navigation: NavigationController) -> (LecturePath) -> Void {
+        { path in navigation.goToLecture(courseId: path.coursePath.id, lectureId: path.id, target: path.target) }
+    }
+
     func handle(url: URL) -> OpenURLAction.Result {
         if let mention = MentionScheme(url) {
             let coursePath = CoursePath(course: conversationViewModel.course, tabs: tabs)
             switch mention {
             case let .attachment(id, lectureId):
-                navigationController.outerPath.append(LecturePath(id: lectureId, coursePath: coursePath, target: .init(attachmentId: Int(id), attachmentFilename: Int(id) == nil ? id : nil)))
+                Self.lectureNavigation(using: navigationController)(LecturePath(id: lectureId, coursePath: coursePath, target: .init(attachmentId: Int(id), attachmentFilename: Int(id) == nil ? id : nil)))
             case let .channel(id):
                 navigationController.tabPath.append(ConversationPath(id: id, coursePath: coursePath))
             case let .exercise(id):
                 navigationController.outerPath.append(ExercisePath(id: id, coursePath: coursePath))
             case let .lecture(id):
-                navigationController.outerPath.append(LecturePath(id: id, coursePath: coursePath))
+                Self.lectureNavigation(using: navigationController)(LecturePath(id: id, coursePath: coursePath))
             case let .lectureUnit(id, attachmentUnit):
                 handleLectureUnit(id: id, attachmentUnit: attachmentUnit, coursePath: coursePath)
             case let .member(login):
@@ -82,9 +86,7 @@ private extension MessageURLAction {
         cellViewModel.lectureReferenceLookup?.cancel()
         let lookup = LectureReferenceLookup(coursePath: coursePath, loader: {
             await LectureServiceFactory.shared.getLecturesWithSlides(courseId: coursePath.id)
-        }, navigate: { path in
-            navigation.outerPath.append(path)
-        }, openLectures: {
+        }, navigate: Self.lectureNavigation(using: navigation), openLectures: {
             navigation.goToCourse(id: coursePath.id)
             navigation.outerPath = NavigationPath()
             navigation.tabPath = NavigationPath()

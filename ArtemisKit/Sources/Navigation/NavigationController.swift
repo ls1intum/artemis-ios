@@ -70,6 +70,7 @@ public extension NavigationController {
     func goToLecture(courseId: Int, lectureId: Int, target: LectureMediaTarget? = nil) {
         goToCourse(id: courseId)
         courseTab = .lecture
+        tabPath = NavigationPath()
         selectedPath = LecturePath(id: lectureId, coursePath: CoursePath(id: courseId), target: target)
         log.debug("LecturePath was appended to queue")
     }

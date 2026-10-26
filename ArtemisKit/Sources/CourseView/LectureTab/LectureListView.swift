@@ -103,7 +103,7 @@ struct LectureListView: View {
                                 LectureDetailView(courseId: path.coursePath.id, lectureId: path.id, target: path.target)
                             }
                         }
-                        .id(path.id)
+                        .id(path.presentationIdentity)
                     } else {
                         SelectDetailView()
                     }

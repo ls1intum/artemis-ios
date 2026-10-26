@@ -84,12 +84,16 @@ public struct LecturePath: Hashable {
     public let lecture: Lecture?
     public let coursePath: CoursePath
     public let target: LectureMediaTarget?
+    /// Each explicit open gets fresh consumption state, even for the same slide.
+    public let referenceRequestID: UUID?
+    public var presentationIdentity: AnyHashable { referenceRequestID.map(AnyHashable.init) ?? AnyHashable(id) }
 
     public init(id: Int, coursePath: CoursePath, target: LectureMediaTarget? = nil) {
         self.id = id
         self.lecture = nil
         self.coursePath = coursePath
         self.target = target
+        self.referenceRequestID = target.map { _ in UUID() }
     }
 
     public init(lecture: Lecture, coursePath: CoursePath, target: LectureMediaTarget? = nil) {
@@ -97,6 +101,7 @@ public struct LecturePath: Hashable {
         self.lecture = lecture
         self.coursePath = coursePath
         self.target = target
+        self.referenceRequestID = target.map { _ in UUID() }
     }
 }
 

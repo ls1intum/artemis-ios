@@ -12,6 +12,20 @@ final class LectureVideoPlayback: ObservableObject {
     private let progress: LectureMediaProgress?
     private let isCurrent: () -> Bool
     private var generation = LectureMediaLoadGeneration()
+    private var activeLoadRequest: UUID?
+    private var pauseRevision = UUID()
+    private var fullScreenExitID: UUID?
+    private var fullScreenExitIntent: FullScreenExitIntent?
+    private let isActive: () -> Bool
+    private let resumePlayback: (AVPlayer, Float) -> Void
+
+    private struct FullScreenExitIntent {
+        let player: AVPlayer
+        let item: AVPlayerItem
+        let request: UUID
+        let pauseRevision: UUID
+        let rate: Float
+    }
     private var proxy: LectureMediaProxy?
     private var observation: NSKeyValueObservation?
     private var timeObserver: Any?
@@ -28,7 +42,11 @@ final class LectureVideoPlayback: ObservableObject {
          makeItem: @escaping (URL) -> AVPlayerItem = { AVPlayerItem(url: $0) },
          seek: @escaping (AVPlayer, CMTime, @escaping (Bool) -> Void) -> Void = { player, time, completion in
              player.seek(to: time, toleranceBefore: .zero, toleranceAfter: .zero, completionHandler: completion)
-         }, preparationTimeout: Duration = .seconds(40)) {
+         }, preparationTimeout: Duration = .seconds(40),
+         isActive: @escaping () -> Bool = { UIApplication.shared.applicationState == .active },
+         resumePlayback: @escaping (AVPlayer, Float) -> Void = { player, rate in player.rate = rate }) {
+        self.isActive = isActive
+        self.resumePlayback = resumePlayback
         self.makeItem = makeItem
         self.seek = seek
         self.preparationTimeout = preparationTimeout
@@ -41,6 +59,7 @@ final class LectureVideoPlayback: ObservableObject {
     func load() async {
         stop()
         let request = generation.begin()
+        activeLoadRequest = request
         state = .loading
         restored = false
         restorePending = false
@@ -129,15 +148,51 @@ final class LectureVideoPlayback: ObservableObject {
         inlineVisible = false
         if !fullScreenPresented { stop() }
     }
-    func beginFullScreenPresentation() { fullScreenPresented = true }
+    func beginFullScreenPresentation() {
+        fullScreenExitID = nil; fullScreenExitIntent = nil
+        fullScreenPresented = true
+    }
+    func beginFullScreenExit() -> UUID {
+        let transition = UUID()
+        fullScreenExitID = transition
+        fullScreenExitIntent = nil
+        if fullScreenPresented, state == .ready, isCurrent(), isActive(),
+           let player, let item = player.currentItem, item.status == .readyToPlay,
+           player.rate.isFinite, player.rate > 0, let request = activeLoadRequest,
+           generation.accepts(request) {
+            fullScreenExitIntent = FullScreenExitIntent(player: player, item: item, request: request,
+                                                       pauseRevision: pauseRevision, rate: player.rate)
+        }
+        return transition
+    }
+    func completeFullScreenExit(_ transition: UUID, cancelled: Bool, inlineAttached: Bool) {
+        guard fullScreenExitID == transition else { return }
+        let intent = fullScreenExitIntent
+        fullScreenExitID = nil; fullScreenExitIntent = nil
+        guard !cancelled else { return }
+        endFullScreenPresentation(inlineAttached: inlineAttached)
+        // AVKit pauses during native exit. Restore only the playing intent from
+        // this transition; every app pause invalidates it, including background.
+        guard let intent, state == .ready, isCurrent(), isActive(),
+              inlineVisible || inlineAttached, generation.accepts(intent.request),
+              pauseRevision == intent.pauseRevision, player === intent.player,
+              intent.player.currentItem === intent.item, intent.item.status == .readyToPlay,
+              intent.player.rate == 0 else { return }
+        resumePlayback(intent.player, intent.rate)
+    }
     func endFullScreenPresentation(inlineAttached: Bool) {
+        fullScreenExitID = nil; fullScreenExitIntent = nil
         fullScreenPresented = false
         if !inlineVisible && !inlineAttached { stop() }
     }
 
-    func pause() { save(); player?.pause() }
+    func pause() {
+        pauseRevision = UUID(); fullScreenExitIntent = nil
+        save(); player?.pause()
+    }
 
     func stop() {
+        fullScreenExitID = nil; fullScreenExitIntent = nil; activeLoadRequest = nil
         fullScreenPresented = false
         pause()
         generation.cancel()
