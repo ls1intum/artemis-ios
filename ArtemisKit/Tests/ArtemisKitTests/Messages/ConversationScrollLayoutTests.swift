@@ -32,16 +32,19 @@ final class ConversationScrollLayoutTests: XCTestCase {
 
     func testLoadingHistoryDoesNotReplayAStaleNewMessageScroll() async throws {
         let model = try makeConversation()
+        let historyMessages = model.messages.sorted { $0.id < $1.id }
+        // Establish history through SwiftUI's scroll target so its state matches the viewport.
+        model.shouldScrollToId = historyMessages[historyMessages.count / 2].id.description
         let (controller, window, previousKeyWindow) = try await host(model)
         defer { close(window, restoring: previousKeyWindow) }
         let scrollView = try conversationScrollView(in: controller.view)
-        scrollView.setContentOffset(CGPoint(x: 0, y: maximumOffset(scrollView) / 2), animated: false)
         try await waitForLayout(controller, description: "The reader has scrolled into history") {
             self.distanceFromBottom(scrollView) > scrollView.bounds.height
         }
         let previousHeight = scrollView.contentSize.height
         XCTAssertGreaterThan(distanceFromBottom(scrollView), scrollView.bounds.height,
                              "Start reading history far enough from the newest message to detect an unwanted jump")
+        XCTAssertNil(model.shouldScrollToId, "Consume the initial history scroll before seeding a stale request")
         let newestMessage = try XCTUnwrap(model.messages.max(by: { $0.id < $1.id }))
         model.shouldScrollToId = newestMessage.id.description
 
