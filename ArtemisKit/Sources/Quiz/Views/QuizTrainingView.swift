@@ -123,7 +123,7 @@ private struct TrainingOverviewSections: View {
             Section(TrainingCopy.text("leaderboard")) {
                 ForEach(Array(entries.enumerated()), id: \.offset) { _, entry in
                     HStack(alignment: .firstTextBaseline) {
-                        if let rank = entry.rank { Text("#\(rank)").monospacedDigit() }
+                        if let rank = entry.rank, rank > 0 { Text("#\(rank)").monospacedDigit() }
                         Text(entry.userName ?? TrainingCopy.text("name.unknown"))
                         Spacer()
                         if let score = entry.score { Text(score.formatted()).monospacedDigit() }

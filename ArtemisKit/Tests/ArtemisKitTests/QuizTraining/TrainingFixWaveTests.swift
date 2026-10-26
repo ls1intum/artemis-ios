@@ -75,6 +75,11 @@ final class TrainingFixWaveTests: XCTestCase {
         XCTAssertEqual(league.upperBound, 50)
         service.entry = entry; await overview.load()
         XCTAssertEqual(overview.currentRank, 72)
+        for rank: Int? in [0, nil, -1] {
+            var unranked = entry; unranked.rank = rank
+            service.entry = unranked; await overview.load()
+            XCTAssertNil(overview.currentRank, "Nonpositive or absent rank means unranked")
+        }
         XCTAssertNil(TrainingLeague(selectedLeague: nil))
         XCTAssertNil(TrainingLeague(selectedLeague: 99))
         XCTAssertEqual(overview.data?.leaderboardEntries?.count ?? 0, 0)

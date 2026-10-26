@@ -37,7 +37,10 @@ final class TrainingOverview {
     private(set) var failed = false
     private(set) var receivedAt: Date?
     private var lastRefreshedRevision = 0
-    var currentRank: Int? { data?.currentUserEntry?.rank }
+    var currentRank: Int? {
+        guard let rank = data?.currentUserEntry?.rank, rank > 0 else { return nil }
+        return rank
+    }
     var needsPrivacyChoice: Bool { initialHasSettings == false }
     init(transport: TrainingOverviewServing) { self.transport = transport }
     func load() async {
