@@ -45,22 +45,27 @@ struct DNDQuestionView: View {
 
     var body: some View {
         if let text = questionWithAnswer.text {
-            if viewModel.isReadOnly { SafeReviewContent(text).padding(.horizontal) } else { Text(LocalizedStringKey(text)).padding(.horizontal) }
+            if viewModel.usesSafeContent { SafeReviewContent(text).padding(.horizontal) } else { Text(LocalizedStringKey(text)).padding(.horizontal) }
         }
 
         Group {
-            if viewModel.isReadOnly { ReviewImage(path: questionWithAnswer.backgroundFilePath, filePath: true) } else {
+            if viewModel.usesSafeContent { ReviewImage(path: questionWithAnswer.backgroundFilePath, filePath: true) } else {
                 ArtemisAsyncImage(imageURL: backgroundImage) { Text("Failed to load image :/") }
             }
         }
         .scaledToFit()
-        .containerRelativeFrame(.horizontal)
+        .modifier(TrainingQuestionImageWidth(training: viewModel is QuizTrainingViewModel))
         .overlay {
             DNDDropLocations(mappings: $mappings, question: questionWithAnswer)
         }
 
+        if viewModel is QuizTrainingViewModel, !viewModel.hasSubmitted {
+            TrainingDropAnswers(question: questionWithAnswer, mappings: $mappings)
+                .padding(.horizontal)
+        }
+
         if !viewModel.hasSubmitted {
-            Text(R.string.localizable.dndInfo())
+            Text(viewModel is QuizTrainingViewModel ? TrainingCopy.text("dnd.info") : R.string.localizable.dndInfo())
                 .font(.caption)
                 .padding(.horizontal)
         }
@@ -130,6 +135,7 @@ struct DropLocation: View {
                         updateMapping(selectedRef: nil)
                     }
                 } label: { locationContent(width: width, height: height) }
+                .disabled(viewModel.locksAnswerEditing)
             }
         }
         .popover(isPresented: $selected, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
@@ -210,5 +216,12 @@ enum QuizDropEvaluation {
         let valid = correctMappings.filter { $0.dropLocation?.id == locationID }
         guard let selectedItemID else { return valid.isEmpty }
         return valid.contains { $0.dragItem?.id == selectedItemID }
+    }
+}
+
+private struct TrainingQuestionImageWidth: ViewModifier {
+    let training: Bool
+    func body(content: Content) -> some View {
+        if training { content.frame(maxWidth: .infinity) } else { content.containerRelativeFrame(.horizontal) }
     }
 }

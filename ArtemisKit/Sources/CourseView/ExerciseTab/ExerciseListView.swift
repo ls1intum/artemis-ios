@@ -14,7 +14,6 @@ struct ExerciseListView: View {
     @State private var columnVisibilty: NavigationSplitViewVisibility = .doubleColumn
 
     @State private var searchText = ""
-    @State private var showQuizTraining = false
 
     private var selectedExercise: Binding<ExercisePath?> {
         navController.selectedPathBinding($navController.selectedPath)
@@ -24,6 +23,14 @@ struct ExerciseListView: View {
         NavigationSplitView(columnVisibility: $columnVisibilty) {
             ScrollViewReader { value in
                 List(selection: selectedExercise) {
+                    if hasQuizExercises {
+                        NavigationLink {
+                            QuizTrainingView(courseId: viewModel.course.id, scorePrecision: viewModel.scorePrecision)
+                        } label: {
+                            Label(QuizTrainingView.title, systemImage: "dumbbell.fill")
+                                .font(.headline).padding(.vertical, 8)
+                        }
+                    }
                     if searchText.isEmpty {
                         if exerciseGroups.0.isEmpty {
                             ContentUnavailableView(R.string.localizable.exercisesUnavailable(), systemImage: "list.bullet.clipboard")
@@ -63,25 +70,6 @@ struct ExerciseListView: View {
                         }
                     }
                 }
-                .safeAreaInset(edge: .bottom) {
-                    if hasQuizExercises {
-                        Button {
-                            showQuizTraining = true
-                        } label: {
-                            Image(systemName: "dumbbell.fill")
-                                .foregroundStyle(.white)
-                                .font(.title2)
-                                .frame(width: 60, height: 60, alignment: .center)
-                                .glassEffect(.clear.tint(.Artemis.artemisBlue).interactive(), in: .circle)
-                                .shadow(color: Color.gray.opacity(0.2), radius: .m)
-                        }
-                        .padding()
-                        .frame(maxWidth: .infinity, alignment: .trailing)
-                    }
-                }
-            }
-            .sheet(isPresented: $showQuizTraining) {
-                QuizTrainingView(courseId: viewModel.course.id)
             }
             .courseToolbar()
         } detail: {

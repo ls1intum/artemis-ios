@@ -30,7 +30,7 @@ struct MCQuestionView: View {
 
     var body: some View {
         if let text = questionWithAnswer.text {
-            if viewModel.isReadOnly { SafeReviewContent(text).padding(.horizontal) } else { Text(LocalizedStringKey(text)).padding(.horizontal) }
+            if viewModel.usesSafeContent { SafeReviewContent(text).padding(.horizontal) } else { Text(LocalizedStringKey(text)).padding(.horizontal) }
         }
 
         if let answerOptions = questionWithAnswer.answerOptions {
@@ -40,18 +40,20 @@ struct MCQuestionView: View {
                     choiceLabel(option).foregroundStyle(.primary)
                 } else {
                     Button { toggleAnswer(id) } label: { choiceLabel(option) }
+                        .disabled(viewModel.locksAnswerEditing)
                 }
 
                 if QuizReviewCorrectness.resolve(submitted: viewModel.hasSubmitted, correct: option.isCorrect) != .unknown {
                     let optionIsCorrect = QuizReviewCorrectness.resolve(submitted: viewModel.hasSubmitted, correct: option.isCorrect) == .correct
                     let loc = R.string.localizable
 
-                    let correctLabel = Text(optionIsCorrect ? loc.correct() : loc.incorrect())
+                    let correctText = viewModel is QuizTrainingViewModel ? TrainingCopy.text(optionIsCorrect ? "correct" : "incorrect") : (optionIsCorrect ? loc.correct() : loc.incorrect())
+                    let correctLabel = Text(correctText)
                         .foregroundStyle(optionIsCorrect ? .green : .red)
 
-                    Text("\(loc.solution()): \(correctLabel)")
+                    Text("\(viewModel is QuizTrainingViewModel ? TrainingCopy.text("solution") : loc.solution()): \(correctLabel)")
                     if let explanation = option.explanation {
-                        if viewModel.isReadOnly { SafeReviewContent(explanation) } else { Text("\(loc.explanation()): \(explanation)") }
+                        if viewModel.usesSafeContent { SafeReviewContent(explanation) } else { Text("\(loc.explanation()): \(explanation)") }
                     }
                 }
             }
@@ -83,7 +85,7 @@ struct MCQuestionView: View {
                                 }
                             }
 
-                        choiceText(option.text ?? "No text")
+                        choiceText(option.text ?? (viewModel is QuizTrainingViewModel ? TrainingCopy.text("answer.unavailable") : "No text"))
                             .multilineTextAlignment(.leading)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .accessibilityAddTraits(selectedAnswers.contains(id) ? .isSelected : [])
@@ -93,11 +95,12 @@ struct MCQuestionView: View {
                                 .font(.title2)
                         }
                     }
+                    .frame(minHeight: 44)
     }
 
     @ViewBuilder
     private func choiceText(_ text: String) -> some View {
-        if viewModel.isReadOnly { SafeReviewContent(text) } else { Text(text) }
+        if viewModel.usesSafeContent { SafeReviewContent(text) } else { Text(text) }
     }
 
     private func toggleAnswer(_ id: Int64) {

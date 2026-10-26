@@ -1,0 +1,4838 @@
+{
+  "schemaVersion": 1,
+  "provenance": {
+    "kind": "synthetic wrappers with actual sanitized student question/evaluation DTOs",
+    "serverSource": "QuizTrainingResource/QuizQuestionProgressService and flat typed submitted-answer DTOs",
+    "note": "Not evidence of a live training endpoint call; live captures are saved separately."
+  },
+  "contract": {
+    "courseId": 7,
+    "pageSize": 10,
+    "summaryAfterConfirmedAnswers": 10,
+    "ratedFirstRequest": {
+      "page": 0,
+      "size": 10,
+      "isNewSession": true,
+      "body": []
+    },
+    "ratedContinuation": {
+      "page": 1,
+      "size": 10,
+      "isNewSession": false,
+      "body": [
+        901,
+        902
+      ]
+    },
+    "legacyUnratedContinuation": {
+      "page": 1,
+      "size": 10,
+      "isNewSession": true,
+      "body": []
+    },
+    "privacyWrites": "explicit PUT /api/quiz/leaderboard-settings only; overview GET already creates entry"
+  },
+  "ratedPage1": {
+    "headers": {
+      "X-Has-Next": "true"
+    },
+    "body": [
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 101,
+          "title": "Revision 1: Worst-case complexity",
+          "text": "What is the worst-case time complexity of binary search on sorted input?",
+          "points": 10.0,
+          "scoringType": "ALL_OR_NOTHING",
+          "randomizeOrder": false,
+          "invalid": false,
+          "type": "multiple-choice",
+          "explanation": "Each comparison halves the remaining interval.",
+          "answerOptions": [
+            {
+              "id": 1,
+              "text": "O(log n)",
+              "invalid": false,
+              "explanation": "The interval is halved at every step.",
+              "isCorrect": true
+            },
+            {
+              "id": 2,
+              "text": "O(n)",
+              "invalid": false,
+              "explanation": "This describes a linear scan.",
+              "isCorrect": false
+            },
+            {
+              "id": 3,
+              "text": "O(1)",
+              "invalid": false,
+              "explanation": "The number of comparisons increases with input size.",
+              "isCorrect": false
+            }
+          ],
+          "singleChoice": true
+        },
+        "isRated": true,
+        "questionIds": [
+          901,
+          902
+        ],
+        "isNewSession": false,
+        "id": 101
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 102,
+          "title": "Revision 2: Read the evaluated blanks",
+          "text": "The sorted-input algorithm is [-spot 1]. Its worst-case number of comparisons is [-spot 2].",
+          "points": 10.0,
+          "scoringType": "PROPORTIONAL_WITHOUT_PENALTY",
+          "invalid": false,
+          "type": "short-answer",
+          "explanation": "Case-insensitive answers can be accepted. The published evaluation is authoritative.",
+          "spots": [
+            {
+              "id": 913,
+              "spotNr": 1,
+              "width": 18,
+              "invalid": false
+            },
+            {
+              "id": 914,
+              "spotNr": 2,
+              "width": 18,
+              "invalid": false
+            }
+          ],
+          "solutions": [
+            {
+              "id": 1001,
+              "text": "Binary Search",
+              "invalid": false
+            },
+            {
+              "id": 1002,
+              "text": "logarithmic",
+              "invalid": false
+            }
+          ],
+          "similarityValue": 85,
+          "matchLetterCase": false,
+          "correctMappings": [
+            {
+              "id": 2001,
+              "shortAnswerSpotIndex": 0,
+              "shortAnswerSolutionIndex": 0,
+              "invalid": false,
+              "solution": {
+                "id": 1001,
+                "text": "Binary Search",
+                "invalid": false
+              },
+              "spot": {
+                "id": 913,
+                "spotNr": 1,
+                "width": 18,
+                "invalid": false
+              }
+            },
+            {
+              "id": 2002,
+              "shortAnswerSpotIndex": 1,
+              "shortAnswerSolutionIndex": 1,
+              "invalid": false,
+              "solution": {
+                "id": 1002,
+                "text": "logarithmic",
+                "invalid": false
+              },
+              "spot": {
+                "id": 914,
+                "spotNr": 2,
+                "width": 18,
+                "invalid": false
+              }
+            }
+          ],
+          "randomizeOrder": false
+        },
+        "isRated": true,
+        "questionIds": [
+          901,
+          902
+        ],
+        "isNewSession": false,
+        "id": 102
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 103,
+          "title": "Revision 3: Alternative valid mappings",
+          "text": "Each callout accepts Alpha or Beta. Use each label once.",
+          "points": 10.0,
+          "scoringType": "ALL_OR_NOTHING",
+          "invalid": false,
+          "type": "drag-and-drop",
+          "explanation": "Both submitted labels are valid. A sample solution must use each item only once.",
+          "backgroundFilePath": "drag-and-drop/questions/12/backgrounds/results-alternatives.png",
+          "dropLocations": [
+            {
+              "id": 11,
+              "posX": 20.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            },
+            {
+              "id": 12,
+              "posX": 120.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            }
+          ],
+          "dragItems": [
+            {
+              "id": 21,
+              "text": "Alpha",
+              "invalid": false
+            },
+            {
+              "id": 22,
+              "text": "Beta",
+              "invalid": false
+            }
+          ],
+          "correctMappings": [
+            {
+              "id": 304,
+              "dragItemIndex": 1,
+              "dropLocationIndex": 1,
+              "invalid": false,
+              "dragItem": {
+                "id": 22,
+                "text": "Beta",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 12,
+                "posX": 120.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 301,
+              "dragItemIndex": 0,
+              "dropLocationIndex": 0,
+              "invalid": false,
+              "dragItem": {
+                "id": 21,
+                "text": "Alpha",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 11,
+                "posX": 20.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 302,
+              "dragItemIndex": 1,
+              "dropLocationIndex": 0,
+              "invalid": false,
+              "dragItem": {
+                "id": 22,
+                "text": "Beta",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 11,
+                "posX": 20.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 303,
+              "dragItemIndex": 0,
+              "dropLocationIndex": 1,
+              "invalid": false,
+              "dragItem": {
+                "id": 21,
+                "text": "Alpha",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 12,
+                "posX": 120.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            }
+          ],
+          "randomizeOrder": false
+        },
+        "isRated": true,
+        "questionIds": [
+          901,
+          902
+        ],
+        "isNewSession": false,
+        "id": 103
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 104,
+          "title": "Revision 4: Worst-case complexity",
+          "text": "What is the worst-case time complexity of binary search on sorted input?",
+          "points": 10.0,
+          "scoringType": "ALL_OR_NOTHING",
+          "randomizeOrder": false,
+          "invalid": false,
+          "type": "multiple-choice",
+          "explanation": "Each comparison halves the remaining interval.",
+          "answerOptions": [
+            {
+              "id": 1,
+              "text": "O(log n)",
+              "invalid": false,
+              "explanation": "The interval is halved at every step.",
+              "isCorrect": true
+            },
+            {
+              "id": 2,
+              "text": "O(n)",
+              "invalid": false,
+              "explanation": "This describes a linear scan.",
+              "isCorrect": false
+            },
+            {
+              "id": 3,
+              "text": "O(1)",
+              "invalid": false,
+              "explanation": "The number of comparisons increases with input size.",
+              "isCorrect": false
+            }
+          ],
+          "singleChoice": true
+        },
+        "isRated": true,
+        "questionIds": [
+          901,
+          902
+        ],
+        "isNewSession": false,
+        "id": 104
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 105,
+          "title": "Revision 5: Read the evaluated blanks",
+          "text": "The sorted-input algorithm is [-spot 1]. Its worst-case number of comparisons is [-spot 2].",
+          "points": 10.0,
+          "scoringType": "PROPORTIONAL_WITHOUT_PENALTY",
+          "invalid": false,
+          "type": "short-answer",
+          "explanation": "Case-insensitive answers can be accepted. The published evaluation is authoritative.",
+          "spots": [
+            {
+              "id": 913,
+              "spotNr": 1,
+              "width": 18,
+              "invalid": false
+            },
+            {
+              "id": 914,
+              "spotNr": 2,
+              "width": 18,
+              "invalid": false
+            }
+          ],
+          "solutions": [
+            {
+              "id": 1001,
+              "text": "Binary Search",
+              "invalid": false
+            },
+            {
+              "id": 1002,
+              "text": "logarithmic",
+              "invalid": false
+            }
+          ],
+          "similarityValue": 85,
+          "matchLetterCase": false,
+          "correctMappings": [
+            {
+              "id": 2001,
+              "shortAnswerSpotIndex": 0,
+              "shortAnswerSolutionIndex": 0,
+              "invalid": false,
+              "solution": {
+                "id": 1001,
+                "text": "Binary Search",
+                "invalid": false
+              },
+              "spot": {
+                "id": 913,
+                "spotNr": 1,
+                "width": 18,
+                "invalid": false
+              }
+            },
+            {
+              "id": 2002,
+              "shortAnswerSpotIndex": 1,
+              "shortAnswerSolutionIndex": 1,
+              "invalid": false,
+              "solution": {
+                "id": 1002,
+                "text": "logarithmic",
+                "invalid": false
+              },
+              "spot": {
+                "id": 914,
+                "spotNr": 2,
+                "width": 18,
+                "invalid": false
+              }
+            }
+          ],
+          "randomizeOrder": false
+        },
+        "isRated": true,
+        "questionIds": [
+          901,
+          902
+        ],
+        "isNewSession": false,
+        "id": 105
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 106,
+          "title": "Revision 6: Alternative valid mappings",
+          "text": "Each callout accepts Alpha or Beta. Use each label once.",
+          "points": 10.0,
+          "scoringType": "ALL_OR_NOTHING",
+          "invalid": false,
+          "type": "drag-and-drop",
+          "explanation": "Both submitted labels are valid. A sample solution must use each item only once.",
+          "backgroundFilePath": "drag-and-drop/questions/12/backgrounds/results-alternatives.png",
+          "dropLocations": [
+            {
+              "id": 11,
+              "posX": 20.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            },
+            {
+              "id": 12,
+              "posX": 120.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            }
+          ],
+          "dragItems": [
+            {
+              "id": 21,
+              "text": "Alpha",
+              "invalid": false
+            },
+            {
+              "id": 22,
+              "text": "Beta",
+              "invalid": false
+            }
+          ],
+          "correctMappings": [
+            {
+              "id": 304,
+              "dragItemIndex": 1,
+              "dropLocationIndex": 1,
+              "invalid": false,
+              "dragItem": {
+                "id": 22,
+                "text": "Beta",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 12,
+                "posX": 120.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 301,
+              "dragItemIndex": 0,
+              "dropLocationIndex": 0,
+              "invalid": false,
+              "dragItem": {
+                "id": 21,
+                "text": "Alpha",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 11,
+                "posX": 20.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 302,
+              "dragItemIndex": 1,
+              "dropLocationIndex": 0,
+              "invalid": false,
+              "dragItem": {
+                "id": 22,
+                "text": "Beta",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 11,
+                "posX": 20.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 303,
+              "dragItemIndex": 0,
+              "dropLocationIndex": 1,
+              "invalid": false,
+              "dragItem": {
+                "id": 21,
+                "text": "Alpha",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 12,
+                "posX": 120.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            }
+          ],
+          "randomizeOrder": false
+        },
+        "isRated": true,
+        "questionIds": [
+          901,
+          902
+        ],
+        "isNewSession": false,
+        "id": 106
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 107,
+          "title": "Revision 7: Worst-case complexity",
+          "text": "What is the worst-case time complexity of binary search on sorted input?",
+          "points": 10.0,
+          "scoringType": "ALL_OR_NOTHING",
+          "randomizeOrder": false,
+          "invalid": false,
+          "type": "multiple-choice",
+          "explanation": "Each comparison halves the remaining interval.",
+          "answerOptions": [
+            {
+              "id": 1,
+              "text": "O(log n)",
+              "invalid": false,
+              "explanation": "The interval is halved at every step.",
+              "isCorrect": true
+            },
+            {
+              "id": 2,
+              "text": "O(n)",
+              "invalid": false,
+              "explanation": "This describes a linear scan.",
+              "isCorrect": false
+            },
+            {
+              "id": 3,
+              "text": "O(1)",
+              "invalid": false,
+              "explanation": "The number of comparisons increases with input size.",
+              "isCorrect": false
+            }
+          ],
+          "singleChoice": true
+        },
+        "isRated": true,
+        "questionIds": [
+          901,
+          902
+        ],
+        "isNewSession": false,
+        "id": 107
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 108,
+          "title": "Revision 8: Read the evaluated blanks",
+          "text": "The sorted-input algorithm is [-spot 1]. Its worst-case number of comparisons is [-spot 2].",
+          "points": 10.0,
+          "scoringType": "PROPORTIONAL_WITHOUT_PENALTY",
+          "invalid": false,
+          "type": "short-answer",
+          "explanation": "Case-insensitive answers can be accepted. The published evaluation is authoritative.",
+          "spots": [
+            {
+              "id": 913,
+              "spotNr": 1,
+              "width": 18,
+              "invalid": false
+            },
+            {
+              "id": 914,
+              "spotNr": 2,
+              "width": 18,
+              "invalid": false
+            }
+          ],
+          "solutions": [
+            {
+              "id": 1001,
+              "text": "Binary Search",
+              "invalid": false
+            },
+            {
+              "id": 1002,
+              "text": "logarithmic",
+              "invalid": false
+            }
+          ],
+          "similarityValue": 85,
+          "matchLetterCase": false,
+          "correctMappings": [
+            {
+              "id": 2001,
+              "shortAnswerSpotIndex": 0,
+              "shortAnswerSolutionIndex": 0,
+              "invalid": false,
+              "solution": {
+                "id": 1001,
+                "text": "Binary Search",
+                "invalid": false
+              },
+              "spot": {
+                "id": 913,
+                "spotNr": 1,
+                "width": 18,
+                "invalid": false
+              }
+            },
+            {
+              "id": 2002,
+              "shortAnswerSpotIndex": 1,
+              "shortAnswerSolutionIndex": 1,
+              "invalid": false,
+              "solution": {
+                "id": 1002,
+                "text": "logarithmic",
+                "invalid": false
+              },
+              "spot": {
+                "id": 914,
+                "spotNr": 2,
+                "width": 18,
+                "invalid": false
+              }
+            }
+          ],
+          "randomizeOrder": false
+        },
+        "isRated": true,
+        "questionIds": [
+          901,
+          902
+        ],
+        "isNewSession": false,
+        "id": 108
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 109,
+          "title": "Revision 9: Alternative valid mappings",
+          "text": "Each callout accepts Alpha or Beta. Use each label once.",
+          "points": 10.0,
+          "scoringType": "ALL_OR_NOTHING",
+          "invalid": false,
+          "type": "drag-and-drop",
+          "explanation": "Both submitted labels are valid. A sample solution must use each item only once.",
+          "backgroundFilePath": "drag-and-drop/questions/12/backgrounds/results-alternatives.png",
+          "dropLocations": [
+            {
+              "id": 11,
+              "posX": 20.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            },
+            {
+              "id": 12,
+              "posX": 120.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            }
+          ],
+          "dragItems": [
+            {
+              "id": 21,
+              "text": "Alpha",
+              "invalid": false
+            },
+            {
+              "id": 22,
+              "text": "Beta",
+              "invalid": false
+            }
+          ],
+          "correctMappings": [
+            {
+              "id": 304,
+              "dragItemIndex": 1,
+              "dropLocationIndex": 1,
+              "invalid": false,
+              "dragItem": {
+                "id": 22,
+                "text": "Beta",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 12,
+                "posX": 120.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 301,
+              "dragItemIndex": 0,
+              "dropLocationIndex": 0,
+              "invalid": false,
+              "dragItem": {
+                "id": 21,
+                "text": "Alpha",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 11,
+                "posX": 20.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 302,
+              "dragItemIndex": 1,
+              "dropLocationIndex": 0,
+              "invalid": false,
+              "dragItem": {
+                "id": 22,
+                "text": "Beta",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 11,
+                "posX": 20.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 303,
+              "dragItemIndex": 0,
+              "dropLocationIndex": 1,
+              "invalid": false,
+              "dragItem": {
+                "id": 21,
+                "text": "Alpha",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 12,
+                "posX": 120.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            }
+          ],
+          "randomizeOrder": false
+        },
+        "isRated": true,
+        "questionIds": [
+          901,
+          902
+        ],
+        "isNewSession": false,
+        "id": 109
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 110,
+          "title": "Revision 10: Worst-case complexity",
+          "text": "What is the worst-case time complexity of binary search on sorted input?",
+          "points": 10.0,
+          "scoringType": "ALL_OR_NOTHING",
+          "randomizeOrder": false,
+          "invalid": false,
+          "type": "multiple-choice",
+          "explanation": "Each comparison halves the remaining interval.",
+          "answerOptions": [
+            {
+              "id": 1,
+              "text": "O(log n)",
+              "invalid": false,
+              "explanation": "The interval is halved at every step.",
+              "isCorrect": true
+            },
+            {
+              "id": 2,
+              "text": "O(n)",
+              "invalid": false,
+              "explanation": "This describes a linear scan.",
+              "isCorrect": false
+            },
+            {
+              "id": 3,
+              "text": "O(1)",
+              "invalid": false,
+              "explanation": "The number of comparisons increases with input size.",
+              "isCorrect": false
+            }
+          ],
+          "singleChoice": true
+        },
+        "isRated": true,
+        "questionIds": [
+          901,
+          902
+        ],
+        "isNewSession": false,
+        "id": 110
+      }
+    ]
+  },
+  "ratedPage2": {
+    "headers": {
+      "X-Has-Next": "true"
+    },
+    "body": [
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 111,
+          "title": "Revision 11: Read the evaluated blanks",
+          "text": "The sorted-input algorithm is [-spot 1]. Its worst-case number of comparisons is [-spot 2].",
+          "points": 10.0,
+          "scoringType": "PROPORTIONAL_WITHOUT_PENALTY",
+          "invalid": false,
+          "type": "short-answer",
+          "explanation": "Case-insensitive answers can be accepted. The published evaluation is authoritative.",
+          "spots": [
+            {
+              "id": 913,
+              "spotNr": 1,
+              "width": 18,
+              "invalid": false
+            },
+            {
+              "id": 914,
+              "spotNr": 2,
+              "width": 18,
+              "invalid": false
+            }
+          ],
+          "solutions": [
+            {
+              "id": 1001,
+              "text": "Binary Search",
+              "invalid": false
+            },
+            {
+              "id": 1002,
+              "text": "logarithmic",
+              "invalid": false
+            }
+          ],
+          "similarityValue": 85,
+          "matchLetterCase": false,
+          "correctMappings": [
+            {
+              "id": 2001,
+              "shortAnswerSpotIndex": 0,
+              "shortAnswerSolutionIndex": 0,
+              "invalid": false,
+              "solution": {
+                "id": 1001,
+                "text": "Binary Search",
+                "invalid": false
+              },
+              "spot": {
+                "id": 913,
+                "spotNr": 1,
+                "width": 18,
+                "invalid": false
+              }
+            },
+            {
+              "id": 2002,
+              "shortAnswerSpotIndex": 1,
+              "shortAnswerSolutionIndex": 1,
+              "invalid": false,
+              "solution": {
+                "id": 1002,
+                "text": "logarithmic",
+                "invalid": false
+              },
+              "spot": {
+                "id": 914,
+                "spotNr": 2,
+                "width": 18,
+                "invalid": false
+              }
+            }
+          ],
+          "randomizeOrder": false
+        },
+        "isRated": true,
+        "questionIds": [
+          901,
+          902
+        ],
+        "isNewSession": false,
+        "id": 111
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 112,
+          "title": "Revision 12: Alternative valid mappings",
+          "text": "Each callout accepts Alpha or Beta. Use each label once.",
+          "points": 10.0,
+          "scoringType": "ALL_OR_NOTHING",
+          "invalid": false,
+          "type": "drag-and-drop",
+          "explanation": "Both submitted labels are valid. A sample solution must use each item only once.",
+          "backgroundFilePath": "drag-and-drop/questions/12/backgrounds/results-alternatives.png",
+          "dropLocations": [
+            {
+              "id": 11,
+              "posX": 20.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            },
+            {
+              "id": 12,
+              "posX": 120.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            }
+          ],
+          "dragItems": [
+            {
+              "id": 21,
+              "text": "Alpha",
+              "invalid": false
+            },
+            {
+              "id": 22,
+              "text": "Beta",
+              "invalid": false
+            }
+          ],
+          "correctMappings": [
+            {
+              "id": 304,
+              "dragItemIndex": 1,
+              "dropLocationIndex": 1,
+              "invalid": false,
+              "dragItem": {
+                "id": 22,
+                "text": "Beta",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 12,
+                "posX": 120.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 301,
+              "dragItemIndex": 0,
+              "dropLocationIndex": 0,
+              "invalid": false,
+              "dragItem": {
+                "id": 21,
+                "text": "Alpha",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 11,
+                "posX": 20.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 302,
+              "dragItemIndex": 1,
+              "dropLocationIndex": 0,
+              "invalid": false,
+              "dragItem": {
+                "id": 22,
+                "text": "Beta",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 11,
+                "posX": 20.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 303,
+              "dragItemIndex": 0,
+              "dropLocationIndex": 1,
+              "invalid": false,
+              "dragItem": {
+                "id": 21,
+                "text": "Alpha",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 12,
+                "posX": 120.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            }
+          ],
+          "randomizeOrder": false
+        },
+        "isRated": true,
+        "questionIds": [
+          901,
+          902
+        ],
+        "isNewSession": false,
+        "id": 112
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 113,
+          "title": "Revision 13: Worst-case complexity",
+          "text": "What is the worst-case time complexity of binary search on sorted input?",
+          "points": 10.0,
+          "scoringType": "ALL_OR_NOTHING",
+          "randomizeOrder": false,
+          "invalid": false,
+          "type": "multiple-choice",
+          "explanation": "Each comparison halves the remaining interval.",
+          "answerOptions": [
+            {
+              "id": 1,
+              "text": "O(log n)",
+              "invalid": false,
+              "explanation": "The interval is halved at every step.",
+              "isCorrect": true
+            },
+            {
+              "id": 2,
+              "text": "O(n)",
+              "invalid": false,
+              "explanation": "This describes a linear scan.",
+              "isCorrect": false
+            },
+            {
+              "id": 3,
+              "text": "O(1)",
+              "invalid": false,
+              "explanation": "The number of comparisons increases with input size.",
+              "isCorrect": false
+            }
+          ],
+          "singleChoice": true
+        },
+        "isRated": true,
+        "questionIds": [
+          901,
+          902
+        ],
+        "isNewSession": false,
+        "id": 113
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 114,
+          "title": "Revision 14: Read the evaluated blanks",
+          "text": "The sorted-input algorithm is [-spot 1]. Its worst-case number of comparisons is [-spot 2].",
+          "points": 10.0,
+          "scoringType": "PROPORTIONAL_WITHOUT_PENALTY",
+          "invalid": false,
+          "type": "short-answer",
+          "explanation": "Case-insensitive answers can be accepted. The published evaluation is authoritative.",
+          "spots": [
+            {
+              "id": 913,
+              "spotNr": 1,
+              "width": 18,
+              "invalid": false
+            },
+            {
+              "id": 914,
+              "spotNr": 2,
+              "width": 18,
+              "invalid": false
+            }
+          ],
+          "solutions": [
+            {
+              "id": 1001,
+              "text": "Binary Search",
+              "invalid": false
+            },
+            {
+              "id": 1002,
+              "text": "logarithmic",
+              "invalid": false
+            }
+          ],
+          "similarityValue": 85,
+          "matchLetterCase": false,
+          "correctMappings": [
+            {
+              "id": 2001,
+              "shortAnswerSpotIndex": 0,
+              "shortAnswerSolutionIndex": 0,
+              "invalid": false,
+              "solution": {
+                "id": 1001,
+                "text": "Binary Search",
+                "invalid": false
+              },
+              "spot": {
+                "id": 913,
+                "spotNr": 1,
+                "width": 18,
+                "invalid": false
+              }
+            },
+            {
+              "id": 2002,
+              "shortAnswerSpotIndex": 1,
+              "shortAnswerSolutionIndex": 1,
+              "invalid": false,
+              "solution": {
+                "id": 1002,
+                "text": "logarithmic",
+                "invalid": false
+              },
+              "spot": {
+                "id": 914,
+                "spotNr": 2,
+                "width": 18,
+                "invalid": false
+              }
+            }
+          ],
+          "randomizeOrder": false
+        },
+        "isRated": true,
+        "questionIds": [
+          901,
+          902
+        ],
+        "isNewSession": false,
+        "id": 114
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 115,
+          "title": "Revision 15: Alternative valid mappings",
+          "text": "Each callout accepts Alpha or Beta. Use each label once.",
+          "points": 10.0,
+          "scoringType": "ALL_OR_NOTHING",
+          "invalid": false,
+          "type": "drag-and-drop",
+          "explanation": "Both submitted labels are valid. A sample solution must use each item only once.",
+          "backgroundFilePath": "drag-and-drop/questions/12/backgrounds/results-alternatives.png",
+          "dropLocations": [
+            {
+              "id": 11,
+              "posX": 20.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            },
+            {
+              "id": 12,
+              "posX": 120.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            }
+          ],
+          "dragItems": [
+            {
+              "id": 21,
+              "text": "Alpha",
+              "invalid": false
+            },
+            {
+              "id": 22,
+              "text": "Beta",
+              "invalid": false
+            }
+          ],
+          "correctMappings": [
+            {
+              "id": 304,
+              "dragItemIndex": 1,
+              "dropLocationIndex": 1,
+              "invalid": false,
+              "dragItem": {
+                "id": 22,
+                "text": "Beta",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 12,
+                "posX": 120.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 301,
+              "dragItemIndex": 0,
+              "dropLocationIndex": 0,
+              "invalid": false,
+              "dragItem": {
+                "id": 21,
+                "text": "Alpha",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 11,
+                "posX": 20.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 302,
+              "dragItemIndex": 1,
+              "dropLocationIndex": 0,
+              "invalid": false,
+              "dragItem": {
+                "id": 22,
+                "text": "Beta",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 11,
+                "posX": 20.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 303,
+              "dragItemIndex": 0,
+              "dropLocationIndex": 1,
+              "invalid": false,
+              "dragItem": {
+                "id": 21,
+                "text": "Alpha",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 12,
+                "posX": 120.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            }
+          ],
+          "randomizeOrder": false
+        },
+        "isRated": true,
+        "questionIds": [
+          901,
+          902
+        ],
+        "isNewSession": false,
+        "id": 115
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 116,
+          "title": "Revision 16: Worst-case complexity",
+          "text": "What is the worst-case time complexity of binary search on sorted input?",
+          "points": 10.0,
+          "scoringType": "ALL_OR_NOTHING",
+          "randomizeOrder": false,
+          "invalid": false,
+          "type": "multiple-choice",
+          "explanation": "Each comparison halves the remaining interval.",
+          "answerOptions": [
+            {
+              "id": 1,
+              "text": "O(log n)",
+              "invalid": false,
+              "explanation": "The interval is halved at every step.",
+              "isCorrect": true
+            },
+            {
+              "id": 2,
+              "text": "O(n)",
+              "invalid": false,
+              "explanation": "This describes a linear scan.",
+              "isCorrect": false
+            },
+            {
+              "id": 3,
+              "text": "O(1)",
+              "invalid": false,
+              "explanation": "The number of comparisons increases with input size.",
+              "isCorrect": false
+            }
+          ],
+          "singleChoice": true
+        },
+        "isRated": true,
+        "questionIds": [
+          901,
+          902
+        ],
+        "isNewSession": false,
+        "id": 116
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 117,
+          "title": "Revision 17: Read the evaluated blanks",
+          "text": "The sorted-input algorithm is [-spot 1]. Its worst-case number of comparisons is [-spot 2].",
+          "points": 10.0,
+          "scoringType": "PROPORTIONAL_WITHOUT_PENALTY",
+          "invalid": false,
+          "type": "short-answer",
+          "explanation": "Case-insensitive answers can be accepted. The published evaluation is authoritative.",
+          "spots": [
+            {
+              "id": 913,
+              "spotNr": 1,
+              "width": 18,
+              "invalid": false
+            },
+            {
+              "id": 914,
+              "spotNr": 2,
+              "width": 18,
+              "invalid": false
+            }
+          ],
+          "solutions": [
+            {
+              "id": 1001,
+              "text": "Binary Search",
+              "invalid": false
+            },
+            {
+              "id": 1002,
+              "text": "logarithmic",
+              "invalid": false
+            }
+          ],
+          "similarityValue": 85,
+          "matchLetterCase": false,
+          "correctMappings": [
+            {
+              "id": 2001,
+              "shortAnswerSpotIndex": 0,
+              "shortAnswerSolutionIndex": 0,
+              "invalid": false,
+              "solution": {
+                "id": 1001,
+                "text": "Binary Search",
+                "invalid": false
+              },
+              "spot": {
+                "id": 913,
+                "spotNr": 1,
+                "width": 18,
+                "invalid": false
+              }
+            },
+            {
+              "id": 2002,
+              "shortAnswerSpotIndex": 1,
+              "shortAnswerSolutionIndex": 1,
+              "invalid": false,
+              "solution": {
+                "id": 1002,
+                "text": "logarithmic",
+                "invalid": false
+              },
+              "spot": {
+                "id": 914,
+                "spotNr": 2,
+                "width": 18,
+                "invalid": false
+              }
+            }
+          ],
+          "randomizeOrder": false
+        },
+        "isRated": true,
+        "questionIds": [
+          901,
+          902
+        ],
+        "isNewSession": false,
+        "id": 117
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 118,
+          "title": "Revision 18: Alternative valid mappings",
+          "text": "Each callout accepts Alpha or Beta. Use each label once.",
+          "points": 10.0,
+          "scoringType": "ALL_OR_NOTHING",
+          "invalid": false,
+          "type": "drag-and-drop",
+          "explanation": "Both submitted labels are valid. A sample solution must use each item only once.",
+          "backgroundFilePath": "drag-and-drop/questions/12/backgrounds/results-alternatives.png",
+          "dropLocations": [
+            {
+              "id": 11,
+              "posX": 20.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            },
+            {
+              "id": 12,
+              "posX": 120.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            }
+          ],
+          "dragItems": [
+            {
+              "id": 21,
+              "text": "Alpha",
+              "invalid": false
+            },
+            {
+              "id": 22,
+              "text": "Beta",
+              "invalid": false
+            }
+          ],
+          "correctMappings": [
+            {
+              "id": 304,
+              "dragItemIndex": 1,
+              "dropLocationIndex": 1,
+              "invalid": false,
+              "dragItem": {
+                "id": 22,
+                "text": "Beta",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 12,
+                "posX": 120.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 301,
+              "dragItemIndex": 0,
+              "dropLocationIndex": 0,
+              "invalid": false,
+              "dragItem": {
+                "id": 21,
+                "text": "Alpha",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 11,
+                "posX": 20.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 302,
+              "dragItemIndex": 1,
+              "dropLocationIndex": 0,
+              "invalid": false,
+              "dragItem": {
+                "id": 22,
+                "text": "Beta",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 11,
+                "posX": 20.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 303,
+              "dragItemIndex": 0,
+              "dropLocationIndex": 1,
+              "invalid": false,
+              "dragItem": {
+                "id": 21,
+                "text": "Alpha",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 12,
+                "posX": 120.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            }
+          ],
+          "randomizeOrder": false
+        },
+        "isRated": true,
+        "questionIds": [
+          901,
+          902
+        ],
+        "isNewSession": false,
+        "id": 118
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 119,
+          "title": "Revision 19: Worst-case complexity",
+          "text": "What is the worst-case time complexity of binary search on sorted input?",
+          "points": 10.0,
+          "scoringType": "ALL_OR_NOTHING",
+          "randomizeOrder": false,
+          "invalid": false,
+          "type": "multiple-choice",
+          "explanation": "Each comparison halves the remaining interval.",
+          "answerOptions": [
+            {
+              "id": 1,
+              "text": "O(log n)",
+              "invalid": false,
+              "explanation": "The interval is halved at every step.",
+              "isCorrect": true
+            },
+            {
+              "id": 2,
+              "text": "O(n)",
+              "invalid": false,
+              "explanation": "This describes a linear scan.",
+              "isCorrect": false
+            },
+            {
+              "id": 3,
+              "text": "O(1)",
+              "invalid": false,
+              "explanation": "The number of comparisons increases with input size.",
+              "isCorrect": false
+            }
+          ],
+          "singleChoice": true
+        },
+        "isRated": true,
+        "questionIds": [
+          901,
+          902
+        ],
+        "isNewSession": false,
+        "id": 119
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 120,
+          "title": "Revision 20: Read the evaluated blanks",
+          "text": "The sorted-input algorithm is [-spot 1]. Its worst-case number of comparisons is [-spot 2].",
+          "points": 10.0,
+          "scoringType": "PROPORTIONAL_WITHOUT_PENALTY",
+          "invalid": false,
+          "type": "short-answer",
+          "explanation": "Case-insensitive answers can be accepted. The published evaluation is authoritative.",
+          "spots": [
+            {
+              "id": 913,
+              "spotNr": 1,
+              "width": 18,
+              "invalid": false
+            },
+            {
+              "id": 914,
+              "spotNr": 2,
+              "width": 18,
+              "invalid": false
+            }
+          ],
+          "solutions": [
+            {
+              "id": 1001,
+              "text": "Binary Search",
+              "invalid": false
+            },
+            {
+              "id": 1002,
+              "text": "logarithmic",
+              "invalid": false
+            }
+          ],
+          "similarityValue": 85,
+          "matchLetterCase": false,
+          "correctMappings": [
+            {
+              "id": 2001,
+              "shortAnswerSpotIndex": 0,
+              "shortAnswerSolutionIndex": 0,
+              "invalid": false,
+              "solution": {
+                "id": 1001,
+                "text": "Binary Search",
+                "invalid": false
+              },
+              "spot": {
+                "id": 913,
+                "spotNr": 1,
+                "width": 18,
+                "invalid": false
+              }
+            },
+            {
+              "id": 2002,
+              "shortAnswerSpotIndex": 1,
+              "shortAnswerSolutionIndex": 1,
+              "invalid": false,
+              "solution": {
+                "id": 1002,
+                "text": "logarithmic",
+                "invalid": false
+              },
+              "spot": {
+                "id": 914,
+                "spotNr": 2,
+                "width": 18,
+                "invalid": false
+              }
+            }
+          ],
+          "randomizeOrder": false
+        },
+        "isRated": true,
+        "questionIds": [
+          901,
+          902
+        ],
+        "isNewSession": false,
+        "id": 120
+      }
+    ]
+  },
+  "ratedFinalPage": {
+    "headers": {
+      "X-Has-Next": "false"
+    },
+    "body": [
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 121,
+          "title": "Revision 21: Alternative valid mappings",
+          "text": "Each callout accepts Alpha or Beta. Use each label once.",
+          "points": 10.0,
+          "scoringType": "ALL_OR_NOTHING",
+          "invalid": false,
+          "type": "drag-and-drop",
+          "explanation": "Both submitted labels are valid. A sample solution must use each item only once.",
+          "backgroundFilePath": "drag-and-drop/questions/12/backgrounds/results-alternatives.png",
+          "dropLocations": [
+            {
+              "id": 11,
+              "posX": 20.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            },
+            {
+              "id": 12,
+              "posX": 120.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            }
+          ],
+          "dragItems": [
+            {
+              "id": 21,
+              "text": "Alpha",
+              "invalid": false
+            },
+            {
+              "id": 22,
+              "text": "Beta",
+              "invalid": false
+            }
+          ],
+          "correctMappings": [
+            {
+              "id": 304,
+              "dragItemIndex": 1,
+              "dropLocationIndex": 1,
+              "invalid": false,
+              "dragItem": {
+                "id": 22,
+                "text": "Beta",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 12,
+                "posX": 120.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 301,
+              "dragItemIndex": 0,
+              "dropLocationIndex": 0,
+              "invalid": false,
+              "dragItem": {
+                "id": 21,
+                "text": "Alpha",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 11,
+                "posX": 20.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 302,
+              "dragItemIndex": 1,
+              "dropLocationIndex": 0,
+              "invalid": false,
+              "dragItem": {
+                "id": 22,
+                "text": "Beta",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 11,
+                "posX": 20.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 303,
+              "dragItemIndex": 0,
+              "dropLocationIndex": 1,
+              "invalid": false,
+              "dragItem": {
+                "id": 21,
+                "text": "Alpha",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 12,
+                "posX": 120.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            }
+          ],
+          "randomizeOrder": false
+        },
+        "isRated": true,
+        "questionIds": [
+          901,
+          902
+        ],
+        "isNewSession": false,
+        "id": 121
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 122,
+          "title": "Revision 22: Worst-case complexity",
+          "text": "What is the worst-case time complexity of binary search on sorted input?",
+          "points": 10.0,
+          "scoringType": "ALL_OR_NOTHING",
+          "randomizeOrder": false,
+          "invalid": false,
+          "type": "multiple-choice",
+          "explanation": "Each comparison halves the remaining interval.",
+          "answerOptions": [
+            {
+              "id": 1,
+              "text": "O(log n)",
+              "invalid": false,
+              "explanation": "The interval is halved at every step.",
+              "isCorrect": true
+            },
+            {
+              "id": 2,
+              "text": "O(n)",
+              "invalid": false,
+              "explanation": "This describes a linear scan.",
+              "isCorrect": false
+            },
+            {
+              "id": 3,
+              "text": "O(1)",
+              "invalid": false,
+              "explanation": "The number of comparisons increases with input size.",
+              "isCorrect": false
+            }
+          ],
+          "singleChoice": true
+        },
+        "isRated": true,
+        "questionIds": [
+          901,
+          902
+        ],
+        "isNewSession": false,
+        "id": 122
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 123,
+          "title": "Revision 23: Read the evaluated blanks",
+          "text": "The sorted-input algorithm is [-spot 1]. Its worst-case number of comparisons is [-spot 2].",
+          "points": 10.0,
+          "scoringType": "PROPORTIONAL_WITHOUT_PENALTY",
+          "invalid": false,
+          "type": "short-answer",
+          "explanation": "Case-insensitive answers can be accepted. The published evaluation is authoritative.",
+          "spots": [
+            {
+              "id": 913,
+              "spotNr": 1,
+              "width": 18,
+              "invalid": false
+            },
+            {
+              "id": 914,
+              "spotNr": 2,
+              "width": 18,
+              "invalid": false
+            }
+          ],
+          "solutions": [
+            {
+              "id": 1001,
+              "text": "Binary Search",
+              "invalid": false
+            },
+            {
+              "id": 1002,
+              "text": "logarithmic",
+              "invalid": false
+            }
+          ],
+          "similarityValue": 85,
+          "matchLetterCase": false,
+          "correctMappings": [
+            {
+              "id": 2001,
+              "shortAnswerSpotIndex": 0,
+              "shortAnswerSolutionIndex": 0,
+              "invalid": false,
+              "solution": {
+                "id": 1001,
+                "text": "Binary Search",
+                "invalid": false
+              },
+              "spot": {
+                "id": 913,
+                "spotNr": 1,
+                "width": 18,
+                "invalid": false
+              }
+            },
+            {
+              "id": 2002,
+              "shortAnswerSpotIndex": 1,
+              "shortAnswerSolutionIndex": 1,
+              "invalid": false,
+              "solution": {
+                "id": 1002,
+                "text": "logarithmic",
+                "invalid": false
+              },
+              "spot": {
+                "id": 914,
+                "spotNr": 2,
+                "width": 18,
+                "invalid": false
+              }
+            }
+          ],
+          "randomizeOrder": false
+        },
+        "isRated": true,
+        "questionIds": [
+          901,
+          902
+        ],
+        "isNewSession": false,
+        "id": 123
+      }
+    ]
+  },
+  "legacyUnratedPage1": {
+    "headers": {
+      "X-Has-Next": "true"
+    },
+    "body": [
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 101,
+          "title": "Revision 1: Worst-case complexity",
+          "text": "What is the worst-case time complexity of binary search on sorted input?",
+          "points": 10.0,
+          "scoringType": "ALL_OR_NOTHING",
+          "randomizeOrder": false,
+          "invalid": false,
+          "type": "multiple-choice",
+          "explanation": "Each comparison halves the remaining interval.",
+          "answerOptions": [
+            {
+              "id": 1,
+              "text": "O(log n)",
+              "invalid": false,
+              "explanation": "The interval is halved at every step.",
+              "isCorrect": true
+            },
+            {
+              "id": 2,
+              "text": "O(n)",
+              "invalid": false,
+              "explanation": "This describes a linear scan.",
+              "isCorrect": false
+            },
+            {
+              "id": 3,
+              "text": "O(1)",
+              "invalid": false,
+              "explanation": "The number of comparisons increases with input size.",
+              "isCorrect": false
+            }
+          ],
+          "singleChoice": true
+        },
+        "isRated": false,
+        "questionIds": null,
+        "isNewSession": false,
+        "id": 101
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 102,
+          "title": "Revision 2: Read the evaluated blanks",
+          "text": "The sorted-input algorithm is [-spot 1]. Its worst-case number of comparisons is [-spot 2].",
+          "points": 10.0,
+          "scoringType": "PROPORTIONAL_WITHOUT_PENALTY",
+          "invalid": false,
+          "type": "short-answer",
+          "explanation": "Case-insensitive answers can be accepted. The published evaluation is authoritative.",
+          "spots": [
+            {
+              "id": 913,
+              "spotNr": 1,
+              "width": 18,
+              "invalid": false
+            },
+            {
+              "id": 914,
+              "spotNr": 2,
+              "width": 18,
+              "invalid": false
+            }
+          ],
+          "solutions": [
+            {
+              "id": 1001,
+              "text": "Binary Search",
+              "invalid": false
+            },
+            {
+              "id": 1002,
+              "text": "logarithmic",
+              "invalid": false
+            }
+          ],
+          "similarityValue": 85,
+          "matchLetterCase": false,
+          "correctMappings": [
+            {
+              "id": 2001,
+              "shortAnswerSpotIndex": 0,
+              "shortAnswerSolutionIndex": 0,
+              "invalid": false,
+              "solution": {
+                "id": 1001,
+                "text": "Binary Search",
+                "invalid": false
+              },
+              "spot": {
+                "id": 913,
+                "spotNr": 1,
+                "width": 18,
+                "invalid": false
+              }
+            },
+            {
+              "id": 2002,
+              "shortAnswerSpotIndex": 1,
+              "shortAnswerSolutionIndex": 1,
+              "invalid": false,
+              "solution": {
+                "id": 1002,
+                "text": "logarithmic",
+                "invalid": false
+              },
+              "spot": {
+                "id": 914,
+                "spotNr": 2,
+                "width": 18,
+                "invalid": false
+              }
+            }
+          ],
+          "randomizeOrder": false
+        },
+        "isRated": false,
+        "questionIds": null,
+        "isNewSession": false,
+        "id": 102
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 103,
+          "title": "Revision 3: Alternative valid mappings",
+          "text": "Each callout accepts Alpha or Beta. Use each label once.",
+          "points": 10.0,
+          "scoringType": "ALL_OR_NOTHING",
+          "invalid": false,
+          "type": "drag-and-drop",
+          "explanation": "Both submitted labels are valid. A sample solution must use each item only once.",
+          "backgroundFilePath": "drag-and-drop/questions/12/backgrounds/results-alternatives.png",
+          "dropLocations": [
+            {
+              "id": 11,
+              "posX": 20.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            },
+            {
+              "id": 12,
+              "posX": 120.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            }
+          ],
+          "dragItems": [
+            {
+              "id": 21,
+              "text": "Alpha",
+              "invalid": false
+            },
+            {
+              "id": 22,
+              "text": "Beta",
+              "invalid": false
+            }
+          ],
+          "correctMappings": [
+            {
+              "id": 304,
+              "dragItemIndex": 1,
+              "dropLocationIndex": 1,
+              "invalid": false,
+              "dragItem": {
+                "id": 22,
+                "text": "Beta",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 12,
+                "posX": 120.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 301,
+              "dragItemIndex": 0,
+              "dropLocationIndex": 0,
+              "invalid": false,
+              "dragItem": {
+                "id": 21,
+                "text": "Alpha",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 11,
+                "posX": 20.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 302,
+              "dragItemIndex": 1,
+              "dropLocationIndex": 0,
+              "invalid": false,
+              "dragItem": {
+                "id": 22,
+                "text": "Beta",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 11,
+                "posX": 20.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 303,
+              "dragItemIndex": 0,
+              "dropLocationIndex": 1,
+              "invalid": false,
+              "dragItem": {
+                "id": 21,
+                "text": "Alpha",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 12,
+                "posX": 120.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            }
+          ],
+          "randomizeOrder": false
+        },
+        "isRated": false,
+        "questionIds": null,
+        "isNewSession": false,
+        "id": 103
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 104,
+          "title": "Revision 4: Worst-case complexity",
+          "text": "What is the worst-case time complexity of binary search on sorted input?",
+          "points": 10.0,
+          "scoringType": "ALL_OR_NOTHING",
+          "randomizeOrder": false,
+          "invalid": false,
+          "type": "multiple-choice",
+          "explanation": "Each comparison halves the remaining interval.",
+          "answerOptions": [
+            {
+              "id": 1,
+              "text": "O(log n)",
+              "invalid": false,
+              "explanation": "The interval is halved at every step.",
+              "isCorrect": true
+            },
+            {
+              "id": 2,
+              "text": "O(n)",
+              "invalid": false,
+              "explanation": "This describes a linear scan.",
+              "isCorrect": false
+            },
+            {
+              "id": 3,
+              "text": "O(1)",
+              "invalid": false,
+              "explanation": "The number of comparisons increases with input size.",
+              "isCorrect": false
+            }
+          ],
+          "singleChoice": true
+        },
+        "isRated": false,
+        "questionIds": null,
+        "isNewSession": false,
+        "id": 104
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 105,
+          "title": "Revision 5: Read the evaluated blanks",
+          "text": "The sorted-input algorithm is [-spot 1]. Its worst-case number of comparisons is [-spot 2].",
+          "points": 10.0,
+          "scoringType": "PROPORTIONAL_WITHOUT_PENALTY",
+          "invalid": false,
+          "type": "short-answer",
+          "explanation": "Case-insensitive answers can be accepted. The published evaluation is authoritative.",
+          "spots": [
+            {
+              "id": 913,
+              "spotNr": 1,
+              "width": 18,
+              "invalid": false
+            },
+            {
+              "id": 914,
+              "spotNr": 2,
+              "width": 18,
+              "invalid": false
+            }
+          ],
+          "solutions": [
+            {
+              "id": 1001,
+              "text": "Binary Search",
+              "invalid": false
+            },
+            {
+              "id": 1002,
+              "text": "logarithmic",
+              "invalid": false
+            }
+          ],
+          "similarityValue": 85,
+          "matchLetterCase": false,
+          "correctMappings": [
+            {
+              "id": 2001,
+              "shortAnswerSpotIndex": 0,
+              "shortAnswerSolutionIndex": 0,
+              "invalid": false,
+              "solution": {
+                "id": 1001,
+                "text": "Binary Search",
+                "invalid": false
+              },
+              "spot": {
+                "id": 913,
+                "spotNr": 1,
+                "width": 18,
+                "invalid": false
+              }
+            },
+            {
+              "id": 2002,
+              "shortAnswerSpotIndex": 1,
+              "shortAnswerSolutionIndex": 1,
+              "invalid": false,
+              "solution": {
+                "id": 1002,
+                "text": "logarithmic",
+                "invalid": false
+              },
+              "spot": {
+                "id": 914,
+                "spotNr": 2,
+                "width": 18,
+                "invalid": false
+              }
+            }
+          ],
+          "randomizeOrder": false
+        },
+        "isRated": false,
+        "questionIds": null,
+        "isNewSession": false,
+        "id": 105
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 106,
+          "title": "Revision 6: Alternative valid mappings",
+          "text": "Each callout accepts Alpha or Beta. Use each label once.",
+          "points": 10.0,
+          "scoringType": "ALL_OR_NOTHING",
+          "invalid": false,
+          "type": "drag-and-drop",
+          "explanation": "Both submitted labels are valid. A sample solution must use each item only once.",
+          "backgroundFilePath": "drag-and-drop/questions/12/backgrounds/results-alternatives.png",
+          "dropLocations": [
+            {
+              "id": 11,
+              "posX": 20.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            },
+            {
+              "id": 12,
+              "posX": 120.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            }
+          ],
+          "dragItems": [
+            {
+              "id": 21,
+              "text": "Alpha",
+              "invalid": false
+            },
+            {
+              "id": 22,
+              "text": "Beta",
+              "invalid": false
+            }
+          ],
+          "correctMappings": [
+            {
+              "id": 304,
+              "dragItemIndex": 1,
+              "dropLocationIndex": 1,
+              "invalid": false,
+              "dragItem": {
+                "id": 22,
+                "text": "Beta",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 12,
+                "posX": 120.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 301,
+              "dragItemIndex": 0,
+              "dropLocationIndex": 0,
+              "invalid": false,
+              "dragItem": {
+                "id": 21,
+                "text": "Alpha",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 11,
+                "posX": 20.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 302,
+              "dragItemIndex": 1,
+              "dropLocationIndex": 0,
+              "invalid": false,
+              "dragItem": {
+                "id": 22,
+                "text": "Beta",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 11,
+                "posX": 20.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 303,
+              "dragItemIndex": 0,
+              "dropLocationIndex": 1,
+              "invalid": false,
+              "dragItem": {
+                "id": 21,
+                "text": "Alpha",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 12,
+                "posX": 120.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            }
+          ],
+          "randomizeOrder": false
+        },
+        "isRated": false,
+        "questionIds": null,
+        "isNewSession": false,
+        "id": 106
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 107,
+          "title": "Revision 7: Worst-case complexity",
+          "text": "What is the worst-case time complexity of binary search on sorted input?",
+          "points": 10.0,
+          "scoringType": "ALL_OR_NOTHING",
+          "randomizeOrder": false,
+          "invalid": false,
+          "type": "multiple-choice",
+          "explanation": "Each comparison halves the remaining interval.",
+          "answerOptions": [
+            {
+              "id": 1,
+              "text": "O(log n)",
+              "invalid": false,
+              "explanation": "The interval is halved at every step.",
+              "isCorrect": true
+            },
+            {
+              "id": 2,
+              "text": "O(n)",
+              "invalid": false,
+              "explanation": "This describes a linear scan.",
+              "isCorrect": false
+            },
+            {
+              "id": 3,
+              "text": "O(1)",
+              "invalid": false,
+              "explanation": "The number of comparisons increases with input size.",
+              "isCorrect": false
+            }
+          ],
+          "singleChoice": true
+        },
+        "isRated": false,
+        "questionIds": null,
+        "isNewSession": false,
+        "id": 107
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 108,
+          "title": "Revision 8: Read the evaluated blanks",
+          "text": "The sorted-input algorithm is [-spot 1]. Its worst-case number of comparisons is [-spot 2].",
+          "points": 10.0,
+          "scoringType": "PROPORTIONAL_WITHOUT_PENALTY",
+          "invalid": false,
+          "type": "short-answer",
+          "explanation": "Case-insensitive answers can be accepted. The published evaluation is authoritative.",
+          "spots": [
+            {
+              "id": 913,
+              "spotNr": 1,
+              "width": 18,
+              "invalid": false
+            },
+            {
+              "id": 914,
+              "spotNr": 2,
+              "width": 18,
+              "invalid": false
+            }
+          ],
+          "solutions": [
+            {
+              "id": 1001,
+              "text": "Binary Search",
+              "invalid": false
+            },
+            {
+              "id": 1002,
+              "text": "logarithmic",
+              "invalid": false
+            }
+          ],
+          "similarityValue": 85,
+          "matchLetterCase": false,
+          "correctMappings": [
+            {
+              "id": 2001,
+              "shortAnswerSpotIndex": 0,
+              "shortAnswerSolutionIndex": 0,
+              "invalid": false,
+              "solution": {
+                "id": 1001,
+                "text": "Binary Search",
+                "invalid": false
+              },
+              "spot": {
+                "id": 913,
+                "spotNr": 1,
+                "width": 18,
+                "invalid": false
+              }
+            },
+            {
+              "id": 2002,
+              "shortAnswerSpotIndex": 1,
+              "shortAnswerSolutionIndex": 1,
+              "invalid": false,
+              "solution": {
+                "id": 1002,
+                "text": "logarithmic",
+                "invalid": false
+              },
+              "spot": {
+                "id": 914,
+                "spotNr": 2,
+                "width": 18,
+                "invalid": false
+              }
+            }
+          ],
+          "randomizeOrder": false
+        },
+        "isRated": false,
+        "questionIds": null,
+        "isNewSession": false,
+        "id": 108
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 109,
+          "title": "Revision 9: Alternative valid mappings",
+          "text": "Each callout accepts Alpha or Beta. Use each label once.",
+          "points": 10.0,
+          "scoringType": "ALL_OR_NOTHING",
+          "invalid": false,
+          "type": "drag-and-drop",
+          "explanation": "Both submitted labels are valid. A sample solution must use each item only once.",
+          "backgroundFilePath": "drag-and-drop/questions/12/backgrounds/results-alternatives.png",
+          "dropLocations": [
+            {
+              "id": 11,
+              "posX": 20.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            },
+            {
+              "id": 12,
+              "posX": 120.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            }
+          ],
+          "dragItems": [
+            {
+              "id": 21,
+              "text": "Alpha",
+              "invalid": false
+            },
+            {
+              "id": 22,
+              "text": "Beta",
+              "invalid": false
+            }
+          ],
+          "correctMappings": [
+            {
+              "id": 304,
+              "dragItemIndex": 1,
+              "dropLocationIndex": 1,
+              "invalid": false,
+              "dragItem": {
+                "id": 22,
+                "text": "Beta",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 12,
+                "posX": 120.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 301,
+              "dragItemIndex": 0,
+              "dropLocationIndex": 0,
+              "invalid": false,
+              "dragItem": {
+                "id": 21,
+                "text": "Alpha",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 11,
+                "posX": 20.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 302,
+              "dragItemIndex": 1,
+              "dropLocationIndex": 0,
+              "invalid": false,
+              "dragItem": {
+                "id": 22,
+                "text": "Beta",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 11,
+                "posX": 20.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 303,
+              "dragItemIndex": 0,
+              "dropLocationIndex": 1,
+              "invalid": false,
+              "dragItem": {
+                "id": 21,
+                "text": "Alpha",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 12,
+                "posX": 120.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            }
+          ],
+          "randomizeOrder": false
+        },
+        "isRated": false,
+        "questionIds": null,
+        "isNewSession": false,
+        "id": 109
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 110,
+          "title": "Revision 10: Worst-case complexity",
+          "text": "What is the worst-case time complexity of binary search on sorted input?",
+          "points": 10.0,
+          "scoringType": "ALL_OR_NOTHING",
+          "randomizeOrder": false,
+          "invalid": false,
+          "type": "multiple-choice",
+          "explanation": "Each comparison halves the remaining interval.",
+          "answerOptions": [
+            {
+              "id": 1,
+              "text": "O(log n)",
+              "invalid": false,
+              "explanation": "The interval is halved at every step.",
+              "isCorrect": true
+            },
+            {
+              "id": 2,
+              "text": "O(n)",
+              "invalid": false,
+              "explanation": "This describes a linear scan.",
+              "isCorrect": false
+            },
+            {
+              "id": 3,
+              "text": "O(1)",
+              "invalid": false,
+              "explanation": "The number of comparisons increases with input size.",
+              "isCorrect": false
+            }
+          ],
+          "singleChoice": true
+        },
+        "isRated": false,
+        "questionIds": null,
+        "isNewSession": false,
+        "id": 110
+      }
+    ]
+  },
+  "legacyUnratedPage2": {
+    "headers": {
+      "X-Has-Next": "true"
+    },
+    "body": [
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 111,
+          "title": "Revision 11: Read the evaluated blanks",
+          "text": "The sorted-input algorithm is [-spot 1]. Its worst-case number of comparisons is [-spot 2].",
+          "points": 10.0,
+          "scoringType": "PROPORTIONAL_WITHOUT_PENALTY",
+          "invalid": false,
+          "type": "short-answer",
+          "explanation": "Case-insensitive answers can be accepted. The published evaluation is authoritative.",
+          "spots": [
+            {
+              "id": 913,
+              "spotNr": 1,
+              "width": 18,
+              "invalid": false
+            },
+            {
+              "id": 914,
+              "spotNr": 2,
+              "width": 18,
+              "invalid": false
+            }
+          ],
+          "solutions": [
+            {
+              "id": 1001,
+              "text": "Binary Search",
+              "invalid": false
+            },
+            {
+              "id": 1002,
+              "text": "logarithmic",
+              "invalid": false
+            }
+          ],
+          "similarityValue": 85,
+          "matchLetterCase": false,
+          "correctMappings": [
+            {
+              "id": 2001,
+              "shortAnswerSpotIndex": 0,
+              "shortAnswerSolutionIndex": 0,
+              "invalid": false,
+              "solution": {
+                "id": 1001,
+                "text": "Binary Search",
+                "invalid": false
+              },
+              "spot": {
+                "id": 913,
+                "spotNr": 1,
+                "width": 18,
+                "invalid": false
+              }
+            },
+            {
+              "id": 2002,
+              "shortAnswerSpotIndex": 1,
+              "shortAnswerSolutionIndex": 1,
+              "invalid": false,
+              "solution": {
+                "id": 1002,
+                "text": "logarithmic",
+                "invalid": false
+              },
+              "spot": {
+                "id": 914,
+                "spotNr": 2,
+                "width": 18,
+                "invalid": false
+              }
+            }
+          ],
+          "randomizeOrder": false
+        },
+        "isRated": false,
+        "questionIds": null,
+        "isNewSession": false,
+        "id": 111
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 112,
+          "title": "Revision 12: Alternative valid mappings",
+          "text": "Each callout accepts Alpha or Beta. Use each label once.",
+          "points": 10.0,
+          "scoringType": "ALL_OR_NOTHING",
+          "invalid": false,
+          "type": "drag-and-drop",
+          "explanation": "Both submitted labels are valid. A sample solution must use each item only once.",
+          "backgroundFilePath": "drag-and-drop/questions/12/backgrounds/results-alternatives.png",
+          "dropLocations": [
+            {
+              "id": 11,
+              "posX": 20.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            },
+            {
+              "id": 12,
+              "posX": 120.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            }
+          ],
+          "dragItems": [
+            {
+              "id": 21,
+              "text": "Alpha",
+              "invalid": false
+            },
+            {
+              "id": 22,
+              "text": "Beta",
+              "invalid": false
+            }
+          ],
+          "correctMappings": [
+            {
+              "id": 304,
+              "dragItemIndex": 1,
+              "dropLocationIndex": 1,
+              "invalid": false,
+              "dragItem": {
+                "id": 22,
+                "text": "Beta",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 12,
+                "posX": 120.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 301,
+              "dragItemIndex": 0,
+              "dropLocationIndex": 0,
+              "invalid": false,
+              "dragItem": {
+                "id": 21,
+                "text": "Alpha",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 11,
+                "posX": 20.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 302,
+              "dragItemIndex": 1,
+              "dropLocationIndex": 0,
+              "invalid": false,
+              "dragItem": {
+                "id": 22,
+                "text": "Beta",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 11,
+                "posX": 20.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 303,
+              "dragItemIndex": 0,
+              "dropLocationIndex": 1,
+              "invalid": false,
+              "dragItem": {
+                "id": 21,
+                "text": "Alpha",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 12,
+                "posX": 120.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            }
+          ],
+          "randomizeOrder": false
+        },
+        "isRated": false,
+        "questionIds": null,
+        "isNewSession": false,
+        "id": 112
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 113,
+          "title": "Revision 13: Worst-case complexity",
+          "text": "What is the worst-case time complexity of binary search on sorted input?",
+          "points": 10.0,
+          "scoringType": "ALL_OR_NOTHING",
+          "randomizeOrder": false,
+          "invalid": false,
+          "type": "multiple-choice",
+          "explanation": "Each comparison halves the remaining interval.",
+          "answerOptions": [
+            {
+              "id": 1,
+              "text": "O(log n)",
+              "invalid": false,
+              "explanation": "The interval is halved at every step.",
+              "isCorrect": true
+            },
+            {
+              "id": 2,
+              "text": "O(n)",
+              "invalid": false,
+              "explanation": "This describes a linear scan.",
+              "isCorrect": false
+            },
+            {
+              "id": 3,
+              "text": "O(1)",
+              "invalid": false,
+              "explanation": "The number of comparisons increases with input size.",
+              "isCorrect": false
+            }
+          ],
+          "singleChoice": true
+        },
+        "isRated": false,
+        "questionIds": null,
+        "isNewSession": false,
+        "id": 113
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 114,
+          "title": "Revision 14: Read the evaluated blanks",
+          "text": "The sorted-input algorithm is [-spot 1]. Its worst-case number of comparisons is [-spot 2].",
+          "points": 10.0,
+          "scoringType": "PROPORTIONAL_WITHOUT_PENALTY",
+          "invalid": false,
+          "type": "short-answer",
+          "explanation": "Case-insensitive answers can be accepted. The published evaluation is authoritative.",
+          "spots": [
+            {
+              "id": 913,
+              "spotNr": 1,
+              "width": 18,
+              "invalid": false
+            },
+            {
+              "id": 914,
+              "spotNr": 2,
+              "width": 18,
+              "invalid": false
+            }
+          ],
+          "solutions": [
+            {
+              "id": 1001,
+              "text": "Binary Search",
+              "invalid": false
+            },
+            {
+              "id": 1002,
+              "text": "logarithmic",
+              "invalid": false
+            }
+          ],
+          "similarityValue": 85,
+          "matchLetterCase": false,
+          "correctMappings": [
+            {
+              "id": 2001,
+              "shortAnswerSpotIndex": 0,
+              "shortAnswerSolutionIndex": 0,
+              "invalid": false,
+              "solution": {
+                "id": 1001,
+                "text": "Binary Search",
+                "invalid": false
+              },
+              "spot": {
+                "id": 913,
+                "spotNr": 1,
+                "width": 18,
+                "invalid": false
+              }
+            },
+            {
+              "id": 2002,
+              "shortAnswerSpotIndex": 1,
+              "shortAnswerSolutionIndex": 1,
+              "invalid": false,
+              "solution": {
+                "id": 1002,
+                "text": "logarithmic",
+                "invalid": false
+              },
+              "spot": {
+                "id": 914,
+                "spotNr": 2,
+                "width": 18,
+                "invalid": false
+              }
+            }
+          ],
+          "randomizeOrder": false
+        },
+        "isRated": false,
+        "questionIds": null,
+        "isNewSession": false,
+        "id": 114
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 115,
+          "title": "Revision 15: Alternative valid mappings",
+          "text": "Each callout accepts Alpha or Beta. Use each label once.",
+          "points": 10.0,
+          "scoringType": "ALL_OR_NOTHING",
+          "invalid": false,
+          "type": "drag-and-drop",
+          "explanation": "Both submitted labels are valid. A sample solution must use each item only once.",
+          "backgroundFilePath": "drag-and-drop/questions/12/backgrounds/results-alternatives.png",
+          "dropLocations": [
+            {
+              "id": 11,
+              "posX": 20.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            },
+            {
+              "id": 12,
+              "posX": 120.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            }
+          ],
+          "dragItems": [
+            {
+              "id": 21,
+              "text": "Alpha",
+              "invalid": false
+            },
+            {
+              "id": 22,
+              "text": "Beta",
+              "invalid": false
+            }
+          ],
+          "correctMappings": [
+            {
+              "id": 304,
+              "dragItemIndex": 1,
+              "dropLocationIndex": 1,
+              "invalid": false,
+              "dragItem": {
+                "id": 22,
+                "text": "Beta",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 12,
+                "posX": 120.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 301,
+              "dragItemIndex": 0,
+              "dropLocationIndex": 0,
+              "invalid": false,
+              "dragItem": {
+                "id": 21,
+                "text": "Alpha",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 11,
+                "posX": 20.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 302,
+              "dragItemIndex": 1,
+              "dropLocationIndex": 0,
+              "invalid": false,
+              "dragItem": {
+                "id": 22,
+                "text": "Beta",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 11,
+                "posX": 20.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 303,
+              "dragItemIndex": 0,
+              "dropLocationIndex": 1,
+              "invalid": false,
+              "dragItem": {
+                "id": 21,
+                "text": "Alpha",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 12,
+                "posX": 120.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            }
+          ],
+          "randomizeOrder": false
+        },
+        "isRated": false,
+        "questionIds": null,
+        "isNewSession": false,
+        "id": 115
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 116,
+          "title": "Revision 16: Worst-case complexity",
+          "text": "What is the worst-case time complexity of binary search on sorted input?",
+          "points": 10.0,
+          "scoringType": "ALL_OR_NOTHING",
+          "randomizeOrder": false,
+          "invalid": false,
+          "type": "multiple-choice",
+          "explanation": "Each comparison halves the remaining interval.",
+          "answerOptions": [
+            {
+              "id": 1,
+              "text": "O(log n)",
+              "invalid": false,
+              "explanation": "The interval is halved at every step.",
+              "isCorrect": true
+            },
+            {
+              "id": 2,
+              "text": "O(n)",
+              "invalid": false,
+              "explanation": "This describes a linear scan.",
+              "isCorrect": false
+            },
+            {
+              "id": 3,
+              "text": "O(1)",
+              "invalid": false,
+              "explanation": "The number of comparisons increases with input size.",
+              "isCorrect": false
+            }
+          ],
+          "singleChoice": true
+        },
+        "isRated": false,
+        "questionIds": null,
+        "isNewSession": false,
+        "id": 116
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 117,
+          "title": "Revision 17: Read the evaluated blanks",
+          "text": "The sorted-input algorithm is [-spot 1]. Its worst-case number of comparisons is [-spot 2].",
+          "points": 10.0,
+          "scoringType": "PROPORTIONAL_WITHOUT_PENALTY",
+          "invalid": false,
+          "type": "short-answer",
+          "explanation": "Case-insensitive answers can be accepted. The published evaluation is authoritative.",
+          "spots": [
+            {
+              "id": 913,
+              "spotNr": 1,
+              "width": 18,
+              "invalid": false
+            },
+            {
+              "id": 914,
+              "spotNr": 2,
+              "width": 18,
+              "invalid": false
+            }
+          ],
+          "solutions": [
+            {
+              "id": 1001,
+              "text": "Binary Search",
+              "invalid": false
+            },
+            {
+              "id": 1002,
+              "text": "logarithmic",
+              "invalid": false
+            }
+          ],
+          "similarityValue": 85,
+          "matchLetterCase": false,
+          "correctMappings": [
+            {
+              "id": 2001,
+              "shortAnswerSpotIndex": 0,
+              "shortAnswerSolutionIndex": 0,
+              "invalid": false,
+              "solution": {
+                "id": 1001,
+                "text": "Binary Search",
+                "invalid": false
+              },
+              "spot": {
+                "id": 913,
+                "spotNr": 1,
+                "width": 18,
+                "invalid": false
+              }
+            },
+            {
+              "id": 2002,
+              "shortAnswerSpotIndex": 1,
+              "shortAnswerSolutionIndex": 1,
+              "invalid": false,
+              "solution": {
+                "id": 1002,
+                "text": "logarithmic",
+                "invalid": false
+              },
+              "spot": {
+                "id": 914,
+                "spotNr": 2,
+                "width": 18,
+                "invalid": false
+              }
+            }
+          ],
+          "randomizeOrder": false
+        },
+        "isRated": false,
+        "questionIds": null,
+        "isNewSession": false,
+        "id": 117
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 118,
+          "title": "Revision 18: Alternative valid mappings",
+          "text": "Each callout accepts Alpha or Beta. Use each label once.",
+          "points": 10.0,
+          "scoringType": "ALL_OR_NOTHING",
+          "invalid": false,
+          "type": "drag-and-drop",
+          "explanation": "Both submitted labels are valid. A sample solution must use each item only once.",
+          "backgroundFilePath": "drag-and-drop/questions/12/backgrounds/results-alternatives.png",
+          "dropLocations": [
+            {
+              "id": 11,
+              "posX": 20.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            },
+            {
+              "id": 12,
+              "posX": 120.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            }
+          ],
+          "dragItems": [
+            {
+              "id": 21,
+              "text": "Alpha",
+              "invalid": false
+            },
+            {
+              "id": 22,
+              "text": "Beta",
+              "invalid": false
+            }
+          ],
+          "correctMappings": [
+            {
+              "id": 304,
+              "dragItemIndex": 1,
+              "dropLocationIndex": 1,
+              "invalid": false,
+              "dragItem": {
+                "id": 22,
+                "text": "Beta",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 12,
+                "posX": 120.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 301,
+              "dragItemIndex": 0,
+              "dropLocationIndex": 0,
+              "invalid": false,
+              "dragItem": {
+                "id": 21,
+                "text": "Alpha",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 11,
+                "posX": 20.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 302,
+              "dragItemIndex": 1,
+              "dropLocationIndex": 0,
+              "invalid": false,
+              "dragItem": {
+                "id": 22,
+                "text": "Beta",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 11,
+                "posX": 20.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 303,
+              "dragItemIndex": 0,
+              "dropLocationIndex": 1,
+              "invalid": false,
+              "dragItem": {
+                "id": 21,
+                "text": "Alpha",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 12,
+                "posX": 120.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            }
+          ],
+          "randomizeOrder": false
+        },
+        "isRated": false,
+        "questionIds": null,
+        "isNewSession": false,
+        "id": 118
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 119,
+          "title": "Revision 19: Worst-case complexity",
+          "text": "What is the worst-case time complexity of binary search on sorted input?",
+          "points": 10.0,
+          "scoringType": "ALL_OR_NOTHING",
+          "randomizeOrder": false,
+          "invalid": false,
+          "type": "multiple-choice",
+          "explanation": "Each comparison halves the remaining interval.",
+          "answerOptions": [
+            {
+              "id": 1,
+              "text": "O(log n)",
+              "invalid": false,
+              "explanation": "The interval is halved at every step.",
+              "isCorrect": true
+            },
+            {
+              "id": 2,
+              "text": "O(n)",
+              "invalid": false,
+              "explanation": "This describes a linear scan.",
+              "isCorrect": false
+            },
+            {
+              "id": 3,
+              "text": "O(1)",
+              "invalid": false,
+              "explanation": "The number of comparisons increases with input size.",
+              "isCorrect": false
+            }
+          ],
+          "singleChoice": true
+        },
+        "isRated": false,
+        "questionIds": null,
+        "isNewSession": false,
+        "id": 119
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 120,
+          "title": "Revision 20: Read the evaluated blanks",
+          "text": "The sorted-input algorithm is [-spot 1]. Its worst-case number of comparisons is [-spot 2].",
+          "points": 10.0,
+          "scoringType": "PROPORTIONAL_WITHOUT_PENALTY",
+          "invalid": false,
+          "type": "short-answer",
+          "explanation": "Case-insensitive answers can be accepted. The published evaluation is authoritative.",
+          "spots": [
+            {
+              "id": 913,
+              "spotNr": 1,
+              "width": 18,
+              "invalid": false
+            },
+            {
+              "id": 914,
+              "spotNr": 2,
+              "width": 18,
+              "invalid": false
+            }
+          ],
+          "solutions": [
+            {
+              "id": 1001,
+              "text": "Binary Search",
+              "invalid": false
+            },
+            {
+              "id": 1002,
+              "text": "logarithmic",
+              "invalid": false
+            }
+          ],
+          "similarityValue": 85,
+          "matchLetterCase": false,
+          "correctMappings": [
+            {
+              "id": 2001,
+              "shortAnswerSpotIndex": 0,
+              "shortAnswerSolutionIndex": 0,
+              "invalid": false,
+              "solution": {
+                "id": 1001,
+                "text": "Binary Search",
+                "invalid": false
+              },
+              "spot": {
+                "id": 913,
+                "spotNr": 1,
+                "width": 18,
+                "invalid": false
+              }
+            },
+            {
+              "id": 2002,
+              "shortAnswerSpotIndex": 1,
+              "shortAnswerSolutionIndex": 1,
+              "invalid": false,
+              "solution": {
+                "id": 1002,
+                "text": "logarithmic",
+                "invalid": false
+              },
+              "spot": {
+                "id": 914,
+                "spotNr": 2,
+                "width": 18,
+                "invalid": false
+              }
+            }
+          ],
+          "randomizeOrder": false
+        },
+        "isRated": false,
+        "questionIds": null,
+        "isNewSession": false,
+        "id": 120
+      }
+    ]
+  },
+  "legacyUnexpectedRatedContinuation": {
+    "headers": {
+      "X-Has-Next": "true"
+    },
+    "body": [
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 111,
+          "title": "Revision 11: Read the evaluated blanks",
+          "text": "The sorted-input algorithm is [-spot 1]. Its worst-case number of comparisons is [-spot 2].",
+          "points": 10.0,
+          "scoringType": "PROPORTIONAL_WITHOUT_PENALTY",
+          "invalid": false,
+          "type": "short-answer",
+          "explanation": "Case-insensitive answers can be accepted. The published evaluation is authoritative.",
+          "spots": [
+            {
+              "id": 913,
+              "spotNr": 1,
+              "width": 18,
+              "invalid": false
+            },
+            {
+              "id": 914,
+              "spotNr": 2,
+              "width": 18,
+              "invalid": false
+            }
+          ],
+          "solutions": [
+            {
+              "id": 1001,
+              "text": "Binary Search",
+              "invalid": false
+            },
+            {
+              "id": 1002,
+              "text": "logarithmic",
+              "invalid": false
+            }
+          ],
+          "similarityValue": 85,
+          "matchLetterCase": false,
+          "correctMappings": [
+            {
+              "id": 2001,
+              "shortAnswerSpotIndex": 0,
+              "shortAnswerSolutionIndex": 0,
+              "invalid": false,
+              "solution": {
+                "id": 1001,
+                "text": "Binary Search",
+                "invalid": false
+              },
+              "spot": {
+                "id": 913,
+                "spotNr": 1,
+                "width": 18,
+                "invalid": false
+              }
+            },
+            {
+              "id": 2002,
+              "shortAnswerSpotIndex": 1,
+              "shortAnswerSolutionIndex": 1,
+              "invalid": false,
+              "solution": {
+                "id": 1002,
+                "text": "logarithmic",
+                "invalid": false
+              },
+              "spot": {
+                "id": 914,
+                "spotNr": 2,
+                "width": 18,
+                "invalid": false
+              }
+            }
+          ],
+          "randomizeOrder": false
+        },
+        "isRated": true,
+        "questionIds": [
+          901,
+          902
+        ],
+        "isNewSession": false,
+        "id": 111
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 112,
+          "title": "Revision 12: Alternative valid mappings",
+          "text": "Each callout accepts Alpha or Beta. Use each label once.",
+          "points": 10.0,
+          "scoringType": "ALL_OR_NOTHING",
+          "invalid": false,
+          "type": "drag-and-drop",
+          "explanation": "Both submitted labels are valid. A sample solution must use each item only once.",
+          "backgroundFilePath": "drag-and-drop/questions/12/backgrounds/results-alternatives.png",
+          "dropLocations": [
+            {
+              "id": 11,
+              "posX": 20.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            },
+            {
+              "id": 12,
+              "posX": 120.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            }
+          ],
+          "dragItems": [
+            {
+              "id": 21,
+              "text": "Alpha",
+              "invalid": false
+            },
+            {
+              "id": 22,
+              "text": "Beta",
+              "invalid": false
+            }
+          ],
+          "correctMappings": [
+            {
+              "id": 304,
+              "dragItemIndex": 1,
+              "dropLocationIndex": 1,
+              "invalid": false,
+              "dragItem": {
+                "id": 22,
+                "text": "Beta",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 12,
+                "posX": 120.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 301,
+              "dragItemIndex": 0,
+              "dropLocationIndex": 0,
+              "invalid": false,
+              "dragItem": {
+                "id": 21,
+                "text": "Alpha",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 11,
+                "posX": 20.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 302,
+              "dragItemIndex": 1,
+              "dropLocationIndex": 0,
+              "invalid": false,
+              "dragItem": {
+                "id": 22,
+                "text": "Beta",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 11,
+                "posX": 20.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 303,
+              "dragItemIndex": 0,
+              "dropLocationIndex": 1,
+              "invalid": false,
+              "dragItem": {
+                "id": 21,
+                "text": "Alpha",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 12,
+                "posX": 120.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            }
+          ],
+          "randomizeOrder": false
+        },
+        "isRated": true,
+        "questionIds": [
+          901,
+          902
+        ],
+        "isNewSession": false,
+        "id": 112
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 113,
+          "title": "Revision 13: Worst-case complexity",
+          "text": "What is the worst-case time complexity of binary search on sorted input?",
+          "points": 10.0,
+          "scoringType": "ALL_OR_NOTHING",
+          "randomizeOrder": false,
+          "invalid": false,
+          "type": "multiple-choice",
+          "explanation": "Each comparison halves the remaining interval.",
+          "answerOptions": [
+            {
+              "id": 1,
+              "text": "O(log n)",
+              "invalid": false,
+              "explanation": "The interval is halved at every step.",
+              "isCorrect": true
+            },
+            {
+              "id": 2,
+              "text": "O(n)",
+              "invalid": false,
+              "explanation": "This describes a linear scan.",
+              "isCorrect": false
+            },
+            {
+              "id": 3,
+              "text": "O(1)",
+              "invalid": false,
+              "explanation": "The number of comparisons increases with input size.",
+              "isCorrect": false
+            }
+          ],
+          "singleChoice": true
+        },
+        "isRated": true,
+        "questionIds": [
+          901,
+          902
+        ],
+        "isNewSession": false,
+        "id": 113
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 114,
+          "title": "Revision 14: Read the evaluated blanks",
+          "text": "The sorted-input algorithm is [-spot 1]. Its worst-case number of comparisons is [-spot 2].",
+          "points": 10.0,
+          "scoringType": "PROPORTIONAL_WITHOUT_PENALTY",
+          "invalid": false,
+          "type": "short-answer",
+          "explanation": "Case-insensitive answers can be accepted. The published evaluation is authoritative.",
+          "spots": [
+            {
+              "id": 913,
+              "spotNr": 1,
+              "width": 18,
+              "invalid": false
+            },
+            {
+              "id": 914,
+              "spotNr": 2,
+              "width": 18,
+              "invalid": false
+            }
+          ],
+          "solutions": [
+            {
+              "id": 1001,
+              "text": "Binary Search",
+              "invalid": false
+            },
+            {
+              "id": 1002,
+              "text": "logarithmic",
+              "invalid": false
+            }
+          ],
+          "similarityValue": 85,
+          "matchLetterCase": false,
+          "correctMappings": [
+            {
+              "id": 2001,
+              "shortAnswerSpotIndex": 0,
+              "shortAnswerSolutionIndex": 0,
+              "invalid": false,
+              "solution": {
+                "id": 1001,
+                "text": "Binary Search",
+                "invalid": false
+              },
+              "spot": {
+                "id": 913,
+                "spotNr": 1,
+                "width": 18,
+                "invalid": false
+              }
+            },
+            {
+              "id": 2002,
+              "shortAnswerSpotIndex": 1,
+              "shortAnswerSolutionIndex": 1,
+              "invalid": false,
+              "solution": {
+                "id": 1002,
+                "text": "logarithmic",
+                "invalid": false
+              },
+              "spot": {
+                "id": 914,
+                "spotNr": 2,
+                "width": 18,
+                "invalid": false
+              }
+            }
+          ],
+          "randomizeOrder": false
+        },
+        "isRated": true,
+        "questionIds": [
+          901,
+          902
+        ],
+        "isNewSession": false,
+        "id": 114
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 115,
+          "title": "Revision 15: Alternative valid mappings",
+          "text": "Each callout accepts Alpha or Beta. Use each label once.",
+          "points": 10.0,
+          "scoringType": "ALL_OR_NOTHING",
+          "invalid": false,
+          "type": "drag-and-drop",
+          "explanation": "Both submitted labels are valid. A sample solution must use each item only once.",
+          "backgroundFilePath": "drag-and-drop/questions/12/backgrounds/results-alternatives.png",
+          "dropLocations": [
+            {
+              "id": 11,
+              "posX": 20.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            },
+            {
+              "id": 12,
+              "posX": 120.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            }
+          ],
+          "dragItems": [
+            {
+              "id": 21,
+              "text": "Alpha",
+              "invalid": false
+            },
+            {
+              "id": 22,
+              "text": "Beta",
+              "invalid": false
+            }
+          ],
+          "correctMappings": [
+            {
+              "id": 304,
+              "dragItemIndex": 1,
+              "dropLocationIndex": 1,
+              "invalid": false,
+              "dragItem": {
+                "id": 22,
+                "text": "Beta",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 12,
+                "posX": 120.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 301,
+              "dragItemIndex": 0,
+              "dropLocationIndex": 0,
+              "invalid": false,
+              "dragItem": {
+                "id": 21,
+                "text": "Alpha",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 11,
+                "posX": 20.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 302,
+              "dragItemIndex": 1,
+              "dropLocationIndex": 0,
+              "invalid": false,
+              "dragItem": {
+                "id": 22,
+                "text": "Beta",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 11,
+                "posX": 20.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 303,
+              "dragItemIndex": 0,
+              "dropLocationIndex": 1,
+              "invalid": false,
+              "dragItem": {
+                "id": 21,
+                "text": "Alpha",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 12,
+                "posX": 120.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            }
+          ],
+          "randomizeOrder": false
+        },
+        "isRated": true,
+        "questionIds": [
+          901,
+          902
+        ],
+        "isNewSession": false,
+        "id": 115
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 116,
+          "title": "Revision 16: Worst-case complexity",
+          "text": "What is the worst-case time complexity of binary search on sorted input?",
+          "points": 10.0,
+          "scoringType": "ALL_OR_NOTHING",
+          "randomizeOrder": false,
+          "invalid": false,
+          "type": "multiple-choice",
+          "explanation": "Each comparison halves the remaining interval.",
+          "answerOptions": [
+            {
+              "id": 1,
+              "text": "O(log n)",
+              "invalid": false,
+              "explanation": "The interval is halved at every step.",
+              "isCorrect": true
+            },
+            {
+              "id": 2,
+              "text": "O(n)",
+              "invalid": false,
+              "explanation": "This describes a linear scan.",
+              "isCorrect": false
+            },
+            {
+              "id": 3,
+              "text": "O(1)",
+              "invalid": false,
+              "explanation": "The number of comparisons increases with input size.",
+              "isCorrect": false
+            }
+          ],
+          "singleChoice": true
+        },
+        "isRated": true,
+        "questionIds": [
+          901,
+          902
+        ],
+        "isNewSession": false,
+        "id": 116
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 117,
+          "title": "Revision 17: Read the evaluated blanks",
+          "text": "The sorted-input algorithm is [-spot 1]. Its worst-case number of comparisons is [-spot 2].",
+          "points": 10.0,
+          "scoringType": "PROPORTIONAL_WITHOUT_PENALTY",
+          "invalid": false,
+          "type": "short-answer",
+          "explanation": "Case-insensitive answers can be accepted. The published evaluation is authoritative.",
+          "spots": [
+            {
+              "id": 913,
+              "spotNr": 1,
+              "width": 18,
+              "invalid": false
+            },
+            {
+              "id": 914,
+              "spotNr": 2,
+              "width": 18,
+              "invalid": false
+            }
+          ],
+          "solutions": [
+            {
+              "id": 1001,
+              "text": "Binary Search",
+              "invalid": false
+            },
+            {
+              "id": 1002,
+              "text": "logarithmic",
+              "invalid": false
+            }
+          ],
+          "similarityValue": 85,
+          "matchLetterCase": false,
+          "correctMappings": [
+            {
+              "id": 2001,
+              "shortAnswerSpotIndex": 0,
+              "shortAnswerSolutionIndex": 0,
+              "invalid": false,
+              "solution": {
+                "id": 1001,
+                "text": "Binary Search",
+                "invalid": false
+              },
+              "spot": {
+                "id": 913,
+                "spotNr": 1,
+                "width": 18,
+                "invalid": false
+              }
+            },
+            {
+              "id": 2002,
+              "shortAnswerSpotIndex": 1,
+              "shortAnswerSolutionIndex": 1,
+              "invalid": false,
+              "solution": {
+                "id": 1002,
+                "text": "logarithmic",
+                "invalid": false
+              },
+              "spot": {
+                "id": 914,
+                "spotNr": 2,
+                "width": 18,
+                "invalid": false
+              }
+            }
+          ],
+          "randomizeOrder": false
+        },
+        "isRated": true,
+        "questionIds": [
+          901,
+          902
+        ],
+        "isNewSession": false,
+        "id": 117
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 118,
+          "title": "Revision 18: Alternative valid mappings",
+          "text": "Each callout accepts Alpha or Beta. Use each label once.",
+          "points": 10.0,
+          "scoringType": "ALL_OR_NOTHING",
+          "invalid": false,
+          "type": "drag-and-drop",
+          "explanation": "Both submitted labels are valid. A sample solution must use each item only once.",
+          "backgroundFilePath": "drag-and-drop/questions/12/backgrounds/results-alternatives.png",
+          "dropLocations": [
+            {
+              "id": 11,
+              "posX": 20.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            },
+            {
+              "id": 12,
+              "posX": 120.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            }
+          ],
+          "dragItems": [
+            {
+              "id": 21,
+              "text": "Alpha",
+              "invalid": false
+            },
+            {
+              "id": 22,
+              "text": "Beta",
+              "invalid": false
+            }
+          ],
+          "correctMappings": [
+            {
+              "id": 304,
+              "dragItemIndex": 1,
+              "dropLocationIndex": 1,
+              "invalid": false,
+              "dragItem": {
+                "id": 22,
+                "text": "Beta",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 12,
+                "posX": 120.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 301,
+              "dragItemIndex": 0,
+              "dropLocationIndex": 0,
+              "invalid": false,
+              "dragItem": {
+                "id": 21,
+                "text": "Alpha",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 11,
+                "posX": 20.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 302,
+              "dragItemIndex": 1,
+              "dropLocationIndex": 0,
+              "invalid": false,
+              "dragItem": {
+                "id": 22,
+                "text": "Beta",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 11,
+                "posX": 20.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "id": 303,
+              "dragItemIndex": 0,
+              "dropLocationIndex": 1,
+              "invalid": false,
+              "dragItem": {
+                "id": 21,
+                "text": "Alpha",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 12,
+                "posX": 120.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            }
+          ],
+          "randomizeOrder": false
+        },
+        "isRated": true,
+        "questionIds": [
+          901,
+          902
+        ],
+        "isNewSession": false,
+        "id": 118
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 119,
+          "title": "Revision 19: Worst-case complexity",
+          "text": "What is the worst-case time complexity of binary search on sorted input?",
+          "points": 10.0,
+          "scoringType": "ALL_OR_NOTHING",
+          "randomizeOrder": false,
+          "invalid": false,
+          "type": "multiple-choice",
+          "explanation": "Each comparison halves the remaining interval.",
+          "answerOptions": [
+            {
+              "id": 1,
+              "text": "O(log n)",
+              "invalid": false,
+              "explanation": "The interval is halved at every step.",
+              "isCorrect": true
+            },
+            {
+              "id": 2,
+              "text": "O(n)",
+              "invalid": false,
+              "explanation": "This describes a linear scan.",
+              "isCorrect": false
+            },
+            {
+              "id": 3,
+              "text": "O(1)",
+              "invalid": false,
+              "explanation": "The number of comparisons increases with input size.",
+              "isCorrect": false
+            }
+          ],
+          "singleChoice": true
+        },
+        "isRated": true,
+        "questionIds": [
+          901,
+          902
+        ],
+        "isNewSession": false,
+        "id": 119
+      },
+      {
+        "quizQuestionWithSolutionDTO": {
+          "id": 120,
+          "title": "Revision 20: Read the evaluated blanks",
+          "text": "The sorted-input algorithm is [-spot 1]. Its worst-case number of comparisons is [-spot 2].",
+          "points": 10.0,
+          "scoringType": "PROPORTIONAL_WITHOUT_PENALTY",
+          "invalid": false,
+          "type": "short-answer",
+          "explanation": "Case-insensitive answers can be accepted. The published evaluation is authoritative.",
+          "spots": [
+            {
+              "id": 913,
+              "spotNr": 1,
+              "width": 18,
+              "invalid": false
+            },
+            {
+              "id": 914,
+              "spotNr": 2,
+              "width": 18,
+              "invalid": false
+            }
+          ],
+          "solutions": [
+            {
+              "id": 1001,
+              "text": "Binary Search",
+              "invalid": false
+            },
+            {
+              "id": 1002,
+              "text": "logarithmic",
+              "invalid": false
+            }
+          ],
+          "similarityValue": 85,
+          "matchLetterCase": false,
+          "correctMappings": [
+            {
+              "id": 2001,
+              "shortAnswerSpotIndex": 0,
+              "shortAnswerSolutionIndex": 0,
+              "invalid": false,
+              "solution": {
+                "id": 1001,
+                "text": "Binary Search",
+                "invalid": false
+              },
+              "spot": {
+                "id": 913,
+                "spotNr": 1,
+                "width": 18,
+                "invalid": false
+              }
+            },
+            {
+              "id": 2002,
+              "shortAnswerSpotIndex": 1,
+              "shortAnswerSolutionIndex": 1,
+              "invalid": false,
+              "solution": {
+                "id": 1002,
+                "text": "logarithmic",
+                "invalid": false
+              },
+              "spot": {
+                "id": 914,
+                "spotNr": 2,
+                "width": 18,
+                "invalid": false
+              }
+            }
+          ],
+          "randomizeOrder": false
+        },
+        "isRated": true,
+        "questionIds": [
+          901,
+          902
+        ],
+        "isNewSession": false,
+        "id": 120
+      }
+    ]
+  },
+  "emptyContradictoryPage": {
+    "headers": {
+      "X-Has-Next": "true"
+    },
+    "body": []
+  },
+  "overviewPrivateFirstVisit": {
+    "leaderboardEntries": [],
+    "hasUserSetSettings": false,
+    "currentUserEntry": {
+      "rank": 0,
+      "selectedLeague": 5,
+      "userId": 4242,
+      "userName": "Mobile Student",
+      "imageURL": null,
+      "score": 12,
+      "answeredCorrectly": 8,
+      "answeredWrong": 4,
+      "totalQuestions": 23,
+      "dueDate": "2026-10-27T09:00:00Z",
+      "streak": 2
+    },
+    "currentTime": "2026-10-26T09:00:00Z"
+  },
+  "visibilityUnset": {
+    "showInLeaderboard": null
+  },
+  "visibilityPrivate": {
+    "showInLeaderboard": false
+  },
+  "visibilityPublic": {
+    "showInLeaderboard": true
+  },
+  "evaluations": [
+    {
+      "id": null,
+      "scoreInPoints": 10.0,
+      "quizQuestion": {
+        "id": 101,
+        "title": "Worst-case complexity",
+        "text": "What is the worst-case time complexity of binary search on sorted input?",
+        "points": 10.0,
+        "scoringType": "ALL_OR_NOTHING",
+        "randomizeOrder": false,
+        "invalid": false,
+        "type": "multiple-choice",
+        "explanation": "Each comparison halves the remaining interval.",
+        "answerOptions": [
+          {
+            "id": 1,
+            "text": "O(log n)",
+            "invalid": false,
+            "explanation": "The interval is halved at every step.",
+            "isCorrect": true
+          },
+          {
+            "id": 2,
+            "text": "O(n)",
+            "invalid": false,
+            "explanation": "This describes a linear scan.",
+            "isCorrect": false
+          },
+          {
+            "id": 3,
+            "text": "O(1)",
+            "invalid": false,
+            "explanation": "The number of comparisons increases with input size.",
+            "isCorrect": false
+          }
+        ],
+        "singleChoice": true
+      },
+      "selectedOptions": [
+        {
+          "id": 1,
+          "text": "O(log n)",
+          "invalid": false,
+          "explanation": "The interval is halved at every step.",
+          "isCorrect": true
+        }
+      ],
+      "type": "multiple-choice"
+    },
+    {
+      "id": null,
+      "scoreInPoints": 5.0,
+      "quizQuestion": {
+        "id": 102,
+        "title": "Read the evaluated blanks",
+        "text": "The sorted-input algorithm is [-spot 1]. Its worst-case number of comparisons is [-spot 2].",
+        "points": 10.0,
+        "scoringType": "PROPORTIONAL_WITHOUT_PENALTY",
+        "invalid": false,
+        "type": "short-answer",
+        "explanation": "Case-insensitive answers can be accepted. The published evaluation is authoritative.",
+        "spots": [
+          {
+            "id": 913,
+            "spotNr": 1,
+            "width": 18,
+            "invalid": false
+          },
+          {
+            "id": 914,
+            "spotNr": 2,
+            "width": 18,
+            "invalid": false
+          }
+        ],
+        "solutions": [
+          {
+            "id": 1001,
+            "text": "Binary Search",
+            "invalid": false
+          },
+          {
+            "id": 1002,
+            "text": "logarithmic",
+            "invalid": false
+          }
+        ],
+        "similarityValue": 85,
+        "matchLetterCase": false,
+        "correctMappings": [
+          {
+            "id": 2001,
+            "shortAnswerSpotIndex": 0,
+            "shortAnswerSolutionIndex": 0,
+            "invalid": false,
+            "solution": {
+              "id": 1001,
+              "text": "Binary Search",
+              "invalid": false
+            },
+            "spot": {
+              "id": 913,
+              "spotNr": 1,
+              "width": 18,
+              "invalid": false
+            }
+          },
+          {
+            "id": 2002,
+            "shortAnswerSpotIndex": 1,
+            "shortAnswerSolutionIndex": 1,
+            "invalid": false,
+            "solution": {
+              "id": 1002,
+              "text": "logarithmic",
+              "invalid": false
+            },
+            "spot": {
+              "id": 914,
+              "spotNr": 2,
+              "width": 18,
+              "invalid": false
+            }
+          }
+        ]
+      },
+      "submittedTexts": [
+        {
+          "text": "linear",
+          "isCorrect": false,
+          "spot": {
+            "id": 914,
+            "spotNr": 2,
+            "width": 18,
+            "invalid": false
+          }
+        },
+        {
+          "text": "binary search",
+          "isCorrect": true,
+          "spot": {
+            "id": 913,
+            "spotNr": 1,
+            "width": 18,
+            "invalid": false
+          }
+        }
+      ],
+      "type": "short-answer"
+    },
+    {
+      "id": null,
+      "scoreInPoints": 10.0,
+      "quizQuestion": {
+        "id": 103,
+        "title": "Alternative valid mappings",
+        "text": "Each callout accepts Alpha or Beta. Use each label once.",
+        "points": 10.0,
+        "scoringType": "ALL_OR_NOTHING",
+        "invalid": false,
+        "type": "drag-and-drop",
+        "explanation": "Both submitted labels are valid. A sample solution must use each item only once.",
+        "backgroundFilePath": "drag-and-drop/questions/12/backgrounds/results-alternatives.png",
+        "dropLocations": [
+          {
+            "id": 11,
+            "posX": 20.0,
+            "posY": 60.0,
+            "width": 60.0,
+            "height": 40.0,
+            "invalid": false
+          },
+          {
+            "id": 12,
+            "posX": 120.0,
+            "posY": 60.0,
+            "width": 60.0,
+            "height": 40.0,
+            "invalid": false
+          }
+        ],
+        "dragItems": [
+          {
+            "id": 21,
+            "text": "Alpha",
+            "invalid": false
+          },
+          {
+            "id": 22,
+            "text": "Beta",
+            "invalid": false
+          }
+        ],
+        "correctMappings": [
+          {
+            "id": 304,
+            "dragItemIndex": 1,
+            "dropLocationIndex": 1,
+            "invalid": false,
+            "dragItem": {
+              "id": 22,
+              "text": "Beta",
+              "invalid": false
+            },
+            "dropLocation": {
+              "id": 12,
+              "posX": 120.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            }
+          },
+          {
+            "id": 301,
+            "dragItemIndex": 0,
+            "dropLocationIndex": 0,
+            "invalid": false,
+            "dragItem": {
+              "id": 21,
+              "text": "Alpha",
+              "invalid": false
+            },
+            "dropLocation": {
+              "id": 11,
+              "posX": 20.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            }
+          },
+          {
+            "id": 302,
+            "dragItemIndex": 1,
+            "dropLocationIndex": 0,
+            "invalid": false,
+            "dragItem": {
+              "id": 22,
+              "text": "Beta",
+              "invalid": false
+            },
+            "dropLocation": {
+              "id": 11,
+              "posX": 20.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            }
+          },
+          {
+            "id": 303,
+            "dragItemIndex": 0,
+            "dropLocationIndex": 1,
+            "invalid": false,
+            "dragItem": {
+              "id": 21,
+              "text": "Alpha",
+              "invalid": false
+            },
+            "dropLocation": {
+              "id": 12,
+              "posX": 120.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            }
+          }
+        ]
+      },
+      "mappings": [
+        {
+          "dragItemIndex": 0,
+          "dropLocationIndex": 0,
+          "invalid": false,
+          "dragItem": {
+            "id": 21,
+            "text": "Alpha",
+            "invalid": false
+          },
+          "dropLocation": {
+            "id": 11,
+            "posX": 20.0,
+            "posY": 60.0,
+            "width": 60.0,
+            "height": 40.0,
+            "invalid": false
+          }
+        },
+        {
+          "dragItemIndex": 1,
+          "dropLocationIndex": 1,
+          "invalid": false,
+          "dragItem": {
+            "id": 22,
+            "text": "Beta",
+            "invalid": false
+          },
+          "dropLocation": {
+            "id": 12,
+            "posX": 120.0,
+            "posY": 60.0,
+            "width": 60.0,
+            "height": 40.0,
+            "invalid": false
+          }
+        }
+      ],
+      "type": "drag-and-drop"
+    }
+  ],
+  "expectations": {
+    "saSpotIds": [
+      913,
+      914
+    ],
+    "saPlaceholderNumbers": [
+      1,
+      2
+    ],
+    "saSubmittedText": [
+      "binary search",
+      "linear"
+    ],
+    "saServerCorrectness": [
+      true,
+      false
+    ],
+    "dndValidPairCount": 4,
+    "noCorrectnessOrExplanationsBeforeSubmit": true,
+    "zeroMaximumMustNotProduceRatio": true,
+    "noAutomaticSubmissionReplay": true
+  }
+}

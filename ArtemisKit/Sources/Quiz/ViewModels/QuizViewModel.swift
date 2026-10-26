@@ -15,6 +15,8 @@ class QuizViewModel {
     var lastSubmissionResult: DataState<DTO.SubmittedAnswerAfterEvaluation> = .loading
 
     var isReadOnly = false
+    var usesSafeContent: Bool { isReadOnly || self is QuizTrainingViewModel }
+    @MainActor var locksAnswerEditing: Bool { hasSubmitted || (self as? QuizTrainingViewModel)?.inputsLocked == true }
 
     var hasSubmitted: Bool {
         if isReadOnly { return true }

@@ -1,72 +1,35 @@
-//
-//  SubmitTrainingAnswerButton.swift
-//  ArtemisKit
-//
-//  Created by Anian Schleyer on 07.06.26.
-//
-
-import DesignLibrary
+import Foundation
 import SharedModels
 import SwiftUI
 
 struct SubmitTrainingAnswerButton: View {
     @Environment(QuizTrainingViewModel.self) private var viewModel
-
     let questionId: Int64?
     let isRated: Bool?
     let answer: DTO.SubmittedAnswerFromLiveClient
 
-    @State private var isLoading = false
-
     var body: some View {
-        Spacer()
+        Color.clear.frame(height: 0)
+            .onAppear { viewModel.updateDraft(answer) }
+            .onChange(of: try? JSONEncoder().encode(answer)) { _, _ in viewModel.updateDraft(answer) }
             .toolbar {
-                ToolbarItem(placement: .bottomBar) {
-                    Button {
-                        if case .done = viewModel.lastSubmissionResult {
-                            viewModel.goToNextQuestion()
-                        } else {
-                            submit()
+                if viewModel.phase != .uncertain {
+                    ToolbarItem(placement: .bottomBar) {
+                        Button {
+                            Task {
+                                if viewModel.hasSubmitted { await viewModel.advance() } else if let questionId, let isRated {
+                                    await viewModel.submitAnswer(questionId: questionId, isRated: isRated, answer: answer)
+                                }
+                            }
+                        } label: {
+                            if viewModel.phase == .submitting {
+                                ProgressView(TrainingCopy.text("submitting"))
+                            } else { Text(TrainingCopy.text(viewModel.hasSubmitted ? "next" : "submit")) }
                         }
-                    } label: {
-                        if case .done = viewModel.lastSubmissionResult {
-                            Text(R.string.localizable.nextQuestion())
-                        } else {
-                            Text(R.string.localizable.submit())
-                        }
+                        .buttonStyle(.borderedProminent)
+                        .disabled(viewModel.phase == .submitting || questionId == nil || isRated == nil)
                     }
-                    .buttonStyle(.glassProminent)
-                    .disabled(isLoading)
-                    .loadingIndicator(isLoading: $isLoading)
                 }
             }
-            .alert(R.string.localizable.failedToSubmit(), isPresented: .init(
-                get: {
-                    if case .failure = viewModel.lastSubmissionResult {
-                        return true
-                    } else {
-                        return false
-                    }
-                }, set: { newValue in
-                    if !newValue {
-                        viewModel.lastSubmissionResult = .loading
-                    }
-                })
-            ) {
-                Button("Ok") {}
-                Button(R.string.localizable.retry()) {
-                    submit()
-                }
-            }
-    }
-
-    func submit() {
-        isLoading = true
-        Task {
-            await viewModel.submitAnswer(questionId: questionId ?? -1,
-                                         isRated: isRated ?? false,
-                                         answer: answer)
-            isLoading = false
-        }
     }
 }

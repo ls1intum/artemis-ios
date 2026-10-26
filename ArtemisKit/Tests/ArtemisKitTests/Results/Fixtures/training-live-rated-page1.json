@@ -1,0 +1,486 @@
+[
+  {
+    "quizQuestionWithSolutionDTO": {
+      "id": 36,
+      "title": "Practice 15: binary search",
+      "text": "What is the worst-case complexity of **binary search** on sorted input?",
+      "points": 2.0,
+      "scoringType": "ALL_OR_NOTHING",
+      "randomizeOrder": false,
+      "invalid": false,
+      "type": "multiple-choice",
+      "explanation": "Each comparison halves the remaining interval, giving logarithmic growth.",
+      "answerOptions": [
+        {
+          "id": 1,
+          "text": "O(log n)",
+          "invalid": false,
+          "explanation": "The search interval is halved each step.",
+          "isCorrect": true
+        },
+        {
+          "id": 2,
+          "text": "O(n)",
+          "invalid": false,
+          "explanation": "A linear scan checks every item.",
+          "isCorrect": false
+        },
+        {
+          "id": 3,
+          "text": "O(1)",
+          "invalid": false,
+          "explanation": "More input requires more comparisons.",
+          "isCorrect": false
+        }
+      ],
+      "singleChoice": true
+    },
+    "isRated": true,
+    "isNewSession": false,
+    "id": 36
+  },
+  {
+    "quizQuestionWithSolutionDTO": {
+      "id": 39,
+      "title": "Practice 18: binary search",
+      "text": "What is the worst-case complexity of **binary search** on sorted input?",
+      "points": 2.0,
+      "scoringType": "ALL_OR_NOTHING",
+      "randomizeOrder": false,
+      "invalid": false,
+      "type": "multiple-choice",
+      "explanation": "Each comparison halves the remaining interval, giving logarithmic growth.",
+      "answerOptions": [
+        {
+          "id": 1,
+          "text": "O(log n)",
+          "invalid": false,
+          "explanation": "The search interval is halved each step.",
+          "isCorrect": true
+        },
+        {
+          "id": 2,
+          "text": "O(n)",
+          "invalid": false,
+          "explanation": "A linear scan checks every item.",
+          "isCorrect": false
+        },
+        {
+          "id": 3,
+          "text": "O(1)",
+          "invalid": false,
+          "explanation": "More input requires more comparisons.",
+          "isCorrect": false
+        }
+      ],
+      "singleChoice": true
+    },
+    "isRated": true,
+    "isNewSession": false,
+    "id": 39
+  },
+  {
+    "quizQuestionWithSolutionDTO": {
+      "id": 42,
+      "title": "Practice 21: binary search",
+      "text": "What is the worst-case complexity of **binary search** on sorted input?",
+      "points": 2.0,
+      "scoringType": "ALL_OR_NOTHING",
+      "randomizeOrder": false,
+      "invalid": false,
+      "type": "multiple-choice",
+      "explanation": "Each comparison halves the remaining interval, giving logarithmic growth.",
+      "answerOptions": [
+        {
+          "id": 1,
+          "text": "O(log n)",
+          "invalid": false,
+          "explanation": "The search interval is halved each step.",
+          "isCorrect": true
+        },
+        {
+          "id": 2,
+          "text": "O(n)",
+          "invalid": false,
+          "explanation": "A linear scan checks every item.",
+          "isCorrect": false
+        },
+        {
+          "id": 3,
+          "text": "O(1)",
+          "invalid": false,
+          "explanation": "More input requires more comparisons.",
+          "isCorrect": false
+        }
+      ],
+      "singleChoice": true
+    },
+    "isRated": true,
+    "isNewSession": false,
+    "id": 42
+  },
+  {
+    "quizQuestionWithSolutionDTO": {
+      "id": 24,
+      "title": "Match the labels",
+      "text": "Each callout accepts Alpha or Beta. Use each label once.",
+      "points": 2.0,
+      "scoringType": "ALL_OR_NOTHING",
+      "invalid": false,
+      "type": "drag-and-drop",
+      "explanation": "Both labels are accepted in either callout. Each item can be used once.",
+      "backgroundFilePath": "drag-and-drop/questions/24/backgrounds/results-alternatives.png",
+      "dropLocations": [
+        {
+          "id": 11,
+          "posX": 20.0,
+          "posY": 60.0,
+          "width": 60.0,
+          "height": 40.0,
+          "invalid": false
+        },
+        {
+          "id": 12,
+          "posX": 120.0,
+          "posY": 60.0,
+          "width": 60.0,
+          "height": 40.0,
+          "invalid": false
+        }
+      ],
+      "dragItems": [
+        {
+          "id": 21,
+          "text": "Alpha",
+          "invalid": false
+        },
+        {
+          "id": 22,
+          "text": "Beta",
+          "invalid": false
+        }
+      ],
+      "correctMappings": [
+        {
+          "id": 304,
+          "dragItemIndex": 1,
+          "dropLocationIndex": 1,
+          "invalid": false,
+          "dragItem": {
+            "id": 22,
+            "text": "Beta",
+            "invalid": false
+          },
+          "dropLocation": {
+            "id": 12,
+            "posX": 120.0,
+            "posY": 60.0,
+            "width": 60.0,
+            "height": 40.0,
+            "invalid": false
+          }
+        },
+        {
+          "id": 301,
+          "dragItemIndex": 0,
+          "dropLocationIndex": 0,
+          "invalid": false,
+          "dragItem": {
+            "id": 21,
+            "text": "Alpha",
+            "invalid": false
+          },
+          "dropLocation": {
+            "id": 11,
+            "posX": 20.0,
+            "posY": 60.0,
+            "width": 60.0,
+            "height": 40.0,
+            "invalid": false
+          }
+        },
+        {
+          "id": 302,
+          "dragItemIndex": 1,
+          "dropLocationIndex": 0,
+          "invalid": false,
+          "dragItem": {
+            "id": 22,
+            "text": "Beta",
+            "invalid": false
+          },
+          "dropLocation": {
+            "id": 11,
+            "posX": 20.0,
+            "posY": 60.0,
+            "width": 60.0,
+            "height": 40.0,
+            "invalid": false
+          }
+        },
+        {
+          "id": 303,
+          "dragItemIndex": 0,
+          "dropLocationIndex": 1,
+          "invalid": false,
+          "dragItem": {
+            "id": 21,
+            "text": "Alpha",
+            "invalid": false
+          },
+          "dropLocation": {
+            "id": 12,
+            "posX": 120.0,
+            "posY": 60.0,
+            "width": 60.0,
+            "height": 40.0,
+            "invalid": false
+          }
+        }
+      ]
+    },
+    "isRated": true,
+    "isNewSession": false,
+    "id": 24
+  },
+  {
+    "quizQuestionWithSolutionDTO": {
+      "id": 25,
+      "title": "Practice 4: binary search",
+      "text": "What is the worst-case complexity of **binary search** on sorted input?",
+      "points": 2.0,
+      "scoringType": "ALL_OR_NOTHING",
+      "randomizeOrder": false,
+      "invalid": false,
+      "type": "multiple-choice",
+      "explanation": "Each comparison halves the remaining interval, giving logarithmic growth.",
+      "answerOptions": [
+        {
+          "id": 1,
+          "text": "O(log n)",
+          "invalid": false,
+          "explanation": "The search interval is halved each step.",
+          "isCorrect": true
+        },
+        {
+          "id": 2,
+          "text": "O(n)",
+          "invalid": false,
+          "explanation": "A linear scan checks every item.",
+          "isCorrect": false
+        },
+        {
+          "id": 3,
+          "text": "O(1)",
+          "invalid": false,
+          "explanation": "More input requires more comparisons.",
+          "isCorrect": false
+        }
+      ],
+      "singleChoice": true
+    },
+    "isRated": true,
+    "isNewSession": false,
+    "id": 25
+  },
+  {
+    "quizQuestionWithSolutionDTO": {
+      "id": 26,
+      "title": "Practice 5: binary search",
+      "text": "What is the worst-case complexity of **binary search** on sorted input?",
+      "points": 2.0,
+      "scoringType": "ALL_OR_NOTHING",
+      "randomizeOrder": false,
+      "invalid": false,
+      "type": "multiple-choice",
+      "explanation": "Each comparison halves the remaining interval, giving logarithmic growth.",
+      "answerOptions": [
+        {
+          "id": 1,
+          "text": "O(log n)",
+          "invalid": false,
+          "explanation": "The search interval is halved each step.",
+          "isCorrect": true
+        },
+        {
+          "id": 2,
+          "text": "O(n)",
+          "invalid": false,
+          "explanation": "A linear scan checks every item.",
+          "isCorrect": false
+        },
+        {
+          "id": 3,
+          "text": "O(1)",
+          "invalid": false,
+          "explanation": "More input requires more comparisons.",
+          "isCorrect": false
+        }
+      ],
+      "singleChoice": true
+    },
+    "isRated": true,
+    "isNewSession": false,
+    "id": 26
+  },
+  {
+    "quizQuestionWithSolutionDTO": {
+      "id": 27,
+      "title": "Practice 6: binary search",
+      "text": "What is the worst-case complexity of **binary search** on sorted input?",
+      "points": 2.0,
+      "scoringType": "ALL_OR_NOTHING",
+      "randomizeOrder": false,
+      "invalid": false,
+      "type": "multiple-choice",
+      "explanation": "Each comparison halves the remaining interval, giving logarithmic growth.",
+      "answerOptions": [
+        {
+          "id": 1,
+          "text": "O(log n)",
+          "invalid": false,
+          "explanation": "The search interval is halved each step.",
+          "isCorrect": true
+        },
+        {
+          "id": 2,
+          "text": "O(n)",
+          "invalid": false,
+          "explanation": "A linear scan checks every item.",
+          "isCorrect": false
+        },
+        {
+          "id": 3,
+          "text": "O(1)",
+          "invalid": false,
+          "explanation": "More input requires more comparisons.",
+          "isCorrect": false
+        }
+      ],
+      "singleChoice": true
+    },
+    "isRated": true,
+    "isNewSession": false,
+    "id": 27
+  },
+  {
+    "quizQuestionWithSolutionDTO": {
+      "id": 28,
+      "title": "Practice 7: binary search",
+      "text": "What is the worst-case complexity of **binary search** on sorted input?",
+      "points": 2.0,
+      "scoringType": "ALL_OR_NOTHING",
+      "randomizeOrder": false,
+      "invalid": false,
+      "type": "multiple-choice",
+      "explanation": "Each comparison halves the remaining interval, giving logarithmic growth.",
+      "answerOptions": [
+        {
+          "id": 1,
+          "text": "O(log n)",
+          "invalid": false,
+          "explanation": "The search interval is halved each step.",
+          "isCorrect": true
+        },
+        {
+          "id": 2,
+          "text": "O(n)",
+          "invalid": false,
+          "explanation": "A linear scan checks every item.",
+          "isCorrect": false
+        },
+        {
+          "id": 3,
+          "text": "O(1)",
+          "invalid": false,
+          "explanation": "More input requires more comparisons.",
+          "isCorrect": false
+        }
+      ],
+      "singleChoice": true
+    },
+    "isRated": true,
+    "isNewSession": false,
+    "id": 28
+  },
+  {
+    "quizQuestionWithSolutionDTO": {
+      "id": 29,
+      "title": "Practice 8: binary search",
+      "text": "What is the worst-case complexity of **binary search** on sorted input?",
+      "points": 2.0,
+      "scoringType": "ALL_OR_NOTHING",
+      "randomizeOrder": false,
+      "invalid": false,
+      "type": "multiple-choice",
+      "explanation": "Each comparison halves the remaining interval, giving logarithmic growth.",
+      "answerOptions": [
+        {
+          "id": 1,
+          "text": "O(log n)",
+          "invalid": false,
+          "explanation": "The search interval is halved each step.",
+          "isCorrect": true
+        },
+        {
+          "id": 2,
+          "text": "O(n)",
+          "invalid": false,
+          "explanation": "A linear scan checks every item.",
+          "isCorrect": false
+        },
+        {
+          "id": 3,
+          "text": "O(1)",
+          "invalid": false,
+          "explanation": "More input requires more comparisons.",
+          "isCorrect": false
+        }
+      ],
+      "singleChoice": true
+    },
+    "isRated": true,
+    "isNewSession": false,
+    "id": 29
+  },
+  {
+    "quizQuestionWithSolutionDTO": {
+      "id": 30,
+      "title": "Practice 9: binary search",
+      "text": "What is the worst-case complexity of **binary search** on sorted input?",
+      "points": 2.0,
+      "scoringType": "ALL_OR_NOTHING",
+      "randomizeOrder": false,
+      "invalid": false,
+      "type": "multiple-choice",
+      "explanation": "Each comparison halves the remaining interval, giving logarithmic growth.",
+      "answerOptions": [
+        {
+          "id": 1,
+          "text": "O(log n)",
+          "invalid": false,
+          "explanation": "The search interval is halved each step.",
+          "isCorrect": true
+        },
+        {
+          "id": 2,
+          "text": "O(n)",
+          "invalid": false,
+          "explanation": "A linear scan checks every item.",
+          "isCorrect": false
+        },
+        {
+          "id": 3,
+          "text": "O(1)",
+          "invalid": false,
+          "explanation": "More input requires more comparisons.",
+          "isCorrect": false
+        }
+      ],
+      "singleChoice": true
+    },
+    "isRated": true,
+    "isNewSession": false,
+    "id": 30
+  }
+]
