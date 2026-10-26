@@ -89,7 +89,7 @@ struct VideoUnitSheetContent: View {
     }
 }
 
-private struct LectureVideoPlayer: UIViewControllerRepresentable {
+struct LectureVideoPlayer: UIViewControllerRepresentable {
     let player: AVPlayer
     let playback: LectureVideoPlayback
 
@@ -111,7 +111,8 @@ private struct LectureVideoPlayer: UIViewControllerRepresentable {
         // AVKit can temporarily cover/reparent the inline SwiftUI hierarchy.
         // The model releases its item on actual viewer departure, not fullscreen.
         guard !coordinator.playback.fullScreenPresented else { return }
-        controller.player?.pause()
+        // Retiring an inline controller must not pause the model’s shared player.
+        // Another controller may already be displaying it after fullscreen ends.
         controller.player = nil
         controller.delegate = nil
         (controller as? LectureAVPlayerController)?.continuityDelegate = nil
