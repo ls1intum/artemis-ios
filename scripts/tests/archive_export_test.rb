@@ -105,7 +105,10 @@ Dir.mktmpdir('artemis-archive-export') do |root|
       contaminated = %w[RUBYLIB RUBYOPT BUNDLE_BIN_PATH _ORIGINAL_GEM_PATH BUNDLE_GEMFILE GEM_HOME GEM_PATH].select { |name| ENV.key?(name) }
       abort "Ruby environment leaked into exporter: #{contaminated.join(', ')}" unless contaminated.empty?
       ENV['BUNDLE_GEMFILE'] = ENV.fetch('ARTEMIS_FIXTURE_GEMFILE')
-      require 'bundler/setup'
+      # Ruby 4 may preload bundler/setup before the fixture restores its Gemfile.
+      require 'bundler'
+      Bundler.setup
+      abort 'Fixture bundle did not activate plist' unless Gem.loaded_specs.key?('plist')
       require 'plist'
       require 'fileutils'
       abort 'Unexpected xcrun tool' unless ARGV.shift == 'xcodebuild'
