@@ -14,7 +14,10 @@ final class ReviewAssetTests: XCTestCase {
             if case ReviewError.denied = error { denied = true }
         })
         let cookie = try XCTUnwrap(HTTPCookie(properties: [.domain: "127.0.0.1", .path: "/", .name: "unrelated", .value: "private-cookie"]))
-        HTTPCookieStorage.shared.setCookie(cookie); defer { HTTPCookieStorage.shared.deleteCookie(cookie) }
+        await Task.detached(priority: .background) { HTTPCookieStorage.shared.setCookie(cookie) }.value
+        addTeardownBlock {
+            await Task.detached(priority: .background) { HTTPCookieStorage.shared.deleteCookie(cookie) }.value
+        }
         _ = try await assets.data(path: "/image")
         _ = try await assets.data(path: "/image")
         XCTAssertEqual(server.requests.filter { $0.hasPrefix("GET /image ") }.count, 2, "Asset responses must not persist or be reused from URLCache")

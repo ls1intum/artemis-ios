@@ -47,7 +47,14 @@ struct ResultReviewPage: View {
                 if let document {
                     summary(document)
                     Divider()
-                    if geometry.size.width >= 800 && !typeSize.isAccessibilitySize && document.quiz == nil {
+                    if document.exercise.type == "modeling" {
+                        ReviewModelPanes(wide: geometry.size.width >= 800 && !typeSize.isAccessibilitySize,
+                                         feedbackWidth: min(440, geometry.size.width * 0.4), section: $section) {
+                            work(document)
+                        } feedback: {
+                            feedback(document)
+                        }
+                    } else if geometry.size.width >= 800 && !typeSize.isAccessibilitySize && document.quiz == nil {
                         HStack(alignment: .top, spacing: 0) {
                             work(document).frame(maxWidth: .infinity)
                             Divider()

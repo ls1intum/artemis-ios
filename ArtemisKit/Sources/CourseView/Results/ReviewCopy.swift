@@ -1,7 +1,7 @@
 import Foundation
 
 enum ReviewCopy {
-    static func text(_ key: String) -> String { String(localized: String.LocalizationValue(key), bundle: .module) }
+    static func text(_ key: String) -> String { String(localized: String.LocalizationValue(key), table: "Review", bundle: .module) }
     static func group(_ group: StudentFeedback.Group) -> String {
         switch group {
         case .tests: text("review.tests")

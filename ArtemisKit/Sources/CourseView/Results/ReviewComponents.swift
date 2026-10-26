@@ -49,14 +49,20 @@ struct AssessedTextView: UIViewRepresentable {
         var selected: Int?
         var onSelect: (Int) -> Void
         init(onSelect: @escaping (Int) -> Void) { self.onSelect = onSelect }
-        func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
-            if URL.scheme == "artemis-feedback", let host = URL.host, let index = Int(host) { onSelect(index) }
-            return false
+        func textView(_ textView: UITextView, primaryActionFor textItem: UITextItem, defaultAction: UIAction) -> UIAction? {
+            guard case let .link(url) = textItem.content else { return nil }
+            return feedbackAction(for: url)
+        }
+        func textView(_ textView: UITextView, menuConfigurationFor textItem: UITextItem, defaultMenu: UIMenu) -> UITextItem.MenuConfiguration? { nil }
+        func feedbackAction(for url: URL?) -> UIAction? {
+            guard let url, url.scheme == "artemis-feedback", let host = url.host, let index = Int(host), index >= 0 else { return nil }
+            return UIAction { [weak self] _ in self?.onSelect(index) }
         }
     }
 }
 
 struct FeedbackReviewRow: View {
+    @Environment(\.dynamicTypeSize) private var typeSize
     let feedback: StudentFeedback
     let selected: Bool
     let loading: Bool
@@ -69,14 +75,17 @@ struct FeedbackReviewRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .firstTextBaseline, spacing: 8) {
-                if let positive = feedback.positive {
-                    Image(systemName: positive ? "checkmark.circle" : "exclamationmark.circle")
-                        .accessibilityLabel(ReviewCopy.text(positive ? "review.positive" : "review.negative"))
-                } else { Image(systemName: "text.bubble").accessibilityLabel(ReviewCopy.text("review.neutral")) }
-                Text(feedback.title.isEmpty ? ReviewCopy.text("review.feedback") : feedback.title).font(.headline)
-                Spacer(minLength: 4)
-                if let credits = feedback.credits { Text("\(credits.formatted()) \(ReviewCopy.text("review.points"))").font(.subheadline).monospacedDigit() }
+            if typeSize.isAccessibilitySize {
+                VStack(alignment: .leading, spacing: 4) {
+                    headerTitle
+                    credits
+                }
+            } else {
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    headerTitle
+                    Spacer(minLength: 4)
+                    credits
+                }
             }
             let preview = ReviewMessagePreview(feedback.message)
             if feedback.hasLongFeedbackText == true {
@@ -96,7 +105,12 @@ struct FeedbackReviewRow: View {
             }
             if let referenceLabel {
                 Button(action: onSelect) {
-                    Label(referenceLabel, systemImage: "scope").font(.callout).lineLimit(3).frame(minHeight: 44, alignment: .leading)
+                    Label(referenceLabel, systemImage: "scope")
+                        .font(.callout)
+                        .lineLimit(nil)
+                        .multilineTextAlignment(.leading)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
                 }.buttonStyle(.borderless)
             }
             if unlocated { Text(ReviewCopy.text("review.unlocated")).font(.caption).foregroundStyle(.secondary) }
@@ -107,6 +121,26 @@ struct FeedbackReviewRow: View {
         .accessibilityAddTraits(selected ? .isSelected : [])
         .onChange(of: feedback.hasLongFeedbackText) { oldValue, newValue in
             if oldValue == true && newValue != true { expanded = true }
+        }
+    }
+
+    private var headerTitle: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
+            if let positive = feedback.positive {
+                Image(systemName: positive ? "checkmark.circle" : "exclamationmark.circle")
+                    .accessibilityLabel(ReviewCopy.text(positive ? "review.positive" : "review.negative"))
+            } else { Image(systemName: "text.bubble").accessibilityLabel(ReviewCopy.text("review.neutral")) }
+            Text(feedback.title.isEmpty ? ReviewCopy.text("review.feedback") : feedback.title)
+                .font(.headline)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    @ViewBuilder private var credits: some View {
+        if let credits = feedback.credits {
+            Text("\(credits.formatted()) \(ReviewCopy.text("review.points"))")
+                .font(.subheadline).monospacedDigit()
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 }
