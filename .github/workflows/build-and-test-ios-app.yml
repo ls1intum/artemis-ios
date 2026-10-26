@@ -41,6 +41,7 @@ jobs:
           ruby scripts/tests/select_ci_xcode_test.rb
           ruby scripts/tests/xcodebuild_diagnostics_test.rb
           ruby scripts/tests/lint_test.rb
+          bundle exec ruby scripts/tests/archive_export_test.rb
 
       - name: Run ArtemisKit tests
         run: bundle exec fastlane test
