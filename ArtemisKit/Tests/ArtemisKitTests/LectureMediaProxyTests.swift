@@ -101,8 +101,12 @@ final class LectureMediaProxyTests: XCTestCase {
         fixture.respond("/child", status: 302, headers: ["Location": fixture.base.appending(path: "child-content").absoluteString])
         fixture.respond("/child-content", body: "#EXTM3U\n#EXT-X-TARGETDURATION:10\n#EXTINF:10,\n\(external.base)/segment.ts\n#EXT-X-ENDLIST\n")
         let sentinel = try XCTUnwrap(HTTPCookie(properties: [.domain: "127.0.0.1", .path: "/", .name: "jwt", .value: "shared-sentinel"]))
-        HTTPCookieStorage.shared.setCookie(sentinel)
-        defer { HTTPCookieStorage.shared.deleteCookie(sentinel) }
+        // Shared-store initialization can start CFNetwork's private loader thread.
+        // Complete fixture setup off the UI thread before checking cookie isolation.
+        await Task.detached(priority: .utility) { HTTPCookieStorage.shared.setCookie(sentinel) }.value
+        addTeardownBlock {
+            await Task.detached(priority: .utility) { HTTPCookieStorage.shared.deleteCookie(sentinel) }.value
+        }
         let proxy = LectureMediaProxy(policy: .init(origin: fixture.base, token: "captured"), isCurrent: { true })
         defer { proxy.stop() }
         let root = try await proxy.start(source: fixture.base.appending(path: "root.m3u8"))
