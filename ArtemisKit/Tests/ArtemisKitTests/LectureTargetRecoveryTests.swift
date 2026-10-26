@@ -40,68 +40,73 @@ final class LectureTargetRecoveryTests: XCTestCase {
         XCTAssertEqual(service.slideLoads, 2)
     }
 
-    func testRepeatedReferenceRecreatesConsumedHostedDetail() async throws {
+    func testCompletionPublishesAfterTheRequestSettlesSoTheOriginCanRefresh() async throws {
         let service = RecoveryLectureService()
         service.failsFirstLoad = false
-        let navigation = NavigationController()
-        navigation.selectedCourse = CoursePath(id: 1)
-        let target = LectureMediaTarget(unitId: 5, page: 3)
-        let path = LecturePath(id: 2, coursePath: CoursePath(id: 1), target: target)
-        let navigate: (LecturePath) -> Void = { navigation.goToLecture(courseId: $0.coursePath.id, lectureId: $0.id, target: $0.target) }
-        navigate(path)
-        var models: [LectureDetailViewModel] = []
-        let harness = RepeatedLectureDetailHarness(navigation: navigation) { path in
-            let model = LectureDetailViewModel(course: CourseForOverviewDTO(course: Course(id: 1, courseInformationSharingConfiguration: .communicationAndMessaging)),
-                                               lectureId: path.id, lectureService: service, isCurrent: { true })
-            models.append(model)
-            return model
+        service.delaysCompletion = true
+        let model = LectureDetailViewModel(course: CourseForOverviewDTO(course: Course(id: 1, courseInformationSharingConfiguration: .communicationAndMessaging)), lectureId: 2,
+                                           lectureService: service, isCurrent: { true })
+        await model.loadLecture()
+        let unit = try XCTUnwrap(model.lecture.value?.lectureUnits?.first)
+        let event = expectation(forNotification: Notification.Name("lectureUnitCompletionDidChange"), object: nil) { notification in
+            notification.userInfo?["courseId"] as? Int == 1 && notification.userInfo?["lectureId"] as? Int == 2
         }
-        let host = UIHostingController(rootView: harness)
-        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 800, height: 1000))
-        window.rootViewController = host; window.makeKeyAndVisible()
-        defer { host.dismiss(animated: false); window.isHidden = true; window.rootViewController = nil }
-        for _ in 0..<100 where host.presentedViewController == nil { try await Task.sleep(for: .milliseconds(10)) }
-        let first = try XCTUnwrap(models.first { $0.targetPresentation != nil })
-        XCTAssertNotNil(host.presentedViewController)
-        first.targetPresentation = nil
-        // Test the actual hosted StateObject consumption lifecycle. UIKit may
-        // retain a presentation carrier in this unscened test window; shipping
-        // UI automation verifies the visible Close and repeated-link flow.
-        await Task.yield()
-        navigation.tabPath.append(ConversationPath(id: 9, coursePath: CoursePath(id: 1)))
-        navigate(path) // The same intentional reference, after its first sheet was closed.
-        for _ in 0..<100 where !models.contains(where: { $0 !== first && $0.targetPresentation != nil }) {
-            try await Task.sleep(for: .milliseconds(10))
-        }
-        let reopened = try XCTUnwrap(models.first { $0 !== first && $0.targetPresentation != nil })
-        XCTAssertEqual(reopened.targetPresentation?.target, target)
-        XCTAssertNil(first.targetPresentation, "The consumed model stays consumed")
-        XCTAssertTrue(navigation.tabPath.isEmpty)
+        let update = Task { await model.updateLectureUnitCompletion(lectureUnit: unit, completed: true) }
+        for _ in 0..<100 where service.completion == nil { await Task.yield() }
+        let completion = try XCTUnwrap(service.completion)
+        // Back's initial overview refresh can complete before the POST does.
+        await model.loadLecture()
+        completion.resume(returning: .success)
+        _ = await update.value
+        await fulfillment(of: [event], timeout: 0.2)
     }
 
-    func testRetryActuallyPresentsTheNativeSheetWithRequestedPage() async throws {
+    func testCompletionFailureIsVisibleOnTheMediaPage() async throws {
+        let service = RecoveryLectureService()
+        service.failsFirstLoad = false
+        service.failsCompletion = true
+        let model = LectureDetailViewModel(course: CourseForOverviewDTO(course: Course(id: 1, courseInformationSharingConfiguration: .communicationAndMessaging)), lectureId: 2,
+                                           lectureService: service, isCurrent: { true })
+        let path = LectureMediaPath(courseId: 1, lectureId: 2, target: .init(unitId: 5))
+        let host = UIHostingController(rootView: NavigationStack { LectureMediaPage(viewModel: model, path: path) })
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 1000, height: 800))
+        window.rootViewController = host; window.makeKeyAndVisible()
+        defer { host.dismiss(animated: false); window.isHidden = true; window.rootViewController = nil }
+        for _ in 0..<100 where model.targetPresentation == nil { try await Task.sleep(for: .milliseconds(10)) }
+        let unit = try XCTUnwrap(model.targetPresentation?.unit)
+        _ = await model.updateLectureUnitCompletion(lectureUnit: unit, completed: true)
+        for _ in 0..<100 where host.presentedViewController == nil { try await Task.sleep(for: .milliseconds(10)) }
+        XCTAssertTrue(model.showError)
+        XCTAssertNotNil(host.presentedViewController, "A rejected completion must show the error on the visible page")
+    }
+
+    func testRetryDisplaysTheRequestedUnitOnAFullPageWithoutPresentingASheet() async throws {
         let service = RecoveryLectureService()
         let model = LectureDetailViewModel(course: CourseForOverviewDTO(course: Course(id: 1, courseInformationSharingConfiguration: .communicationAndMessaging)), lectureId: 2,
                                            lectureService: service, isCurrent: { true })
-        let host = UIHostingController(rootView: LectureDetailView(viewModel: model, target: .init(unitId: 5, page: 3)))
-        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 800, height: 1000))
+        let path = LectureMediaPath(courseId: 1, lectureId: 2, target: .init(unitId: 5, page: 3))
+        let host = UIHostingController(rootView: NavigationStack { LectureMediaPage(viewModel: model, path: path) })
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 1000, height: 800))
         window.rootViewController = host
         window.makeKeyAndVisible()
-        defer { host.dismiss(animated: false); window.isHidden = true; window.rootViewController = nil }
-        for _ in 0..<50 where service.loads == 0 { try await Task.sleep(for: .milliseconds(10)) }
-        await model.loadLecture() // The same operation invoked by the DataStateView Retry action.
-        for _ in 0..<100 where host.presentedViewController == nil { try await Task.sleep(for: .milliseconds(10)) }
-        XCTAssertNotNil(host.presentedViewController)
+        defer { window.isHidden = true; window.rootViewController = nil }
+        for _ in 0..<100 where service.loads == 0 { try await Task.sleep(for: .milliseconds(10)) }
+        XCTAssertNil(model.targetPresentation)
+        await model.retryTarget() // The operation invoked by the page's Retry action.
+        for _ in 0..<100 where model.targetPresentation == nil { try await Task.sleep(for: .milliseconds(10)) }
         XCTAssertEqual(model.targetPresentation?.target?.page, 3)
-        model.targetPresentation = nil
-        host.dismiss(animated: false)
-
+        XCTAssertEqual(model.targetPresentation?.unit.baseUnit.name, "Requested unit")
+        XCTAssertNil(host.presentedViewController, "Study content belongs to the navigation page, not a modal")
+        XCTAssertEqual(host.view.bounds.width, window.bounds.width)
     }
 }
 
 @MainActor
 private final class RecoveryLectureService: LectureService {
     var failsFirstLoad = true
+    var failsCompletion = false
+    var delaysCompletion = false
+    var completion: CheckedContinuation<NetworkResponse, Never>?
     var loads = 0
     var slideLoads = 0
     var slideSnapshots: [LectureMediaDetails] = []
@@ -123,17 +128,10 @@ private final class RecoveryLectureService: LectureService {
         return .done(response: [slideSnapshots[slideLoads]])
     }
     func getAttachmentFile(link: String, name: String?) async -> DataState<LectureAttachmentFile> { .failure(error: UserFacingError(title: "unused")) }
-    func updateLectureUnitCompletion(lectureId: Int, lectureUnitId: Int64, completed: Bool) async -> NetworkResponse { .success }
-    func getAssociatedChannel(for lectureId: Int, in courseId: Int) async -> DataState<Channel> { .failure(error: UserFacingError(title: "unused")) }
-}
-
-private struct RepeatedLectureDetailHarness: View {
-    @ObservedObject var navigation: NavigationController
-    let makeModel: (LecturePath) -> LectureDetailViewModel
-    var body: some View {
-        if let path = navigation.selectedPath as? LecturePath {
-            LectureDetailView(viewModel: makeModel(path), target: path.target)
-                .id(path.presentationIdentity)
-        }
+    func updateLectureUnitCompletion(lectureId: Int, lectureUnitId: Int64, completed: Bool) async -> NetworkResponse {
+        if delaysCompletion { return await withCheckedContinuation { completion = $0 } }
+        if failsCompletion { return .failure(error: UserFacingError(title: "Offline")) }
+        return .success
     }
+    func getAssociatedChannel(for lectureId: Int, in courseId: Int) async -> DataState<Channel> { .failure(error: UserFacingError(title: "unused")) }
 }

@@ -138,7 +138,7 @@ struct LectureAttachmentSheet: View {
 
 }
 
-struct AttachmentUnitSheetContent: View {
+struct AttachmentUnitContent: View {
     let attachmentUnit: AttachmentVideoUnit?
     var lectureId: Int?
     var lectureName: String?
@@ -156,20 +156,23 @@ struct AttachmentUnitSheetContent: View {
             if let attachment = unit.attachment, unit.videoSource == nil || explicitPage != nil || originalSlideNumber != nil || refreshSlide != nil {
                 LectureAttachmentSheet(attachment: attachment, identity: identity, explicitPage: explicitPage, originalSlideNumber: originalSlideNumber, visibleSlideNumbers: visibleSlideNumbers, studentVersion: studentVersion, refreshSlide: refreshSlide)
             } else {
-                VStack(spacing: 12) {
-                    if let attachment = unit.attachment {
-                        NavigationLink {
-                            LectureAttachmentSheet(attachment: attachment, identity: identity, explicitPage: explicitPage, originalSlideNumber: originalSlideNumber, visibleSlideNumbers: visibleSlideNumbers, studentVersion: studentVersion, refreshSlide: refreshSlide)
-                        } label: {
-                            Label(attachment.name ?? "Slides", systemImage: "doc.richtext")
-                        }
-                        .buttonStyle(ArtemisButton())
-                        .padding(.horizontal)
-                    }
+                Group {
                     if let source = unit.videoSource, let url = URL(string: source), LectureMediaSource.classify(url) != .invalid {
-                        VideoUnitSheetContent(unit: unit, videoSource: url, identity: identity)
+                        LectureVideoContent(unit: unit, videoSource: url, identity: identity)
                     } else {
                         ContentUnavailableView("Media is unavailable", systemImage: "video.slash", description: Text("The lecture has no valid video link. Try opening its slides."))
+                    }
+                }
+                .toolbar {
+                    if let attachment = unit.attachment {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            NavigationLink {
+                                LectureAttachmentSheet(attachment: attachment, identity: identity, explicitPage: explicitPage, originalSlideNumber: originalSlideNumber, visibleSlideNumbers: visibleSlideNumbers, studentVersion: studentVersion, refreshSlide: refreshSlide)
+                                    .navigationTitle(attachment.name ?? "Slides")
+                            } label: {
+                                Label("Slides", systemImage: "doc.richtext")
+                            }
+                        }
                     }
                 }
             }

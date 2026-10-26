@@ -5,7 +5,7 @@ import SwiftUI
 import UserStore
 import WebKit
 
-struct VideoUnitSheetContent: View {
+struct LectureVideoContent: View {
     let unit: AttachmentVideoUnit
     let videoSource: URL
     let identity: String
@@ -24,52 +24,52 @@ struct VideoUnitSheetContent: View {
     }
 
     var body: some View {
-        GeometryReader { proxy in
-            VStack(spacing: 12) {
-                Group {
-                    if !sessionValid {
-                        Text(LectureMediaError.sessionChanged.localizedDescription).padding()
-                    } else if LectureMediaSource.classify(videoSource) == .video {
-                        ZStack {
-                            if let player = playback.player { LectureVideoPlayer(player: player, playback: playback) }
-                            switch playback.state {
-                            case .loading:
-                                ProgressView("Loading video…")
-                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                    .background(.background)
-                            case .failed(let message):
-                                ContentUnavailableView {
-                                    Label("Video could not be played", systemImage: "video.slash")
-                                } description: {
-                                    Text(message)
-                                } actions: {
-                                    Button("Retry") { Task { await playback.load() } }
-                                }
-                                .background(.background)
-                            case .ready: EmptyView()
-                            }
+        Group {
+            if !sessionValid {
+                ContentUnavailableView(LectureMediaError.sessionChanged.localizedDescription, systemImage: "person.crop.circle.badge.exclamationmark")
+            } else if LectureMediaSource.classify(videoSource) == .video {
+                ZStack {
+                    Color.black
+                    if let player = playback.player { LectureVideoPlayer(player: player, playback: playback) }
+                    switch playback.state {
+                    case .loading:
+                        ProgressView("Loading video…")
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .background(.background)
+                    case .failed(let message):
+                        ContentUnavailableView {
+                            Label("Video could not be played", systemImage: "video.slash")
+                        } description: {
+                            Text(message)
+                        } actions: {
+                            Button("Retry") { Task { await playback.load() } }
                         }
-                    } else {
-                        LectureProviderContent(url: videoSource, active: scenePhase == .active, playback: providerPlayback)
+                        .background(.background)
+                    case .ready: EmptyView()
                     }
                 }
-                .frame(maxWidth: .infinity)
-                .frame(height: max(180, min(proxy.size.height * 0.72, proxy.size.width * 9 / 16)))
-
+            } else {
+                LectureProviderContent(url: videoSource, active: scenePhase == .active, playback: providerPlayback)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .toolbar {
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                if let description = unit.description, !description.isEmpty {
+                    NavigationLink {
+                        ScrollView {
+                            Text(description)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding()
+                        }
+                        .navigationTitle("About video")
+                    } label: {
+                        Label("About video", systemImage: "info.circle")
+                    }
+                }
                 if sessionValid {
                     Link(destination: videoSource) { Label("Open in browser", systemImage: "safari") }
-                        .buttonStyle(ArtemisButton())
-                        .padding(.horizontal)
                 }
-
-                if let description = unit.description, !description.isEmpty {
-                    ScrollView {
-                        Text(description)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal)
-                    }
-                }
-                Spacer(minLength: 0)
             }
         }
         .task {
@@ -98,6 +98,8 @@ struct LectureVideoPlayer: UIViewControllerRepresentable {
         let controller = LectureAVPlayerController()
         controller.player = player
         controller.videoGravity = .resizeAspect
+        controller.entersFullScreenWhenPlaybackBegins = true
+        controller.exitsFullScreenWhenPlaybackEnds = false
         controller.allowsPictureInPicturePlayback = false
         controller.canStartPictureInPictureAutomaticallyFromInline = false
         controller.delegate = context.coordinator

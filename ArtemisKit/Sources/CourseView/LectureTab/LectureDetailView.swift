@@ -16,6 +16,7 @@ import Navigation
 public struct LectureDetailView: View {
 
     @Environment(\.availableTabs) private var tabs
+    @EnvironmentObject private var navigationController: NavigationController
     @StateObject private var viewModel: LectureDetailViewModel
     private let target: LectureMediaTarget?
 
@@ -102,63 +103,29 @@ public struct LectureDetailView: View {
             viewModel.configureTarget(target)
             await viewModel.loadLecture()
         }
-        .sheet(item: $viewModel.targetPresentation) { presentation in
-            NavigationStack {
-                LectureUnitSheetContent(unit: presentation.unit,
-                                        identity: "course/\(viewModel.courseId)/lecture/\(viewModel.lectureId)/unit/\(presentation.unit.id)",
-                                        explicitPage: presentation.target?.page,
-                                        originalSlideNumber: presentation.target?.originalSlideNumber,
-                                        visibleSlideNumbers: presentation.target?.visibleSlideNumbers,
-                                        studentVersion: presentation.studentVersion,
-                                        refreshSlide: presentation.target.flatMap { reference in
-                                            guard reference.slideId != nil || reference.originalSlideNumber != nil else { return nil }
-                                            return { await viewModel.refreshSlideAccess(for: reference) }
-                                        })
-                .id(presentation.target)
-                .navigationTitle(presentation.unit.baseUnit.name ?? "")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) { Button(role: .close) { viewModel.targetPresentation = nil } }
-                }
-                .task {
-                    if !(presentation.unit.baseUnit.completed ?? false), presentation.unit.baseUnit.visibleToStudents ?? false {
-                        _ = await viewModel.updateLectureUnitCompletion(lectureUnit: presentation.unit, completed: true)
-                        await viewModel.loadLecture()
-                    }
-                }
-            }
+        .onReceive(viewModel.$targetPresentation) { presentation in
+            guard let presentation, let target = presentation.target else { return }
+            navigationController.openLectureMedia(courseId: viewModel.courseId, lectureId: viewModel.lectureId, target: target)
+            viewModel.targetPresentation = nil
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .lectureUnitCompletionDidChange)) { event in
+            guard event.userInfo?["courseId"] as? Int == viewModel.courseId,
+                  event.userInfo?["lectureId"] as? Int == viewModel.lectureId else { return }
+            Task { await viewModel.loadLecture() }
         }
         .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
     }
 }
 
 struct CompletePdfDownloadButton: View {
-
+    @EnvironmentObject private var navigationController: NavigationController
     @ObservedObject var viewModel: LectureDetailViewModel
-    @State private var showDetails = false
 
     var body: some View {
         Button(R.string.localizable.downloadCompletePdf()) {
-            showDetails = true
+            navigationController.openLectureMedia(courseId: viewModel.courseId, lectureId: viewModel.lectureId)
         }
         .buttonStyle(ArtemisButton())
-        .sheet(isPresented: $showDetails) {
-            NavigationStack {
-                AttachmentUnitSheetContent(attachmentUnit: nil,
-                                           lectureId: viewModel.lectureId,
-                                           lectureName: viewModel.lecture.value?.title ?? "",
-                                           identity: "course/\(viewModel.courseId)/lecture/\(viewModel.lectureId)/merged")
-                .navigationTitle(viewModel.lecture.value?.title ?? "")
-                .toolbarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button(role: .close) {
-                            showDetails = false
-                        }
-                    }
-                }
-            }
-        }
     }
 }
 
@@ -234,8 +201,7 @@ struct BaseLectureUnitCell: View {
 
     @State private var lectureUnit: LectureUnit
     @State private var isLoading = false
-    @State private var showDetails = false
-    @State private var presentedUnit: LectureUnitPresentation?
+    @EnvironmentObject private var navigationController: NavigationController
 
     private var isCompleted: Binding<Bool> {
         Binding(get: {
@@ -282,39 +248,18 @@ struct BaseLectureUnitCell: View {
         .padding(.l)
         .cardModifier(backgroundColor: .Artemis.exerciseCardBackgroundColor, cornerRadius: .m)
         .onTapGesture {
-            let fresh = viewModel.lecture.value?.lectureUnits?.first(where: { $0.id == lectureUnit.id }) ?? lectureUnit
-            let version: String?
-            if case .attachmentVideo(let attachment) = fresh {
-                version = attachment.attachment.flatMap { viewModel.studentVersions[$0.id] }
-            } else { version = nil }
-            presentedUnit = LectureUnitPresentation(unit: fresh, studentVersion: version)
-            showDetails = true
+            navigationController.openLectureMedia(courseId: viewModel.courseId, lectureId: viewModel.lectureId,
+                                                  target: LectureMediaTarget(unitId: lectureUnit.id))
         }
-        .sheet(isPresented: $showDetails) {
-            NavigationStack {
-                LectureUnitSheetContent(unit: presentedUnit?.unit ?? lectureUnit,
-                                        identity: "course/\(viewModel.courseId)/lecture/\(viewModel.lectureId)/unit/\(lectureUnit.id)",
-                                        studentVersion: presentedUnit?.studentVersion)
-                .navigationTitle(lectureUnit.baseUnit.name ?? "")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button(role: .close) {
-                            showDetails = false
-                        }
-                    }
-                }
-                .onAppear {
-                    if !isCompleted.wrappedValue && lectureUnit.baseUnit.visibleToStudents ?? false {
-                        isCompleted.wrappedValue = true
-                    }
-                }
+        .onChange(of: viewModel.lecture.value, initial: true) { _, _ in
+            if let fresh = viewModel.lecture.value?.lectureUnits?.first(where: { $0.id == lectureUnit.id }) {
+                lectureUnit = fresh
             }
         }
     }
 }
 
-struct TextUnitSheetContent: View {
+struct TextUnitContent: View {
 
     let textUnit: TextUnit
 
@@ -326,7 +271,7 @@ struct TextUnitSheetContent: View {
     }
 }
 
-struct OnlineUnitSheetContent: View {
+struct OnlineUnitContent: View {
 
     let onlineUnit: OnlineUnit
 
@@ -387,7 +332,7 @@ struct LectureUnitPresentation: Identifiable {
     var id: Int64 { unit.id }
 }
 
-private struct LectureUnitSheetContent: View {
+struct LectureUnitContent: View {
     let unit: LectureUnit
     let identity: String
     var explicitPage: Int?
@@ -399,9 +344,9 @@ private struct LectureUnitSheetContent: View {
     var body: some View {
         switch unit {
         case .attachmentVideo(let attachment):
-            AttachmentUnitSheetContent(attachmentUnit: attachment, identity: identity, explicitPage: explicitPage, originalSlideNumber: originalSlideNumber, visibleSlideNumbers: visibleSlideNumbers, studentVersion: studentVersion, refreshSlide: refreshSlide)
-        case .text(let text): TextUnitSheetContent(textUnit: text)
-        case .online(let online): OnlineUnitSheetContent(onlineUnit: online)
+            AttachmentUnitContent(attachmentUnit: attachment, identity: identity, explicitPage: explicitPage, originalSlideNumber: originalSlideNumber, visibleSlideNumbers: visibleSlideNumbers, studentVersion: studentVersion, refreshSlide: refreshSlide)
+        case .text(let text): TextUnitContent(textUnit: text)
+        case .online(let online): OnlineUnitContent(onlineUnit: online)
         case .unknown, .exercise:
             ContentUnavailableView("Lecture unit is unavailable", systemImage: "doc.questionmark")
         }

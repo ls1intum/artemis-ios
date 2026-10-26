@@ -11,6 +11,10 @@ import SharedModels
 import SharedServices
 import Navigation
 
+extension Notification.Name {
+    static let lectureUnitCompletionDidChange = Notification.Name("lectureUnitCompletionDidChange")
+}
+
 class LectureDetailViewModel: BaseViewModel {
 
     @Published var lecture: DataState<Lecture> = .loading
@@ -18,6 +22,7 @@ class LectureDetailViewModel: BaseViewModel {
     private var pendingTarget: LectureMediaTarget?
     private var requestedTarget: LectureMediaTarget?
     private var targetConsumed = false
+    private var completionStarted = false
     private var lectureService: LectureService = LectureServiceFactory.shared
     private var sessionCheck: (() -> Bool)?
     private var isCurrent: Bool { sessionCheck?() ?? (mediaSession?.isCurrent == true) }
@@ -84,6 +89,12 @@ class LectureDetailViewModel: BaseViewModel {
         pendingTarget = target
         targetConsumed = false
         targetPresentation = nil
+    }
+
+    func retryTarget() async {
+        targetConsumed = false
+        targetPresentation = nil
+        await loadLecture()
     }
 
     func refreshSlideAccess(for target: LectureMediaTarget) async -> DataState<LectureSlideAccess> {
@@ -159,11 +170,21 @@ class LectureDetailViewModel: BaseViewModel {
         channel = result
     }
 
-    func updateLectureUnitCompletion(lectureUnit: LectureUnit, completed: Bool) async -> LectureUnit {
-        let result = await lectureService.updateLectureUnitCompletion(lectureId: lectureId,
-                                                                                    lectureUnitId: lectureUnit.id,
-                                                                                    completed: completed)
+    /// Opening a unit marks it complete using the existing policy. This user
+    /// action must settle even when Back removes the page during the request.
+    func completePresentedUnitIfNeeded() {
+        guard !completionStarted, let unit = targetPresentation?.unit,
+              !(unit.baseUnit.completed ?? false), unit.baseUnit.visibleToStudents ?? false, isCurrent else { return }
+        completionStarted = true
+        Task { _ = await updateLectureUnitCompletion(lectureUnit: unit, completed: true) }
+    }
 
+    func updateLectureUnitCompletion(lectureUnit: LectureUnit, completed: Bool) async -> LectureUnit {
+        guard isCurrent else { return lectureUnit }
+        let result = await lectureService.updateLectureUnitCompletion(lectureId: lectureId,
+                                                                     lectureUnitId: lectureUnit.id,
+                                                                     completed: completed)
+        guard isCurrent else { return lectureUnit }
         switch result {
         case .failure(let error):
             presentError(userFacingError: UserFacingError(title: error.localizedDescription))
@@ -200,6 +221,8 @@ class LectureDetailViewModel: BaseViewModel {
                 return lectureUnit
             }
 
+            NotificationCenter.default.post(name: .lectureUnitCompletionDidChange, object: nil,
+                                            userInfo: ["courseId": courseId, "lectureId": lectureId])
             return newLectureUnit
         }
     }

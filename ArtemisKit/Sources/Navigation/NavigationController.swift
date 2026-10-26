@@ -7,6 +7,7 @@ public class NavigationController: ObservableObject {
 
     @Published public var outerPath: NavigationPath
     @Published public var selectedCourse: CoursePath?
+    @Published public var lectureMediaPath: [LectureMediaPath] = []
     @Published public var tabPath: NavigationPath
     @Published public var selectedPath: (any Hashable)?
 
@@ -43,6 +44,7 @@ public class NavigationController: ObservableObject {
 
 public extension NavigationController {
     func popToRoot() {
+        lectureMediaPath = []
         outerPath = NavigationPath()
         tabPath = NavigationPath()
         selectedCourse = nil
@@ -62,20 +64,35 @@ public extension NavigationController {
 
     func goToExercise(courseId: Int, exerciseId: Int) {
         goToCourse(id: courseId)
+        lectureMediaPath = []
         courseTab = .exercise
         selectedPath = ExercisePath(id: exerciseId, coursePath: CoursePath(id: courseId))
         log.debug("ExercisePath was appended to queue")
     }
 
     func goToLecture(courseId: Int, lectureId: Int, target: LectureMediaTarget? = nil) {
+        if let target {
+            openLectureMedia(courseId: courseId, lectureId: lectureId, target: target)
+            return
+        }
         goToCourse(id: courseId)
+        lectureMediaPath = []
         courseTab = .lecture
         tabPath = NavigationPath()
-        selectedPath = LecturePath(id: lectureId, coursePath: CoursePath(id: courseId), target: target)
+        selectedPath = LecturePath(id: lectureId, coursePath: CoursePath(id: courseId))
         log.debug("LecturePath was appended to queue")
     }
 
+    /// Keeps the originating course tab and detail stack intact for native Back.
+    func openLectureMedia(courseId: Int, lectureId: Int, target: LectureMediaTarget? = nil) {
+        if selectedCourse?.id != courseId {
+            goToLecture(courseId: courseId, lectureId: lectureId)
+        }
+        lectureMediaPath = [LectureMediaPath(courseId: courseId, lectureId: lectureId, target: target)]
+    }
+
     func goToIrisSession(courseId: Int, sessionId: Int, defaultInput: String = "", contextSource: IrisContextSource? = nil) {
+        lectureMediaPath = []
         goToCourse(id: courseId)
         courseTab = .iris
         selectedPath = IrisSessionPath(sessionId: sessionId,
@@ -86,6 +103,7 @@ public extension NavigationController {
     }
 
     func openNewIrisChat(courseId: Int, inputText: String) {
+        lectureMediaPath = []
         goToCourse(id: courseId)
         courseTab = .iris
         selectedPath = IrisStartChatPath(inputText: inputText, coursePath: selectedCourse ?? CoursePath(id: courseId))
@@ -95,6 +113,7 @@ public extension NavigationController {
     /// Opens the Iris tab without selecting a session, e.g. to let the user pick
     /// their AI experience before a session is created.
     func goToIris(courseId: Int) {
+        lectureMediaPath = []
         goToCourse(id: courseId)
         courseTab = .iris
         selectedPath = nil
@@ -102,10 +121,12 @@ public extension NavigationController {
     }
 
     func setTab(identifier: TabIdentifier) {
+        lectureMediaPath = []
         courseTab = identifier
     }
 
     func goToCourseConversations(courseId: Int) {
+        lectureMediaPath = []
         courseTab = .communication
         goToCourse(id: courseId)
     }

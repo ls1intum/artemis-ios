@@ -66,11 +66,12 @@ final class LectureMediaTests: XCTestCase {
         let handler = try XCTUnwrap(LectureHandler.build(from: URL(string: "https://example.org/courses/1/lectures/2?lectureUnitId=5&page=3")!))
         handler.handle(with: controller)
         for _ in 0..<20 {
-            if controller.selectedPath is LecturePath { break }
+            if !controller.lectureMediaPath.isEmpty { break }
             await Task.yield()
         }
-        let path = try XCTUnwrap(controller.selectedPath as? LecturePath)
-        XCTAssertEqual(path.id, 2)
+        let path = try XCTUnwrap(controller.lectureMediaPath.last)
+        XCTAssertEqual(path.lectureId, 2)
+        XCTAssertEqual(path.courseId, 1)
         XCTAssertEqual(path.target?.unitId, 5)
         XCTAssertEqual(path.target?.page, 3)
     }

@@ -79,6 +79,21 @@ public struct LectureMediaTarget: Hashable {
     }
 }
 
+/// A fresh page request. Only resource identity is carried; the page reloads access metadata.
+public struct LectureMediaPath: Hashable {
+    public let courseId: Int
+    public let lectureId: Int
+    public let target: LectureMediaTarget?
+    public let requestID = UUID()
+
+    /// A nil target opens the lecture's combined PDF.
+    public init(courseId: Int, lectureId: Int, target: LectureMediaTarget? = nil) {
+        self.courseId = courseId
+        self.lectureId = lectureId
+        self.target = target
+    }
+}
+
 public struct LecturePath: Hashable {
     public let id: Int
     public let lecture: Lecture?
