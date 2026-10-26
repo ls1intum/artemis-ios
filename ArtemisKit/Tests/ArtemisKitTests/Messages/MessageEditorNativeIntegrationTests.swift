@@ -129,7 +129,7 @@ final class MessageEditorNativeIntegrationTests: XCTestCase {
         let coordinator = try XCTUnwrap(view.delegate as? MessageRichTextEditor.Coordinator)
         let copy = UIAction(title: "Copy") { _ in }
         let menu = try XCTUnwrap(coordinator.textView(view, editMenuForTextInRanges: [NSValue(range: NSRange(location: 0, length: 5))], suggestedActions: [copy]))
-        XCTAssertTrue(menu.children.first === copy)
+        XCTAssertIdentical(menu.children.first, copy)
         let formats = try XCTUnwrap(menu.children.last as? UIMenu)
         XCTAssertEqual(formats.children.count, 5)
         let bold = try XCTUnwrap(formats.children.first as? UIAction)
@@ -200,8 +200,8 @@ final class MessageEditorNativeIntegrationTests: XCTestCase {
         _ = host.sizeThatFits(in: CGSize(width: 320, height: 600))
         host.view.layoutIfNeeded()
         let reused = try XCTUnwrap(findEditor(host.view))
-        XCTAssertTrue(original === reused)
-        XCTAssertTrue(reused.document === second)
+        XCTAssertIdentical(original, reused)
+        XCTAssertIdentical(reused.document, second)
         XCTAssertNil(first.applyEdit)
         XCTAssertNil(first.applyTypingAttributes)
         second.insertText(" draft")
@@ -315,9 +315,7 @@ final class MessageEditorNativeIntegrationTests: XCTestCase {
     }
 
     private func host(_ document: MessageEditorDocument) async throws -> (UIHostingController<EditorHarness>, UIWindow) {
-        let scene = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first
-        let window = scene.map(UIWindow.init(windowScene:)) ?? UIWindow()
-        window.frame = CGRect(x: 0, y: 0, width: 390, height: 844)
+        let window = try makeTestWindow(frame: CGRect(x: 0, y: 0, width: 390, height: 844))
         let appeared = expectation(description: "Native editor appeared")
         let host = UIHostingController(rootView: EditorHarness(document: document, appeared: { appeared.fulfill() }))
         window.rootViewController = host

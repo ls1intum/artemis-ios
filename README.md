@@ -64,3 +64,17 @@ while the request is in flight and clears the saved draft only after acceptance.
 Reference pills use the appearance and text size from when their content is loaded. Changing
 appearance or Dynamic Type while the same draft remains open does not currently redraw
 existing pills. Native editor text still follows system accessibility and appearance settings.
+
+## Development checks
+
+Run unit and native integration tests with the shared `ArtemisKitHostedTests` project scheme:
+
+```sh
+xcodebuild test -project Artemis.xcodeproj -scheme ArtemisKitHostedTests \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+  -skipMacroValidation -skipPackagePluginValidation CODE_SIGNING_ALLOWED=NO
+```
+
+This scheme uses a minimal app host with a real window scene; it starts no production app services. The same test sources remain in the Swift package, but scene-dependent tests need this hosted scheme.
+
+`scripts/lint.sh` runs strict SwiftLint using the package identity and version pinned in `Package.resolved`, rejecting stale cached binaries. The checks in `scripts/tests/` cover lint selection, Ruby setup and build-log diagnostics. CI rejects compiler/tool warnings in test and archive-compilation logs.

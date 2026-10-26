@@ -21,7 +21,7 @@ let package = Package(
         .package(url: "https://github.com/onmyway133/Smile", revision: "6bacbf7"),
 //        .package(url: "https://github.com/ls1intum/apollon-ios-module", .upToNextMajor(from: "1.0.9")), // Disabled because not working
 //        .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", .upToNextMajor(from: "21.1.0")),
-        .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", revision: "115c803"),
+        .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", revision: "d8c768a91a0ec7c75b99e256518ba18209256a7f"),
         .package(url: "https://github.com/mac-cain13/R.swift.git", from: "7.8.0")
     ],
     targets: [
@@ -235,6 +235,6 @@ let package = Package(
                 .product(name: "PushNotifications", package: "artemis-ios-core-modules")
             ])
     ],
-    // TODO: Eventually upgrade
+    // Swift 5 language mode keeps the current modules compatible during concurrency migration.
     swiftLanguageModes: [.v5]
 )

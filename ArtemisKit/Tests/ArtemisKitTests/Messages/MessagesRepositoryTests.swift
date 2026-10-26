@@ -37,7 +37,7 @@ final class MessagesRepositoryTests: XCTestCase {
         let repository = try await MessagesRepository(timeoutInSeconds: 1)
 
         // when
-        try await repository.insertServer(host: host)
+        await repository.insertServer(host: host)
         try await Task.sleep(for: .seconds(2))
         let server = try await repository.fetchServer(host: host)
 

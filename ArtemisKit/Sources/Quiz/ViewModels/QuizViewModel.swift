@@ -29,7 +29,7 @@ class QuizViewModel {
             return answer.score
         } else if case .done(let answers) = lastSubmissionResults {
             let answer = answers.first(where: {
-                $0.question?.id  == questionId
+                $0.question?.id == questionId
             })
             return answer?.score
         }
