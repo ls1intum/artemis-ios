@@ -93,6 +93,7 @@ struct ReviewResult: Decodable {
     let rated: Bool?
     let completionDate: Date?
     let assessmentType: String?
+    var successful: Bool?
     let feedbacks: [StudentFeedback]?
     let testCaseCount: Int?
     let passedTestCaseCount: Int?
@@ -114,6 +115,7 @@ struct ReviewParticipation: Decodable {
     let id: Int?
     let submissions: [ReviewSubmission]?
     var individualDueDate: Date?
+    var testRun: Bool?
     func assessedSubmission(submissionID: Int, resultID: Int) throws -> ReviewSubmission {
         guard let submission = submissions?.first(where: { $0.id == submissionID }),
               submission.results?.contains(where: { $0?.id == resultID }) == true else { throw ReviewError.identity }
@@ -159,10 +161,20 @@ struct ReviewTextAnchor: Decodable {
     }
 }
 enum ReviewScore {
+    static func rounded(_ value: Double, precision: Int) -> Double {
+        guard value.isFinite, let decimal = Decimal(string: String(value), locale: Locale(identifier: "en_US_POSIX")), !decimal.isNaN else { return value }
+        var multiplier = Decimal(1)
+        for _ in 0..<min(10, max(0, precision)) { multiplier *= 10 }
+        // Lodash shifts the decimal exponent before Math.round; a binary multiply loses 1.005's tie.
+        // floor(x + 0.5) also preserves Math.round's negative-half direction.
+        var shifted = decimal * multiplier + Decimal(1) / 2
+        var integer = Decimal()
+        NSDecimalRound(&integer, &shifted, 0, .down)
+        return Double(NSDecimalNumber(decimal: integer / multiplier).stringValue) ?? value
+    }
     static func points(score: Double?, maximum: Double?, precision: Int) -> Double? {
         guard let score, let maximum, score.isFinite, maximum.isFinite else { return nil }
-        let multiplier = pow(10.0, Double(min(10, max(0, precision))))
-        return (score * maximum / 100 * multiplier).rounded() / multiplier
+        return rounded(score * maximum / 100, precision: precision)
     }
 }
 enum ReviewError: Error { case identity, sessionChanged, denied, http(Int), invalidURL }

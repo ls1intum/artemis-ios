@@ -14,6 +14,7 @@ struct ReviewExercise: Decodable {
     let maxPoints: Double?
     let bonusPoints: Double?
     let assessmentType: String?
+    var assessmentDueDate: Date?
     let buildAndTestStudentSubmissionsAfterDueDate: Date?
     let diagramType: String?
     let studentParticipations: [ReviewParticipation]?
@@ -29,17 +30,19 @@ struct ReviewDocument {
     let result: ReviewResult
     var feedback: [StudentFeedback]
     var quiz: DTO.StudentQuizParticipation?
+    var practice: Bool?
 
     var isLate: Bool? {
         let individual = exercise.studentParticipations?.first(where: { $0.id == reference.participationID })?.individualDueDate
         return ReviewDeadline.isLate(submitted: submission.submissionDate, due: exercise.dueDate, individual: individual)
     }
-    var preliminary: Bool {
-        if result.assessmentType == "AUTOMATIC_ATHENA" { return true }
-        guard exercise.type == "programming" else { return false }
-        if let rebuild = exercise.buildAndTestStudentSubmissionsAfterDueDate { return (result.completionDate ?? .distantPast) < rebuild }
-        return exercise.assessmentType != nil && exercise.assessmentType != "AUTOMATIC" && result.assessmentType == "AUTOMATIC"
+    var assessmentState: ReviewAssessmentState {
+        let practice = self.practice ?? (exercise.studentParticipations?.first(where: { $0.id == reference.participationID })?.testRun == true)
+        return .resolve(.init(exerciseType: exercise.type, exerciseAssessment: exercise.assessmentType, resultAssessment: result.assessmentType,
+                              completion: result.completionDate, successful: result.successful, practice: practice,
+                              assessmentDue: exercise.assessmentDueDate, rebuild: exercise.buildAndTestStudentSubmissionsAfterDueDate), now: .now)
     }
+    var preliminary: Bool { assessmentState == .preliminary }
 }
 struct ReviewLoader {
     let reader: any ReviewReading
@@ -48,6 +51,7 @@ struct ReviewLoader {
         let submission: ReviewSubmission
         var result: ReviewResult?
         var quiz: DTO.StudentQuizParticipation?
+        var practice: Bool?
     }
     func load(_ reference: ReviewReference) async throws -> ReviewDocument {
         guard reader.isCurrent else { throw ReviewError.sessionChanged }
@@ -68,7 +72,7 @@ struct ReviewLoader {
         }
         guard reader.isCurrent, !Task.isCancelled else { throw ReviewError.sessionChanged }
         return ReviewDocument(reference: reference, exercise: exercise, submission: source.submission,
-                              result: result, feedback: feedback, quiz: source.quiz)
+                              result: result, feedback: feedback, quiz: source.quiz, practice: source.practice)
     }
 
     private func assessedSource(_ reference: ReviewReference, exercise: ReviewExercise) async throws -> Source {
@@ -83,7 +87,7 @@ struct ReviewLoader {
         case "quiz": return try await quizSource(reference)
         case "file-upload":
             guard let participation = exercise.studentParticipations?.first(where: { $0.id == reference.participationID }) else { throw ReviewError.identity }
-            return Source(submission: try participation.assessedSubmission(submissionID: reference.submissionID, resultID: reference.resultID))
+            return Source(submission: try participation.assessedSubmission(submissionID: reference.submissionID, resultID: reference.resultID), practice: participation.testRun)
         default: throw ReviewError.identity
         }
     }
@@ -91,7 +95,7 @@ struct ReviewLoader {
     private func participationSource(_ reference: ReviewReference, path: String) async throws -> Source {
         let participation = try await reader.read(ReviewParticipation.self, path: path)
         guard participation.id == reference.participationID else { throw ReviewError.identity }
-        return Source(submission: try participation.assessedSubmission(submissionID: reference.submissionID, resultID: reference.resultID))
+        return Source(submission: try participation.assessedSubmission(submissionID: reference.submissionID, resultID: reference.resultID), practice: participation.testRun)
     }
 
     private func modelingSource(_ reference: ReviewReference) async throws -> Source {
@@ -117,6 +121,6 @@ struct ReviewLoader {
         guard participation.id == reference.participationID else { throw ReviewError.identity }
         let submission = try participation.assessedSubmission(submissionID: reference.submissionID, resultID: reference.resultID)
         let quiz = try decoder.decode(DTO.StudentQuizParticipation.self, from: data)
-        return Source(submission: submission, quiz: quiz)
+        return Source(submission: submission, quiz: quiz, practice: participation.testRun)
     }
 }

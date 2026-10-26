@@ -1,4 +1,4 @@
-import ArtemisMarkdown
+import ReviewContent
 import SwiftUI
 import UIKit
 
@@ -90,7 +90,7 @@ struct FeedbackReviewRow: View {
                     .buttonStyle(.borderless).frame(minHeight: 44)
             }
             if expanded || !preview.isTruncated {
-                ArtemisMarkdownView(string: preview.full).textSelection(.enabled)
+                SafeReviewContent(preview.full).textSelection(.enabled)
             } else {
                 Text(preview.collapsed).lineLimit(6).textSelection(.enabled)
             }

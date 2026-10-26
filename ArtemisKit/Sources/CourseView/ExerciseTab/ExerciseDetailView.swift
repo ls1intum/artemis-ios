@@ -90,6 +90,7 @@ public struct ExerciseDetailView: View {
             await viewModel.refreshExercise()
             await viewModel.loadReviewMetadata()
         }
+        .environment(\.resultScorePrecision, viewModel.scorePrecision)
         .navigationBarTitleDisplayMode(.inline)
     }
 }

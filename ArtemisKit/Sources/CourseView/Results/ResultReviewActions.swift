@@ -28,16 +28,16 @@ extension ResultReviewPage {
             if let commit = document.submission.commitHash {
                 Text(commit).font(.caption.monospaced()).textSelection(.enabled)
             }
-            if let sourceName, let source {
-                Text(sourceName).font(.headline).textSelection(.enabled)
-                ReviewCodeText(text: source, location: selectedFeedback.flatMap { index in
+            if let source = sourceSelection.loaded {
+                Text(source.file).font(.headline).textSelection(.enabled)
+                ReviewCodeText(text: source.text, location: sourceSelection.highlight(for: selectedFeedback.flatMap { index in
                     guard document.feedback.indices.contains(index),
                       let reference = document.feedback[index].sourceReference else { return nil }
                     return ReviewCodeLocation(reference: reference)
-                })
+                }))
             } else { unavailable("review.selectCodeFeedback") }
-            if sourceLoading { ProgressView() }
-            if let sourceError { Text(sourceError).foregroundStyle(.secondary) }
+            if sourceSelection.loading { ProgressView() }
+            if let sourceError = sourceSelection.error { Text(ReviewCopy.text("review.sourceUnavailable") + " " + ReviewCopy.error(sourceError)).foregroundStyle(.secondary) }
             DisclosureGroup(ReviewCopy.text("review.logs")) {
                 if let logs {
                     if logs.isEmpty { unavailable("review.noLogs") }
@@ -98,21 +98,14 @@ extension ResultReviewPage {
 
     @MainActor
     func loadSource(_ name: String) async {
-        guard let transport, transport.isCurrent, let commit = document?.submission.commitHash else {
-            sourceError = ReviewCopy.text("review.sourceUnavailable")
-            return
-        }
+        guard let transport, transport.isCurrent else { clear(); return }
+        guard let commit = document?.submission.commitHash else { sourceSelection.clear(); return }
         let selected = reference
         let generation = self.generation
-        sourceLoading = true; sourceError = nil
-        defer { if self.generation == generation { sourceLoading = false } }
-        do {
-            let path = try ReviewSourcePath.file(reference: selected, commit: commit, name: name)
-            let data = try await transport.data(path)
-            guard reference == selected, self.generation == generation, transport.isCurrent else { return }
-            guard let text = String(data: data, encoding: .utf8), !data.contains(0) else { throw ReviewError.identity }
-            sourceName = name; source = text
-        } catch { handle(error, selected: selected, generation: generation) { sourceError = ReviewCopy.text("review.sourceUnavailable") + " " + $0 } }
+        await sourceSelection.load(file: name, reference: selected, commit: commit, reader: transport)
+        guard self.generation == generation, reference == selected else { return }
+        if !transport.isCurrent { clear() }
+        if let sourceError = sourceSelection.error, case ReviewError.denied = sourceError { clear(); error = ReviewCopy.text("review.denied") }
     }
 
     @MainActor

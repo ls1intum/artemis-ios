@@ -44,6 +44,8 @@ final class ReviewTransport: NSObject, URLSessionTaskDelegate, ReviewReading {
         configuration.urlCache = nil
         configuration.requestCachePolicy = .reloadIgnoringLocalCacheData
         configuration.httpShouldSetCookies = false
+        configuration.httpCookieStorage = nil
+        configuration.urlCredentialStorage = nil
         return URLSession(configuration: configuration, delegate: self, delegateQueue: nil)
     }()
     init(captured: ReviewSession, currentSession: @escaping () -> ReviewSession? = ReviewSession.current) {

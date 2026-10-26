@@ -1,4 +1,5 @@
 import Common
+import ReviewContent
 import SharedModels
 import SwiftUI
 
@@ -30,23 +31,35 @@ public struct QuizResultReview: View {
         LazyVStack(alignment: .leading, spacing: 24) {
             ForEach(questions.enumerated(), id: \.offset) { _, question in
                 VStack(alignment: .leading, spacing: 12) {
-                    let previous = answers.first(where: { $0.question?.id == question.id })?.reviewAnswer
                     switch question {
                     case .multipleChoice(let mc):
                         heading(title: mc.title, id: mc.id, points: mc.points)
-                        MCQuestionView(question: .init(quizQuestionWithSolutionDTO: question, id: mc.id), questionWithAnswer: mc, previousAnswer: previous)
+                        MCQuestionView(question: .init(quizQuestionWithSolutionDTO: question, id: mc.id),
+                                       questionWithAnswer: mc, previousAnswer: answers.first(where: { $0.question?.id == mc.id })?.reviewAnswer)
                     case .dragAndDrop(let dnd):
                         heading(title: dnd.title, id: dnd.id, points: dnd.points)
-                        DNDQuestionView(question: .init(quizQuestionWithSolutionDTO: question, id: dnd.id), questionWithAnswer: dnd, previousAnswer: previous)
+                        DNDQuestionView(question: .init(quizQuestionWithSolutionDTO: question, id: dnd.id),
+                                        questionWithAnswer: dnd, previousAnswer: answers.first(where: { $0.question?.id == dnd.id })?.reviewAnswer)
                     case .shortAnswer(let sa):
                         heading(title: sa.title, id: sa.id, points: sa.points)
-                        ShortAnswerQuestionView(question: .init(quizQuestionWithSolutionDTO: question, id: sa.id), questionWithSolution: sa, previousAnswer: previous)
+                        ShortAnswerResultReview(presentation: .init(question: sa, answer: shortAnswer(for: sa.id)))
+                    }
+                    if let explanation = QuizReviewQuestionContent(question).explanation, !explanation.isEmpty {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(R.string.localizable.explanation()).font(.headline)
+                            SafeReviewContent(explanation)
+                        }.padding(.horizontal)
                     }
                 }
                 Divider()
             }
         }
         .environment(viewModel)
+    }
+
+    private func shortAnswer(for id: Int64?) -> DTO.ShortAnswerSubmittedAnswerAfterEvaluation? {
+        guard let answer = answers.first(where: { $0.question?.id == id }), case .shortAnswer(let evaluated) = answer else { return nil }
+        return evaluated
     }
 
     private func heading(title: String?, id: Int64?, points: Double?) -> some View {
@@ -74,6 +87,17 @@ extension DTO.SubmittedAnswerAfterEvaluation {
             return .shortAnswer(.init(quizQuestion: .init(id: question?.id), submittedTexts: (sa.submittedTexts ?? []).map {
                 .init(text: $0.text, spot: .init(id: $0.spot?.id))
             }, _type: .shortAnswer))
+        }
+    }
+}
+
+struct QuizReviewQuestionContent {
+    let explanation: String?
+    init(_ question: DTO.QuizQuestionWithSolution) {
+        switch question {
+        case .multipleChoice(let value): explanation = value.explanation
+        case .dragAndDrop(let value): explanation = value.explanation
+        case .shortAnswer(let value): explanation = value.explanation
         }
     }
 }

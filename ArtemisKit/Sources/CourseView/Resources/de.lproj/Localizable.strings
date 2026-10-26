@@ -56,3 +56,6 @@
 "review.collapseMessage" = "Weniger anzeigen";
 "review.expandMessage" = "Vollständigen Kommentar anzeigen";
 "review.attemptNumber" = "Versuch";
+"review.feedbackPending" = "Feedback wird erstellt";
+"review.feedbackFailed" = "Feedback konnte nicht erstellt werden";
+"review.feedbackTimedOut" = "Zeitüberschreitung bei der Feedback-Erstellung";

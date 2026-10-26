@@ -186,3 +186,6 @@
 "review.collapseMessage" = "Show less";
 "review.expandMessage" = "Show full comment";
 "review.attemptNumber" = "Attempt";
+"review.feedbackPending" = "Feedback is being generated";
+"review.feedbackFailed" = "Feedback generation failed";
+"review.feedbackTimedOut" = "Feedback generation timed out";

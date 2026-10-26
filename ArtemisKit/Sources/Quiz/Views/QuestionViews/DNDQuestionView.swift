@@ -7,6 +7,7 @@
 
 import DesignLibrary
 import Extensions
+import ReviewContent
 import SharedModels
 import SwiftUI
 
@@ -44,12 +45,13 @@ struct DNDQuestionView: View {
 
     var body: some View {
         if let text = questionWithAnswer.text {
-            Text(LocalizedStringKey(text))
-                .padding(.horizontal)
+            if viewModel.isReadOnly { SafeReviewContent(text).padding(.horizontal) } else { Text(LocalizedStringKey(text)).padding(.horizontal) }
         }
 
-        ArtemisAsyncImage(imageURL: backgroundImage) {
-            Text("Failed to load image :/")
+        Group {
+            if viewModel.isReadOnly { ReviewImage(path: questionWithAnswer.backgroundFilePath, filePath: true) } else {
+                ArtemisAsyncImage(imageURL: backgroundImage) { Text("Failed to load image :/") }
+            }
         }
         .scaledToFit()
         .containerRelativeFrame(.horizontal)
@@ -161,9 +163,7 @@ struct DropLocation: View {
     }
 
     var isCorrect: Bool? {
-        guard let correctMappings else { return nil }
-        let mapping = correctMappings.first { $0.dropLocation?.id == location.id }
-        return mapping?.dragItem?.id == selectedItem?.id
+        QuizDropEvaluation.correct(locationID: location.id, selectedItemID: selectedItem?.id, correctMappings: correctMappings)
     }
 
     var selectedItem: DTO.DragItem? {
@@ -201,5 +201,14 @@ struct DropLocation: View {
             return $0
         }
         selected = false
+    }
+}
+
+enum QuizDropEvaluation {
+    static func correct(locationID: Int64?, selectedItemID: Int64?, correctMappings: [DTO.DragAndDropMapping]?) -> Bool? {
+        guard let correctMappings else { return nil }
+        let valid = correctMappings.filter { $0.dropLocation?.id == locationID }
+        guard let selectedItemID else { return valid.isEmpty }
+        return valid.contains { $0.dragItem?.id == selectedItemID }
     }
 }

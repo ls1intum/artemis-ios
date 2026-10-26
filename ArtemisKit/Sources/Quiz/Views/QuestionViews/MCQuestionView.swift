@@ -6,6 +6,7 @@
 //
 
 import Common
+import ReviewContent
 import SharedModels
 import SwiftUI
 
@@ -29,8 +30,7 @@ struct MCQuestionView: View {
 
     var body: some View {
         if let text = questionWithAnswer.text {
-            Text(LocalizedStringKey(text))
-                .padding(.horizontal)
+            if viewModel.isReadOnly { SafeReviewContent(text).padding(.horizontal) } else { Text(LocalizedStringKey(text)).padding(.horizontal) }
         }
 
         if let answerOptions = questionWithAnswer.answerOptions {
@@ -51,7 +51,7 @@ struct MCQuestionView: View {
 
                     Text("\(loc.solution()): \(correctLabel)")
                     if let explanation = option.explanation {
-                        Text("\(loc.explanation()): \(explanation)")
+                        if viewModel.isReadOnly { SafeReviewContent(explanation) } else { Text("\(loc.explanation()): \(explanation)") }
                     }
                 }
             }
@@ -83,7 +83,7 @@ struct MCQuestionView: View {
                                 }
                             }
 
-                        Text(option.text ?? "No text")
+                        choiceText(option.text ?? "No text")
                             .multilineTextAlignment(.leading)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .accessibilityAddTraits(selectedAnswers.contains(id) ? .isSelected : [])
@@ -93,6 +93,11 @@ struct MCQuestionView: View {
                                 .font(.title2)
                         }
                     }
+    }
+
+    @ViewBuilder
+    private func choiceText(_ text: String) -> some View {
+        if viewModel.isReadOnly { SafeReviewContent(text) } else { Text(text) }
     }
 
     private func toggleAnswer(_ id: Int64) {

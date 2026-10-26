@@ -17,7 +17,7 @@ final class ReviewLoaderTests: XCTestCase {
         let reader = ReviewReaderFixture(payloads: [
             "/api/exercise/exercises/2/details": #"{"exercise":{"id":2,"type":"modeling","course":{"id":1}}}"#,
             "/api/modeling/participations/3/submissions-with-results": #"""
-            [{"id":4,"model":"{}","results":[{"id":5,"assessmentType":"AUTOMATIC_ATHENA","feedbacks":[{"detailText":"Released AI comment"}]}]}]
+            [{"id":4,"model":"{}","results":[{"id":5,"assessmentType":"AUTOMATIC_ATHENA","successful":true,"feedbacks":[{"detailText":"Released AI comment"}]}]}]
             """#
         ])
         let document = try await ReviewLoader(reader: reader).load(.init(courseID: 1, exerciseID: 2, participationID: 3, submissionID: 4, resultID: 5))

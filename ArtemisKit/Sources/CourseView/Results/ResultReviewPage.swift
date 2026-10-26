@@ -2,6 +2,7 @@ import Combine
 import Common
 import DesignLibrary
 import Quiz
+import ReviewContent
 import SharedModels
 import SwiftUI
 import UserStore
@@ -14,6 +15,7 @@ struct ResultReviewPage: View {
     @State var reference: ReviewReference
     @State var generation = UUID()
     @State var transport: ReviewTransport?
+    @State var assetContext: ReviewAssetContext?
     @State var document: ReviewDocument?
     @State var loading = true
     @State var error: String?
@@ -22,10 +24,7 @@ struct ResultReviewPage: View {
     @State var previewURL: URL?
     @State var previewError: String?
     @State var fileLoading = false
-    @State var source: String?
-    @State var sourceName: String?
-    @State var sourceError: String?
-    @State var sourceLoading = false
+    @State var sourceSelection = ReviewSourceSelection()
     @State var logs: [ReviewBuildLog]?
     @State var logsError: String?
     @State var logsLoading = false
@@ -74,6 +73,7 @@ struct ResultReviewPage: View {
                 }
             }
         }
+        .environment(\.reviewAssets, assetContext)
         .navigationTitle(ReviewCopy.text("review.title"))
         .navigationBarTitleDisplayMode(.inline)
         .task(id: reference) { await load() }
@@ -94,13 +94,13 @@ struct ResultReviewPage: View {
                         if let points = ReviewScore.points(score: score, maximum: document.exercise.maxPoints, precision: precision), let maximum = document.exercise.maxPoints {
                             Text("\(points.formatted()) / \(maximum.formatted()) \(ReviewCopy.text("review.points"))").font(.title3.bold())
                         }
-                        Text("\(score.formatted(.number.precision(.fractionLength(0...precision)))) %").font(.subheadline)
+                        Text("\(ReviewScore.rounded(score, precision: precision).formatted(.number.precision(.fractionLength(0...precision)))) %").font(.subheadline)
                     }.monospacedDigit()
                 } else { Text(ReviewCopy.text("review.scoreUnknown")).font(.headline) }
                 Spacer(minLength: 12)
                 VStack(alignment: .trailing, spacing: 2) {
-                    Text(ReviewCopy.text(document.result.rated == false ? "review.practice" : "review.assessed"))
-                    if document.preliminary { Text(ReviewCopy.text("review.preliminary")) }
+                    if document.result.rated == false { Text(ReviewCopy.text("review.practice")) }
+                    Text(ReviewCopy.text(document.assessmentState.localizationKey))
                     if document.isLate == true { Text(ReviewCopy.text("review.late")) }
                     if document.submission.buildFailed == true { Text(ReviewCopy.text("review.buildFailed")) }
                 }.font(.subheadline).foregroundStyle(.secondary)
@@ -170,7 +170,7 @@ struct ResultReviewPage: View {
                             selectedFeedback = document.feedback.firstIndex(where: { $0.reference == reference }); section = 1
                         }.frame(minHeight: 460)
                     } else { unavailable("review.sourceUnavailable") }
-                    if let explanation = document.submission.explanationText, !explanation.isEmpty { Text(explanation).textSelection(.enabled) }
+                    if let explanation = document.submission.explanationText, !explanation.isEmpty { SafeReviewContent(explanation) }
                 case "quiz":
                     quizWork(document)
                 default: unavailable("review.sourceUnavailable")
@@ -186,8 +186,8 @@ struct ResultReviewPage: View {
                             if let model = solution.exampleSolutionModel {
                                 ModelReviewCanvas(model: model, diagramType: solution.diagramType, feedback: [], selectedReference: nil) { _ in }.frame(minHeight: 400)
                             }
-                            if let text = solution.exampleSolution { Text(text).textSelection(.enabled) }
-                            if let explanation = solution.exampleSolutionExplanation { Text(explanation).textSelection(.enabled) }
+                            if let text = solution.exampleSolution { SafeReviewContent(text) }
+                            if let explanation = solution.exampleSolutionExplanation { SafeReviewContent(explanation) }
                             if solution.type == "programming", let url = try? transport?.captured.url(for: "/courses/\(reference.courseID)/exercises/\(reference.exerciseID)") {
                                 Link(ReviewCopy.text("review.openSolutionWeb"), destination: url)
                                 Text(ReviewCopy.text("review.browserSignIn")).font(.caption).foregroundStyle(.secondary)
@@ -274,10 +274,10 @@ struct ResultReviewPage: View {
         self.generation = generation
         document = nil
         cleanupFile()
-        selectedFeedback = nil; source = nil; logs = nil; solution = nil
-        previewError = nil; sourceError = nil; logsError = nil; solutionError = nil
+        selectedFeedback = nil; sourceSelection.clear(); logs = nil; solution = nil
+        previewError = nil; logsError = nil; solutionError = nil
         longErrors = []; longLoading = []
-        fileLoading = false; sourceLoading = false; logsLoading = false; solutionLoading = false
+        fileLoading = false; logsLoading = false; solutionLoading = false
         showSolution = false
         error = nil; loading = true
         defer { if reference == selected && self.generation == generation { loading = false } }
@@ -285,6 +285,12 @@ struct ResultReviewPage: View {
         do {
             let loaded = try await ReviewLoader(reader: transport).load(selected)
             guard reference == selected, self.generation == generation, transport.isCurrent else { return }
+            assetContext = ReviewAssetContext(baseURL: transport.captured.baseURL, isCurrent: { transport.isCurrent }, load: { try await transport.data($0) }, didFail: { failure in
+                Task { @MainActor in
+                    guard self.generation == generation, reference == selected else { return }
+                    if case ReviewError.denied = failure { clear(); error = ReviewCopy.text("review.denied") } else if !transport.isCurrent { clear() }
+                }
+            })
             document = loaded
         } catch {
             guard reference == selected, self.generation == generation else { return }
@@ -295,7 +301,8 @@ struct ResultReviewPage: View {
     @MainActor
     func clear() {
         generation = UUID()
-        document = nil; source = nil; logs = nil; solution = nil; selectedFeedback = nil
+        assetContext = nil
+        document = nil; sourceSelection.clear(); logs = nil; solution = nil; selectedFeedback = nil
         cleanupFile()
         loading = false
         error = ReviewCopy.text("review.sessionChanged")
