@@ -109,6 +109,10 @@ final class ConversationScrollLayoutTests: XCTestCase {
         let previousKeyWindow = window.windowScene?.windows.first(where: \.isKeyWindow)
         window.rootViewController = controller
         window.makeKeyAndVisible()
+        // Finish the initial synchronous render before measuring asynchronous
+        // settling; a cold SwiftUI layout can otherwise consume the deadline.
+        controller.view.setNeedsLayout()
+        controller.view.layoutIfNeeded()
         try await waitForLayout(controller, description: "The conversation scroll hierarchy is laid out") {
             guard let scrollView = self.conversationScrollViewCandidate(in: controller.view) else { return false }
             return scrollView.contentSize.height > scrollView.bounds.height + 200
