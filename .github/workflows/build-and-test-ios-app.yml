@@ -12,13 +12,17 @@ jobs:
   tests:
     permissions:
       contents: read
-    runs-on: macos-26
+    runs-on: xcode-27
     timeout-minutes: 30
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_27.1.app/Contents/Developer
     steps:
       - uses: actions/checkout@v7
 
       - name: Select compatible Xcode and print versions
-        run: scripts/select-ci-xcode.sh iphonesimulator
+        run: |
+          test -d "$DEVELOPER_DIR"
+          scripts/select-ci-xcode.sh iphonesimulator
 
       - uses: ruby/setup-ruby@v1
         with:
