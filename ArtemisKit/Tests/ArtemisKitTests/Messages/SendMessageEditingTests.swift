@@ -18,7 +18,7 @@ extension SendMessageDraftTests {
                 let configuration: SendMessageViewModel.Configuration = reply
                     ? .editAnswerMessage(AnswerMessage(id: 42), completion) : .editMessage(Message(id: 42), completion)
                 let service = DraftMessagesService(answer: { _ in .loading }, editResponse: succeeds ? .success : .notStarted)
-                let model = makeDraftViewModel(repository: try MessagesRepository(), courseId: Int.random(in: 12_000_001...13_000_000),
+                let model = makeDraftViewModel(repository: try MessagesRepository(inMemory: true), courseId: Int.random(in: 12_000_001...13_000_000),
                                                configuration: configuration, messagesService: service,
                                                didEditMessage: { published = $0 })
                 model.performOnAppear()
@@ -39,11 +39,13 @@ extension SendMessageDraftTests {
     }
 
     func testRetainedActionModelUsesTheCurrentBindingWhenReopeningSheets() throws {
-        let composer = makeDraftViewModel(repository: try MessagesRepository(), courseId: 14_000_042)
+        let repository = try MessagesRepository(inMemory: true)
+        let composer = makeDraftViewModel(repository: repository, courseId: 14_000_042)
         var original = Message(id: 42)
         original.content = "Before edit"
         let actions = MessageActionsViewModel(
-            conversationViewModel: ConversationViewModel(course: composer.course, conversation: composer.conversation, skipLoadingData: true),
+            conversationViewModel: ConversationViewModel(course: composer.course, conversation: composer.conversation,
+                                                         messagesRepository: repository, messagesService: MessagesServiceStub(), skipLoadingData: true),
             message: .constant(.done(response: original)))
         var latest = original
         latest.content = "Accepted edit"

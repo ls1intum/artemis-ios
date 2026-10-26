@@ -17,6 +17,9 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: Select compatible Xcode and print versions
+        run: scripts/select-ci-xcode.sh iphonesimulator
+
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
@@ -31,6 +34,7 @@ jobs:
         run: |
           ruby scripts/tests/check_build_warnings_test.rb
           ruby scripts/tests/setup_ci_ruby_test.rb
+          ruby scripts/tests/select_ci_xcode_test.rb
           ruby scripts/tests/xcodebuild_diagnostics_test.rb
           ruby scripts/tests/lint_test.rb
 
@@ -65,6 +69,9 @@ jobs:
           fi
 
       - uses: actions/checkout@v7
+
+      - name: Select compatible Xcode and print versions
+        run: scripts/select-ci-xcode.sh iphoneos
 
       - name: Install required Ruby and gems
         run: scripts/setup-ci-ruby.sh

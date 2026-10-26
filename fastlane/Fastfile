@@ -67,6 +67,7 @@ platform :ios do
       disable_slide_to_type: false,
       parallel_testing: false,
       output_directory: results_path,
+      output_types: "junit",
       buildlog_path: File.join(results_path, "logs"),
       result_bundle: true,
       xcargs: "-skipMacroValidation -skipPackagePluginValidation CODE_SIGNING_ALLOWED=NO",

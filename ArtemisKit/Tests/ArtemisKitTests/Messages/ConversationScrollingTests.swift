@@ -4,10 +4,11 @@ import XCTest
 
 @MainActor
 final class ConversationScrollingTests: XCTestCase {
-    func testLoadingEarlierMessagesDoesNotReplayNewMessageScroll() async {
+    func testLoadingEarlierMessagesDoesNotReplayNewMessageScroll() async throws {
         let viewModel = ConversationViewModel(
             course: MessagesServiceStub.course,
             conversation: MessagesServiceStub.conversation,
+            messagesRepository: try MessagesRepository(inMemory: true),
             messagesService: MessagesServiceStub(),
             skipLoadingData: true)
         viewModel.messages = [.message(MessagesServiceStub.reply)]

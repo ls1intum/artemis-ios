@@ -1,12 +1,12 @@
 {
-  "originHash" : "eb6354e8eafea28fb4b730375cefb6a618d07384ac1fdca59cb3698ddbe94159",
+  "originHash" : "2db590119e93108c644e88889dbc5993563bf167abfa624f4c417748ab756d7c",
   "pins" : [
     {
       "identity" : "artemis-ios-core-modules",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ls1intum/artemis-ios-core-modules",
       "state" : {
-        "revision" : "d8c768a91a0ec7c75b99e256518ba18209256a7f"
+        "revision" : "120e6a27d66ca33470104e2a56b49f16c57c34f7"
       }
     },
     {
@@ -23,8 +23,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/1024jp/GzipSwift.git",
       "state" : {
-        "revision" : "56bf51fdd2fe4b2cf254b2cf34aede3d7caccc6c",
-        "version" : "6.1.0"
+        "revision" : "41d37421fe2cbbfae4a5593dc29d12999fb73cd7",
+        "version" : "7.0.0"
       }
     },
     {
