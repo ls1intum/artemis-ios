@@ -13,11 +13,13 @@ class QuizTrainingViewModel: QuizViewModel {
     private(set) var phase: TrainingPhase = .idle
     private(set) var confirmedCount = 0
     private(set) var ratedCount = 0
+    private(set) var progressRevision = 0
     private(set) var questions: [DTO.QuizQuestionTraining] = []
     private(set) var draft: DTO.SubmittedAnswerFromLiveClient?
     private var nextRequest = TrainingPageRequest()
     private var frozenSnapshot: [Int64]?
     private var frozenNewSession: Bool?
+    private var capturedRating: Bool?
     private var legacyUnrated = false
     private var seen: Set<Int64> = []
     private var hasNext = false
@@ -28,6 +30,9 @@ class QuizTrainingViewModel: QuizViewModel {
 
     func formattedPoints(_ points: Double) -> String { points.formatted(.number.precision(.fractionLength(0...scorePrecision))) }
     var currentQuestion: DTO.QuizQuestionTraining? { questions.first }
+    var presentation: TrainingQuestionPresentation? {
+        currentQuestion.map { TrainingQuestionPresentation(question: $0, evaluation: lastSubmissionResult.value, draft: draft) }
+    }
     var inputsLocked: Bool { phase != .answering }
     var hasActiveSession: Bool { phase != .idle && phase != .accessLost }
     var currentScore: (reached: Double, total: Double)? {
@@ -103,18 +108,20 @@ class QuizTrainingViewModel: QuizViewModel {
     }
     private func captureSnapshot(_ page: TrainingPage) throws {
         guard let first = page.questions.first else { return }
-        if frozenSnapshot == nil, !legacyUnrated {
-            if let snapshot = first.questionIds, let newSession = first.isNewSession {
-                guard page.questions.allSatisfy({ $0.questionIds == snapshot && $0.isNewSession == newSession }) else { throw TrainingError.contract }
-                frozenSnapshot = snapshot; frozenNewSession = newSession
-            } else if first.isRated == true, let newSession = first.isNewSession {
-                // NON_EMPTY omits the rated branch's valid empty exclusion Set on deployed servers.
-                guard page.questions.allSatisfy({ $0.isRated == true && ($0.questionIds ?? []).isEmpty && $0.isNewSession == newSession }) else { throw TrainingError.contract }
-                frozenSnapshot = []; frozenNewSession = newSession
-            } else {
-                guard page.questions.allSatisfy({ $0.questionIds == nil && $0.isRated == false }) else { throw TrainingError.contract }
-                legacyUnrated = true
-            }
+        guard let rated = first.isRated, let newSession = first.isNewSession else { throw TrainingError.contract }
+        let snapshot: [Int64]? = rated ? first.questionIds ?? [] : first.questionIds
+        guard page.questions.allSatisfy({ question in
+            let normalized = rated ? question.questionIds ?? [] : question.questionIds
+            return question.isRated == rated && question.isNewSession == newSession && normalized.map(Set.init) == snapshot.map(Set.init)
+        }) else { throw TrainingError.contract }
+        if legacyUnrated { return }
+        if let frozenSnapshot {
+            guard capturedRating == rated, frozenNewSession == newSession, snapshot.map(Set.init) == Set(frozenSnapshot) else { throw TrainingError.contract }
+        } else if let snapshot {
+            frozenSnapshot = snapshot; frozenNewSession = newSession; capturedRating = rated
+        } else {
+            guard !rated else { throw TrainingError.contract }
+            legacyUnrated = true
         }
     }
     private func prepareQuestion() {
@@ -160,7 +167,7 @@ class QuizTrainingViewModel: QuizViewModel {
             if let id = result.question?.id, id != frozen.questionID { throw TrainingError.contract }
             guard let question = currentQuestion, TrainingProjection.matches(question.quizQuestionWithSolutionDTO, evaluation: result) else { throw TrainingError.contract }
             lastSubmissionResult = .done(response: result)
-            confirmedCount += 1; if frozen.rated { ratedCount += 1 }
+            confirmedCount += 1; progressRevision += 1; if frozen.rated { ratedCount += 1 }
             phase = .evaluated
         } catch {
             validateSession()
@@ -197,7 +204,7 @@ class QuizTrainingViewModel: QuizViewModel {
         resetCursor(); await fetchPage()
     }
     private func resetCursor() {
-        nextRequest = TrainingPageRequest(); frozenSnapshot = nil; frozenNewSession = nil; legacyUnrated = false
+        nextRequest = TrainingPageRequest(); frozenSnapshot = nil; frozenNewSession = nil; capturedRating = nil; legacyUnrated = false
         seen = []; hasNext = true; lastPresentedRated = nil
     }
     func finish() {

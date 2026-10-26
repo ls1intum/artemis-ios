@@ -13,7 +13,7 @@ struct SubmitTrainingAnswerButton: View {
             .onAppear { viewModel.updateDraft(answer) }
             .onChange(of: try? JSONEncoder().encode(answer)) { _, _ in viewModel.updateDraft(answer) }
             .toolbar {
-                if viewModel.phase != .uncertain {
+                if viewModel.phase == .answering || viewModel.phase == .submitting {
                     ToolbarItem(placement: .bottomBar) {
                         Button {
                             Task {

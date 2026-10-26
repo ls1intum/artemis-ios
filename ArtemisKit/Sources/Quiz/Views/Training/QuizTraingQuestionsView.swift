@@ -12,9 +12,9 @@ struct QuizTraingQuestionsView: View {
             case .idle, .loading:
                 ProgressView(TrainingCopy.text("loading"))
             case .answering, .submitting, .evaluated, .uncertain:
-                if let question = viewModel.currentQuestion {
-                    QuizQuestionView(question: viewModel.hasSubmitted ? question : TrainingProjection.answering(question))
-                        .id(question.id)
+                if let presentation = viewModel.presentation {
+                    QuizQuestionView(question: presentation.question)
+                        .id("\(presentation.question.id ?? -1):\(viewModel.hasSubmitted)")
                 }
             case .unratedConfirmation:
                 status(title: "practice", message: "practice.info", symbol: "book") {
@@ -120,7 +120,7 @@ struct QuizQuestionView: View {
                 ToolbarItem(placement: .bottomBar) {
                     Button(TrainingCopy.text("uncertain.retry")) { Task { await viewModel.retrySubmission() } }.buttonStyle(.borderedProminent)
                 }
-            } else if viewModel.hasSubmitted, case .shortAnswer = question.quizQuestionWithSolutionDTO {
+            } else if viewModel.hasSubmitted {
                 ToolbarItem(placement: .bottomBar) {
                     Button(TrainingCopy.text("next")) { Task { await viewModel.advance() } }.buttonStyle(.borderedProminent)
                 }
@@ -130,15 +130,17 @@ struct QuizQuestionView: View {
     @ViewBuilder private var questionBody: some View {
         if !TrainingProjection.canAnswer(question) {
             Text(TrainingCopy.text("unsupported")).padding(.horizontal)
-            Button(TrainingCopy.text("skip")) { Task { await viewModel.skip() } }.padding(.horizontal)
+            if viewModel.phase == .answering {
+                Button(TrainingCopy.text("skip")) { Task { await viewModel.skip() } }.padding(.horizontal)
+            }
         } else {
         switch question.quizQuestionWithSolutionDTO {
-        case .multipleChoice(let mc): MCQuestionView(question: question, questionWithAnswer: mc, previousAnswer: viewModel.draft)
-        case .dragAndDrop(let dnd): DNDQuestionView(question: question, questionWithAnswer: dnd, previousAnswer: viewModel.draft)
+        case .multipleChoice(let mc): MCQuestionView(question: question, questionWithAnswer: mc, previousAnswer: viewModel.presentation?.answer)
+        case .dragAndDrop(let dnd): DNDQuestionView(question: question, questionWithAnswer: dnd, previousAnswer: viewModel.presentation?.answer)
         case .shortAnswer(let sa):
-            if case .shortAnswer(let result) = viewModel.lastSubmissionResult.value {
+            if let result = viewModel.presentation?.shortAnswer {
                 ShortAnswerResultReview(presentation: .init(question: sa, answer: result))
-            } else { ShortAnswerQuestionView(question: question, questionWithSolution: sa, previousAnswer: viewModel.draft) }
+            } else { ShortAnswerQuestionView(question: question, questionWithSolution: sa, previousAnswer: viewModel.presentation?.answer) }
         }
         }
     }

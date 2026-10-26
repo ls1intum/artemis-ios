@@ -117,13 +117,14 @@ private func requestBody(_ request: URLRequest) throws -> Data {
     return result
 }
 
-private final class TrainingURLProtocol: URLProtocol {
+final class TrainingURLProtocol: URLProtocol {
     static var handler: ((URLRequest) throws -> (Int, [String: String], Data))?
     override static func canInit(with request: URLRequest) -> Bool { true }
     override static func canonicalRequest(for request: URLRequest) -> URLRequest { request }
     override func startLoading() {
         do {
-            let (status, headers, data) = try Self.handler!(request)
+            guard let handler = Self.handler else { throw URLError(.cancelled) }
+            let (status, headers, data) = try handler(request)
             let response = HTTPURLResponse(url: request.url!, statusCode: status, httpVersion: nil, headerFields: headers)!
             client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
             client?.urlProtocol(self, didLoad: data); client?.urlProtocolDidFinishLoading(self)

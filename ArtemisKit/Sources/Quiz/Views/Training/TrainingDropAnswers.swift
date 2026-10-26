@@ -27,10 +27,17 @@ struct TrainingDropAnswers: View {
                         } else { Image(systemName: "plus.circle") }
                     }.frame(minHeight: 44)
                 }
+                .accessibilityLabel("\(TrainingCopy.text("input")) \(index + 1)")
+                .accessibilityIdentifier("training.drop.\(location.id ?? Int64(index))")
+                .accessibilityValue(selectedText(for: location.id))
                 .disabled(viewModel.locksAnswerEditing)
                 Divider()
             }
         }
+    }
+    private func selectedText(for locationID: Int64?) -> String {
+        let selected = mappings.first { $0.dropLocation?.id == locationID }?.dragItem?.id
+        return question.dragItems?.first { $0.id == selected }?.text ?? ""
     }
     private func select(_ itemID: Int64?, for locationID: Int64?) {
         mappings = mappings.map { original in

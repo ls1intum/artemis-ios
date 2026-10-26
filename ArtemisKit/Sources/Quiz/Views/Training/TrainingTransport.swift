@@ -9,9 +9,12 @@ struct TrainingIdentity: Equatable {
     let username: String
     let token: String
     let courseID: Int
-    static func current(courseID: Int) -> Self? {
-        let user = UserSessionFactory.shared
-        guard user.isLoggedIn, let baseURL = user.institution?.baseURL, let username = user.username, let token = user.getToken() else { return nil }
+    static func current(courseID: Int, user: UserSession = UserSessionFactory.shared, token: (() -> String?)? = nil) -> Self? {
+        // username is only the SDK's remembered-login preference; account.login survives nonremembered login.
+        let capturedToken: String?
+        if let token { capturedToken = token() } else { capturedToken = user.getToken() }
+        guard user.isLoggedIn, let baseURL = user.institution?.baseURL,
+              let username = user.user?.login ?? user.username, !username.isEmpty, let token = capturedToken, !token.isEmpty else { return nil }
         return Self(baseURL: baseURL, username: username, token: token, courseID: courseID)
     }
     func url(_ path: String) throws -> URL {

@@ -63,6 +63,7 @@ struct ShortAnswerQuestionView: View {
                             .background(Color(uiColor: .secondarySystemBackground), in: .rect(cornerRadius: 8))
                     } else {
                 TextField(viewModel is QuizTrainingViewModel ? TrainingCopy.text("input") : "Input \(spot)", text: textBinding(for: spot))
+                    .accessibilityIdentifier(viewModel is QuizTrainingViewModel ? "training.short-answer.\(spot)" : "")
                     .disabled(viewModel.locksAnswerEditing)
                     .focused($focus, equals: segment)
                     .textFieldStyle(.roundedBorder)

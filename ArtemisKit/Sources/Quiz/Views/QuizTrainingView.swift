@@ -11,17 +11,20 @@ public struct QuizTrainingView: View {
     public var body: some View { TrainingFeatureView(courseId: courseId, scorePrecision: scorePrecision).id(courseId) }
 }
 
-private struct TrainingFeatureView: View {
+struct TrainingFeatureView: View {
     @Environment(\.scenePhase) private var scenePhase
-    @ObservedObject private var account = UserSessionFactory.shared
+    @ObservedObject private var account: UserSession
     @State private var model: QuizTrainingViewModel
     @State private var overview: TrainingOverview?
     @State private var showingQuestions = false
     @State private var transport: TrainingTransport?
     @State private var assets: ReviewAssetContext?
 
-    init(courseId: Int, scorePrecision: Int) {
-        let transport = TrainingIdentity.current(courseID: courseId).map { TrainingTransport(captured: $0) }
+    init(courseId: Int, scorePrecision: Int, account: UserSession = UserSessionFactory.shared, token: (() -> String?)? = nil, makeTransport: ((TrainingIdentity) -> TrainingTransport)? = nil) {
+        _account = ObservedObject(wrappedValue: account)
+        let transport = TrainingIdentity.current(courseID: courseId, user: account, token: token).map { captured in
+            makeTransport?(captured) ?? TrainingTransport(captured: captured, current: { TrainingIdentity.current(courseID: courseId, user: account, token: token) })
+        }
         _transport = State(initialValue: transport)
         let model = QuizTrainingViewModel(courseId: courseId, transport: transport, scorePrecision: scorePrecision)
         let overview = transport.map { TrainingOverview(transport: $0) }
@@ -56,10 +59,15 @@ private struct TrainingFeatureView: View {
         .navigationDestination(isPresented: $showingQuestions) {
             QuizTraingQuestionsView(viewModel: model).environment(\.reviewAssets, assets)
         }
-        .task { if overview?.data == nil { await overview?.load() } }
+        .task {
+            if overview?.data == nil { await overview?.load() } else { await overview?.refreshIfNeeded(after: model.progressRevision) }
+        }
+        .onChange(of: showingQuestions) { _, showing in
+            if !showing { Task { await overview?.refreshIfNeeded(after: model.progressRevision) } }
+        }
         .refreshable { await overview?.load() }
         .onReceive(account.$isLoggedIn) { if !$0 { clearAccess() } }
-        .onReceive(account.$username) { if $0 != transport?.captured.username { clearAccess() } }
+        .onChange(of: account.username) { _, _ in validate() }
         .onReceive(account.$institution) { if $0?.baseURL != transport?.captured.baseURL { clearAccess() } }
         .onChange(of: scenePhase) { _, phase in if phase == .active { validate() } }
     }
@@ -80,8 +88,19 @@ private struct TrainingOverviewSections: View {
                 if let wrong = entry.answeredWrong { LabeledContent(TrainingCopy.text("progress.wrong"), value: wrong.formatted()) }
                 if let total = entry.totalQuestions { LabeledContent(TrainingCopy.text("progress.total"), value: total.formatted()) }
                 if let streak = entry.streak { LabeledContent(TrainingCopy.text("streak"), value: streak.formatted()) }
-                if let league = entry.selectedLeague { LabeledContent(TrainingCopy.text("league"), value: league.formatted()) }
+                if let rank = overview.currentRank { LabeledContent(TrainingCopy.text("rank.current"), value: "#\(rank)") }
             }
+        }
+        Section(TrainingCopy.text("league")) {
+            if let league = TrainingLeague(selectedLeague: overview.data?.currentUserEntry?.selectedLeague) {
+                Text(league.name).font(.headline)
+                Text(league.threshold).foregroundStyle(.secondary)
+                if let score = overview.data?.currentUserEntry?.score, let upper = league.upperBound {
+                    ProgressView(value: Double(min(upper - league.lowerBound, max(0, score - league.lowerBound))), total: Double(upper - league.lowerBound))
+                    Text(String(format: TrainingCopy.text("league.next"), upper)).font(.subheadline).foregroundStyle(.secondary)
+                }
+            }
+            NavigationLink { TrainingLeagueInfoView() } label: { Label(TrainingCopy.text("league.info"), systemImage: "info.circle") }
         }
         Section(TrainingCopy.text("privacy.title")) {
             if overview.needsPrivacyChoice {

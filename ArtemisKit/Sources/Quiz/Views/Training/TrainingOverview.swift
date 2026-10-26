@@ -36,6 +36,8 @@ final class TrainingOverview {
     private(set) var busy = false
     private(set) var failed = false
     private(set) var receivedAt: Date?
+    private var lastRefreshedRevision = 0
+    var currentRank: Int? { data?.currentUserEntry?.rank }
     var needsPrivacyChoice: Bool { initialHasSettings == false }
     init(transport: TrainingOverviewServing) { self.transport = transport }
     func load() async {
@@ -50,6 +52,11 @@ final class TrainingOverview {
             visibility = try await transport.visibility()
             guard transport.isCurrent else { clear(); return }
         } catch { failed = true; if !transport.isCurrent { clear() } }
+    }
+    func refreshIfNeeded(after revision: Int) async {
+        guard !busy, transport.isCurrent, revision != lastRefreshedRevision else { return }
+        await load()
+        if !failed, data != nil { lastRefreshedRevision = revision }
     }
     func setVisibility(_ visible: Bool) async {
         guard !busy, transport.isCurrent else { return }

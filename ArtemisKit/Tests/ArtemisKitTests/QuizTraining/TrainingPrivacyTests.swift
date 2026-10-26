@@ -31,11 +31,12 @@ final class TrainingOverviewStub: TrainingOverviewServing {
     var isCurrent = true
     var settings: Bool?
     var writes: [Bool] = []
-    private var reads = 0
+    var entry: TrainingLeaderboardEntry?
+    var reads = 0
     init(settings: Bool?) { self.settings = settings }
     func overview() async throws -> TrainingLeaderboard {
         reads += 1
-        return .init(hasUserSetSettings: reads > 1 || settings != nil)
+        return .init(hasUserSetSettings: reads > 1 || settings != nil, currentUserEntry: entry)
     }
     func visibility() async throws -> Bool? { settings }
     func setVisibility(_ visible: Bool) async throws { writes.append(visible); settings = visible }
