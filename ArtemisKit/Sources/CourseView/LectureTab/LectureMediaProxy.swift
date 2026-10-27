@@ -156,7 +156,7 @@ private extension LectureMediaProxy {
         let role: LectureMediaResourceRole
         let method: String
         let range: String?
-        let policy: LectureMediaRequestPolicy
+        private var policy: LectureMediaRequestPolicy
         let connection: NWConnection
         let isCurrent: () -> Bool
         let rewrite: (String, URL) throws -> String
@@ -196,8 +196,11 @@ private extension LectureMediaProxy {
 
         func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse,
                         newRequest request: URLRequest, completionHandler: @escaping (URLRequest?) -> Void) {
-            guard isCurrent(), let destination = request.url, let from = response.url,
-                  var redirect = policy.redirect(from: from, to: destination) else { completionHandler(nil); return }
+            guard isCurrent(), let destination = request.url, let from = response.url else { completionHandler(nil); return }
+            if !LectureMediaOrigin.matches(policy.origin, from) || !LectureMediaOrigin.matches(policy.origin, destination) {
+                policy = .init(origin: policy.origin, token: nil)
+            }
+            guard var redirect = policy.redirect(from: from, to: destination) else { completionHandler(nil); return }
             redirect.httpMethod = role == .playlist ? "GET" : method
             redirect.setValue(role == .playlist ? nil : range, forHTTPHeaderField: "Range")
             redirect.setValue("identity", forHTTPHeaderField: "Accept-Encoding")

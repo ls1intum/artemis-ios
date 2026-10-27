@@ -40,7 +40,7 @@ enum LectureMediaError: LocalizedError {
 }
 
 /// A private cookie/credential store avoids the domain-wide JWT cookie installed by APIClient.
-final class LectureMediaDownloader: NSObject, URLSessionTaskDelegate, @unchecked Sendable {
+final class LectureMediaDownloader: @unchecked Sendable {
     let policy: LectureMediaRequestPolicy
 
     init(policy: LectureMediaRequestPolicy) { self.policy = policy }
@@ -57,19 +57,29 @@ final class LectureMediaDownloader: NSObject, URLSessionTaskDelegate, @unchecked
 
     func data(from url: URL) async throws -> (Data, HTTPURLResponse) {
         guard LectureMediaSource.classify(url) != .invalid else { throw LectureMediaError.invalidURL }
-        let session = URLSession(configuration: Self.configuration(), delegate: self, delegateQueue: nil)
+        let session = URLSession(configuration: Self.configuration())
         defer { session.finishTasksAndInvalidate() }
-        let (data, response) = try await session.data(for: policy.request(for: url))
+        let redirects = RedirectDelegate(policy: policy)
+        let (data, response) = try await session.data(for: policy.request(for: url), delegate: redirects)
         guard let response = response as? HTTPURLResponse else { throw LectureMediaError.unavailable }
         guard (200..<300).contains(response.statusCode) else { throw LectureMediaError.response(response.statusCode) }
         return (data, response)
     }
 
-    func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse,
-                    newRequest request: URLRequest, completionHandler: @escaping (URLRequest?) -> Void) {
-        guard let source = response.url, let destination = request.url,
-              var redirected = policy.redirect(from: source, to: destination) else { completionHandler(nil); return }
-        redirected.setValue(task.originalRequest?.value(forHTTPHeaderField: "Range"), forHTTPHeaderField: "Range")
-        completionHandler(redirected)
+    /// A redirect chain owns its policy so concurrent/repeated downloads remain independent.
+    private final class RedirectDelegate: NSObject, URLSessionTaskDelegate, @unchecked Sendable {
+        private var policy: LectureMediaRequestPolicy
+        init(policy: LectureMediaRequestPolicy) { self.policy = policy }
+
+        func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse,
+                        newRequest request: URLRequest, completionHandler: @escaping (URLRequest?) -> Void) {
+            guard let source = response.url, let destination = request.url else { completionHandler(nil); return }
+            if !LectureMediaOrigin.matches(policy.origin, source) || !LectureMediaOrigin.matches(policy.origin, destination) {
+                policy = .init(origin: policy.origin, token: nil)
+            }
+            guard var redirected = policy.redirect(from: source, to: destination) else { completionHandler(nil); return }
+            redirected.setValue(task.originalRequest?.value(forHTTPHeaderField: "Range"), forHTTPHeaderField: "Range")
+            completionHandler(redirected)
+        }
     }
 }

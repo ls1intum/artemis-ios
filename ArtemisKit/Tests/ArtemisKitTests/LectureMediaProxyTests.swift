@@ -5,6 +5,44 @@ import XCTest
 
 @MainActor
 final class LectureMediaProxyTests: XCTestCase {
+    func testDownloaderDoesNotRestoreCredentialsAfterAnExternalRedirect() async throws {
+        let fixture = try await MediaHTTPFixture.start()
+        let external = try await MediaHTTPFixture.start()
+        defer { fixture.stop(); external.stop() }
+        redirectChain(from: fixture, through: external)
+        let downloader = LectureMediaDownloader(policy: .init(origin: fixture.base, token: "private"))
+        let (data, _) = try await downloader.data(from: fixture.base.appending(path: "start.mp4"))
+        XCTAssertEqual(String(bytes: data, encoding: .utf8), "0123456789")
+        XCTAssertEqual(fixture.requests.count, 3)
+        XCTAssertTrue(fixture.requests[0].contains("Cookie: jwt=private"))
+        XCTAssertFalse(fixture.requests[1].lowercased().contains("cookie:"))
+        XCTAssertFalse(fixture.requests[2].lowercased().contains("cookie:"))
+        XCTAssertFalse(try XCTUnwrap(external.requests.first).lowercased().contains("cookie:"))
+    }
+
+    func testProxyDoesNotRestoreCredentialsAfterAnExternalRedirect() async throws {
+        let fixture = try await MediaHTTPFixture.start()
+        let external = try await MediaHTTPFixture.start()
+        defer { fixture.stop(); external.stop() }
+        redirectChain(from: fixture, through: external)
+        let proxy = LectureMediaProxy(policy: .init(origin: fixture.base, token: "private"), isCurrent: { true })
+        defer { proxy.stop() }
+        let local = try await proxy.start(source: fixture.base.appending(path: "start.mp4"))
+        let (data, _) = try await URLSession.shared.data(from: local)
+        XCTAssertEqual(String(bytes: data, encoding: .utf8), "0123456789")
+        XCTAssertEqual(fixture.requests.count, 3)
+        XCTAssertTrue(fixture.requests[0].contains("Cookie: jwt=private"))
+        XCTAssertFalse(fixture.requests[1].lowercased().contains("cookie:"))
+        XCTAssertFalse(fixture.requests[2].lowercased().contains("cookie:"))
+        XCTAssertFalse(try XCTUnwrap(external.requests.first).lowercased().contains("cookie:"))
+    }
+
+    private func redirectChain(from fixture: MediaHTTPFixture, through external: MediaHTTPFixture) {
+        fixture.respond("/start.mp4", status: 302, headers: ["Location": external.base.appending(path: "return.mp4").absoluteString])
+        external.respond("/return.mp4", status: 302, headers: ["Location": fixture.base.appending(path: "returned.mp4").absoluteString])
+        fixture.respond("/returned.mp4", status: 302, headers: ["Location": fixture.base.appending(path: "video.mp4").absoluteString])
+    }
+
     func testRangeStreamingUsesCapturedCredentialsAndIgnoresPlayerCookies() async throws {
         let fixture = try await MediaHTTPFixture.start()
         defer { fixture.stop() }
