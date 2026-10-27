@@ -29,6 +29,23 @@ final class TrainingFixWaveTests: XCTestCase {
         XCTAssertEqual(service.requests.suffix(2).map(\.page), [1, 1])
         XCTAssertEqual(model.currentQuestion?.id, 2)
     }
+    func testSnapshotSetOrderMayChangeWithinAndBetweenPages() async throws {
+        let service = TrainingStub(pages: [
+            .init(questions: [try question(1, snapshot: [93, 91]), try question(2, snapshot: [91, 93])], hasNext: true),
+            .init(questions: [try question(3, snapshot: [91, 93])], hasNext: false)
+        ])
+        let model = QuizTrainingViewModel(courseId: 7, transport: service)
+        await model.loadQuestions()
+        XCTAssertEqual(model.phase, .answering)
+        await model.skip()
+        XCTAssertEqual(model.currentQuestion?.id, 2)
+        await model.skip()
+        XCTAssertEqual(model.phase, .answering)
+        XCTAssertEqual(model.currentQuestion?.id, 3)
+        XCTAssertEqual(service.requests.last, .init(page: 1, isNewSession: false, questionIDs: [93, 91]),
+                       "Continuation must retain the captured wire snapshot while comparison ignores Set serialization order")
+    }
+
     func testHomogeneousChangedContinuationMetadataIsRejected() async throws {
         for changed in [try question(2, snapshot: [999]), try question(2, fresh: true), try question(2, rated: false)] {
             let service = TrainingStub(pages: [.init(questions: [try question(1)], hasNext: true), .init(questions: [changed], hasNext: false)])
