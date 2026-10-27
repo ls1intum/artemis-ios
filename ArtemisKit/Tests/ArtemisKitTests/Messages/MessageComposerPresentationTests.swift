@@ -30,8 +30,6 @@ final class MessageComposerPresentationTests: XCTestCase {
         let (controller, window) = try await host(toolbar.environment(\.verticalSizeClass, .regular), size: CGSize(width: 320, height: 200))
         defer { window.isHidden = true; window.rootViewController = nil }
         controller.additionalSafeAreaInsets = UIEdgeInsets(top: 62, left: 0, bottom: 34, right: 0)
-        // Measure the toolbar itself; host safe-area insets vary across simulator runtimes.
-        controller.safeAreaRegions = []
         controller.view.layoutIfNeeded()
         XCTAssertFalse(model.formattingExpanded)
         XCTAssertLessThanOrEqual(controller.sizeThatFits(in: CGSize(width: 320, height: 200)).height, 44)
@@ -71,7 +69,6 @@ final class MessageComposerPresentationTests: XCTestCase {
             .environment(\.verticalSizeClass, .compact)
         let (controller, window) = try await host(content, size: CGSize(width: 320, height: 200))
         defer { window.isHidden = true; window.rootViewController = nil }
-        controller.safeAreaRegions = []
         controller.view.layoutIfNeeded()
         let editor = try XCTUnwrap(findEditor(in: controller.view))
         let frame = editor.convert(editor.bounds, to: controller.view)
@@ -109,7 +106,6 @@ final class MessageComposerPresentationTests: XCTestCase {
                     .environment(\.verticalSizeClass, sizeClass)
                 let (controller, window) = try await host(content, size: CGSize(width: 390, height: 170))
                 defer { window.isHidden = true; window.rootViewController = nil }
-                controller.safeAreaRegions = []
                 controller.view.layoutIfNeeded()
                 let editor = try XCTUnwrap(findEditor(in: controller.view))
                 let frame = editor.convert(editor.bounds, to: controller.view)
@@ -132,7 +128,6 @@ final class MessageComposerPresentationTests: XCTestCase {
             }
             let (controller, window) = try await host(content, size: CGSize(width: 390, height: height))
             defer { window.isHidden = true; window.rootViewController = nil }
-            controller.safeAreaRegions = []
             controller.view.layoutIfNeeded()
             let editor = try XCTUnwrap(findEditor(in: controller.view))
             let frame = editor.convert(editor.bounds, to: controller.view)
@@ -162,7 +157,6 @@ final class MessageComposerPresentationTests: XCTestCase {
         .environment(\.verticalSizeClass, .regular)
         let (controller, window) = try await host(content, size: CGSize(width: 390, height: 450))
         defer { window.isHidden = true; window.rootViewController = nil }
-        controller.safeAreaRegions = []
         controller.view.layoutIfNeeded()
         let editor = try XCTUnwrap(findEditor(in: controller.view))
         XCTAssertGreaterThanOrEqual(editor.bounds.height, 159.5, "The message list should yield space to the composer's bounded content")
@@ -183,6 +177,8 @@ final class MessageComposerPresentationTests: XCTestCase {
         let appeared = expectation(description: "Composer presentation appeared")
         appeared.assertForOverFulfill = false
         let controller = UIHostingController(rootView: AnyView(view.onAppear { appeared.fulfill() }))
+        // These fixed-size fixtures measure the composer independently of device safe areas.
+        controller.safeAreaRegions = []
         let window = try makeTestWindow(frame: CGRect(origin: .zero, size: size))
         window.rootViewController = controller
         window.makeKeyAndVisible()

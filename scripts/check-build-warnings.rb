@@ -7,7 +7,7 @@ warnings = []
 paths.each do |path|
   File.foreach(path).with_index(1) do |line, number|
     text = line.gsub(/\e\[[0-9;]*m/, '')
-    warnings << "#{path}:#{number}: #{text.strip}" if text.match?(/(?:^|\s)warning:/i)
+    warnings << "#{path}:#{number}: #{text.strip}" if text.match?(/(?:^|\s)warning:|\b(?:is|was|has been)\s+deprecated\b/i)
   end
 end
 
