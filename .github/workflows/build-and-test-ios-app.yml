@@ -12,10 +12,17 @@ jobs:
   tests:
     permissions:
       contents: read
-    runs-on: macos-26
+    runs-on: xcode-27
     timeout-minutes: 30
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_27.1.app/Contents/Developer
     steps:
       - uses: actions/checkout@v7
+
+      - name: Select compatible Xcode and print versions
+        run: |
+          test -d "$DEVELOPER_DIR"
+          scripts/select-ci-xcode.sh iphonesimulator
 
       - uses: ruby/setup-ruby@v1
         with:
@@ -31,8 +38,10 @@ jobs:
         run: |
           ruby scripts/tests/check_build_warnings_test.rb
           ruby scripts/tests/setup_ci_ruby_test.rb
+          ruby scripts/tests/select_ci_xcode_test.rb
           ruby scripts/tests/xcodebuild_diagnostics_test.rb
           ruby scripts/tests/lint_test.rb
+          bundle exec ruby scripts/tests/archive_export_test.rb
 
       - name: Run ArtemisKit tests
         run: bundle exec fastlane test
@@ -65,6 +74,9 @@ jobs:
           fi
 
       - uses: actions/checkout@v7
+
+      - name: Select compatible Xcode and print versions
+        run: scripts/select-ci-xcode.sh iphoneos
 
       - name: Install required Ruby and gems
         run: scripts/setup-ci-ruby.sh
