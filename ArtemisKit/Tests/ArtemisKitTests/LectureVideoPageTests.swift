@@ -16,7 +16,8 @@ final class LectureVideoPageTests: XCTestCase {
         let player = try XCTUnwrap(findPlayer(in: host))
         XCTAssertTrue(player.entersFullScreenWhenPlaybackBegins, "The native Play button should enter fullscreen directly")
         XCTAssertTrue(player.showsPlaybackControls)
-        XCTAssertEqual(player.view.bounds.width, host.view.bounds.width, accuracy: 1)
+        // Scene-backed windows retain device safe-area insets even with a custom test frame.
+        XCTAssertEqual(player.view.bounds.width, host.view.safeAreaLayoutGuide.layoutFrame.width, accuracy: 1)
         XCTAssertGreaterThan(player.view.bounds.height, host.view.bounds.height * 0.8)
     }
 
