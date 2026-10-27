@@ -1,7 +1,44 @@
+import SharedModels
+import UserStore
 import XCTest
 @testable import CourseView
 
 final class ReviewTransportTests: XCTestCase {
+    @MainActor
+    func testAuthenticatedAccountIsCapturedWithoutRememberedUsername() throws {
+        let account = UserSessionFactory.shared
+        let oldLoggedIn = account.isLoggedIn
+        let oldUsername = account.username
+        let oldInstitution = account.institution
+        let oldUserData = UserDefaults.standard.data(forKey: "User")
+        defer {
+            account.saveUsername(username: oldUsername)
+            account.saveInstitution(identifier: oldInstitution)
+            account.setUserLoggedIn(isLoggedIn: oldLoggedIn)
+            if let oldUserData { UserDefaults.standard.set(oldUserData, forKey: "User") } else { UserDefaults.standard.removeObject(forKey: "User") }
+        }
+        account.saveInstitution(identifier: .custom(URL(string: "https://review.example")!))
+        account.saveUsername(username: nil)
+        account.user = .mock
+        var currentToken: String? = "synthetic-review-token"
+        account.setUserLoggedIn(isLoggedIn: true)
+
+        let captured = try XCTUnwrap(ReviewSession.current(user: account, token: { currentToken }))
+        XCTAssertEqual(captured.username, Account.mock.login)
+        XCTAssertNil(account.username, "Opening results must preserve the remembered-login preference")
+        let transport = ReviewTransport(captured: captured, currentSession: { ReviewSession.current(user: account, token: { currentToken }) })
+        defer { transport.invalidate() }
+        XCTAssertTrue(transport.isCurrent)
+        currentToken = nil
+        XCTAssertNil(ReviewSession.current(user: account, token: { currentToken }), "Authenticated account data alone cannot authorize a request")
+        XCTAssertFalse(transport.isCurrent)
+        currentToken = ""
+        XCTAssertNil(ReviewSession.current(user: account, token: { currentToken }))
+        currentToken = "synthetic-review-token"
+        account.setUserLoggedIn(isLoggedIn: false)
+        XCTAssertNil(ReviewSession.current(user: account, token: { currentToken }))
+    }
+
     func testCodeReferenceKeepsZeroBasedRangeAndRejectsMalformedLocation() {
         let location = ReviewCodeLocation(reference: "file:src/Search.java_line:0-2")
         XCTAssertEqual(location?.file, "src/Search.java")

@@ -85,7 +85,7 @@ struct ResultReviewPage: View {
         .navigationBarTitleDisplayMode(.inline)
         .task(id: reference) { await load() }
         .onReceive(session.$isLoggedIn) { if !$0 { clear() } }
-        .onReceive(session.$username) { if $0 != transport?.captured.username { clear() } }
+        .onChange(of: session.username) { _, _ in if transport?.isCurrent != true { clear() } }
         .onReceive(session.$institution) { if $0?.baseURL != transport?.captured.baseURL { clear() } }
         .onChange(of: scenePhase) { _, phase in if phase == .active && transport?.isCurrent != true { clear() } }
         .onDisappear { clear(); transport?.invalidate() }

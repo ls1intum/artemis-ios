@@ -1,14 +1,17 @@
 import Common
 import Foundation
+import SharedModels
 import UserStore
 
 struct ReviewSession: Equatable {
     let baseURL: URL
     let username: String
     let token: String
-    static func current() -> Self? {
-        let user = UserSessionFactory.shared
-        guard user.isLoggedIn, let base = user.institution?.baseURL, let username = user.username, let token = user.getToken() else { return nil }
+    static func current(user: UserSession = UserSessionFactory.shared, token: (() -> String?)? = nil) -> Self? {
+        let capturedToken: String?
+        if let token { capturedToken = token() } else { capturedToken = user.getToken() }
+        guard user.isLoggedIn, let base = user.institution?.baseURL, let username = user.user?.login ?? user.username, !username.isEmpty,
+              let token = capturedToken, !token.isEmpty else { return nil }
         return Self(baseURL: base, username: username, token: token)
     }
     func matches(_ current: Self?) -> Bool { self == current }
@@ -48,7 +51,7 @@ final class ReviewTransport: NSObject, URLSessionTaskDelegate, ReviewReading {
         configuration.urlCredentialStorage = nil
         return URLSession(configuration: configuration, delegate: self, delegateQueue: nil)
     }()
-    init(captured: ReviewSession, currentSession: @escaping () -> ReviewSession? = ReviewSession.current) {
+    init(captured: ReviewSession, currentSession: @escaping () -> ReviewSession? = { ReviewSession.current() }) {
         self.captured = captured
         self.currentSession = currentSession
     }
