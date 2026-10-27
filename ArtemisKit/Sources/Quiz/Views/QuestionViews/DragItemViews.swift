@@ -42,15 +42,16 @@ struct DragItemView: View {
     let item: DTO.DragItem
 
     var body: some View {
-        if viewModel.isReadOnly, let path = item.pictureFilePath {
+        if viewModel.usesSafeContent, let path = item.pictureFilePath {
             let authorizedPath = questionId.map { path.replacingOccurrences(of: "drag-and-drop/drag-items", with: "drag-and-drop/questions/\($0)/drag-items") } ?? path
             ReviewImage(path: authorizedPath, filePath: true)
         } else if let expandedImageUrl {
             ArtemisAsyncImage(imageURL: expandedImageUrl) {}
                 .scaledToFit()
         } else if let text = item.text {
-            Text(text)
-                .minimumScaleFactor(0.5)
+            Group {
+                if viewModel.usesSafeContent { SafeReviewContent(text) } else { Text(text).minimumScaleFactor(0.5) }
+            }
                 .padding()
                 .background(.background)
                 .border(.primary)

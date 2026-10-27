@@ -5,6 +5,7 @@
 //  Created by Anian Schleyer on 07.06.26.
 //
 
+import ReviewContent
 import SharedModels
 import SwiftUI
 
@@ -23,7 +24,9 @@ struct ShortAnswerQuestionView: View {
          previousAnswer: DTO.SubmittedAnswerFromLiveClient? = nil) {
         self.question = question
         self.questionWithSolution = questionWithSolution
-        self.segments = Segment.create(from: questionWithSolution.text)
+        self.segments = question.isRated != nil
+            ? Segment.createTraining(question: questionWithSolution)
+            : Segment.create(from: questionWithSolution.text)
 
         let inputs = segments.filter(\.isInput)
         if let previousAnswer, case let .shortAnswer(answer) = previousAnswer, var texts = answer.submittedTexts {
@@ -59,7 +62,9 @@ struct ShortAnswerQuestionView: View {
                             .padding(.vertical, 8).padding(.leading, 8).padding(.trailing, 40)
                             .background(Color(uiColor: .secondarySystemBackground), in: .rect(cornerRadius: 8))
                     } else {
-                TextField("Input \(spot)", text: textBinding(for: spot))
+                TextField(viewModel is QuizTrainingViewModel ? TrainingCopy.text("input") : "Input \(spot)", text: textBinding(for: spot))
+                    .accessibilityIdentifier(viewModel is QuizTrainingViewModel ? "training.short-answer.\(spot)" : "")
+                    .disabled(viewModel.locksAnswerEditing)
                     .focused($focus, equals: segment)
                     .textFieldStyle(.roundedBorder)
                     .submitLabel(.next)
@@ -96,7 +101,7 @@ struct ShortAnswerQuestionView: View {
                     }
                 }
             case .text(let text):
-                Text(LocalizedStringKey(text))
+                if viewModel.usesSafeContent { SafeReviewContent(text) } else { Text(LocalizedStringKey(text)) }
             }
         }
         .padding(.horizontal)
@@ -143,6 +148,15 @@ private enum Segment: Hashable {
             return true
         } else {
             return false
+        }
+    }
+
+    static func createTraining(question: DTO.ShortAnswerQuizQuestionWithSolution) -> [Segment] {
+        ShortAnswerReviewPresentation(question: question, answer: nil).segments.compactMap { segment in
+            switch segment {
+            case .text(let text): return .text(text: text)
+            case .answer(let answer): return answer.spotID.map { .input(spot: $0) }
+            }
         }
     }
 

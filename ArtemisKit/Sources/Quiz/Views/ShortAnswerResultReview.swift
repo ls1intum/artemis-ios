@@ -40,6 +40,7 @@ struct ShortAnswerReviewPresentation {
 }
 
 struct ShortAnswerResultReview: View {
+    @Environment(QuizViewModel.self) private var viewModel
     let presentation: ShortAnswerReviewPresentation
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -50,17 +51,21 @@ struct ShortAnswerResultReview: View {
                     HStack {
                         Text(answer.text.isEmpty ? "—" : answer.text).textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading)
                         if let correct = answer.isCorrect {
-                            Label(correct ? R.string.localizable.correct() : R.string.localizable.incorrect(), systemImage: correct ? "checkmark.circle.fill" : "xmark.circle.fill")
+                            Label(correctnessLabel(correct), systemImage: correct ? "checkmark.circle.fill" : "xmark.circle.fill")
                                 .foregroundStyle(correct ? .green : .red)
                         }
                     }.padding(8).background(Color(uiColor: .secondarySystemBackground), in: .rect(cornerRadius: 8))
                     if answer.isCorrect == false, !answer.solutions.isEmpty {
-                        GroupBox(R.string.localizable.solution()) {
+                        GroupBox(viewModel is QuizTrainingViewModel ? TrainingCopy.text("solution") : R.string.localizable.solution()) {
                             ForEach(answer.solutions, id: \.self) { SafeReviewContent($0) }
                         }
                     }
                 }
             }
         }.padding(.horizontal)
+    }
+    private func correctnessLabel(_ correct: Bool) -> String {
+        if viewModel is QuizTrainingViewModel { return TrainingCopy.text(correct ? "correct" : "incorrect") }
+        return correct ? R.string.localizable.correct() : R.string.localizable.incorrect()
     }
 }

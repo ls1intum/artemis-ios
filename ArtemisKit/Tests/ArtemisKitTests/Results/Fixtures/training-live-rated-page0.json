@@ -1,0 +1,441 @@
+[
+  {
+    "quizQuestionWithSolutionDTO": {
+      "id": 34,
+      "title": "Practice 13: binary search",
+      "text": "What is the worst-case complexity of **binary search** on sorted input?",
+      "points": 2.0,
+      "scoringType": "ALL_OR_NOTHING",
+      "randomizeOrder": false,
+      "invalid": false,
+      "type": "multiple-choice",
+      "explanation": "Each comparison halves the remaining interval, giving logarithmic growth.",
+      "answerOptions": [
+        {
+          "id": 1,
+          "text": "O(log n)",
+          "invalid": false,
+          "explanation": "The search interval is halved each step.",
+          "isCorrect": true
+        },
+        {
+          "id": 2,
+          "text": "O(n)",
+          "invalid": false,
+          "explanation": "A linear scan checks every item.",
+          "isCorrect": false
+        },
+        {
+          "id": 3,
+          "text": "O(1)",
+          "invalid": false,
+          "explanation": "More input requires more comparisons.",
+          "isCorrect": false
+        }
+      ],
+      "singleChoice": true
+    },
+    "isRated": true,
+    "isNewSession": false,
+    "id": 34
+  },
+  {
+    "quizQuestionWithSolutionDTO": {
+      "id": 37,
+      "title": "Practice 16: binary search",
+      "text": "What is the worst-case complexity of **binary search** on sorted input?",
+      "points": 2.0,
+      "scoringType": "ALL_OR_NOTHING",
+      "randomizeOrder": false,
+      "invalid": false,
+      "type": "multiple-choice",
+      "explanation": "Each comparison halves the remaining interval, giving logarithmic growth.",
+      "answerOptions": [
+        {
+          "id": 1,
+          "text": "O(log n)",
+          "invalid": false,
+          "explanation": "The search interval is halved each step.",
+          "isCorrect": true
+        },
+        {
+          "id": 2,
+          "text": "O(n)",
+          "invalid": false,
+          "explanation": "A linear scan checks every item.",
+          "isCorrect": false
+        },
+        {
+          "id": 3,
+          "text": "O(1)",
+          "invalid": false,
+          "explanation": "More input requires more comparisons.",
+          "isCorrect": false
+        }
+      ],
+      "singleChoice": true
+    },
+    "isRated": true,
+    "isNewSession": false,
+    "id": 37
+  },
+  {
+    "quizQuestionWithSolutionDTO": {
+      "id": 40,
+      "title": "Practice 19: binary search",
+      "text": "What is the worst-case complexity of **binary search** on sorted input?",
+      "points": 2.0,
+      "scoringType": "ALL_OR_NOTHING",
+      "randomizeOrder": false,
+      "invalid": false,
+      "type": "multiple-choice",
+      "explanation": "Each comparison halves the remaining interval, giving logarithmic growth.",
+      "answerOptions": [
+        {
+          "id": 1,
+          "text": "O(log n)",
+          "invalid": false,
+          "explanation": "The search interval is halved each step.",
+          "isCorrect": true
+        },
+        {
+          "id": 2,
+          "text": "O(n)",
+          "invalid": false,
+          "explanation": "A linear scan checks every item.",
+          "isCorrect": false
+        },
+        {
+          "id": 3,
+          "text": "O(1)",
+          "invalid": false,
+          "explanation": "More input requires more comparisons.",
+          "isCorrect": false
+        }
+      ],
+      "singleChoice": true
+    },
+    "isRated": true,
+    "isNewSession": false,
+    "id": 40
+  },
+  {
+    "quizQuestionWithSolutionDTO": {
+      "id": 43,
+      "title": "Practice 22: binary search",
+      "text": "What is the worst-case complexity of **binary search** on sorted input?",
+      "points": 2.0,
+      "scoringType": "ALL_OR_NOTHING",
+      "randomizeOrder": false,
+      "invalid": false,
+      "type": "multiple-choice",
+      "explanation": "Each comparison halves the remaining interval, giving logarithmic growth.",
+      "answerOptions": [
+        {
+          "id": 1,
+          "text": "O(log n)",
+          "invalid": false,
+          "explanation": "The search interval is halved each step.",
+          "isCorrect": true
+        },
+        {
+          "id": 2,
+          "text": "O(n)",
+          "invalid": false,
+          "explanation": "A linear scan checks every item.",
+          "isCorrect": false
+        },
+        {
+          "id": 3,
+          "text": "O(1)",
+          "invalid": false,
+          "explanation": "More input requires more comparisons.",
+          "isCorrect": false
+        }
+      ],
+      "singleChoice": true
+    },
+    "isRated": true,
+    "isNewSession": false,
+    "id": 43
+  },
+  {
+    "quizQuestionWithSolutionDTO": {
+      "id": 35,
+      "title": "Practice 14: binary search",
+      "text": "What is the worst-case complexity of **binary search** on sorted input?",
+      "points": 2.0,
+      "scoringType": "ALL_OR_NOTHING",
+      "randomizeOrder": false,
+      "invalid": false,
+      "type": "multiple-choice",
+      "explanation": "Each comparison halves the remaining interval, giving logarithmic growth.",
+      "answerOptions": [
+        {
+          "id": 1,
+          "text": "O(log n)",
+          "invalid": false,
+          "explanation": "The search interval is halved each step.",
+          "isCorrect": true
+        },
+        {
+          "id": 2,
+          "text": "O(n)",
+          "invalid": false,
+          "explanation": "A linear scan checks every item.",
+          "isCorrect": false
+        },
+        {
+          "id": 3,
+          "text": "O(1)",
+          "invalid": false,
+          "explanation": "More input requires more comparisons.",
+          "isCorrect": false
+        }
+      ],
+      "singleChoice": true
+    },
+    "isRated": true,
+    "isNewSession": false,
+    "id": 35
+  },
+  {
+    "quizQuestionWithSolutionDTO": {
+      "id": 38,
+      "title": "Practice 17: binary search",
+      "text": "What is the worst-case complexity of **binary search** on sorted input?",
+      "points": 2.0,
+      "scoringType": "ALL_OR_NOTHING",
+      "randomizeOrder": false,
+      "invalid": false,
+      "type": "multiple-choice",
+      "explanation": "Each comparison halves the remaining interval, giving logarithmic growth.",
+      "answerOptions": [
+        {
+          "id": 1,
+          "text": "O(log n)",
+          "invalid": false,
+          "explanation": "The search interval is halved each step.",
+          "isCorrect": true
+        },
+        {
+          "id": 2,
+          "text": "O(n)",
+          "invalid": false,
+          "explanation": "A linear scan checks every item.",
+          "isCorrect": false
+        },
+        {
+          "id": 3,
+          "text": "O(1)",
+          "invalid": false,
+          "explanation": "More input requires more comparisons.",
+          "isCorrect": false
+        }
+      ],
+      "singleChoice": true
+    },
+    "isRated": true,
+    "isNewSession": false,
+    "id": 38
+  },
+  {
+    "quizQuestionWithSolutionDTO": {
+      "id": 41,
+      "title": "Practice 20: binary search",
+      "text": "What is the worst-case complexity of **binary search** on sorted input?",
+      "points": 2.0,
+      "scoringType": "ALL_OR_NOTHING",
+      "randomizeOrder": false,
+      "invalid": false,
+      "type": "multiple-choice",
+      "explanation": "Each comparison halves the remaining interval, giving logarithmic growth.",
+      "answerOptions": [
+        {
+          "id": 1,
+          "text": "O(log n)",
+          "invalid": false,
+          "explanation": "The search interval is halved each step.",
+          "isCorrect": true
+        },
+        {
+          "id": 2,
+          "text": "O(n)",
+          "invalid": false,
+          "explanation": "A linear scan checks every item.",
+          "isCorrect": false
+        },
+        {
+          "id": 3,
+          "text": "O(1)",
+          "invalid": false,
+          "explanation": "More input requires more comparisons.",
+          "isCorrect": false
+        }
+      ],
+      "singleChoice": true
+    },
+    "isRated": true,
+    "isNewSession": false,
+    "id": 41
+  },
+  {
+    "quizQuestionWithSolutionDTO": {
+      "id": 44,
+      "title": "Practice 23: binary search",
+      "text": "What is the worst-case complexity of **binary search** on sorted input?",
+      "points": 2.0,
+      "scoringType": "ALL_OR_NOTHING",
+      "randomizeOrder": false,
+      "invalid": false,
+      "type": "multiple-choice",
+      "explanation": "Each comparison halves the remaining interval, giving logarithmic growth.",
+      "answerOptions": [
+        {
+          "id": 1,
+          "text": "O(log n)",
+          "invalid": false,
+          "explanation": "The search interval is halved each step.",
+          "isCorrect": true
+        },
+        {
+          "id": 2,
+          "text": "O(n)",
+          "invalid": false,
+          "explanation": "A linear scan checks every item.",
+          "isCorrect": false
+        },
+        {
+          "id": 3,
+          "text": "O(1)",
+          "invalid": false,
+          "explanation": "More input requires more comparisons.",
+          "isCorrect": false
+        }
+      ],
+      "singleChoice": true
+    },
+    "isRated": true,
+    "isNewSession": false,
+    "id": 44
+  },
+  {
+    "quizQuestionWithSolutionDTO": {
+      "id": 22,
+      "title": "Halving the search interval",
+      "text": "What is the worst-case complexity of **binary search** on sorted input?",
+      "points": 2.0,
+      "scoringType": "ALL_OR_NOTHING",
+      "randomizeOrder": false,
+      "invalid": false,
+      "type": "multiple-choice",
+      "explanation": "Each comparison halves the remaining interval, giving logarithmic growth.",
+      "answerOptions": [
+        {
+          "id": 1,
+          "text": "O(log n)",
+          "invalid": false,
+          "explanation": "The search interval is halved each step.",
+          "isCorrect": true
+        },
+        {
+          "id": 2,
+          "text": "O(n)",
+          "invalid": false,
+          "explanation": "A linear scan checks every item.",
+          "isCorrect": false
+        },
+        {
+          "id": 3,
+          "text": "O(1)",
+          "invalid": false,
+          "explanation": "More input requires more comparisons.",
+          "isCorrect": false
+        }
+      ],
+      "singleChoice": true
+    },
+    "isRated": true,
+    "isNewSession": false,
+    "id": 22
+  },
+  {
+    "quizQuestionWithSolutionDTO": {
+      "id": 23,
+      "title": "Complete the explanation",
+      "text": "The sorted-input algorithm is [-spot 1]. Its worst-case comparisons grow [-spot 2].",
+      "points": 2.0,
+      "scoringType": "PROPORTIONAL_WITHOUT_PENALTY",
+      "invalid": false,
+      "type": "short-answer",
+      "explanation": "Binary search repeatedly halves a sorted interval. Capitalization is ignored.",
+      "spots": [
+        {
+          "id": 913,
+          "spotNr": 1,
+          "width": 18,
+          "invalid": false
+        },
+        {
+          "id": 914,
+          "spotNr": 2,
+          "width": 18,
+          "invalid": false
+        }
+      ],
+      "solutions": [
+        {
+          "id": 1001,
+          "text": "Binary Search",
+          "invalid": false
+        },
+        {
+          "id": 1002,
+          "text": "logarithmic",
+          "invalid": false
+        }
+      ],
+      "similarityValue": 85,
+      "matchLetterCase": false,
+      "correctMappings": [
+        {
+          "id": 2001,
+          "shortAnswerSpotIndex": 0,
+          "shortAnswerSolutionIndex": 0,
+          "invalid": false,
+          "solution": {
+            "id": 1001,
+            "text": "Binary Search",
+            "invalid": false
+          },
+          "spot": {
+            "id": 913,
+            "spotNr": 1,
+            "width": 18,
+            "invalid": false
+          }
+        },
+        {
+          "id": 2002,
+          "shortAnswerSpotIndex": 1,
+          "shortAnswerSolutionIndex": 1,
+          "invalid": false,
+          "solution": {
+            "id": 1002,
+            "text": "logarithmic",
+            "invalid": false
+          },
+          "spot": {
+            "id": 914,
+            "spotNr": 2,
+            "width": 18,
+            "invalid": false
+          }
+        }
+      ]
+    },
+    "isRated": true,
+    "isNewSession": false,
+    "id": 23
+  }
+]
