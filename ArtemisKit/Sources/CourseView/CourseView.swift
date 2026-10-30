@@ -80,6 +80,7 @@ public struct CourseView: View {
             }
         }
         .environment(\.availableTabs, viewModel.availableTabs)
+        .tabViewSearchActivation(.searchTabSelection)
         .courseToolbar(title: viewModel.course.title ?? R.string.localizable.loading())
         // Add a file and image picker here, inside the navigation it doesn't work sometimes
         .supportsFilePicker()
