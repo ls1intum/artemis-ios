@@ -22,6 +22,7 @@ final class ExerciseDetailViewModel {
     var channel: DataState<Channel> = .loading
 
     var showQuizParticipation = false
+    var showTextParticipation = false
     var isFeedbackPresented = false
     var latestResultId: Int?
     var participationId: Int?
@@ -56,7 +57,7 @@ final class ExerciseDetailViewModel {
                 // Not enough data available to open quiz -> load new
                 await refreshExercise()
             } else {
-                setParticipationAndResultId(from: exercise)
+                setParticipationAndResultId(from: exercise, preserveKnownParticipation: true)
             }
         } else {
             await refreshExercise()
@@ -92,11 +93,15 @@ final class ExerciseDetailViewModel {
         channel = await ExerciseChannelServiceFactory.shared.getAssociatedChannel(for: exerciseId, in: courseId)
     }
 
-    private func setParticipationAndResultId(from exercise: Exercise) {
+    private func setParticipationAndResultId(from exercise: Exercise, preserveKnownParticipation: Bool = false) {
         isWebViewLoading = true
 
         let participation = exercise.getSpecificStudentParticipation(testRun: false)
-        participationId = participation?.id
+        if let participation {
+            participationId = participation.id
+        } else if !preserveKnownParticipation {
+            participationId = nil
+        }
         // The latest result is the first rated result in the sorted array (=newest)
         if let latestResultId = exercise.baseExercise.latestRatedResult?.id {
             self.latestResultId = latestResultId
@@ -126,7 +131,7 @@ extension ExerciseDetailViewModel {
 
     var isExerciseParticipationAvailable: Bool {
         switch exercise.value {
-        case .quiz: true
+        case .quiz, .text: true
         default: false
         }
     }
