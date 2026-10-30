@@ -15,8 +15,23 @@ class LectureServiceImpl: LectureService {
 
     let client = APIClient()
 
+    struct GetVisibleLectureSlidesRequest: APIRequest {
+        typealias Response = [LectureMediaDetails]
+        let courseId: Int
+        var method: HTTPMethod { .get }
+        var resourceName: String { "api/lecture/courses/\(courseId)/lectures-with-slides" }
+    }
+
+    func getLecturesWithSlides(courseId: Int) async -> DataState<[LectureMediaDetails]> {
+        let result = await client.sendRequest(GetVisibleLectureSlidesRequest(courseId: courseId))
+        switch result {
+        case .success((let response, _)): return .done(response: response)
+        case .failure(let error): return .failure(error: UserFacingError(error: error))
+        }
+    }
+
     struct GetLectureDetailsRequest: APIRequest {
-        typealias Response = Lecture
+        typealias Response = LectureMediaDetails
 
         let lectureId: Int
 
@@ -29,7 +44,7 @@ class LectureServiceImpl: LectureService {
         }
     }
 
-    func getLectureDetails(lectureId: Int) async -> DataState<Lecture> {
+    func getLectureDetails(lectureId: Int) async -> DataState<LectureMediaDetails> {
         let result = await client.sendRequest(GetLectureDetailsRequest(lectureId: lectureId))
 
         switch result {
@@ -69,39 +84,38 @@ class LectureServiceImpl: LectureService {
         }
     }
 
-    func getAttachmentFile(link: String, name: String? = nil) async -> DataState<URL> {
-        guard let url = URL(string: link, relativeTo: UserSessionFactory.shared.institution?.baseURL) else {
-            return .failure(error: UserFacingError(title: "Wrong URL"))
+    func getAttachmentFile(link: String, name: String? = nil) async -> DataState<LectureAttachmentFile> {
+        guard let snapshot = LectureMediaSession.capture() else {
+            return .failure(error: UserFacingError(title: LectureMediaError.sessionChanged.localizedDescription))
+        }
+        guard let url = URL(string: link, relativeTo: snapshot.origin)?.absoluteURL,
+              LectureMediaOrigin.matches(snapshot.origin, url) else {
+            return .failure(error: UserFacingError(title: LectureMediaError.invalidURL.localizedDescription))
         }
         do {
-            var (data, response) = try await URLSession.shared.data(from: url)
-
-            // Accessing lecture attachment as student needs a different URL sometimes
-            if (response as? HTTPURLResponse)?.statusCode == 403 {
-                let lastPathComponent = url.lastPathComponent
-                let newUrl = url
-                    .deletingLastPathComponent()
-                    .appending(path: "student")
-                    .appending(path: lastPathComponent)
-
-                (data, _) = try await URLSession.shared.data(from: newUrl)
+            let loader = LectureMediaDownloader(policy: snapshot.policy)
+            var studentVersion = url.pathComponents.contains("student")
+            let data: Data
+            let response: HTTPURLResponse
+            do {
+                (data, response) = try await loader.data(from: url)
+            } catch LectureMediaError.response(403) where !studentVersion {
+                studentVersion = true
+                let studentURL = url.deletingLastPathComponent().appending(path: "student").appending(path: url.lastPathComponent)
+                (data, response) = try await loader.data(from: studentURL)
             }
-
-            var fileExtension = url.pathExtension
-            if fileExtension.isEmpty {
-                // If no path extension in URL → check if PDF
-                if let httpResponse = response as? HTTPURLResponse,
-                   let contentType = httpResponse.value(forHTTPHeaderField: "Content-Type"),
-                   contentType.lowercased().contains("pdf") {
-                    fileExtension = "pdf"
-                }
-            }
-            let suggestedFilename = name?.appending("." + fileExtension) ?? url.lastPathComponent
-            let previewURL = FileManager.default.temporaryDirectory.appendingPathComponent(suggestedFilename)
-            try data.write(to: previewURL, options: .atomic)   // atomic option overwrites it if needed
-            return .done(response: previewURL)
+            try Task.checkCancellation()
+            guard snapshot.isCurrent else { throw LectureMediaError.sessionChanged }
+            let isPDF = response.mimeType?.lowercased() == "application/pdf" || url.pathExtension.lowercased() == "pdf"
+            let fileExtension = isPDF ? "pdf" : url.pathExtension
+            let directory = FileManager.default.temporaryDirectory.appendingPathComponent("lecture-media-" + UUID().uuidString)
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+            let safeName = (name.map { URL(fileURLWithPath: $0).lastPathComponent } ?? "Attachment")
+            let previewURL = directory.appendingPathComponent(safeName).appendingPathExtension(fileExtension)
+            try data.write(to: previewURL, options: .atomic)
+            return .done(response: LectureAttachmentFile(url: previewURL, studentVersion: studentVersion))
         } catch {
-            return .failure(error: UserFacingError(title: error.localizedDescription))
+            return .failure(error: UserFacingError(title: error is CancellationError ? "Loading was cancelled. Try again." : error.localizedDescription))
         }
     }
 
