@@ -115,10 +115,8 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
 
         DeeplinkHandler.shared.handle(path: targetURL)
 
-        // update app badge count
-        UNUserNotificationCenter.current().setBadgeCount(UIApplication.shared.applicationIconBadgeNumber + 1)
-
-        // maybe add as param in handle above
+        // Badge values belong to delivered notification content; opening a notification
+        // does not create another unread notification.
         completionHandler()
     }
 

@@ -79,6 +79,25 @@ class MessageActionsViewModel {
         self._message = message
     }
 
+    /// State retains action models across redraws; refresh the SwiftUI binding before opening a sheet.
+    func updateMessageBinding(_ message: Binding<DataState<BaseMessage>>) {
+        _message = message
+    }
+
+    /// Preserve replies, reactions and other updates received while the edit request was pending.
+    static func mergeAcceptedEdit(_ updated: BaseMessage, into current: BaseMessage?) -> BaseMessage? {
+        guard let current, current.id == updated.id else { return nil }
+        if var message = current as? Message, updated is Message {
+            message.content = updated.content
+            return message
+        }
+        if var answer = current as? AnswerMessage, updated is AnswerMessage {
+            answer.content = updated.content
+            return answer
+        }
+        return nil
+    }
+
     @MainActor
     func deleteMessage(navController: NavigationController) {
         conversationViewModel.isLoading = true
@@ -158,9 +177,9 @@ class MessageActionsViewModel {
         }
     }
 
-    func forwardMessage(content: String) async {
+    func forwardMessage(content: String) async -> Bool {
         guard let source = message.value, let selectedConversation else {
-            return
+            return false
         }
 
         let course = conversationViewModel.course.id
@@ -179,17 +198,20 @@ class MessageActionsViewModel {
             switch forwardResult {
             case .failure(let error):
                 conversationViewModel.presentError(userFacingError: error)
-                return
-            default:
+                return false
+            case .done:
                 break
+            default:
+                return false
             }
         case .failure(let error):
             conversationViewModel.presentError(userFacingError: error)
-            return
+            return false
         default:
-            break
+            return false
         }
         showForwardSheet = false
+        return true
     }
 
     func loadConversations() async {

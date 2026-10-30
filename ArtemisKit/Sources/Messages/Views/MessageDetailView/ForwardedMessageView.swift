@@ -27,7 +27,7 @@ struct ForwardedMessageView: View {
     }
 }
 
-private struct ForwardedMessageCell: View {
+struct ForwardedMessageCell: View {
     @EnvironmentObject var navController: NavigationController
     let message: BaseMessage
 

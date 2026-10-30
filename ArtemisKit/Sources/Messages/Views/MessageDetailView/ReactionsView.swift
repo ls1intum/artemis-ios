@@ -39,8 +39,8 @@ struct ReactionsView: View {
         .popover(isPresented: $viewModel.showAuthorsSheet, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
             ReactionAuthorsSheet(viewModel: viewModel)
         }
-        .onChange(of: message, { _, newValue in
-            viewModel.message = newValue
+        .onChange(of: MessageObservationSnapshot(message), { _, _ in
+            viewModel.message = message
         })
     }
 }

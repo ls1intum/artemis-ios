@@ -41,6 +41,7 @@ struct MessageDetailView: View {
                         top(message: message)
                         answers(of: message, proxy: proxy)
                     }
+                    .scrollDismissesKeyboard(.interactively)
                 }
                 if !((viewModel.conversation.baseConversation as? Channel)?.isArchived ?? false),
                    let message = message as? Message {
@@ -90,7 +91,7 @@ struct MessageDetailView: View {
                 navController.tabPath = .init()
             }
         }
-        .onChange(of: message) {
+        .onChange(of: MessageObservationSnapshot(message)) {
             switch message {
             case .loading:
                 // Message was deleted

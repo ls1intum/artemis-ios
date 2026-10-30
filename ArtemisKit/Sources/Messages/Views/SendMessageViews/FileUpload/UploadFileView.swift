@@ -22,7 +22,7 @@ struct UploadFileProgressView: View {
                     .frame(maxWidth: 300)
                     .font(.title)
 
-                if viewModel.uploadState == .uploading {
+                if viewModel.isUploading {
                     Button(R.string.localizable.cancel()) {
                         viewModel.cancel()
                     }
