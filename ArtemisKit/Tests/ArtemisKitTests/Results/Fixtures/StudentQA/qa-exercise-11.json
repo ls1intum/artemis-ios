@@ -1,0 +1,45 @@
+{
+  "exercise": {
+    "id": 11,
+    "type": "file-upload",
+    "title": "Algorithm Report",
+    "maxPoints": 10.0,
+    "assessmentType": "MANUAL",
+    "course": {
+      "id": 7,
+      "title": "Mobile Feedback Lab",
+      "accuracyOfScores": 1
+    },
+    "studentParticipations": [
+      {
+        "type": "student",
+        "id": 11,
+        "submissions": [
+          {
+            "id": 11,
+            "submitted": false
+          },
+          {
+            "id": 12,
+            "submitted": true,
+            "type": "MANUAL",
+            "submissionDate": "2026-10-26T15:51:38.93Z",
+            "results": [
+              {
+                "id": 2,
+                "completionDate": "2026-10-26T03:56:27.294Z",
+                "score": 65.0,
+                "rated": true,
+                "assessmentType": "MANUAL",
+                "testCaseCount": 0,
+                "passedTestCaseCount": 0,
+                "codeIssueCount": 0
+              }
+            ],
+            "filePath": "file-upload-exercises/11/submissions/12/Algorithm_Report.pdf"
+          }
+        ]
+      }
+    ]
+  }
+}

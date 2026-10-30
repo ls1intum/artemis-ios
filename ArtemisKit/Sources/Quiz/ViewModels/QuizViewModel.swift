@@ -14,7 +14,10 @@ class QuizViewModel {
     var lastSubmissionResults: DataState<[DTO.SubmittedAnswerAfterEvaluation]> = .loading
     var lastSubmissionResult: DataState<DTO.SubmittedAnswerAfterEvaluation> = .loading
 
+    var isReadOnly = false
+
     var hasSubmitted: Bool {
+        if isReadOnly { return true }
         if case .done = lastSubmissionResult {
             return true
         } else if case .done = lastSubmissionResults {
