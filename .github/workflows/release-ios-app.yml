@@ -21,6 +21,9 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: Install required Ruby and gems
+        run: scripts/setup-ci-ruby.sh
+
       - name: Download IPA Artifact
         uses: actions/download-artifact@v8
         with:
@@ -28,7 +31,7 @@ jobs:
           path: .
 
       - name: Upload iOS App to TestFlight
-        run: eval "$(/opt/homebrew/bin/rbenv init - --no-rehash bash)" && bundle exec fastlane release
+        run: bundle exec fastlane release
         env: 
           API_KEY_ID: ${{ secrets.IOS_APP_STORE_CONNECT_API_KEY_KEY_ID }}
           API_KEY_ISSUER_ID: ${{ secrets.IOS_APP_STORE_CONNECT_API_KEY_ISSUER_ID }}

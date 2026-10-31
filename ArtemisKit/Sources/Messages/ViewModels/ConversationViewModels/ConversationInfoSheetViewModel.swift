@@ -99,7 +99,7 @@ extension ConversationInfoSheetViewModel {
 
 extension ConversationInfoSheetViewModel {
     func refreshConversation() async {
-        // TODO: replace by call for single specific conversation
+        // MessagesService exposes the conversation list, so resolve this conversation from it.
         let result = await messagesService.getConversations(for: course.id)
 
         let state: DataState<Conversation> = result.flatMap { conversations in

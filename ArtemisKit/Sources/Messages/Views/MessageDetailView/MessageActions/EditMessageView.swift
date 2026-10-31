@@ -11,6 +11,16 @@ import SwiftUI
 struct EditMessageView: View {
     let viewModel: MessageActionsViewModel
 
+    private var editDelegate: SendMessageViewModelDelegate {
+        var delegate = SendMessageViewModelDelegate(viewModel.conversationViewModel)
+        delegate.didEditMessage = { updated in
+            if let merged = MessageActionsViewModel.mergeAcceptedEdit(updated, into: viewModel.message.value) {
+                viewModel.message = .done(response: merged)
+            }
+        }
+        return delegate
+    }
+
     var body: some View {
         NavigationView {
             Group {
@@ -20,7 +30,7 @@ struct EditMessageView: View {
                             course: viewModel.conversationViewModel.course,
                             conversation: viewModel.conversationViewModel.conversation,
                             configuration: .editMessage(message, { viewModel.showEditSheet = false }),
-                            delegate: SendMessageViewModelDelegate(viewModel.conversationViewModel)
+                            delegate: editDelegate
                         )
                     )
                 } else if let answerMessage = viewModel.message.value as? AnswerMessage {
@@ -29,7 +39,7 @@ struct EditMessageView: View {
                             course: viewModel.conversationViewModel.course,
                             conversation: viewModel.conversationViewModel.conversation,
                             configuration: .editAnswerMessage(answerMessage, { viewModel.showEditSheet = false }),
-                            delegate: SendMessageViewModelDelegate(viewModel.conversationViewModel)
+                            delegate: editDelegate
                         )
                     )
                 } else {
@@ -47,6 +57,6 @@ struct EditMessageView: View {
             }
         }
         .fontWeight(.regular)
-        .presentationDetents([.height(200), .medium])
+        .presentationDetents([.medium, .large])
     }
 }

@@ -31,3 +31,50 @@ The *Push Notification* subsystem handles the registration, notification setting
 ![Subsystem decomposition of the App](docs/APP-subsystem.png)
 
 *Figure: Subsystem decomposition of the `App`.*
+
+## Message composer
+
+Messages, replies, edits, and forwarding comments share a native rich text composer. Bold,
+italic, underline, strikethrough, inline code, links, flat bullet/numbered lists, block quotes, fenced code
+blocks, and Artemis references are edited in place and stored using the existing Markdown
+message format. Inline formatting is available in the native text-selection menu and the
+single action row. **Aa** switches that row to horizontally scrolling formatting controls;
+close and send stay reachable. **+** opens attachments and course references. Emoji, user
+and channel actions are available in the default row. The grabber above the text expands
+or collapses the editor by dragging or tapping, within the available keyboard/window height.
+
+Typing `- ` or `1. ` starts a list; `> ` starts a quote. Return continues the list; Return on an empty item or
+Backspace at its start returns to ordinary text. Code typing disables automatic correction,
+capitalization, and smart punctuation. In a code block, Markdown stays literal;
+Return on its final empty line exits the block. Backspace first selects a reference or link,
+then removes it on the next press. The clipboard includes readable plain text and a private
+Markdown representation so reference identifiers survive copying between Artemis composers.
+
+Headings, nested quotes/lists, task lists, tables, unsupported HTML, and math remain read-only.
+Their original content is preserved, and editing, sending, saving and resource actions are
+blocked; existing edit sheets can be cancelled. For saved message or reply drafts, Discard
+draft clears only that draft and restores composing. Pasting supported Markdown produces
+formatted content, while unsupported pasted syntax is inserted as literal text. Drafts are
+saved as editing occurs and restored when reopening a conversation or thread. Unchanged
+older composers cannot overwrite newer edits or deletions when they disappear. File and
+image attachment menus allow renaming their display names while keeping upload URLs intact,
+including after restoring a draft. Sending preserves any newer text entered
+while the request is in flight and clears the saved draft only after acceptance.
+
+Reference pills use the appearance and text size from when their content is loaded. Changing
+appearance or Dynamic Type while the same draft remains open does not currently redraw
+existing pills. Native editor text still follows system accessibility and appearance settings.
+
+## Development checks
+
+Run unit and native integration tests with the shared `ArtemisKitHostedTests` project scheme:
+
+```sh
+xcodebuild test -project Artemis.xcodeproj -scheme ArtemisKitHostedTests \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+  -skipMacroValidation -skipPackagePluginValidation CODE_SIGNING_ALLOWED=NO
+```
+
+This scheme uses a minimal app host with a real window scene; it starts no production app services. The same test sources remain in the Swift package, but scene-dependent tests need this hosted scheme.
+
+`scripts/lint.sh` runs strict SwiftLint using the package identity and version pinned in `Package.resolved`, rejecting stale cached binaries. The checks in `scripts/tests/` cover lint selection, Ruby setup and build-log diagnostics. CI rejects compiler/tool warnings in test and archive-compilation logs.

@@ -10,6 +10,14 @@
 #     https://docs.fastlane.tools/plugins/available-plugins
 #
 
+require "rbconfig"
+require "fileutils"
+require "plist"
+
+# Cold package graphs exceed Fastlane's three-second build-settings lookup default.
+ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] ||= "120"
+ENV["FASTLANE_XCODEBUILD_SETTINGS_RETRIES"] ||= "1"
+
 default_platform(:ios)
 
 platform :ios do
@@ -26,25 +34,57 @@ platform :ios do
 
   desc "[CI] Check static code quality"
   lane :swift_lint do
-    swiftlint(
-      config_file: ".swiftlint.yml",
-      strict: false,
-      raise_if_swiftlint_error: true
-    )
+    sh(File.expand_path("../scripts/lint.sh", __dir__).shellescape)
   end
 
-  desc "[CI] Run Unit and UI Tests"
+  desc "[CI] Run ArtemisKit tests on an iOS simulator"
   lane :test do
-    # Run Unit Tests
+    # Native integration tests need a scene-capable app host. The production
+    # Artemis scheme retains its separate screenshot flow.
+    results_path = File.expand_path("../build/test-results", __dir__)
+    FileUtils.rm_rf(File.join(results_path, "logs"))
+    runtimes = JSON.parse(sh("xcrun simctl list runtimes --json", log: false)).fetch("runtimes")
+    runtime = runtimes.select do |candidate|
+      candidate["isAvailable"] && candidate["identifier"].include?(".iOS-") &&
+        Gem::Version.new(candidate.fetch("version")) >= Gem::Version.new("26.0")
+    end.max_by { |candidate| Gem::Version.new(candidate.fetch("version")) }
+    UI.user_error!("Install an iOS 26 or newer simulator runtime with xcodebuild -downloadPlatform iOS") unless runtime
+    device_type = runtime.fetch("supportedDeviceTypes").find { |type| type["productFamily"] == "iPhone" }
+    UI.user_error!("No compatible iPhone device type found for #{runtime.fetch('name')}") unless device_type
+    simulator_id = sh(
+      "xcrun simctl create ArtemisKitTests-#{Process.pid} #{device_type.fetch('identifier').shellescape} #{runtime.fetch('identifier').shellescape}",
+      log: false
+    ).strip
+    sh("xcrun simctl boot #{simulator_id.shellescape}", log: false)
+    sh("xcrun simctl bootstatus #{simulator_id.shellescape} -b", log: false)
     scan(
+      xcodebuild_command: File.expand_path("../scripts/xcodebuild-with-diagnostics.sh", __dir__).shellescape,
       clean: true,
-      scheme: "Artemis",
-      xcargs: "-skipMacroValidation -skipPackagePluginValidation",
+      project: "Artemis.xcodeproj",
+      scheme: "ArtemisKitHostedTests",
+      derived_data_path: File.expand_path("../build/test-derived-data", __dir__),
+      destination: "platform=iOS Simulator,id=#{simulator_id},arch=#{RbConfig::CONFIG.fetch('host_cpu')}",
+      skip_detect_devices: true,
+      disable_slide_to_type: false,
+      parallel_testing: false,
+      output_directory: results_path,
+      output_types: "junit",
+      buildlog_path: File.join(results_path, "logs"),
+      result_bundle: true,
+      xcargs: "-skipMacroValidation -skipPackagePluginValidation CODE_SIGNING_ALLOWED=NO",
     )
+    sh("ruby", File.expand_path("../scripts/check-build-warnings.rb", __dir__), File.join(results_path, "logs", "*.log"))
+  ensure
+    if simulator_id
+      sh("xcrun simctl shutdown #{simulator_id.shellescape}", log: false, error_callback: ->(_) {})
+      sh("xcrun simctl delete #{simulator_id.shellescape}", log: false)
+    end
   end
 
   desc "[CI] Build Artemis Scheme"
   lane :build do
+    archive_logs_path = File.expand_path("../build/app-logs", __dir__)
+    FileUtils.rm_rf(archive_logs_path)
     app_identifier = CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier)
     notification_extension_identifier = app_identifier + ".ArtemisNotificationExtension"
     widget_extension_identifier = app_identifier + ".ArtemisWidgetExtension"
@@ -92,23 +132,53 @@ platform :ios do
       build_number: ENV['BUILD_NUMBER'],
       xcodeproj: "Artemis.xcodeproj"
     )
-    build_app(
+    export_options = {
+      method: "app-store-connect",
+      destination: "export",
+      signingStyle: "manual",
+      teamID: team_id,
+      provisioningProfiles: {
+        "de.tum.cit.ase.artemis" => "match AppStore de.tum.cit.ase.artemis",
+        "de.tum.cit.ase.artemis.ArtemisNotificationExtension" => "match AppStore de.tum.cit.ase.artemis.ArtemisNotificationExtension",
+        "de.tum.cit.ase.artemis.ArtemisWidgetExtension" => "match AppStore de.tum.cit.ase.artemis.ArtemisWidgetExtension"
+      }
+    }
+    # Gym 2.241.1 only supports deprecated App Store export method names.
+    archive_path = build_app(
+      xcodebuild_command: File.expand_path("../scripts/xcodebuild-with-diagnostics.sh", __dir__).shellescape,
       scheme: "Artemis",
       clean: true,
+      skip_package_ipa: true,
       output_name: "App.ipa",
       configuration: "Release",
       cloned_source_packages_path: ".SwiftPackages",
       derived_data_path: ".DerivedData",
       output_directory: "./build",
+      buildlog_path: archive_logs_path,
       xcargs: "-skipMacroValidation -skipPackagePluginValidation",
       export_options: {
-        provisioningProfiles: {
-          "de.tum.cit.ase.artemis" => "match AppStore de.tum.cit.ase.artemis",
-          "de.tum.cit.ase.artemis.ArtemisNotificationExtension" => "match AppStore de.tum.cit.ase.artemis.ArtemisNotificationExtension",
-          "de.tum.cit.ase.artemis.ArtemisWidgetExtension" => "match AppStore de.tum.cit.ase.artemis.ArtemisWidgetExtension"
-        }
+        provisioningProfiles: export_options[:provisioningProfiles]
       }
     )
+    export_path = File.expand_path("../build/app-export", __dir__)
+    ipa_path = File.expand_path("../build/App.ipa", __dir__)
+    FileUtils.rm_rf(export_path)
+    FileUtils.rm_f(ipa_path)
+    FileUtils.mkdir_p([export_path, archive_logs_path])
+    export_options_path = File.join(export_path, "ExportOptions.plist")
+    File.write(export_options_path, export_options.to_plist)
+    # Keep Xcode's Ruby-based packaging tools independent of Bundler, as Gym does.
+    sh("/usr/bin/env", "-u", "RUBYLIB", "-u", "RUBYOPT", "-u", "BUNDLE_BIN_PATH",
+       "-u", "_ORIGINAL_GEM_PATH", "-u", "BUNDLE_GEMFILE", "-u", "GEM_HOME", "-u", "GEM_PATH",
+       "xcrun", "xcodebuild", "-exportArchive", "-archivePath", archive_path,
+       "-exportPath", export_path, "-exportOptionsPlist", export_options_path) do |status, output, _|
+      File.write(File.join(archive_logs_path, "export.log"), output)
+      UI.user_error!("Archive export failed (exit #{status.exitstatus}).") unless status.success?
+    end
+    sh("ruby", File.expand_path("../scripts/check-build-warnings.rb", __dir__), File.join(archive_logs_path, "*.log"))
+    exported_ipas = Dir[File.join(export_path, "*.ipa")]
+    UI.user_error!("Expected one exported IPA, found #{exported_ipas.length}.") unless exported_ipas.length == 1
+    FileUtils.cp(exported_ipas.first, ipa_path)
   end
 
   desc "[CI] Upload the newest build to TestFlight"

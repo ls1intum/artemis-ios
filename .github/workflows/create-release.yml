@@ -30,19 +30,19 @@ jobs:
             exit 1
           fi
 
-          echo "version=$APP_VERSION" >> $GITHUB_OUTPUT
+          echo "version=$APP_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Create tag
         id: tag
         run: |
           TAG=${{ steps.app_version.outputs.version }}
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
           git config user.name github-actions
           git config user.email github-actions@github.com
 
-          git tag $TAG
-          git push origin $TAG
+          git tag "$TAG"
+          git push origin "$TAG"
 
       - name: Extract release notes
         id: notes
@@ -56,7 +56,7 @@ jobs:
             echo 'notes<<EOF'
             echo "$NOTES"
             echo 'EOF'
-          } >> $GITHUB_OUTPUT
+          } >> "$GITHUB_OUTPUT"
 
       - name: Create release
         env:
