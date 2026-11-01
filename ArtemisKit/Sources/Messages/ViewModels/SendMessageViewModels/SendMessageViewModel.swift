@@ -280,7 +280,7 @@ extension SendMessageViewModel {
                 isLoading = false
                 if success {
                     delegate.didEditMessage?(newMessage)
-                    completion()
+                    if text == sentText { completion() }
                 }
             case let .editAnswerMessage(message, completion):
                 var newMessage = message
@@ -289,7 +289,7 @@ extension SendMessageViewModel {
                 isLoading = false
                 if success {
                     delegate.didEditMessage?(newMessage)
-                    completion()
+                    if text == sentText { completion() }
                 }
             }
             if case .success = result {
