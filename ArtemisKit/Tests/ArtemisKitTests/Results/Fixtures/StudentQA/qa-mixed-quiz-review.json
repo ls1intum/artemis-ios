@@ -1,0 +1,529 @@
+{
+  "quizQuestionsType": "after-quiz-end",
+  "id": 18,
+  "type": "student",
+  "initializationState": "FINISHED",
+  "initializationDate": "2026-10-21T17:07:42.138Z",
+  "exercise": {
+    "id": 18,
+    "title": "Mixed Answer Review",
+    "releaseDate": "2026-10-16T17:07:41.834Z",
+    "startDate": "2026-10-21T17:07:41.834Z",
+    "dueDate": "2026-10-22T17:07:41.834Z",
+    "assessmentDueDate": "2026-10-22T17:07:41.834Z",
+    "visibleToStudents": true,
+    "course": {
+      "id": 7,
+      "title": "Mobile Feedback Lab",
+      "shortName": "mobileresults26",
+      "startDate": "2026-09-26T15:51:38.438Z",
+      "endDate": "2027-02-03T15:51:38.438Z",
+      "semester": "WS26/27",
+      "testCourse": true,
+      "onlineCourse": false,
+      "courseInformationSharingConfiguration": "COMMUNICATION_AND_MESSAGING",
+      "maxComplaints": 0,
+      "maxTeamComplaints": 0,
+      "maxComplaintTimeDays": 0,
+      "maxRequestMoreFeedbackTimeDays": 0,
+      "maxComplaintTextLimit": 0,
+      "maxComplaintResponseTextLimit": 0,
+      "complaintsEnabled": false,
+      "requestMoreFeedbackEnabled": false,
+      "accuracyOfScores": 1,
+      "athenaGradingFeedbackEnabled": false,
+      "athenaFormativeFeedbackEnabled": false
+    },
+    "type": "quiz",
+    "randomizeQuestionOrder": false,
+    "allowedNumberOfAttempts": 1,
+    "quizMode": "INDIVIDUAL",
+    "duration": 600,
+    "quizStarted": true,
+    "quizEnded": true,
+    "includedInOverallScore": "INCLUDED_COMPLETELY",
+    "mode": "INDIVIDUAL",
+    "maxPoints": 20.0,
+    "bonusPoints": 0.0,
+    "quizQuestions": [
+      {
+        "id": 11,
+        "title": "Read the evaluated blanks",
+        "text": "The sorted-input algorithm is [-spot 1]. Its worst-case number of comparisons is [-spot 2].",
+        "points": 10.0,
+        "scoringType": "PROPORTIONAL_WITHOUT_PENALTY",
+        "invalid": false,
+        "type": "short-answer",
+        "explanation": "Case-insensitive answers can be accepted. The published evaluation is authoritative.",
+        "spots": [
+          {
+            "id": 913,
+            "spotNr": 1,
+            "width": 18,
+            "invalid": false
+          },
+          {
+            "id": 914,
+            "spotNr": 2,
+            "width": 18,
+            "invalid": false
+          }
+        ],
+        "solutions": [
+          {
+            "id": 1001,
+            "text": "Binary Search",
+            "invalid": false
+          },
+          {
+            "id": 1002,
+            "text": "logarithmic",
+            "invalid": false
+          }
+        ],
+        "similarityValue": 85,
+        "matchLetterCase": false,
+        "correctMappings": [
+          {
+            "id": 2001,
+            "shortAnswerSpotIndex": 0,
+            "shortAnswerSolutionIndex": 0,
+            "invalid": false,
+            "solution": {
+              "id": 1001,
+              "text": "Binary Search",
+              "invalid": false
+            },
+            "spot": {
+              "id": 913,
+              "spotNr": 1,
+              "width": 18,
+              "invalid": false
+            }
+          },
+          {
+            "id": 2002,
+            "shortAnswerSpotIndex": 1,
+            "shortAnswerSolutionIndex": 1,
+            "invalid": false,
+            "solution": {
+              "id": 1002,
+              "text": "logarithmic",
+              "invalid": false
+            },
+            "spot": {
+              "id": 914,
+              "spotNr": 2,
+              "width": 18,
+              "invalid": false
+            }
+          }
+        ]
+      },
+      {
+        "id": 12,
+        "title": "Alternative valid mappings",
+        "text": "Each callout accepts Alpha or Beta. Use each label once.",
+        "points": 10.0,
+        "scoringType": "ALL_OR_NOTHING",
+        "invalid": false,
+        "type": "drag-and-drop",
+        "explanation": "Both submitted labels are valid. A sample solution must use each item only once.",
+        "backgroundFilePath": "drag-and-drop/questions/12/backgrounds/results-alternatives.png",
+        "dropLocations": [
+          {
+            "id": 11,
+            "posX": 20.0,
+            "posY": 60.0,
+            "width": 60.0,
+            "height": 40.0,
+            "invalid": false
+          },
+          {
+            "id": 12,
+            "posX": 120.0,
+            "posY": 60.0,
+            "width": 60.0,
+            "height": 40.0,
+            "invalid": false
+          }
+        ],
+        "dragItems": [
+          {
+            "id": 21,
+            "text": "Alpha",
+            "invalid": false
+          },
+          {
+            "id": 22,
+            "text": "Beta",
+            "invalid": false
+          }
+        ],
+        "correctMappings": [
+          {
+            "id": 304,
+            "dragItemIndex": 1,
+            "dropLocationIndex": 1,
+            "invalid": false,
+            "dragItem": {
+              "id": 22,
+              "text": "Beta",
+              "invalid": false
+            },
+            "dropLocation": {
+              "id": 12,
+              "posX": 120.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            }
+          },
+          {
+            "id": 301,
+            "dragItemIndex": 0,
+            "dropLocationIndex": 0,
+            "invalid": false,
+            "dragItem": {
+              "id": 21,
+              "text": "Alpha",
+              "invalid": false
+            },
+            "dropLocation": {
+              "id": 11,
+              "posX": 20.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            }
+          },
+          {
+            "id": 302,
+            "dragItemIndex": 1,
+            "dropLocationIndex": 0,
+            "invalid": false,
+            "dragItem": {
+              "id": 22,
+              "text": "Beta",
+              "invalid": false
+            },
+            "dropLocation": {
+              "id": 11,
+              "posX": 20.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            }
+          },
+          {
+            "id": 303,
+            "dragItemIndex": 0,
+            "dropLocationIndex": 1,
+            "invalid": false,
+            "dragItem": {
+              "id": 21,
+              "text": "Alpha",
+              "invalid": false
+            },
+            "dropLocation": {
+              "id": 12,
+              "posX": 120.0,
+              "posY": 60.0,
+              "width": 60.0,
+              "height": 40.0,
+              "invalid": false
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "submissions": [
+    {
+      "id": 19,
+      "submissionExerciseType": "quiz",
+      "submitted": true,
+      "type": "MANUAL",
+      "submissionDate": "2026-10-21T17:07:42.216Z",
+      "scoreInPoints": 15.0,
+      "submittedAnswers": [
+        {
+          "id": 6,
+          "scoreInPoints": 5.0,
+          "quizQuestion": {
+            "id": 11,
+            "title": "Read the evaluated blanks",
+            "text": "The sorted-input algorithm is [-spot 1]. Its worst-case number of comparisons is [-spot 2].",
+            "points": 10.0,
+            "scoringType": "PROPORTIONAL_WITHOUT_PENALTY",
+            "invalid": false,
+            "type": "short-answer",
+            "explanation": "Case-insensitive answers can be accepted. The published evaluation is authoritative.",
+            "spots": [
+              {
+                "id": 913,
+                "spotNr": 1,
+                "width": 18,
+                "invalid": false
+              },
+              {
+                "id": 914,
+                "spotNr": 2,
+                "width": 18,
+                "invalid": false
+              }
+            ],
+            "solutions": [
+              {
+                "id": 1001,
+                "text": "Binary Search",
+                "invalid": false
+              },
+              {
+                "id": 1002,
+                "text": "logarithmic",
+                "invalid": false
+              }
+            ],
+            "similarityValue": 85,
+            "matchLetterCase": false,
+            "correctMappings": [
+              {
+                "id": 2001,
+                "shortAnswerSpotIndex": 0,
+                "shortAnswerSolutionIndex": 0,
+                "invalid": false,
+                "solution": {
+                  "id": 1001,
+                  "text": "Binary Search",
+                  "invalid": false
+                },
+                "spot": {
+                  "id": 913,
+                  "spotNr": 1,
+                  "width": 18,
+                  "invalid": false
+                }
+              },
+              {
+                "id": 2002,
+                "shortAnswerSpotIndex": 1,
+                "shortAnswerSolutionIndex": 1,
+                "invalid": false,
+                "solution": {
+                  "id": 1002,
+                  "text": "logarithmic",
+                  "invalid": false
+                },
+                "spot": {
+                  "id": 914,
+                  "spotNr": 2,
+                  "width": 18,
+                  "invalid": false
+                }
+              }
+            ]
+          },
+          "submittedTexts": [
+            {
+              "text": "linear",
+              "isCorrect": false,
+              "spot": {
+                "id": 914,
+                "spotNr": 2,
+                "width": 18,
+                "invalid": false
+              }
+            },
+            {
+              "text": "binary search",
+              "isCorrect": true,
+              "spot": {
+                "id": 913,
+                "spotNr": 1,
+                "width": 18,
+                "invalid": false
+              }
+            }
+          ],
+          "type": "short-answer"
+        },
+        {
+          "id": 7,
+          "scoreInPoints": 10.0,
+          "quizQuestion": {
+            "id": 12,
+            "title": "Alternative valid mappings",
+            "text": "Each callout accepts Alpha or Beta. Use each label once.",
+            "points": 10.0,
+            "scoringType": "ALL_OR_NOTHING",
+            "invalid": false,
+            "type": "drag-and-drop",
+            "explanation": "Both submitted labels are valid. A sample solution must use each item only once.",
+            "backgroundFilePath": "drag-and-drop/questions/12/backgrounds/results-alternatives.png",
+            "dropLocations": [
+              {
+                "id": 11,
+                "posX": 20.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              },
+              {
+                "id": 12,
+                "posX": 120.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            ],
+            "dragItems": [
+              {
+                "id": 21,
+                "text": "Alpha",
+                "invalid": false
+              },
+              {
+                "id": 22,
+                "text": "Beta",
+                "invalid": false
+              }
+            ],
+            "correctMappings": [
+              {
+                "id": 304,
+                "dragItemIndex": 1,
+                "dropLocationIndex": 1,
+                "invalid": false,
+                "dragItem": {
+                  "id": 22,
+                  "text": "Beta",
+                  "invalid": false
+                },
+                "dropLocation": {
+                  "id": 12,
+                  "posX": 120.0,
+                  "posY": 60.0,
+                  "width": 60.0,
+                  "height": 40.0,
+                  "invalid": false
+                }
+              },
+              {
+                "id": 301,
+                "dragItemIndex": 0,
+                "dropLocationIndex": 0,
+                "invalid": false,
+                "dragItem": {
+                  "id": 21,
+                  "text": "Alpha",
+                  "invalid": false
+                },
+                "dropLocation": {
+                  "id": 11,
+                  "posX": 20.0,
+                  "posY": 60.0,
+                  "width": 60.0,
+                  "height": 40.0,
+                  "invalid": false
+                }
+              },
+              {
+                "id": 302,
+                "dragItemIndex": 1,
+                "dropLocationIndex": 0,
+                "invalid": false,
+                "dragItem": {
+                  "id": 22,
+                  "text": "Beta",
+                  "invalid": false
+                },
+                "dropLocation": {
+                  "id": 11,
+                  "posX": 20.0,
+                  "posY": 60.0,
+                  "width": 60.0,
+                  "height": 40.0,
+                  "invalid": false
+                }
+              },
+              {
+                "id": 303,
+                "dragItemIndex": 0,
+                "dropLocationIndex": 1,
+                "invalid": false,
+                "dragItem": {
+                  "id": 21,
+                  "text": "Alpha",
+                  "invalid": false
+                },
+                "dropLocation": {
+                  "id": 12,
+                  "posX": 120.0,
+                  "posY": 60.0,
+                  "width": 60.0,
+                  "height": 40.0,
+                  "invalid": false
+                }
+              }
+            ]
+          },
+          "mappings": [
+            {
+              "dragItemIndex": 0,
+              "dropLocationIndex": 0,
+              "invalid": false,
+              "dragItem": {
+                "id": 21,
+                "text": "Alpha",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 11,
+                "posX": 20.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            },
+            {
+              "dragItemIndex": 1,
+              "dropLocationIndex": 1,
+              "invalid": false,
+              "dragItem": {
+                "id": 22,
+                "text": "Beta",
+                "invalid": false
+              },
+              "dropLocation": {
+                "id": 12,
+                "posX": 120.0,
+                "posY": 60.0,
+                "width": 60.0,
+                "height": 40.0,
+                "invalid": false
+              }
+            }
+          ],
+          "type": "drag-and-drop"
+        }
+      ],
+      "results": [
+        {
+          "id": 8,
+          "completionDate": "2026-10-22T17:07:42.436Z",
+          "successful": false,
+          "score": 75.0,
+          "rated": true,
+          "assessmentType": "AUTOMATIC"
+        }
+      ]
+    }
+  ]
+}

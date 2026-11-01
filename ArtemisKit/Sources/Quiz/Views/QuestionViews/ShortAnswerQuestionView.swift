@@ -49,6 +49,16 @@ struct ShortAnswerQuestionView: View {
         ForEach(segments, id: \.self) { segment in
             switch segment {
             case .input(let spot):
+                Group {
+                    if viewModel.hasSubmitted {
+                        let text = textBinding(for: spot).wrappedValue
+                        Text(text.isEmpty ? "—" : text)
+                            .foregroundStyle(.primary)
+                            .textSelection(.enabled)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.vertical, 8).padding(.leading, 8).padding(.trailing, 40)
+                            .background(Color(uiColor: .secondarySystemBackground), in: .rect(cornerRadius: 8))
+                    } else {
                 TextField("Input \(spot)", text: textBinding(for: spot))
                     .focused($focus, equals: segment)
                     .textFieldStyle(.roundedBorder)
@@ -60,6 +70,8 @@ struct ShortAnswerQuestionView: View {
                             focus = next.first(where: \.isInput)
                         }
                     }
+                    }
+                }
                     .overlay(alignment: .trailing) {
                         let text = textBinding(for: spot).wrappedValue
                         if viewModel.hasSubmitted, let solutions = solutions(for: spot) {
@@ -90,7 +102,6 @@ struct ShortAnswerQuestionView: View {
         .padding(.horizontal)
         .autocorrectionDisabled()
         .textInputAutocapitalization(.never)
-        .disabled(viewModel.hasSubmitted)
 
         SubmitAnswerButton(questionId: question.id, isRated: question.isRated, answer: answer)
     }

@@ -7,6 +7,7 @@
 
 import DesignLibrary
 import Extensions
+import ReviewContent
 import SharedModels
 import SwiftUI
 
@@ -36,11 +37,15 @@ struct DragItemPicker: View {
 }
 
 struct DragItemView: View {
+    @Environment(QuizViewModel.self) private var viewModel
     let questionId: Int64?
     let item: DTO.DragItem
 
     var body: some View {
-        if let expandedImageUrl {
+        if viewModel.isReadOnly, let path = item.pictureFilePath {
+            let authorizedPath = questionId.map { path.replacingOccurrences(of: "drag-and-drop/drag-items", with: "drag-and-drop/questions/\($0)/drag-items") } ?? path
+            ReviewImage(path: authorizedPath, filePath: true)
+        } else if let expandedImageUrl {
             ArtemisAsyncImage(imageURL: expandedImageUrl) {}
                 .scaledToFit()
         } else if let text = item.text {

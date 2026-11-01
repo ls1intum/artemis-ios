@@ -19,6 +19,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/onmyway133/Smile", revision: "6bacbf7"),
+        .package(url: "https://github.com/gonzalezreal/swift-markdown-ui", exact: "2.4.1"),
 //        .package(url: "https://github.com/ls1intum/apollon-ios-module", .upToNextMajor(from: "1.0.9")), // Disabled because not working
 //        .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", .upToNextMajor(from: "21.1.0")),
         .package(url: "https://github.com/ls1intum/artemis-ios-core-modules", revision: "d32329c7a4bfd0e9bb67ce2d10a3502c26d53103"),
@@ -68,8 +69,12 @@ let package = Package(
                 .plugin(name: "RswiftGeneratePublicResources", package: "R.swift")
             ]),
         .target(
+            name: "ReviewContent",
+            dependencies: [.product(name: "MarkdownUI", package: "swift-markdown-ui")]),
+        .target(
             name: "CourseView",
             dependencies: [
+                "ReviewContent",
                 "Calendar",
                 "Faq",
                 "Iris",
@@ -91,6 +96,7 @@ let package = Package(
                 .product(name: "UserStore", package: "artemis-ios-core-modules"),
                 .product(name: "RswiftLibrary", package: "R.swift")
             ],
+            resources: [.copy("Resources/ModelReview")],
             plugins: [
                 .plugin(name: "RswiftGeneratePublicResources", package: "R.swift")
             ]),
@@ -199,6 +205,7 @@ let package = Package(
         .target(
             name: "Quiz",
             dependencies: [
+                "ReviewContent",
                 "Extensions",
                 .product(name: "APIClient", package: "artemis-ios-core-modules"),
                 .product(name: "DesignLibrary", package: "artemis-ios-core-modules"),
@@ -228,10 +235,14 @@ let package = Package(
         .testTarget(
             name: "ArtemisKitTests",
             dependencies: [
+                "ReviewContent",
+                "CourseView",
+                "Quiz",
                 "Messages",
                 "Notifications",
                 .product(name: "PushNotifications", package: "artemis-ios-core-modules")
-            ])
+            ],
+            resources: [.copy("Results/Fixtures")])
     ],
     // Swift 5 language mode keeps the current modules compatible during concurrency migration.
     swiftLanguageModes: [.v5]

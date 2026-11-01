@@ -1,0 +1,86 @@
+[
+  {
+    "id": 9,
+    "text": "Review the loop condition",
+    "detailText": "The interval must remain valid when the input is empty. Guard this before reading the midpoint.",
+    "hasLongFeedbackText": false,
+    "reference": "file:src/Search.java_line:16-18",
+    "credits": 0.0,
+    "positive": false,
+    "type": "MANUAL"
+  },
+  {
+    "id": 10,
+    "text": "Detailed review notes",
+    "detailText": "Detailed explanation of the boundary cases\n\n1. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n2. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n3. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n4. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n5. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n6. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n7. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n8. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n9. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n10. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n11. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n12. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n13. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n14. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n15. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n16. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n17. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n18. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n19. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n20. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n21. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n22. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n23. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n24. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n25. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n26. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n27. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n28. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n29. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n30. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n31. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n32. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n33. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n34. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n35. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n36. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n37. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n38. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n39. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n40. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n41. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n42. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n43. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n44. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n45. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n46. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n47. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n48. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n49. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n50. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n51. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n52. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n53. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n54. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n55. Keep the interval valid, test empty input, and document which duplicate is returned.\n\n56. Keep the in",
+    "hasLongFeedbackText": true,
+    "credits": 0.0,
+    "positive": true,
+    "type": "MANUAL_UNREFERENCED"
+  },
+  {
+    "id": -2,
+    "detailText": "The first item is found.",
+    "hasLongFeedbackText": false,
+    "credits": 2.0,
+    "positive": true,
+    "type": "AUTOMATIC",
+    "testCase": {
+      "id": 1,
+      "testName": "findsFirstElement",
+      "type": "DEFAULT"
+    }
+  },
+  {
+    "id": -4,
+    "detailText": "The last item is found.",
+    "hasLongFeedbackText": false,
+    "credits": 2.0,
+    "positive": true,
+    "type": "AUTOMATIC",
+    "testCase": {
+      "id": 2,
+      "testName": "findsLastElement",
+      "type": "DEFAULT"
+    }
+  },
+  {
+    "id": -6,
+    "detailText": "Expected -1 for a value outside the array, but was 0.",
+    "hasLongFeedbackText": false,
+    "credits": 0.0,
+    "positive": false,
+    "type": "AUTOMATIC",
+    "testCase": {
+      "id": 3,
+      "testName": "returnsMinusOneForMissingElement",
+      "type": "DEFAULT"
+    }
+  },
+  {
+    "id": -8,
+    "detailText": "ArrayIndexOutOfBoundsException at Search.java:18.",
+    "hasLongFeedbackText": false,
+    "credits": 0.0,
+    "positive": false,
+    "type": "AUTOMATIC",
+    "testCase": {
+      "id": 4,
+      "testName": "handlesEmptyInput",
+      "type": "DEFAULT"
+    }
+  },
+  {
+    "id": -10,
+    "detailText": "The middle item is found.",
+    "hasLongFeedbackText": false,
+    "credits": 2.0,
+    "positive": true,
+    "type": "AUTOMATIC",
+    "testCase": {
+      "id": 5,
+      "testName": "findsMiddleElement",
+      "type": "DEFAULT"
+    }
+  }
+]

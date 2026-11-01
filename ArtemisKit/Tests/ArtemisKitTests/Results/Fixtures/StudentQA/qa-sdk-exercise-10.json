@@ -1,0 +1,99 @@
+{
+  "exercise": {
+    "id": 10,
+    "type": "text",
+    "exerciseType": "text",
+    "title": "Binary Search Reflection",
+    "shortName": "binarysearchreflection",
+    "problemStatement": "# Review your approach\n\nExplain your assumptions and show how your solution handles edge cases. This is synthetic mobile result-review test data.",
+    "releaseDate": "2026-10-06T15:51:38.515Z",
+    "dueDate": "2026-10-23T15:56:25.965Z",
+    "assessmentDueDate": "2026-10-25T15:56:25.966Z",
+    "exampleSolutionPublicationDate": "2026-10-25T15:56:25.966Z",
+    "maxPoints": 10.0,
+    "bonusPoints": 2.0,
+    "assessmentType": "MANUAL",
+    "mode": "INDIVIDUAL",
+    "teamMode": false,
+    "visibleToStudents": true,
+    "includedInOverallScore": "INCLUDED_COMPLETELY",
+    "allowComplaintsForAutomaticAssessments": false,
+    "presentationScoreEnabled": false,
+    "secondCorrectionEnabled": false,
+    "studentAssignedTeamIdComputed": false,
+    "gradingInstructionFeedbackUsed": false,
+    "course": {
+      "id": 7,
+      "title": "Mobile Feedback Lab",
+      "shortName": "mobileresults26",
+      "startDate": "2026-09-26T15:51:38.438Z",
+      "endDate": "2027-02-03T15:51:38.438Z",
+      "semester": "WS26/27",
+      "testCourse": true,
+      "onlineCourse": false,
+      "accuracyOfScores": 1,
+      "maxComplaints": 0,
+      "maxTeamComplaints": 0,
+      "maxComplaintTimeDays": 0,
+      "maxComplaintTextLimit": 0,
+      "maxComplaintResponseTextLimit": 0,
+      "complaintsEnabled": false,
+      "requestMoreFeedbackEnabled": false,
+      "maxRequestMoreFeedbackTimeDays": 0,
+      "timeZone": "Europe/Berlin",
+      "enrollmentEnabled": false,
+      "unenrollmentEnabled": false,
+      "onboardingDone": false,
+      "learningPathsEnabled": false,
+      "presentationAssessmentsEnabled": false,
+      "gradeRelevant": true,
+      "dataRetentionHold": false,
+      "autoOrchestratorEnabled": false,
+      "trainingEnabled": false,
+      "athenaGradingFeedbackEnabled": false,
+      "athenaFormativeFeedbackEnabled": false,
+      "courseInformationSharingConfiguration": "COMMUNICATION_AND_MESSAGING"
+    },
+    "exampleSolution": "Binary search maintains a shrinking interval in sorted input. Each step halves the interval, giving O(log n) comparisons.",
+    "studentParticipations": [
+      {
+        "type": "student",
+        "id": 10,
+        "initializationState": "FINISHED",
+        "initializationDate": "2026-10-26T15:51:38.644Z",
+        "testRun": false,
+        "attempt": 0,
+        "submissions": [
+          {
+            "id": 10,
+            "submissionExerciseType": "text",
+            "submitted": true,
+            "type": "MANUAL",
+            "submissionDate": "2026-10-26T15:51:38.679Z",
+            "durationInMinutes": 0,
+            "empty": false,
+            "results": [
+              {
+                "id": 1,
+                "completionDate": "2026-10-26T03:56:26.263Z",
+                "successful": false,
+                "score": 82.5,
+                "rated": true,
+                "assessmentType": "MANUAL",
+                "correctionRound": 0,
+                "hasComplaint": false,
+                "exampleResult": false,
+                "testCaseCount": 0,
+                "passedTestCaseCount": 0,
+                "codeIssueCount": 0,
+                "exerciseId": 10
+              }
+            ],
+            "text": "Binary search requires sorted input.\n\nThe search interval is halved after each comparison, so the time complexity is O(log n).\n\nFor an empty array, return -1. This also works for repeated values. 👩‍💻",
+            "language": "ENGLISH"
+          }
+        ]
+      }
+    ]
+  }
+}

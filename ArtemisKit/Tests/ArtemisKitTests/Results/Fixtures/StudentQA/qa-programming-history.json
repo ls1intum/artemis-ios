@@ -1,0 +1,38 @@
+{
+  "id": 13,
+  "type": "programming",
+  "exercise": {
+    "id": 13,
+    "type": "programming",
+    "title": "Binary Search Tests",
+    "maxPoints": 10.0,
+    "assessmentType": "AUTOMATIC",
+    "course": {
+      "id": 7,
+      "title": "Mobile Feedback Lab",
+      "accuracyOfScores": 1
+    }
+  },
+  "submissions": [
+    {
+      "id": 14,
+      "type": "MANUAL",
+      "submitted": true,
+      "submissionDate": "2026-10-22T15:56:29.115Z",
+      "commitHash": "0123456789012345678901234567890123456789",
+      "buildFailed": false,
+      "results": [
+        {
+          "id": 4,
+          "completionDate": "2026-10-24T15:56:29.372Z",
+          "score": 60.0,
+          "rated": true,
+          "assessmentType": "AUTOMATIC",
+          "testCaseCount": 5,
+          "passedTestCaseCount": 3,
+          "codeIssueCount": 0
+        }
+      ]
+    }
+  ]
+}

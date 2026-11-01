@@ -1,0 +1,41 @@
+{
+  "exercise": {
+    "id": 14,
+    "type": "quiz",
+    "title": "Search Complexity Quiz",
+    "maxPoints": 10.0,
+    "course": {
+      "id": 7,
+      "title": "Mobile Feedback Lab",
+      "accuracyOfScores": 1
+    },
+    "duration": 600,
+    "studentParticipations": [
+      {
+        "type": "student",
+        "id": 14,
+        "submissions": [
+          {
+            "id": 15,
+            "submitted": true,
+            "type": "MANUAL",
+            "submissionDate": "2026-10-21T16:00:44.311Z",
+            "results": [
+              {
+                "id": 5,
+                "completionDate": "2026-10-22T16:00:44.613Z",
+                "score": 100.0,
+                "rated": true,
+                "assessmentType": "AUTOMATIC",
+                "testCaseCount": 0,
+                "passedTestCaseCount": 0,
+                "codeIssueCount": 0
+              }
+            ],
+            "scoreInPoints": 10.0
+          }
+        ]
+      }
+    ]
+  }
+}

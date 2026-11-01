@@ -1,0 +1,105 @@
+{
+  "exercise": {
+    "id": 11,
+    "type": "file-upload",
+    "exerciseType": "file-upload",
+    "title": "Algorithm Report",
+    "shortName": "algorithmreport",
+    "problemStatement": "# Review your approach\n\nExplain your assumptions and show how your solution handles edge cases. This is synthetic mobile result-review test data.",
+    "releaseDate": "2026-10-06T15:51:38.691Z",
+    "dueDate": "2026-10-23T15:56:26.978Z",
+    "assessmentDueDate": "2026-10-25T15:56:26.979Z",
+    "exampleSolutionPublicationDate": "2026-10-25T15:56:26.979Z",
+    "maxPoints": 10.0,
+    "bonusPoints": 2.0,
+    "assessmentType": "MANUAL",
+    "mode": "INDIVIDUAL",
+    "teamMode": false,
+    "visibleToStudents": true,
+    "includedInOverallScore": "INCLUDED_COMPLETELY",
+    "allowComplaintsForAutomaticAssessments": false,
+    "presentationScoreEnabled": false,
+    "secondCorrectionEnabled": false,
+    "studentAssignedTeamIdComputed": false,
+    "gradingInstructionFeedbackUsed": false,
+    "course": {
+      "id": 7,
+      "title": "Mobile Feedback Lab",
+      "shortName": "mobileresults26",
+      "startDate": "2026-09-26T15:51:38.438Z",
+      "endDate": "2027-02-03T15:51:38.438Z",
+      "semester": "WS26/27",
+      "testCourse": true,
+      "onlineCourse": false,
+      "accuracyOfScores": 1,
+      "maxComplaints": 0,
+      "maxTeamComplaints": 0,
+      "maxComplaintTimeDays": 0,
+      "maxComplaintTextLimit": 0,
+      "maxComplaintResponseTextLimit": 0,
+      "complaintsEnabled": false,
+      "requestMoreFeedbackEnabled": false,
+      "maxRequestMoreFeedbackTimeDays": 0,
+      "timeZone": "Europe/Berlin",
+      "enrollmentEnabled": false,
+      "unenrollmentEnabled": false,
+      "onboardingDone": false,
+      "learningPathsEnabled": false,
+      "presentationAssessmentsEnabled": false,
+      "gradeRelevant": true,
+      "dataRetentionHold": false,
+      "autoOrchestratorEnabled": false,
+      "trainingEnabled": false,
+      "athenaGradingFeedbackEnabled": false,
+      "athenaFormativeFeedbackEnabled": false,
+      "courseInformationSharingConfiguration": "COMMUNICATION_AND_MESSAGING"
+    },
+    "exampleSolution": "A clear report states its assumptions and evaluates the empty-input case.",
+    "filePattern": "pdf",
+    "studentParticipations": [
+      {
+        "type": "student",
+        "id": 11,
+        "initializationState": "FINISHED",
+        "initializationDate": "2026-10-26T15:51:38.851Z",
+        "testRun": false,
+        "attempt": 0,
+        "submissions": [
+          {
+            "id": 11,
+            "submissionExerciseType": "file-upload",
+            "submitted": false,
+            "empty": true
+          },
+          {
+            "id": 12,
+            "submissionExerciseType": "file-upload",
+            "submitted": true,
+            "type": "MANUAL",
+            "submissionDate": "2026-10-26T15:51:38.93Z",
+            "durationInMinutes": 0,
+            "empty": false,
+            "results": [
+              {
+                "id": 2,
+                "completionDate": "2026-10-26T03:56:27.294Z",
+                "successful": false,
+                "score": 65.0,
+                "rated": true,
+                "assessmentType": "MANUAL",
+                "correctionRound": 0,
+                "hasComplaint": false,
+                "exampleResult": false,
+                "testCaseCount": 0,
+                "passedTestCaseCount": 0,
+                "codeIssueCount": 0,
+                "exerciseId": 11
+              }
+            ],
+            "filePath": "file-upload-exercises/11/submissions/12/Algorithm_Report.pdf"
+          }
+        ]
+      }
+    ]
+  }
+}
