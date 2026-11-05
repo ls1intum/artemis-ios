@@ -28,6 +28,10 @@ final class MessageEditorDocument {
     var typingStyle: MessageEditorStyle = []
     @ObservationIgnored var applyTypingAttributes: (() -> Void)?
     @ObservationIgnored var applyEdit: ((NSAttributedString, NSRange) -> Void)?
+    /// Pushes a wholesale `load(_:)` into the bound text view immediately. Relying on a later
+    /// `updateUIView` is not enough: it skips syncing while UIKit has marked text, and nothing
+    /// triggers another update afterwards, leaving the view showing stale text.
+    @ObservationIgnored var applyLoad: (() -> Void)?
     @ObservationIgnored var onContentChange: (() -> Void)?
 
     func load(_ source: String) {
@@ -45,6 +49,7 @@ final class MessageEditorDocument {
             selection = NSRange(location: 0, length: 0)
         }
         typingStyle = []
+        applyLoad?()
         onContentChange?()
     }
 
