@@ -7,12 +7,14 @@
 
 import DesignLibrary
 import Extensions
+import ReviewContent
 import SharedModels
 import SwiftUI
 
 extension DTO.DragAndDropQuizQuestionWithSolution: WithImage {}
 
 struct DNDQuestionView: View {
+    @Environment(QuizViewModel.self) private var viewModel
     let question: DTO.QuizQuestionTraining
     let questionWithAnswer: DTO.DragAndDropQuizQuestionWithSolution
 
@@ -43,12 +45,13 @@ struct DNDQuestionView: View {
 
     var body: some View {
         if let text = questionWithAnswer.text {
-            Text(LocalizedStringKey(text))
-                .padding(.horizontal)
+            if viewModel.isReadOnly { SafeReviewContent(text).padding(.horizontal) } else { Text(LocalizedStringKey(text)).padding(.horizontal) }
         }
 
-        ArtemisAsyncImage(imageURL: backgroundImage) {
-            Text("Failed to load image :/")
+        Group {
+            if viewModel.isReadOnly { ReviewImage(path: questionWithAnswer.backgroundFilePath, filePath: true) } else {
+                ArtemisAsyncImage(imageURL: backgroundImage) { Text("Failed to load image :/") }
+            }
         }
         .scaledToFit()
         .containerRelativeFrame(.horizontal)
@@ -56,9 +59,11 @@ struct DNDQuestionView: View {
             DNDDropLocations(mappings: $mappings, question: questionWithAnswer)
         }
 
-        Text(R.string.localizable.dndInfo())
-            .font(.caption)
-            .padding(.horizontal)
+        if !viewModel.hasSubmitted {
+            Text(R.string.localizable.dndInfo())
+                .font(.caption)
+                .padding(.horizontal)
+        }
 
         SubmitAnswerButton(questionId: question.id, isRated: question.isRated, answer: answer)
     }
@@ -84,7 +89,7 @@ struct DNDDropLocations: View {
                                  scaleX: geo.size.width,
                                  scaleY: geo.size.height,
                                  mappings: $mappings,
-                                 correctMappings: question.correctMappings ?? [])
+                                 correctMappings: question.correctMappings)
                 }
             }
         }
@@ -102,7 +107,7 @@ struct DropLocation: View {
 
     @State private var selected = false
     @Binding var mappings: [DTO.DragAndDropMappingFromLiveClient]
-    let correctMappings: [DTO.DragAndDropMapping]
+    let correctMappings: [DTO.DragAndDropMapping]?
 
     var body: some View {
         // Positions are scaled from 0...200
@@ -111,17 +116,38 @@ struct DropLocation: View {
         let width = (location.width ?? 0) / 200 * scaleX
         let height = (location.height ?? 0) / 200 * scaleY
 
-        Button {
-            if mappings.first(where: { $0.dropLocation?.id == location.id })?.dragItem?.id == nil {
-                selected = true
+        Group {
+            if viewModel.hasSubmitted {
+                locationContent(width: width, height: height)
+                    .foregroundStyle(.primary)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityAddTraits(selectedItem != nil ? .isSelected : [])
             } else {
-                updateMapping(selectedRef: nil)
+                Button {
+                    if mappings.first(where: { $0.dropLocation?.id == location.id })?.dragItem?.id == nil {
+                        selected = true
+                    } else {
+                        updateMapping(selectedRef: nil)
+                    }
+                } label: { locationContent(width: width, height: height) }
             }
-        } label: {
+        }
+        .popover(isPresented: $selected, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
+            DragItemPicker(questionId: questionId,
+                           items: unusedItems,
+                           onSelect: updateMapping(selectedRef:))
+                .presentationCompactAdaptation(.popover)
+        }
+        .frame(width: width, height: height)
+        .position(x: startX + width / 2,
+                  y: startY + height / 2)
+    }
+
+    private func locationContent(width: CGFloat, height: CGFloat) -> some View {
             Rectangle()
                 .strokeBorder(style: .init(dash: [5]))
                 .background {
-                    if viewModel.hasSubmitted {
+                    if viewModel.hasSubmitted, let isCorrect {
                         isCorrect ? Color.green : Color.red
                     } else {
                         Color.blue.opacity(selected ? 0.5 : 0.05)
@@ -134,22 +160,10 @@ struct DropLocation: View {
                         DragItemView(questionId: questionId, item: selectedItem)
                     }
                 }
-        }
-        .allowsHitTesting(!viewModel.hasSubmitted)
-        .popover(isPresented: $selected, attachmentAnchor: .point(.bottom), arrowEdge: .top) {
-            DragItemPicker(questionId: questionId,
-                           items: unusedItems,
-                           onSelect: updateMapping(selectedRef:))
-                .presentationCompactAdaptation(.popover)
-        }
-        .frame(width: width, height: height)
-        .position(x: startX + width / 2,
-                  y: startY + height / 2)
     }
 
-    var isCorrect: Bool {
-        let mapping = correctMappings.first { $0.dropLocation?.id == location.id }
-        return mapping?.dragItem?.id == selectedItem?.id
+    var isCorrect: Bool? {
+        QuizDropEvaluation.correct(locationID: location.id, selectedItemID: selectedItem?.id, correctMappings: correctMappings)
     }
 
     var selectedItem: DTO.DragItem? {
@@ -187,5 +201,14 @@ struct DropLocation: View {
             return $0
         }
         selected = false
+    }
+}
+
+enum QuizDropEvaluation {
+    static func correct(locationID: Int64?, selectedItemID: Int64?, correctMappings: [DTO.DragAndDropMapping]?) -> Bool? {
+        guard let correctMappings else { return nil }
+        let valid = correctMappings.filter { $0.dropLocation?.id == locationID }
+        guard let selectedItemID else { return valid.isEmpty }
+        return valid.contains { $0.dragItem?.id == selectedItemID }
     }
 }

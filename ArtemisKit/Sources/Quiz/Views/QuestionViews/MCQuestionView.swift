@@ -6,6 +6,7 @@
 //
 
 import Common
+import ReviewContent
 import SharedModels
 import SwiftUI
 
@@ -29,24 +30,40 @@ struct MCQuestionView: View {
 
     var body: some View {
         if let text = questionWithAnswer.text {
-            Text(LocalizedStringKey(text))
-                .padding(.horizontal)
+            if viewModel.isReadOnly { SafeReviewContent(text).padding(.horizontal) } else { Text(LocalizedStringKey(text)).padding(.horizontal) }
         }
 
         if let answerOptions = questionWithAnswer.answerOptions {
             ForEach(answerOptions, id: \.id) { option in
                 let id = option.id ?? -1
-                Button {
-                    if selectedAnswers.contains(id) {
-                        selectedAnswers.removeAll { $0 == id }
-                    } else {
-                        if questionWithAnswer.singleChoice == true {
-                            selectedAnswers.removeAll()
-                        }
-                        selectedAnswers.append(id)
+                if viewModel.hasSubmitted {
+                    choiceLabel(option).foregroundStyle(.primary)
+                } else {
+                    Button { toggleAnswer(id) } label: { choiceLabel(option) }
+                }
+
+                if QuizReviewCorrectness.resolve(submitted: viewModel.hasSubmitted, correct: option.isCorrect) != .unknown {
+                    let optionIsCorrect = QuizReviewCorrectness.resolve(submitted: viewModel.hasSubmitted, correct: option.isCorrect) == .correct
+                    let loc = R.string.localizable
+
+                    let correctLabel = Text(optionIsCorrect ? loc.correct() : loc.incorrect())
+                        .foregroundStyle(optionIsCorrect ? .green : .red)
+
+                    Text("\(loc.solution()): \(correctLabel)")
+                    if let explanation = option.explanation {
+                        if viewModel.isReadOnly { SafeReviewContent(explanation) } else { Text("\(loc.explanation()): \(explanation)") }
                     }
-                } label: {
-                    HStack(alignment: .center) {
+                }
+            }
+            .padding(.horizontal)
+        }
+
+        SubmitAnswerButton(questionId: question.id, isRated: question.isRated, answer: answer)
+    }
+
+    private func choiceLabel(_ option: DTO.AnswerOptionWithSolution) -> some View {
+        let id = option.id ?? -1
+                    return HStack(alignment: .center) {
                         Image(systemName: questionWithAnswer.singleChoice == true ? "circle" : "square")
                             .resizable()
                             .frame(width: 30, height: 30)
@@ -57,43 +74,39 @@ struct MCQuestionView: View {
                                         .frame(width: 20, height: 20, alignment: .center)
                                 }
                             }
+                            .accessibilityHidden(true)
                             .overlay(alignment: .bottomTrailing) {
-                                if viewModel.hasSubmitted && selectedAnswers.contains(id) != option.isCorrect ?? false {
+                                if viewModel.hasSubmitted, let correct = option.isCorrect, selectedAnswers.contains(id) != correct {
                                     Image(systemName: "exclamationmark.triangle.fill")
                                         .foregroundStyle(.orange)
                                         .offset(x: 8, y: 4)
                                 }
                             }
 
-                        Text(option.text ?? "No text")
+                        choiceText(option.text ?? "No text")
                             .multilineTextAlignment(.leading)
                             .frame(maxWidth: .infinity, alignment: .leading)
+                            .accessibilityAddTraits(selectedAnswers.contains(id) ? .isSelected : [])
 
                         if let hint = option.hint {
                             HintButton(hint: hint)
                                 .font(.title2)
                         }
                     }
-                }
+    }
 
-                if viewModel.hasSubmitted {
-                    let loc = R.string.localizable
-                    let optionIsCorrect = option.isCorrect ?? false
+    @ViewBuilder
+    private func choiceText(_ text: String) -> some View {
+        if viewModel.isReadOnly { SafeReviewContent(text) } else { Text(text) }
+    }
 
-                    let correctLabel = Text(optionIsCorrect ? loc.correct() : loc.incorrect())
-                        .foregroundStyle(optionIsCorrect ? .green : .red)
-
-                    Text("\(loc.solution()): \(correctLabel)")
-                    if let explanation = option.explanation {
-                        Text("\(loc.explanation()): \(explanation)")
-                    }
-                }
-            }
-            .padding(.horizontal)
-            .disabled(viewModel.hasSubmitted)
+    private func toggleAnswer(_ id: Int64) {
+        if selectedAnswers.contains(id) {
+            selectedAnswers.removeAll { $0 == id }
+        } else {
+            if questionWithAnswer.singleChoice == true { selectedAnswers.removeAll() }
+            selectedAnswers.append(id)
         }
-
-        SubmitAnswerButton(questionId: question.id, isRated: question.isRated, answer: answer)
     }
 
     var answer: DTO.SubmittedAnswerFromLiveClient {

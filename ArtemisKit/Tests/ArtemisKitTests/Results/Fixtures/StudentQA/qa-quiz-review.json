@@ -1,0 +1,121 @@
+{
+  "quizQuestionsType": "after-quiz-end",
+  "id": 14,
+  "type": "student",
+  "exercise": {
+    "id": 14,
+    "title": "Search Complexity Quiz",
+    "course": {
+      "id": 7,
+      "title": "Mobile Feedback Lab",
+      "accuracyOfScores": 1
+    },
+    "type": "quiz",
+    "duration": 600,
+    "maxPoints": 10.0,
+    "quizQuestions": [
+      {
+        "id": 1,
+        "title": "Worst-case complexity",
+        "text": "What is the worst-case time complexity of binary search on sorted input?",
+        "points": 10.0,
+        "scoringType": "ALL_OR_NOTHING",
+        "invalid": false,
+        "type": "multiple-choice",
+        "explanation": "Each comparison halves the remaining interval.",
+        "answerOptions": [
+          {
+            "id": 1,
+            "text": "O(log n)",
+            "invalid": false,
+            "explanation": "The interval is halved at every step.",
+            "isCorrect": true
+          },
+          {
+            "id": 2,
+            "text": "O(n)",
+            "invalid": false,
+            "explanation": "This describes a linear scan.",
+            "isCorrect": false
+          },
+          {
+            "id": 3,
+            "text": "O(1)",
+            "invalid": false,
+            "explanation": "The number of comparisons increases with input size.",
+            "isCorrect": false
+          }
+        ],
+        "singleChoice": true
+      }
+    ]
+  },
+  "submissions": [
+    {
+      "id": 15,
+      "submitted": true,
+      "type": "MANUAL",
+      "submissionDate": "2026-10-21T16:00:44.311Z",
+      "scoreInPoints": 10.0,
+      "submittedAnswers": [
+        {
+          "id": 1,
+          "scoreInPoints": 10.0,
+          "quizQuestion": {
+            "id": 1,
+            "title": "Worst-case complexity",
+            "text": "What is the worst-case time complexity of binary search on sorted input?",
+            "points": 10.0,
+            "scoringType": "ALL_OR_NOTHING",
+            "invalid": false,
+            "type": "multiple-choice",
+            "explanation": "Each comparison halves the remaining interval.",
+            "answerOptions": [
+              {
+                "id": 1,
+                "text": "O(log n)",
+                "invalid": false,
+                "explanation": "The interval is halved at every step.",
+                "isCorrect": true
+              },
+              {
+                "id": 2,
+                "text": "O(n)",
+                "invalid": false,
+                "explanation": "This describes a linear scan.",
+                "isCorrect": false
+              },
+              {
+                "id": 3,
+                "text": "O(1)",
+                "invalid": false,
+                "explanation": "The number of comparisons increases with input size.",
+                "isCorrect": false
+              }
+            ],
+            "singleChoice": true
+          },
+          "selectedOptions": [
+            {
+              "id": 1,
+              "text": "O(log n)",
+              "invalid": false,
+              "explanation": "The interval is halved at every step.",
+              "isCorrect": true
+            }
+          ],
+          "type": "multiple-choice"
+        }
+      ],
+      "results": [
+        {
+          "id": 5,
+          "completionDate": "2026-10-22T16:00:44.613Z",
+          "score": 100.0,
+          "rated": true,
+          "assessmentType": "AUTOMATIC"
+        }
+      ]
+    }
+  ]
+}

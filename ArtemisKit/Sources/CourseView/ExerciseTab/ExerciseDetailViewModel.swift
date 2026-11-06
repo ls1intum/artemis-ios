@@ -22,7 +22,6 @@ final class ExerciseDetailViewModel {
     var channel: DataState<Channel> = .loading
 
     var showQuizParticipation = false
-    var isFeedbackPresented = false
     var latestResultId: Int?
     var participationId: Int?
 
@@ -32,13 +31,16 @@ final class ExerciseDetailViewModel {
 
     private let exerciseService: ExerciseService
     private let userSession: UserSession
+    private let reviewReader: (any ReviewReading)?
+    var scorePrecision = 1
 
     init(
         courseId: Int,
         exerciseId: Int,
         exercise: DataState<Exercise>,
         exerciseService: ExerciseService = ExerciseServiceFactory.shared,
-        userSession: UserSession = UserSessionFactory.shared
+        userSession: UserSession = UserSessionFactory.shared,
+        reviewReader: (any ReviewReading)? = nil
     ) {
         self.courseId = courseId
         self.exerciseId = exerciseId
@@ -48,6 +50,7 @@ final class ExerciseDetailViewModel {
 
         self.exerciseService = exerciseService
         self.userSession = userSession
+        self.reviewReader = reviewReader
     }
 
     func loadExercise() async {
@@ -61,6 +64,17 @@ final class ExerciseDetailViewModel {
         } else {
             await refreshExercise()
         }
+    }
+
+    func loadReviewMetadata() async {
+        let transport = ReviewSession.current().map { ReviewTransport(captured: $0) }
+        defer { transport?.invalidate() }
+        guard let reader = reviewReader ?? transport else { return }
+        struct Details: Decodable { let exercise: ReviewExercise }
+        guard let details = try? await reader.read(Details.self, path: "/api/exercise/exercises/\(exerciseId)/details"),
+              reader.isCurrent, details.exercise.id == exerciseId,
+              details.exercise.course?.id == courseId else { return }
+        scorePrecision = min(10, max(0, details.exercise.course?.accuracyOfScores ?? 1))
     }
 
     func refreshExercise() async {
@@ -108,16 +122,30 @@ extension ExerciseDetailViewModel {
     var score: String {
         let latestRatedResult = exercise.value?.baseExercise.latestRatedResult
 
-        let resultScore = latestRatedResult?.score ?? 0
-        let maxPoints = exercise.value?.baseExercise.maxPoints ?? 0
-        let finalScore = round(resultScore * maxPoints / 10) / 10
+        guard let resultScore = latestRatedResult?.score else { return "—" }
+        return ReviewScore.points(score: resultScore, maximum: exercise.value?.baseExercise.maxPoints, precision: scorePrecision)?.clean ?? "—"
+    }
 
-        return finalScore.clean
+    var reviewReferences: [ReviewReference] {
+        guard let exercise = exercise.value else { return [] }
+        return (exercise.baseExercise.studentParticipations ?? []).flatMap { participation -> [ReviewReference] in
+            let source = participation.baseParticipation
+            return (source.submissions ?? []).flatMap { submission -> [ReviewReference] in
+                let work = submission.baseSubmission
+                guard let submissionID = work.id else { return [] }
+                return (work.results ?? []).compactMap { result -> ReviewReference? in
+                    guard let result, let resultID = result.id else { return nil }
+                    return ReviewReference(courseID: courseId, exerciseID: exerciseId, participationID: source.id,
+                                           submissionID: submissionID, resultID: resultID, submissionDate: work.submissionDate,
+                                           completionDate: result.completionDate, rated: result.rated)
+                }
+            }
+        }.sorted { ($0.completionDate ?? .distantPast) > ($1.completionDate ?? .distantPast) }
     }
 
     var isFeedbackButtonVisible: Bool {
         switch exercise.value {
-        case .fileUpload, .programming, .text:
+        case .fileUpload, .programming, .text, .modeling, .quiz:
             return true
         default:
             return false

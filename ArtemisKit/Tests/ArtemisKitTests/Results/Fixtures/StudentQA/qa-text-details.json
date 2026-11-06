@@ -1,0 +1,41 @@
+[
+  {
+    "id": 1,
+    "text": "Reasoning",
+    "detailText": "You correctly state the sorted-input requirement.",
+    "hasLongFeedbackText": false,
+    "reference": "9ef8a96c9e1fb0229c1936c10df858e084598adf",
+    "credits": 5.0,
+    "positive": true,
+    "type": "MANUAL"
+  },
+  {
+    "id": 2,
+    "text": "Reasoning",
+    "detailText": "Explain why halving gives a logarithmic number of comparisons.",
+    "hasLongFeedbackText": false,
+    "reference": "eca0fdfac1852e966a1ef0ab0b0bf6bf405efd80",
+    "credits": 3.25,
+    "positive": true,
+    "type": "MANUAL"
+  },
+  {
+    "id": 11,
+    "text": "Example notation",
+    "detailText": "Use a concrete input/output example to complement the explanation.",
+    "hasLongFeedbackText": false,
+    "reference": "fb83ddcad2f83a596b119c8ddbaf0bfde5f05c76",
+    "credits": 0.0,
+    "positive": true,
+    "type": "MANUAL"
+  },
+  {
+    "id": 3,
+    "text": "Overall feedback",
+    "detailText": "A clear explanation. Consider explicitly discussing duplicate values and which match is returned.",
+    "hasLongFeedbackText": false,
+    "credits": 0.0,
+    "positive": true,
+    "type": "MANUAL_UNREFERENCED"
+  }
+]

@@ -11,6 +11,7 @@ import SharedModels
 private let maxValueProgrammingResultInts = 255
 
 struct SubmissionResultView: View {
+    @Environment(\.resultScorePrecision) private var inheritedPrecision
 
     let exercise: Exercise
     let participation: BaseParticipation
@@ -19,6 +20,17 @@ struct SubmissionResultView: View {
     let isBuilding: Bool
     var showUngradedResult = false
     var short = false
+    var scorePrecision: Int?
+
+    var presentationState: ReviewAssessmentState {
+        guard let result else { return .assessed }
+        let type: String
+        let rebuild: Date?
+        if case .programming(let programming) = exercise { type = "programming"; rebuild = programming.buildAndTestStudentSubmissionsAfterDueDate } else { type = "other"; rebuild = nil }
+        return .resolve(.init(exerciseType: type, exerciseAssessment: exercise.baseExercise.assessmentType?.rawValue, resultAssessment: result.assessmentType?.rawValue,
+                              completion: result.completionDate, successful: result.successful, practice: (participation as? any StudentParticipation)?.testRun == true,
+                              assessmentDue: exercise.baseExercise.assessmentDueDate, rebuild: rebuild), now: .now)
+    }
 
     var templateStatus: ResultTemplateStatus {
         guard let result else { return .noResult }
@@ -34,6 +46,7 @@ struct SubmissionResultView: View {
     }
 
     var text: String {
+        if [.feedbackPending, .feedbackFailed, .feedbackTimedOut].contains(presentationState) { return ReviewCopy.text(presentationState.localizationKey) }
         switch templateStatus {
         case .isBuilding:
             return R.string.localizable.building()
@@ -58,12 +71,13 @@ struct SubmissionResultView: View {
     }
 
     var score: String? {
-        guard let result else {
+        guard let result, let resultScore = result.score else {
             return nil
         }
 
-        let relativeScore = Course.roundValueSpecifiedByCourseSettings(value: result.score ?? 0, for: nil).clean
-        let points = Course.roundValueSpecifiedByCourseSettings(value: (result.score ?? 0) * (exercise.baseExercise.maxPoints ?? 0) / 100, for: nil).clean
+        let precision = scorePrecision ?? inheritedPrecision
+        let relativeScore = ReviewScore.rounded(resultScore, precision: precision).clean
+        let points = ReviewScore.points(score: resultScore, maximum: exercise.baseExercise.maxPoints, precision: precision)?.clean ?? "—"
         switch exercise {
         case .programming:
             var resultString = ""
@@ -86,7 +100,7 @@ struct SubmissionResultView: View {
                     points)
             }
 
-            if result.isResultPreliminary {
+            if presentationState == .preliminary {
                 resultString += " (\(R.string.localizable.preliminary()))"
             }
 
@@ -120,7 +134,7 @@ struct SubmissionResultView: View {
 
     var body: some View {
         HStack {
-            if let icon = templateStatus.getIcon(for: result) {
+            if let icon = templateStatus.getIcon(for: result, assessmentState: presentationState) {
                 icon
                     .resizable()
                     .renderingMode(.template)
@@ -128,13 +142,15 @@ struct SubmissionResultView: View {
                     .frame(width: .extraSmallImage)
             }
             Text(text)
-        }.foregroundColor(templateStatus.getColor(for: result))
+        }.foregroundColor(templateStatus.getColor(for: result, assessmentState: presentationState))
     }
 }
 
 extension ResultTemplateStatus {
 
-    private func getIconName(result: Result?) -> String? {
+    private func getIconName(result: Result?, assessmentState: ReviewAssessmentState?) -> String? {
+        if assessmentState == .feedbackPending { return "circle-question-solid" }
+        if assessmentState == .feedbackFailed || assessmentState == .feedbackTimedOut { return "circle-xmark-solid" }
         switch self {
         case .isBuilding:
             return "circle-notch-solid"
@@ -145,7 +161,7 @@ extension ResultTemplateStatus {
             if result.isBuildFailedAndResultIsAutomatic {
                 return "circle-xmark-solid"
             }
-            if result.isResultPreliminary {
+            if assessmentState == .preliminary || (assessmentState == nil && result.isResultPreliminary) {
                 return "circle-question-solid"
             }
             if result.isOnlyCompilationTested(for: self) {
@@ -167,14 +183,15 @@ extension ResultTemplateStatus {
         }
     }
 
-    func getIcon(for result: Result?) -> Image? {
-        guard let iconName = getIconName(result: result) else {
+    func getIcon(for result: Result?, assessmentState: ReviewAssessmentState? = nil) -> Image? {
+        guard let iconName = getIconName(result: result, assessmentState: assessmentState) else {
             return nil
         }
         return Image(iconName, bundle: .module)
     }
 
-    func getColor(for result: Result?) -> Color {
+    func getColor(for result: Result?, assessmentState: ReviewAssessmentState? = nil) -> Color {
+        if let override = assessmentState?.badgeColor { return override }
         switch self {
         case .isBuilding:
             return Color.Artemis.primaryLabel
@@ -190,7 +207,7 @@ extension ResultTemplateStatus {
             if result.isBuildFailedAndResultIsAutomatic {
                 return Color.Artemis.resultFailedColor
             }
-            if result.isResultPreliminary {
+            if assessmentState == .preliminary || (assessmentState == nil && result.isResultPreliminary) {
                 return Color.Artemis.resultPendingColor
             }
             if result.score == nil {
@@ -215,5 +232,15 @@ extension ResultTemplateStatus {
 extension Double {
     var clean: String {
        return self.truncatingRemainder(dividingBy: 1) == 0 ? String(format: "%.0f", self) : String(self)
+    }
+}
+
+private extension ReviewAssessmentState {
+    var badgeColor: Color? {
+        switch self {
+        case .feedbackPending: Color.Artemis.resultPendingColor
+        case .feedbackFailed, .feedbackTimedOut: Color.Artemis.resultFailedColor
+        default: nil
+        }
     }
 }

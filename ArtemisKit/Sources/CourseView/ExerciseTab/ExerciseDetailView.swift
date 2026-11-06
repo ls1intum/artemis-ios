@@ -11,7 +11,6 @@ import Iris
 import Navigation
 import SharedModels
 import SwiftUI
-import UserStore
 import Quiz
 
 public struct ExerciseDetailView: View {
@@ -84,11 +83,14 @@ public struct ExerciseDetailView: View {
         }
         .task {
             await viewModel.loadExercise()
+            await viewModel.loadReviewMetadata()
             await viewModel.loadAssociatedChannel()
         }
         .refreshable {
             await viewModel.refreshExercise()
+            await viewModel.loadReviewMetadata()
         }
+        .environment(\.resultScorePrecision, viewModel.scorePrecision)
         .navigationBarTitleDisplayMode(.inline)
     }
 }
@@ -113,21 +115,14 @@ private extension ExerciseDetailView {
     // All buttons regarding viewing feedback and for the future, starting an exercise
     func feedback(exercise: Exercise) -> some View {
         HStack(spacing: .m) {
-            if let latestResultId = viewModel.latestResultId,
-               let participationId = viewModel.participationId,
-               viewModel.isFeedbackButtonVisible {
-                Button {
-                    viewModel.isFeedbackPresented = true
+            let references = viewModel.reviewReferences
+            if !references.isEmpty, viewModel.isFeedbackButtonVisible {
+                NavigationLink {
+                    ResultReviewPage(references: references)
                 } label: {
-                    Text(R.string.localizable.showFeedback())
+                    Text(ReviewCopy.text("review.title"))
                 }
                 .buttonStyle(ArtemisButton())
-                .sheet(isPresented: $viewModel.isFeedbackPresented) {
-                    FeedbackView(courseId: viewModel.courseId,
-                                 exerciseId: viewModel.exerciseId,
-                                 participationId: participationId,
-                                 resultId: latestResultId)
-                }
             }
         }
         .padding(.horizontal, .m)
@@ -170,32 +165,5 @@ private extension ExerciseDetailView {
 
     var problem: some View {
         ProblemStatementView(viewModel: viewModel)
-    }
-}
-
-private struct FeedbackView: View {
-    @Environment(\.dismiss) var dismiss
-    @State private var webViewHeight = CGFloat.s
-    @State private var urlRequest: URLRequest
-    @State private var isWebViewLoading = true
-
-    init(courseId: Int, exerciseId: Int, participationId: Int, resultId: Int) {
-        self._urlRequest = State(wrappedValue: URLRequest(url: URL(
-            string: "/courses/\(courseId)/exercises/\(exerciseId)/participations/\(participationId)/results/\(resultId)/feedback/",
-            relativeTo: UserSessionFactory.shared.institution?.baseURL)!))
-    }
-
-    var body: some View {
-        NavigationView {
-            ArtemisWebView(urlRequest: $urlRequest, isLoading: $isWebViewLoading)
-                .loadingIndicator(isLoading: $isWebViewLoading)
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button(R.string.localizable.close()) {
-                            dismiss()
-                        }
-                    }
-                }
-        }
     }
 }

@@ -1,0 +1,97 @@
+{
+  "exercise": {
+    "id": 14,
+    "type": "quiz",
+    "exerciseType": "quiz",
+    "title": "Search Complexity Quiz",
+    "releaseDate": "2026-10-16T16:00:43.695Z",
+    "startDate": "2026-10-21T16:00:43.695Z",
+    "dueDate": "2026-10-22T16:00:43.695Z",
+    "maxPoints": 10.0,
+    "bonusPoints": 0.0,
+    "mode": "INDIVIDUAL",
+    "teamMode": false,
+    "visibleToStudents": true,
+    "includedInOverallScore": "INCLUDED_COMPLETELY",
+    "allowComplaintsForAutomaticAssessments": false,
+    "presentationScoreEnabled": false,
+    "secondCorrectionEnabled": false,
+    "studentAssignedTeamIdComputed": false,
+    "gradingInstructionFeedbackUsed": false,
+    "course": {
+      "id": 7,
+      "title": "Mobile Feedback Lab",
+      "shortName": "mobileresults26",
+      "startDate": "2026-09-26T15:51:38.438Z",
+      "endDate": "2027-02-03T15:51:38.438Z",
+      "semester": "WS26/27",
+      "testCourse": true,
+      "onlineCourse": false,
+      "accuracyOfScores": 1,
+      "maxComplaints": 0,
+      "maxTeamComplaints": 0,
+      "maxComplaintTimeDays": 0,
+      "maxComplaintTextLimit": 0,
+      "maxComplaintResponseTextLimit": 0,
+      "complaintsEnabled": false,
+      "requestMoreFeedbackEnabled": false,
+      "maxRequestMoreFeedbackTimeDays": 0,
+      "timeZone": "Europe/Berlin",
+      "enrollmentEnabled": false,
+      "unenrollmentEnabled": false,
+      "onboardingDone": false,
+      "learningPathsEnabled": false,
+      "presentationAssessmentsEnabled": false,
+      "gradeRelevant": true,
+      "dataRetentionHold": false,
+      "autoOrchestratorEnabled": false,
+      "trainingEnabled": false,
+      "athenaGradingFeedbackEnabled": false,
+      "athenaFormativeFeedbackEnabled": false,
+      "courseInformationSharingConfiguration": "COMMUNICATION_AND_MESSAGING"
+    },
+    "randomizeQuestionOrder": false,
+    "allowedNumberOfAttempts": 1,
+    "quizMode": "INDIVIDUAL",
+    "duration": 600,
+    "quizStarted": true,
+    "quizEnded": true,
+    "studentParticipations": [
+      {
+        "type": "student",
+        "id": 14,
+        "initializationState": "FINISHED",
+        "initializationDate": "2026-10-21T16:00:44.234Z",
+        "testRun": false,
+        "attempt": 0,
+        "submissions": [
+          {
+            "id": 15,
+            "submissionExerciseType": "quiz",
+            "submitted": true,
+            "type": "MANUAL",
+            "exampleSubmission": false,
+            "submissionDate": "2026-10-21T16:00:44.311Z",
+            "durationInMinutes": 0,
+            "results": [
+              {
+                "id": 5,
+                "completionDate": "2026-10-22T16:00:44.613Z",
+                "successful": true,
+                "score": 100.0,
+                "rated": true,
+                "assessmentType": "AUTOMATIC",
+                "correctionRound": 0,
+                "testCaseCount": 0,
+                "passedTestCaseCount": 0,
+                "codeIssueCount": 0,
+                "exerciseId": 14
+              }
+            ],
+            "scoreInPoints": 10.0
+          }
+        ]
+      }
+    ]
+  }
+}

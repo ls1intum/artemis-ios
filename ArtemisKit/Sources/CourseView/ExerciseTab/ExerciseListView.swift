@@ -47,6 +47,7 @@ struct ExerciseListView: View {
                         }
                     }
                 }
+                .environment(\.resultScorePrecision, viewModel.scorePrecision)
                 .listStyle(.insetGrouped)
                 .listSectionSpacing(.compact)
                 .scrollContentBackground(.hidden)
