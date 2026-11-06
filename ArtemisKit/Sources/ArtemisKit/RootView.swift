@@ -110,9 +110,9 @@ public struct NavigationDestinationRootViewModifier: ViewModifier {
             }
             .navigationDestination(for: LecturePath.self) { lecturePath in
                 if let course = lecturePath.coursePath.course {
-                    LectureDetailView(course: course, lectureId: lecturePath.id)
+                    LectureDetailView(course: course, lectureId: lecturePath.id, target: lecturePath.target)
                 } else {
-                    LectureDetailView(courseId: lecturePath.coursePath.id, lectureId: lecturePath.id)
+                    LectureDetailView(courseId: lecturePath.coursePath.id, lectureId: lecturePath.id, target: lecturePath.target)
                 }
             }
             .modifier(NavigationDestinationMessagesModifier())

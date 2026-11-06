@@ -25,6 +25,7 @@ final class MessageCellModel {
     var isDetectingLongPress = false
 
     var presentingAttachmentURL: URL?
+    var lectureReferenceLookup: LectureReferenceLookup?
 
     private let messagesService: MessagesService
     private let userSession: UserSession

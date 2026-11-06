@@ -11,6 +11,7 @@ struct LectureHandler: Deeplink {
 
     let courseId: Int
     let lectureId: Int
+    let target: LectureMediaTarget?
 
     static func build(from url: URL) -> LectureHandler? {
         guard let indexOfCourseId = url.pathComponents.firstIndex(where: { $0 == "courses" }),
@@ -22,12 +23,17 @@ struct LectureHandler: Deeplink {
               let urlComponent = URLComponents(string: url.absoluteString),
               urlComponent.queryItems?.first(where: { $0.name == "postId" })?.value == nil else { return nil }
 
-        return LectureHandler(courseId: courseId, lectureId: lectureId)
+        let query = urlComponent.queryItems ?? []
+        let unitId = query.first(where: { $0.name == "lectureUnitId" })?.value.flatMap(Int64.init)
+        let attachmentId = query.first(where: { $0.name == "attachmentId" })?.value.flatMap(Int.init)
+        let page = query.first(where: { $0.name == "page" || $0.name == "pageNumber" })?.value.flatMap(Int.init)
+        let target = unitId != nil || attachmentId != nil ? LectureMediaTarget(unitId: unitId, attachmentId: attachmentId, page: page) : nil
+        return LectureHandler(courseId: courseId, lectureId: lectureId, target: target)
     }
 
     func handle(with navigationController: NavigationController) {
         Task(priority: .userInitiated) {
-            await navigationController.goToLecture(courseId: courseId, lectureId: lectureId)
+            await navigationController.goToLecture(courseId: courseId, lectureId: lectureId, target: target)
         }
     }
 }

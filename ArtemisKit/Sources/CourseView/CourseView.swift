@@ -19,6 +19,15 @@ public struct CourseView: View {
     private let courseId: Int
 
     public var body: some View {
+        ZStack {
+            courseTabs
+                .allowsHitTesting(navigationController.lectureMediaPath.isEmpty)
+                .accessibilityHidden(!navigationController.lectureMediaPath.isEmpty)
+            LectureMediaNavigation(course: viewModel.course)
+        }
+    }
+
+    private var courseTabs: some View {
         TabView(selection: $navigationController.courseTab) {
             if potentiallyVisibleTabs.contains(.exercise) {
                 Tab(R.string.localizable.exercisesTabLabel(),

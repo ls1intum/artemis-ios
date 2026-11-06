@@ -16,14 +16,23 @@ import Navigation
 public struct LectureDetailView: View {
 
     @Environment(\.availableTabs) private var tabs
+    @EnvironmentObject private var navigationController: NavigationController
     @StateObject private var viewModel: LectureDetailViewModel
+    private let target: LectureMediaTarget?
 
-    public init(course: CourseForOverviewDTO, lectureId: Int) {
+    public init(course: CourseForOverviewDTO, lectureId: Int, target: LectureMediaTarget? = nil) {
+        self.target = target
         self._viewModel = StateObject(wrappedValue: LectureDetailViewModel(course: course, lectureId: lectureId))
     }
 
-    public init(courseId: Int, lectureId: Int) {
+    public init(courseId: Int, lectureId: Int, target: LectureMediaTarget? = nil) {
+        self.target = target
         self._viewModel = StateObject(wrappedValue: LectureDetailViewModel(courseId: courseId, lectureId: lectureId))
+    }
+
+    init(viewModel: LectureDetailViewModel, target: LectureMediaTarget?) {
+        self.target = target
+        self._viewModel = StateObject(wrappedValue: viewModel)
     }
 
     public var body: some View {
@@ -90,39 +99,33 @@ public struct LectureDetailView: View {
         }
         .navigationTitle(viewModel.lecture.value?.title ?? R.string.localizable.loading())
         .navigationBarTitleDisplayMode(.inline)
-        .task {
+        .task(id: target) {
+            viewModel.configureTarget(target)
             await viewModel.loadLecture()
+        }
+        .onReceive(viewModel.$targetPresentation) { presentation in
+            guard let presentation, let target = presentation.target else { return }
+            navigationController.openLectureMedia(courseId: viewModel.courseId, lectureId: viewModel.lectureId, target: target)
+            viewModel.targetPresentation = nil
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .lectureUnitCompletionDidChange)) { event in
+            guard event.userInfo?["courseId"] as? Int == viewModel.courseId,
+                  event.userInfo?["lectureId"] as? Int == viewModel.lectureId else { return }
+            Task { await viewModel.loadLecture() }
         }
         .alert(isPresented: $viewModel.showError, error: viewModel.error, actions: {})
     }
 }
 
 struct CompletePdfDownloadButton: View {
-
+    @EnvironmentObject private var navigationController: NavigationController
     @ObservedObject var viewModel: LectureDetailViewModel
-    @State private var showDetails = false
 
     var body: some View {
         Button(R.string.localizable.downloadCompletePdf()) {
-            showDetails = true
+            navigationController.openLectureMedia(courseId: viewModel.courseId, lectureId: viewModel.lectureId)
         }
         .buttonStyle(ArtemisButton())
-        .sheet(isPresented: $showDetails) {
-            NavigationStack {
-                AttachmentUnitSheetContent(attachmentUnit: nil,
-                                           lectureId: viewModel.lectureId,
-                                           lectureName: viewModel.lecture.value?.title ?? "")
-                .navigationTitle(viewModel.lecture.value?.title ?? "")
-                .toolbarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button(role: .close) {
-                            showDetails = false
-                        }
-                    }
-                }
-            }
-        }
     }
 }
 
@@ -198,7 +201,7 @@ struct BaseLectureUnitCell: View {
 
     @State private var lectureUnit: LectureUnit
     @State private var isLoading = false
-    @State private var showDetails = false
+    @EnvironmentObject private var navigationController: NavigationController
 
     private var isCompleted: Binding<Bool> {
         Binding(get: {
@@ -245,42 +248,18 @@ struct BaseLectureUnitCell: View {
         .padding(.l)
         .cardModifier(backgroundColor: .Artemis.exerciseCardBackgroundColor, cornerRadius: .m)
         .onTapGesture {
-            showDetails = true
+            navigationController.openLectureMedia(courseId: viewModel.courseId, lectureId: viewModel.lectureId,
+                                                  target: LectureMediaTarget(unitId: lectureUnit.id))
         }
-        .sheet(isPresented: $showDetails) {
-            NavigationStack {
-                Group {
-                    switch lectureUnit {
-                    case .attachmentVideo(let lectureUnit):
-                        AttachmentUnitSheetContent(attachmentUnit: lectureUnit)
-                    case .text(let lectureUnit):
-                        TextUnitSheetContent(textUnit: lectureUnit)
-                    case .online(let lectureUnit):
-                        OnlineUnitSheetContent(onlineUnit: lectureUnit)
-                    case .unknown, .exercise:
-                        EmptyView()
-                    }
-                }
-                .navigationTitle(lectureUnit.baseUnit.name ?? "")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button(role: .close) {
-                            showDetails = false
-                        }
-                    }
-                }
-                .onAppear {
-                    if !isCompleted.wrappedValue && lectureUnit.baseUnit.visibleToStudents ?? false {
-                        isCompleted.wrappedValue = true
-                    }
-                }
+        .onChange(of: viewModel.lecture.value, initial: true) { _, _ in
+            if let fresh = viewModel.lecture.value?.lectureUnits?.first(where: { $0.id == lectureUnit.id }) {
+                lectureUnit = fresh
             }
         }
     }
 }
 
-struct TextUnitSheetContent: View {
+struct TextUnitContent: View {
 
     let textUnit: TextUnit
 
@@ -292,7 +271,7 @@ struct TextUnitSheetContent: View {
     }
 }
 
-struct OnlineUnitSheetContent: View {
+struct OnlineUnitContent: View {
 
     let onlineUnit: OnlineUnit
 
@@ -343,5 +322,41 @@ struct RoundGreenCheckbox: View {
             }
         }
         .animation(.easeInOut, value: isChecked)
+    }
+}
+
+struct LectureUnitPresentation: Identifiable {
+    let unit: LectureUnit
+    var target: LectureMediaTarget?
+    var studentVersion: String?
+    var id: Int64 { unit.id }
+}
+
+struct LectureUnitContent: View {
+    let unit: LectureUnit
+    let identity: String
+    var explicitPage: Int?
+    var originalSlideNumber: Int?
+    var visibleSlideNumbers: [Int]?
+    var studentVersion: String?
+    var refreshSlide: (() async -> DataState<LectureSlideAccess>)?
+
+    var body: some View {
+        switch unit {
+        case .attachmentVideo(let attachment):
+            AttachmentUnitContent(
+                attachmentUnit: attachment,
+                identity: identity,
+                explicitPage: explicitPage,
+                originalSlideNumber: originalSlideNumber,
+                visibleSlideNumbers: visibleSlideNumbers,
+                studentVersion: studentVersion,
+                refreshSlide: refreshSlide
+            )
+        case .text(let text): TextUnitContent(textUnit: text)
+        case .online(let online): OnlineUnitContent(onlineUnit: online)
+        case .unknown, .exercise:
+            ContentUnavailableView("Lecture unit is unavailable", systemImage: "doc.questionmark")
+        }
     }
 }

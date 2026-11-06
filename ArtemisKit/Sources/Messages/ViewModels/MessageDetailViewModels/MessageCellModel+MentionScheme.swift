@@ -15,6 +15,7 @@ enum MentionScheme {
     case lectureUnit(filename: String, attachmentUnit: Int)
     case member(login: String)
     case message(id: Int64)
+    case slideId(Int)
     case slide(number: Int, attachmentUnit: Int)
     case faq(id: Int64)
 
@@ -59,6 +60,8 @@ enum MentionScheme {
                 self = .message(id: id)
                 return
             }
+        case "slide-id":
+            if let id = Int(url.lastPathComponent) { self = .slideId(id); return }
         case "slide":
             // E.g., mention://slide/attachment-unit/10/slide/1
             if url.pathComponents.count >= 4, let attachmentUnit = Int(url.pathComponents[2]), let id = Int(url.lastPathComponent) {

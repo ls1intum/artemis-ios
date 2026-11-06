@@ -5,6 +5,7 @@
 //  Created by Nityananda Zbil on 26.02.24.
 //
 
+import Foundation
 import SharedModels
 
 public struct CoursePath: Hashable, Identifiable {
@@ -43,21 +44,79 @@ public struct ExercisePath: Hashable {
     }
 }
 
+/// An explicit reference is kept separate from locally remembered reading position.
+public struct LectureMediaTarget: Hashable {
+    public let unitId: Int64?
+    public let attachmentId: Int?
+    public let page: Int?
+    public let attachmentFilename: String?
+    public let slideId: Int?
+    public let originalSlideNumber: Int?
+    public let visibleSlideNumbers: [Int]?
+
+    public init(unitId: Int64? = nil, attachmentId: Int? = nil, page: Int? = nil, attachmentFilename: String? = nil, slideId: Int? = nil, originalSlideNumber: Int? = nil, visibleSlideNumbers: [Int]? = nil) {
+        self.unitId = unitId
+        self.attachmentId = attachmentId
+        self.page = page
+        self.attachmentFilename = attachmentFilename
+        self.slideId = slideId
+        self.originalSlideNumber = originalSlideNumber
+        self.visibleSlideNumbers = visibleSlideNumbers
+    }
+
+    public func resolve(in units: [LectureUnit]) -> LectureUnit? {
+        units.first(where: { unit in
+            if let unitId { return unit.id == unitId }
+            if let attachmentId, case .attachmentVideo(let attachment) = unit {
+                return attachment.attachment?.id == attachmentId
+            }
+            if let attachmentFilename, case .attachmentVideo(let attachment) = unit,
+               let link = attachment.attachment?.link, let url = URL(string: link) {
+                return url.lastPathComponent == attachmentFilename
+            }
+            return false
+        })
+    }
+}
+
+/// A fresh page request. Only resource identity is carried; the page reloads access metadata.
+public struct LectureMediaPath: Hashable {
+    public let courseId: Int
+    public let lectureId: Int
+    public let target: LectureMediaTarget?
+    public let requestID = UUID()
+
+    /// A nil target opens the lecture's combined PDF.
+    public init(courseId: Int, lectureId: Int, target: LectureMediaTarget? = nil) {
+        self.courseId = courseId
+        self.lectureId = lectureId
+        self.target = target
+    }
+}
+
 public struct LecturePath: Hashable {
     public let id: Int
     public let lecture: Lecture?
     public let coursePath: CoursePath
+    public let target: LectureMediaTarget?
+    /// Each explicit open gets fresh consumption state, even for the same slide.
+    public let referenceRequestID: UUID?
+    public var presentationIdentity: AnyHashable { referenceRequestID.map(AnyHashable.init) ?? AnyHashable(id) }
 
-    public init(id: Int, coursePath: CoursePath) {
+    public init(id: Int, coursePath: CoursePath, target: LectureMediaTarget? = nil) {
         self.id = id
         self.lecture = nil
         self.coursePath = coursePath
+        self.target = target
+        self.referenceRequestID = target.map { _ in UUID() }
     }
 
-    public init(lecture: Lecture, coursePath: CoursePath) {
+    public init(lecture: Lecture, coursePath: CoursePath, target: LectureMediaTarget? = nil) {
         self.id = lecture.id
         self.lecture = lecture
         self.coursePath = coursePath
+        self.target = target
+        self.referenceRequestID = target.map { _ in UUID() }
     }
 }
 

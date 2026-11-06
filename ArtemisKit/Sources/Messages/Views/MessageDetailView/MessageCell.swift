@@ -37,7 +37,7 @@ struct MessageCell: View {
                     Text(title)
                         .fontWeight(.bold)
                 }
-                ArtemisMarkdownView(string: content.surroundingMarkdownImagesWithNewlines())
+                ArtemisMarkdownView(string: LectureSlideReference.rendering(content).surroundingMarkdownImagesWithNewlines())
                     .opacity(isMessageOffline ? 0.5 : 1)
                     .messageUrlHandler(conversationViewModel: conversationViewModel,
                                        cellViewModel: viewModel)
