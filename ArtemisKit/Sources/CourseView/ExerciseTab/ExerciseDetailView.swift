@@ -49,6 +49,17 @@ public struct ExerciseDetailView: View {
                         .padding(.m)
                         .frame(maxWidth: .infinity, alignment: .center)
                     }
+                    if case .text = exercise {
+                        Button {
+                            viewModel.showTextParticipation = true
+                        } label: {
+                            Label(viewModel.participationId == nil ? R.string.localizable.startExercise() : R.string.localizable.openExercise(),
+                                  systemImage: "square.and.pencil")
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .padding(.horizontal, .m)
+                        .frame(maxWidth: .infinity)
+                    }
                     problem
                     detail(exercise: exercise)
                 }
@@ -88,6 +99,9 @@ public struct ExerciseDetailView: View {
         }
         .refreshable {
             await viewModel.refreshExercise()
+        }
+        .navigationDestination(isPresented: $viewModel.showTextParticipation) {
+            TextExerciseEntryView(exerciseId: viewModel.exerciseId, participationId: $viewModel.participationId)
         }
         .navigationBarTitleDisplayMode(.inline)
     }
