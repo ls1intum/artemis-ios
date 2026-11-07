@@ -72,9 +72,16 @@ struct MCQuestionView: View {
                                 }
                             }
 
-                        Text(LocalizedStringKey(option.text ?? "No text"))
-                            .multilineTextAlignment(.leading)
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                        Group {
+                            let optionText = option.text ?? "No text"
+                            if optionText.contains("```") {
+                                ArtemisMarkdownView(string: optionText)
+                            } else {
+                                Text(LocalizedStringKey(optionText))
+                            }
+                        }
+                        .multilineTextAlignment(.leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
 
                         if let hint = option.hint {
                             HintButton(hint: hint)
