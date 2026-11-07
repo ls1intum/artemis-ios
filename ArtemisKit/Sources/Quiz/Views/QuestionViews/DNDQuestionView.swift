@@ -5,6 +5,7 @@
 //  Created by Anian Schleyer on 07.06.26.
 //
 
+import ArtemisMarkdown
 import DesignLibrary
 import Extensions
 import SharedModels
@@ -43,8 +44,14 @@ struct DNDQuestionView: View {
 
     var body: some View {
         if let text = questionWithAnswer.text {
-            Text(LocalizedStringKey(text))
-                .padding(.horizontal)
+            Group {
+                if text.contains("```") {
+                    ArtemisMarkdownView(string: text)
+                } else {
+                    Text(LocalizedStringKey(text))
+                }
+            }
+            .padding(.horizontal)
         }
 
         ArtemisAsyncImage(imageURL: backgroundImage) {

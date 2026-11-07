@@ -201,6 +201,7 @@ let package = Package(
             dependencies: [
                 "Extensions",
                 .product(name: "APIClient", package: "artemis-ios-core-modules"),
+                .product(name: "ArtemisMarkdown", package: "artemis-ios-core-modules"),
                 .product(name: "DesignLibrary", package: "artemis-ios-core-modules"),
                 .product(name: "SharedModels", package: "artemis-ios-core-modules"),
                 .product(name: "UserStore", package: "artemis-ios-core-modules"),
