@@ -65,7 +65,7 @@ struct MCQuestionView: View {
                                 }
                             }
 
-                        Text(option.text ?? "No text")
+                        Text(LocalizedStringKey(option.text ?? "No text"))
                             .multilineTextAlignment(.leading)
                             .frame(maxWidth: .infinity, alignment: .leading)
 
