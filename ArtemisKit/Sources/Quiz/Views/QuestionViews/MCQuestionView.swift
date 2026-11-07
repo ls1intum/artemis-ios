@@ -5,6 +5,7 @@
 //  Created by Anian Schleyer on 07.06.26.
 //
 
+import ArtemisMarkdown
 import Common
 import SharedModels
 import SwiftUI
@@ -29,8 +30,14 @@ struct MCQuestionView: View {
 
     var body: some View {
         if let text = questionWithAnswer.text {
-            Text(LocalizedStringKey(text))
-                .padding(.horizontal)
+            Group {
+                if text.contains("```") {
+                    ArtemisMarkdownView(string: text)
+                } else {
+                    Text(LocalizedStringKey(text))
+                }
+            }
+            .padding(.horizontal)
         }
 
         if let answerOptions = questionWithAnswer.answerOptions {
@@ -65,9 +72,16 @@ struct MCQuestionView: View {
                                 }
                             }
 
-                        Text(option.text ?? "No text")
-                            .multilineTextAlignment(.leading)
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                        Group {
+                            let optionText = option.text ?? "No text"
+                            if optionText.contains("```") {
+                                ArtemisMarkdownView(string: optionText)
+                            } else {
+                                Text(LocalizedStringKey(optionText))
+                            }
+                        }
+                        .multilineTextAlignment(.leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
 
                         if let hint = option.hint {
                             HintButton(hint: hint)
