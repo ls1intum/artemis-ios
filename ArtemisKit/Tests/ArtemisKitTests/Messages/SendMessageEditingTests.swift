@@ -5,6 +5,30 @@ import XCTest
 @testable import Messages
 
 extension SendMessageDraftTests {
+    func testAcceptedEditKeepsNewerUnsavedTypingOpen() async throws {
+        for reply in [false, true] {
+            let accepted = expectation(description: "Accepted edit published")
+            var dismissed = false
+            var published: BaseMessage?
+            let completion = { dismissed = true }
+            let configuration: SendMessageViewModel.Configuration = reply
+                ? .editAnswerMessage(AnswerMessage(id: 42), completion) : .editMessage(Message(id: 42), completion)
+            let service = DraftMessagesService(answer: { _ in .loading }, editResponse: .success)
+            let model = makeDraftViewModel(repository: try MessagesRepository(inMemory: true), courseId: 14_000_043,
+                                           configuration: configuration, messagesService: service,
+                                           didEditMessage: { published = $0; accepted.fulfill() })
+            model.performOnAppear()
+            model.text = "Tapped **edit**"
+            model.didTapSendButton()
+            model.text = "Newer unsaved edit"
+            await fulfillment(of: [accepted], timeout: 2)
+            XCTAssertEqual(published?.content, "Tapped **edit**")
+            XCTAssertEqual(model.text, "Newer unsaved edit")
+            XCTAssertFalse(dismissed, "Dismissing the editor would discard text typed after Save")
+            XCTAssertFalse(model.isLoading)
+        }
+    }
+
     func testSuccessfulEditsPublishTheAcceptedMessageBeforeDismissing() async throws {
         for reply in [false, true] {
             for succeeds in [false, true] {

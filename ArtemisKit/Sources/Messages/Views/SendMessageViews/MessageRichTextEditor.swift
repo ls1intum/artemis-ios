@@ -32,6 +32,7 @@ struct MessageRichTextEditor: UIViewRepresentable {
         context.coordinator.textView = view
         document.applyEdit = { [weak coordinator = context.coordinator] value, range in coordinator?.apply(value, selection: range) }
         document.applyTypingAttributes = { [weak coordinator = context.coordinator] in coordinator?.refreshTypingAttributes() }
+        document.applyLoad = { [weak coordinator = context.coordinator] in coordinator?.reload() }
         return view
     }
 
@@ -47,9 +48,11 @@ struct MessageRichTextEditor: UIViewRepresentable {
             view.undoManager?.removeAllActions()
             view.document?.applyEdit = nil
             view.document?.applyTypingAttributes = nil
+            view.document?.applyLoad = nil
             view.document = document
             document.applyEdit = { [weak coordinator = context.coordinator] value, range in coordinator?.apply(value, selection: range) }
             document.applyTypingAttributes = { [weak coordinator = context.coordinator] in coordinator?.refreshTypingAttributes() }
+            document.applyLoad = { [weak coordinator = context.coordinator] in coordinator?.reload() }
         }
         context.coordinator.parent = self
         guard view.markedTextRange == nil else { return }
@@ -84,6 +87,7 @@ struct MessageRichTextEditor: UIViewRepresentable {
         uiView.delegate = nil
         uiView.document?.applyEdit = nil
         uiView.document?.applyTypingAttributes = nil
+        uiView.document?.applyLoad = nil
         uiView.document = nil
     }
 
@@ -102,6 +106,26 @@ struct MessageRichTextEditor: UIViewRepresentable {
             view.typingAttributes = parent.document.typingAttributes
             view.updateTypingTraits(for: parent.document)
             applying = wasApplying
+        }
+
+        /// Replaces the whole text view state after `MessageEditorDocument.load(_:)`, e.g. clearing
+        /// the composer after a send. Unlike `apply`, this is not an undoable edit.
+        func reload() {
+            guard let view = textView, let document = view.document else { return }
+            let wasApplying = applying
+            applying = true
+            defer { applying = wasApplying }
+            // Discard any in-flight composition (dictation, IME) so it can't be committed
+            // back into the freshly loaded document.
+            view.unmarkText()
+            // The previous content must not be restorable via undo.
+            view.undoManager?.removeAllActions()
+            view.isEditable = !document.hasUnsupportedContent
+            view.attributedText = document.content
+            view.selectedRange = document.selection
+            view.typingAttributes = document.typingAttributes
+            view.updateTypingTraits(for: document)
+            view.invalidateIntrinsicContentSize()
         }
 
         func apply(_ value: NSAttributedString, selection: NSRange, typingStyle: MessageEditorStyle? = nil) {
