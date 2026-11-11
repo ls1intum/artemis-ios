@@ -14,6 +14,9 @@ struct ForwardMessageView: View {
 
     @State private var sendViewModel: SendMessageViewModel
 
+    @State private var showChannelPicker = false
+    @State private var showTextfield = true
+
     init(viewModel: MessageActionsViewModel) {
         self.viewModel = viewModel
 
@@ -35,10 +38,12 @@ struct ForwardMessageView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(alignment: .leading) {
-                ScrollView {
-                    NavigationLink {
-                        PickConversationView(viewModel: viewModel)
+            ScrollView {
+                VStack(alignment: .leading) {
+                    Button {
+                        withAnimation {
+                            showChannelPicker = true
+                        }
                     } label: {
                         HStack {
                             Text(R.string.localizable.conversation())
@@ -57,10 +62,8 @@ struct ForwardMessageView: View {
 
                     ForwardMessagePreviewView(viewModel: viewModel)
                 }
-                .scrollDismissesKeyboard(.interactively)
-
-                SendMessageView(viewModel: sendViewModel)
             }
+            .scrollDismissesKeyboard(.interactively)
             .navigationTitle(R.string.localizable.forwardMessage())
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -70,10 +73,28 @@ struct ForwardMessageView: View {
                     }
                 }
             }
+            .navigationDestination(isPresented: $showChannelPicker) {
+                PickConversationView(viewModel: viewModel)
+            }
+        }
+        .safeAreaInset(edge: .bottom) {
+            if showTextfield {
+                SendMessageView(viewModel: sendViewModel)
+            }
         }
         .fontWeight(.regular)
         .onAppear {
             viewModel.selectedConversation = viewModel.conversationViewModel.conversation
+        }
+        .animation(.default, value: showTextfield)
+        .onChange(of: showChannelPicker) { _, newValue in
+            if newValue {
+                showTextfield = false
+            } else {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    showTextfield = true
+                }
+            }
         }
     }
 }
