@@ -67,8 +67,8 @@ struct ForwardMessageView: View {
             .navigationTitle(R.string.localizable.forwardMessage())
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(R.string.localizable.cancel()) {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(role: .cancel) {
                         viewModel.showForwardSheet = false
                     }
                 }
