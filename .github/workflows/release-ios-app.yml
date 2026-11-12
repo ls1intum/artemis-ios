@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+      - chore/development/fix-release-workflow
   workflow_dispatch:
 
 jobs:
