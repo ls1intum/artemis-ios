@@ -128,3 +128,32 @@
 "communication" = "Communication";
 "overview" = "Overview";
 "downloadCompletePdf" = "Download Complete PDF";
+
+// MARK: - Native text exercises
+"textExerciseAnswer" = "Your answer";
+"textExerciseAssignment" = "Assignment";
+"textExerciseLocalDraft" = "Saved on this device · Not submitted";
+"textExerciseSavingDraft" = "Saving on this device…";
+"textExerciseSubmitted" = "Submitted";
+"textExerciseSubmittedWithDraft" = "An earlier answer was submitted. Your changes have not been submitted.";
+"textExerciseDraftExplanation" = "Tap Submit to send your answer to Artemis.";
+"textExerciseSessionChanged" = "Your account changed. Reopen the exercise to continue. Your saved draft belongs to the original account.";
+"textExerciseDraftReadError" = "Your saved draft could not be opened. Retry before editing, or copy your answer to keep it safe.";
+"textExerciseDraftWriteError" = "Your draft could not be saved on this device. Copy your answer to keep it safe, then try saving again.";
+"textExerciseLoadError" = "The exercise could not be loaded. Your saved draft is still available on this device. Check your connection and retry.";
+"textExerciseSubmitError" = "Submission could not be confirmed. Your draft is kept on this device. Retry to check the server before sending again.";
+"textExerciseAccessError" = "Artemis did not allow access. Check your account, team and deadline. Your draft is kept on this device.";
+"textExerciseClosed" = "The submission deadline has passed. Your draft stays on this device and can still be copied.";
+"textExerciseLimit" = "Answers can contain up to 30,000 characters. Shorten your answer before submitting. Your full draft is preserved.";
+"textExerciseConflict" = "The answer on Artemis changed";
+"textExerciseConflictExplanation" = "Another device or a teammate updated the answer. Review the server answer before choosing which version to keep.";
+"textExerciseKeepDraft" = "Keep my draft";
+"textExerciseUseServer" = "Use server answer";
+"textExerciseServerAnswer" = "Answer on Artemis";
+"textExerciseCopyAnswer" = "Copy answer";
+"textExerciseRetry" = "Retry";
+"textExerciseSaveAgain" = "Save draft again";
+"textExerciseOpening" = "Opening text exercise…";
+"textExerciseNoAssignment" = "No assignment text is available.";
+
+"textExerciseEditorChanged" = "This exercise was opened in another editor. Reopen it to continue with the latest draft.";
