@@ -91,6 +91,8 @@ public struct ConversationView: View {
                     }
                 }
             }
+        }
+        .safeAreaBar(edge: .bottom) {
             if viewModel.isAllowedToPost {
                 SendMessageView(viewModel: viewModel.makeMessageComposer())
             }
