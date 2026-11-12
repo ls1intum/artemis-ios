@@ -63,7 +63,7 @@ private struct DismissModifier: ViewModifier {
             .toolbarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button(R.string.localizable.close()) {
+                    Button(role: .close) {
                         dismiss()
                     }
                 }

@@ -73,19 +73,33 @@ public struct FaqListView: View {
             NavigationStack(path: $navController.tabPath) {
                 Group {
                     if let path = navController.selectedPath as? FaqPath {
-                        FaqPathView(path: path)
+                        faqView(path: path)
                             .id(path.id)
                     } else {
                         SelectDetailView()
                     }
                 }
                 .navigationDestination(for: FaqPath.self) { path in
-                    FaqPathView(path: path)
+                    faqView(path: path)
                 }
             }
         }
         .task {
             await viewModel.loadFaq()
+        }
+    }
+
+    @ViewBuilder
+    func faqView(path: FaqPath) -> some View {
+        if showToolbar {
+            FaqPathView(path: path)
+        } else {
+            // Explicity don't use zoom transition in "sheet mode"
+            if let faq = path.faq {
+                FaqPathView(path: FaqPath(faq: faq, namespace: nil))
+            } else {
+                FaqPathView(path: FaqPath(id: path.id, courseId: path.courseId ?? 0, namespace: nil))
+            }
         }
     }
 }
