@@ -67,6 +67,7 @@ public struct ConversationView: View {
                                 .id("bottom")
                         }
                     }
+                    .scrollEdgeEffectStyle(.soft, for: .vertical)
                     .coordinateSpace(name: "pullToRefresh")
                     .defaultScrollAnchor(.bottom)
                     .scrollPosition(id: $scrollPosition, anchor: .bottom)
