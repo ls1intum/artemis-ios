@@ -91,6 +91,8 @@ public struct ConversationView: View {
                     }
                 }
             }
+        }
+        .safeAreaBar(edge: .bottom) {
             if viewModel.isAllowedToPost {
                 SendMessageView(viewModel: viewModel.makeMessageComposer())
             }
@@ -110,7 +112,7 @@ public struct ConversationView: View {
                                 Text(viewModel.conversation.baseConversation.conversationName)
                                     .lineLimit(1)
                                     .fontWeight(.semibold)
-                                    .frame(maxWidth: 155)
+                                    .frame(maxWidth: 150)
                                 Image(systemName: "chevron.forward")
                                     .font(.caption2)
                                     .offset(x: -4, y: 1)
