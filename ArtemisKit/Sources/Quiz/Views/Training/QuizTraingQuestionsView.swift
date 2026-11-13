@@ -84,6 +84,7 @@ struct QuizQuestionView: View {
             .multilineTextAlignment(.leading)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
+        .scrollEdgeEffectStyle(.soft, for: .bottom)
         .id(question.id)
         .scrollDismissesKeyboard(.interactively)
     }
