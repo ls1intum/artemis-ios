@@ -89,6 +89,9 @@ struct LectureListView: View {
                 }
                 .sheet(isPresented: $showFaq) {
                     FaqListView(course: viewModel.course, showToolbar: false)
+                        .navigationTitle(R.string.localizable.faqTabLabel())
+                        .toolbarTitleDisplayMode(.inlineLarge)
+                        .presentationBackground(Color(uiColor: .systemBackground))
                 }
             }
             .courseToolbar()
