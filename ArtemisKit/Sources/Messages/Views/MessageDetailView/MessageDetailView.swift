@@ -42,6 +42,7 @@ struct MessageDetailView: View {
                         answers(of: message, proxy: proxy)
                     }
                     .scrollDismissesKeyboard(.interactively)
+                    .scrollEdgeEffectStyle(.soft, for: .top)
                 }
                 if !((viewModel.conversation.baseConversation as? Channel)?.isArchived ?? false),
                    let message = message as? Message {
