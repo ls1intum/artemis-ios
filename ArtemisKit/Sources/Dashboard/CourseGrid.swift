@@ -67,6 +67,7 @@ struct CourseGrid: View {
                 .frame(maxWidth: .infinity, alignment: .center)
                 .padding(.vertical)
             }
+            .scrollEdgeEffectStyle(.soft, for: .top)
             .animation(.default, value: searchFocused)
             .contentMargins(.horizontal, .l, for: .scrollContent)
             .globalSearchable(searchText: $viewModel.searchText)
