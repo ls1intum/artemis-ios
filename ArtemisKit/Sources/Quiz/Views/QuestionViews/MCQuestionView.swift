@@ -99,7 +99,7 @@ struct MCQuestionView: View {
 
                     Text("\(loc.solution()): \(correctLabel)")
                     if let explanation = option.explanation {
-                        Text("\(loc.explanation()): \(explanation)")
+                        Text(LocalizedStringKey("\(loc.explanation()): \(explanation)"))
                     }
                 }
             }
