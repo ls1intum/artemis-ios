@@ -132,6 +132,7 @@ struct ReactionAuthorsSheet: View {
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
+            .ignoresSafeArea(edges: .bottom)
         }
         .padding(.top)
         .presentationDetents([.medium, .large])

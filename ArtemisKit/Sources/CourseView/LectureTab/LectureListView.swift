@@ -89,6 +89,7 @@ struct LectureListView: View {
                 }
                 .sheet(isPresented: $showFaq) {
                     FaqListView(course: viewModel.course, showToolbar: false)
+                        .presentationBackground(Color(uiColor: .systemBackground))
                 }
             }
             .courseToolbar()

@@ -24,6 +24,7 @@ public struct QuizTrainingView: View {
             List {
                 LeaderboardView(viewModel: viewModel)
             }
+            .scrollEdgeEffectStyle(.soft, for: .bottom)
             .navigationTitle(R.string.localizable.quizTraining())
             .toolbarTitleDisplayMode(.inlineLarge)
             .toolbar {

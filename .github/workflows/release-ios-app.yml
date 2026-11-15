@@ -17,6 +17,7 @@ jobs:
     permissions:
       contents: read
     needs: build
+    if: ${{ always() && needs.build.outputs.build_success == 'true' }}
     runs-on: [self-hosted, macOS]
     steps:
       - uses: actions/checkout@v7
