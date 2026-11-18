@@ -26,6 +26,9 @@ struct SendMessageExercisePicker: View {
                 ContentUnavailableView(R.string.localizable.exercisesUnavailable(), systemImage: "magnifyingglass")
             }
         }
+        .task {
+            await viewModel.loadExercises()
+        }
         .navigationTitle("Exercises")
         .navigationBarTitleDisplayMode(.inline)
     }
