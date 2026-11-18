@@ -1,13 +1,13 @@
 {
-  "originHash" : "c7d3b5c8e0947fd2c51fb70c68e44f7516b1ca2f2917c5215d58ff45d0f401bc",
+  "originHash" : "5a7321a623306963988f8fd7b8e07058b2d642cb40ab84774642d4db350a95b9",
   "pins" : [
     {
       "identity" : "artemis-ios-core-modules",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ls1intum/artemis-ios-core-modules",
       "state" : {
-        "revision" : "6d7c83f2cab741f2118412f69db7ad7c301e9b78",
-        "version" : "21.2.1"
+        "revision" : "cd779ca931327607bd4facb26d9ab0d0bb96f1cd",
+        "version" : "21.2.2"
       }
     },
     {
@@ -33,8 +33,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/onevcat/Kingfisher.git",
       "state" : {
-        "revision" : "80e7d020ea0a76b65431ebba839046cea2e7ea8e",
-        "version" : "8.15.0"
+        "revision" : "21caad71af5d1cb34ab174786e75c864fd2417bd",
+        "version" : "8.16.0"
       }
     },
     {
@@ -114,8 +114,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-collections",
       "state" : {
-        "revision" : "f96b909e1a9e469620bc5037c1e24e00153f376f",
-        "version" : "1.7.5"
+        "revision" : "88754449ab766a739610b660e117762115fabc9c",
+        "version" : "1.7.6"
       }
     },
     {
